@@ -1,0 +1,68 @@
+# 该文件规定客户端和服务之间的通信结构体模式.
+# 注释必须独占一行!!!!!
+#
+# 基本类型:
+#    integer
+#    float
+#    string
+#    boolean
+#    short
+# 若要定义数组，查找array，看看pt_keylist=你懂得.
+#
+# 附加类型，对服务器而言:
+#    pkid : decode to integer, encode to a string
+#    string: 其实是binary
+#
+# 每一个定义以'==='分割
+# 紧接一行注释，描述这个逻辑结构用来干啥.
+# 然后定义结构名字，以'='结束，这样可以grep '=' 出全部逻辑名字.
+# 每行代表一个成员定义.
+#
+# pt_为一般临时结构体
+# db_对应与数据库的表结构.
+#
+# 发布代码前请确保这些部分最新.
+
+# 有时候只需要1个id
+pt_pkid=
+id pkid
+===
+
+# 有时候需要个多个id
+pt_pkids=
+ids pkid $array
+===
+
+pt_int=
+i integer
+===
+
+# 普通错误回复
+pt_code=
+api integer
+code integer
+===
+
+# 获取seesionid
+pt_login_session=
+session integer
+===
+
+# 请求登陆
+pt_login_req=
+name string
+session integer
+===
+
+# 房间角色列表
+pt_room_list=
+list pt_login_req $array
+===
+
+
+# 聊天消息
+pt_chat_send=
+name string
+context string
+session integer
+===

@@ -1,0 +1,55 @@
+﻿using System;
+namespace SLua {
+	[LuaBinder(3)]
+	public class BindCustom {
+		public static void Bind(IntPtr l) {
+			Lua_CryptographHelper.reg(l);
+			Lua_DESHelper.reg(l);
+			Lua_CHighway.reg(l);
+			Lua_HighwayEventArg.reg(l);
+			Lua_CQueueRequest.reg(l);
+			Lua_CRequest.reg(l);
+			Lua_CTransport.reg(l);
+			Lua_LHighway.reg(l);
+			Lua_LRequest.reg(l);
+			Lua_LNet.reg(l);
+			Lua_Msg.reg(l);
+			Lua_PLua.reg(l);
+			Lua_ReferGameObjects.reg(l);
+			Lua_CUtils.reg(l);
+			Lua_FileHelper.reg(l);
+			Lua_LuaHelper.reg(l);
+			Lua_Session.reg(l);
+			Lua_TcpServer.reg(l);
+			Lua_UdpMasterServer.reg(l);
+			Lua_ActivateMonos.reg(l);
+			Lua_CEventReceive.reg(l);
+			Lua_Localization.reg(l);
+			Lua_NGUIMath.reg(l);
+			Lua_NGUITools.reg(l);
+			Lua_UGUIEvent.reg(l);
+			Lua_UIEventLuaTrigger.reg(l);
+			Lua_UGUIEventSystem.reg(l);
+			Lua_UGUILocalize.reg(l);
+			Lua_UIPanelCamackTable.reg(l);
+			Lua_LeanTweenType.reg(l);
+			Lua_LTDescr.reg(l);
+			Lua_LTRect.reg(l);
+			Lua_LTBezier.reg(l);
+			Lua_LTBezierPath.reg(l);
+			Lua_LTSpline.reg(l);
+			Lua_TweenAction.reg(l);
+			Lua_LeanTween.reg(l);
+			Lua_iTween.reg(l);
+			Lua_Custom.reg(l);
+			Lua_Deleg.reg(l);
+			Lua_foostruct.reg(l);
+			Lua_SLuaTest.reg(l);
+			Lua_System_Collections_Generic_List_1_int.reg(l);
+			Lua_XXList.reg(l);
+			Lua_HelloWorld.reg(l);
+			Lua_System_Collections_Generic_Dictionary_2_int_string.reg(l);
+			Lua_System_String.reg(l);
+		}
+	}
+}

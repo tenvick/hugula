@@ -1,0 +1,1432 @@
+# 该文件规定客户端和服务之间的通信结构体模式.
+# 注释必须独占一行!!!!!
+#
+# 基本类型:
+#    integer
+#    float
+#    string
+#    boolean
+#    short
+# 若要定义数组，查找array，看看pt_keylist=你懂得.
+#
+# 附加类型，对服务器而言:
+#    pkid : decode to integer, encode to a string
+#    string: 其实是binary
+#
+# 每一个定义以'==='分割
+# 紧接一行注释，描述这个逻辑结构用来干啥.
+# 然后定义结构名字，以'='结束，这样可以grep '=' 出全部逻辑名字.
+# 每行代表一个成员定义.
+#
+# pt_为一般临时结构体
+# db_对应与数据库的表结构.
+#
+# 发布代码前请确保这些部分最新.
+
+# 有时候只需要1个id
+pt_pkid=
+id pkid
+===
+
+
+# 有时候需要个多个id
+pt_pkids=
+ids pkid $array
+===
+
+pt_int=
+i integer
+===
+
+# 普通错误回复
+pt_code=
+api integer
+code integer
+===
+
+# 服务器变量
+db_single=
+id pkid
+user_id pkid
+gift_power_date integer
+===
+
+# 玩家基本信息
+pt_ubase=
+name string
+sex short
+account_type short
+account string
+token string
+===
+
+# 玩家设备信息
+db_device=
+id pkid
+d_type string
+udid string
+os string
+os_version string
+market string
+terminal string
+lcl string
+mac_addr string
+locale string
+===
+
+# 玩家基本信息
+db_user=
+id pkid
+user_id pkid $masked
+device_id pkid
+account_type short
+account string
+name string
+sex short
+icon string
+power short
+gift_power short
+buy_power integer
+level integer
+experience pkid
+money pkid
+group integer
+story integer
+gold integer
+magic_card integer
+powergift_num short
+powergift_date integer
+maxfevent integer
+===
+
+# 购买次数
+rc_buy_times=
+id integer
+num short
+===
+
+# 购买记录
+rc_buy_log=
+type short
+item rc_buy_times $array
+===
+
+# 迷宫层和怪
+flrfid= 
+floor short
+type short
+id integer
+===
+
+# 玩家扩展信息-迷宫
+maze_fight=
+maze short
+enemy flrfid $array
+floor short
+type short
+id integer
+refush integer
+step short
+reset integer
+===
+
+# 魔法碎片
+rc_magic_scroll=
+type short
+num short
+===
+
+# 玩家扩展信息
+db_userinfo=
+id pkid
+user_id pkid $masked
+frd_del_num short
+frd_del_date integer
+cards integer $array
+runes integer $array
+mazes maze_fight $array
+star5 short
+buy_log rc_buy_log $array
+buy_date integer
+time_power_date integer
+g_power_date integer
+chp_times integer
+chp_win	integer
+frd_times integer
+frd_win	integer
+monster_add	short
+login_time integer
+logout_time integer
+create_at string
+magic_scroll rc_magic_scroll $array
+ban integer
+mute integer
+total_charge integer
+lev_prize_date integer
+change_name_num short
+first_event short $array
+===
+
+# 玩家注册信息
+pt_account=
+base pt_ubase
+device db_device
+app_ver integer
+===
+
+# 玩家卡牌信息
+db_card=
+id pkid
+user_id pkid $masked
+base_id integer
+level short
+experience integer
+===
+
+# 卡牌列表
+db_cards=
+cards db_card $array
+===
+
+# 卡组符文
+grune=
+id pkid
+baseid integer
+level integer
+===
+
+# 卡组卡牌
+gcard=
+id pkid
+baseid integer
+level integer
+===
+
+# 玩家卡组信息
+db_group=
+id pkid
+user_id pkid $masked
+runes grune $array
+cards gcard $array
+===
+
+# 卡组列表
+db_groups=
+groups db_group $array
+===
+
+# 增加卡牌到卡组
+pt_group_ac=
+id pkid
+card integer
+===
+
+# 增加卡牌到卡组逆运算
+pt_group_dc=
+id pkid
+card integer
+===
+
+# 玩家符文信息
+db_rune=
+id pkid
+user_id pkid $masked
+base_id integer
+level integer
+experience integer
+===
+
+# 符文列表
+db_runes=
+runes db_rune $array
+===
+
+
+# 增加符文到卡组
+pt_group_ar=
+id pkid
+rune integer
+===
+
+# 增加符文到卡组逆运算
+pt_group_dr=
+id pkid
+rune integer
+===
+
+# 玩家剧情信息
+db_story=
+id pkid
+user_id pkid $masked
+base_id integer
+finish integer $masked
+===
+
+# 通关剧情列表
+db_storys=
+storys db_story $array
+===
+
+#卡牌基础数据
+pk_fcard_base=
+baseId integer
+hp integer
+ad integer
+limit short
+cost short
+===
+
+#卡牌战斗数据
+pk_fcard_fight=
+nowlevel short
+nowhp integer
+nowat integer
+#nowap integer
+nowdef short
+#nowres short
+nowmis short
+===
+
+#卡牌战斗临时数据
+pk_fcard_temp=
+tmphp integer
+tmpat integer
+tmpap integer
+tmpdef short
+tmpres short
+tmpmis short
+===
+
+#卡牌挂的buff
+pk_buff=
+type short
+value short
+number short
+===
+
+#起作用的buffapply
+pk_apply=
+atk short
+type short
+def short
+value short
+===
+
+
+#单个卡牌战斗体
+pk_fcard=
+idx short
+#pos short
+#wait short
+fcardbase pk_fcard_base
+fcardfight pk_fcard_fight
+#cardfstate short $array
+#cardfbuff pk_buff $array
+#cardftemp pk_fcard_temp
+===
+
+#单个符文体
+pk_frune=
+idx short
+baseid integer
+level short
+timer short
+===
+
+
+#战斗结构体
+pk_fight_group=
+hero integer
+rune pk_frune $array
+home pk_fcard $array
+waiting pk_fcard $array
+fighting pk_fcard $array
+dead pk_fcard $array
+===
+
+
+#位置变化log
+pk_area_log=
+hom short $array
+wit short $array
+fig short $array
+dea short $array
+===
+
+#卡牌受到技能后的变化
+pk_cres=
+hp integer
+at integer
+#ap integer
+def short
+#res short
+mis short
+===
+
+#位移log
+pk_move=
+idx integer
+from short
+to short
+pos short
+===
+
+#回合详细记录
+pk_flog=
+type short
+times short
+attacker short
+defender short
+skillid integer
+target short
+hero_damage integer
+hero_check integer
+cardfres pk_cres
+cardfdata pk_cres
+cardfstate short $array
+cardfbuff pk_buff $array
+atkdesc pk_apply $array
+defdesc pk_apply $array
+cardftemp pk_cres
+area pk_move $array
+attkerfdata pk_cres
+===
+
+#回合详细记录
+pk_clog=
+a_pos string
+b_pos string
+===
+
+#记录
+pk_round=
+opts short
+content string
+===
+
+
+#一回合完整log
+pk_fight_log=
+#areaLogCho pk_clog
+areaLogCho pk_move $array
+#areaLogSen pk_clog
+areaLogSen pk_move $array
+fistShowLog pk_flog $array
+#areaLogSho pk_clog
+areaLogSho pk_move $array
+runeLog pk_flog $array
+#areaLogRun pk_clog
+areaLogRun pk_move $array
+commonShowLog pk_flog $array
+#areaLogCom pk_clog
+areaLogCom pk_move $array
+===
+
+
+#回合战斗记录
+pk_record=
+round short
+isend short
+#attacker pk_fight_group
+#defender pk_fight_group
+#a_pos string
+#b_pos string
+fightlog pk_fight_log
+===
+
+#准备阶段数据
+pk_ready=
+first short
+attacker pk_fight_group
+defender pk_fight_group
+===
+
+#请求挑战关卡
+pk_fight_data_result=
+result  short
+totle short
+ready pk_ready
+recordlist pk_record $array
+===
+
+# 战斗记录
+db_fightlog=
+id pkid
+user_id pkid
+log pk_fight_data_result
+===
+
+# 关卡战斗记录
+db_storylog=
+id pkid
+user_id integer
+fighter pkid
+time integer
+log pkid
+===
+
+# PVP战斗记录
+db_pvplog=
+id pkid
+user_id pkid
+enemy pkid
+result short
+value short
+type short
+time integer
+log pkid
+===
+
+# 关卡LOG信息
+pt_pvelog=
+logid pkid
+name string
+icon string
+lev integer
+===
+
+# 关卡LOG信息
+pt_pvelog_list=
+story integer
+log pt_pvelog $array
+===
+
+# PVPLOG信息
+pt_pvplog=
+logid pkid
+type short
+enemy pkid
+name string
+icon string
+lev integer
+rank integer
+score integer
+len_id pkid
+len_flag short
+len_name string
+result short
+value short
+time integer
+===
+
+# PVPLOG信息
+pt_pvplog_list=
+rank integer
+score integer
+log pt_pvplog $array
+===
+
+#聊天 发送给服务器端
+pt_chat2server=
+channel integer
+receiveid pkid
+content string
+===
+
+#聊天 服务器端发送给客户端
+pt_chat2player=
+channel integer
+sendid pkid
+sendname string
+sendlevel integer
+sendicon string
+sendlen_id pkid
+sendlen_flag short
+sendlen_pos short
+receiveid pkid
+receivename string
+content string
+===
+
+# 出牌列表
+pt_crdlist=
+crdlist integer $array
+===
+
+# 玩家好友基本信息
+db_friend=
+id pkid
+user_id pkid $masked
+frd_id pkid
+type short
+===
+
+# 好友基本信息列表
+db_friends=
+friends db_friend $array
+===
+
+# 赠送行动力信息
+db_powergift=
+id pkid
+user_id pkid $masked
+other_id pkid
+self_flag short
+self_date integer
+other_flag short
+other_date integer
+===
+
+# 赠送行动力信息列表
+db_powergifts=
+gifts db_powergift $array
+===
+
+# 好友详细信息
+pt_frd_info=
+user_id pkid
+name string
+sex short
+icon string
+level integer
+type short
+===
+
+# 好友详细信息
+pt_frd_list=
+frd_list pt_frd_info $array
+===
+
+# 好友初始化详细信息
+pt_frd_init=
+frd_list pt_frd_info $array
+===
+
+# 同意或拒绝好友申请
+pt_frd_agree=
+friend_id pkid
+agree boolean
+===
+
+# 对手的详细信息
+pt_enemy=
+rank integer
+user_id pkid
+name string
+sex short
+level short
+win integer
+lose integer
+getpic short
+icon string
+===
+
+# 所有的对手
+pt_all_enemy=
+enemy pt_enemy $array
+===
+
+# 玩家成就基本信息
+db_grade=
+id pkid
+user_id pkid
+cfg_id integer
+finish_date integer
+finish short
+gain short
+===
+
+# 玩家成就条件数据
+db_gradeevent=
+id pkid
+user_id pkid
+event string
+condition string
+===
+
+# 成就测试
+pt_grade_test=
+event string
+condition string
+===
+
+# 成就信息
+pt_grade_info=
+cfg_id integer
+finish short
+gain short
+event string
+===
+
+pt_grade_info_list=
+info pt_grade_info $array
+===
+
+#请求强化卡牌
+pt_card_enhance=
+id pkid
+food integer $array
+===
+
+#请求强化符文
+pt_rune_enhance=
+id pkid
+food integer $array
+===
+
+# 宝箱奖励
+rc_chest=
+type short
+num integer
+===
+
+# 玩家宝箱信息
+db_chest=
+id pkid
+user_id pkid
+source short
+time integer
+reward rc_chest $array
+===
+
+db_chests=
+chests db_chest $array
+===
+
+# 玩家奖励测试
+pt_prize_test=
+type integer
+num integer
+===
+
+# 神庙格子
+rc_temple_site=
+type short
+id integer
+===
+
+# 神庙碎片
+rc_temple_fragment=
+type short
+num integer
+===
+
+#玩家神庙数据
+db_temple=
+id pkid
+user_id pkid $masked
+grade short
+fragment_amount rc_temple_fragment $array
+site_goodtype rc_temple_site $array
+===
+
+#玩家神庙数据
+pt_temple_datas=
+grade integer
+fragments rc_temple_fragment $array
+sites rc_temple_site $array
+===
+
+# 某地图通关情况
+pt_mapinfo=
+mapid integer
+storyid integer $array
+invade integer $array
+===
+
+
+# nadatest
+pt_nadainfo=
+nadaid integer $array
+===
+
+# 军团信息
+db_legion=
+id pkid
+user_id pkid
+name string
+remark string
+flag short
+lock short
+lev short
+exp integer
+guard pkid
+del_num short
+del_time integer
+===
+
+# 军团成员数据
+db_lenmeb=
+id pkid
+user_id pkid
+player_id pkid
+pos short
+devote integer
+join_time integer
+doe_money integer
+doe_gold integer
+doe_date integer
+===
+
+# 军团申请加入信息
+db_lenapply=
+id pkid
+user_id pkid
+player_id pkid
+apply short
+invite short
+===
+
+# 军团详细信息
+pt_len_info=
+id pkid
+name string
+remark string
+exp integer
+lev short
+flag short
+lock short
+meb short
+rank integer
+score integer
+===
+
+# 军团详细信息列表
+pt_len_list=
+list pt_len_info $array
+===
+
+# 军团成员详细信息
+pt_lenmeb_info=
+id pkid
+name string
+lev integer
+pos short
+devote integer
+rank integer
+score integer
+===
+
+# 军团成员信息列表
+pt_lenmeb_list=
+list pt_lenmeb_info $array
+===
+
+# 军团详细信息
+pt_len_all_info=
+legion pt_len_info
+meb pt_lenmeb_info $array
+===
+
+# 军团创建信息
+pt_len_create=
+name string
+===
+
+# 军团申请人信息
+pt_len_apply=
+id pkid
+name string
+icon string
+lev integer
+rank integer
+score integer
+===
+
+# 军团申请人信息
+pt_len_apply_list=
+list pt_len_apply $array
+===
+
+# 军团申请操作
+pt_len_apply_opr=
+id pkid
+agree boolean
+===
+
+# 军团捐献
+pt_len_devote=
+type short
+num integer
+===
+
+# 军团创建
+pt_create_legion=
+name string
+remark string
+flag short
+lock short
+===
+
+# 自己的军团信息
+pt_legion_self=
+legion_id pkid
+pos short
+===
+
+# 一次性提交卡组更新符文消息
+pt_groupupd_rune=
+id pkid
+runelist integer $array
+===
+
+# 一次性提交卡组更新卡牌消息
+pt_groupupd_card=
+id pkid
+cardlist integer $array
+===
+
+# 奖励详细信息(实际得到的)
+pt_prize_get=
+type short
+prize string
+===
+
+
+# 玩家向服务器发送错误报告
+pt_player_report=
+type string
+desc string
+===
+
+#  玩家符文图鉴
+pt_rune_once=
+runes string
+===
+
+# 迷宫数据 迷宫id 敌人列表 当前层 当前挑战对手 上次重置时间 当前step 重置次数(今日)
+pt_maze=
+maze integer
+enemy flrfid $array
+floor short
+type short
+id integer
+refush integer
+step short
+reset integer
+===
+
+# 迷宫数据
+pt_maze_all=
+maze pt_maze $array
+===
+
+# 商城物品
+pt_market_item=
+id integer
+cost integer
+num integer
+===
+
+# 商城信息
+pt_market=
+type integer
+item pt_market_item $array
+===
+
+# 商城购买
+pt_market_buy=
+type integer
+id integer
+flag boolean
+===
+
+# 购买卡牌回执信息
+pt_market_card=
+type integer
+id integer
+item pt_market_item $array
+cards pkid $array
+===
+
+# 购买晶钻回执信息
+pt_market_gold=
+type integer
+id integer
+item pt_market_item $array
+gold integer
+===
+
+# 购买行动力回执信息
+pt_market_power=
+type integer
+id integer
+item pt_market_item $array
+power integer
+===
+
+# 获取排行榜资料
+pt_ranks_get=
+id integer
+type integer
+===
+
+# 排行榜资料
+pt_ranks_info=
+rank integer
+user_id pkid
+name string
+icon string
+lev integer
+value integer
+===
+
+# 排行榜资料
+pt_ranks_list=
+id integer
+self pt_ranks_info
+info pt_ranks_info $array
+===
+
+# 隐藏关卡信息
+pt_story_hide=
+info string
+===
+
+#GM指令
+pt_gmcmd=
+cmd string
+===
+
+# 地图奖励
+db_mapreward=
+id pkid
+user_id pkid
+map_id integer 
+invade integer $array
+invade_time integer
+gain_time integer
+gain_num short
+===
+
+# 地图产出领取
+pt_map_gain=
+map integer
+money integer
+===
+
+# 地图状态
+pt_map_info=
+date integer
+story integer $array
+gain integer
+maze pt_maze $array
+invade integer $array
+===
+
+# 地图好友信息
+pt_map_friend=
+id pkid
+story integer
+name string
+icon string
+===
+
+# 地图好友信息
+pt_map_friend_list=
+list pt_map_friend $array
+===
+
+
+# 冷却时间
+db_coldtime=
+id pkid
+user_id pkid
+chp_times short
+chp_gold short
+champion integer
+freedom integer
+monster	integer
+crazy integer
+lrank integer
+lrank_buy integer
+===
+
+# 排名战信息
+pt_champion=
+rank integer
+times short
+cd short
+===
+
+# 自由切磋信息 暂时只发送冷却时间
+pt_freedom=
+cd short
+===
+
+# 盗贼卡组卡牌
+mcard=
+baseid integer
+level short
+hp integer
+att short
+===
+
+# 盗贼战斗信息
+pt_m_group=
+hero integer
+cards mcard $array
+===
+
+# 盗贼挑战者
+pt_m_fighter=
+id pkid
+score integer
+===
+
+# 盗贼
+db_monster=
+id pkid
+user_id pkid $masked
+level short
+hard short
+score integer
+find_id pkid
+find_time integer
+end_time integer
+attacker pt_m_fighter $array
+fightdata pt_m_group
+killer_id pkid
+killed_time integer
+prizecard integer
+===
+
+# 玩家邮件
+db_mail=
+id pkid
+user_id pkid
+type short
+new short
+from pkid
+event integer
+title string
+content string
+time integer
+===
+
+# 玩家邮件
+pt_player_mail=
+id pkid
+type short
+new short
+time integer
+event string
+===
+
+# 玩家邮件列表
+pt_player_mail_list=
+info pt_player_mail $array
+===
+
+# 玩家写邮件
+pt_write_mail=
+receiver pkid
+title string
+content string
+===
+
+# 新邮件
+pt_new_mail=
+type short
+num short
+===
+
+# 新邮件表
+pt_new_mail_list=
+list pt_new_mail $array
+===
+
+# 客户端盗贼信息
+pt_monster=
+level short
+hard short
+now short
+score short
+find_id pkid
+find_name string
+time integer
+round short
+killer_id pkid
+killer_name string
+===
+
+# 发现盗贼 (盗贼信息+我的冷却时间)
+pt_find_monster=
+monster pt_monster
+cd short
+===
+
+# 所有可以挑战的盗贼
+pt_monster_all=
+all pt_monster $array
+cd short
+===
+
+# 对魔神造成伤害
+pt_crazy_score=
+once integer
+totle integer
+===
+
+#验证玩家支付
+pt_pay_verify=
+platform short
+pay_type string
+token string
+signature string
+===
+
+#付费商品列表
+pt_pay_list_get=
+platform short
+===
+
+#支付商品列表
+pt_pay_list=
+pay_types string $array
+===
+
+#积分战榜单获取请求
+pt_legion_rank_get=
+start integer
+size integer
+===
+
+# 积分战购买
+pt_lrank_buy=
+num short
+cost integer
+===
+
+# 军团在榜单中的信息
+legion_rank=
+id pkid
+name string
+remark string
+exp integer
+lev short
+flag short
+lock short
+meb short
+rank integer
+score integer
+threat integer
+===
+
+#积分战单
+pt_legion_rank_list=
+len_id pkid
+name string
+num short
+cost integer
+legion_ranks legion_rank $array
+===
+
+#积分战中玩家的信息
+player_rank_info=
+user_id pkid
+name string
+icon string
+level integer
+rank integer
+scores integer
+pos short
+devote integer
+plan_score integer
+plan_money integer
+protected integer
+===
+
+#积分战玩家榜单
+pt_player_rank_list=
+rank integer
+num short
+cost integer
+mebs player_rank_info $array
+===
+
+#积分战玩家信息
+p_rank_info=
+user_id pkid
+name string
+icon string
+level integer
+rank integer
+scores integer
+legion_id pkid
+legion_name string
+flag short
+===
+
+# 积分战玩家排行
+pt_p_rank_list=
+rank integer
+scores integer
+mebs p_rank_info $array
+===
+
+# 签到信息
+rc_sign=
+num integer
+gain short
+===
+
+# 签到
+db_sign=
+id pkid
+user_id pkid $masked
+month short
+sign rc_sign $array
+time integer $masked
+===
+
+# 客户端需要的签到信息
+pt_sign=
+month short
+sign rc_sign $arrar
+===
+
+# 玩家变量
+db_param=
+id pkid
+user_id pkid
+intary integer $array
+===
+
+# 卡包大乱斗中得卡牌
+pk_cteam=
+baseid integer
+level integer
+===
+
+# 卡包大乱斗
+db_war=
+id pkid
+user_id pkid
+cards pk_cteam $array
+===
+
+# GVG排名记录
+db_gvglog=
+id pkid
+user_id pkid
+legion_id pkid
+rank integer
+scores integer
+shield integer
+attack integer
+===
+
+# 初始化GVG战场信息
+pt_gvg_init_battle=
+legion_id pkid
+legion_name string
+guard_id pkid
+guard_name string
+guard_icon string
+shield integer
+max_shield integer
+scores integer
+mebs pkid $array
+end_time integer
+===
+
+# 初始化GVG战场信息
+pt_gvg_init_battle_list=
+attack_num short
+max_attack short
+self pt_gvg_init_battle
+enemy pt_gvg_init_battle
+===
+
+# GVG战场结束
+pt_gvg_battle_end=
+result short
+scores integer
+totle_scores integer
+less_scores integer
+===
+
+# GVG战斗请求
+pt_gvg_fight=
+type short
+target pkid
+===
+
+# GVG护盾变化
+pt_gvg_shield=
+user_id pkid
+from_legion pkid
+target_legion pkid
+name string
+change integer
+shield integer
+===
+
+# gvg第一次打开界面回执
+pt_gvg_first=
+legion_id pkid
+gvg_id integer
+gvg_state short
+scores integer
+shield integer
+extra_shield integer
+attack integer
+extra_attack integer
+===
+
+# 星图
+pt_gvg_star=
+gvg_id integer
+state integer
+legion_id pkid
+name string
+flag short
+===
+
+# 星图列表
+pt_gvg_star_list=
+list pt_gvg_star $array
+===
+
+# gvg排行
+pt_gvg_rank=
+legion_id pkid
+name string
+rank integer
+scores integer
+===
+
+# gvg排行列表
+pt_gvg_rank_list=
+less_scores integer
+list pt_gvg_rank $array
+===
+
+# gvg军团LOG
+pt_gvg_legion_log=
+enemy_id pkid
+result short
+scores integer
+time integer
+===
+
+# gvg军团LOG列表
+pt_gvg_legion_log_list=
+list pt_gvg_legion_log $array
+===
+
+# gvg成员LOG
+pt_gvg_player_log=
+user_id pkid
+name string
+attack short
+win short
+socres integer
+===
+
+# gvg成员LOG列表
+pt_gvg_player_log_list=
+list pt_gvg_player_log $array
+===
+
+# gvg登录提示
+pt_gvg_login=
+gvg_id integer
+===
+
+# gvg战场积分变化
+pt_gvg_scores=
+legion_id pkid
+scores integer
+===

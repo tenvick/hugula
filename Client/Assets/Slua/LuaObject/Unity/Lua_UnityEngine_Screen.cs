@@ -1,0 +1,294 @@
+﻿using UnityEngine;
+using System;
+using LuaInterface;
+using SLua;
+using System.Collections.Generic;
+public class Lua_UnityEngine_Screen : LuaObject {
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int constructor(IntPtr l) {
+		try {
+			UnityEngine.Screen o;
+			o=new UnityEngine.Screen();
+			pushValue(l,o);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int SetResolution_s(IntPtr l) {
+		try {
+			int argc = LuaDLL.lua_gettop(l);
+			if(argc==3){
+				System.Int32 a1;
+				checkType(l,1,out a1);
+				System.Int32 a2;
+				checkType(l,2,out a2);
+				System.Boolean a3;
+				checkType(l,3,out a3);
+				UnityEngine.Screen.SetResolution(a1,a2,a3);
+				return 0;
+			}
+			else if(argc==4){
+				System.Int32 a1;
+				checkType(l,1,out a1);
+				System.Int32 a2;
+				checkType(l,2,out a2);
+				System.Boolean a3;
+				checkType(l,3,out a3);
+				System.Int32 a4;
+				checkType(l,4,out a4);
+				UnityEngine.Screen.SetResolution(a1,a2,a3,a4);
+				return 0;
+			}
+			LuaDLL.luaL_error(l,"No matched override function to call");
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_resolutions(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.resolutions);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_currentResolution(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.currentResolution);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_width(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.width);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_height(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.height);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_dpi(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.dpi);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_fullScreen(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.fullScreen);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_fullScreen(IntPtr l) {
+		try {
+			bool v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.fullScreen=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_autorotateToPortrait(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.autorotateToPortrait);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_autorotateToPortrait(IntPtr l) {
+		try {
+			bool v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.autorotateToPortrait=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_autorotateToPortraitUpsideDown(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.autorotateToPortraitUpsideDown);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_autorotateToPortraitUpsideDown(IntPtr l) {
+		try {
+			bool v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.autorotateToPortraitUpsideDown=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_autorotateToLandscapeLeft(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.autorotateToLandscapeLeft);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_autorotateToLandscapeLeft(IntPtr l) {
+		try {
+			bool v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.autorotateToLandscapeLeft=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_autorotateToLandscapeRight(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.autorotateToLandscapeRight);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_autorotateToLandscapeRight(IntPtr l) {
+		try {
+			bool v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.autorotateToLandscapeRight=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_orientation(IntPtr l) {
+		try {
+			pushEnum(l,(int)UnityEngine.Screen.orientation);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_orientation(IntPtr l) {
+		try {
+			UnityEngine.ScreenOrientation v;
+			checkEnum(l,2,out v);
+			UnityEngine.Screen.orientation=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int get_sleepTimeout(IntPtr l) {
+		try {
+			pushValue(l,UnityEngine.Screen.sleepTimeout);
+			return 1;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static public int set_sleepTimeout(IntPtr l) {
+		try {
+			int v;
+			checkType(l,2,out v);
+			UnityEngine.Screen.sleepTimeout=v;
+			return 0;
+		}
+		catch(Exception e) {
+			LuaDLL.luaL_error(l, e.ToString());
+			return 0;
+		}
+	}
+	static public void reg(IntPtr l) {
+		getTypeTable(l,"UnityEngine.Screen");
+		addMember(l,SetResolution_s);
+		addMember(l,"resolutions",get_resolutions,null,false);
+		addMember(l,"currentResolution",get_currentResolution,null,false);
+		addMember(l,"width",get_width,null,false);
+		addMember(l,"height",get_height,null,false);
+		addMember(l,"dpi",get_dpi,null,false);
+		addMember(l,"fullScreen",get_fullScreen,set_fullScreen,false);
+		addMember(l,"autorotateToPortrait",get_autorotateToPortrait,set_autorotateToPortrait,false);
+		addMember(l,"autorotateToPortraitUpsideDown",get_autorotateToPortraitUpsideDown,set_autorotateToPortraitUpsideDown,false);
+		addMember(l,"autorotateToLandscapeLeft",get_autorotateToLandscapeLeft,set_autorotateToLandscapeLeft,false);
+		addMember(l,"autorotateToLandscapeRight",get_autorotateToLandscapeRight,set_autorotateToLandscapeRight,false);
+		addMember(l,"orientation",get_orientation,set_orientation,false);
+		addMember(l,"sleepTimeout",get_sleepTimeout,set_sleepTimeout,false);
+		createTypeMetatable(l,constructor, typeof(UnityEngine.Screen));
+	}
+}

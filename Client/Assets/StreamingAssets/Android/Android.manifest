@@ -1,0 +1,28 @@
+ManifestFileVersion: 0
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: welcome.u3d
+      Dependencies:
+        Dependency_0: dfphaibaow12gbfont.u3d
+        Dependency_1: tetrisatlas.u3d
+    Info_1:
+      Name: uipublic.u3d
+      Dependencies:
+        Dependency_0: dfphaibaow12gbfont.u3d
+        Dependency_1: tetrisatlas.u3d
+    Info_2:
+      Name: dfphaibaow12gbfont.u3d
+      Dependencies: {}
+    Info_3:
+      Name: tetrisatlas.u3d
+      Dependencies: {}
+    Info_4:
+      Name: blockroot.u3d
+      Dependencies:
+        Dependency_0: dfphaibaow12gbfont.u3d
+        Dependency_1: tetrisatlas.u3d
+    Info_5:
+      Name: frist.u3d
+      Dependencies:
+        Dependency_0: dfphaibaow12gbfont.u3d

@@ -1,0 +1,37 @@
+﻿
+C# 名字规范
+
+	小骆驼式命名法：第一个单词以小写字母开始，第二个单词的首字母大写或每一个单词的首字母都采用大写字母。
+
+	大骆驼式命名法：第一个单词以大写字母开始，第二个单词的首字母大写或每一个单词的首字母都采用大写字母。
+
+
+
+	类名  大骆驼式命名法		eg:public Class MyClass
+
+	方法名 大骆驼式命名法		eg:private void MyMoth()
+
+
+
+	公共属性  小骆驼式命名法		eg: public string myName
+
+	私有属性  小骆驼式命名法前面加_  eg: private string _myName
+
+
+
+Lua 名字规范
+
+	lua文件名，模块名 小骆驼式命名法 eg: main.lua
+
+	类名 大骆驼式命名法				eg: Asset=class(function(self) end)
+	变量 小骆驼式命名法				eg:local myVar="hello lua"
+
+	方法 小骆驼式命名法				eg local function myFunction(arg1,arg2,...)
+
+
+Input
+
+Main.Update(dt)
+
+
+

@@ -2,6 +2,7 @@ Hugula 游戏框架 for slua
 ======
 Hugula是一个基于unity3d+slua技术的全LUA免费开源游戏框架，作者基于此框架已经开发过两款卡牌带arpg战斗游戏。
 特点 全lua逻辑，基于状态模式，只需关心状态，无需关心UI隐藏和显示。
+下载完成后切换到IOS或者android平台。
 qq群：19324776。
  
 本框架需要以下条件
@@ -33,15 +34,16 @@ Assets
 -Lua                  （lua脚本）
 
 
-发布流程
+运行发布
 ======
 1 导出assetbundle资源 菜单 AssetBundles/Build AssetBundles
 
 2 导出其他
 
-  2.1 Hugula/export lua [Assets\Lua]          打包编译脚本
-  2.2 Hugula/export config [Assets\Config]    打包配置
-  2.3 Hugula/export language [Assets\Lan]     打包语言包
+ 2.1 Hugula/export lua [Assets\Lua]          打包编译脚本
+ 2.2 Hugula/export config [Assets\Config]    打包配置
+ 2.3 Hugula/export language [Assets\Lan]     打包语言包
+
 
 俄罗斯方块小游戏
 ======

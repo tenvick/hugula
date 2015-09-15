@@ -80,11 +80,19 @@ local function loadByTable(tb,cache)
 --        print(arg)
 --        Loader:getResource(arg)
 		local l1=#v
-		local req=Request(v[1])
+		local req --=Request(v[1])
+		if l1>0 then req=Request(v[1]) else req = Request("") end
 		key=req.key
+
 		if l1>1 then req.onCompleteFn=v[2] end
 		if l1>2 then req.onEndFn=v[3] end
 		if l1>3 then req.head=v[4] end
+		if v.url then req.url = v.url end
+		if v.assetType then req.assetType = v.assetType end
+		if v.onCompleteFn then req.onCompleteFn = v.onCompleteFn end
+		if v.onEndFn then req.onEndFn = v.onEndFn end
+		if v.head then req.head = v.head end
+
 		if cache==nil or cache==true then req.cache=true end
 		local cacheData=Loader.resdic[key]
 		if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)

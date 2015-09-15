@@ -54,27 +54,47 @@ local function enterGame()
 --	delay(dsLog,1,nil)
 end
 
+local function setProgressTxt(text)
+ 	if progressBarTxt then progressBarTxt.text = text end
+end
+
 local function onProgress(loader,arg)
 	-- body
 end
 
-local function onUpdateItemComp(req)
-	local bytes=req.data.bytes
-	if(bytes~=nil) then
-		FileHelper.UnZipFile(bytes,Application.persistentDataPath);
-	end
-end
-
-local function onAllUpdateResComp(loader)
-	--SetProgressTxt("wait start...");
-    loader:setOnAllCompelteFn(nil)
-	loader:setOnProgressFn(nil)
-	seveVersion()
---	enterGame()
+local function addLoadedFile(key)
+	local da = FileHelper.ReadUTF8File(UPDATED_LIST_TMEP)
+	if da==nil then da = "{}" end
+	local jsda=json:decode(da)
+	jsda[key]=true
+	da = json:encode(jsda)
+	FileHelper.PersistentUTF8File(da,UPDATED_LIST_TMEP)
 end
 
 local function seveVersion()
 	FileHelper.PersistentUTF8File(update_id,VERSION_FILE_NAME)	
+end
+
+local function onAllUpdateResComp()
+	setProgressTxt("wait start...")
+    Loader:setOnAllCompelteFn(nil)
+	Loader:setOnProgressFn(nil)
+	seveVersion()
+	FileHelper.DeleteFile(UPDATED_LIST_TMEP)
+	-- enterGame(true)
+	PLua:LoadBundle(enterGame) --reload LuaBind
+end
+
+local function onUpdateItemComp(req)
+	local bytes=req.data --get_data().bytes
+	if(bytes~=nil) then
+		FileHelper.UnZipFile(bytes,Application.persistentDataPath)
+		addLoadedFile(req.key)
+	end
+	loaded = loaded+1
+	setProgressTxt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
+
+	if all<=loaded then onAllUpdateResComp() end
 end
 
 local function  onUpdateResComp(req)
@@ -85,15 +105,36 @@ local function  onUpdateResComp(req)
 		if res["error"] then
 			enterGame()
 		elseif res["update_url"] then
-			local upURL=res["update_url"]
-			local reqs={}
-			local len=#upURL
-			for i=1,len do
-				table.insert(reqs,{upURL[i],onUpdateItemComp})
+			update_id = res["update_id"]
+			if update_id> tonumber(ResVersion) then
+				local loadtab = {}
+				local old=FileHelper.ReadUTF8File(UPDATED_LIST_TMEP) --是否有下载完成的内容
+				if old then loadtab=json:decode(old) end
+				-- print(" id "..update_id)
+				local upURL=res["update_url"]
+				local reqs={}
+				local len=#upURL
+				local itemURl = ""
+				local key=""
+				for i=1,len do
+					itemURl = upURL[i]
+	 				key = CUtils.getKeyURLFileName(itemURl)
+					if not loadtab[key] then
+						table.insert(reqs,{itemURl,onUpdateItemComp,assetType="System.Byte[]"})
+					end
+				end
+				all=#reqs
+				if all>0  then
+					loaded = 0 
+					setProgressTxt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
+					Loader:getResource(reqs)
+					Loader:setOnProgressFn(onProgress)
+				else
+					onAllUpdateResComp()
+				end
+			else
+			 	enterGame()
 			end
-			Loader:getResource(reqs)
-			Loader:setOnAllCompelteFn(onAllUpdateResComp)
-			Loader:setOnProgressFn(onProgress)
 		else
 			enterGame()
 		end
@@ -107,8 +148,8 @@ local function checkRes()
 	elseif(Application.platform==RuntimePlatform.WindowsEditor) then
 		enterGame()
 	else
-		enterGame()
-		 local url=string.format(resourceURL,tostring(ResVersion),Application.platform,"0.2.0");
+		-- enterGame()
+		 local url=string.format(resourceURL,tostring(ResVersion),WWW.EscapeURL(Application.platform:ToString()),"0.2")
 		 local req=Request(url)
 		 req.onCompleteFn=onUpdateResComp
          req.assetType="System.String"
@@ -116,7 +157,7 @@ local function checkRes()
 		 	print("checkRes on erro")
 		 	enterGame()
 		 end
-		 print("begin checkRes "..url)
+		 -- print("begin checkRes "..req.url)
 		 req.onEndFn=onErr
 	     Loader:getResource(req,false)
 	end

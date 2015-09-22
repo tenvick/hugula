@@ -61,6 +61,7 @@ end
 function tetris:gameOver(blockManager)
 	print("russia:gameOver")
 	isover=true
+	luaGC()
 end
 
 function tetris:onBlur()

@@ -7,8 +7,8 @@ require("core.unity3d")
 require("core.loader")
 json=require("lib/json")
 ResVersion = 0
--- luanet = _G
--- toluacs = _G
+luanet = _G
+toluacs = _G
 local resourceURL ="http://192.168.18.152:8345/api" --http://121.199.51.39:8080/client_update?v_id=%s&platform=%s&code=%s";
 
 local progressBarTxt;
@@ -16,12 +16,14 @@ local update_id="";
 local FRIST_VIEW = "frist.u3d";
 local VIDEO_NAME = "Loading.mp4";
 local VERSION_FILE_NAME = "Ver.t";
-
-local RuntimePlatform= UnityEngine.RuntimePlatform
-local Application= UnityEngine.Application
-local GameObject= UnityEngine.GameObject
-local PlayerPrefs = UnityEngine.PlayerPrefs
-local Request=LRequest --luanet.import_type("LRequest")
+-- local UPDATING_LIST_TMEP = "updating.tmp"
+local UPDATED_LIST_TMEP = "updated.tmp"
+local luanet = luanet
+local RuntimePlatform= toluacs.UnityEngine.RuntimePlatform
+local Application= toluacs.UnityEngine.Application
+local PlayerPrefs = toluacs.UnityEngine.PlayerPrefs
+local WWW = toluacs.UnityEngine.WWW
+local Request=luanet.LRequest 
 
 local CUtils=CUtils
 local LuaHelper=LuaHelper
@@ -31,27 +33,17 @@ local delay = delay
 local Loader = Loader
 
 --local fristView
-
+local all,loaded = 0,0
 local function languageInit()
 	local lan=PlayerPrefs.GetString("Language","")
 	-- if lan=="" then lan=Application.systemLanguage:ToString() end
-	Localization.language="Chinese" --"Chinese"
+	Localization.language="chinese" --"Chinese"
 	print(Application.systemLanguage.."current language is "..Localization.language)
 end 
 
 local function enterGame()
      languageInit()
-
-	require("begin")
---	if fristView then LuaHelper.Destroy(fristView) end
---	fristView = nil 
-
---	local function dsLog() 
---		print("dsLog")
---		local logo = LuaHelper.Find("Logo")
---		if logo then  LuaHelper.Destroy(logo) end 
---	end
---	delay(dsLog,1,nil)
+ 	 require("begin")
 end
 
 local function setProgressTxt(text)
@@ -148,8 +140,9 @@ local function checkRes()
 	elseif(Application.platform==RuntimePlatform.WindowsEditor) then
 		enterGame()
 	else
-		-- enterGame()
-		 local url=string.format(resourceURL,tostring(ResVersion),WWW.EscapeURL(Application.platform:ToString()),"0.2")
+		enterGame()
+		--[[
+		 local url=string.format(resourceURL,tonumber(ResVersion),WWW.EscapeURL(Application.platform:ToString()),"0.2")
 		 local req=Request(url)
 		 req.onCompleteFn=onUpdateResComp
          req.assetType="System.String"
@@ -157,9 +150,10 @@ local function checkRes()
 		 	print("checkRes on erro")
 		 	enterGame()
 		 end
-		 -- print("begin checkRes "..req.url)
+		 print("begin checkRes "..url)
 		 req.onEndFn=onErr
 	     Loader:getResource(req,false)
+	     ]]
 	end
 end
 

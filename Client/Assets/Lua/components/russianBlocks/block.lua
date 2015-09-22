@@ -408,7 +408,7 @@ function Block:onUpdate(time)
 		creatNewBolck()
 		nowBlock =false
 		beginDelay =false
-		luaGC()
+		-- luaGC()
     end
 end
 

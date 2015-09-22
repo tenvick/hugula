@@ -9,24 +9,24 @@ public class Lua_UnityEngine_UI_AnimationTriggers : LuaObject {
 		try {
 			UnityEngine.UI.AnimationTriggers o;
 			o=new UnityEngine.UI.AnimationTriggers();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_normalTrigger(IntPtr l) {
 		try {
 			UnityEngine.UI.AnimationTriggers self=(UnityEngine.UI.AnimationTriggers)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.normalTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_UI_AnimationTriggers : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.normalTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_highlightedTrigger(IntPtr l) {
 		try {
 			UnityEngine.UI.AnimationTriggers self=(UnityEngine.UI.AnimationTriggers)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.highlightedTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_UI_AnimationTriggers : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.highlightedTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pressedTrigger(IntPtr l) {
 		try {
 			UnityEngine.UI.AnimationTriggers self=(UnityEngine.UI.AnimationTriggers)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pressedTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_UI_AnimationTriggers : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.pressedTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_disabledTrigger(IntPtr l) {
 		try {
 			UnityEngine.UI.AnimationTriggers self=(UnityEngine.UI.AnimationTriggers)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.disabledTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,11 +114,11 @@ public class Lua_UnityEngine_UI_AnimationTriggers : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.disabledTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

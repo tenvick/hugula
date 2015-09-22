@@ -11,22 +11,22 @@ public class Lua_LTBezierPath : LuaObject {
 			LTBezierPath o;
 			if(argc==1){
 				o=new LTBezierPath();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.Vector3[] a1;
 				checkType(l,2,out a1);
 				o=new LTBezierPath(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,11 +36,11 @@ public class Lua_LTBezierPath : LuaObject {
 			UnityEngine.Vector3[] a1;
 			checkType(l,2,out a1);
 			self.setPoints(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -50,12 +50,12 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.point(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -67,11 +67,11 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.place2d(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -83,11 +83,11 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.placeLocal2d(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -101,7 +101,8 @@ public class Lua_LTBezierPath : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				self.place(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				LTBezierPath self=(LTBezierPath)checkSelf(l);
@@ -112,14 +113,15 @@ public class Lua_LTBezierPath : LuaObject {
 				UnityEngine.Vector3 a3;
 				checkType(l,4,out a3);
 				self.place(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,7 +135,8 @@ public class Lua_LTBezierPath : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				self.placeLocal(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				LTBezierPath self=(LTBezierPath)checkSelf(l);
@@ -144,26 +147,27 @@ public class Lua_LTBezierPath : LuaObject {
 				UnityEngine.Vector3 a3;
 				checkType(l,4,out a3);
 				self.placeLocal(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pts(IntPtr l) {
 		try {
 			LTBezierPath self=(LTBezierPath)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pts);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -173,23 +177,23 @@ public class Lua_LTBezierPath : LuaObject {
 			UnityEngine.Vector3[] v;
 			checkType(l,2,out v);
 			self.pts=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_length(IntPtr l) {
 		try {
 			LTBezierPath self=(LTBezierPath)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.length);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -199,23 +203,23 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.length=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orientToPath(IntPtr l) {
 		try {
 			LTBezierPath self=(LTBezierPath)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orientToPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -225,23 +229,23 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.orientToPath=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orientToPath2d(IntPtr l) {
 		try {
 			LTBezierPath self=(LTBezierPath)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orientToPath2d);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -251,11 +255,11 @@ public class Lua_LTBezierPath : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.orientToPath2d=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

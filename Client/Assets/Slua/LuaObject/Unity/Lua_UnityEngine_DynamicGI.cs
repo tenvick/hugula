@@ -9,12 +9,12 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 		try {
 			UnityEngine.DynamicGI o;
 			o=new UnityEngine.DynamicGI();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,11 +25,11 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 			UnityEngine.Color a2;
 			checkType(l,2,out a2);
 			UnityEngine.DynamicGI.SetEmissive(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -40,13 +40,15 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 				UnityEngine.Terrain a1;
 				checkType(l,1,out a1);
 				UnityEngine.DynamicGI.UpdateMaterials(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.Renderer))){
 				UnityEngine.Renderer a1;
 				checkType(l,1,out a1);
 				UnityEngine.DynamicGI.UpdateMaterials(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==5){
 				UnityEngine.Terrain a1;
@@ -60,36 +62,37 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 				System.Int32 a5;
 				checkType(l,5,out a5);
 				UnityEngine.DynamicGI.UpdateMaterials(a1,a2,a3,a4,a5);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int UpdateEnvironment_s(IntPtr l) {
 		try {
 			UnityEngine.DynamicGI.UpdateEnvironment();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_indirectScale(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.DynamicGI.indirectScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -98,22 +101,22 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.DynamicGI.indirectScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_updateThreshold(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.DynamicGI.updateThreshold);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -122,22 +125,22 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.DynamicGI.updateThreshold=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_synchronousMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.DynamicGI.synchronousMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -146,11 +149,11 @@ public class Lua_UnityEngine_DynamicGI : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.DynamicGI.synchronousMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

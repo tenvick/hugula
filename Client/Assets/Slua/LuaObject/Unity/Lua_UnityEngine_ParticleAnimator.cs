@@ -9,24 +9,24 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 		try {
 			UnityEngine.ParticleAnimator o;
 			o=new UnityEngine.ParticleAnimator();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_doesAnimateColor(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.doesAnimateColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.doesAnimateColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_worldRotationAxis(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.worldRotationAxis);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.worldRotationAxis=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_localRotationAxis(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.localRotationAxis);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.localRotationAxis=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sizeGrow(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sizeGrow);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.sizeGrow=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rndForce(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rndForce);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.rndForce=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_force(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.force);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.force=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_damping(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.damping);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.damping=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autodestruct(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autodestruct);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autodestruct=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_colorAnimation(IntPtr l) {
 		try {
 			UnityEngine.ParticleAnimator self=(UnityEngine.ParticleAnimator)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.colorAnimation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,11 +244,11 @@ public class Lua_UnityEngine_ParticleAnimator : LuaObject {
 			UnityEngine.Color[] v;
 			checkType(l,2,out v);
 			self.colorAnimation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

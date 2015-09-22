@@ -13,59 +13,59 @@ public class Lua_UnityEngine_EventSystems_PhysicsRaycaster : LuaObject {
 			System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult> a2;
 			checkType(l,3,out a2);
 			self.Raycast(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_eventCamera(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.PhysicsRaycaster self=(UnityEngine.EventSystems.PhysicsRaycaster)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.eventCamera);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_depth(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.PhysicsRaycaster self=(UnityEngine.EventSystems.PhysicsRaycaster)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.depth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_finalEventMask(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.PhysicsRaycaster self=(UnityEngine.EventSystems.PhysicsRaycaster)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.finalEventMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_eventMask(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.PhysicsRaycaster self=(UnityEngine.EventSystems.PhysicsRaycaster)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.eventMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,11 +75,11 @@ public class Lua_UnityEngine_EventSystems_PhysicsRaycaster : LuaObject {
 			UnityEngine.LayerMask v;
 			checkValueType(l,2,out v);
 			self.eventMask=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -8,12 +8,12 @@ public class Lua_ActivateMonos : LuaObject {
 	static public int get_monos(IntPtr l) {
 		try {
 			ActivateMonos self=(ActivateMonos)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.monos);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,23 +23,23 @@ public class Lua_ActivateMonos : LuaObject {
 			System.Collections.Generic.List<UnityEngine.MonoBehaviour> v;
 			checkType(l,2,out v);
 			self.monos=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_activateGameObj(IntPtr l) {
 		try {
 			ActivateMonos self=(ActivateMonos)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.activateGameObj);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,11 +49,11 @@ public class Lua_ActivateMonos : LuaObject {
 			System.Collections.Generic.List<UnityEngine.GameObject> v;
 			checkType(l,2,out v);
 			self.activateGameObj=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

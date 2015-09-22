@@ -9,59 +9,59 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 		try {
 			UnityEngine.Canvas o;
 			o=new UnityEngine.Canvas();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetDefaultCanvasMaterial_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Canvas.GetDefaultCanvasMaterial();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetDefaultCanvasTextMaterial_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Canvas.GetDefaultCanvasTextMaterial();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int ForceUpdateCanvases_s(IntPtr l) {
 		try {
 			UnityEngine.Canvas.ForceUpdateCanvases();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderMode(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.renderMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -71,35 +71,35 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			UnityEngine.RenderMode v;
 			checkEnum(l,2,out v);
 			self.renderMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isRootCanvas(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isRootCanvas);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_worldCamera(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.worldCamera);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -109,35 +109,35 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			UnityEngine.Camera v;
 			checkType(l,2,out v);
 			self.worldCamera=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelRect(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_scaleFactor(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.scaleFactor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,23 +147,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.scaleFactor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_referencePixelsPerUnit(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.referencePixelsPerUnit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -173,23 +173,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.referencePixelsPerUnit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_overridePixelPerfect(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.overridePixelPerfect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -199,23 +199,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.overridePixelPerfect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelPerfect(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelPerfect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -225,23 +225,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.pixelPerfect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_planeDistance(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.planeDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -251,35 +251,35 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.planeDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderOrder(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.renderOrder);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_overrideSorting(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.overrideSorting);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -289,23 +289,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.overrideSorting=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sortingOrder(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sortingOrder);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -315,23 +315,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.sortingOrder=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sortingLayerID(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sortingLayerID);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -341,23 +341,23 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.sortingLayerID=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sortingLayerName(IntPtr l) {
 		try {
 			UnityEngine.Canvas self=(UnityEngine.Canvas)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sortingLayerName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -367,11 +367,11 @@ public class Lua_UnityEngine_Canvas : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.sortingLayerName=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

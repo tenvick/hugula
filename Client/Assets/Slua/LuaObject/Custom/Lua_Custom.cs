@@ -11,12 +11,12 @@ public class Lua_Custom : LuaObject {
 			System.Type a1;
 			checkType(l,2,out a1);
 			var ret=self.getTypeName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,12 +26,12 @@ public class Lua_Custom : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			var ret = self[v];
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -43,11 +43,11 @@ public class Lua_Custom : LuaObject {
 			int c;
 			checkType(l,3,out c);
 			self[v]=c;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

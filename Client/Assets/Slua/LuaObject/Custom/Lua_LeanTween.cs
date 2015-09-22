@@ -9,11 +9,11 @@ public class Lua_LeanTween : LuaObject {
 		try {
 			LeanTween self=(LeanTween)checkSelf(l);
 			self.Update();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.OnLevelWasLoaded(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,42 +36,44 @@ public class Lua_LeanTween : LuaObject {
 			int argc = LuaDLL.lua_gettop(l);
 			if(argc==0){
 				LeanTween.init();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==1){
 				System.Int32 a1;
 				checkType(l,1,out a1);
 				LeanTween.init(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int reset_s(IntPtr l) {
 		try {
 			LeanTween.reset();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int update_s(IntPtr l) {
 		try {
 			LeanTween.update();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,11 +82,11 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			LeanTween.removeTween(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -95,12 +97,12 @@ public class Lua_LeanTween : LuaObject {
 			UnityEngine.Vector3 a2;
 			checkType(l,2,out a2);
 			var ret=LeanTween.add(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,12 +113,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a2;
 			checkType(l,2,out a2);
 			var ret=LeanTween.closestRot(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -127,7 +129,8 @@ public class Lua_LeanTween : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				LeanTween.cancel(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(int))){
 				LTRect a1;
@@ -135,7 +138,8 @@ public class Lua_LeanTween : LuaObject {
 				System.Int32 a2;
 				checkType(l,2,out a2);
 				LeanTween.cancel(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(int))){
 				UnityEngine.GameObject a1;
@@ -143,14 +147,15 @@ public class Lua_LeanTween : LuaObject {
 				System.Int32 a2;
 				checkType(l,2,out a2);
 				LeanTween.cancel(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -159,12 +164,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=LeanTween.description(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -175,20 +180,22 @@ public class Lua_LeanTween : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				LeanTween.pause(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(int))){
 				System.Int32 a1;
 				checkType(l,1,out a1);
 				LeanTween.pause(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -199,20 +206,22 @@ public class Lua_LeanTween : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				LeanTween.resume(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(int))){
 				System.Int32 a1;
 				checkType(l,1,out a1);
 				LeanTween.resume(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -223,29 +232,32 @@ public class Lua_LeanTween : LuaObject {
 				LTRect a1;
 				checkType(l,1,out a1);
 				var ret=LeanTween.isTweening(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(int))){
 				System.Int32 a1;
 				checkType(l,1,out a1);
 				var ret=LeanTween.isTweening(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject))){
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				var ret=LeanTween.isTweening(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -260,11 +272,11 @@ public class Lua_LeanTween : LuaObject {
 			UnityEngine.Vector3 a4;
 			checkType(l,4,out a4);
 			LeanTween.drawBezierPath(a1,a2,a3,a4);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -273,12 +285,12 @@ public class Lua_LeanTween : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=LeanTween.logError(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -287,22 +299,24 @@ public class Lua_LeanTween : LuaObject {
 			int argc = LuaDLL.lua_gettop(l);
 			if(argc==0){
 				var ret=LeanTween.options();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==1){
 				LTDescr a1;
 				checkType(l,1,out a1);
 				var ret=LeanTween.options(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -317,8 +331,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.alpha(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -328,8 +343,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.alpha(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -341,8 +357,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.alpha(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -354,8 +371,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.alpha(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				LTRect a1;
@@ -367,8 +385,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.alpha(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(float),typeof(float),typeof(object[]))){
 				LTRect a1;
@@ -380,15 +399,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.alpha(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -401,12 +421,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.alphaVertex(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -419,12 +439,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.color(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -437,8 +457,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<System.Object> a2;
 				LuaDelegation.checkDelegate(l,2,out a2);
 				var ret=LeanTween.delayedCall(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(float),typeof(System.Action))){
 				System.Single a1;
@@ -446,8 +467,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Action a2;
 				LuaDelegation.checkDelegate(l,2,out a2);
 				var ret=LeanTween.delayedCall(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(float),typeof(SLua.LuaFunction),typeof(object[]))){
 				System.Single a1;
@@ -457,8 +479,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(float),typeof(string),typeof(System.Collections.Hashtable))){
 				System.Single a1;
@@ -468,8 +491,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(float),typeof(System.Action),typeof(object[]))){
 				System.Single a1;
@@ -479,8 +503,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(System.Action))){
 				UnityEngine.GameObject a1;
@@ -490,8 +515,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Action a3;
 				LuaDelegation.checkDelegate(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(System.Action<object>))){
 				UnityEngine.GameObject a1;
@@ -501,8 +527,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<System.Object> a3;
 				LuaDelegation.checkDelegate(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(float),typeof(SLua.LuaFunction),typeof(System.Collections.Hashtable))){
 				System.Single a1;
@@ -512,8 +539,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.delayedCall(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(SLua.LuaFunction),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -525,8 +553,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(System.Action),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -538,8 +567,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(System.Action<object>),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -551,8 +581,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(string),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -564,8 +595,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(System.Action),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -577,8 +609,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(string),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -590,15 +623,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.delayedCall(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -609,12 +643,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a2;
 			checkType(l,2,out a2);
 			var ret=LeanTween.destroyAfter(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -629,8 +663,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.move(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(UnityEngine.Vector2),typeof(float))){
 				LTRect a1;
@@ -640,8 +675,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.move(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -651,8 +687,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.move(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector2),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -662,8 +699,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.move(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3[]),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -675,8 +713,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(UnityEngine.Vector2),typeof(float),typeof(System.Collections.Hashtable))){
 				LTRect a1;
@@ -688,8 +727,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				LTRect a1;
@@ -701,8 +741,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -714,8 +755,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -727,8 +769,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3[]),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -740,15 +783,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.move(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -761,12 +805,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.moveSpline(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -779,12 +823,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.moveSplineLocal(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -797,12 +841,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.moveMargin(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -817,8 +861,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveX(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -830,8 +875,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -843,15 +889,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -866,8 +913,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveY(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -879,8 +927,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -892,15 +941,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -915,8 +965,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveZ(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -928,8 +979,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -941,15 +993,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -964,8 +1017,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveLocal(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -975,8 +1029,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveLocal(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3[]),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -988,8 +1043,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3[]),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1001,8 +1057,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1014,8 +1071,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1027,15 +1085,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1050,8 +1109,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveLocalX(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1063,8 +1123,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1076,15 +1137,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1099,8 +1161,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveLocalY(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1112,8 +1175,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1125,15 +1189,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1148,8 +1213,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.moveLocalZ(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1161,8 +1227,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1174,15 +1241,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.moveLocalZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1197,8 +1265,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotate(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1208,8 +1277,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotate(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				LTRect a1;
@@ -1221,8 +1291,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotate(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(float),typeof(float),typeof(object[]))){
 				LTRect a1;
@@ -1234,8 +1305,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotate(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1247,8 +1319,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotate(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1260,15 +1333,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotate(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1283,8 +1357,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotateLocal(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1296,8 +1371,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1309,15 +1385,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateLocal(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1332,8 +1409,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotateX(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1345,8 +1423,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1358,15 +1437,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1381,8 +1461,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotateY(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1394,8 +1475,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1407,15 +1489,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1430,8 +1513,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.rotateZ(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1443,8 +1527,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1456,15 +1541,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1481,8 +1567,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.rotateAround(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1496,8 +1583,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.rotateAround(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1511,15 +1599,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.rotateAround(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1534,12 +1623,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a4;
 			checkType(l,4,out a4);
 			var ret=LeanTween.rotateAroundLocal(a1,a2,a3,a4);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1554,8 +1643,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.scale(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1565,8 +1655,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.scale(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(UnityEngine.Vector2),typeof(float),typeof(System.Collections.Hashtable))){
 				LTRect a1;
@@ -1578,8 +1669,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scale(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(LTRect),typeof(UnityEngine.Vector2),typeof(float),typeof(object[]))){
 				LTRect a1;
@@ -1591,8 +1683,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scale(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1604,8 +1697,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scale(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1617,15 +1711,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scale(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1640,8 +1735,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.scaleX(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1653,8 +1749,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1666,15 +1763,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleX(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1689,8 +1787,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.scaleY(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1702,8 +1801,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1715,15 +1815,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleY(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1738,8 +1839,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=LeanTween.scaleZ(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1751,8 +1853,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1764,15 +1867,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a4;
 				checkType(l,4,out a4);
 				var ret=LeanTween.scaleZ(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1791,8 +1895,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string),typeof(float),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				System.String a1;
@@ -1806,8 +1911,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(string),typeof(float),typeof(float),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1821,8 +1927,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<System.Single>),typeof(float),typeof(float),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1836,8 +1943,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Color>),typeof(UnityEngine.Color),typeof(UnityEngine.Color),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1851,8 +1959,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Vector3>),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float))){
 				UnityEngine.GameObject a1;
@@ -1866,8 +1975,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Single a5;
 				checkType(l,5,out a5);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Vector3>),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1883,8 +1993,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(string),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1900,8 +2011,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(string),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1917,8 +2029,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Vector3,System.Collections.Hashtable>),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1934,8 +2047,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Vector3>),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1951,8 +2065,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<UnityEngine.Vector3,System.Collections.Hashtable>),typeof(UnityEngine.Vector3),typeof(UnityEngine.Vector3),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -1968,8 +2083,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<System.Single,System.Collections.Hashtable>),typeof(float),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -1985,8 +2101,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<System.Single>),typeof(float),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -2002,8 +2119,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(string),typeof(float),typeof(float),typeof(float),typeof(object[]))){
 				UnityEngine.GameObject a1;
@@ -2019,8 +2137,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Object[] a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<System.Single,System.Collections.Hashtable>),typeof(float),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -2036,8 +2155,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(System.Action<System.Single>),typeof(float),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -2053,8 +2173,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.GameObject),typeof(string),typeof(float),typeof(float),typeof(float),typeof(System.Collections.Hashtable))){
 				UnityEngine.GameObject a1;
@@ -2070,15 +2191,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Collections.Hashtable a6;
 				checkType(l,6,out a6);
 				var ret=LeanTween.value(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2091,12 +2213,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Single a3;
 			checkType(l,3,out a3);
 			var ret=LeanTween.delayedSound(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2105,12 +2227,12 @@ public class Lua_LeanTween : LuaObject {
 			System.Object[] a1;
 			checkType(l,1,out a1);
 			var ret=LeanTween.h(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2123,7 +2245,8 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<LTEvent> a2;
 				LuaDelegation.checkDelegate(l,2,out a2);
 				LeanTween.addListener(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.GameObject a1;
@@ -2133,14 +2256,15 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<LTEvent> a3;
 				LuaDelegation.checkDelegate(l,3,out a3);
 				LeanTween.addListener(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2153,8 +2277,9 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<LTEvent> a2;
 				LuaDelegation.checkDelegate(l,2,out a2);
 				var ret=LeanTween.removeListener(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.GameObject a1;
@@ -2164,15 +2289,16 @@ public class Lua_LeanTween : LuaObject {
 				System.Action<LTEvent> a3;
 				LuaDelegation.checkDelegate(l,3,out a3);
 				var ret=LeanTween.removeListener(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2183,7 +2309,8 @@ public class Lua_LeanTween : LuaObject {
 				System.Int32 a1;
 				checkType(l,1,out a1);
 				LeanTween.dispatchEvent(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				System.Int32 a1;
@@ -2191,25 +2318,26 @@ public class Lua_LeanTween : LuaObject {
 				System.Object a2;
 				checkType(l,2,out a2);
 				LeanTween.dispatchEvent(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_throwErrors(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.throwErrors);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2218,22 +2346,22 @@ public class Lua_LeanTween : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			LeanTween.throwErrors=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_startSearch(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.startSearch);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2242,22 +2370,22 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			LeanTween.startSearch=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_descr(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.descr);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2266,22 +2394,22 @@ public class Lua_LeanTween : LuaObject {
 			LTDescr v;
 			checkType(l,2,out v);
 			LeanTween.descr=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_EVENTS_MAX(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.EVENTS_MAX);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2290,22 +2418,22 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			LeanTween.EVENTS_MAX=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_LISTENERS_MAX(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.LISTENERS_MAX);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2314,22 +2442,22 @@ public class Lua_LeanTween : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			LeanTween.LISTENERS_MAX=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_tweenEmpty(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LeanTween.tweenEmpty);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

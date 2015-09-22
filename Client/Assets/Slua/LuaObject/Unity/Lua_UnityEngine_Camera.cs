@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera o;
 			o=new UnityEngine.Camera();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -28,7 +28,8 @@ public class Lua_UnityEngine_Camera : LuaObject {
 				UnityEngine.RenderBuffer a2;
 				checkValueType(l,3,out a2);
 				self.SetTargetBuffers(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.RenderBuffer),typeof(UnityEngine.RenderBuffer))){
 				UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
@@ -37,14 +38,15 @@ public class Lua_UnityEngine_Camera : LuaObject {
 				UnityEngine.RenderBuffer a2;
 				checkValueType(l,3,out a2);
 				self.SetTargetBuffers(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -52,11 +54,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.ResetWorldToCameraMatrix();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -64,11 +66,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.ResetProjectionMatrix();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,11 +78,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.ResetAspect();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -90,12 +92,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.WorldToScreenPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -105,12 +107,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.WorldToViewportPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -120,12 +122,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ViewportToWorldPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -135,12 +137,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ScreenToWorldPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -150,12 +152,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ScreenToViewportPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -165,12 +167,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ViewportToScreenPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -180,12 +182,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ViewportPointToRay(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -195,12 +197,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ScreenPointToRay(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -208,11 +210,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.Render();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -224,11 +226,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			System.String a2;
 			checkType(l,3,out a2);
 			self.RenderWithShader(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -240,11 +242,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			System.String a2;
 			checkType(l,3,out a2);
 			self.SetReplacementShader(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -252,11 +254,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.ResetReplacementShader();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -264,11 +266,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.RenderDontRestore();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -280,16 +282,18 @@ public class Lua_UnityEngine_Camera : LuaObject {
 				UnityEngine.RenderTexture a1;
 				checkType(l,2,out a1);
 				var ret=self.RenderToCubemap(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.Cubemap))){
 				UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 				UnityEngine.Cubemap a1;
 				checkType(l,2,out a1);
 				var ret=self.RenderToCubemap(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.RenderTexture),typeof(int))){
 				UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
@@ -298,8 +302,9 @@ public class Lua_UnityEngine_Camera : LuaObject {
 				System.Int32 a2;
 				checkType(l,3,out a2);
 				var ret=self.RenderToCubemap(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.Cubemap),typeof(int))){
 				UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
@@ -308,15 +313,16 @@ public class Lua_UnityEngine_Camera : LuaObject {
 				System.Int32 a2;
 				checkType(l,3,out a2);
 				var ret=self.RenderToCubemap(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -326,11 +332,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Camera a1;
 			checkType(l,2,out a1);
 			self.CopyFrom(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -342,11 +348,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rendering.CommandBuffer a2;
 			checkType(l,3,out a2);
 			self.AddCommandBuffer(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -358,11 +364,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rendering.CommandBuffer a2;
 			checkType(l,3,out a2);
 			self.RemoveCommandBuffer(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -372,11 +378,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rendering.CameraEvent a1;
 			checkEnum(l,2,out a1);
 			self.RemoveCommandBuffers(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -384,11 +390,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
 			self.RemoveAllCommandBuffers();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -398,12 +404,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rendering.CameraEvent a1;
 			checkEnum(l,2,out a1);
 			var ret=self.GetCommandBuffers(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -413,12 +419,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Vector4 a1;
 			checkType(l,2,out a1);
 			var ret=self.CalculateObliqueMatrix(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -427,12 +433,12 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Camera[] a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Camera.GetAllCameras(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -441,11 +447,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Camera a1;
 			checkType(l,1,out a1);
 			UnityEngine.Camera.SetupCurrent(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -456,11 +462,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			if(op==0) UnityEngine.Camera.onPreCull=v;
 			else if(op==1) UnityEngine.Camera.onPreCull+=v;
 			else if(op==2) UnityEngine.Camera.onPreCull-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -471,11 +477,11 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			if(op==0) UnityEngine.Camera.onPreRender=v;
 			else if(op==1) UnityEngine.Camera.onPreRender+=v;
 			else if(op==2) UnityEngine.Camera.onPreRender-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -486,23 +492,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			if(op==0) UnityEngine.Camera.onPostRender=v;
 			else if(op==1) UnityEngine.Camera.onPostRender+=v;
 			else if(op==2) UnityEngine.Camera.onPostRender-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fieldOfView(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fieldOfView);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -512,23 +518,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.fieldOfView=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_nearClipPlane(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.nearClipPlane);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -538,23 +544,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.nearClipPlane=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_farClipPlane(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.farClipPlane);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -564,23 +570,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.farClipPlane=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderingPath(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.renderingPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -590,35 +596,35 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.RenderingPath v;
 			checkEnum(l,2,out v);
 			self.renderingPath=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_actualRenderingPath(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.actualRenderingPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hdr(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hdr);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -628,23 +634,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.hdr=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orthographicSize(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orthographicSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -654,23 +660,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.orthographicSize=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orthographic(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orthographic);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -680,23 +686,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.orthographic=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_transparencySortMode(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.transparencySortMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -706,23 +712,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.TransparencySortMode v;
 			checkEnum(l,2,out v);
 			self.transparencySortMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_depth(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.depth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -732,23 +738,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.depth=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_aspect(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.aspect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -758,23 +764,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.aspect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cullingMask(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cullingMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -784,23 +790,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.cullingMask=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_eventMask(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.eventMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -810,23 +816,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.eventMask=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_backgroundColor(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.backgroundColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -836,23 +842,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			self.backgroundColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rect(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -862,23 +868,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self.rect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelRect(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -888,23 +894,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self.pixelRect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_targetTexture(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.targetTexture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -914,59 +920,59 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.RenderTexture v;
 			checkType(l,2,out v);
 			self.targetTexture=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelWidth(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelHeight(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cameraToWorldMatrix(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cameraToWorldMatrix);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_worldToCameraMatrix(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.worldToCameraMatrix);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -976,23 +982,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Matrix4x4 v;
 			checkValueType(l,2,out v);
 			self.worldToCameraMatrix=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_projectionMatrix(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.projectionMatrix);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1002,35 +1008,35 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.Matrix4x4 v;
 			checkValueType(l,2,out v);
 			self.projectionMatrix=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocity(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_clearFlags(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.clearFlags);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1040,35 +1046,35 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.CameraClearFlags v;
 			checkEnum(l,2,out v);
 			self.clearFlags=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_stereoEnabled(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.stereoEnabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_stereoSeparation(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.stereoSeparation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1078,23 +1084,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.stereoSeparation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_stereoConvergence(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.stereoConvergence);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1104,23 +1110,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.stereoConvergence=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_targetDisplay(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.targetDisplay);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1130,67 +1136,67 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.targetDisplay=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_main(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Camera.main);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_current(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Camera.current);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_allCameras(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Camera.allCameras);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_allCamerasCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Camera.allCamerasCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useOcclusionCulling(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useOcclusionCulling);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1200,23 +1206,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useOcclusionCulling=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_layerCullDistances(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.layerCullDistances);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1226,23 +1232,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			System.Single[] v;
 			checkType(l,2,out v);
 			self.layerCullDistances=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_layerCullSpherical(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.layerCullSpherical);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1252,23 +1258,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.layerCullSpherical=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_depthTextureMode(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.depthTextureMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1278,23 +1284,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			UnityEngine.DepthTextureMode v;
 			checkEnum(l,2,out v);
 			self.depthTextureMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_clearStencilAfterLightingPass(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.clearStencilAfterLightingPass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1304,23 +1310,23 @@ public class Lua_UnityEngine_Camera : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.clearStencilAfterLightingPass=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_commandBufferCount(IntPtr l) {
 		try {
 			UnityEngine.Camera self=(UnityEngine.Camera)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.commandBufferCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

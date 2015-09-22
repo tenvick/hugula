@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 		try {
 			UnityEngine.Microphone o;
 			o=new UnityEngine.Microphone();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -29,12 +29,12 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 			System.Int32 a4;
 			checkType(l,4,out a4);
 			var ret=UnityEngine.Microphone.Start(a1,a2,a3,a4);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -43,11 +43,11 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			UnityEngine.Microphone.End(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -56,12 +56,12 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Microphone.IsRecording(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -70,12 +70,12 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Microphone.GetPosition(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,24 +86,24 @@ public class Lua_UnityEngine_Microphone : LuaObject {
 			System.Int32 a2;
 			System.Int32 a3;
 			UnityEngine.Microphone.GetDeviceCaps(a1,out a2,out a3);
+			pushValue(l,true);
 			pushValue(l,a2);
 			pushValue(l,a3);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_devices(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Microphone.devices);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

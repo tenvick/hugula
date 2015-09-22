@@ -9,24 +9,24 @@ public class Lua_UnityEngine_RuntimeAnimatorController : LuaObject {
 		try {
 			UnityEngine.RuntimeAnimatorController o;
 			o=new UnityEngine.RuntimeAnimatorController();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animationClips(IntPtr l) {
 		try {
 			UnityEngine.RuntimeAnimatorController self=(UnityEngine.RuntimeAnimatorController)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animationClips);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

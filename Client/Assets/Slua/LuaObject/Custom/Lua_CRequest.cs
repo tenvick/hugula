@@ -13,8 +13,9 @@ public class Lua_CRequest : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new CRequest(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				System.String a1;
@@ -24,15 +25,14 @@ public class Lua_CRequest : LuaObject {
 				System.String a3;
 				checkType(l,4,out a3);
 				o=new CRequest(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -40,11 +40,11 @@ public class Lua_CRequest : LuaObject {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
 			self.Dispose();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -52,11 +52,11 @@ public class Lua_CRequest : LuaObject {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
 			self.DispatchComplete();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -64,23 +64,23 @@ public class Lua_CRequest : LuaObject {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
 			self.DispatchEnd();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_assetType(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.assetType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -90,23 +90,23 @@ public class Lua_CRequest : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.assetType=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_assetBundle(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.assetBundle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -116,23 +116,23 @@ public class Lua_CRequest : LuaObject {
 			UnityEngine.AssetBundle v;
 			checkType(l,2,out v);
 			self.assetBundle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_www(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.www);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -142,23 +142,23 @@ public class Lua_CRequest : LuaObject {
 			UnityEngine.WWW v;
 			checkType(l,2,out v);
 			self.www=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userData(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -168,23 +168,23 @@ public class Lua_CRequest : LuaObject {
 			System.Object v;
 			checkType(l,2,out v);
 			self.userData=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_priority(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.priority);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -194,23 +194,23 @@ public class Lua_CRequest : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			self.priority=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_times(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.times);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -220,23 +220,23 @@ public class Lua_CRequest : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			self.times=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_childrenReq(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.childrenReq);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -246,23 +246,23 @@ public class Lua_CRequest : LuaObject {
 			CRequest v;
 			checkType(l,2,out v);
 			self.childrenReq=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_dependenciesCount(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.dependenciesCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -272,23 +272,23 @@ public class Lua_CRequest : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			self.dependenciesCount=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_suffix(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.suffix);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -298,23 +298,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.suffix=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_assetBundleName(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.assetBundleName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -324,23 +324,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.assetBundleName=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_assetName(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.assetName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -350,23 +350,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.assetName=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_head(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.head);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -376,23 +376,23 @@ public class Lua_CRequest : LuaObject {
 			System.Object v;
 			checkType(l,2,out v);
 			self.head=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_data(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.data);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -402,23 +402,23 @@ public class Lua_CRequest : LuaObject {
 			System.Object v;
 			checkType(l,2,out v);
 			self.data=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isShared(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isShared);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -428,23 +428,23 @@ public class Lua_CRequest : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isShared=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_url(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.url);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -454,23 +454,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.url=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_key(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.key);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -480,23 +480,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.key=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_udKey(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.udKey);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -506,23 +506,23 @@ public class Lua_CRequest : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.udKey=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cache(IntPtr l) {
 		try {
 			CRequest self=(CRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cache);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -532,11 +532,11 @@ public class Lua_CRequest : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.cache=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

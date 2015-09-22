@@ -9,12 +9,12 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 		try {
 			UnityEngine.AudioClip o;
 			o=new UnityEngine.AudioClip();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
 			var ret=self.LoadAudioData();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,12 +35,12 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
 			var ret=self.UnloadAudioData();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -52,12 +52,12 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 			System.Int32 a2;
 			checkType(l,3,out a2);
 			var ret=self.GetData(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -69,12 +69,12 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 			System.Int32 a2;
 			checkType(l,3,out a2);
 			var ret=self.SetData(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -93,8 +93,9 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 				System.Boolean a5;
 				checkType(l,5,out a5);
 				var ret=UnityEngine.AudioClip.Create(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==6){
 				System.String a1;
@@ -110,8 +111,9 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 				UnityEngine.AudioClip.PCMReaderCallback a6;
 				LuaDelegation.checkDelegate(l,6,out a6);
 				var ret=UnityEngine.AudioClip.Create(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==7){
 				System.String a1;
@@ -129,111 +131,112 @@ public class Lua_UnityEngine_AudioClip : LuaObject {
 				UnityEngine.AudioClip.PCMSetPositionCallback a7;
 				LuaDelegation.checkDelegate(l,7,out a7);
 				var ret=UnityEngine.AudioClip.Create(a1,a2,a3,a4,a5,a6,a7);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_length(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.length);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_samples(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.samples);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_channels(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.channels);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_frequency(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.frequency);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_loadType(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.loadType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_preloadAudioData(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.preloadAudioData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_loadState(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.loadState);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_loadInBackground(IntPtr l) {
 		try {
 			UnityEngine.AudioClip self=(UnityEngine.AudioClip)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.loadInBackground);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

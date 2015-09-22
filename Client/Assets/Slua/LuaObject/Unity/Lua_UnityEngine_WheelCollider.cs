@@ -9,12 +9,12 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 		try {
 			UnityEngine.WheelCollider o;
 			o=new UnityEngine.WheelCollider();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -28,11 +28,11 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			System.Int32 a3;
 			checkType(l,4,out a3);
 			self.ConfigureVehicleSubsteps(a1,a2,a3);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -41,13 +41,13 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
 			UnityEngine.WheelHit a1;
 			var ret=self.GetGroundHit(out a1);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a1);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -57,25 +57,25 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.Vector3 a1;
 			UnityEngine.Quaternion a2;
 			self.GetWorldPose(out a1,out a2);
+			pushValue(l,true);
 			pushValue(l,a1);
 			pushValue(l,a2);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_center(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.center);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -85,23 +85,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.center=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_radius(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.radius);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,23 +111,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.radius=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_suspensionDistance(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.suspensionDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -137,23 +137,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.suspensionDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_suspensionSpring(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.suspensionSpring);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -163,23 +163,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.JointSpring v;
 			checkValueType(l,2,out v);
 			self.suspensionSpring=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forceAppPointDistance(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.forceAppPointDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -189,23 +189,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.forceAppPointDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mass(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -215,23 +215,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.mass=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_wheelDampingRate(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.wheelDampingRate);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -241,23 +241,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.wheelDampingRate=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forwardFriction(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.forwardFriction);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -267,23 +267,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.WheelFrictionCurve v;
 			checkValueType(l,2,out v);
 			self.forwardFriction=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sidewaysFriction(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sidewaysFriction);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -293,23 +293,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			UnityEngine.WheelFrictionCurve v;
 			checkValueType(l,2,out v);
 			self.sidewaysFriction=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_motorTorque(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.motorTorque);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,23 +319,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.motorTorque=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_brakeTorque(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.brakeTorque);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -345,23 +345,23 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.brakeTorque=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_steerAngle(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.steerAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -371,47 +371,47 @@ public class Lua_UnityEngine_WheelCollider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.steerAngle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isGrounded(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isGrounded);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sprungMass(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sprungMass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rpm(IntPtr l) {
 		try {
 			UnityEngine.WheelCollider self=(UnityEngine.WheelCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rpm);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

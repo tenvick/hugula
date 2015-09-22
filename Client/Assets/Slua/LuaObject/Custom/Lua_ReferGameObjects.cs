@@ -8,12 +8,12 @@ public class Lua_ReferGameObjects : LuaObject {
 	static public int get_refers(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.refers);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,23 +23,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Collections.Generic.List<UnityEngine.GameObject> v;
 			checkType(l,2,out v);
 			self.refers=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_monos(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.monos);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,23 +49,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Collections.Generic.List<UnityEngine.Behaviour> v;
 			checkType(l,2,out v);
 			self.monos=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userObject(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,23 +75,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Object v;
 			checkType(l,2,out v);
 			self.userObject=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userBool(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userBool);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -101,23 +101,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.userBool=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userInt(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userInt);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -127,23 +127,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			self.userInt=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userFloat(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userFloat);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -153,23 +153,23 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.userFloat=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_userString(IntPtr l) {
 		try {
 			ReferGameObjects self=(ReferGameObjects)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.userString);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -179,11 +179,11 @@ public class Lua_ReferGameObjects : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.userString=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

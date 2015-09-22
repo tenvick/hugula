@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Screen : LuaObject {
 		try {
 			UnityEngine.Screen o;
 			o=new UnityEngine.Screen();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -29,7 +29,8 @@ public class Lua_UnityEngine_Screen : LuaObject {
 				System.Boolean a3;
 				checkType(l,3,out a3);
 				UnityEngine.Screen.SetResolution(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				System.Int32 a1;
@@ -41,80 +42,81 @@ public class Lua_UnityEngine_Screen : LuaObject {
 				System.Int32 a4;
 				checkType(l,4,out a4);
 				UnityEngine.Screen.SetResolution(a1,a2,a3,a4);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_resolutions(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.resolutions);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currentResolution(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.currentResolution);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_width(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.width);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_height(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.height);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_dpi(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.dpi);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fullScreen(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.fullScreen);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -123,22 +125,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.fullScreen=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autorotateToPortrait(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.autorotateToPortrait);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,22 +149,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.autorotateToPortrait=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autorotateToPortraitUpsideDown(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.autorotateToPortraitUpsideDown);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -171,22 +173,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.autorotateToPortraitUpsideDown=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autorotateToLandscapeLeft(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.autorotateToLandscapeLeft);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -195,22 +197,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.autorotateToLandscapeLeft=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autorotateToLandscapeRight(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.autorotateToLandscapeRight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -219,22 +221,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.autorotateToLandscapeRight=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orientation(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.Screen.orientation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -243,22 +245,22 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			UnityEngine.ScreenOrientation v;
 			checkEnum(l,2,out v);
 			UnityEngine.Screen.orientation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sleepTimeout(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Screen.sleepTimeout);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -267,11 +269,11 @@ public class Lua_UnityEngine_Screen : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			UnityEngine.Screen.sleepTimeout=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

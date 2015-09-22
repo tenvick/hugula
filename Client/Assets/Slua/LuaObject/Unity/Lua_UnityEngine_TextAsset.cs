@@ -9,36 +9,36 @@ public class Lua_UnityEngine_TextAsset : LuaObject {
 		try {
 			UnityEngine.TextAsset o;
 			o=new UnityEngine.TextAsset();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_text(IntPtr l) {
 		try {
 			UnityEngine.TextAsset self=(UnityEngine.TextAsset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.text);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bytes(IntPtr l) {
 		try {
 			UnityEngine.TextAsset self=(UnityEngine.TextAsset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bytes);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

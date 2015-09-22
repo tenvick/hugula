@@ -1,7 +1,18 @@
 fileFormatVersion: 2
 guid: 8b7fbb2061a39b34b9644fc7c4601d7f
-MonoAssemblyImporter:
+PluginImporter:
   serializedVersion: 1
   iconMap: {}
   executionOrder: {}
+  isPreloaded: 0
+  platformData:
+    Any:
+      enabled: 1
+      settings: {}
+    Editor:
+      enabled: 0
+      settings:
+        DefaultValueInitialized: true
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 

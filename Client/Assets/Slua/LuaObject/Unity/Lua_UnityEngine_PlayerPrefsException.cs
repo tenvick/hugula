@@ -11,12 +11,12 @@ public class Lua_UnityEngine_PlayerPrefsException : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			o=new UnityEngine.PlayerPrefsException(a1);
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

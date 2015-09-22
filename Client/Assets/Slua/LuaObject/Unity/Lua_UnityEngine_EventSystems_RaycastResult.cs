@@ -9,12 +9,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult o;
 			o=new UnityEngine.EventSystems.RaycastResult();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
 			self.Clear();
+			pushValue(l,true);
 			setBack(l,self);
-			return 0;
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,12 +36,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.module);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,11 +53,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.module=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -65,12 +65,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.distance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -82,11 +82,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.distance=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -94,12 +94,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.index);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,11 +111,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.index=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -123,12 +123,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.depth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,11 +140,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.depth=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -152,12 +152,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.sortingLayer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -169,11 +169,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.sortingLayer=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -181,12 +181,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.sortingOrder);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -198,11 +198,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.sortingOrder=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -210,12 +210,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.gameObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -227,11 +227,11 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 			checkType(l,2,out v);
 			self.gameObject=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -239,12 +239,12 @@ public class Lua_UnityEngine_EventSystems_RaycastResult : LuaObject {
 		try {
 			UnityEngine.EventSystems.RaycastResult self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.isValid);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

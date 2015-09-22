@@ -11,15 +11,17 @@ public class Lua_LTRect : LuaObject {
 			LTRect o;
 			if(argc==1){
 				o=new LTRect();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.Rect a1;
 				checkValueType(l,2,out a1);
 				o=new LTRect(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==5){
 				System.Single a1;
@@ -31,8 +33,9 @@ public class Lua_LTRect : LuaObject {
 				System.Single a4;
 				checkType(l,5,out a4);
 				o=new LTRect(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==6){
 				System.Single a1;
@@ -46,8 +49,9 @@ public class Lua_LTRect : LuaObject {
 				System.Single a5;
 				checkType(l,6,out a5);
 				o=new LTRect(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==7){
 				System.Single a1;
@@ -63,15 +67,14 @@ public class Lua_LTRect : LuaObject {
 				System.Single a6;
 				checkType(l,7,out a6);
 				o=new LTRect(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -83,11 +86,11 @@ public class Lua_LTRect : LuaObject {
 			System.Int32 a2;
 			checkType(l,3,out a2);
 			self.setId(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -95,11 +98,11 @@ public class Lua_LTRect : LuaObject {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
 			self.reset();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,11 +110,11 @@ public class Lua_LTRect : LuaObject {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
 			self.resetForRotation();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -121,12 +124,12 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.GUIStyle a1;
 			checkType(l,2,out a1);
 			var ret=self.setStyle(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -136,12 +139,12 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean a1;
 			checkType(l,2,out a1);
 			var ret=self.setFontScaleToFit(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -151,12 +154,12 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Color a1;
 			checkType(l,2,out a1);
 			var ret=self.setColor(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,12 +169,12 @@ public class Lua_LTRect : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.setAlpha(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -181,12 +184,12 @@ public class Lua_LTRect : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.setLabel(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -198,8 +201,9 @@ public class Lua_LTRect : LuaObject {
 				System.Boolean a1;
 				checkType(l,2,out a1);
 				var ret=self.setUseSimpleScale(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				LTRect self=(LTRect)checkSelf(l);
@@ -208,15 +212,16 @@ public class Lua_LTRect : LuaObject {
 				UnityEngine.Rect a2;
 				checkValueType(l,3,out a2);
 				var ret=self.setUseSimpleScale(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -226,24 +231,24 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean a1;
 			checkType(l,2,out a1);
 			var ret=self.setSizeByHeight(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get__rect(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self._rect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -253,23 +258,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self._rect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_alpha(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.alpha);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -279,23 +284,23 @@ public class Lua_LTRect : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.alpha=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rotation(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rotation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -305,23 +310,23 @@ public class Lua_LTRect : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.rotation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pivot(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pivot);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -331,23 +336,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.pivot=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_margin(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.margin);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -357,23 +362,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.margin=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_relativeRect(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.relativeRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -383,23 +388,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self.relativeRect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rotateEnabled(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rotateEnabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -409,23 +414,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.rotateEnabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rotateFinished(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rotateFinished);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -435,23 +440,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.rotateFinished=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_alphaEnabled(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.alphaEnabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -461,23 +466,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.alphaEnabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_labelStr(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.labelStr);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -487,23 +492,23 @@ public class Lua_LTRect : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.labelStr=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_type(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.type);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -513,23 +518,23 @@ public class Lua_LTRect : LuaObject {
 			LTGUI.Element_Type v;
 			checkEnum(l,2,out v);
 			self.type=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_style(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.style);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -539,23 +544,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.GUIStyle v;
 			checkType(l,2,out v);
 			self.style=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useColor(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -565,23 +570,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.useColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_color(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.color);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -591,23 +596,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			self.color=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fontScaleToFit(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fontScaleToFit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -617,23 +622,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.fontScaleToFit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useSimpleScale(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useSimpleScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -643,23 +648,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.useSimpleScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sizeByHeight(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sizeByHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -669,23 +674,23 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.sizeByHeight=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_texture(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.texture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -695,23 +700,23 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Texture v;
 			checkType(l,2,out v);
 			self.texture=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_counter(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.counter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -721,22 +726,22 @@ public class Lua_LTRect : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			self.counter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_colorTouched(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LTRect.colorTouched);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -745,47 +750,47 @@ public class Lua_LTRect : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			LTRect.colorTouched=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hasInitiliazed(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hasInitiliazed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_id(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.id);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_x(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.x);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -795,23 +800,23 @@ public class Lua_LTRect : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.x=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_y(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.y);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -821,23 +826,23 @@ public class Lua_LTRect : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.y=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_width(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.width);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -847,23 +852,23 @@ public class Lua_LTRect : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.width=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_height(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.height);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -873,23 +878,23 @@ public class Lua_LTRect : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.height=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rect(IntPtr l) {
 		try {
 			LTRect self=(LTRect)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -899,11 +904,11 @@ public class Lua_LTRect : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self.rect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

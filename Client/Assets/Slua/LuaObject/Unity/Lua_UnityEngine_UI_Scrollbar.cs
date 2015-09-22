@@ -11,11 +11,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.UI.CanvasUpdate a1;
 			checkEnum(l,2,out a1);
 			self.Rebuild(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,11 +25,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnBeginDrag(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnDrag(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,11 +53,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerDown(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -67,11 +67,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerUp(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -81,11 +81,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.AxisEventData a1;
 			checkType(l,2,out a1);
 			self.OnMove(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -93,12 +93,12 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
 			var ret=self.FindSelectableOnLeft();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -106,12 +106,12 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
 			var ret=self.FindSelectableOnRight();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -119,12 +119,12 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
 			var ret=self.FindSelectableOnUp();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -132,12 +132,12 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
 			var ret=self.FindSelectableOnDown();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,11 +147,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnInitializePotentialDrag(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -163,23 +163,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			System.Boolean a2;
 			checkType(l,3,out a2);
 			self.SetDirection(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_handleRect(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.handleRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -189,23 +189,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.RectTransform v;
 			checkType(l,2,out v);
 			self.handleRect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_direction(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.direction);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -215,23 +215,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.UI.Scrollbar.Direction v;
 			checkEnum(l,2,out v);
 			self.direction=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_value(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.value);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -241,23 +241,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.value=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_size(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.size);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -267,23 +267,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.size=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_numberOfSteps(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.numberOfSteps);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -293,23 +293,23 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.numberOfSteps=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onValueChanged(IntPtr l) {
 		try {
 			UnityEngine.UI.Scrollbar self=(UnityEngine.UI.Scrollbar)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onValueChanged);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,11 +319,11 @@ public class Lua_UnityEngine_UI_Scrollbar : LuaObject {
 			UnityEngine.UI.Scrollbar.ScrollEvent v;
 			checkType(l,2,out v);
 			self.onValueChanged=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,11 +9,11 @@ public class Lua_UnityEngine_UI_VerticalLayoutGroup : LuaObject {
 		try {
 			UnityEngine.UI.VerticalLayoutGroup self=(UnityEngine.UI.VerticalLayoutGroup)checkSelf(l);
 			self.CalculateLayoutInputHorizontal();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -21,11 +21,11 @@ public class Lua_UnityEngine_UI_VerticalLayoutGroup : LuaObject {
 		try {
 			UnityEngine.UI.VerticalLayoutGroup self=(UnityEngine.UI.VerticalLayoutGroup)checkSelf(l);
 			self.CalculateLayoutInputVertical();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -33,11 +33,11 @@ public class Lua_UnityEngine_UI_VerticalLayoutGroup : LuaObject {
 		try {
 			UnityEngine.UI.VerticalLayoutGroup self=(UnityEngine.UI.VerticalLayoutGroup)checkSelf(l);
 			self.SetLayoutHorizontal();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -45,11 +45,11 @@ public class Lua_UnityEngine_UI_VerticalLayoutGroup : LuaObject {
 		try {
 			UnityEngine.UI.VerticalLayoutGroup self=(UnityEngine.UI.VerticalLayoutGroup)checkSelf(l);
 			self.SetLayoutVertical();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

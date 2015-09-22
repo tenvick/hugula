@@ -10,11 +10,11 @@ public class Lua_Localization : LuaObject {
 			System.Byte[] a1;
 			checkType(l,1,out a1);
 			Localization.Load(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_Localization : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=Localization.Get(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,23 +37,23 @@ public class Lua_Localization : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=Localization.Exists(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_localizationHasBeenSet(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,Localization.localizationHasBeenSet);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,22 +62,22 @@ public class Lua_Localization : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			Localization.localizationHasBeenSet=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_dictionary(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,Localization.dictionary);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,33 +86,33 @@ public class Lua_Localization : LuaObject {
 			Dictionary<System.String,System.String> v;
 			checkType(l,2,out v);
 			Localization.dictionary=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_knownLanguages(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,Localization.knownLanguages);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_language(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,Localization.language);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -121,11 +121,11 @@ public class Lua_Localization : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			Localization.language=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

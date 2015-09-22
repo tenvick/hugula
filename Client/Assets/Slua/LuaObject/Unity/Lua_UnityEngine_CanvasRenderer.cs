@@ -9,12 +9,12 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 		try {
 			UnityEngine.CanvasRenderer o;
 			o=new UnityEngine.CanvasRenderer();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,11 +24,11 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 			UnityEngine.Color a1;
 			checkType(l,2,out a1);
 			self.SetColor(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,12 +36,12 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
 			var ret=self.GetColor();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,12 +49,12 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
 			var ret=self.GetAlpha();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -64,11 +64,11 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			self.SetAlpha(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,11 +80,11 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 			UnityEngine.Texture a2;
 			checkType(l,3,out a2);
 			self.SetMaterial(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,12 +92,12 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
 			var ret=self.GetMaterial();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -109,7 +109,8 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 				System.Collections.Generic.List<UnityEngine.UIVertex> a1;
 				checkType(l,2,out a1);
 				self.SetVertices(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
@@ -118,14 +119,15 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 				System.Int32 a2;
 				checkType(l,3,out a2);
 				self.SetVertices(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,23 +135,23 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
 			self.Clear();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isMask(IntPtr l) {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -159,35 +161,35 @@ public class Lua_UnityEngine_CanvasRenderer : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isMask=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_relativeDepth(IntPtr l) {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.relativeDepth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_absoluteDepth(IntPtr l) {
 		try {
 			UnityEngine.CanvasRenderer self=(UnityEngine.CanvasRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.absoluteDepth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

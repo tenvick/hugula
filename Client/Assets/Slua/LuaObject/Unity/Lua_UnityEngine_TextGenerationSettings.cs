@@ -9,12 +9,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings o;
 			o=new UnityEngine.TextGenerationSettings();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.font);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.font=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.color);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.color=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,12 +80,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.fontSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -97,11 +97,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.fontSize=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -109,12 +109,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.lineSpacing);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,11 +126,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.lineSpacing=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -138,12 +138,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.richText);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -155,11 +155,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.richText=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -167,12 +167,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.fontStyle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -184,11 +184,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkEnum(l,2,out v);
 			self.fontStyle=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -196,12 +196,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.textAnchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -213,11 +213,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkEnum(l,2,out v);
 			self.textAnchor=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -225,12 +225,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.resizeTextForBestFit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -242,11 +242,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.resizeTextForBestFit=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -254,12 +254,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.resizeTextMinSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -271,11 +271,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.resizeTextMinSize=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -283,12 +283,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.resizeTextMaxSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -300,11 +300,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.resizeTextMaxSize=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -312,12 +312,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.updateBounds);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -329,11 +329,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.updateBounds=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -341,12 +341,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.verticalOverflow);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -358,11 +358,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkEnum(l,2,out v);
 			self.verticalOverflow=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -370,12 +370,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.horizontalOverflow);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -387,11 +387,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkEnum(l,2,out v);
 			self.horizontalOverflow=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -399,12 +399,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.generationExtents);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -416,11 +416,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.generationExtents=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -428,12 +428,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.pivot);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -445,11 +445,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.pivot=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -457,12 +457,12 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 		try {
 			UnityEngine.TextGenerationSettings self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.generateOutOfBounds);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -474,11 +474,11 @@ public class Lua_UnityEngine_TextGenerationSettings : LuaObject {
 			checkType(l,2,out v);
 			self.generateOutOfBounds=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

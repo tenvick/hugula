@@ -13,8 +13,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.WWW(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(UnityEngine.WWWForm))){
 				System.String a1;
@@ -22,8 +23,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				UnityEngine.WWWForm a2;
 				checkType(l,3,out a2);
 				o=new UnityEngine.WWW(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(System.Byte[]))){
 				System.String a1;
@@ -31,8 +33,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Byte[] a2;
 				checkType(l,3,out a2);
 				o=new UnityEngine.WWW(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				System.String a1;
@@ -42,15 +45,14 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Collections.Generic.Dictionary<System.String,System.String> a3;
 				checkType(l,4,out a3);
 				o=new UnityEngine.WWW(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -58,11 +60,11 @@ public class Lua_UnityEngine_WWW : LuaObject {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
 			self.Dispose();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,11 +78,11 @@ public class Lua_UnityEngine_WWW : LuaObject {
 			System.String[] a3;
 			checkType(l,4,out a3);
 			self.InitWWW(a1,a2,a3);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,8 +94,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Boolean a1;
 				checkType(l,2,out a1);
 				var ret=self.GetAudioClip(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
@@ -102,8 +105,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Boolean a2;
 				checkType(l,3,out a2);
 				var ret=self.GetAudioClip(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
@@ -114,15 +118,16 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				UnityEngine.AudioType a3;
 				checkEnum(l,4,out a3);
 				var ret=self.GetAudioClip(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -132,16 +137,18 @@ public class Lua_UnityEngine_WWW : LuaObject {
 			if(argc==1){
 				UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
 				var ret=self.GetAudioClipCompressed();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
 				System.Boolean a1;
 				checkType(l,2,out a1);
 				var ret=self.GetAudioClipCompressed(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
@@ -150,15 +157,16 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				UnityEngine.AudioType a2;
 				checkEnum(l,3,out a2);
 				var ret=self.GetAudioClipCompressed(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -168,11 +176,11 @@ public class Lua_UnityEngine_WWW : LuaObject {
 			UnityEngine.Texture2D a1;
 			checkType(l,2,out a1);
 			self.LoadImageIntoTexture(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -183,8 +191,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.WWW.EscapeURL(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -192,15 +201,16 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Text.Encoding a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.WWW.EscapeURL(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -211,8 +221,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.WWW.UnEscapeURL(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -220,15 +231,16 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Text.Encoding a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.WWW.UnEscapeURL(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -241,8 +253,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				UnityEngine.Hash128 a2;
 				checkValueType(l,2,out a2);
 				var ret=UnityEngine.WWW.LoadFromCacheOrDownload(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string),typeof(int))){
 				System.String a1;
@@ -250,8 +263,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.Int32 a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.WWW.LoadFromCacheOrDownload(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string),typeof(UnityEngine.Hash128),typeof(System.UInt32))){
 				System.String a1;
@@ -261,8 +275,9 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.UInt32 a3;
 				checkType(l,3,out a3);
 				var ret=UnityEngine.WWW.LoadFromCacheOrDownload(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string),typeof(int),typeof(System.UInt32))){
 				System.String a1;
@@ -272,195 +287,196 @@ public class Lua_UnityEngine_WWW : LuaObject {
 				System.UInt32 a3;
 				checkType(l,3,out a3);
 				var ret=UnityEngine.WWW.LoadFromCacheOrDownload(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_responseHeaders(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.responseHeaders);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_text(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.text);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bytes(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bytes);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_size(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.size);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_error(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.error);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_texture(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.texture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_textureNonReadable(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.textureNonReadable);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_audioClip(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.audioClip);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isDone(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isDone);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_progress(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.progress);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uploadProgress(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uploadProgress);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bytesDownloaded(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bytesDownloaded);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_url(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.url);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_assetBundle(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.assetBundle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_threadPriority(IntPtr l) {
 		try {
 			UnityEngine.WWW self=(UnityEngine.WWW)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.threadPriority);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -470,11 +486,11 @@ public class Lua_UnityEngine_WWW : LuaObject {
 			UnityEngine.ThreadPriority v;
 			checkEnum(l,2,out v);
 			self.threadPriority=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

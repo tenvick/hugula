@@ -11,56 +11,56 @@ public class Lua_UnityEngine_EventSystems_PointerInputModule : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.IsPointerOverGameObject(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_kMouseLeftId(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.EventSystems.PointerInputModule.kMouseLeftId);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_kMouseRightId(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.EventSystems.PointerInputModule.kMouseRightId);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_kMouseMiddleId(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.EventSystems.PointerInputModule.kMouseMiddleId);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_kFakeTouchesId(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.EventSystems.PointerInputModule.kFakeTouchesId);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -11,12 +11,12 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.FindMatchingGroups(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,12 +26,12 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.FindSnapshot(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -45,11 +45,11 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			System.Single a3;
 			checkType(l,4,out a3);
 			self.TransitionToSnapshots(a1,a2,a3);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,12 +61,12 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			var ret=self.SetFloat(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,12 +76,12 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.ClearFloat(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,25 +92,25 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			checkType(l,2,out a1);
 			System.Single a2;
 			var ret=self.GetFloat(a1,out a2);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a2);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_outputAudioMixerGroup(IntPtr l) {
 		try {
 			UnityEngine.Audio.AudioMixer self=(UnityEngine.Audio.AudioMixer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.outputAudioMixerGroup);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -120,11 +120,11 @@ public class Lua_UnityEngine_Audio_AudioMixer : LuaObject {
 			UnityEngine.Audio.AudioMixerGroup v;
 			checkType(l,2,out v);
 			self.outputAudioMixerGroup=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

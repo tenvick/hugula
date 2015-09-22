@@ -39,7 +39,7 @@ namespace SLua
 				bool ret;
 				checkType(l,error+1,out ret);
 				checkType(l,error+2,out a2);
-				checkValueType(l,error+3,out a3);
+				checkType(l,error+3,out a3);
 				LuaDLL.lua_settop(l, error-1);
 				return ret;
 			};

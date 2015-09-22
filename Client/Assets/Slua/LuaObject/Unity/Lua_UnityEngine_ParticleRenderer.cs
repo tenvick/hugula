@@ -9,24 +9,24 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 		try {
 			UnityEngine.ParticleRenderer o;
 			o=new UnityEngine.ParticleRenderer();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_particleRenderMode(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.particleRenderMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			UnityEngine.ParticleRenderMode v;
 			checkEnum(l,2,out v);
 			self.particleRenderMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lengthScale(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.lengthScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.lengthScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocityScale(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocityScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.velocityScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cameraVelocityScale(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cameraVelocityScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.cameraVelocityScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maxParticleSize(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.maxParticleSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.maxParticleSize=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uvAnimationXTile(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uvAnimationXTile);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.uvAnimationXTile=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uvAnimationYTile(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uvAnimationYTile);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.uvAnimationYTile=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uvAnimationCycles(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uvAnimationCycles);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.uvAnimationCycles=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maxPartileSize(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.maxPartileSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,23 +244,23 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.maxPartileSize=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uvTiles(IntPtr l) {
 		try {
 			UnityEngine.ParticleRenderer self=(UnityEngine.ParticleRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uvTiles);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,11 +270,11 @@ public class Lua_UnityEngine_ParticleRenderer : LuaObject {
 			UnityEngine.Rect[] v;
 			checkType(l,2,out v);
 			self.uvTiles=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 		try {
 			UnityEngine.HumanTrait o;
 			o=new UnityEngine.HumanTrait();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,12 +25,12 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			var ret=UnityEngine.HumanTrait.MuscleFromBone(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,12 +39,12 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.HumanTrait.BoneFromMuscle(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,12 +53,12 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.HumanTrait.RequiredBone(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -67,12 +67,12 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.HumanTrait.GetMuscleDefaultMin(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -81,67 +81,67 @@ public class Lua_UnityEngine_HumanTrait : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.HumanTrait.GetMuscleDefaultMax(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_MuscleCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.HumanTrait.MuscleCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_MuscleName(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.HumanTrait.MuscleName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_BoneCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.HumanTrait.BoneCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_BoneName(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.HumanTrait.BoneName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_RequiredBoneCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.HumanTrait.RequiredBoneCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

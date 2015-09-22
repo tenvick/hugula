@@ -9,35 +9,35 @@ public class Lua_UnityEngine_UI_RawImage : LuaObject {
 		try {
 			UnityEngine.UI.RawImage self=(UnityEngine.UI.RawImage)checkSelf(l);
 			self.SetNativeSize();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mainTexture(IntPtr l) {
 		try {
 			UnityEngine.UI.RawImage self=(UnityEngine.UI.RawImage)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mainTexture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_texture(IntPtr l) {
 		try {
 			UnityEngine.UI.RawImage self=(UnityEngine.UI.RawImage)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.texture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -47,23 +47,23 @@ public class Lua_UnityEngine_UI_RawImage : LuaObject {
 			UnityEngine.Texture v;
 			checkType(l,2,out v);
 			self.texture=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uvRect(IntPtr l) {
 		try {
 			UnityEngine.UI.RawImage self=(UnityEngine.UI.RawImage)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uvRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,11 +73,11 @@ public class Lua_UnityEngine_UI_RawImage : LuaObject {
 			UnityEngine.Rect v;
 			checkValueType(l,2,out v);
 			self.uvRect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_CUtils : LuaObject {
 		try {
 			CUtils o;
 			o=new CUtils();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetURLFileSuffix(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,12 +37,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetURLFileName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetKeyURLFileName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -65,12 +65,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetURLFullFileName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -79,12 +79,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetFileFullPath(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -93,12 +93,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetAssetFullPath(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,12 +107,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetFileFullPathNoProtocol(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -121,12 +121,12 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetDirectoryFullPathNoProtocol(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -135,35 +135,35 @@ public class Lua_CUtils : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CUtils.GetAssetPath(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetPlatformFolderForAssetBundles_s(IntPtr l) {
 		try {
 			var ret=CUtils.GetPlatformFolderForAssetBundles();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int Collect_s(IntPtr l) {
 		try {
 			CUtils.Collect();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -174,31 +174,33 @@ public class Lua_CUtils : LuaObject {
 				BetterList<System.Action> a1;
 				checkType(l,1,out a1);
 				CUtils.Execute(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(IList<System.Action>))){
 				System.Collections.Generic.IList<System.Action> a1;
 				checkType(l,1,out a1);
 				CUtils.Execute(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currPersistentExist(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,CUtils.currPersistentExist);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -207,22 +209,22 @@ public class Lua_CUtils : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			CUtils.currPersistentExist=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_dataPath(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,CUtils.dataPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -24,7 +24,8 @@ public class Lua_UnityEngine_SystemLanguage : LuaObject {
 		addMember(l,15,"German");
 		addMember(l,16,"Greek");
 		addMember(l,17,"Hebrew");
-		addMember(l,18,"Hugarian");
+		addMember(l,18,"Hungarian");
+		addMember(l,18,"Hungarian");
 		addMember(l,19,"Icelandic");
 		addMember(l,20,"Indonesian");
 		addMember(l,21,"Italian");
@@ -49,7 +50,6 @@ public class Lua_UnityEngine_SystemLanguage : LuaObject {
 		addMember(l,40,"ChineseSimplified");
 		addMember(l,41,"ChineseTraditional");
 		addMember(l,42,"Unknown");
-		addMember(l,18,"Hungarian");
 		LuaDLL.lua_pop(l, 1);
 	}
 }

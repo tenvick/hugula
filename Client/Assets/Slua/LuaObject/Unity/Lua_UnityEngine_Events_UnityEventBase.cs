@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 		try {
 			UnityEngine.Events.UnityEventBase self=(UnityEngine.Events.UnityEventBase)checkSelf(l);
 			var ret=self.GetPersistentEventCount();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetPersistentTarget(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,12 +39,12 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetPersistentMethodName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -56,11 +56,11 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 			UnityEngine.Events.UnityEventCallState a2;
 			checkEnum(l,3,out a2);
 			self.SetPersistentListenerState(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 		try {
 			UnityEngine.Events.UnityEventBase self=(UnityEngine.Events.UnityEventBase)checkSelf(l);
 			self.RemoveAllListeners();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -85,12 +85,12 @@ public class Lua_UnityEngine_Events_UnityEventBase : LuaObject {
 			System.Type[] a3;
 			checkType(l,3,out a3);
 			var ret=UnityEngine.Events.UnityEventBase.GetValidMethodInfo(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

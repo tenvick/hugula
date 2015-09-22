@@ -9,24 +9,24 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 		try {
 			UnityEngine.CharacterJoint o;
 			o=new UnityEngine.CharacterJoint();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_swingAxis(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.swingAxis);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.swingAxis=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_twistLimitSpring(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.twistLimitSpring);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimitSpring v;
 			checkValueType(l,2,out v);
 			self.twistLimitSpring=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_swingLimitSpring(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.swingLimitSpring);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimitSpring v;
 			checkValueType(l,2,out v);
 			self.swingLimitSpring=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lowTwistLimit(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.lowTwistLimit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimit v;
 			checkValueType(l,2,out v);
 			self.lowTwistLimit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_highTwistLimit(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.highTwistLimit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimit v;
 			checkValueType(l,2,out v);
 			self.highTwistLimit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_swing1Limit(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.swing1Limit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimit v;
 			checkValueType(l,2,out v);
 			self.swing1Limit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_swing2Limit(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.swing2Limit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			UnityEngine.SoftJointLimit v;
 			checkValueType(l,2,out v);
 			self.swing2Limit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enableProjection(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enableProjection);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.enableProjection=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_projectionDistance(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.projectionDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,23 +244,23 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.projectionDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_projectionAngle(IntPtr l) {
 		try {
 			UnityEngine.CharacterJoint self=(UnityEngine.CharacterJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.projectionAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,11 +270,11 @@ public class Lua_UnityEngine_CharacterJoint : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.projectionAngle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

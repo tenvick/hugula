@@ -9,12 +9,12 @@ public class Lua_UnityEngine_StaticBatchingUtility : LuaObject {
 		try {
 			UnityEngine.StaticBatchingUtility o;
 			o=new UnityEngine.StaticBatchingUtility();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,7 +25,8 @@ public class Lua_UnityEngine_StaticBatchingUtility : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				UnityEngine.StaticBatchingUtility.Combine(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				UnityEngine.GameObject[] a1;
@@ -33,14 +34,15 @@ public class Lua_UnityEngine_StaticBatchingUtility : LuaObject {
 				UnityEngine.GameObject a2;
 				checkType(l,2,out a2);
 				UnityEngine.StaticBatchingUtility.Combine(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

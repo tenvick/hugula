@@ -9,12 +9,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld o;
 			o=new HelloWorld();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			var ret=self.y();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,12 +35,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			var ret=self.foo();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -48,12 +48,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			var ret=self.foos();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -63,12 +63,12 @@ public class Lua_HelloWorld : LuaObject {
 			System.Collections.Generic.Dictionary<System.String,UnityEngine.GameObject>[] a1;
 			checkType(l,2,out a1);
 			var ret=self.gos(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,12 +76,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			var ret=self.too();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -89,12 +89,12 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			var ret=self.getList();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,11 +102,11 @@ public class Lua_HelloWorld : LuaObject {
 		try {
 			HelloWorld self=(HelloWorld)checkSelf(l);
 			self.perf();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -118,44 +118,46 @@ public class Lua_HelloWorld : LuaObject {
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				self.func7(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(SLua.LuaFunction))){
 				HelloWorld self=(HelloWorld)checkSelf(l);
 				SLua.LuaFunction a1;
 				checkType(l,2,out a1);
 				self.func7(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int say_s(IntPtr l) {
 		try {
 			HelloWorld.say();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int bytes_s(IntPtr l) {
 		try {
 			var ret=HelloWorld.bytes();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -164,23 +166,23 @@ public class Lua_HelloWorld : LuaObject {
 			SLua.LuaTable a1;
 			checkType(l,1,out a1);
 			HelloWorld.setv(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int getv_s(IntPtr l) {
 		try {
 			var ret=HelloWorld.getv();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -191,20 +193,22 @@ public class Lua_HelloWorld : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,1,out a1);
 				HelloWorld.ofunc(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(System.Type))){
 				System.Type a1;
 				checkType(l,1,out a1);
 				HelloWorld.ofunc(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -213,11 +217,11 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,1,out a1);
 			HelloWorld.testvec3(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -226,11 +230,11 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.GameObject a1;
 			checkType(l,1,out a1);
 			HelloWorld.testset(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -239,11 +243,11 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.GameObject a1;
 			checkType(l,1,out a1);
 			HelloWorld.test2(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -252,11 +256,11 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.GameObject a1;
 			checkType(l,1,out a1);
 			HelloWorld.test3(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -265,11 +269,11 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.GameObject a1;
 			checkType(l,1,out a1);
 			HelloWorld.test4(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -278,12 +282,12 @@ public class Lua_HelloWorld : LuaObject {
 			UnityEngine.GameObject a1;
 			checkType(l,1,out a1);
 			var ret=HelloWorld.test5(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -294,11 +298,11 @@ public class Lua_HelloWorld : LuaObject {
 			System.Object[] a2;
 			checkParams(l,2,out a2);
 			HelloWorld.func6(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

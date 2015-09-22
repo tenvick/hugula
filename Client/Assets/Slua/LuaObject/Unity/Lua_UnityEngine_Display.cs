@@ -11,7 +11,8 @@ public class Lua_UnityEngine_Display : LuaObject {
 			if(argc==1){
 				UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
 				self.Activate();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
@@ -22,14 +23,15 @@ public class Lua_UnityEngine_Display : LuaObject {
 				System.Int32 a3;
 				checkType(l,4,out a3);
 				self.Activate(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -45,11 +47,11 @@ public class Lua_UnityEngine_Display : LuaObject {
 			System.Int32 a4;
 			checkType(l,5,out a4);
 			self.SetParams(a1,a2,a3,a4);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,23 +63,23 @@ public class Lua_UnityEngine_Display : LuaObject {
 			System.Int32 a2;
 			checkType(l,3,out a2);
 			self.SetRenderingResolution(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int MultiDisplayLicense_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Display.MultiDisplayLicense();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,23 +88,23 @@ public class Lua_UnityEngine_Display : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Display.RelativeMouseAt(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_displays(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Display.displays);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,94 +113,94 @@ public class Lua_UnityEngine_Display : LuaObject {
 			UnityEngine.Display[] v;
 			checkType(l,2,out v);
 			UnityEngine.Display.displays=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderingWidth(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.renderingWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderingHeight(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.renderingHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_systemWidth(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.systemWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_systemHeight(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.systemHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_colorBuffer(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.colorBuffer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_depthBuffer(IntPtr l) {
 		try {
 			UnityEngine.Display self=(UnityEngine.Display)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.depthBuffer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_main(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Display.main);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

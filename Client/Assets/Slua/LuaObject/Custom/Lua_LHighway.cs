@@ -9,12 +9,12 @@ public class Lua_LHighway : LuaObject {
 		try {
 			LHighway o;
 			o=new LHighway();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,23 +24,23 @@ public class Lua_LHighway : LuaObject {
 			SLua.LuaTable a1;
 			checkType(l,2,out a1);
 			self.LoadLuaTable(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onAllCompleteFn(IntPtr l) {
 		try {
 			LHighway self=(LHighway)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onAllCompleteFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -50,23 +50,23 @@ public class Lua_LHighway : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onAllCompleteFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onProgressFn(IntPtr l) {
 		try {
 			LHighway self=(LHighway)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onProgressFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,23 +76,23 @@ public class Lua_LHighway : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onProgressFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onSharedCompleteFn(IntPtr l) {
 		try {
 			LHighway self=(LHighway)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onSharedCompleteFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,23 +102,23 @@ public class Lua_LHighway : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onSharedCompleteFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onCacheFn(IntPtr l) {
 		try {
 			LHighway self=(LHighway)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onCacheFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -128,23 +128,23 @@ public class Lua_LHighway : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onCacheFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cache(IntPtr l) {
 		try {
 			LHighway self=(LHighway)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cache);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -154,22 +154,22 @@ public class Lua_LHighway : LuaObject {
 			System.Object v;
 			checkType(l,2,out v);
 			self.cache=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_instance(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,LHighway.instance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -19,12 +19,12 @@ namespace SLua
                 UnityEngine.Events.UnityAction<float> a1;
                 checkType(l, 2, out a1);
                 self.AddListener(a1);
-                return 0;
+				pushValue(l,true);
+                return 1;
             }
             catch (Exception e)
             {
-                LuaDLL.luaL_error(l, e.ToString());
-                return 0;
+				return error(l,e);
             }
         }
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,12 +36,12 @@ namespace SLua
                 UnityEngine.Events.UnityAction<float> a1;
                 checkType(l, 2, out a1);
                 self.RemoveListener(a1);
-                return 0;
+				pushValue(l,true);
+                return 1;
             }
             catch (Exception e)
             {
-                LuaDLL.luaL_error(l, e.ToString());
-                return 0;
+                return error(l,e);
             }
         }
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,12 +53,12 @@ namespace SLua
                 float o;
                 checkType(l,2,out o);
                 self.Invoke(o);
-                return 0;
+				pushValue(l,true);
+                return 1;
             }
             catch (Exception e)
             {
-                LuaDLL.luaL_error(l, e.ToString());
-                return 0;
+                return error(l,e);
             }
         }
         static public void reg(IntPtr l)

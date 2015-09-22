@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 		try {
 			UnityEngine.Input o;
 			o=new UnityEngine.Input();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetAxis(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,12 +37,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetAxisRaw(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetButton(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -65,12 +65,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetButtonDown(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -79,12 +79,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetButtonUp(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -95,22 +95,24 @@ public class Lua_UnityEngine_Input : LuaObject {
 				UnityEngine.KeyCode a1;
 				checkEnum(l,1,out a1);
 				var ret=UnityEngine.Input.GetKey(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string))){
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.Input.GetKey(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -121,22 +123,24 @@ public class Lua_UnityEngine_Input : LuaObject {
 				UnityEngine.KeyCode a1;
 				checkEnum(l,1,out a1);
 				var ret=UnityEngine.Input.GetKeyDown(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string))){
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.Input.GetKeyDown(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,34 +151,36 @@ public class Lua_UnityEngine_Input : LuaObject {
 				UnityEngine.KeyCode a1;
 				checkEnum(l,1,out a1);
 				var ret=UnityEngine.Input.GetKeyUp(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(string))){
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.Input.GetKeyUp(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetJoystickNames_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Input.GetJoystickNames();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -183,12 +189,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetMouseButton(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -197,12 +203,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetMouseButtonDown(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -211,23 +217,23 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetMouseButtonUp(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int ResetInputAxes_s(IntPtr l) {
 		try {
 			UnityEngine.Input.ResetInputAxes();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -236,12 +242,12 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetAccelerationEvent(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -250,23 +256,23 @@ public class Lua_UnityEngine_Input : LuaObject {
 			System.Int32 a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Input.GetTouch(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_compensateSensors(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.compensateSensors);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -275,66 +281,66 @@ public class Lua_UnityEngine_Input : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Input.compensateSensors=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_gyro(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.gyro);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mousePosition(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.mousePosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mouseScrollDelta(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.mouseScrollDelta);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mousePresent(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.mousePresent);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_simulateMouseWithTouches(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.simulateMouseWithTouches);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -343,121 +349,121 @@ public class Lua_UnityEngine_Input : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Input.simulateMouseWithTouches=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anyKey(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.anyKey);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anyKeyDown(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.anyKeyDown);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_inputString(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.inputString);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_acceleration(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.acceleration);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_accelerationEvents(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.accelerationEvents);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_accelerationEventCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.accelerationEventCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_touches(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.touches);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_touchCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.touchCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_touchSupported(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.touchSupported);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_multiTouchEnabled(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.multiTouchEnabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -466,55 +472,55 @@ public class Lua_UnityEngine_Input : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Input.multiTouchEnabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_location(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.location);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_compass(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.compass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceOrientation(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.Input.deviceOrientation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_imeCompositionMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.Input.imeCompositionMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -523,44 +529,44 @@ public class Lua_UnityEngine_Input : LuaObject {
 			UnityEngine.IMECompositionMode v;
 			checkEnum(l,2,out v);
 			UnityEngine.Input.imeCompositionMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_compositionString(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.compositionString);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_imeIsSelected(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.imeIsSelected);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_compositionCursorPos(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Input.compositionCursorPos);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -569,11 +575,11 @@ public class Lua_UnityEngine_Input : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			UnityEngine.Input.compositionCursorPos=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

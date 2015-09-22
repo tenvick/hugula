@@ -13,12 +13,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Vector3 a2;
 			checkType(l,3,out a2);
 			o=new UnityEngine.Bounds(a1,a2);
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -31,12 +31,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Vector3 a2;
 			checkType(l,3,out a2);
 			self.SetMinMax(a1,a2);
+			pushValue(l,true);
 			setBack(l,self);
-			return 0;
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,8 +49,9 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				UnityEngine.Bounds a1;
 				checkValueType(l,2,out a1);
 				self.Encapsulate(a1);
+				pushValue(l,true);
 				setBack(l,self);
-				return 0;
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.Vector3))){
 				UnityEngine.Bounds self;
@@ -58,15 +59,16 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				UnityEngine.Vector3 a1;
 				checkType(l,2,out a1);
 				self.Encapsulate(a1);
+				pushValue(l,true);
 				setBack(l,self);
-				return 0;
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -79,8 +81,9 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				UnityEngine.Vector3 a1;
 				checkType(l,2,out a1);
 				self.Expand(a1);
+				pushValue(l,true);
 				setBack(l,self);
-				return 0;
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(float))){
 				UnityEngine.Bounds self;
@@ -88,15 +91,16 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				System.Single a1;
 				checkType(l,2,out a1);
 				self.Expand(a1);
+				pushValue(l,true);
 				setBack(l,self);
-				return 0;
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,12 +111,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Bounds a1;
 			checkValueType(l,2,out a1);
 			var ret=self.Intersects(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -123,12 +127,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.Contains(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -139,12 +143,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.SqrDistance(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -157,8 +161,9 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				UnityEngine.Ray a1;
 				checkValueType(l,2,out a1);
 				var ret=self.IntersectRay(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.Bounds self;
@@ -167,16 +172,17 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 				checkValueType(l,2,out a1);
 				System.Single a2;
 				var ret=self.IntersectRay(a1,out a2);
+				pushValue(l,true);
 				pushValue(l,ret);
 				pushValue(l,a2);
-				return 2;
+				return 3;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -187,12 +193,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ClosestPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -203,12 +209,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Bounds a2;
 			checkValueType(l,2,out a2);
 			var ret=(a1==a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -219,12 +225,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			UnityEngine.Bounds a2;
 			checkValueType(l,2,out a2);
 			var ret=(a1!=a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -232,12 +238,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 		try {
 			UnityEngine.Bounds self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.center);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -249,11 +255,11 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			checkType(l,2,out v);
 			self.center=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -261,12 +267,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 		try {
 			UnityEngine.Bounds self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.size);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -278,11 +284,11 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			checkType(l,2,out v);
 			self.size=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -290,12 +296,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 		try {
 			UnityEngine.Bounds self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.extents);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -307,11 +313,11 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			checkType(l,2,out v);
 			self.extents=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,12 +325,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 		try {
 			UnityEngine.Bounds self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.min);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -336,11 +342,11 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			checkType(l,2,out v);
 			self.min=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -348,12 +354,12 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 		try {
 			UnityEngine.Bounds self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.max);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -365,11 +371,11 @@ public class Lua_UnityEngine_Bounds : LuaObject {
 			checkType(l,2,out v);
 			self.max=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

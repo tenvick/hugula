@@ -10,11 +10,11 @@ public class Lua_UnityEngine_UI_FontUpdateTracker : LuaObject {
 			UnityEngine.UI.Text a1;
 			checkType(l,1,out a1);
 			UnityEngine.UI.FontUpdateTracker.TrackText(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_UnityEngine_UI_FontUpdateTracker : LuaObject {
 			UnityEngine.UI.Text a1;
 			checkType(l,1,out a1);
 			UnityEngine.UI.FontUpdateTracker.UntrackText(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 		try {
 			UnityEngine.OffMeshLink o;
 			o=new UnityEngine.OffMeshLink();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,23 +22,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
 			self.UpdatePositions();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_activated(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.activated);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -48,35 +48,35 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.activated=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_occupied(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.occupied);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_costOverride(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.costOverride);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,23 +86,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.costOverride=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_biDirectional(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.biDirectional);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -112,23 +112,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.biDirectional=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_area(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.area);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -138,23 +138,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.area=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoUpdatePositions(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoUpdatePositions);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -164,23 +164,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autoUpdatePositions=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_startTransform(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.startTransform);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -190,23 +190,23 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			UnityEngine.Transform v;
 			checkType(l,2,out v);
 			self.startTransform=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_endTransform(IntPtr l) {
 		try {
 			UnityEngine.OffMeshLink self=(UnityEngine.OffMeshLink)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.endTransform);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -216,11 +216,11 @@ public class Lua_UnityEngine_OffMeshLink : LuaObject {
 			UnityEngine.Transform v;
 			checkType(l,2,out v);
 			self.endTransform=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

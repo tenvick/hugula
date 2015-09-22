@@ -12,12 +12,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			var ret=UnityEngine.UI.LayoutUtility.GetMinSize(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -28,12 +28,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			var ret=UnityEngine.UI.LayoutUtility.GetPreferredSize(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -44,12 +44,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			var ret=UnityEngine.UI.LayoutUtility.GetFlexibleSize(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -58,12 +58,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetMinWidth(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -72,12 +72,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetPreferredWidth(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,12 +86,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetFlexibleWidth(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -100,12 +100,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetMinHeight(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,12 +114,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetPreferredHeight(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -128,12 +128,12 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 			UnityEngine.RectTransform a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.UI.LayoutUtility.GetFlexibleHeight(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -148,8 +148,9 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 				System.Single a3;
 				checkType(l,3,out a3);
 				var ret=UnityEngine.UI.LayoutUtility.GetLayoutProperty(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				UnityEngine.RectTransform a1;
@@ -160,16 +161,17 @@ public class Lua_UnityEngine_UI_LayoutUtility : LuaObject {
 				checkType(l,3,out a3);
 				UnityEngine.UI.ILayoutElement a4;
 				var ret=UnityEngine.UI.LayoutUtility.GetLayoutProperty(a1,a2,a3,out a4);
+				pushValue(l,true);
 				pushValue(l,ret);
 				pushValue(l,a4);
-				return 2;
+				return 3;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

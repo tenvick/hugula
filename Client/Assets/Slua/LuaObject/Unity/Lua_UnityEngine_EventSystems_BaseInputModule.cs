@@ -9,11 +9,11 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			self.Process();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.IsPointerOverGameObject(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,12 +36,12 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			var ret=self.ShouldActivateModule();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,11 +49,11 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			self.DeactivateModule();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,11 +61,11 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			self.ActivateModule();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,11 +73,11 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			self.UpdateModule();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -85,12 +85,12 @@ public class Lua_UnityEngine_EventSystems_BaseInputModule : LuaObject {
 		try {
 			UnityEngine.EventSystems.BaseInputModule self=(UnityEngine.EventSystems.BaseInputModule)checkSelf(l);
 			var ret=self.IsModuleSupported();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

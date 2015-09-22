@@ -9,84 +9,84 @@ public class Lua_UnityEngine_Compass : LuaObject {
 		try {
 			UnityEngine.Compass o;
 			o=new UnityEngine.Compass();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_magneticHeading(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.magneticHeading);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_trueHeading(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.trueHeading);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_headingAccuracy(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.headingAccuracy);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rawVector(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rawVector);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_timestamp(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.timestamp);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enabled(IntPtr l) {
 		try {
 			UnityEngine.Compass self=(UnityEngine.Compass)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -96,11 +96,11 @@ public class Lua_UnityEngine_Compass : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.enabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

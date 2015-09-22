@@ -11,22 +11,22 @@ public class Lua_Msg : LuaObject {
 			Msg o;
 			if(argc==1){
 				o=new Msg();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.Byte[] a1;
 				checkType(l,2,out a1);
 				o=new Msg(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -34,12 +34,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ToArray();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -47,12 +47,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.Debug();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -60,12 +60,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ToCArray();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,11 +75,11 @@ public class Lua_Msg : LuaObject {
 			System.Byte[] a1;
 			checkType(l,2,out a1);
 			self.Write(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -89,11 +89,11 @@ public class Lua_Msg : LuaObject {
 			System.Boolean a1;
 			checkType(l,2,out a1);
 			self.WriteBoolean(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -103,11 +103,11 @@ public class Lua_Msg : LuaObject {
 			System.Byte a1;
 			checkType(l,2,out a1);
 			self.WriteByte(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -117,11 +117,11 @@ public class Lua_Msg : LuaObject {
 			System.Char a1;
 			checkType(l,2,out a1);
 			self.WriteChar(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -131,11 +131,11 @@ public class Lua_Msg : LuaObject {
 			System.UInt16 a1;
 			checkType(l,2,out a1);
 			self.WriteUShort(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -145,11 +145,11 @@ public class Lua_Msg : LuaObject {
 			System.UInt32 a1;
 			checkType(l,2,out a1);
 			self.WriteUInt(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -159,11 +159,11 @@ public class Lua_Msg : LuaObject {
 			System.UInt64 a1;
 			checkType(l,2,out a1);
 			self.WriteULong(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -173,11 +173,11 @@ public class Lua_Msg : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.WriteShort(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -187,11 +187,11 @@ public class Lua_Msg : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			self.WriteFloat(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -201,11 +201,11 @@ public class Lua_Msg : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.WriteInt(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -215,11 +215,11 @@ public class Lua_Msg : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			self.WriteString(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -229,11 +229,11 @@ public class Lua_Msg : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			self.WriteUTFBytes(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -241,12 +241,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadBoolean();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -254,12 +254,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadByte();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -267,12 +267,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadChar();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -280,12 +280,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadUShort();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -293,12 +293,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadUInt();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -306,12 +306,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadULong();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,12 +319,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadShort();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -332,12 +332,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadInt();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -345,12 +345,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadFloat();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -358,12 +358,12 @@ public class Lua_Msg : LuaObject {
 		try {
 			Msg self=(Msg)checkSelf(l);
 			var ret=self.ReadString();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -373,12 +373,12 @@ public class Lua_Msg : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.ReadUTF(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -387,36 +387,36 @@ public class Lua_Msg : LuaObject {
 			System.Byte[] a1;
 			checkType(l,1,out a1);
 			var ret=Msg.Debug(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Length(IntPtr l) {
 		try {
 			Msg self=(Msg)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Length);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Position(IntPtr l) {
 		try {
 			Msg self=(Msg)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Position);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -426,23 +426,23 @@ public class Lua_Msg : LuaObject {
 			System.Int64 v;
 			checkType(l,2,out v);
 			self.Position=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Type(IntPtr l) {
 		try {
 			Msg self=(Msg)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Type);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -452,11 +452,11 @@ public class Lua_Msg : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.Type=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

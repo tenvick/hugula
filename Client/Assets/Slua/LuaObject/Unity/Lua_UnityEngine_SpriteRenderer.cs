@@ -9,24 +9,24 @@ public class Lua_UnityEngine_SpriteRenderer : LuaObject {
 		try {
 			UnityEngine.SpriteRenderer o;
 			o=new UnityEngine.SpriteRenderer();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sprite(IntPtr l) {
 		try {
 			UnityEngine.SpriteRenderer self=(UnityEngine.SpriteRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sprite);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_SpriteRenderer : LuaObject {
 			UnityEngine.Sprite v;
 			checkType(l,2,out v);
 			self.sprite=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_color(IntPtr l) {
 		try {
 			UnityEngine.SpriteRenderer self=(UnityEngine.SpriteRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.color);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_SpriteRenderer : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			self.color=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

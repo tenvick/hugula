@@ -9,11 +9,11 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
 			self.UpdateModules();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,7 +25,8 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 				UnityEngine.GameObject a1;
 				checkType(l,2,out a1);
 				self.SetSelectedGameObject(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
@@ -34,14 +35,15 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 				UnityEngine.EventSystems.BaseEventData a2;
 				checkType(l,3,out a2);
 				self.SetSelectedGameObject(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,11 +55,11 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult> a2;
 			checkType(l,3,out a2);
 			self.RaycastAll(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -67,34 +69,36 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			if(argc==1){
 				UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
 				var ret=self.IsPointerOverGameObject();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				var ret=self.IsPointerOverGameObject(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_current(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.EventSystems.EventSystem.current);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -103,23 +107,23 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			UnityEngine.EventSystems.EventSystem v;
 			checkType(l,2,out v);
 			UnityEngine.EventSystems.EventSystem.current=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sendNavigationEvents(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sendNavigationEvents);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -129,23 +133,23 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.sendNavigationEvents=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelDragThreshold(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelDragThreshold);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -155,35 +159,35 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.pixelDragThreshold=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currentInputModule(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.currentInputModule);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_firstSelectedGameObject(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.firstSelectedGameObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -193,47 +197,47 @@ public class Lua_UnityEngine_EventSystems_EventSystem : LuaObject {
 			UnityEngine.GameObject v;
 			checkType(l,2,out v);
 			self.firstSelectedGameObject=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currentSelectedGameObject(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.currentSelectedGameObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lastSelectedGameObject(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.lastSelectedGameObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_alreadySelecting(IntPtr l) {
 		try {
 			UnityEngine.EventSystems.EventSystem self=(UnityEngine.EventSystems.EventSystem)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.alreadySelecting);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

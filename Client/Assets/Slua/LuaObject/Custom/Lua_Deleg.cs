@@ -8,11 +8,11 @@ public class Lua_Deleg : LuaObject {
 	static public int callD_s(IntPtr l) {
 		try {
 			Deleg.callD();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_Deleg : LuaObject {
 			System.Action<System.String> a2;
 			LuaDelegation.checkDelegate(l,2,out a2);
 			Deleg.setcallback2(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,11 +36,11 @@ public class Lua_Deleg : LuaObject {
 			System.Func<System.Int32> a1;
 			LuaDelegation.checkDelegate(l,1,out a1);
 			Deleg.testFunc(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,11 +49,11 @@ public class Lua_Deleg : LuaObject {
 			System.Action<System.Int32,System.String> a1;
 			LuaDelegation.checkDelegate(l,1,out a1);
 			Deleg.testAction(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,22 +62,22 @@ public class Lua_Deleg : LuaObject {
 			System.Action<System.Int32,System.Collections.Generic.Dictionary<System.Int32,System.Object>> a1;
 			LuaDelegation.checkDelegate(l,1,out a1);
 			Deleg.testDAction(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int callDAction_s(IntPtr l) {
 		try {
 			Deleg.callDAction();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,12 +86,12 @@ public class Lua_Deleg : LuaObject {
 			System.Func<System.Int32,System.String,System.Boolean> a1;
 			LuaDelegation.checkDelegate(l,1,out a1);
 			var ret=Deleg.getFunc(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,11 +102,11 @@ public class Lua_Deleg : LuaObject {
 			if(op==0) Deleg.d=v;
 			else if(op==1) Deleg.d+=v;
 			else if(op==2) Deleg.d-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -117,11 +117,11 @@ public class Lua_Deleg : LuaObject {
 			if(op==0) Deleg.s=v;
 			else if(op==1) Deleg.s+=v;
 			else if(op==2) Deleg.s-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -132,11 +132,11 @@ public class Lua_Deleg : LuaObject {
 			if(op==0) Deleg.daction=v;
 			else if(op==1) Deleg.daction+=v;
 			else if(op==2) Deleg.daction-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,11 +147,11 @@ public class Lua_Deleg : LuaObject {
 			if(op==0) Deleg.dx=v;
 			else if(op==1) Deleg.dx+=v;
 			else if(op==2) Deleg.dx-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

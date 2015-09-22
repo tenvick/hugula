@@ -9,12 +9,12 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 		try {
 			UnityEngine.HumanBone o;
 			o=new UnityEngine.HumanBone();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 		try {
 			UnityEngine.HumanBone self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.limit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 			checkValueType(l,2,out v);
 			self.limit=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 		try {
 			UnityEngine.HumanBone self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.boneName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 			checkType(l,2,out v);
 			self.boneName=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,12 +80,12 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 		try {
 			UnityEngine.HumanBone self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.humanName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -97,11 +97,11 @@ public class Lua_UnityEngine_HumanBone : LuaObject {
 			checkType(l,2,out v);
 			self.humanName=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

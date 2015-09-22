@@ -9,24 +9,24 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 		try {
 			UnityEngine.AreaEffector2D o;
 			o=new UnityEngine.AreaEffector2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forceAngle(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.forceAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.forceAngle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useGlobalAngle(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useGlobalAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useGlobalAngle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forceMagnitude(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.forceMagnitude);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.forceMagnitude=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forceVariation(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.forceVariation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.forceVariation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_drag(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.drag);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.drag=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_angularDrag(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.angularDrag);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.angularDrag=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_forceTarget(IntPtr l) {
 		try {
 			UnityEngine.AreaEffector2D self=(UnityEngine.AreaEffector2D)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.forceTarget);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,11 +192,11 @@ public class Lua_UnityEngine_AreaEffector2D : LuaObject {
 			UnityEngine.EffectorSelection2D v;
 			checkEnum(l,2,out v);
 			self.forceTarget=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

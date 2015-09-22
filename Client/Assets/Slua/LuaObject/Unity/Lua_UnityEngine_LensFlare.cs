@@ -9,24 +9,24 @@ public class Lua_UnityEngine_LensFlare : LuaObject {
 		try {
 			UnityEngine.LensFlare o;
 			o=new UnityEngine.LensFlare();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_flare(IntPtr l) {
 		try {
 			UnityEngine.LensFlare self=(UnityEngine.LensFlare)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.flare);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_LensFlare : LuaObject {
 			UnityEngine.Flare v;
 			checkType(l,2,out v);
 			self.flare=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_brightness(IntPtr l) {
 		try {
 			UnityEngine.LensFlare self=(UnityEngine.LensFlare)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.brightness);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_LensFlare : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.brightness=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fadeSpeed(IntPtr l) {
 		try {
 			UnityEngine.LensFlare self=(UnityEngine.LensFlare)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fadeSpeed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_LensFlare : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.fadeSpeed=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_color(IntPtr l) {
 		try {
 			UnityEngine.LensFlare self=(UnityEngine.LensFlare)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.color);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,11 +114,11 @@ public class Lua_UnityEngine_LensFlare : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			self.color=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

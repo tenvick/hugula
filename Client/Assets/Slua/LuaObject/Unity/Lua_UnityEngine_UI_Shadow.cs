@@ -11,23 +11,23 @@ public class Lua_UnityEngine_UI_Shadow : LuaObject {
 			System.Collections.Generic.List<UnityEngine.UIVertex> a1;
 			checkType(l,2,out a1);
 			self.ModifyVertices(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_effectColor(IntPtr l) {
 		try {
 			UnityEngine.UI.Shadow self=(UnityEngine.UI.Shadow)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.effectColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,23 +37,23 @@ public class Lua_UnityEngine_UI_Shadow : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			self.effectColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_effectDistance(IntPtr l) {
 		try {
 			UnityEngine.UI.Shadow self=(UnityEngine.UI.Shadow)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.effectDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -63,23 +63,23 @@ public class Lua_UnityEngine_UI_Shadow : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.effectDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useGraphicAlpha(IntPtr l) {
 		try {
 			UnityEngine.UI.Shadow self=(UnityEngine.UI.Shadow)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useGraphicAlpha);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -89,11 +89,11 @@ public class Lua_UnityEngine_UI_Shadow : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useGraphicAlpha=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -8,12 +8,12 @@ public class Lua_DESHelper : LuaObject {
 	static public int get_KEYData(IntPtr l) {
 		try {
 			DESHelper self=(DESHelper)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.KEYData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,23 +23,23 @@ public class Lua_DESHelper : LuaObject {
 			KeyVData v;
 			checkType(l,2,out v);
 			self.KEYData=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_IVData(IntPtr l) {
 		try {
 			DESHelper self=(DESHelper)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.IVData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,46 +49,46 @@ public class Lua_DESHelper : LuaObject {
 			KeyVData v;
 			checkType(l,2,out v);
 			self.IVData=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Key(IntPtr l) {
 		try {
 			DESHelper self=(DESHelper)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Key);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_IV(IntPtr l) {
 		try {
 			DESHelper self=(DESHelper)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.IV);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_instance(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,DESHelper.instance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

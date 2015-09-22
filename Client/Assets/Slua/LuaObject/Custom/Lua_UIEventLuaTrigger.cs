@@ -9,23 +9,23 @@ public class Lua_UIEventLuaTrigger : LuaObject {
 		try {
 			UIEventLuaTrigger self=(UIEventLuaTrigger)checkSelf(l);
 			self.OnLuaTrigger();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_luaFn(IntPtr l) {
 		try {
 			UIEventLuaTrigger self=(UIEventLuaTrigger)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.luaFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,23 +35,23 @@ public class Lua_UIEventLuaTrigger : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.luaFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_trigger(IntPtr l) {
 		try {
 			UIEventLuaTrigger self=(UIEventLuaTrigger)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.trigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,23 +61,23 @@ public class Lua_UIEventLuaTrigger : LuaObject {
 			UnityEngine.MonoBehaviour v;
 			checkType(l,2,out v);
 			self.trigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_target(IntPtr l) {
 		try {
 			UIEventLuaTrigger self=(UIEventLuaTrigger)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.target);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -87,11 +87,11 @@ public class Lua_UIEventLuaTrigger : LuaObject {
 			System.Collections.Generic.List<UnityEngine.MonoBehaviour> v;
 			checkType(l,2,out v);
 			self.target=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

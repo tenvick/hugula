@@ -9,12 +9,12 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 		try {
 			UnityEngine.PlayerPrefs o;
 			o=new UnityEngine.PlayerPrefs();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,11 +25,11 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			UnityEngine.PlayerPrefs.SetInt(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -40,8 +40,9 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.PlayerPrefs.GetInt(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -49,15 +50,16 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.Int32 a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.PlayerPrefs.GetInt(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +70,11 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 			System.Single a2;
 			checkType(l,2,out a2);
 			UnityEngine.PlayerPrefs.SetFloat(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -83,8 +85,9 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.PlayerPrefs.GetFloat(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -92,15 +95,16 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.Single a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.PlayerPrefs.GetFloat(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,11 +115,11 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 			System.String a2;
 			checkType(l,2,out a2);
 			UnityEngine.PlayerPrefs.SetString(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,8 +130,9 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.PlayerPrefs.GetString(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -135,15 +140,16 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 				System.String a2;
 				checkType(l,2,out a2);
 				var ret=UnityEngine.PlayerPrefs.GetString(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -152,12 +158,12 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.PlayerPrefs.HasKey(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,33 +172,33 @@ public class Lua_UnityEngine_PlayerPrefs : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			UnityEngine.PlayerPrefs.DeleteKey(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int DeleteAll_s(IntPtr l) {
 		try {
 			UnityEngine.PlayerPrefs.DeleteAll();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int Save_s(IntPtr l) {
 		try {
 			UnityEngine.PlayerPrefs.Save();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

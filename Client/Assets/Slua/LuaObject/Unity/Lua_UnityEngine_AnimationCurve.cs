@@ -13,20 +13,20 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 				UnityEngine.Keyframe[] a1;
 				checkValueParams(l,2,out a1);
 				o=new UnityEngine.AnimationCurve(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==1){
 				o=new UnityEngine.AnimationCurve();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,12 +36,12 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.Evaluate(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,8 +53,9 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 				UnityEngine.Keyframe a1;
 				checkValueType(l,2,out a1);
 				var ret=self.AddKey(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.AnimationCurve self=(UnityEngine.AnimationCurve)checkSelf(l);
@@ -63,15 +64,16 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				var ret=self.AddKey(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -83,12 +85,12 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			UnityEngine.Keyframe a2;
 			checkValueType(l,3,out a2);
 			var ret=self.MoveKey(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -98,11 +100,11 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.RemoveKey(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,11 +116,11 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.SmoothTangents(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,12 +135,12 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			System.Single a4;
 			checkType(l,4,out a4);
 			var ret=UnityEngine.AnimationCurve.Linear(a1,a2,a3,a4);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -153,24 +155,24 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			System.Single a4;
 			checkType(l,4,out a4);
 			var ret=UnityEngine.AnimationCurve.EaseInOut(a1,a2,a3,a4);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_keys(IntPtr l) {
 		try {
 			UnityEngine.AnimationCurve self=(UnityEngine.AnimationCurve)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.keys);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -180,35 +182,35 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			UnityEngine.Keyframe[] v;
 			checkType(l,2,out v);
 			self.keys=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_length(IntPtr l) {
 		try {
 			UnityEngine.AnimationCurve self=(UnityEngine.AnimationCurve)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.length);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_preWrapMode(IntPtr l) {
 		try {
 			UnityEngine.AnimationCurve self=(UnityEngine.AnimationCurve)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.preWrapMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +220,23 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			UnityEngine.WrapMode v;
 			checkEnum(l,2,out v);
 			self.preWrapMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_postWrapMode(IntPtr l) {
 		try {
 			UnityEngine.AnimationCurve self=(UnityEngine.AnimationCurve)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.postWrapMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,11 +246,11 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			UnityEngine.WrapMode v;
 			checkEnum(l,2,out v);
 			self.postWrapMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -258,12 +260,12 @@ public class Lua_UnityEngine_AnimationCurve : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			var ret = self[v];
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -19,12 +19,12 @@ public class Lua_LTBezier : LuaObject {
 			System.Single a5;
 			checkType(l,6,out a5);
 			o=new LTBezier(a1,a2,a3,a4,a5);
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -34,24 +34,24 @@ public class Lua_LTBezier : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.point(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_length(IntPtr l) {
 		try {
 			LTBezier self=(LTBezier)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.length);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,11 +61,11 @@ public class Lua_LTBezier : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.length=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

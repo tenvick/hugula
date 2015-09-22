@@ -9,12 +9,12 @@ public class Lua_UnityEngine_GeometryUtility : LuaObject {
 		try {
 			UnityEngine.GeometryUtility o;
 			o=new UnityEngine.GeometryUtility();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,22 +25,24 @@ public class Lua_UnityEngine_GeometryUtility : LuaObject {
 				UnityEngine.Matrix4x4 a1;
 				checkValueType(l,1,out a1);
 				var ret=UnityEngine.GeometryUtility.CalculateFrustumPlanes(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,1,typeof(UnityEngine.Camera))){
 				UnityEngine.Camera a1;
 				checkType(l,1,out a1);
 				var ret=UnityEngine.GeometryUtility.CalculateFrustumPlanes(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +53,12 @@ public class Lua_UnityEngine_GeometryUtility : LuaObject {
 			UnityEngine.Bounds a2;
 			checkValueType(l,2,out a2);
 			var ret=UnityEngine.GeometryUtility.TestPlanesAABB(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

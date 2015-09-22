@@ -9,11 +9,11 @@ public class Lua_UnityEngine_UI_ContentSizeFitter : LuaObject {
 		try {
 			UnityEngine.UI.ContentSizeFitter self=(UnityEngine.UI.ContentSizeFitter)checkSelf(l);
 			self.SetLayoutHorizontal();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -21,23 +21,23 @@ public class Lua_UnityEngine_UI_ContentSizeFitter : LuaObject {
 		try {
 			UnityEngine.UI.ContentSizeFitter self=(UnityEngine.UI.ContentSizeFitter)checkSelf(l);
 			self.SetLayoutVertical();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_horizontalFit(IntPtr l) {
 		try {
 			UnityEngine.UI.ContentSizeFitter self=(UnityEngine.UI.ContentSizeFitter)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.horizontalFit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -47,23 +47,23 @@ public class Lua_UnityEngine_UI_ContentSizeFitter : LuaObject {
 			UnityEngine.UI.ContentSizeFitter.FitMode v;
 			checkEnum(l,2,out v);
 			self.horizontalFit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_verticalFit(IntPtr l) {
 		try {
 			UnityEngine.UI.ContentSizeFitter self=(UnityEngine.UI.ContentSizeFitter)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.verticalFit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,11 +73,11 @@ public class Lua_UnityEngine_UI_ContentSizeFitter : LuaObject {
 			UnityEngine.UI.ContentSizeFitter.FitMode v;
 			checkEnum(l,2,out v);
 			self.verticalFit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

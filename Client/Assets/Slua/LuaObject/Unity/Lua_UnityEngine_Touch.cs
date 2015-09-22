@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch o;
 			o=new UnityEngine.Touch();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.fingerId);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,12 +35,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.position);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -48,12 +48,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.rawPosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,12 +61,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.deltaPosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -74,12 +74,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.deltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -87,12 +87,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.tapCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -100,12 +100,12 @@ public class Lua_UnityEngine_Touch : LuaObject {
 		try {
 			UnityEngine.Touch self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.phase);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

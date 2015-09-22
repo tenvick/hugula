@@ -9,24 +9,24 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 		try {
 			UnityEngine.ProceduralPropertyDescription o;
 			o=new UnityEngine.ProceduralPropertyDescription();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_name(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.name);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.name=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_label(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.label);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.label=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_group(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.group);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.group=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_type(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.type);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			UnityEngine.ProceduralPropertyType v;
 			checkEnum(l,2,out v);
 			self.type=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hasRange(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hasRange);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.hasRange=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_minimum(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.minimum);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.minimum=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maximum(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.maximum);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.maximum=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_step(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.step);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.Single v;
 			checkType(l,2,out v);
 			self.step=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enumOptions(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enumOptions);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,23 +244,23 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.String[] v;
 			checkType(l,2,out v);
 			self.enumOptions=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_componentLabels(IntPtr l) {
 		try {
 			UnityEngine.ProceduralPropertyDescription self=(UnityEngine.ProceduralPropertyDescription)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.componentLabels);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,11 +270,11 @@ public class Lua_UnityEngine_ProceduralPropertyDescription : LuaObject {
 			System.String[] v;
 			checkType(l,2,out v);
 			self.componentLabels=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

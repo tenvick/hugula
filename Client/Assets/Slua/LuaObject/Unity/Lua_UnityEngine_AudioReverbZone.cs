@@ -9,24 +9,24 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 		try {
 			UnityEngine.AudioReverbZone o;
 			o=new UnityEngine.AudioReverbZone();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_minDistance(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.minDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.minDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maxDistance(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.maxDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.maxDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reverbPreset(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.reverbPreset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			UnityEngine.AudioReverbPreset v;
 			checkEnum(l,2,out v);
 			self.reverbPreset=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_room(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.room);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.room=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_roomHF(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.roomHF);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.roomHF=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_roomLF(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.roomLF);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.roomLF=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_decayTime(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.decayTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.decayTime=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_decayHFRatio(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.decayHFRatio);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.decayHFRatio=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reflections(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.reflections);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,23 +244,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.reflections=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reflectionsDelay(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.reflectionsDelay);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,23 +270,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.reflectionsDelay=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reverb(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.reverb);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -296,23 +296,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.reverb=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reverbDelay(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.reverbDelay);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -322,23 +322,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.reverbDelay=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_HFReference(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.HFReference);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -348,23 +348,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.HFReference=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_LFReference(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.LFReference);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -374,23 +374,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.LFReference=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_roomRolloffFactor(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.roomRolloffFactor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -400,23 +400,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.roomRolloffFactor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_diffusion(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.diffusion);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -426,23 +426,23 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.diffusion=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_density(IntPtr l) {
 		try {
 			UnityEngine.AudioReverbZone self=(UnityEngine.AudioReverbZone)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.density);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -452,11 +452,11 @@ public class Lua_UnityEngine_AudioReverbZone : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.density=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

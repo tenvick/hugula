@@ -10,12 +10,12 @@ public class Lua_UnityEngine_ParticlePhysicsExtensions : LuaObject {
 			UnityEngine.ParticleSystem a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.ParticlePhysicsExtensions.GetSafeCollisionEventSize(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -28,12 +28,12 @@ public class Lua_UnityEngine_ParticlePhysicsExtensions : LuaObject {
 			UnityEngine.ParticleCollisionEvent[] a3;
 			checkType(l,3,out a3);
 			var ret=UnityEngine.ParticlePhysicsExtensions.GetCollisionEvents(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

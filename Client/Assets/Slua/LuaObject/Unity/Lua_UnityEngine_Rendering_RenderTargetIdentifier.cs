@@ -13,36 +13,38 @@ public class Lua_UnityEngine_Rendering_RenderTargetIdentifier : LuaObject {
 				UnityEngine.Rendering.BuiltinRenderTextureType a1;
 				checkEnum(l,2,out a1);
 				o=new UnityEngine.Rendering.RenderTargetIdentifier(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(string))){
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.Rendering.RenderTargetIdentifier(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(int))){
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.Rendering.RenderTargetIdentifier(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(UnityEngine.RenderTexture))){
 				UnityEngine.RenderTexture a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.Rendering.RenderTargetIdentifier(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

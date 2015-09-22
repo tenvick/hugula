@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 		try {
 			UnityEngine.Sprite o;
 			o=new UnityEngine.Sprite();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,11 +26,11 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 			System.UInt16[] a2;
 			checkType(l,3,out a2);
 			self.OverrideGeometry(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -45,8 +45,9 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 				UnityEngine.Vector2 a3;
 				checkType(l,3,out a3);
 				var ret=UnityEngine.Sprite.Create(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				UnityEngine.Texture2D a1;
@@ -58,8 +59,9 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 				System.Single a4;
 				checkType(l,4,out a4);
 				var ret=UnityEngine.Sprite.Create(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==5){
 				UnityEngine.Texture2D a1;
@@ -73,8 +75,9 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 				System.UInt32 a5;
 				checkType(l,5,out a5);
 				var ret=UnityEngine.Sprite.Create(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==6){
 				UnityEngine.Texture2D a1;
@@ -90,8 +93,9 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 				UnityEngine.SpriteMeshType a6;
 				checkEnum(l,6,out a6);
 				var ret=UnityEngine.Sprite.Create(a1,a2,a3,a4,a5,a6);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==7){
 				UnityEngine.Texture2D a1;
@@ -109,183 +113,184 @@ public class Lua_UnityEngine_Sprite : LuaObject {
 				UnityEngine.Vector4 a7;
 				checkType(l,7,out a7);
 				var ret=UnityEngine.Sprite.Create(a1,a2,a3,a4,a5,a6,a7);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bounds(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bounds);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rect(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelsPerUnit(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelsPerUnit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_texture(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.texture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_textureRect(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.textureRect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_textureRectOffset(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.textureRectOffset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_packed(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.packed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_packingMode(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.packingMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_packingRotation(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.packingRotation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pivot(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pivot);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_border(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.border);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_vertices(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.vertices);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_triangles(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.triangles);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_uv(IntPtr l) {
 		try {
 			UnityEngine.Sprite self=(UnityEngine.Sprite)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.uv);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

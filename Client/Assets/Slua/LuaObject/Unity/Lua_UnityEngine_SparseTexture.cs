@@ -19,8 +19,9 @@ public class Lua_UnityEngine_SparseTexture : LuaObject {
 				System.Int32 a4;
 				checkType(l,5,out a4);
 				o=new UnityEngine.SparseTexture(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==6){
 				System.Int32 a1;
@@ -34,15 +35,14 @@ public class Lua_UnityEngine_SparseTexture : LuaObject {
 				System.Boolean a5;
 				checkType(l,6,out a5);
 				o=new UnityEngine.SparseTexture(a1,a2,a3,a4,a5);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -58,11 +58,11 @@ public class Lua_UnityEngine_SparseTexture : LuaObject {
 			UnityEngine.Color32[] a4;
 			checkType(l,5,out a4);
 			self.UpdateTile(a1,a2,a3,a4);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -78,11 +78,11 @@ public class Lua_UnityEngine_SparseTexture : LuaObject {
 			System.Byte[] a4;
 			checkType(l,5,out a4);
 			self.UpdateTileRaw(a1,a2,a3,a4);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -96,47 +96,47 @@ public class Lua_UnityEngine_SparseTexture : LuaObject {
 			System.Int32 a3;
 			checkType(l,4,out a3);
 			self.UnloadTile(a1,a2,a3);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_tileWidth(IntPtr l) {
 		try {
 			UnityEngine.SparseTexture self=(UnityEngine.SparseTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.tileWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_tileHeight(IntPtr l) {
 		try {
 			UnityEngine.SparseTexture self=(UnityEngine.SparseTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.tileHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isCreated(IntPtr l) {
 		try {
 			UnityEngine.SparseTexture self=(UnityEngine.SparseTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isCreated);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

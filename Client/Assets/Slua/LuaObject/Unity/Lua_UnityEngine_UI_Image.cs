@@ -9,11 +9,11 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
 			self.OnBeforeSerialize();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -21,11 +21,11 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
 			self.OnAfterDeserialize();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -33,11 +33,11 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
 			self.SetNativeSize();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -45,11 +45,11 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
 			self.CalculateLayoutInputHorizontal();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -57,11 +57,11 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
 			self.CalculateLayoutInputVertical();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,24 +73,24 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			UnityEngine.Camera a2;
 			checkType(l,3,out a2);
 			var ret=self.IsRaycastLocationValid(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sprite(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sprite);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -100,23 +100,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			UnityEngine.Sprite v;
 			checkType(l,2,out v);
 			self.sprite=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_overrideSprite(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.overrideSprite);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,23 +126,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			UnityEngine.Sprite v;
 			checkType(l,2,out v);
 			self.overrideSprite=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_type(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.type);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -152,23 +152,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			UnityEngine.UI.Image.Type v;
 			checkEnum(l,2,out v);
 			self.type=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_preserveAspect(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.preserveAspect);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -178,23 +178,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.preserveAspect=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fillCenter(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fillCenter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -204,23 +204,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.fillCenter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fillMethod(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.fillMethod);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -230,23 +230,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			UnityEngine.UI.Image.FillMethod v;
 			checkEnum(l,2,out v);
 			self.fillMethod=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fillAmount(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fillAmount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -256,23 +256,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.fillAmount=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fillClockwise(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fillClockwise);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -282,23 +282,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.fillClockwise=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fillOrigin(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fillOrigin);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -308,23 +308,23 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.fillOrigin=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_eventAlphaThreshold(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.eventAlphaThreshold);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -334,131 +334,131 @@ public class Lua_UnityEngine_UI_Image : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.eventAlphaThreshold=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mainTexture(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mainTexture);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hasBorder(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hasBorder);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pixelsPerUnit(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pixelsPerUnit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_minWidth(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.minWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_preferredWidth(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.preferredWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_flexibleWidth(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.flexibleWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_minHeight(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.minHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_preferredHeight(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.preferredHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_flexibleHeight(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.flexibleHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_layoutPriority(IntPtr l) {
 		try {
 			UnityEngine.UI.Image self=(UnityEngine.UI.Image)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.layoutPriority);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

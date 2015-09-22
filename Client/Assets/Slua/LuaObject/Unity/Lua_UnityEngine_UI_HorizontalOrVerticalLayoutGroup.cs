@@ -8,12 +8,12 @@ public class Lua_UnityEngine_UI_HorizontalOrVerticalLayoutGroup : LuaObject {
 	static public int get_spacing(IntPtr l) {
 		try {
 			UnityEngine.UI.HorizontalOrVerticalLayoutGroup self=(UnityEngine.UI.HorizontalOrVerticalLayoutGroup)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.spacing);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,23 +23,23 @@ public class Lua_UnityEngine_UI_HorizontalOrVerticalLayoutGroup : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.spacing=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_childForceExpandWidth(IntPtr l) {
 		try {
 			UnityEngine.UI.HorizontalOrVerticalLayoutGroup self=(UnityEngine.UI.HorizontalOrVerticalLayoutGroup)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.childForceExpandWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -49,23 +49,23 @@ public class Lua_UnityEngine_UI_HorizontalOrVerticalLayoutGroup : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.childForceExpandWidth=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_childForceExpandHeight(IntPtr l) {
 		try {
 			UnityEngine.UI.HorizontalOrVerticalLayoutGroup self=(UnityEngine.UI.HorizontalOrVerticalLayoutGroup)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.childForceExpandHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,11 +75,11 @@ public class Lua_UnityEngine_UI_HorizontalOrVerticalLayoutGroup : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.childForceExpandHeight=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

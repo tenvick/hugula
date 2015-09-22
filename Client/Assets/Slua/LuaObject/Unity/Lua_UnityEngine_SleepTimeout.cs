@@ -9,34 +9,34 @@ public class Lua_UnityEngine_SleepTimeout : LuaObject {
 		try {
 			UnityEngine.SleepTimeout o;
 			o=new UnityEngine.SleepTimeout();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_NeverSleep(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SleepTimeout.NeverSleep);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_SystemSetting(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SleepTimeout.SystemSetting);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

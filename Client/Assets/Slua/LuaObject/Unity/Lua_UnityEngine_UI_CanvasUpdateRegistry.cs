@@ -10,11 +10,11 @@ public class Lua_UnityEngine_UI_CanvasUpdateRegistry : LuaObject {
 			UnityEngine.UI.ICanvasElement a1;
 			checkType(l,1,out a1);
 			UnityEngine.UI.CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_UnityEngine_UI_CanvasUpdateRegistry : LuaObject {
 			UnityEngine.UI.ICanvasElement a1;
 			checkType(l,1,out a1);
 			UnityEngine.UI.CanvasUpdateRegistry.RegisterCanvasElementForGraphicRebuild(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,46 +36,46 @@ public class Lua_UnityEngine_UI_CanvasUpdateRegistry : LuaObject {
 			UnityEngine.UI.ICanvasElement a1;
 			checkType(l,1,out a1);
 			UnityEngine.UI.CanvasUpdateRegistry.UnRegisterCanvasElementForRebuild(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int IsRebuildingLayout_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.UI.CanvasUpdateRegistry.IsRebuildingLayout();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int IsRebuildingGraphics_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.UI.CanvasUpdateRegistry.IsRebuildingGraphics();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_instance(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.UI.CanvasUpdateRegistry.instance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

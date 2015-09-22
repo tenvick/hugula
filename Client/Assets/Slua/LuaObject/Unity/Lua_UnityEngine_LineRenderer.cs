@@ -9,12 +9,12 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 		try {
 			UnityEngine.LineRenderer o;
 			o=new UnityEngine.LineRenderer();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,11 +26,11 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.SetWidth(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,11 +42,11 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 			UnityEngine.Color a2;
 			checkType(l,3,out a2);
 			self.SetColors(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -56,11 +56,11 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.SetVertexCount(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -72,23 +72,23 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 			UnityEngine.Vector3 a2;
 			checkType(l,3,out a2);
 			self.SetPosition(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useWorldSpace(IntPtr l) {
 		try {
 			UnityEngine.LineRenderer self=(UnityEngine.LineRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useWorldSpace);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -98,11 +98,11 @@ public class Lua_UnityEngine_LineRenderer : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useWorldSpace=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

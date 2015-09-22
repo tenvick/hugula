@@ -9,24 +9,24 @@ public class Lua_UnityEngine_Joint : LuaObject {
 		try {
 			UnityEngine.Joint o;
 			o=new UnityEngine.Joint();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_connectedBody(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.connectedBody);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			UnityEngine.Rigidbody v;
 			checkType(l,2,out v);
 			self.connectedBody=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_axis(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.axis);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.axis=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anchor(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.anchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.anchor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_connectedAnchor(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.connectedAnchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.connectedAnchor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoConfigureConnectedAnchor(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoConfigureConnectedAnchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autoConfigureConnectedAnchor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_breakForce(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.breakForce);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.breakForce=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_breakTorque(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.breakTorque);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.breakTorque=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enableCollision(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enableCollision);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.enableCollision=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enablePreprocessing(IntPtr l) {
 		try {
 			UnityEngine.Joint self=(UnityEngine.Joint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enablePreprocessing);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,11 +244,11 @@ public class Lua_UnityEngine_Joint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.enablePreprocessing=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

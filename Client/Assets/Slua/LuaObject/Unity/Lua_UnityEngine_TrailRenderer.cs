@@ -9,24 +9,24 @@ public class Lua_UnityEngine_TrailRenderer : LuaObject {
 		try {
 			UnityEngine.TrailRenderer o;
 			o=new UnityEngine.TrailRenderer();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_time(IntPtr l) {
 		try {
 			UnityEngine.TrailRenderer self=(UnityEngine.TrailRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.time);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_TrailRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.time=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_startWidth(IntPtr l) {
 		try {
 			UnityEngine.TrailRenderer self=(UnityEngine.TrailRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.startWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_TrailRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.startWidth=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_endWidth(IntPtr l) {
 		try {
 			UnityEngine.TrailRenderer self=(UnityEngine.TrailRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.endWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_TrailRenderer : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.endWidth=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autodestruct(IntPtr l) {
 		try {
 			UnityEngine.TrailRenderer self=(UnityEngine.TrailRenderer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autodestruct);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,11 +114,11 @@ public class Lua_UnityEngine_TrailRenderer : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autodestruct=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

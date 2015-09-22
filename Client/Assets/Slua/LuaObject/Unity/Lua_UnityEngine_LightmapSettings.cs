@@ -9,23 +9,23 @@ public class Lua_UnityEngine_LightmapSettings : LuaObject {
 		try {
 			UnityEngine.LightmapSettings o;
 			o=new UnityEngine.LightmapSettings();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lightmaps(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.LightmapSettings.lightmaps);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -34,22 +34,22 @@ public class Lua_UnityEngine_LightmapSettings : LuaObject {
 			UnityEngine.LightmapData[] v;
 			checkType(l,2,out v);
 			UnityEngine.LightmapSettings.lightmaps=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lightmapsMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.LightmapSettings.lightmapsMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -58,22 +58,22 @@ public class Lua_UnityEngine_LightmapSettings : LuaObject {
 			UnityEngine.LightmapsMode v;
 			checkEnum(l,2,out v);
 			UnityEngine.LightmapSettings.lightmapsMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lightProbes(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.LightmapSettings.lightProbes);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -82,11 +82,11 @@ public class Lua_UnityEngine_LightmapSettings : LuaObject {
 			UnityEngine.LightProbes v;
 			checkType(l,2,out v);
 			UnityEngine.LightmapSettings.lightProbes=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

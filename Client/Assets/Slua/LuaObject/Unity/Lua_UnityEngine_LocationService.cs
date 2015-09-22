@@ -9,12 +9,12 @@ public class Lua_UnityEngine_LocationService : LuaObject {
 		try {
 			UnityEngine.LocationService o;
 			o=new UnityEngine.LocationService();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,14 +24,16 @@ public class Lua_UnityEngine_LocationService : LuaObject {
 			if(argc==1){
 				UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
 				self.Start();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
 				System.Single a1;
 				checkType(l,2,out a1);
 				self.Start(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
@@ -40,14 +42,15 @@ public class Lua_UnityEngine_LocationService : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				self.Start(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -55,47 +58,47 @@ public class Lua_UnityEngine_LocationService : LuaObject {
 		try {
 			UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
 			self.Stop();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isEnabledByUser(IntPtr l) {
 		try {
 			UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isEnabledByUser);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_status(IntPtr l) {
 		try {
 			UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.status);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lastData(IntPtr l) {
 		try {
 			UnityEngine.LocationService self=(UnityEngine.LocationService)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.lastData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_LightProbes : LuaObject {
 		try {
 			UnityEngine.LightProbes o;
 			o=new UnityEngine.LightProbes();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,36 +26,36 @@ public class Lua_UnityEngine_LightProbes : LuaObject {
 			checkType(l,2,out a2);
 			UnityEngine.Rendering.SphericalHarmonicsL2 a3;
 			UnityEngine.LightProbes.GetInterpolatedProbe(a1,a2,out a3);
+			pushValue(l,true);
 			pushValue(l,a3);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_positions(IntPtr l) {
 		try {
 			UnityEngine.LightProbes self=(UnityEngine.LightProbes)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.positions);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bakedProbes(IntPtr l) {
 		try {
 			UnityEngine.LightProbes self=(UnityEngine.LightProbes)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bakedProbes);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -65,35 +65,35 @@ public class Lua_UnityEngine_LightProbes : LuaObject {
 			UnityEngine.Rendering.SphericalHarmonicsL2[] v;
 			checkType(l,2,out v);
 			self.bakedProbes=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_count(IntPtr l) {
 		try {
 			UnityEngine.LightProbes self=(UnityEngine.LightProbes)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.count);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cellCount(IntPtr l) {
 		try {
 			UnityEngine.LightProbes self=(UnityEngine.LightProbes)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cellCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

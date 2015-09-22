@@ -11,12 +11,12 @@ public class Lua_LTSpline : LuaObject {
             //UnityEngine.Vector3[] a1;
             //checkParams(l,2,out a1);
             //o=new LTSpline(a1);
+            //pushValue(l,true);
             //pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -26,12 +26,12 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.map(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -41,12 +41,12 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.interp(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -56,12 +56,12 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.point(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,11 +73,11 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.place2d(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -89,11 +89,11 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.placeLocal2d(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,7 +107,8 @@ public class Lua_LTSpline : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				self.place(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				LTSpline self=(LTSpline)checkSelf(l);
@@ -118,14 +119,15 @@ public class Lua_LTSpline : LuaObject {
 				UnityEngine.Vector3 a3;
 				checkType(l,4,out a3);
 				self.place(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -139,7 +141,8 @@ public class Lua_LTSpline : LuaObject {
 				System.Single a2;
 				checkType(l,3,out a2);
 				self.placeLocal(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				LTSpline self=(LTSpline)checkSelf(l);
@@ -150,14 +153,15 @@ public class Lua_LTSpline : LuaObject {
 				UnityEngine.Vector3 a3;
 				checkType(l,4,out a3);
 				self.placeLocal(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -167,11 +171,11 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			self.gizmoDraw(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -181,24 +185,24 @@ public class Lua_LTSpline : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.Velocity(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pts(IntPtr l) {
 		try {
 			LTSpline self=(LTSpline)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pts);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -208,23 +212,23 @@ public class Lua_LTSpline : LuaObject {
 			UnityEngine.Vector3[] v;
 			checkType(l,2,out v);
 			self.pts=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orientToPath(IntPtr l) {
 		try {
 			LTSpline self=(LTSpline)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orientToPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -234,23 +238,23 @@ public class Lua_LTSpline : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.orientToPath=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_orientToPath2d(IntPtr l) {
 		try {
 			LTSpline self=(LTSpline)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.orientToPath2d);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -260,11 +264,11 @@ public class Lua_LTSpline : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.orientToPath2d=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -11,28 +11,31 @@ public class Lua_TcpServer : LuaObject {
 			if(argc==1){
 				TcpServer self=(TcpServer)checkSelf(l);
 				self.BroadCast();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(Msg))){
 				TcpServer self=(TcpServer)checkSelf(l);
 				Msg a1;
 				checkType(l,2,out a1);
 				self.BroadCast(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(System.Byte[]))){
 				TcpServer self=(TcpServer)checkSelf(l);
 				System.Byte[] a1;
 				checkType(l,2,out a1);
 				self.BroadCast(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,11 +45,11 @@ public class Lua_TcpServer : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			self.Kick(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,67 +57,67 @@ public class Lua_TcpServer : LuaObject {
 		try {
 			TcpServer self=(TcpServer)checkSelf(l);
 			self.Stop();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int StartTcpServer_s(IntPtr l) {
 		try {
 			TcpServer.StartTcpServer();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int StopTcpServer_s(IntPtr l) {
 		try {
 			TcpServer.StopTcpServer();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetLocalIP_s(IntPtr l) {
 		try {
 			var ret=TcpServer.GetLocalIP();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_GAME_TYPE(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,TcpServer.GAME_TYPE);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_port(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,TcpServer.port);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -123,23 +126,23 @@ public class Lua_TcpServer : LuaObject {
 			System.Int32 v;
 			checkType(l,2,out v);
 			TcpServer.port=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoBroadcast(IntPtr l) {
 		try {
 			TcpServer self=(TcpServer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoBroadcast);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -149,23 +152,23 @@ public class Lua_TcpServer : LuaObject {
 			System.Boolean v;
 			checkType(l,2,out v);
 			self.autoBroadcast=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onClientConnectFn(IntPtr l) {
 		try {
 			TcpServer self=(TcpServer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onClientConnectFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -175,23 +178,23 @@ public class Lua_TcpServer : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onClientConnectFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onMessageArriveFn(IntPtr l) {
 		try {
 			TcpServer self=(TcpServer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onMessageArriveFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -201,23 +204,23 @@ public class Lua_TcpServer : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onMessageArriveFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onClientCloseFn(IntPtr l) {
 		try {
 			TcpServer self=(TcpServer)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onClientCloseFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -227,22 +230,22 @@ public class Lua_TcpServer : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onClientCloseFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_tcpClientConnected(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,TcpServer.tcpClientConnected);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -251,22 +254,22 @@ public class Lua_TcpServer : LuaObject {
 			System.Threading.ManualResetEvent v;
 			checkType(l,2,out v);
 			TcpServer.tcpClientConnected=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currTcpServer(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,TcpServer.currTcpServer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -275,11 +278,11 @@ public class Lua_TcpServer : LuaObject {
 			TcpServer v;
 			checkType(l,2,out v);
 			TcpServer.currTcpServer=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

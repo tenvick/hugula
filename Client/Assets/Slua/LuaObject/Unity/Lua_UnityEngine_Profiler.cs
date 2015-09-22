@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 		try {
 			UnityEngine.Profiler o;
 			o=new UnityEngine.Profiler();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			UnityEngine.Profiler.AddFramesFromFile(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -38,7 +38,8 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 				System.String a1;
 				checkType(l,1,out a1);
 				UnityEngine.Profiler.BeginSample(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				System.String a1;
@@ -46,25 +47,26 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
 				UnityEngine.Profiler.BeginSample(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int EndSample_s(IntPtr l) {
 		try {
 			UnityEngine.Profiler.EndSample();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,94 +75,94 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 			UnityEngine.Object a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.Profiler.GetRuntimeMemorySize(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetMonoHeapSize_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Profiler.GetMonoHeapSize();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetMonoUsedSize_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Profiler.GetMonoUsedSize();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetTotalAllocatedMemory_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Profiler.GetTotalAllocatedMemory();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetTotalUnusedReservedMemory_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Profiler.GetTotalUnusedReservedMemory();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int GetTotalReservedMemory_s(IntPtr l) {
 		try {
 			var ret=UnityEngine.Profiler.GetTotalReservedMemory();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supported(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Profiler.supported);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_logFile(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Profiler.logFile);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -169,22 +171,22 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			UnityEngine.Profiler.logFile=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enableBinaryLog(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Profiler.enableBinaryLog);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -193,22 +195,22 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Profiler.enableBinaryLog=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enabled(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Profiler.enabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -217,22 +219,22 @@ public class Lua_UnityEngine_Profiler : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.Profiler.enabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_usedHeapSize(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Profiler.usedHeapSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

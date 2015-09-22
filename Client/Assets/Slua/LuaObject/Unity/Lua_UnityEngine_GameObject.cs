@@ -13,13 +13,15 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.GameObject(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==1){
 				o=new UnityEngine.GameObject();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				System.String a1;
@@ -27,15 +29,14 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Type[] a2;
 				checkParams(l,3,out a2);
 				o=new UnityEngine.GameObject(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -47,23 +48,25 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				var ret=self.GetComponent(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(System.Type))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
 				System.Type a1;
 				checkType(l,2,out a1);
 				var ret=self.GetComponent(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -73,12 +76,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.Type a1;
 			checkType(l,2,out a1);
 			var ret=self.GetComponentInChildren(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,12 +91,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.Type a1;
 			checkType(l,2,out a1);
 			var ret=self.GetComponentInParent(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -105,8 +108,9 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Type a1;
 				checkType(l,2,out a1);
 				var ret=self.GetComponents(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -115,14 +119,15 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Collections.Generic.List<UnityEngine.Component> a2;
 				checkType(l,3,out a2);
 				self.GetComponents(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -134,8 +139,9 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Type a1;
 				checkType(l,2,out a1);
 				var ret=self.GetComponentsInChildren(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -144,15 +150,16 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Boolean a2;
 				checkType(l,3,out a2);
 				var ret=self.GetComponentsInChildren(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -164,8 +171,9 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Type a1;
 				checkType(l,2,out a1);
 				var ret=self.GetComponentsInParent(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -174,15 +182,16 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Boolean a2;
 				checkType(l,3,out a2);
 				var ret=self.GetComponentsInParent(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,11 +201,11 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.Boolean a1;
 			checkType(l,2,out a1);
 			self.SetActive(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -206,12 +215,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.CompareTag(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -223,7 +232,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				self.SendMessageUpwards(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(UnityEngine.SendMessageOptions))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -232,7 +242,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a2;
 				checkEnum(l,3,out a2);
 				self.SendMessageUpwards(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(System.Object))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -241,7 +252,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Object a2;
 				checkType(l,3,out a2);
 				self.SendMessageUpwards(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -252,14 +264,15 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a3;
 				checkEnum(l,4,out a3);
 				self.SendMessageUpwards(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -271,7 +284,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				self.SendMessage(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(UnityEngine.SendMessageOptions))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -280,7 +294,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a2;
 				checkEnum(l,3,out a2);
 				self.SendMessage(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(System.Object))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -289,7 +304,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Object a2;
 				checkType(l,3,out a2);
 				self.SendMessage(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -300,14 +316,15 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a3;
 				checkEnum(l,4,out a3);
 				self.SendMessage(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,7 +336,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				self.BroadcastMessage(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(UnityEngine.SendMessageOptions))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -328,7 +346,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a2;
 				checkEnum(l,3,out a2);
 				self.BroadcastMessage(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(System.Object))){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -337,7 +356,8 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				System.Object a2;
 				checkType(l,3,out a2);
 				self.BroadcastMessage(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
@@ -348,14 +368,15 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 				UnityEngine.SendMessageOptions a3;
 				checkEnum(l,4,out a3);
 				self.BroadcastMessage(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -365,12 +386,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.Type a1;
 			checkType(l,2,out a1);
 			var ret=self.AddComponent(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -379,12 +400,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			UnityEngine.PrimitiveType a1;
 			checkEnum(l,1,out a1);
 			var ret=UnityEngine.GameObject.CreatePrimitive(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -393,12 +414,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.GameObject.FindGameObjectWithTag(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -407,12 +428,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.GameObject.FindWithTag(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -421,12 +442,12 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.GameObject.FindGameObjectsWithTag(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -435,36 +456,36 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=UnityEngine.GameObject.Find(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_transform(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.transform);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_layer(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.layer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -474,47 +495,47 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.layer=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_activeSelf(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.activeSelf);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_activeInHierarchy(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.activeInHierarchy);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isStatic(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isStatic);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -524,23 +545,23 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isStatic=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_tag(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.tag);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -550,23 +571,23 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.tag=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_gameObject(IntPtr l) {
 		try {
 			UnityEngine.GameObject self=(UnityEngine.GameObject)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.gameObject);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

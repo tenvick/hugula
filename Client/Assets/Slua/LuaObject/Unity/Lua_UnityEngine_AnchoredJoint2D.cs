@@ -9,24 +9,24 @@ public class Lua_UnityEngine_AnchoredJoint2D : LuaObject {
 		try {
 			UnityEngine.AnchoredJoint2D o;
 			o=new UnityEngine.AnchoredJoint2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anchor(IntPtr l) {
 		try {
 			UnityEngine.AnchoredJoint2D self=(UnityEngine.AnchoredJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.anchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_AnchoredJoint2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.anchor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_connectedAnchor(IntPtr l) {
 		try {
 			UnityEngine.AnchoredJoint2D self=(UnityEngine.AnchoredJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.connectedAnchor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_AnchoredJoint2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.connectedAnchor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

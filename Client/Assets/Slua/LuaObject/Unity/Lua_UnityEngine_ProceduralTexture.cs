@@ -9,12 +9,12 @@ public class Lua_UnityEngine_ProceduralTexture : LuaObject {
 		try {
 			UnityEngine.ProceduralTexture o;
 			o=new UnityEngine.ProceduralTexture();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_ProceduralTexture : LuaObject {
 		try {
 			UnityEngine.ProceduralTexture self=(UnityEngine.ProceduralTexture)checkSelf(l);
 			var ret=self.GetProceduralOutputType();
+			pushValue(l,true);
 			pushEnum(l,(int)ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -43,36 +43,36 @@ public class Lua_UnityEngine_ProceduralTexture : LuaObject {
 			System.Int32 a4;
 			checkType(l,5,out a4);
 			var ret=self.GetPixels32(a1,a2,a3,a4);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hasAlpha(IntPtr l) {
 		try {
 			UnityEngine.ProceduralTexture self=(UnityEngine.ProceduralTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hasAlpha);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_format(IntPtr l) {
 		try {
 			UnityEngine.ProceduralTexture self=(UnityEngine.ProceduralTexture)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.format);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

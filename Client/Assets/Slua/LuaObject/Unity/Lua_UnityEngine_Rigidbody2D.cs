@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 		try {
 			UnityEngine.Rigidbody2D o;
 			o=new UnityEngine.Rigidbody2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,11 +24,11 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			self.MovePosition(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -38,11 +38,11 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			self.MoveRotation(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -50,12 +50,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 			var ret=self.IsSleeping();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -63,12 +63,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 			var ret=self.IsAwake();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,11 +76,11 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 			self.Sleep();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,11 +88,11 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 			self.WakeUp();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,12 +102,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Collider2D a1;
 			checkType(l,2,out a1);
 			var ret=self.IsTouching(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -117,23 +117,25 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			if(argc==1){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 				var ret=self.IsTouchingLayers();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				var ret=self.IsTouchingLayers(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -145,7 +147,8 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.Vector2 a1;
 				checkType(l,2,out a1);
 				self.AddForce(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
@@ -154,14 +157,15 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.ForceMode2D a2;
 				checkEnum(l,3,out a2);
 				self.AddForce(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -173,7 +177,8 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.Vector2 a1;
 				checkType(l,2,out a1);
 				self.AddRelativeForce(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
@@ -182,14 +187,15 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.ForceMode2D a2;
 				checkEnum(l,3,out a2);
 				self.AddRelativeForce(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -203,7 +209,8 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.Vector2 a2;
 				checkType(l,3,out a2);
 				self.AddForceAtPosition(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
@@ -214,14 +221,15 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.ForceMode2D a3;
 				checkEnum(l,4,out a3);
 				self.AddForceAtPosition(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -233,7 +241,8 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				System.Single a1;
 				checkType(l,2,out a1);
 				self.AddTorque(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
@@ -242,14 +251,15 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 				UnityEngine.ForceMode2D a2;
 				checkEnum(l,3,out a2);
 				self.AddTorque(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -259,12 +269,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -274,12 +284,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetRelativePoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -289,12 +299,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetVector(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -304,12 +314,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetRelativeVector(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -319,12 +329,12 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetPointVelocity(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -334,24 +344,24 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetRelativePointVelocity(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_position(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.position);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -361,23 +371,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.position=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_rotation(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.rotation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -387,23 +397,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.rotation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocity(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -413,23 +423,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.velocity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_angularVelocity(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.angularVelocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -439,23 +449,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.angularVelocity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mass(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -465,23 +475,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.mass=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_centerOfMass(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.centerOfMass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -491,35 +501,35 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.centerOfMass=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_worldCenterOfMass(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.worldCenterOfMass);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_inertia(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.inertia);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -529,23 +539,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.inertia=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_drag(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.drag);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -555,23 +565,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.drag=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_angularDrag(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.angularDrag);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -581,23 +591,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.angularDrag=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_gravityScale(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.gravityScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -607,23 +617,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.gravityScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isKinematic(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isKinematic);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -633,23 +643,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isKinematic=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fixedAngle(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.fixedAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -659,23 +669,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.fixedAngle=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_simulated(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.simulated);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -685,23 +695,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.simulated=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_interpolation(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.interpolation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -711,23 +721,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.RigidbodyInterpolation2D v;
 			checkEnum(l,2,out v);
 			self.interpolation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sleepMode(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.sleepMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -737,23 +747,23 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.RigidbodySleepMode2D v;
 			checkEnum(l,2,out v);
 			self.sleepMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_collisionDetectionMode(IntPtr l) {
 		try {
 			UnityEngine.Rigidbody2D self=(UnityEngine.Rigidbody2D)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.collisionDetectionMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -763,11 +773,11 @@ public class Lua_UnityEngine_Rigidbody2D : LuaObject {
 			UnityEngine.CollisionDetectionMode2D v;
 			checkEnum(l,2,out v);
 			self.collisionDetectionMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

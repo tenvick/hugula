@@ -9,12 +9,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData o;
 			o=new UnityEngine.OffMeshLinkData();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.valid);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,12 +35,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.activated);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -48,12 +48,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushEnum(l,(int)self.linkType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,12 +61,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.startPos);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -74,12 +74,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.endPos);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -87,12 +87,12 @@ public class Lua_UnityEngine_OffMeshLinkData : LuaObject {
 		try {
 			UnityEngine.OffMeshLinkData self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.offMeshLink);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

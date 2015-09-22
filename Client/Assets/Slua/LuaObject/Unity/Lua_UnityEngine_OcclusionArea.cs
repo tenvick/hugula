@@ -9,24 +9,24 @@ public class Lua_UnityEngine_OcclusionArea : LuaObject {
 		try {
 			UnityEngine.OcclusionArea o;
 			o=new UnityEngine.OcclusionArea();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_center(IntPtr l) {
 		try {
 			UnityEngine.OcclusionArea self=(UnityEngine.OcclusionArea)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.center);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_OcclusionArea : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.center=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_size(IntPtr l) {
 		try {
 			UnityEngine.OcclusionArea self=(UnityEngine.OcclusionArea)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.size);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_OcclusionArea : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.size=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

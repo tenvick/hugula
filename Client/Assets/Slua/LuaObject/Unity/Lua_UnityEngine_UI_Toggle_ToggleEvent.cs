@@ -9,12 +9,12 @@ public class Lua_UnityEngine_UI_Toggle_ToggleEvent : LuaObject {
 		try {
 			UnityEngine.UI.Toggle.ToggleEvent o;
 			o=new UnityEngine.UI.Toggle.ToggleEvent();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

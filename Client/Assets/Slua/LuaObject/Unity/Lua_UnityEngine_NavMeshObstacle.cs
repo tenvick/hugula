@@ -9,24 +9,24 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 		try {
 			UnityEngine.NavMeshObstacle o;
 			o=new UnityEngine.NavMeshObstacle();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_height(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.height);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.height=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_radius(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.radius);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.radius=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocity(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.velocity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_carving(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.carving);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.carving=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_carveOnlyStationary(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.carveOnlyStationary);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.carveOnlyStationary=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_carvingMoveThreshold(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.carvingMoveThreshold);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.carvingMoveThreshold=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_carvingTimeToStationary(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.carvingTimeToStationary);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,23 +192,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.carvingTimeToStationary=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_shape(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.shape);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -218,23 +218,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			UnityEngine.NavMeshObstacleShape v;
 			checkEnum(l,2,out v);
 			self.shape=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_center(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.center);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -244,23 +244,23 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.center=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_size(IntPtr l) {
 		try {
 			UnityEngine.NavMeshObstacle self=(UnityEngine.NavMeshObstacle)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.size);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,11 +270,11 @@ public class Lua_UnityEngine_NavMeshObstacle : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.size=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

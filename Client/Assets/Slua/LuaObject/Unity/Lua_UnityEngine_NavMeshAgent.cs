@@ -9,12 +9,12 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 		try {
 			UnityEngine.NavMeshAgent o;
 			o=new UnityEngine.NavMeshAgent();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.SetDestination(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			System.Boolean a1;
 			checkType(l,2,out a1);
 			self.ActivateCurrentOffMeshLink(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,11 +51,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
 			self.CompleteOffMeshLink();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -65,12 +65,12 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.Warp(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,11 +80,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			self.Move(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,11 +92,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
 			self.Stop();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -104,11 +104,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
 			self.Resume();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -116,11 +116,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
 			self.ResetPath();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -130,12 +130,12 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.NavMeshPath a1;
 			checkType(l,2,out a1);
 			var ret=self.SetPath(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -144,13 +144,13 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
 			UnityEngine.NavMeshHit a1;
 			var ret=self.FindClosestEdge(out a1);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a1);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -161,13 +161,13 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			checkType(l,2,out a1);
 			UnityEngine.NavMeshHit a2;
 			var ret=self.Raycast(a1,out a2);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a2);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -179,12 +179,12 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.NavMeshPath a2;
 			checkType(l,3,out a2);
 			var ret=self.CalculatePath(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -197,13 +197,13 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			checkType(l,3,out a2);
 			UnityEngine.NavMeshHit a3;
 			var ret=self.SamplePathPosition(a1,a2,out a3);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a3);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -215,11 +215,11 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			System.Single a2;
 			checkType(l,3,out a2);
 			self.SetAreaCost(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -229,24 +229,24 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetAreaCost(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_destination(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.destination);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -256,23 +256,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.destination=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_stoppingDistance(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.stoppingDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -282,23 +282,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.stoppingDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocity(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -308,23 +308,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.velocity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_nextPosition(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.nextPosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -334,59 +334,59 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.Vector3 v;
 			checkType(l,2,out v);
 			self.nextPosition=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_steeringTarget(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.steeringTarget);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_desiredVelocity(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.desiredVelocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_remainingDistance(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.remainingDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_baseOffset(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.baseOffset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -396,59 +396,59 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.baseOffset=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isOnOffMeshLink(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isOnOffMeshLink);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_currentOffMeshLinkData(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.currentOffMeshLinkData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_nextOffMeshLinkData(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.nextOffMeshLinkData);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoTraverseOffMeshLink(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoTraverseOffMeshLink);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -458,23 +458,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autoTraverseOffMeshLink=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoBraking(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoBraking);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -484,23 +484,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autoBraking=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_autoRepath(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.autoRepath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -510,83 +510,83 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.autoRepath=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_hasPath(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.hasPath);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pathPending(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pathPending);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isPathStale(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isPathStale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pathStatus(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.pathStatus);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pathEndPosition(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pathEndPosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_path(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.path);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -596,23 +596,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.NavMeshPath v;
 			checkType(l,2,out v);
 			self.path=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_areaMask(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.areaMask);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -622,23 +622,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.areaMask=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_speed(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.speed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -648,23 +648,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.speed=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_angularSpeed(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.angularSpeed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -674,23 +674,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.angularSpeed=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_acceleration(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.acceleration);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -700,23 +700,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.acceleration=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_updatePosition(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.updatePosition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -726,23 +726,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.updatePosition=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_updateRotation(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.updateRotation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -752,23 +752,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.updateRotation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_radius(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.radius);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -778,23 +778,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.radius=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_height(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.height);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -804,23 +804,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.height=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_obstacleAvoidanceType(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.obstacleAvoidanceType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -830,23 +830,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			UnityEngine.ObstacleAvoidanceType v;
 			checkEnum(l,2,out v);
 			self.obstacleAvoidanceType=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_avoidancePriority(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.avoidancePriority);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -856,23 +856,23 @@ public class Lua_UnityEngine_NavMeshAgent : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.avoidancePriority=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isOnNavMesh(IntPtr l) {
 		try {
 			UnityEngine.NavMeshAgent self=(UnityEngine.NavMeshAgent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isOnNavMesh);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

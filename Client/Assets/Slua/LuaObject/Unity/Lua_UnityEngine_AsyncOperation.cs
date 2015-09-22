@@ -9,48 +9,48 @@ public class Lua_UnityEngine_AsyncOperation : LuaObject {
 		try {
 			UnityEngine.AsyncOperation o;
 			o=new UnityEngine.AsyncOperation();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isDone(IntPtr l) {
 		try {
 			UnityEngine.AsyncOperation self=(UnityEngine.AsyncOperation)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isDone);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_progress(IntPtr l) {
 		try {
 			UnityEngine.AsyncOperation self=(UnityEngine.AsyncOperation)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.progress);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_priority(IntPtr l) {
 		try {
 			UnityEngine.AsyncOperation self=(UnityEngine.AsyncOperation)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.priority);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -60,23 +60,23 @@ public class Lua_UnityEngine_AsyncOperation : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.priority=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_allowSceneActivation(IntPtr l) {
 		try {
 			UnityEngine.AsyncOperation self=(UnityEngine.AsyncOperation)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.allowSceneActivation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -86,11 +86,11 @@ public class Lua_UnityEngine_AsyncOperation : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.allowSceneActivation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

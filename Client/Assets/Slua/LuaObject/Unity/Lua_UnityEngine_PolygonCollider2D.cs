@@ -9,12 +9,12 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 		try {
 			UnityEngine.PolygonCollider2D o;
 			o=new UnityEngine.PolygonCollider2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.GetPath(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -41,11 +41,11 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 			UnityEngine.Vector2[] a2;
 			checkType(l,3,out a2);
 			self.SetPath(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -53,12 +53,12 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 		try {
 			UnityEngine.PolygonCollider2D self=(UnityEngine.PolygonCollider2D)checkSelf(l);
 			var ret=self.GetTotalPointCount();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -70,7 +70,8 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				self.CreatePrimitive(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.PolygonCollider2D self=(UnityEngine.PolygonCollider2D)checkSelf(l);
@@ -79,7 +80,8 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 				UnityEngine.Vector2 a2;
 				checkType(l,3,out a2);
 				self.CreatePrimitive(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.PolygonCollider2D self=(UnityEngine.PolygonCollider2D)checkSelf(l);
@@ -90,26 +92,27 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 				UnityEngine.Vector2 a3;
 				checkType(l,4,out a3);
 				self.CreatePrimitive(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_points(IntPtr l) {
 		try {
 			UnityEngine.PolygonCollider2D self=(UnityEngine.PolygonCollider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.points);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -119,23 +122,23 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 			UnityEngine.Vector2[] v;
 			checkType(l,2,out v);
 			self.points=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pathCount(IntPtr l) {
 		try {
 			UnityEngine.PolygonCollider2D self=(UnityEngine.PolygonCollider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.pathCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -145,11 +148,11 @@ public class Lua_UnityEngine_PolygonCollider2D : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.pathCount=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

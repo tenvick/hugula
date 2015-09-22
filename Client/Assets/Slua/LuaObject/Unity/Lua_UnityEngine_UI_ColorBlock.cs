@@ -9,12 +9,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock o;
 			o=new UnityEngine.UI.ColorBlock();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.normalColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.normalColor=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.highlightedColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.highlightedColor=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,12 +80,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.pressedColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -97,11 +97,11 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.pressedColor=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -109,12 +109,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.disabledColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,11 +126,11 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.disabledColor=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -138,12 +138,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.colorMultiplier);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -155,11 +155,11 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.colorMultiplier=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -167,12 +167,12 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 		try {
 			UnityEngine.UI.ColorBlock self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.fadeDuration);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -184,22 +184,22 @@ public class Lua_UnityEngine_UI_ColorBlock : LuaObject {
 			checkType(l,2,out v);
 			self.fadeDuration=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_defaultColorBlock(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.UI.ColorBlock.defaultColorBlock);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

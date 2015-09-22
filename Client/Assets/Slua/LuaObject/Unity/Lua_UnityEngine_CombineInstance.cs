@@ -9,12 +9,12 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 		try {
 			UnityEngine.CombineInstance o;
 			o=new UnityEngine.CombineInstance();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 		try {
 			UnityEngine.CombineInstance self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.mesh);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 			checkType(l,2,out v);
 			self.mesh=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 		try {
 			UnityEngine.CombineInstance self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.subMeshIndex);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 			checkType(l,2,out v);
 			self.subMeshIndex=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,12 +80,12 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 		try {
 			UnityEngine.CombineInstance self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.transform);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -97,11 +97,11 @@ public class Lua_UnityEngine_CombineInstance : LuaObject {
 			checkValueType(l,2,out v);
 			self.transform=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

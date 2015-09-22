@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 		try {
 			UnityEngine.Collider2D o;
 			o=new UnityEngine.Collider2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			UnityEngine.Vector2 a1;
 			checkType(l,2,out a1);
 			var ret=self.OverlapPoint(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,12 +39,12 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			UnityEngine.Collider2D a1;
 			checkType(l,2,out a1);
 			var ret=self.IsTouching(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,35 +54,37 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			if(argc==1){
 				UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
 				var ret=self.IsTouchingLayers();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				var ret=self.IsTouchingLayers(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isTrigger(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,23 +94,23 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_usedByEffector(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.usedByEffector);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -118,23 +120,23 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.usedByEffector=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_offset(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.offset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -144,59 +146,59 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			UnityEngine.Vector2 v;
 			checkType(l,2,out v);
 			self.offset=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_attachedRigidbody(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.attachedRigidbody);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_shapeCount(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.shapeCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bounds(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bounds);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sharedMaterial(IntPtr l) {
 		try {
 			UnityEngine.Collider2D self=(UnityEngine.Collider2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sharedMaterial);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -206,11 +208,11 @@ public class Lua_UnityEngine_Collider2D : LuaObject {
 			UnityEngine.PhysicsMaterial2D v;
 			checkType(l,2,out v);
 			self.sharedMaterial=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -11,8 +11,9 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			UnityEngine.RectOffset o;
 			if(argc==1){
 				o=new UnityEngine.RectOffset();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==5){
 				System.Int32 a1;
@@ -24,15 +25,14 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 				System.Int32 a4;
 				checkType(l,5,out a4);
 				o=new UnityEngine.RectOffset(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,12 +42,12 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			UnityEngine.Rect a1;
 			checkValueType(l,2,out a1);
 			var ret=self.Add(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -57,24 +57,24 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			UnityEngine.Rect a1;
 			checkValueType(l,2,out a1);
 			var ret=self.Remove(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_left(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.left);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -84,23 +84,23 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.left=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_right(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.right);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -110,23 +110,23 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.right=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_top(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.top);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -136,23 +136,23 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.top=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bottom(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bottom);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -162,35 +162,35 @@ public class Lua_UnityEngine_RectOffset : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.bottom=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_horizontal(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.horizontal);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_vertical(IntPtr l) {
 		try {
 			UnityEngine.RectOffset self=(UnityEngine.RectOffset)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.vertical);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

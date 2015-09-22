@@ -12,11 +12,11 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Object a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onCustomerHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -27,11 +27,11 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Boolean a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onPressHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,11 +42,11 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Object a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onClickHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -57,11 +57,11 @@ public class Lua_UGUIEvent : LuaObject {
 			UnityEngine.Vector2 a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onDragHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -72,11 +72,11 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Object a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onDropHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -87,11 +87,11 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Object a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onSelectHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,22 +102,22 @@ public class Lua_UGUIEvent : LuaObject {
 			System.Object a2;
 			checkType(l,2,out a2);
 			UGUIEvent.onCancelHandle(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onCustomerFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onCustomerFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,22 +126,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onCustomerFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onPressFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onPressFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -150,22 +150,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onPressFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onClickFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onClickFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -174,22 +174,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onClickFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onDragFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onDragFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -198,22 +198,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onDragFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onDropFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onDropFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -222,22 +222,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onDropFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onSelectFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onSelectFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -246,22 +246,22 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onSelectFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onCancelFn(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UGUIEvent.onCancelFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -270,11 +270,11 @@ public class Lua_UGUIEvent : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			UGUIEvent.onCancelFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

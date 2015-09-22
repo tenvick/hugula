@@ -9,24 +9,24 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 		try {
 			UnityEngine.AnimationEvent o;
 			o=new UnityEngine.AnimationEvent();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_stringParameter(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.stringParameter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.stringParameter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_floatParameter(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.floatParameter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.floatParameter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_intParameter(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.intParameter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.intParameter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_objectReferenceParameter(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.objectReferenceParameter);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			UnityEngine.Object v;
 			checkType(l,2,out v);
 			self.objectReferenceParameter=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_functionName(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.functionName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.functionName=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_time(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.time);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,23 +166,23 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.time=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_messageOptions(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.messageOptions);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -192,71 +192,71 @@ public class Lua_UnityEngine_AnimationEvent : LuaObject {
 			UnityEngine.SendMessageOptions v;
 			checkEnum(l,2,out v);
 			self.messageOptions=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isFiredByLegacy(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isFiredByLegacy);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isFiredByAnimator(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isFiredByAnimator);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animationState(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animationState);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animatorStateInfo(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animatorStateInfo);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animatorClipInfo(IntPtr l) {
 		try {
 			UnityEngine.AnimationEvent self=(UnityEngine.AnimationEvent)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animatorClipInfo);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

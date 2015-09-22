@@ -11,29 +11,33 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.Collections.Generic.Dictionary<System.Int32,System.String> o;
 			if(argc==1){
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(IEqualityComparer<System.Int32>))){
 				System.Collections.Generic.IEqualityComparer<System.Int32> a1;
 				checkType(l,2,out a1);
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(IDictionary<System.Int32,System.String>))){
 				System.Collections.Generic.IDictionary<System.Int32,System.String> a1;
 				checkType(l,2,out a1);
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(int))){
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(IDictionary<System.Int32,System.String>),typeof(IEqualityComparer<System.Int32>))){
 				System.Collections.Generic.IDictionary<System.Int32,System.String> a1;
@@ -41,8 +45,9 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 				System.Collections.Generic.IEqualityComparer<System.Int32> a2;
 				checkType(l,3,out a2);
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(int),typeof(IEqualityComparer<System.Int32>))){
 				System.Int32 a1;
@@ -50,15 +55,14 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 				System.Collections.Generic.IEqualityComparer<System.Int32> a2;
 				checkType(l,3,out a2);
 				o=new System.Collections.Generic.Dictionary<System.Int32,System.String>(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -70,11 +74,11 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.String a2;
 			checkType(l,3,out a2);
 			self.Add(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -82,11 +86,11 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 		try {
 			System.Collections.Generic.Dictionary<System.Int32,System.String> self=(System.Collections.Generic.Dictionary<System.Int32,System.String>)checkSelf(l);
 			self.Clear();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -96,12 +100,12 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.ContainsKey(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -111,12 +115,12 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.String a1;
 			checkType(l,2,out a1);
 			var ret=self.ContainsValue(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -128,11 +132,11 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.Runtime.Serialization.StreamingContext a2;
 			checkValueType(l,3,out a2);
 			self.GetObjectData(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -142,11 +146,11 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.Object a1;
 			checkType(l,2,out a1);
 			self.OnDeserialization(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -156,12 +160,12 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			System.Int32 a1;
 			checkType(l,2,out a1);
 			var ret=self.Remove(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -172,61 +176,61 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			checkType(l,2,out a1);
 			System.String a2;
 			var ret=self.TryGetValue(a1,out a2);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a2);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Count(IntPtr l) {
 		try {
 			System.Collections.Generic.Dictionary<System.Int32,System.String> self=(System.Collections.Generic.Dictionary<System.Int32,System.String>)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Count);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Comparer(IntPtr l) {
 		try {
 			System.Collections.Generic.Dictionary<System.Int32,System.String> self=(System.Collections.Generic.Dictionary<System.Int32,System.String>)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Comparer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Keys(IntPtr l) {
 		try {
 			System.Collections.Generic.Dictionary<System.Int32,System.String> self=(System.Collections.Generic.Dictionary<System.Int32,System.String>)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Keys);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Values(IntPtr l) {
 		try {
 			System.Collections.Generic.Dictionary<System.Int32,System.String> self=(System.Collections.Generic.Dictionary<System.Int32,System.String>)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Values);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -236,12 +240,12 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			int v;
 			checkType(l,2,out v);
 			var ret = self[v];
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -253,11 +257,11 @@ public class Lua_System_Collections_Generic_Dictionary_2_int_string : LuaObject 
 			string c;
 			checkType(l,3,out c);
 			self[v]=c;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

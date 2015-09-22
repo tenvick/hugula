@@ -9,12 +9,12 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 		try {
 			UnityEngine.AudioListener o;
 			o=new UnityEngine.AudioListener();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,11 +25,11 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			UnityEngine.AudioListener.GetOutputData(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,22 +42,22 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 			UnityEngine.FFTWindow a3;
 			checkEnum(l,3,out a3);
 			UnityEngine.AudioListener.GetSpectrumData(a1,a2,a3);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_volume(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.AudioListener.volume);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -66,22 +66,22 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.AudioListener.volume=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_pause(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.AudioListener.pause);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -90,23 +90,23 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.AudioListener.pause=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocityUpdateMode(IntPtr l) {
 		try {
 			UnityEngine.AudioListener self=(UnityEngine.AudioListener)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.velocityUpdateMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -116,11 +116,11 @@ public class Lua_UnityEngine_AudioListener : LuaObject {
 			UnityEngine.AudioVelocityUpdateMode v;
 			checkEnum(l,2,out v);
 			self.velocityUpdateMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

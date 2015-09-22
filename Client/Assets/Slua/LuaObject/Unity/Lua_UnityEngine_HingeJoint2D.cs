@@ -9,12 +9,12 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 		try {
 			UnityEngine.HingeJoint2D o;
 			o=new UnityEngine.HingeJoint2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.GetReactionForce(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,12 +39,12 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.GetReactionTorque(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,24 +54,24 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.GetMotorTorque(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useMotor(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useMotor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -81,23 +81,23 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useMotor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useLimits(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useLimits);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,23 +107,23 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useLimits=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_motor(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.motor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,23 +133,23 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			UnityEngine.JointMotor2D v;
 			checkValueType(l,2,out v);
 			self.motor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_limits(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.limits);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -159,59 +159,59 @@ public class Lua_UnityEngine_HingeJoint2D : LuaObject {
 			UnityEngine.JointAngleLimits2D v;
 			checkValueType(l,2,out v);
 			self.limits=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_limitState(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.limitState);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_referenceAngle(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.referenceAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_jointAngle(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.jointAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_jointSpeed(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint2D self=(UnityEngine.HingeJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.jointSpeed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

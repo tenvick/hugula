@@ -9,24 +9,24 @@ public class Lua_UnityEngine_AudioHighPassFilter : LuaObject {
 		try {
 			UnityEngine.AudioHighPassFilter o;
 			o=new UnityEngine.AudioHighPassFilter();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_cutoffFrequency(IntPtr l) {
 		try {
 			UnityEngine.AudioHighPassFilter self=(UnityEngine.AudioHighPassFilter)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.cutoffFrequency);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_AudioHighPassFilter : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.cutoffFrequency=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_highpassResonanceQ(IntPtr l) {
 		try {
 			UnityEngine.AudioHighPassFilter self=(UnityEngine.AudioHighPassFilter)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.highpassResonanceQ);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_AudioHighPassFilter : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.highpassResonanceQ=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

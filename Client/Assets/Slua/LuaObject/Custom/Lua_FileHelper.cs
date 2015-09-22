@@ -9,12 +9,12 @@ public class Lua_FileHelper : LuaObject {
 		try {
 			FileHelper o;
 			o=new FileHelper();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -27,7 +27,8 @@ public class Lua_FileHelper : LuaObject {
 				System.String a2;
 				checkType(l,2,out a2);
 				FileHelper.UnZipFile(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(System.IO.Stream),typeof(string))){
 				System.IO.Stream a1;
@@ -35,7 +36,8 @@ public class Lua_FileHelper : LuaObject {
 				System.String a2;
 				checkType(l,2,out a2);
 				FileHelper.UnZipFile(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,1,typeof(string),typeof(string))){
 				System.String a1;
@@ -43,14 +45,15 @@ public class Lua_FileHelper : LuaObject {
 				System.String a2;
 				checkType(l,2,out a2);
 				FileHelper.UnZipFile(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,11 +64,11 @@ public class Lua_FileHelper : LuaObject {
 			System.Action<System.String,System.String> a2;
 			LuaDelegation.checkDelegate(l,2,out a2);
 			FileHelper.UnpackConfigZip(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,11 +79,11 @@ public class Lua_FileHelper : LuaObject {
 			System.String a2;
 			checkType(l,2,out a2);
 			FileHelper.PersistentUTF8File(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -89,12 +92,12 @@ public class Lua_FileHelper : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=FileHelper.ReadUTF8File(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -103,11 +106,11 @@ public class Lua_FileHelper : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			FileHelper.DeleteFile(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -118,11 +121,11 @@ public class Lua_FileHelper : LuaObject {
 			SLua.LuaFunction a2;
 			checkType(l,2,out a2);
 			FileHelper.UnpackConfigAssetBundleFn(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

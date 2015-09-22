@@ -9,89 +9,89 @@ public class Lua_UnityEngine_Time : LuaObject {
 		try {
 			UnityEngine.Time o;
 			o=new UnityEngine.Time();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_time(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.time);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_timeSinceLevelLoad(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.timeSinceLevelLoad);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deltaTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.deltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fixedTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.fixedTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_unscaledTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.unscaledTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_unscaledDeltaTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.unscaledDeltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fixedDeltaTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.fixedDeltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -100,22 +100,22 @@ public class Lua_UnityEngine_Time : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.Time.fixedDeltaTime=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maximumDeltaTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.maximumDeltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -124,33 +124,33 @@ public class Lua_UnityEngine_Time : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.Time.maximumDeltaTime=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_smoothDeltaTime(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.smoothDeltaTime);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_timeScale(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.timeScale);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -159,55 +159,55 @@ public class Lua_UnityEngine_Time : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.Time.timeScale=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_frameCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.frameCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_renderedFrameCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.renderedFrameCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_realtimeSinceStartup(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.realtimeSinceStartup);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_captureFramerate(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Time.captureFramerate);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -216,11 +216,11 @@ public class Lua_UnityEngine_Time : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			UnityEngine.Time.captureFramerate=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

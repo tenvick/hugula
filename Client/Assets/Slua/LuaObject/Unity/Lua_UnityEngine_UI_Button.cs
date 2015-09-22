@@ -11,11 +11,11 @@ public class Lua_UnityEngine_UI_Button : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerClick(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,23 +25,23 @@ public class Lua_UnityEngine_UI_Button : LuaObject {
 			UnityEngine.EventSystems.BaseEventData a1;
 			checkType(l,2,out a1);
 			self.OnSubmit(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onClick(IntPtr l) {
 		try {
 			UnityEngine.UI.Button self=(UnityEngine.UI.Button)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onClick);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,11 +51,11 @@ public class Lua_UnityEngine_UI_Button : LuaObject {
 			UnityEngine.UI.Button.ButtonClickedEvent v;
 			checkType(l,2,out v);
 			self.onClick=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

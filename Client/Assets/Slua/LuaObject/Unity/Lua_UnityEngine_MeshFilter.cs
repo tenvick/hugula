@@ -9,24 +9,24 @@ public class Lua_UnityEngine_MeshFilter : LuaObject {
 		try {
 			UnityEngine.MeshFilter o;
 			o=new UnityEngine.MeshFilter();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mesh(IntPtr l) {
 		try {
 			UnityEngine.MeshFilter self=(UnityEngine.MeshFilter)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mesh);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_MeshFilter : LuaObject {
 			UnityEngine.Mesh v;
 			checkType(l,2,out v);
 			self.mesh=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sharedMesh(IntPtr l) {
 		try {
 			UnityEngine.MeshFilter self=(UnityEngine.MeshFilter)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sharedMesh);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_MeshFilter : LuaObject {
 			UnityEngine.Mesh v;
 			checkType(l,2,out v);
 			self.sharedMesh=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

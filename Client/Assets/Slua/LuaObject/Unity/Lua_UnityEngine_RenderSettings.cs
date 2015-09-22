@@ -9,23 +9,23 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 		try {
 			UnityEngine.RenderSettings o;
 			o=new UnityEngine.RenderSettings();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fog(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.fog);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -34,22 +34,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.fog=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fogMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.RenderSettings.fogMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -58,22 +58,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.FogMode v;
 			checkEnum(l,2,out v);
 			UnityEngine.RenderSettings.fogMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fogColor(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.fogColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -82,22 +82,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.fogColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fogDensity(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.fogDensity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -106,22 +106,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.fogDensity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fogStartDistance(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.fogStartDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -130,22 +130,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.fogStartDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_fogEndDistance(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.fogEndDistance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -154,22 +154,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.fogEndDistance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.RenderSettings.ambientMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -178,22 +178,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Rendering.AmbientMode v;
 			checkEnum(l,2,out v);
 			UnityEngine.RenderSettings.ambientMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientSkyColor(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientSkyColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -202,22 +202,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.ambientSkyColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientEquatorColor(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientEquatorColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -226,22 +226,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.ambientEquatorColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientGroundColor(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientGroundColor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -250,22 +250,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.ambientGroundColor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientLight(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientLight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -274,22 +274,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Color v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.ambientLight=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientIntensity(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientIntensity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -298,22 +298,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.ambientIntensity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_ambientProbe(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.ambientProbe);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -322,22 +322,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Rendering.SphericalHarmonicsL2 v;
 			checkValueType(l,2,out v);
 			UnityEngine.RenderSettings.ambientProbe=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reflectionIntensity(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.reflectionIntensity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -346,22 +346,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.reflectionIntensity=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reflectionBounces(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.reflectionBounces);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -370,22 +370,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.reflectionBounces=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_haloStrength(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.haloStrength);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -394,22 +394,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.haloStrength=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_flareStrength(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.flareStrength);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -418,22 +418,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.flareStrength=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_flareFadeSpeed(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.flareFadeSpeed);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -442,22 +442,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.flareFadeSpeed=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_skybox(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.skybox);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -466,22 +466,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Material v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.skybox=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_defaultReflectionMode(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.RenderSettings.defaultReflectionMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -490,22 +490,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Rendering.DefaultReflectionMode v;
 			checkEnum(l,2,out v);
 			UnityEngine.RenderSettings.defaultReflectionMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_defaultReflectionResolution(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.defaultReflectionResolution);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -514,22 +514,22 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.defaultReflectionResolution=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_customReflection(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.RenderSettings.customReflection);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -538,11 +538,11 @@ public class Lua_UnityEngine_RenderSettings : LuaObject {
 			UnityEngine.Cubemap v;
 			checkType(l,2,out v);
 			UnityEngine.RenderSettings.customReflection=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

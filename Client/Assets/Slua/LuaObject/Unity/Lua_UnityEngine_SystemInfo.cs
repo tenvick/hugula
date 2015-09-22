@@ -9,12 +9,12 @@ public class Lua_UnityEngine_SystemInfo : LuaObject {
 		try {
 			UnityEngine.SystemInfo o;
 			o=new UnityEngine.SystemInfo();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,12 +23,12 @@ public class Lua_UnityEngine_SystemInfo : LuaObject {
 			UnityEngine.RenderTextureFormat a1;
 			checkEnum(l,1,out a1);
 			var ret=UnityEngine.SystemInfo.SupportsRenderTextureFormat(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,364 +37,364 @@ public class Lua_UnityEngine_SystemInfo : LuaObject {
 			UnityEngine.TextureFormat a1;
 			checkEnum(l,1,out a1);
 			var ret=UnityEngine.SystemInfo.SupportsTextureFormat(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_operatingSystem(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.operatingSystem);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_processorType(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.processorType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_processorCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.processorCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_systemMemorySize(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.systemMemorySize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsMemorySize(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsMemorySize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsDeviceName(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsDeviceName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsDeviceVendor(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsDeviceVendor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsDeviceID(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsDeviceID);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsDeviceVendorID(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsDeviceVendorID);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsDeviceVersion(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsDeviceVersion);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsShaderLevel(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsShaderLevel);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_graphicsMultiThreaded(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.graphicsMultiThreaded);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsShadows(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsShadows);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsRenderTextures(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsRenderTextures);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsRenderToCubemap(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsRenderToCubemap);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsImageEffects(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsImageEffects);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supports3DTextures(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supports3DTextures);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsComputeShaders(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsComputeShaders);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsInstancing(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsInstancing);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsSparseTextures(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsSparseTextures);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportedRenderTargetCount(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportedRenderTargetCount);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsStencil(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsStencil);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_npotSupport(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.SystemInfo.npotSupport);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceUniqueIdentifier(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.deviceUniqueIdentifier);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceName(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.deviceName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceModel(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.deviceModel);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsAccelerometer(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsAccelerometer);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsGyroscope(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsGyroscope);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsLocationService(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsLocationService);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_supportsVibration(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.supportsVibration);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceType(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.SystemInfo.deviceType);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maxTextureSize(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.SystemInfo.maxTextureSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

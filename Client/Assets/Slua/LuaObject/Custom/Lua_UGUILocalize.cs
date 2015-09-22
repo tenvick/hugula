@@ -8,12 +8,12 @@ public class Lua_UGUILocalize : LuaObject {
 	static public int get_key(IntPtr l) {
 		try {
 			UGUILocalize self=(UGUILocalize)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.key);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -23,11 +23,11 @@ public class Lua_UGUILocalize : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.key=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,11 +37,11 @@ public class Lua_UGUILocalize : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.value=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

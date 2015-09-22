@@ -9,68 +9,68 @@ public class Lua_UnityEngine_CrashReport : LuaObject {
 		try {
 			UnityEngine.CrashReport self=(UnityEngine.CrashReport)checkSelf(l);
 			self.Remove();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int RemoveAll_s(IntPtr l) {
 		try {
 			UnityEngine.CrashReport.RemoveAll();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_time(IntPtr l) {
 		try {
 			UnityEngine.CrashReport self=(UnityEngine.CrashReport)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.time);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_text(IntPtr l) {
 		try {
 			UnityEngine.CrashReport self=(UnityEngine.CrashReport)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.text);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_reports(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.CrashReport.reports);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_lastReport(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.CrashReport.lastReport);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_CryptographHelper : LuaObject {
 		try {
 			CryptographHelper o;
 			o=new CryptographHelper();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,12 +25,12 @@ public class Lua_CryptographHelper : LuaObject {
 			System.String a2;
 			checkType(l,2,out a2);
 			var ret=CryptographHelper.CrypfString(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -43,12 +43,12 @@ public class Lua_CryptographHelper : LuaObject {
 			System.Byte[] a3;
 			checkType(l,3,out a3);
 			var ret=CryptographHelper.Decrypt(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -61,12 +61,12 @@ public class Lua_CryptographHelper : LuaObject {
 			System.Byte[] a3;
 			checkType(l,3,out a3);
 			var ret=CryptographHelper.Encrypt(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

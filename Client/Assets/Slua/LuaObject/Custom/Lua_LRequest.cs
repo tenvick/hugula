@@ -13,8 +13,9 @@ public class Lua_LRequest : LuaObject {
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new LRequest(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==4){
 				System.String a1;
@@ -24,27 +25,26 @@ public class Lua_LRequest : LuaObject {
 				System.String a3;
 				checkType(l,4,out a3);
 				o=new LRequest(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onCompleteFn(IntPtr l) {
 		try {
 			LRequest self=(LRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onCompleteFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,23 +54,23 @@ public class Lua_LRequest : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onCompleteFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_onEndFn(IntPtr l) {
 		try {
 			LRequest self=(LRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.onEndFn);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,11 +80,11 @@ public class Lua_LRequest : LuaObject {
 			SLua.LuaFunction v;
 			checkType(l,2,out v);
 			self.onEndFn=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			var ret=self.IsInteractable();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.FindSelectable(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -37,12 +37,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			var ret=self.FindSelectableOnLeft();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -50,12 +50,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			var ret=self.FindSelectableOnRight();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -63,12 +63,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			var ret=self.FindSelectableOnUp();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -76,12 +76,12 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			var ret=self.FindSelectableOnDown();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -91,11 +91,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.AxisEventData a1;
 			checkType(l,2,out a1);
 			self.OnMove(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -105,11 +105,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerDown(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -119,11 +119,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerUp(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,11 +133,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerEnter(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -147,11 +147,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.PointerEventData a1;
 			checkType(l,2,out a1);
 			self.OnPointerExit(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -161,11 +161,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.BaseEventData a1;
 			checkType(l,2,out a1);
 			self.OnSelect(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -175,11 +175,11 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.EventSystems.BaseEventData a1;
 			checkType(l,2,out a1);
 			self.OnDeselect(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -187,34 +187,34 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
 			self.Select();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_allSelectables(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.UI.Selectable.allSelectables);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_navigation(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.navigation);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -224,23 +224,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.Navigation v;
 			checkValueType(l,2,out v);
 			self.navigation=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_transition(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.transition);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -250,23 +250,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.Selectable.Transition v;
 			checkEnum(l,2,out v);
 			self.transition=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_colors(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.colors);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -276,23 +276,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.ColorBlock v;
 			checkValueType(l,2,out v);
 			self.colors=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_spriteState(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.spriteState);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -302,23 +302,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.SpriteState v;
 			checkValueType(l,2,out v);
 			self.spriteState=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animationTriggers(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animationTriggers);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -328,23 +328,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.AnimationTriggers v;
 			checkType(l,2,out v);
 			self.animationTriggers=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_targetGraphic(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.targetGraphic);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -354,23 +354,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.Graphic v;
 			checkType(l,2,out v);
 			self.targetGraphic=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_interactable(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.interactable);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -380,23 +380,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.interactable=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_image(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.image);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -406,23 +406,23 @@ public class Lua_UnityEngine_UI_Selectable : LuaObject {
 			UnityEngine.UI.Image v;
 			checkType(l,2,out v);
 			self.image=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_animator(IntPtr l) {
 		try {
 			UnityEngine.UI.Selectable self=(UnityEngine.UI.Selectable)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.animator);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

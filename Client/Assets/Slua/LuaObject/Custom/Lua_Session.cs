@@ -11,12 +11,12 @@ public class Lua_Session : LuaObject {
 			System.Net.Sockets.TcpClient a1;
 			checkType(l,2,out a1);
 			o=new Session(a1);
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -28,21 +28,23 @@ public class Lua_Session : LuaObject {
 				Msg a1;
 				checkType(l,2,out a1);
 				self.Send(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(matchType(l,argc,2,typeof(System.Byte[]))){
 				Session self=(Session)checkSelf(l);
 				System.Byte[] a1;
 				checkType(l,2,out a1);
 				self.Send(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -50,11 +52,11 @@ public class Lua_Session : LuaObject {
 		try {
 			Session self=(Session)checkSelf(l);
 			self.Close();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +64,11 @@ public class Lua_Session : LuaObject {
 		try {
 			Session self=(Session)checkSelf(l);
 			self.Receive();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -74,36 +76,36 @@ public class Lua_Session : LuaObject {
 		try {
 			Session self=(Session)checkSelf(l);
 			var ret=self.GetMessage();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_id(IntPtr l) {
 		try {
 			Session self=(Session)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.id);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Client(IntPtr l) {
 		try {
 			Session self=(Session)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.Client);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,24 +9,24 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 		try {
 			UnityEngine.HingeJoint o;
 			o=new UnityEngine.HingeJoint();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_motor(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.motor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			UnityEngine.JointMotor v;
 			checkValueType(l,2,out v);
 			self.motor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_limits(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.limits);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,23 +62,23 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			UnityEngine.JointLimits v;
 			checkValueType(l,2,out v);
 			self.limits=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_spring(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.spring);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -88,23 +88,23 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			UnityEngine.JointSpring v;
 			checkValueType(l,2,out v);
 			self.spring=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useMotor(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useMotor);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -114,23 +114,23 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useMotor=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useLimits(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useLimits);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -140,23 +140,23 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useLimits=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_useSpring(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.useSpring);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -166,35 +166,35 @@ public class Lua_UnityEngine_HingeJoint : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.useSpring=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_velocity(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.velocity);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_angle(IntPtr l) {
 		try {
 			UnityEngine.HingeJoint self=(UnityEngine.HingeJoint)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.angle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_DistanceJoint2D : LuaObject {
 		try {
 			UnityEngine.DistanceJoint2D o;
 			o=new UnityEngine.DistanceJoint2D();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_DistanceJoint2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.GetReactionForce(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,24 +39,24 @@ public class Lua_UnityEngine_DistanceJoint2D : LuaObject {
 			System.Single a1;
 			checkType(l,2,out a1);
 			var ret=self.GetReactionTorque(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_distance(IntPtr l) {
 		try {
 			UnityEngine.DistanceJoint2D self=(UnityEngine.DistanceJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.distance);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -66,23 +66,23 @@ public class Lua_UnityEngine_DistanceJoint2D : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.distance=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_maxDistanceOnly(IntPtr l) {
 		try {
 			UnityEngine.DistanceJoint2D self=(UnityEngine.DistanceJoint2D)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.maxDistanceOnly);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -92,11 +92,11 @@ public class Lua_UnityEngine_DistanceJoint2D : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.maxDistanceOnly=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

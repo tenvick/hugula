@@ -15,12 +15,12 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 			System.Boolean a3;
 			checkType(l,4,out a3);
 			o=new UnityEngine.Cubemap(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,11 +36,11 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 			UnityEngine.Color a4;
 			checkType(l,5,out a4);
 			self.SetPixel(a1,a2,a3,a4);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,12 +54,12 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 			System.Int32 a3;
 			checkType(l,4,out a3);
 			var ret=self.GetPixel(a1,a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -71,8 +71,9 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 				UnityEngine.CubemapFace a1;
 				checkEnum(l,2,out a1);
 				var ret=self.GetPixels(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
@@ -81,15 +82,16 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 				System.Int32 a2;
 				checkType(l,3,out a2);
 				var ret=self.GetPixels(a1,a2);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -103,7 +105,8 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 				UnityEngine.CubemapFace a2;
 				checkEnum(l,3,out a2);
 				self.SetPixels(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==4){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
@@ -114,14 +117,15 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 				System.Int32 a3;
 				checkType(l,4,out a3);
 				self.SetPixels(a1,a2,a3);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -131,14 +135,16 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 			if(argc==1){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
 				self.Apply();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
 				System.Boolean a1;
 				checkType(l,2,out a1);
 				self.Apply(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==3){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
@@ -147,14 +153,15 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 				System.Boolean a2;
 				checkType(l,3,out a2);
 				self.Apply(a1,a2);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -164,33 +171,35 @@ public class Lua_UnityEngine_Cubemap : LuaObject {
 			if(argc==1){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
 				self.SmoothEdges();
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
 			else if(argc==2){
 				UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
 				System.Int32 a1;
 				checkType(l,2,out a1);
 				self.SmoothEdges(a1);
-				return 0;
+				pushValue(l,true);
+				return 1;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_format(IntPtr l) {
 		try {
 			UnityEngine.Cubemap self=(UnityEngine.Cubemap)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.format);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Texture : LuaObject {
 		try {
 			UnityEngine.Texture o;
 			o=new UnityEngine.Texture();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_Texture : LuaObject {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
 			var ret=self.GetNativeTexturePtr();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -35,12 +35,12 @@ public class Lua_UnityEngine_Texture : LuaObject {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
 			var ret=self.GetNativeTextureID();
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,22 +51,22 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			System.Int32 a2;
 			checkType(l,2,out a2);
 			UnityEngine.Texture.SetGlobalAnisotropicFilteringLimits(a1,a2);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_masterTextureLimit(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.Texture.masterTextureLimit);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,22 +75,22 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			UnityEngine.Texture.masterTextureLimit=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anisotropicFiltering(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushEnum(l,(int)UnityEngine.Texture.anisotropicFiltering);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -99,23 +99,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			UnityEngine.AnisotropicFiltering v;
 			checkEnum(l,2,out v);
 			UnityEngine.Texture.anisotropicFiltering=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_width(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.width);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -125,23 +125,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.width=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_height(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.height);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -151,23 +151,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.height=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_filterMode(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.filterMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -177,23 +177,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			UnityEngine.FilterMode v;
 			checkEnum(l,2,out v);
 			self.filterMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_anisoLevel(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.anisoLevel);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -203,23 +203,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.anisoLevel=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_wrapMode(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushEnum(l,(int)self.wrapMode);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -229,23 +229,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			UnityEngine.TextureWrapMode v;
 			checkEnum(l,2,out v);
 			self.wrapMode=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_mipMapBias(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.mipMapBias);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -255,23 +255,23 @@ public class Lua_UnityEngine_Texture : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.mipMapBias=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_texelSize(IntPtr l) {
 		try {
 			UnityEngine.Texture self=(UnityEngine.Texture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.texelSize);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

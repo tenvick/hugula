@@ -9,24 +9,24 @@ public class Lua_UnityEngine_MeshCollider : LuaObject {
 		try {
 			UnityEngine.MeshCollider o;
 			o=new UnityEngine.MeshCollider();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sharedMesh(IntPtr l) {
 		try {
 			UnityEngine.MeshCollider self=(UnityEngine.MeshCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sharedMesh);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -36,23 +36,23 @@ public class Lua_UnityEngine_MeshCollider : LuaObject {
 			UnityEngine.Mesh v;
 			checkType(l,2,out v);
 			self.sharedMesh=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_convex(IntPtr l) {
 		try {
 			UnityEngine.MeshCollider self=(UnityEngine.MeshCollider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.convex);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -62,11 +62,11 @@ public class Lua_UnityEngine_MeshCollider : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.convex=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

@@ -9,24 +9,24 @@ public class Lua_UnityEngine_ResourceRequest : LuaObject {
 		try {
 			UnityEngine.ResourceRequest o;
 			o=new UnityEngine.ResourceRequest();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_asset(IntPtr l) {
 		try {
 			UnityEngine.ResourceRequest self=(UnityEngine.ResourceRequest)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.asset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

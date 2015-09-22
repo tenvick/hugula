@@ -9,12 +9,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight o;
 			o=new UnityEngine.BoneWeight();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -25,12 +25,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			UnityEngine.BoneWeight a2;
 			checkValueType(l,2,out a2);
 			var ret=(a1==a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -41,12 +41,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			UnityEngine.BoneWeight a2;
 			checkValueType(l,2,out a2);
 			var ret=(a1!=a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -54,12 +54,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.weight0);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -71,11 +71,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.weight0=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -83,12 +83,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.weight1);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -100,11 +100,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.weight1=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -112,12 +112,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.weight2);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -129,11 +129,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.weight2=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -141,12 +141,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.weight3);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -158,11 +158,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.weight3=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -170,12 +170,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.boneIndex0);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -187,11 +187,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.boneIndex0=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -199,12 +199,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.boneIndex1);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -216,11 +216,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.boneIndex1=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -228,12 +228,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.boneIndex2);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -245,11 +245,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.boneIndex2=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -257,12 +257,12 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 		try {
 			UnityEngine.BoneWeight self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.boneIndex3);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -274,11 +274,11 @@ public class Lua_UnityEngine_BoneWeight : LuaObject {
 			checkType(l,2,out v);
 			self.boneIndex3=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

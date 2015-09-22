@@ -9,12 +9,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve o;
 			o=new UnityEngine.WheelFrictionCurve();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -22,12 +22,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.extremumSlip);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -39,11 +39,11 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 			checkType(l,2,out v);
 			self.extremumSlip=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,12 +51,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.extremumValue);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -68,11 +68,11 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 			checkType(l,2,out v);
 			self.extremumValue=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -80,12 +80,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.asymptoteSlip);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -97,11 +97,11 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 			checkType(l,2,out v);
 			self.asymptoteSlip=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -109,12 +109,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.asymptoteValue);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -126,11 +126,11 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 			checkType(l,2,out v);
 			self.asymptoteValue=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -138,12 +138,12 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 		try {
 			UnityEngine.WheelFrictionCurve self;
 			checkValueType(l,1,out self);
+			pushValue(l,true);
 			pushValue(l,self.stiffness);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -155,11 +155,11 @@ public class Lua_UnityEngine_WheelFrictionCurve : LuaObject {
 			checkType(l,2,out v);
 			self.stiffness=v;
 			setBack(l,self);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

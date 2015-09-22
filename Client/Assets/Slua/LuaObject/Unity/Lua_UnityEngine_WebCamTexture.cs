@@ -19,8 +19,9 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 				System.Int32 a4;
 				checkType(l,5,out a4);
 				o=new UnityEngine.WebCamTexture(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(string),typeof(int),typeof(int))){
 				System.String a1;
@@ -30,15 +31,17 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 				System.Int32 a3;
 				checkType(l,4,out a3);
 				o=new UnityEngine.WebCamTexture(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				System.String a1;
 				checkType(l,2,out a1);
 				o=new UnityEngine.WebCamTexture(a1);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(matchType(l,argc,2,typeof(int),typeof(int),typeof(int))){
 				System.Int32 a1;
@@ -48,8 +51,9 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 				System.Int32 a3;
 				checkType(l,4,out a3);
 				o=new UnityEngine.WebCamTexture(a1,a2,a3);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==3){
 				System.Int32 a1;
@@ -57,20 +61,20 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 				System.Int32 a2;
 				checkType(l,3,out a2);
 				o=new UnityEngine.WebCamTexture(a1,a2);
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
 			else if(argc==1){
 				o=new UnityEngine.WebCamTexture();
+				pushValue(l,true);
 				pushValue(l,o);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"New object failed.");
-			return 0;
+			return error(l,"New object failed.");
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -78,11 +82,11 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 			self.Play();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -90,11 +94,11 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 			self.Pause();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -102,11 +106,11 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 			self.Stop();
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -118,12 +122,12 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			System.Int32 a2;
 			checkType(l,3,out a2);
 			var ret=self.GetPixel(a1,a2);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -133,8 +137,9 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			if(argc==1){
 				UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 				var ret=self.GetPixels();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==5){
 				UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
@@ -147,15 +152,16 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 				System.Int32 a4;
 				checkType(l,5,out a4);
 				var ret=self.GetPixels(a1,a2,a3,a4);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -165,47 +171,49 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			if(argc==1){
 				UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 				var ret=self.GetPixels32();
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
 			else if(argc==2){
 				UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
 				UnityEngine.Color32[] a1;
 				checkType(l,2,out a1);
 				var ret=self.GetPixels32(a1);
+				pushValue(l,true);
 				pushValue(l,ret);
-				return 1;
+				return 2;
 			}
-			LuaDLL.luaL_error(l,"No matched override function to call");
-			return 0;
+			pushValue(l,false);
+			LuaDLL.lua_pushstring(l,"No matched override function to call");
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isPlaying(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isPlaying);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_deviceName(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.deviceName);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -215,23 +223,23 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			string v;
 			checkType(l,2,out v);
 			self.deviceName=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_requestedFPS(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.requestedFPS);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -241,23 +249,23 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.requestedFPS=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_requestedWidth(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.requestedWidth);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -267,23 +275,23 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.requestedWidth=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_requestedHeight(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.requestedHeight);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -293,58 +301,58 @@ public class Lua_UnityEngine_WebCamTexture : LuaObject {
 			int v;
 			checkType(l,2,out v);
 			self.requestedHeight=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_devices(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,UnityEngine.WebCamTexture.devices);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_videoRotationAngle(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.videoRotationAngle);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_videoVerticallyMirrored(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.videoVerticallyMirrored);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_didUpdateThisFrame(IntPtr l) {
 		try {
 			UnityEngine.WebCamTexture self=(UnityEngine.WebCamTexture)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.didUpdateThisFrame);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

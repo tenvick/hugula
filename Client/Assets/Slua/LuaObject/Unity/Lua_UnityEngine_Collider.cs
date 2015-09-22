@@ -9,12 +9,12 @@ public class Lua_UnityEngine_Collider : LuaObject {
 		try {
 			UnityEngine.Collider o;
 			o=new UnityEngine.Collider();
+			pushValue(l,true);
 			pushValue(l,o);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,12 +24,12 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			UnityEngine.Vector3 a1;
 			checkType(l,2,out a1);
 			var ret=self.ClosestPointOnBounds(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -42,25 +42,25 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			System.Single a3;
 			checkType(l,4,out a3);
 			var ret=self.Raycast(a1,out a2,a3);
+			pushValue(l,true);
 			pushValue(l,ret);
 			pushValue(l,a2);
-			return 2;
+			return 3;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_enabled(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.enabled);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -70,35 +70,35 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.enabled=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_attachedRigidbody(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.attachedRigidbody);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isTrigger(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isTrigger);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -108,23 +108,23 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			bool v;
 			checkType(l,2,out v);
 			self.isTrigger=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_contactOffset(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.contactOffset);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -134,23 +134,23 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			float v;
 			checkType(l,2,out v);
 			self.contactOffset=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_material(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.material);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -160,23 +160,23 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			UnityEngine.PhysicMaterial v;
 			checkType(l,2,out v);
 			self.material=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_sharedMaterial(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.sharedMaterial);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -186,23 +186,23 @@ public class Lua_UnityEngine_Collider : LuaObject {
 			UnityEngine.PhysicMaterial v;
 			checkType(l,2,out v);
 			self.sharedMaterial=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_bounds(IntPtr l) {
 		try {
 			UnityEngine.Collider self=(UnityEngine.Collider)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.bounds);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

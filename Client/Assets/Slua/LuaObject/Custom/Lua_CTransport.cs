@@ -11,11 +11,11 @@ public class Lua_CTransport : LuaObject {
 			CRequest a1;
 			checkType(l,2,out a1);
 			self.BeginLoad(a1);
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -24,24 +24,24 @@ public class Lua_CTransport : LuaObject {
 			System.String a1;
 			checkType(l,1,out a1);
 			var ret=CTransport.RemapVariantName(a1);
+			pushValue(l,true);
 			pushValue(l,ret);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_key(IntPtr l) {
 		try {
 			CTransport self=(CTransport)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.key);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -51,22 +51,22 @@ public class Lua_CTransport : LuaObject {
 			System.String v;
 			checkType(l,2,out v);
 			self.key=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_m_AssetBundleManifest(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,CTransport.m_AssetBundleManifest);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -75,11 +75,11 @@ public class Lua_CTransport : LuaObject {
 			UnityEngine.AssetBundleManifest v;
 			checkType(l,2,out v);
 			CTransport.m_AssetBundleManifest=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -91,11 +91,11 @@ public class Lua_CTransport : LuaObject {
 			if(op==0) self.OnProcess=v;
 			else if(op==1) self.OnProcess+=v;
 			else if(op==2) self.OnProcess-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -107,11 +107,11 @@ public class Lua_CTransport : LuaObject {
 			if(op==0) self.OnComplete=v;
 			else if(op==1) self.OnComplete+=v;
 			else if(op==2) self.OnComplete-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -123,46 +123,46 @@ public class Lua_CTransport : LuaObject {
 			if(op==0) self.OnError=v;
 			else if(op==1) self.OnError+=v;
 			else if(op==2) self.OnError-=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_isFree(IntPtr l) {
 		try {
 			CTransport self=(CTransport)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.isFree);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_req(IntPtr l) {
 		try {
 			CTransport self=(CTransport)checkSelf(l);
+			pushValue(l,true);
 			pushValue(l,self.req);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	static public int get_Variants(IntPtr l) {
 		try {
+			pushValue(l,true);
 			pushValue(l,CTransport.Variants);
-			return 1;
+			return 2;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -171,11 +171,11 @@ public class Lua_CTransport : LuaObject {
 			System.String[] v;
 			checkType(l,2,out v);
 			CTransport.Variants=v;
-			return 0;
+			pushValue(l,true);
+			return 1;
 		}
 		catch(Exception e) {
-			LuaDLL.luaL_error(l, e.ToString());
-			return 0;
+			return error(l,e);
 		}
 	}
 	static public void reg(IntPtr l) {

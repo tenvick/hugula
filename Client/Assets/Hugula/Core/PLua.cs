@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System;
 using System.Text;
 
-using LuaInterface;
 using SLua;
 using Lua = SLua.LuaSvr;
 //using LuaState = System.IntPtr;
@@ -69,7 +68,9 @@ public class PLua : MonoBehaviour
     {
         net = LNet.instance;
         ChatNet = LNet.ChatInstance;
-        LoadBundle(true);
+        //LoadBundle(true);
+        lua.init(null, () =>
+        { LoadBundle(true); });
     }
 
     void Update()
@@ -77,6 +78,7 @@ public class PLua : MonoBehaviour
         if (net != null) net.Update();
         if (ChatNet != null) ChatNet.Update();
         if (_updateFn != null) _updateFn.call();
+
     }
 
     void OnApplicationPause(bool pauseStatus)
@@ -114,9 +116,9 @@ public class PLua : MonoBehaviour
 
         RegisterFunc();
 
-        Assembly assb = Assembly.GetExecutingAssembly();
-        string assemblyname = assb.GetName().Name;
-        lua.luaState["assemblyname"] = assemblyname;
+        //Assembly assb = Assembly.GetExecutingAssembly();
+        //string assemblyname = assb.GetName().Name;
+        //lua.luaState["assemblyname"] = assemblyname;
     }
 
     /// <summary>

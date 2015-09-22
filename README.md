@@ -50,3 +50,5 @@ Assets
 基于UGUI 
 展示lua components的用法
 是一种非典型的方式
+
+下载地址：http://pan.baidu.com/s/1o6L4E86

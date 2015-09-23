@@ -41,8 +41,16 @@ Assets
 2 导出其他
 
  2.1 Hugula/export lua [Assets\Lua]          打包编译脚本
+ 
  2.2 Hugula/export config [Assets\Config]    打包配置
+ 
  2.3 Hugula/export language [Assets\Lan]     打包语言包
+ 
+3 导出slua接口
+
+ 3.1 Slua/All/Make   导出slua所需要的wrap类。
+ 
+ 如果生成有报错需要自己手动注释报错位置。
 
 
 俄罗斯方块小游戏
@@ -51,4 +59,4 @@ Assets
 展示lua components的用法
 是一种非典型的方式
 
-下载地址：http://pan.baidu.com/s/1o6L4E86
+apk下载地址：http://pan.baidu.com/s/1o6L4E86

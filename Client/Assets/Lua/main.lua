@@ -3,7 +3,7 @@
 --   
 --  author pu
 ------------------------------------------------
-require("core.unity3d")
+-- require("core.unity3d")
 require("core.loader")
 json=require("lib/json")
 ResVersion = 0

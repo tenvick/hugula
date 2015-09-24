@@ -174,10 +174,16 @@ public class  LuaHelper {
     public static Component GetComponentInChildren(GameObject obj, string classname)
     {
         System.Type t = GetType(classname);
-        Component comp = null;
-        if (t != null && obj != null)comp = obj.GetComponentInChildren(t);
-        return comp;
+		return GetComponentInChildren (obj,t);
     }
+
+	public static Component GetComponentInChildren(GameObject obj, System.Type t)
+	{
+		Component comp = null;
+		if (t != null && obj != null)comp = obj.GetComponentInChildren(t);
+		return comp;
+	}
+
 
     /// <summary>
     /// 
@@ -187,11 +193,16 @@ public class  LuaHelper {
     /// <returns></returns>
     public static Component GetComponent(GameObject obj, string classname)
     {
-        //System.Type t = getType(classname);
-        Component comp = null;
-        if (obj != null) comp = obj.GetComponent(classname);
-        return comp;
+		System.Type t = GetType(classname);
+		return GetComponent (obj, t);
     }
+
+	public static Component GetComponent(GameObject obj, System.Type t)
+	{
+		Component comp = null;
+		if (obj != null && t!=null) comp = obj.GetComponent(t);
+		return comp;
+	}
 
     /// <summary>
     /// 
@@ -202,10 +213,15 @@ public class  LuaHelper {
     public static Component[] GetComponents(GameObject obj, string classname)
     {
         System.Type t = GetType(classname);
-        Component[] comp = null;
-        if (obj != null) comp = obj.GetComponents(t);
-        return comp;
+		return GetComponents (obj, t);
     }
+
+	public static Component[] GetComponents(GameObject obj, System.Type t)
+	{
+		Component[] comp = null;
+		if (obj != null && t!=null) comp = obj.GetComponents(t);
+		return comp;
+	}
 
     /// <summary>
     /// 
@@ -216,9 +232,14 @@ public class  LuaHelper {
     public static Component[] GetComponentsInChildren(GameObject obj, string classname)
     {
         System.Type t = GetType(classname);
-        if (t != null && obj != null) return obj.transform.GetComponentsInChildren(t);
-        return null;
+		return GetComponentsInChildren (obj, t);
     }
+
+	public static Component[] GetComponentsInChildren(GameObject obj, System.Type t)
+	{
+		if (t != null && obj != null) return obj.transform.GetComponentsInChildren(t);
+		return null;
+	}
 
     /// <summary>
     /// 
@@ -374,31 +395,5 @@ public class  LuaHelper {
     public void GCCollect()
     {
         System.GC.Collect();
-    }
-}
-
-
-public class Vector3Helper
-{
-    public static Vector3 Subtracts(Vector3 v1, Vector3 v2)
-    {
-        return v1 - v2;
-    }
-
-    public static Vector3 Add(Vector3 v1, Vector3 v2)
-    {
-        return v1 + v2;
-    }
-}
-    //Subtracts
-
-/// <summary>
-/// 渲染
-/// </summary>
-public class RenderSettingsHelper
-{
-    public static void Fog(bool fog)
-    {
-        RenderSettings.fog = fog;
     }
 }

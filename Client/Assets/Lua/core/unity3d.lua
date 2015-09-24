@@ -4,7 +4,7 @@
 --  author pu
 ------------------------------------------------
 -- luanet.load_assembly("UnityEngine.UI")
-import "UnityEngine"
+-- import "UnityEngine"
 delay = PLua.Delay
 stopDelay = PLua.StopDelay
 
@@ -62,14 +62,6 @@ function string:split(s, delimiter)
     return result
 end
 
-function split(s, delimiter)
-    result = {};
-    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match)
-    end
-    return result
-end
-
 function class(base, _ctor)
     local c = {}    -- a new class instance
     if not _ctor and type(base) == 'function' then
@@ -114,29 +106,8 @@ function class(base, _ctor)
 end
 
 function luaGC()
-  -- local c=collectgarbage("count")
-  -- print("begin gc ="..tostring(c).." ")
   collectgarbage("collect")
   c=collectgarbage("count")
   print(" gc end ="..tostring(c).." ")
 end
-
-function make_array (tp,tbl)
-    local arr = tp[#tbl]
-    for i,v in ipairs(tbl) do
-        arr:SetValue(v,i-1)
-    end
-    return arr
-end
-
---value type
--- require("core.Math")
--- require("core.Vector3")
--- require("core.Vector2")
--- require("core.Quaternion")
--- require("core.Vector4")
--- require("core.Raycast")
--- require("core.Color")
--- require("core.Touch")
--- require("core.Ray")
 

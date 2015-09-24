@@ -1,5 +1,5 @@
-// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/Hugula
 //
 using UnityEngine;
 using System.Collections;
@@ -8,14 +8,13 @@ using System;
 using SLua;
 
 [ExecuteInEditMode]
-[AddComponentMenu("NGUI/Interaction/UIPanel Camack Table ")]
+[AddComponentMenu("UGUI/ScrollRectTable")]
 [SLua.CustomLuaClass]
-public class UIPanelCamackTable : MonoBehaviour
+public class ScrollRectTable : MonoBehaviour
 {
-    /**
     #region public static
     /// <summary>
-    /// ²åÈëÊý¾ÝµÄÊ±ºòµ÷ÓÃ
+    /// insert data
     /// </summary>
     public static string DataInsertStr = @"return function(data,index,script)
       if script.data==nil then script.data={} end
@@ -24,14 +23,14 @@ public class UIPanelCamackTable : MonoBehaviour
   end";
 
     /// <summary>
-    /// ÒÆ³ýÊý¾ÝµÄÊ±ºòµ÷ÓÃ
+    /// remove data from table
     /// </summary>
     public static string DataRemoveStr = @"return function(data,index,script)
       table.remove(data,index)
   end";
 
     /// <summary>
-    /// Ô¤äÖÈ¾µÄÊ±ºòµ÷ÓÃ
+    /// prerender
     /// </summary>
     public static string PreRenderStr = @"return function(referScipt,index,dataItem)
     referScipt.name=""Pre""..tostring(index)  
@@ -47,8 +46,9 @@ public class UIPanelCamackTable : MonoBehaviour
 	}
 	public int scrollDirection{get;private set;}	
 	public Direction direction = Direction.Down;
-	public GameObject moveContainer;
-	public ReferGameObjects  tileItem;//the template item
+	[SLua.DoNotToLua]
+	public RectTransform moveContainer;
+	public ScrollRectItem  tileItem;//the template item
 	public LuaFunction onItemRender;//function(tileItemClone,index,dataItem)
 	public LuaFunction onPreRender;//function(tileItemClone,index,dataItem)
 	public LuaFunction onDataRemove;//function(data,index,UIPanelCamackTable)
@@ -56,10 +56,7 @@ public class UIPanelCamackTable : MonoBehaviour
 	
 	public int pageSize=5;
 	public float renderPerFrames=1;
-//	public int pageCount  //
-//	{ 	get;
-//		private set;
-//	}
+
 	public int	recordCount  //
 	{ 	get;
 		private set;
@@ -68,16 +65,14 @@ public class UIPanelCamackTable : MonoBehaviour
 	public int columns = 0;
 	public Vector2 padding = Vector2.zero;
 	
-	//public bool repositionNow = false;
-	//public bool keepWithinPanel = false;
-	public Vector3 tileSize=new Vector3(158,193,1);
-	public bool keepTileBound;
+	public Vector3 tileSize=new Vector3(0,0,1);
+
 	public LuaTable data{
 		get{return _data;}
 		set{
 			if(_data!=null)
 			{
-				foreach(ReferGameObjects obj in this.repositionTileList)
+				foreach(var obj in this.repositionTileList)
 					obj.gameObject.SetActive(false);
 			}
 			_data=value;
@@ -100,33 +95,26 @@ public class UIPanelCamackTable : MonoBehaviour
 	int lastEndIndex=0;// last time render last data index
 	int currRenderIndex=0;//current render index
 	int lastHeadIndex=0;
-    //int lastRecordCount=0;
+
 	List<int> repositionIntList=new List<int>();
-	List<ReferGameObjects> repositionTileList=new List<ReferGameObjects>();
-	List<ReferGameObjects> preRenderList=new List<ReferGameObjects>();//
-//	List<GameObject> preDeleteList=new List<GameObject>();//
-//	int dir=0;
+	List<ScrollRectItem> repositionTileList=new List<ScrollRectItem>();
+	List<ScrollRectItem> preRenderList=new List<ScrollRectItem>();//
+
 	
 	Vector3 dtmove;	
 	Vector3 beginPosition;
 	Vector3 currPosition;
-	
-	UIPanel mPanel;
-    //UIScrollView mDrag;
-	UICamera mDragCamera;
+
 	bool mStarted = false;
 	bool foward=false;//panel true camera
 	
 	Rect rect;
-	BoxCollider boxCollider;
-	
-	private GameObject beginSymbol;
-	private GameObject endSymbol;
+	private Vector2 sizeDelta;
 	#endregion
 	
 	
 	#region public method
-	public int getIndex(ReferGameObjects item)
+	public int getIndex(ScrollRectItem item)
 	{
 		int i=this.repositionTileList.IndexOf(item);
 		int j=-1;
@@ -139,13 +127,13 @@ public class UIPanelCamackTable : MonoBehaviour
 		return (LuaTable)data[index + 1];
 	}
 
-	public int removeChild(ReferGameObjects item)
+	public int removeChild(ScrollRectItem item)
 	{
 		int i=getIndex(item);
 		if(i>=0)
 		{
-            if (onDataRemove == null) onDataRemove = PLua.instance.lua.LoadString(DataRemoveStr, "onDataRemove");
-            onDataRemove.Call(this.data,i+1,this);
+            if (onDataRemove == null) onDataRemove = PLua.instance.lua.luaState.loadString(DataRemoveStr, "onDataRemove");
+            onDataRemove.call(this.data,i+1,this);
 			this.CalcPage();
         }
 		return i;
@@ -155,8 +143,8 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if(index<0)index=0;
 		if(index>=this.recordCount)index=this.recordCount;
-        if (onDataInsert == null) onDataInsert = PLua.instance.lua.LoadString(DataInsertStr, "onDataInsert");
-		onDataInsert.Call(item,index+1,this);
+		if (onDataInsert == null) onDataInsert = PLua.instance.lua.luaState.loadString(DataInsertStr, "onDataInsert");
+		onDataInsert.call(item,index+1,this);
 		this.CalcPage();
 		return index;
 	}
@@ -165,8 +153,8 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if(index>=0 && index<this.recordCount)
 		{
-            if (onDataRemove == null) onDataRemove = PLua.instance.lua.LoadString(DataRemoveStr, "onDataRemove");
-            onDataRemove.Call(data,index+1,this);
+			if (onDataRemove == null) onDataRemove = PLua.instance.lua.luaState.loadString(DataRemoveStr, "onDataRemove");
+            onDataRemove.call(data,index+1,this);
 			this.CalcPage();
             return index;
 		}
@@ -176,7 +164,7 @@ public class UIPanelCamackTable : MonoBehaviour
 	
 	public void clear()
 	{
-		foreach(ReferGameObjects item in repositionTileList)
+		foreach(var item in repositionTileList)
 		{
 			item.gameObject.SetActive(false);
 		}
@@ -189,38 +177,24 @@ public class UIPanelCamackTable : MonoBehaviour
 		if(columns==0)
 		{
 			float x=index*rect.width;
-			if(foward)
-			{
-				currPos.x=beginPosition.x+x; //ok
-				currPos.y=beginPosition.y;
-				currPos.z=beginPosition.z;
-			}
-			else
-			{
-				currPos.x=beginPosition.x-x;
-				currPos.y=beginPosition.y;
-				currPos.z=beginPosition.z;
-			}
+			currPos.x=beginPosition.x-x;
+			currPos.y=beginPosition.y;
+			currPos.z=beginPosition.z;
+
 		}else if(columns>0)
 		{
 			float y=((int)((float)index/(float)columns))*rect.height;
-			if(foward)
-			{
-				currPos.x=beginPosition.x;
-				currPos.z=beginPosition.z;
-				if(this.direction==Direction.Down)
-					currPos.y=beginPosition.y-y;//pos.y=-(rect.height*y+ this.padding.y);
-				else
-					currPos.y=beginPosition.y+y;//pos.y=(rect.height*y+ this.padding.y);
-			}
+
+			currPos.x=beginPosition.x;
+			currPos.z=beginPosition.z;
+			if(this.direction==Direction.Down)
+				currPos.y=Math.Abs(beginPosition.y+y+this.padding.y);//pos.y=-(rect.height*y+ this.padding.y);
 			else
-			{
-				currPos.x=beginPosition.x;
-				currPos.y=Math.Abs(beginPosition.y-y); //ok
-				currPos.z=beginPosition.z;
-			}
+				currPos.y=beginPosition.y-y-this.padding.y;//pos.y=(rect.height*y+ this.padding.y);
 		}
-		SpringPanel.Begin(moveContainer,currPos,13f);
+
+		moveContainer.localPosition = currPos;
+//		SpringPanel.Begin(moveContainer,currPos,13f);
 	}
 	
 	/// <summary>
@@ -235,18 +209,11 @@ public class UIPanelCamackTable : MonoBehaviour
 		int bg=0,ed=0;
 		if(begin<0)
 		{ 
-			bg=0;//Debug.Log("Refresh 0 ");
+			bg=0;//Debug.Log("Refresh 0 ");calc
 			ed=this.pageSize;
 			if(moveContainer!=null)
 				moveContainer.transform.localPosition=this.beginPosition;
-			if(mPanel!=null)
-			{
-				Vector4 cr = mPanel.finalClipRegion;
-				cr.x = 0;
-				cr.y = 0;
-				if (cr.z==0)cr.z=Screen.width;
-                mPanel.clipOffset = cr; 
-			}
+
 			scroll(0,true);
 		}
 		else
@@ -266,7 +233,7 @@ public class UIPanelCamackTable : MonoBehaviour
 	/// <param name='item'>
 	/// Item.
 	/// </param>
-	public void Refresh(ReferGameObjects item)
+	public void Refresh(ScrollRectItem item)
 	{
 		int i=getIndex(item);
 		if(i>=0)
@@ -282,40 +249,39 @@ public class UIPanelCamackTable : MonoBehaviour
 	
 	void CalcPage()
 	{
-        //lastRecordCount=recordCount;
 		if(this._data!=null)
 		{
-			recordCount=this._data.Values.Count;
+			recordCount=this._data.Length;
 		}
 		else
 		{
 			recordCount=0;
-            //lastRecordCount=0;
 		}
 		SetRangeSymbol();
 	}
 	
 	void SetRangeSymbol()
 	{
-		if(beginSymbol==null)
+		if(moveContainer!=null)
 		{
-			beginSymbol=new GameObject("begin");
-			beginSymbol.AddComponent<UIWidget>();
-            beginSymbol.layer = this.gameObject.layer;
-			UIWidget w = beginSymbol.GetComponent<UIWidget>();
-			w.SetDimensions(2,2);
+			var delt=moveContainer.sizeDelta;
+			if(columns<=0)
+				delt.x = recordCount*rect.width+this.padding.x*2;
+			else
+			{
+				int y=(recordCount)/columns+1;
+				int x=(recordCount) % columns;
+				if(this.direction==Direction.Down)
+					delt.y=(rect.height*y+ this.padding.y*2);
+				else
+					delt.y=-(rect.height*y+ this.padding.y*2);
+				
+//				delt.x=rect.width*x+this.padding.x*2;
+			}
+			moveContainer.sizeDelta=delt;
+			sizeDelta = delt;
 		}
-		if(endSymbol==null)
-		{
-			endSymbol=new GameObject("end");
-            endSymbol.AddComponent<UIWidget>();
-            endSymbol.layer = this.gameObject.layer;
-			UIWidget w = endSymbol.GetComponent<UIWidget>();
-			w.SetDimensions(2,2);
-		}
-		
-		setPosition(beginSymbol.transform,0);
-		setPosition(endSymbol.transform,recordCount - 1);
+
 	}
 		
 	void CalcLastEndIndex()
@@ -329,37 +295,14 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if( tileItem )
 		{
-			GameObject tileObj=tileItem.gameObject;
-			Bounds b = NGUIMath.CalculateRelativeWidgetBounds(tileObj.transform);
-			Vector3 scale = tileObj.transform.localScale;
-			b.min = Vector3.Scale(b.min, scale);
-			b.max = Vector3.Scale(b.max, scale);
-            if (keepTileBound)
-            {
-                Vector3 max = new Vector3(0.5f, 0.5f, 0f);
-                b.max = Vector3.Scale(max, tileSize);
-                Vector3 min = new Vector3(-0.5f, -0.5f, 0f);
-                b.min = Vector3.Scale(min, tileSize);
-            }
-			else if(b.extents==Vector3.zero)
-			{
-				MeshFilter me=tileObj.GetComponent<MeshFilter>();
-				if(me!=null)
-				{
-					b=me.sharedMesh.bounds;
-					b.min = Vector3.Scale(b.min, scale);
-					b.max = Vector3.Scale(b.max, scale);
-				}
-                if (me == null)
-				{
-					Vector3 max=new Vector3(0.5f,0.5f,0f);
-					b.max=Vector3.Scale(max, tileSize);
-					Vector3 min=new Vector3(-0.5f,-0.5f,0f);
-					b.min=Vector3.Scale(min, tileSize);
-				}				
-			}
-			
-			rect=new Rect(0,0,b.size.x+this.padding.x,b.size.y+this.padding.y);
+			float wi,he;
+			RectTransform rectTrans =tileItem.rectTransform;
+			var size=rectTrans.sizeDelta;
+
+			wi=tileSize.x<=0?size.x:tileSize.x;
+			he=tileSize.y<=0?size.y:tileSize.y;
+
+			rect = new Rect(0,0,wi+padding.x,he+padding.y);
 		}
 	}
 	
@@ -387,74 +330,50 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if(this.preRenderList.Count>0)
 		{
-			ReferGameObjects item=preRenderList[0];
+			ScrollRectItem item=preRenderList[0];
 			currRenderIndex=this.repositionIntList[0];
 			preRenderList.RemoveAt(0);
 			repositionIntList.RemoveAt(0);
 			if(currRenderIndex+1<=recordCount)
 			{
-				if(onItemRender!=null)onItemRender.Call(new object[]{item,currRenderIndex,data[currRenderIndex+1]});
+				if(onItemRender!=null)onItemRender.call(item,currRenderIndex,data[currRenderIndex+1]);
 			}
 		}
 	}
 	
 	void setPosition(Transform trans,int index)
 	{
-		Vector3 scale=trans.localScale;
-		trans.parent=this.transform;
-		trans.localScale=scale;
+		if(trans.parent!=this.transform)trans.SetParent(this.transform);
 		Vector3 pos=Vector3.zero;
 		if(this.columns==0)
 		{
-			pos.x=rect.width*index+this.padding.x;
-			if(boxCollider && this.boxCollider.size.x<pos.x)
-			{
-				Vector3 size=boxCollider.size;
-				float sizeX=pos.x+rect.width;
-				if(size.x<sizeX)size.x=sizeX;				
-				boxCollider.size=size;
-				Vector3 center=boxCollider.center;
-				center.x=size.x/2;
-				boxCollider.center=center;
-			}
+			pos.x=rect.width*index+rect.width*.5f+this.padding.x;
+			if(this.direction==Direction.Down)
+				pos.y=-(this.padding.y+rect.height*.5f);
+			else
+				pos.y=this.padding.y+rect.height*.5f;
 		}
 		else
 		{
 			int y=index/columns;
 			int x=index % columns;
 			if(this.direction==Direction.Down)
-				pos.y=-(rect.height*y+ this.padding.y);
+				pos.y=-(rect.height*y+ this.padding.y+rect.height*.5f);
 			else
-				pos.y=(rect.height*y+ this.padding.y);
-			
-			pos.x=rect.width*x+this.padding.x;
-			
-			if(boxCollider && (this.boxCollider.size.x<pos.x || Mathf.Abs(this.boxCollider.size.y)<Mathf.Abs(pos.y)))
-			{
-				Vector3 size=boxCollider.size;
-				float sizeX=pos.x+rect.width;
-				if(size.x<sizeX)size.x=sizeX;
-				if(this.direction==Direction.Down)
-					size.y=pos.y-rect.height*6;
-				else
-					size.y=pos.y+rect.height*6;
-				boxCollider.size=size;
-				Vector3 center=boxCollider.center;
-				center.y=size.y/2;
-				center.x=size.x/4;
-				boxCollider.center=center;
-			}
+				pos.y=rect.height*y+ this.padding.y+rect.height*.5f;
+
+			pos.x=rect.width*x+rect.width*.5f+this.padding.x;
 
 		}
 		trans.localPosition=pos;
 	}
 	
-	void preRender(ReferGameObjects item,int index)
+	void preRender(ScrollRectItem item,int index)
 	{
 		setPosition(item.transform,index);
-        if (this.onPreRender == null) onPreRender = PLua.instance.lua.LoadString(PreRenderStr, "onPreRenderStr");
+        if (this.onPreRender == null) onPreRender = PLua.instance.lua.luaState.loadString(PreRenderStr, "onPreRenderStr");
 		object dataI=index+1<=recordCount?data[index+1]:null;
-		onPreRender.Call(new object[]{item,index,dataI});
+		onPreRender.call(item,index,dataI);
 	}
 	
 	void preRefresh(int i)
@@ -468,16 +387,16 @@ public class UIPanelCamackTable : MonoBehaviour
 				{
 					GameObject obj =this.tileItem.gameObject;
 					GameObject clone=(GameObject)GameObject.Instantiate(obj);
-					ReferGameObjects cloneRefer=clone.GetComponent<ReferGameObjects>();
+					ScrollRectItem cloneRefer=clone.GetComponent<ScrollRectItem>();
 					repositionTileList.Add(cloneRefer);
 					Vector3 scale=clone.transform.localScale;
-					clone.transform.parent=this.transform;
+					clone.transform.SetParent(this.transform);
 					clone.transform.localScale=scale;
 					this.lastEndIndex=i;
 				}
 				if(Cindex<this.pageSize)
 				{
-					ReferGameObjects tile=repositionTileList[Cindex];	
+					ScrollRectItem tile=repositionTileList[Cindex];	
 					this.preRenderList.Add(tile);
 					repositionIntList.Add(i);	
 					scrollDirection=0;
@@ -489,10 +408,10 @@ public class UIPanelCamackTable : MonoBehaviour
 	}
 	
 	void preLeftUp(int i)
-	{//Debug.Log(String.Format("preLeftUp i={0},recordCount={1},pageSize={2} -- i<this.recordCount i>=this.pageSize",i,recordCount,pageSize));
+	{
 		if(i>=this.pageSize && !repositionIntList.Contains(i) && i<this.recordCount)
 		{
-			ReferGameObjects tile=repositionTileList[0];				
+			ScrollRectItem tile=repositionTileList[0];				
 			repositionTileList.RemoveAt(0);//remove first
 			repositionTileList.Add(tile);//to end
 			
@@ -510,11 +429,11 @@ public class UIPanelCamackTable : MonoBehaviour
 	}
 	
 	void preRightDown(int i)
-	{//Debug.Log(String.Format("preRightDown i={0},recordCount={1},pageSize={2} -- i>=0  i+pageSize<=recordCount",i,recordCount,pageSize));
+	{
 		if(i>=0 && !repositionIntList.Contains(i) && i+pageSize<=recordCount) //i>pageSize)//
 		{
 			int end1=repositionTileList.Count-1;
-			ReferGameObjects tile=repositionTileList[end1];
+			ScrollRectItem tile=repositionTileList[end1];
 			repositionTileList.RemoveAt(end1);//remove end
 			repositionTileList.Insert(0,tile);//to first
 			
@@ -528,13 +447,13 @@ public class UIPanelCamackTable : MonoBehaviour
 		}
 	}
 	
-	void scroll(int newHead ,bool force=false)
+	void scroll(int newHead ,bool force)
 	{
 		if(newHead<0)newHead=0;
 			
 		int step=newHead-currFirstIndex;
 		if((step!=0 && this.headIndex!=lastHeadIndex) || force)
-		{//Debug.Log(String.Format("step={0} lastEndIndex={1} currFirstIndex={2}",step,lastEndIndex,currFirstIndex));
+		{
 			if(step>0)
 			{
 				int begin=lastEndIndex+1;
@@ -588,16 +507,18 @@ public class UIPanelCamackTable : MonoBehaviour
 	void Start ()
 	{
 		mStarted = true;
-		boxCollider=this.GetComponent<BoxCollider>();
+		if (moveContainer == null)
+			moveContainer = this.GetComponent<RectTransform> ();
 
 		if (moveContainer!=null)
 		{
 			Vector3 bg=moveContainer.transform.localPosition;
-			beginPosition=new Vector3(bg.x,bg.y,bg.z);
-            //mDrag = moveContainer.GetComponent<UIScrollView>();// NGUITools.FindInParents<UIDraggablePanel>(gameObject);
-			mPanel=moveContainer.GetComponent<UIPanel>();
-			mDragCamera=moveContainer.GetComponent<UICamera>();
-			foward=mDragCamera==null?false:true;
+			if(direction== Direction.Down)
+				beginPosition=new Vector3(bg.x,bg.y,bg.z);
+			else
+				beginPosition=new Vector3(bg.x,-bg.y,bg.z);
+
+			foward = false;
 		}
 			
 		CalcBounds();
@@ -609,21 +530,21 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if(moveContainer!=null && data!=null)
 		{
-			currPosition=moveContainer.transform.localPosition;
-			if(foward)
-				dtmove=currPosition-beginPosition;
-			else
-				dtmove=beginPosition-currPosition;
-			
-			if(columns==0 && dtmove.x>=0)
+			currPosition=moveContainer.localPosition;
+			dtmove=beginPosition-currPosition;
+
+			if(columns==0 )
 			{
 				headIndex=(int)(dtmove.x/rect.width);
-				scroll(headIndex);
+				scroll(headIndex,false);
 			}else if(columns>0)
 			{
 				int cloumnIndex=(int)(dtmove.y/rect.height);
 				headIndex= (int) Mathf.Ceil((float)(Mathf.Abs(cloumnIndex)*this.columns)/(float)this.columns)*columns;//
-				scroll(headIndex);
+				if(headIndex!=lastHeadIndex)
+				{
+					scroll(headIndex,false);
+				}
 			}
 			lastHeadIndex=headIndex;
 		}
@@ -636,5 +557,5 @@ public class UIPanelCamackTable : MonoBehaviour
 	{
 		if(this.repositionIntList.Count>0)renderItem();
 	}
-	***/
+
 }

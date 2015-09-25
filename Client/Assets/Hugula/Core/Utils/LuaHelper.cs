@@ -1,5 +1,5 @@
-﻿// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+﻿// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
 using System.Collections.Generic;
@@ -282,8 +282,8 @@ public class  LuaHelper {
     /// <param name="eachFn"></param>
     public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
     {
-        List<GameObject> lists = parent.refers;
-        int count = lists.Count;
+        GameObject[] lists = parent.refers;
+        int count = lists.Length;
         GameObject child = null;
         for (int i = 0; i < count; i++)
         {

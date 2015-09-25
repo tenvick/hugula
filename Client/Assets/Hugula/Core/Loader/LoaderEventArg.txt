@@ -1,1 +1,0 @@
-用来生成UnityEngine.WWW 的lua绑定

@@ -1,5 +1,5 @@
-// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
 using System.Collections;

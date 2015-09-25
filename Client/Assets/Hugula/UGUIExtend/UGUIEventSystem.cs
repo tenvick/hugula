@@ -1,5 +1,5 @@
 ﻿// Copyright (c) 2015 hugula
-// direct https://github.com/Hugulor/Hugula
+// direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
 using UnityEngine.UI;

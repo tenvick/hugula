@@ -98,7 +98,7 @@ local function refreshBlock(data,blockRefs,pos)
 		for j=1,col do
 			if(data[i][j]==1)then
 				x=(j-1)*tile-offx
-				item=blockRefs.refers[indx]
+				item=blockRefs.refers[indx+1]
 				item.transform.localPosition = Vector3(x,(1-i)*tile+offy,0)
 				item.name= "block_"..tostring(i).."_"..tostring(j)--string.format("block_%s_%s",i,j)
 				indx=indx+1
@@ -147,11 +147,13 @@ local function rotate(blockRefs)
 	 local size=#data
 	 local ty = 0
 
-	local count = blockRefs.refers.Count-1
+	 local refers=blockRefs.refers
+	local count = #refers
+
 	local item,name by,bx=nil,"",0,0
 	local blockDic,dic ={},{}
-	for i=0,count do
-		item=blockRefs.refers[i]
+	for i=1,count do
+		item=refers[i]
 		name = item.name
 		by,bx=string.match(name,"block_(%d+)_(%d+)")
 		local key =tostring(by).."_"..tostring(bx)
@@ -182,9 +184,10 @@ end
 
 local function cloneBlock(blockRefs)
 	local data=blockRefs.userObject
-	local count = blockRefs.refers.Count-1
+	local refers=blockRefs.refers
+	local count = #refers
 	local blockDic,item,name ={},nil,""
-	for i=0,count do
+	for i=1,count do
 		item=blockRefs.refers[i]
 		name = item.name
 		blockDic[name]=LuaHelper.InstantiateGlobal(item,blockBoxTrans)

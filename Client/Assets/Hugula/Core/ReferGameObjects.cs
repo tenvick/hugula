@@ -1,14 +1,14 @@
-﻿// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+﻿// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
 using System.Collections.Generic;
 [SLua.CustomLuaClass]
 public class ReferGameObjects : MonoBehaviour {
 	
-	public List<GameObject> refers=new List<GameObject>();
+	public GameObject[] refers ;//=new List<GameObject>();
 
-    public List<Behaviour> monos = new List<Behaviour>();
+	public Behaviour[] monos;// = new List<Behaviour>();
 	
 	public object userObject;
 	

@@ -1179,7 +1179,7 @@ public class LTSpline {
 	private int currPt;
 	private float totalLength;
 	
-	public LTSpline(params Vector3[] pts) {
+	public LTSpline(Vector3[] pts) {
 		this.pts = new Vector3[pts.Length];
 		System.Array.Copy(pts, this.pts, pts.Length);
 

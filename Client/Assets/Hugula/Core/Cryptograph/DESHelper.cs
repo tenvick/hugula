@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/hugula
+
+using UnityEngine;
 using System.Collections;
 [SLua.CustomLuaClass]
 public class DESHelper : MonoBehaviour {

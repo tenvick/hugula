@@ -77,7 +77,7 @@ public class  LuaHelper {
 		Vector3 scale = tranformTa.localScale;
 		GameObject clone = (GameObject)GameObject.Instantiate(original);
 		var transform=clone.transform;
-		if(parent!=null)clone.transform.parent = parent.transform;
+		if(parent!=null)clone.transform.SetParent(parent.transform);
 		transform.localPosition = pos;
 		transform.localScale = scale;
 		transform.localRotation = rota;
@@ -98,7 +98,7 @@ public class  LuaHelper {
         Vector3 scale = tranformTa.localScale;
         GameObject clone = (GameObject)GameObject.Instantiate(original);
         var transform = clone.transform;
-        if (parent != null) clone.transform.parent = parent.transform;
+        if (parent != null) clone.transform.SetParent(parent.transform);
         transform.position = pos;
         transform.localScale = scale;
         transform.rotation = rota;
@@ -117,7 +117,7 @@ public class  LuaHelper {
         var rota = tranformTa.localRotation;
         var scale = tranformTa.localScale;
 
-        child.transform.parent = parent.transform;
+        child.transform.SetParent(parent.transform);
         tranformTa.localPosition = pos;
         tranformTa.localScale = scale;
         tranformTa.localRotation = rota;

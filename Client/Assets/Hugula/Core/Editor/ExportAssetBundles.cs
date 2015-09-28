@@ -1,5 +1,5 @@
 ﻿// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+// direct https://github.com/tenvick/hugula
 //
 // C# Example
 // Builds an asset bundle from the selected objects in the project view.

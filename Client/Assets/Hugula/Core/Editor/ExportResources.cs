@@ -120,12 +120,13 @@ public class ExportResources{
 			sb.Append("\n");
 
 #if Nlua || UNITY_IPHONE 
-			arg="-o "+outfilePath+" "+filePath;
-			File.Copy(filePath, outfilePath, true);
+			arg="-o "+outfilePath+" "+filePath;// luac 
+			File.Copy(filePath, outfilePath, true);// source code copy
 #else
-			arg = "-b " + filePath + " " + outfilePath; //for jit
-            Debug.Log(arg);
-            System.Diagnostics.Process.Start(luacPath, arg);//arg -b hello1.lua hello1.out
+            arg = "-b " + filePath + " " + outfilePath; //for jit
+            //Debug.Log(arg);
+            //System.Diagnostics.Process.Start(luacPath, arg);//jit 
+            File.Copy(filePath, outfilePath, true);// source code copy
 #endif
 		 }
 		 Debug.Log("lua:"+path+"files="+files.Count+" completed");

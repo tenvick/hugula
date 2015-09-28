@@ -27,15 +27,15 @@ end
 --parse key value to luaTable
 local function decodeToLua(text)
 	local datas={}
-	local lines = split(text,"\n")
+	local lines = string.split(text,"\n")
 	local names = lines[2]
-	local columNames = split(names,";")
+	local columNames = string.split(names,";")
 	local CNLen = #columNames
 
 	lineCount=#lines-1
 	for i=3,lineCount do
 		line = lines[i]
-		local temp = split(line,";")
+		local temp = string.split(line,";")
 		local tempData = {}
 		local tempItem 
 		for i=1,CNLen do
@@ -110,8 +110,8 @@ local function decoderZipTxt(name,context)
     sheetName = name
 	local data=decodeToLua(context)
 	if name == url_Unit then decodeUnit(data)
-	elseif name ==url_Skill then decodeSkill(data)
-	elseif name ==url_Buff then decodeBuff(data)
+	-- elseif name ==url_Skill then decodeSkill(data)
+	-- elseif name ==url_Buff then decodeBuff(data)
 	-- elseif name == url_chapterData then decodeChapterData(data)
 	-- elseif name == url_itemData then decodeItemData(data)
 	-- elseif name == url_goodComp then decodeGoodComp(data)
@@ -128,12 +128,15 @@ end
 
 
 local function loadComp(req)
-	FileHelper.UnpackConfigAssetBundleFn(req.data.assetBundle,decoderZipTxt)
-    disposeWWW(req.data)
+	FileHelper.UnpackConfigAssetBundleFn(req.assetBundle,decoderZipTxt)
+	print(req.data)
+	print(req.www)
+	req.assetBundle:Unload(false)
+	req.www:Dispose()
 end
 
 local function loadConfigZip()
-	local url=CUtils.GetFileFullPath(CUtils.GetAssetPath("config.tz"))
+	local url=CUtils.GetFileFullPath(CUtils.GetAssetPath("font1.u3d"))
 	Loader:getResource(url,loadComp,false)
 end
 

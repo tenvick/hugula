@@ -140,7 +140,6 @@ end
 --loadByTable( {url,compFn,endFn,head},cache)
 function Loader:getResource(...)
 	local a,b,c,d,e,f,g=...
-	--print("Loader:getResource type=" ..type(a))
 	--url,onComplete
 	if type(a)=="string" and type(b)=="string" then 
 		loadByUrl7(a,b,c,d,e,f,g)
@@ -151,7 +150,6 @@ function Loader:getResource(...)
 	elseif type(a) == "table" then
 		loadByTable(a,b)
 	end
-	--print("getResource  ed...."..tostring(a))
 end
 
 local function onCache( key,www)
@@ -190,6 +188,5 @@ function Loader:RefreshAssetBundleManifest()
     self:getResource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)
 end
 
--- print(Loader.multipleLoader.onCacheFn)
 -- Loader.multipleLoader.onCacheFn=onCache
 Loader.multipleLoader.onSharedCompleteFn=onSharedComplete

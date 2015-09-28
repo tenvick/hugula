@@ -54,7 +54,7 @@ end
 
 function printTable(tbl)	print(tojson(tbl)) end
 
-function string:split(s, delimiter)
+function string.split(s, delimiter)
     result = {};
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
         table.insert(result, match)

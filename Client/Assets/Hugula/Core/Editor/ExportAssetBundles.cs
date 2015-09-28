@@ -88,6 +88,17 @@ public class ExportAssetBundles
 
     #region public
    
+	static public void BuildABs(string[] assets, string outPath,string abName, BuildAssetBundleOptions bbo)
+	{
+		AssetBundleBuild[] bab = new AssetBundleBuild[1];
+		bab[0].assetBundleName = abName;//打包的资源包名称 随便命名
+		bab[0].assetNames = assets;
+
+		BuildPipeline.BuildAssetBundles (outPath, bab, bbo, target);
+//		BuildPipeline.BuildAssetBundle(main, assets, pathName, bbo, target);
+
+	}
+
     static public void BuildAB(Object main, Object[] assets, string pathName, BuildAssetBundleOptions bbo)
     {
         BuildPipeline.BuildAssetBundle(main, assets, pathName, bbo, target);

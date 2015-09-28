@@ -11,7 +11,7 @@ public class ExportResources{
 	
 	#region public p
 	
-	public const string OutLuaPath="/Tmp/"+Common.LUACFOLDER;
+	public const string OutLuaPath="/Tmp/"+Common.LUACFOLDER+"/";
 	public static string outConfigPath=Application.streamingAssetsPath+"/config.tz";
 	//public const string zipPassword="hugula@pl@";
 	public static string outAndroidZipt4f=Application.streamingAssetsPath+"/data.zip";
@@ -82,15 +82,13 @@ public class ExportResources{
 
     #region export
    
-
-    //[MenuItem("Hugula/export lua [Assets\\Lua]", false, 12)]
 	public static void exportLua()
 	{
 		checkLuaExportPath();
 
-         string  path= Application.dataPath+"/Lua"; //AssetDatabase.GetAssetPath(obj).Replace("Assets","");
+        string  path= Application.dataPath+"/Lua/"; //AssetDatabase.GetAssetPath(obj).Replace("Assets","");
 		
-         List<string> files =getAllChildFiles(path);// Directory.GetFiles(Application.dataPath + path);
+        List<string> files =getAllChildFiles(path);// Directory.GetFiles(Application.dataPath + path);
 		
 		IList<string> childrens = new List<string>();
 		
@@ -104,17 +102,18 @@ public class ExportResources{
         Debug.Log("luajit path = "+luacPath);
 		string crypName="",fileName="",outfilePath="",arg="";
 		System.Text.StringBuilder sb=new System.Text.StringBuilder();
-	
+		//refresh directory
 		DirectoryDelete(Application.dataPath + OutLuaPath);
+		CheckDirectory(Application.dataPath+OutLuaPath);
+		//CheckDirectory(Application.dataPath.Replace("Assets","")+outPath);
 
+		List<string> exportNames = new List<string> ();
 		 foreach (string filePath in childrens)
          {
 			fileName=CUtils.GetURLFileName(filePath);
-			//crypName=CryptographHelper.CrypfString(fileName);
-            crypName = filePath.Replace(path,"").Replace(".lua","."+Common.LUA_LC_SUFFIX).Replace("\\","/");
+			crypName = filePath.Replace(path,"").Replace(".lua","."+Common.LUA_LC_SUFFIX).Replace("\\","_").Replace("/","_");
 			outfilePath=Application.dataPath+OutLuaPath+crypName;
-            checkLuaChildDirectory(outfilePath);
-
+			exportNames.Add("Assets"+OutLuaPath+crypName);
 			sb.Append(fileName);
 			sb.Append("=");
 			sb.Append(crypName);
@@ -126,100 +125,71 @@ public class ExportResources{
 #else
 			arg = "-b " + filePath + " " + outfilePath; //for jit
             Debug.Log(arg);
-          
             System.Diagnostics.Process.Start(luacPath, arg);//arg -b hello1.lua hello1.out
 #endif
-
 		 }
-            Debug.Log(sb.ToString());
 		 Debug.Log("lua:"+path+"files="+files.Count+" completed");
-
          System.Threading.Thread.Sleep(1000);
          AssetDatabase.Refresh();
 
-        //打包成assetbundle
-         string luaOut = Application.dataPath + OutLuaPath;
-         Debug.Log(luaOut);
-         List<string> luafiles = getAllChildFiles(luaOut + "/", Common.LUA_LC_SUFFIX);
-         string assetPath = "Assets" + OutLuaPath;
-         List<UnityEngine.Object> res = new List<Object>();
-         string relatePathName = "";
-         foreach (string name in luafiles)
-         {
-             relatePathName = name.Replace(luaOut, "");
-             string abPath = assetPath + relatePathName;
-             Debug.Log(abPath);
-             Debug.Log(relatePathName);
-             Object txt = AssetDatabase.LoadAssetAtPath(abPath, typeof(TextAsset));
-             txt.name = relatePathName.Replace(@"\", @".").Replace("/", "").Replace("." + Common.LUA_LC_SUFFIX, "");
-             Debug.Log(txt.name);
-             res.Add(txt);
-         }
+		//u5 打包
+		string outPath= ExportAssetBundles.GetOutPath();
+		CheckDirectory(Application.dataPath.Replace("Assets","")+outPath);
+		ExportAssetBundles.BuildABs (exportNames.ToArray(),"Assets"+OutLuaPath ,"luaout.bytes",BuildAssetBundleOptions.CompleteAssets);
 
-         string cname = "/luaout.bytes";
-		 string outPath = luaOut; //ExportAssetBundles.GetOutPath();
-         string tarName = outPath + cname;
-         Object[] ress = res.ToArray();
-         Debug.Log(ress.Length);
-         ExportAssetBundles.BuildAB(null, ress, tarName, BuildAssetBundleOptions.CompleteAssets);
-//         Debug.Log(tarName + " export");
-		AssetDatabase.Refresh();
-
-		//Directory.CreateDirectory(luaOut);
+		//Encrypt
+		string tarName = Application.dataPath + OutLuaPath + "luaout.bytes";
 		string realOutPath=ExportAssetBundles.GetOutPath()+"/font.u3d";
 		byte[] by = File.ReadAllBytes (tarName);
-		Debug.Log (by);
 		byte[] Encrypt = CryptographHelper.Encrypt (by, GetKey (), GetIV());
-
 		File.WriteAllBytes (realOutPath,Encrypt);
 		Debug.Log(realOutPath + " export");
 
 	}
 
-    //[MenuItem("Hugula/export config [Assets\\Config]", false, 13)]
 	public static void exportConfig()
 	{
 		string  path= Application.dataPath+"/Config"; //AssetDatabase.GetAssetPath(obj).Replace("Assets","");
 
         List<string> files = getAllChildFiles(path+"/", "csv");
         string assetPath = "Assets/Config";
-        List<UnityEngine.Object> res = new List<Object>();
+        List<string> res = new List<string>();
 
         foreach (string name in files)
         {
             string abPath = assetPath + name.Replace(path, "");
             Debug.Log(abPath);
-            Object txt = AssetDatabase.LoadAssetAtPath(abPath, typeof(TextAsset));
-            res.Add(txt);
+			res.Add(abPath);
         }
 
-        string cname = "/font1.u3d";
+        string cname = "font1.u3d";
         string outPath= ExportAssetBundles.GetOutPath();
-        string tarName = outPath + cname;
-        Object[] ress=res.ToArray();
-        Debug.Log(ress.Length);
-        ExportAssetBundles.BuildAB(null, ress, tarName, BuildAssetBundleOptions.CompleteAssets);
-        Debug.Log(tarName + " export");
+        string tarName = outPath +"/"+ cname;
+		CheckDirectory(Application.dataPath.Replace("Assets","")+outPath);
 
+		ExportAssetBundles.BuildABs (res.ToArray (), outPath, cname, BuildAssetBundleOptions.CompleteAssets);
+		Debug.Log(tarName + " export");
 	}
 
-    //[MenuItem("Hugula/export language [Assets\\Lan]", false, 14)]
     public static void exportLanguage()
     {
         string assetPath = "Assets/Lan/";
         string path = Application.dataPath + "/Lan/"; //AssetDatabase.GetAssetPath(obj).Replace("Assets","");
-
         List<string> files = getAllChildFiles(path,"csv");
+
+		string outPath = ExportAssetBundles.GetOutPath();
+		CheckDirectory(Application.dataPath.Replace("Assets","")+outPath);
+		CheckDirectory(Application.dataPath.Replace("Assets","")+outPath+"/Lan");
+
         foreach (string name in files)
         {
             string abPath = assetPath + name.Replace(path, "");
-            Debug.Log(abPath);
-            Object txt = AssetDatabase.LoadAssetAtPath(abPath, typeof(TextAsset));
-            string cname = txt.name;
-            string outPath = ExportAssetBundles.GetOutPath();
-            string tarName = outPath +"/Lan/"+ cname+"."+Common.LANGUAGE_SUFFIX;
-            CheckDirectory(Application.streamingAssetsPath + "/" + ExportAssetBundles.GetTarget().ToString() + "/Lan/");
-            ExportAssetBundles.BuildAB(txt, null, tarName, BuildAssetBundleOptions.CompleteAssets);
+//            Debug.Log(abPath);
+			string tarPath = outPath+"/Lan";
+			string abName = CUtils.GetURLFileName(name)+"."+Common.LANGUAGE_SUFFIX;
+			ExportAssetBundles.BuildABs(new string[]{abPath},tarPath,abName,BuildAssetBundleOptions.CompleteAssets);
+			Debug.Log(tarPath+abName +" export");
+
         }
     }
 

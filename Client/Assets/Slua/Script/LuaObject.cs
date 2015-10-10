@@ -1055,10 +1055,10 @@ return index
 
         static public object checkVar(IntPtr l, int p, Type t)
         {
-            object obj = checkVar(l, p);
+			object obj = checkVar(l, p);
             try
             {
-                return Convert.ChangeType(obj, t);
+                return obj==null?null:Convert.ChangeType(obj, t);
             }
             catch(Exception) {
 				throw new Exception(string.Format("parameter {0} expected {1}, got {2}", p, t.Name, obj == null ? "null" : obj.GetType().Name));
@@ -1247,7 +1247,7 @@ return index
             LuaDLL.luaS_setDataVec(l, 1, v.r, v.g, v.b, v.a);
         }
 
-        internal static int extractFunction(IntPtr l, int p)
+        public static int extractFunction(IntPtr l, int p)
 		{
 			int op = 0;
 			LuaTypes t = LuaDLL.lua_type(l, p);

@@ -110,7 +110,7 @@ local function  onUpdateResComp(req)
 				local key=""
 				for i=1,len do
 					itemURl = upURL[i]
-	 				key = CUtils.getKeyURLFileName(itemURl)
+	 				key = CUtils.GetKeyURLFileName(itemURl)
 					if not loadtab[key] then
 						table.insert(reqs,{itemURl,onUpdateItemComp,assetType="System.Byte[]"})
 					end

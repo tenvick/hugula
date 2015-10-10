@@ -251,7 +251,7 @@ public class ScrollRectTable : MonoBehaviour
 	{
 		if(this._data!=null)
 		{
-			recordCount=this._data.Length;
+			recordCount=this._data.length();
 		}
 		else
 		{

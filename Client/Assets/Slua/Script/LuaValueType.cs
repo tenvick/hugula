@@ -70,6 +70,7 @@ local function inherite(cls,base)
 end
 
 local Matrix3x3={}
+local Vector3
 
 do
 
@@ -148,7 +149,7 @@ end
 
 do
 	local Raw=UnityEngine.Vector3
-	local Vector3={__typename='Vector3',__raw=Raw}
+	Vector3={__typename='Vector3',__raw=Raw}
 	local T=Vector3
 	local I={__typename='Vector3'}
 	_G['UnityEngine.Vector3.Instance']=I
@@ -278,7 +279,7 @@ do
 	end
 
 	function Vector3.Angle(a,b)
-		local dot = Dot(Vector3.Normalize(a), Vector3.Normalize(b))
+		local dot = Vector3.Dot(Vector3.Normalize(a), Vector3.Normalize(b))
 		return acos(dot)*ToAngle
 	end
 

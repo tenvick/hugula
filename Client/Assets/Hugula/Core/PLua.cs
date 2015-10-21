@@ -80,7 +80,7 @@ public class PLua : MonoBehaviour
     {
         if (onDestroyFn != null) onDestroyFn.call();
         updateFn = null;
-        if (lua != null) lua.luaState.Close();
+        //if (lua != null) lua.luaState.Close();
         lua = null;
         _instance = null;
         if(net!=null)net.Dispose();

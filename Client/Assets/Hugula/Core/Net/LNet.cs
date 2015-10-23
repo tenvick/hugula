@@ -12,8 +12,8 @@ using SLua;
 /// Õ¯¬Á¡¨Ω”¿‡
 /// </summary>
 [SLua.CustomLuaClass]
-public class LNet :IDisposable  {
-
+public class LNet : MonoBehaviour, IDisposable
+{
     TcpClient client;
     NetworkStream stream;
     BinaryReader breader;
@@ -24,74 +24,33 @@ public class LNet :IDisposable  {
     private bool callTimeOutFun = false;
     private bool isConnectioned = false;
     private float lastSeconds = 0;
-	private bool bChatInst = false;
     public bool isConnectCall { private set; get; }
     public float pingDelay = 120;
     public int timeoutMiliSecond = 8000;
 
-    private LNet()
-	{
+    void Awake()
+    {
         queue = ArrayList.Synchronized(new ArrayList());
         sendQueue = ArrayList.Synchronized(new ArrayList());
-	}
-	
-	public void Connect(string host,int port)
-	{
-        this.Host = host;
-        this.Port = port;
-        begin = DateTime.Now;
-        callConnectioneFun = false;
-        callTimeOutFun = false;
-        isConnectioned = false;
-        isbegin = true;
-        isConnectCall = true;
-        //Debug.Log("begin connect:" + host + " :" + port + " time:" + begin.ToString());
-        if (client != null)
-            client.Close();
-        client = new TcpClient();
-        client.BeginConnect(host, port, new AsyncCallback(OnConnected), client);
+    }
 
-	}
-	
-	public void ReConnect()
-	{
-        Connect(Host, Port);
-        if (onReConnectFn != null)
-            onReConnectFn.call(new object[] { this });
-	}
-	
-	public void Close()
-	{
-        if(receiveThread!=null)receiveThread.Abort();
-        if(client!=null)client.Close();
-        if(breader!=null)breader.Close();
-	}
-	
-	public void Send(byte[] bytes)
+    void OnApplicationPause(bool pauseStatus)
     {
-        if (client.Connected)
-            stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(SendCallback), stream);
-//		else
-//			this.reConnect();
-	}
-	
-	public bool IsConnected
-	{
-		get{
-            return client==null?false:client.Connected;
-		}
-	}
-	
-	public void Send(Msg msg)
-	{
-        if (client != null && client.Connected)
-            Send(msg.ToCArray());
-        else
-            sendQueue.Add(msg);
-	}
-	
-	public void Update()
-	{
+        if (onAppPauseFn != null && isConnectCall)
+            onAppPauseFn.call(new object[] { pauseStatus });
+    }
+
+    void OnApplicationQuit()
+    {
+        if (lNetObj)
+        {
+            GameObject.Destroy(lNetObj);
+        }
+        lNetObj = null;
+    }
+
+    void Update()
+    {
         if (queue.Count > 0)
         {
             object msg = queue[0];
@@ -162,16 +121,72 @@ public class LNet :IDisposable  {
                 }
             }
         }
-	}
-	
-	public void OnApplicationPause(bool pauseStatus) {
-        if (onAppPauseFn != null && isConnectCall)
-            onAppPauseFn.call(new object[] { pauseStatus });
-	}
-	
-	
-	public void Receive()
-	{
+    }
+
+    void OnDestroy()
+    {
+        Dispose();
+        //if (_main == this) _main = null;
+    }
+
+    public void Connect(string host, int port)
+    {
+        this.Host = host;
+        this.Port = port;
+        begin = DateTime.Now;
+        callConnectioneFun = false;
+        callTimeOutFun = false;
+        isConnectioned = false;
+        isbegin = true;
+        isConnectCall = true;
+        //Debug.Log("begin connect:" + host + " :" + port + " time:" + begin.ToString());
+        if (client != null)
+            client.Close();
+        client = new TcpClient();
+        client.BeginConnect(host, port, new AsyncCallback(OnConnected), client);
+
+    }
+
+    public void ReConnect()
+    {
+        Connect(Host, Port);
+        if (onReConnectFn != null)
+            onReConnectFn.call(new object[] { this });
+    }
+
+    public void Close()
+    {
+        if (receiveThread != null) receiveThread.Abort();
+        if (client != null) client.Close();
+        if (breader != null) breader.Close();
+    }
+
+    public void Send(byte[] bytes)
+    {
+        if (client.Connected)
+            stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(SendCallback), stream);
+        //		else
+        //			this.reConnect();
+    }
+
+    public bool IsConnected
+    {
+        get
+        {
+            return client == null ? false : client.Connected;
+        }
+    }
+
+    public void Send(Msg msg)
+    {
+        if (client != null && client.Connected)
+            Send(msg.ToCArray());
+        else
+            sendQueue.Add(msg);
+    }
+
+    public void Receive()
+    {
         ushort len = 0;
         byte[] buffer = null;
         ushort readLen = 0;
@@ -229,30 +244,31 @@ public class LNet :IDisposable  {
 
             Thread.Sleep(16);
         }
-		
-	}
-	
-	#region protected 
-	
-	#region  memeber
-	
-	public string Host
-	{
-		get;
-		private set;
-	}
-	
-	public int Port{
-		get;
-		private set;
-	}
-	
-	private ArrayList queue;
-	private ArrayList sendQueue;
-	#endregion
-	
-	private void SendCallback(IAsyncResult rs)
-	{
+
+    }
+
+    #region protected
+
+    #region  memeber
+
+    public string Host
+    {
+        get;
+        private set;
+    }
+
+    public int Port
+    {
+        get;
+        private set;
+    }
+
+    private ArrayList queue;
+    private ArrayList sendQueue;
+    #endregion
+
+    private void SendCallback(IAsyncResult rs)
+    {
         try
         {
             client.Client.EndSend(rs);
@@ -261,10 +277,10 @@ public class LNet :IDisposable  {
         {
             Debug.Log(e.ToString());
         }
-	}
-	
-	private void OnConnected(IAsyncResult rs)
-	{
+    }
+
+    private void OnConnected(IAsyncResult rs)
+    {
         TimeSpan ts = DateTime.Now - begin;
         stream = client.GetStream();
         breader = new BinaryReader(stream);
@@ -275,24 +291,25 @@ public class LNet :IDisposable  {
             receiveThread.Abort();
         receiveThread = new Thread(new ThreadStart(Receive));
         receiveThread.Start();
-	}
-	
-	#endregion
-	
-	public void SendErro(string type,string desc)
-	{
-		if(onAppErrorFn!=null)
-		{
-			onAppErrorFn.call(new object[]{type,desc});
-		}else
-		{
-			var error=new Msg();
-			error.Type=233;
+    }
+
+    #endregion
+
+    public void SendErro(string type, string desc)
+    {
+        if (onAppErrorFn != null)
+        {
+            onAppErrorFn.call(new object[] { type, desc });
+        }
+        else
+        {
+            var error = new Msg();
+            error.Type = 233;
             error.WriteString(type);
             error.WriteString(desc);
-			this.Send(error);
-		}
-	}
+            this.Send(error);
+        }
+    }
 
     public void Dispose()
     {
@@ -308,56 +325,48 @@ public class LNet :IDisposable  {
         onReConnectFn = null;
         onAppPauseFn = null;
         onIntervalFn = null;
-		if ( bChatInst ) 
-		{
-			_instChat = null;
-		}
-		else _inst = null;
     }
-	
-	#region lua Event
-	public LuaFunction onAppErrorFn;
-	
-	public LuaFunction onConnectionCloseFn;
 
-	public LuaFunction onConnectionFn;
-	
-	public LuaFunction onMessageReceiveFn;
-	
-	public LuaFunction onConnectionTimeoutFn;
-	
-	public LuaFunction onReConnectFn;
-	
-	public LuaFunction onAppPauseFn;
-	
-	public LuaFunction onIntervalFn;
-	#endregion
-	
-	private static LNet _inst;
-	private static LNet _instChat;
+    #region lua Event
+    public LuaFunction onAppErrorFn;
 
-	public static LNet ChatInstance
-	{
-		get
-		{
-			if (_instChat == null)
-				_instChat = new LNet();
+    public LuaFunction onConnectionCloseFn;
 
-			_instChat.bChatInst = true;
-			return _instChat;
-		}
-	}
+    public LuaFunction onConnectionFn;
 
-	public static LNet instance
-	{
-		get
-		{
-			if (_inst == null)
-				_inst = new LNet();
+    public LuaFunction onMessageReceiveFn;
 
-			_inst.bChatInst = false;
-			return _inst;
-		}
-	}
-    
+    public LuaFunction onConnectionTimeoutFn;
+
+    public LuaFunction onReConnectFn;
+
+    public LuaFunction onAppPauseFn;
+
+    public LuaFunction onIntervalFn;
+    #endregion
+
+    private static GameObject lNetObj;
+    private static LNet _main;
+
+    public static LNet main
+    {
+        get
+        {
+            if (_main == null)
+            {
+                if (lNetObj == null) lNetObj = new GameObject("LNet");
+                _main = lNetObj.AddComponent<LNet>();
+            }
+            return _main;
+        }
+    }
+
+    public static LNet New()
+    {
+        if (lNetObj == null) lNetObj = new GameObject("LNet");
+        var cnet = lNetObj.AddComponent<LNet>();
+        if (_main == null) _main = cnet;
+        return cnet;
+    }
+
 }

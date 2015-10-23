@@ -23,8 +23,6 @@ public class PLua : MonoBehaviour
     public static bool isDebug = true;
 
     public Lua lua;
-    public LNet net;
-    public LNet ChatNet;
     public static Dictionary<string, TextAsset> luacache;
 
     #region priveta
@@ -57,36 +55,21 @@ public class PLua : MonoBehaviour
 
     void Start()
     {
-        net = LNet.instance;
-        ChatNet = LNet.ChatInstance;
         lua.init(null, () =>
         { LoadBundle(true); });
     }
 
     void Update()
     {
-        if (net != null) net.Update();
-        if (ChatNet != null) ChatNet.Update();
         if (_updateFn != null) _updateFn.call();
-
-    }
-
-    void OnApplicationPause(bool pauseStatus)
-    {
-        if (net != null) net.OnApplicationPause(pauseStatus);
     }
 
     void OnDestroy()
     {
         if (onDestroyFn != null) onDestroyFn.call();
         updateFn = null;
-        //if (lua != null) lua.luaState.Close();
         lua = null;
         _instance = null;
-        if(net!=null)net.Dispose();
-        net = null;
-		if(ChatNet!=null)ChatNet.Dispose();
-        ChatNet = null;
         luacache.Clear();
     }
 

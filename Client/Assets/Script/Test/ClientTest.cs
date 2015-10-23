@@ -36,11 +36,6 @@ public class ClientTest : MonoBehaviour {
 	
 	}
 
-    void OnDisable()
-    {
-        LNet.instance.Close();
-    }
-
     void OnGUI()
     {
         GUI.Label(new Rect(Screen.width * 0.2f, Screen.height * 0.5f, Screen.width * 0.2f, Screen.height * 0.2f), "");
@@ -56,16 +51,16 @@ public class ClientTest : MonoBehaviour {
             GUILayout.Space(10);
 
             GUILayout.BeginVertical();
-            if (!LNet.instance.IsConnected && GUILayout.Button("Connect"))
+            if (!LNet.main.IsConnected && GUILayout.Button("Connect"))
             {
-                LNet.instance.Connect("127.0.0.1", 12000);
+                LNet.main.Connect("127.0.0.1", 12000);
             }
-            if (LNet.instance.IsConnected && GUILayout.Button("send msg Server"))
+            if (LNet.main.IsConnected && GUILayout.Button("send msg Server"))
             {
                 Msg m = new Msg();
                 m.Type = 2;
                 m.WriteString("hello server "+System.DateTime.Now.ToShortTimeString());
-                LNet.instance.Send(m);
+                LNet.main.Send(m);
                 //Debug.Log("send:" + Msg.Debug(m.ToCArray()));
             }
             GUILayout.EndVertical();

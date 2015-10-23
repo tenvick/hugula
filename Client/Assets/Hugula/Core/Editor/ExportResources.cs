@@ -86,10 +86,12 @@ public class ExportResources{
 	{
 		checkLuaExportPath();
 
-        string  path= Application.dataPath+"/Lua/"; //AssetDatabase.GetAssetPath(obj).Replace("Assets","");
-		
+        string path= Application.dataPath+"/Lua/"; //lua path
+        string path1 = Application.dataPath + "/Config/"; //config path
+
         List<string> files =getAllChildFiles(path);// Directory.GetFiles(Application.dataPath + path);
-		
+        getAllChildFiles(path1,"lua",files);
+
 		IList<string> childrens = new List<string>();
 		
 		foreach (string file in files)
@@ -105,13 +107,12 @@ public class ExportResources{
 		//refresh directory
 		DirectoryDelete(Application.dataPath + OutLuaPath);
 		CheckDirectory(Application.dataPath+OutLuaPath);
-		//CheckDirectory(Application.dataPath.Replace("Assets","")+outPath);
 
 		List<string> exportNames = new List<string> ();
 		 foreach (string filePath in childrens)
          {
 			fileName=CUtils.GetURLFileName(filePath);
-			crypName = filePath.Replace(path,"").Replace(".lua","."+Common.LUA_LC_SUFFIX).Replace("\\","_").Replace("/","_");
+			crypName = filePath.Replace(path,"").Replace(path1,"").Replace(".lua","."+Common.LUA_LC_SUFFIX).Replace("\\","_").Replace("/","_");
 			outfilePath=Application.dataPath+OutLuaPath+crypName;
 			exportNames.Add("Assets"+OutLuaPath+crypName);
 			sb.Append(fileName);
@@ -195,7 +196,6 @@ public class ExportResources{
     }
 
  
-    //[MenuItem("Hugula/build for publish ", false, 16)]
 	public static void exportPublish()
 	{
 		exportLua();

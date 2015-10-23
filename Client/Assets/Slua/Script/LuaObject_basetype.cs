@@ -107,6 +107,29 @@ namespace SLua
 			return true;
 		}
 
+        static public bool checkType(IntPtr l, int p, out byte[] v)
+        {
+            LuaDLL.luaL_checktype(l, p, LuaTypes.LUA_TSTRING);
+
+            int strLen;
+            IntPtr str = LuaDLL.luaS_tolstring32(l, p, out strLen);
+            if (strLen > 0)
+            {
+                v = new byte[strLen];
+                Marshal.Copy(str, v, 0, strLen);
+            }
+            else
+            {
+                v = null;
+            }
+            return true;
+        }
+
+        public static void pushValue(IntPtr l, byte[] buffer)
+        {
+            LuaDLLWrapper.luaS_pushlstring(l, buffer, buffer.Length);
+        }
+
 		public static void pushValue(IntPtr l, byte i)
 		{
 			LuaDLL.lua_pushinteger(l, i);

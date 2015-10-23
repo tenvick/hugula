@@ -132,7 +132,7 @@ public class ScrollRectTable : MonoBehaviour
 		int i=getIndex(item);
 		if(i>=0)
 		{
-            if (onDataRemove == null) onDataRemove = PLua.instance.lua.luaState.loadString(DataRemoveStr, "onDataRemove");
+            if (onDataRemove == null) onDataRemove = LuaState.main.loadString(DataRemoveStr, "onDataRemove");
             onDataRemove.call(this.data,i+1,this);
 			this.CalcPage();
         }
@@ -143,7 +143,7 @@ public class ScrollRectTable : MonoBehaviour
 	{
 		if(index<0)index=0;
 		if(index>=this.recordCount)index=this.recordCount;
-		if (onDataInsert == null) onDataInsert = PLua.instance.lua.luaState.loadString(DataInsertStr, "onDataInsert");
+		if (onDataInsert == null) onDataInsert = LuaState.main.loadString(DataInsertStr, "onDataInsert");
 		onDataInsert.call(item,index+1,this);
 		this.CalcPage();
 		return index;
@@ -153,7 +153,7 @@ public class ScrollRectTable : MonoBehaviour
 	{
 		if(index>=0 && index<this.recordCount)
 		{
-			if (onDataRemove == null) onDataRemove = PLua.instance.lua.luaState.loadString(DataRemoveStr, "onDataRemove");
+			if (onDataRemove == null) onDataRemove = LuaState.main.loadString(DataRemoveStr, "onDataRemove");
             onDataRemove.call(data,index+1,this);
 			this.CalcPage();
             return index;
@@ -371,7 +371,7 @@ public class ScrollRectTable : MonoBehaviour
 	void preRender(ScrollRectItem item,int index)
 	{
 		setPosition(item.transform,index);
-        if (this.onPreRender == null) onPreRender = PLua.instance.lua.luaState.loadString(PreRenderStr, "onPreRenderStr");
+        if (this.onPreRender == null) onPreRender = LuaState.main.loadString(PreRenderStr, "onPreRenderStr");
 		object dataI=index+1<=recordCount?data[index+1]:null;
 		onPreRender.call(item,index,dataI);
 	}

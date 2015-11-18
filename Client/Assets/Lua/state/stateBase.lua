@@ -3,30 +3,33 @@
 --   
 --  author pu
 ------------------------------------------------
+
+local function sortFn(a,b) 
+    return tonumber(a.priority)>tonumber(b.priority) 
+end
+
 StateBase=class(function(self,itemObjects,name)
         if itemObjects then 
             self.m_itemList = itemObjects 
-            table.sort(self.m_itemList,self.sortFn)
+            table.sort(self.m_itemList,sortFn)
         else  
             self.m_itemList={}
         end
         self.name = name or ""
         self.willSort =false
+        self.method = nil
     end)
 
 local StateBase = StateBase
 
--- function StateBase:getItemCount()
---     local itemList = self.m_itemList
---     local size = 0
---     for k,v in ipairs(itemList) do
---         if v.assets~=nil then size=size+1 end
---     end
---     return size
--- end
-local function sortFn(a,b) 
-    return tonumber(a.priority)>tonumber(b.priority) 
+function StateBase:isAllLoaded()
+    local itemList = self.m_itemList
+    for k,v in ipairs(itemList) do
+        if not v.assetsLoaded then return false end
+    end
+    return true
 end
+
 
 function StateBase:addItem(obj)
     for i, v in ipairs(self.m_itemList) do
@@ -72,7 +75,7 @@ function StateBase:onBlur(newState)
     local itemobj = nil
     for i=#self.m_itemList,1,-1 do
         itemobj=self.m_itemList[i]
-        itemobj:onBlur(newState)
+        if itemobj then  itemobj:onBlur(newState) end
     end
 
  end
@@ -83,12 +86,12 @@ function StateBase:clear( ... )
     end
 end
 
-function StateBase:onEvent(funName,sender,arg)
+function StateBase:onEvent(funName,...)
     local fn = nil
     for k,v in ipairs(self.m_itemList) do
         fn = v[funName]
         if v.active and fn then 
-            if fn(v,sender,arg) then break end
+            if fn(v,...) then break end
         end
     end
 

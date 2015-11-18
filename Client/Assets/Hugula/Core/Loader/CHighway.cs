@@ -102,9 +102,9 @@ public class CHighway
             req.times++;
             load.key = key;
             loader[key] = req;
-#if UNITY_EDITOR
-            //			Debug.Log ("-----------beginLoad <<:" + req.key + ">>  shared=" + req.isShared + ",currentLoading=" + this.currentLoading + "  max=" + this.maxLoading);
-#endif
+//#if UNITY_EDITOR
+//            			Debug.Log ("-----------beginLoad <<:" + req.key + ">>  shared=" + req.isShared + ",currentLoading=" + this.currentLoading + "  max=" + this.maxLoading);
+//#endif
             load.BeginLoad(req);
             return true;
         }
@@ -362,7 +362,7 @@ public class CHighway
             req.data = req.assetBundle.LoadAllAssets(assetType);
             re = req.assetBundle;
         }
-        www.Dispose();
+//        www.Dispose();
         return re;
     }
 

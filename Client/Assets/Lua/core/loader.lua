@@ -46,7 +46,7 @@ local function loadByUrl7(url,assetName,assetType,compFn,cache,endFn,head)
 end
 
 local function loadByUrl5(url,compFn,cache,endFn,head)
-	local req=Request(url)
+	local req=Request(url)	
 --    req.assetName=req.key
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
@@ -72,31 +72,29 @@ local function loadByTable(tb,cache)
 	local arrList={} --ArrayList()
 	local len=#tb
 	local key = ""
-	-- printTable(tb)
-	--for i=1,len do
-	for k,v in pairs(tb) do
---		local v = tb[i]
---        local arg=unpack(v)
---        print(arg)
---        Loader:getResource(arg)
-		local l1=#v
-		local req --=Request(v[1])
-		if l1>0 then req=Request(v[1]) else req = Request("") end
-		key=req.key
-
-		if l1>1 then req.onCompleteFn=v[2] end
-		if l1>2 then req.onEndFn=v[3] end
-		if l1>3 then req.head=v[4] end
-		if v.url then req.url = v.url end
-		if v.assetType then req.assetType = v.assetType end
-		if v.onCompleteFn then req.onCompleteFn = v.onCompleteFn end
-		if v.onEndFn then req.onEndFn = v.onEndFn end
-		if v.head then req.head = v.head end
-
-		if cache==nil or cache==true then req.cache=true end
-		local cacheData=Loader.resdic[key]
-		if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
-		else table.insert(arrList,req)--arrList:Add(req)
+	local typen = ""
+	for k,v in ipairs(tb) do
+		typen = type(v)
+		if typen=="table" then
+			local l1=#v
+			local req 
+			if l1>0 then req=Request(v[1]) else req = Request("") end
+			if l1>1 then req.onCompleteFn=v[2] end
+			if l1>2 then req.onEndFn=v[3] end
+			if l1>3 then req.head=v[4] end
+			if v.url then req.url = v.url end
+			if v.assetType then req.assetType = v.assetType end
+			if v.onCompleteFn then req.onCompleteFn = v.onCompleteFn end
+			if v.onEndFn then req.onEndFn = v.onEndFn end
+			if v.head then req.head = v.head end
+			key=req.key
+			if cache==nil or cache==true then req.cache=true end
+			local cacheData=Loader.resdic[key]
+			if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
+			else table.insert(arrList,req)--arrList:Add(req)
+			end
+		elseif typen=="userdata" then
+			table.insert(arrList,v)
 		end
 	end
 	Loader.multipleLoader:LoadLuaTable(arrList)
@@ -139,6 +137,7 @@ end
 --loadByUrl(url,compFn,cache,endFn,head)
 --loadByTable( {url,compFn,endFn,head},cache)
 function Loader:getResource(...)
+
 	local a,b,c,d,e,f,g=...
 	--url,onComplete
 	if type(a)=="string" and type(b)=="string" then 
@@ -175,7 +174,7 @@ function Loader:setOnProgressFn(progFn)
 	self.multipleLoader.onProgressFn=progFn
 end
 
-function Loader:RefreshAssetBundleManifest()
+function Loader:RefreshAssetBundleManifest(onReady)
 
     local url = CUtils.GetAssetFullPath(CUtils.GetPlatformFolderForAssetBundles())
     local  function onCompleteFn (req1)
@@ -183,6 +182,8 @@ function Loader:RefreshAssetBundleManifest()
         local data=req1.data
         CTransport.m_AssetBundleManifest=data
         req1.assetBundle:Unload(false)
+        req1.www:Dispose()
+        if onReady then onReady() end
     end
 
     self:getResource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)

@@ -3,7 +3,6 @@
 --   
 --  author pu
 ------------------------------------------------
-require("const.importClass")
 require("net.netMsgHelper")
 require("net.netAPIList")
 require("net.netProtocalPaser")

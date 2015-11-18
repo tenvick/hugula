@@ -321,10 +321,11 @@ public class  LuaHelper {
     /// </summary>
     /// <param name="assetBundle"></param>
     public static void RefreshShader(AssetBundle assetBundle)
-    {
+	{
 
 #if UNITY_5
         UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
+
 #else
         UnityEngine.Object[] materials = assetBundle.LoadAll(typeof(Material));  //LoadAll<Material>();
 #endif
@@ -332,7 +333,7 @@ public class  LuaHelper {
         {
             Material mat = m as Material;
             string shaderName = mat.shader.name;
-            Shader newShader = Shader.Find(shaderName);
+			Shader newShader = Shader.Find(shaderName);
             if (newShader != null)
             {
                 mat.shader = newShader;

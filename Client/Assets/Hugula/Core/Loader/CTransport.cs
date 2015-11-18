@@ -103,7 +103,7 @@ public class CTransport : MonoBehaviour {
 
 		if(www.error!=null)
 		{
-//			Debug.LogWarning("error : url "+req.url+" \n error:"+www.error);
+			Debug.LogWarning("error : url "+req.url+" \n error:"+www.error);
 			isFree =true;
 			DispatchErrorEvent(req);
 		}
@@ -111,7 +111,7 @@ public class CTransport : MonoBehaviour {
 		{
 			if(OnProcess!=null)
 				OnProcess(this,1);
-            //Debug.Log("will complete : url " + req.url + " \n key:" + req.key);
+//            Debug.Log("will complete : url " + req.url + " \n key:" + req.key);
 			try
 			{
 
@@ -129,7 +129,7 @@ public class CTransport : MonoBehaviour {
                     depens = GetDependencies(deps);
                 }else if (m_AssetBundleManifest == null)
                 {
-                    //Debug.LogWarning("Please initialize AssetBundleManifest");
+					Debug.LogWarning(req.key+"Please initialize AssetBundleManifest");
                 }
 				isFree =true;
 				this.DispatchCompleteEvent(this.req,depens);

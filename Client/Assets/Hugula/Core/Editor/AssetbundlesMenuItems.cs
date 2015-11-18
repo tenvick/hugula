@@ -28,7 +28,8 @@ public class AssetbundlesMenuItems
         {
             import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
             import.assetBundleName = s.name+"."+Common.ASSETBUNDLE_SUFFIX;
-            Debug.Log(import.name);
+			if(s.name.Contains(" ")) Debug.LogWarning(s.name+" contains space");
+            Debug.Log(s.name);
         }
     }
 

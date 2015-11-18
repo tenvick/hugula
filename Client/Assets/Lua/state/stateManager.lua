@@ -47,7 +47,16 @@ function StateManager:checkHideTransform( ... )
     if self.m_autoShowLoading then self:hideTransform() end
 end
 
-function StateManager:setCurrentState(newState,callFocues)
+function StateManager:callAllItemMethod( )
+    local curState = self.m_currentGameState
+    if curState.method then
+        curState:onEvent(curState.method,unpack(curState.args))
+        curState.method = nil
+        curState.args = nil
+    end
+end
+
+function StateManager:setCurrentState(newState,method,...)
     assert(newState ~= nil)
     if(newState == self.m_currentGameState)   then
         print("setCurrent State: "..tostring(newState).." is same as currentState"..tostring(self.m_currentGameState))
@@ -60,11 +69,13 @@ function StateManager:setCurrentState(newState,callFocues)
 
     local previousState = self.m_currentGameState
     self.m_currentGameState = newState
-    --self.m_objectCount=newState:getItemCount()
-    --self.m_objectLoaded=0    
-    if callFocues==nil then callFocues=true end
-    --if self.m_autoShowLoading and callFocues then self:showTransform() end
-    if callFocues then newState:onFocus(previousState) end
+
+    newState.method=method
+    newState.args={...}
+
+    newState:onFocus(previousState)
+
+    if newState:isAllLoaded() then self:callAllItemMethod() end
 
     unloadUnusedAssets()
 end

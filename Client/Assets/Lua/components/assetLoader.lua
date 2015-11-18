@@ -34,7 +34,10 @@ function AssetLoader:onAssetLoaded(key,asset)
 		self.luaObj.assetsLoaded = true
 		self.luaObj:sendMessage("onAssetsLoad",self.assets)
 		if self.luaObj.onShowed then self.luaObj:onShowed() end
-		if StateManager then StateManager:checkHideTransform() end --StateManager:onItemObjectAssetsLoaded(self.luaObj) end
+		if StateManager then 
+			StateManager:checkHideTransform() 
+			StateManager:callAllItemMethod()
+		end --StateManager:onItemObjectAssetsLoaded(self.luaObj) end
 	end
 end
 

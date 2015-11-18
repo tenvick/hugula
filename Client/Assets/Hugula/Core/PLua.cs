@@ -190,6 +190,8 @@ public class PLua : MonoBehaviour
         {
 			name = name.Replace('.','/'); 
             string path = Application.dataPath + "/Lua/" + name+".lua";
+            if(!File.Exists(path))
+                path = Application.dataPath + "/Config/" + name+".lua";
             try
             {
 				str =  File.ReadAllBytes(path);

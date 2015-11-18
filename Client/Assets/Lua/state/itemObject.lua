@@ -22,7 +22,7 @@ function LuaItemManager:getItemObject(objectName)
          print(objectName .. " is not registered ")
         return nil
     end
-
+   
     if obj.m_require==nil then 
       obj.m_require=true require(obj.m_luaPath) 
       if obj.initialize~=nil then obj:initialize() end
@@ -48,10 +48,9 @@ end
 
 function ItemObject:show( ... )
    local assets = self.assets
-   assert(assets~=nil)
-   for k,v in ipairs(assets) do
-        v:show()
-    end
+   if assets~=nil then
+    for k,v in ipairs(assets) do  v:show()   end
+   end
 end
 
 function ItemObject:onShowed( ... )
@@ -59,11 +58,10 @@ function ItemObject:onShowed( ... )
 end
 
 function ItemObject:hide( ... )
-   local assets = self.assets
-   assert(assets~=nil)
-   for k,v in ipairs(assets) do
-        v:hide()
-    end
+  local assets = self.assets
+  if assets then
+    for k,v in ipairs(assets) do    v:hide()    end
+  end
 end
 
 function ItemObject:clear( ... )
@@ -89,7 +87,6 @@ function ItemObject:onFocus( ... )
             self:onShowed() 
         end
     end
-    -- self:setActive(true)
 end
 
 function ItemObject:onHide()
@@ -98,7 +95,6 @@ end
 function ItemObject:onBlur( ... )
     self:hide()
     self:onHide()
-    -- self:setActive(false)
 end
 
 function ItemObject:addToState(state)

@@ -516,7 +516,7 @@ public class ScrollRectTable : MonoBehaviour
 			if(direction== Direction.Down)
 				beginPosition=new Vector3(bg.x,bg.y,bg.z);
 			else
-				beginPosition=new Vector3(bg.x,-bg.y,bg.z);
+				beginPosition=new Vector3(bg.x,bg.y,bg.z);
 
 			foward = false;
 		}

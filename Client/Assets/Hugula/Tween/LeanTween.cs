@@ -3204,7 +3204,7 @@ public static LTDescr destroyAfter( LTRect rect, float delayTime){
 public static LTDescr move(GameObject gameObject, Vector3 to, float time){
 	return pushNewTween( gameObject, to, time, TweenAction.MOVE, options() );
 }
-public static LTDescr move(GameObject gameObject, Vector2 to, float time){
+public static LTDescr moveV2(GameObject gameObject, Vector2 to, float time){
 	return pushNewTween( gameObject, new Vector3(to.x, to.y, gameObject.transform.position.z), time, TweenAction.MOVE, options() );
 }
 
@@ -3223,7 +3223,7 @@ public static LTDescr move(GameObject gameObject, Vector2 to, float time){
 * <i>C#:</i><br>
 * LeanTween.move(gameObject, new Vector3[]{new Vector3(0f,0f,0f),new Vector3(1f,0f,0f),new Vector3(1f,0f,0f),new Vector3(1f,0f,1f)}, 1.5f).setEase(LeanTweenType.easeOutQuad).setOrientToPath(true);;<br>
 */	
-public static LTDescr move(GameObject gameObject, Vector3[] to, float time){
+public static LTDescr movePath(GameObject gameObject, Vector3[] to, float time){
 	descr = options();
 	if(descr.path==null)
 		descr.path = new LTBezierPath( to );
@@ -3284,7 +3284,7 @@ public static LTDescr moveSplineLocal(GameObject gameObject, Vector3[] to, float
 * @param {float} time:float time The time to complete the tween in
 * @return {LTDescr} LTDescr an object that distinguishes the tween
 */
-public static LTDescr move(LTRect ltRect, Vector2 to, float time){
+public static LTDescr moveV2(LTRect ltRect, Vector2 to, float time){
 	return pushNewTween( tweenEmpty, to, time, TweenAction.GUI_MOVE, options().setRect( ltRect ) );
 }
 
@@ -3359,7 +3359,7 @@ public static LTDescr moveLocal(GameObject gameObject, Vector3 to, float time){
 * <i>C#:</i><br>
 * LeanTween.move(gameObject, new Vector3[]{Vector3(0f,0f,0f),Vector3(1f,0f,0f),Vector3(1f,0f,0f),Vector3(1f,0f,1f)}).setEase(LeanTweenType.easeOutQuad).setOrientToPath(true);<br>
 */
-public static LTDescr moveLocal(GameObject gameObject, Vector3[] to, float time){
+public static LTDescr moveLocalPath(GameObject gameObject, Vector3[] to, float time){
 	descr = options();
 	if(descr.path==null)
 		descr.path = new LTBezierPath( to );

@@ -7,8 +7,6 @@ public class LeanTester : MonoBehaviour {
 	#if !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2 && !UNITY_4_3 && !UNITY_4_5
 	public void Start(){
 		StartCoroutine( timeoutCheck() );
-
-        //LeanTween.move(this.gameObject,Vector3.zero,3);
 	}
 
 	IEnumerator timeoutCheck(){
@@ -117,6 +115,8 @@ public class LeanTest : object {
 	
 	public static void overview(){ 
 		testsFinished = true;
-		Debug.Log(formatB("Final Report:")+" _____________________ PASSED: "+formatBC(""+passes,"green")+" FAILED: "+formatBC(""+(expected-passes),"red")+" ");
+		int failedCnt = (expected-passes);
+		string failedStr = failedCnt > 0 ? formatBC(""+failedCnt,"red") : ""+failedCnt;
+		Debug.Log(formatB("Final Report:")+" _____________________ PASSED: "+formatBC(""+passes,"green")+" FAILED: "+failedStr+" ");
 	}
 }

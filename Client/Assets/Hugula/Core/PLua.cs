@@ -221,9 +221,9 @@ public class PLua : MonoBehaviour
     }
 
 
-    public static Coroutine Delay(LuaFunction luafun, float time, object args = null)
+    public static Coroutine Delay(LuaFunction luafun, float time,params object[] args)
     {
-       return _instance.StartCoroutine(DelayDo(luafun, args, time));
+		return _instance.StartCoroutine(DelayDo(luafun,time,args));
     }
 
     public static void StopDelay(Coroutine coroutine)
@@ -231,10 +231,10 @@ public class PLua : MonoBehaviour
         _instance.StopCoroutine(coroutine);
     }
 
-    private static IEnumerator DelayDo(LuaFunction luafun, object arg, float time)
+	private static IEnumerator DelayDo(LuaFunction luafun,float time,params object[] args)
     {
         yield return new WaitForSeconds(time);
-        luafun.call(arg);
+		luafun.call(args);
     }
 
     #endregion

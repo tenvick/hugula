@@ -2,7 +2,7 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 [SLua.CustomLuaClass]
@@ -11,9 +11,9 @@ public class ScrollRectItem : MonoBehaviour {
 
 	public RectTransform rectTransform;
 
-	public GameObject[] refers;
+	public List<GameObject> refers;
 
-	public Behaviour[] monos;
+	public List<Behaviour> monos;
 
 	public object data;
 

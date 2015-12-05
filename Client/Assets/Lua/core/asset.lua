@@ -40,8 +40,10 @@ end
 
 function Asset:show(...)
 	if self.names then
+		local item
 		for k,v in pairs(self.names) do
-			self.items[v]:SetActive(true)	
+			item = self.items[v]
+			if item then item:SetActive(true) end
 		end
 		if self.root.activeSelf==false then  self.root:SetActive(true) end
 	else

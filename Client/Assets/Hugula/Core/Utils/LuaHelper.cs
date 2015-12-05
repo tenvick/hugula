@@ -123,6 +123,35 @@ public class  LuaHelper {
         tranformTa.localRotation = rota;
     }
 
+	/// <summary>
+	/// Sets the layer.
+	/// </summary>
+	/// <param name="obj">Object.</param>
+	/// <param name="layer">Layer.</param>
+	public static void SetLayer(Transform transform,int layer)
+	{
+		transform.gameObject.layer = layer;
+		int c = transform.childCount;
+		for (int i=0; i<c; i++) {
+			var child =transform.GetChild(i);
+			SetLayer(child,layer);
+		}
+	}
+
+	/// <summary>
+	///  the Layersmask
+	/// </summary>
+	/// <returns>The mask get mask.</returns>
+	/// <param name="args">Arguments.</param>
+	public static int GetLayerMask(string args)
+	{
+		string[] a = args.Split (',');
+		foreach (var i in a)
+			Debug.Log (i);
+		return LayerMask.GetMask (a);
+	}
+
+
     /// <summary>
     /// getType
     /// </summary>

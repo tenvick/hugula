@@ -1,5 +1,6 @@
 print("testScrollTable.lua")
-
+require("core.loader")
+json=require("lib/json")
 --
 
 local datas={}
@@ -10,25 +11,27 @@ for i=0,1000 do
 	table.insert(datas,it)
 end
 
+local function on_rootscroll_loaded(req)
 
-local root = LuaHelper.Find("RootScroll")
-local scrollRectTable = LuaHelper.GetComponentInChildren(root,ScrollRectTable)
+	local root = LuaHelper.Instantiate(req.data)
+	-- local root = LuaHelper.Find("RootScroll")
+scrollRectTable = LuaHelper.GetComponentInChildren(root,ScrollRectTable)
 
 scrollRectTable.onItemRender=function(scrollRectItem,index,dataItem)
 	scrollRectItem.gameObject:SetActive(true)
 	local monos = scrollRectItem.monos
-	monos[1].text = dataItem.title
-	monos[2].text = dataItem.name
+	monos[0].text = dataItem.title
+	monos[1].text = dataItem.name
 	scrollRectItem.name = dataItem.name
-	local btn = monos[4]
+	local btn = monos[3]
 	btn.onClick:RemoveListener(onBtnClick)
 	btn.onClick:AddListener(onBtnClick)
 	if index==3 then
 		btn.name = "click me!"
-		monos[2].text = "click me!"
+		monos[1].text = "click me!"
 	elseif index ==100 or index ==90 then
 		btn.name = "click me back!"
-		monos[2].text = "click me back!"
+		monos[1].text = "click me back!"
 	else
 		btn.name = "click "..index
 	end
@@ -36,6 +39,10 @@ end
 
 scrollRectTable.data= datas
 scrollRectTable:Refresh(-1,-1)
+end
+
+
+Loader:getResource(CUtils.GetAssetFullPath("rootscroll.u3d"),on_rootscroll_loaded)
 
 --click
 function onBtnClick()
@@ -47,3 +54,10 @@ function onBtnClick()
 		scrollRectTable:scrollTo(0)
 	end
 end
+
+
+local a = delay(function( ... )
+	print("delya me ")
+end,3)
+
+stopDelay(a)

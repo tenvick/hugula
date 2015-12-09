@@ -173,7 +173,7 @@ namespace SLua
 		
 	}
 
-	public class LuaFunction : LuaVar
+    public partial class LuaFunction : LuaVar
 	{
 		public LuaFunction(LuaState l, int r)
 			: base(l, r)
@@ -441,7 +441,7 @@ namespace SLua
 
 
 
-	public class LuaState : IDisposable
+    public partial class LuaState : IDisposable
 	{
 		IntPtr l_;
 		int mainThread = 0;
@@ -774,7 +774,7 @@ end
 				LuaDLL.lua_pop(L, 1);
 			}
 			LuaDLL.lua_settop(L, n);
-			Debug.Log(s);
+			Debug.Log("lua:"+s);
 			return 0;
 		}
 
@@ -848,22 +848,7 @@ end
 				return obj;
 			return null; ;
 		}
-
-        public LuaFunction loadString(string str)
-        {
-            return loadString(str, "chunkname");
-        }
-
-        public LuaFunction loadString(string str, string chunkname)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
-
-            object obj;
-            if (loadBuffer(bytes, chunkname, out obj))
-                return obj as LuaFunction;
-            return null; ;
-        }
-
+		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 		internal static int loader(IntPtr L)
 		{
@@ -922,21 +907,6 @@ end
 			LuaDLL.lua_pop(L, 2);
 			throw new Exception(err);
 		}
-
-        public bool loadBuffer(byte[] bytes, string fn, out object ret)
-        {
-            ret = null;
-            int errfunc = LuaObject.pushTry(L);
-            if (LuaDLL.luaL_loadbuffer(L, bytes, bytes.Length, fn) == 0)
-            {
-                LuaDLL.lua_remove(L, errfunc); // pop error function
-                ret = topObjects(errfunc - 1);
-                return true;
-            }
-            string err = LuaDLL.lua_tostring(L, -1);
-            LuaDLL.lua_pop(L, 2);
-            throw new Exception(err);
-        }
 
 		internal static byte[] loadFile(string fn)
 		{

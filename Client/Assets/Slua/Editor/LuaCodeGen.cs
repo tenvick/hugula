@@ -93,6 +93,8 @@ namespace SLua
     public class LuaCodeGen : MonoBehaviour
 	{
 		static public string GenPath = SLuaSetting.Instance.UnityEngineGeneratePath;
+        static public string GenUnityPath = "Assets/Plugins/Slua_Managed/"; //UnityEngine LuaPath
+
         public delegate void ExportGenericDelegate(Type t, string ns);
 		
         static bool autoRefresh = true;
@@ -119,7 +121,7 @@ namespace SLua
 			static void Update(){
 				EditorApplication.update -= Update;
 				Lua3rdMeta.Instance.ReBuildTypes();
-				bool ok = System.IO.Directory.Exists(GenPath+"Unity");
+                bool ok = System.IO.Directory.Exists(GenUnityPath + "Unity");
 				if (!ok && EditorUtility.DisplayDialog("Slua", "Not found lua interface for Unity, generate it now?", "Generate", "No"))
 				{
 					GenerateAll();
@@ -157,7 +159,7 @@ namespace SLua
 			CustomExport.OnGetUseList(out uselist);
 			
 			List<Type> exports = new List<Type>();
-			string path = GenPath + "Unity/";
+            string path = GenUnityPath + "Unity/";
 			foreach (Type t in types)
 			{
 				if (filterType(t, noUseList, uselist) && Generate(t, path))
@@ -209,7 +211,7 @@ namespace SLua
 			Type[] types = assembly.GetExportedTypes();
 			
 			List<Type> exports = new List<Type>();
-			string path = GenPath + "Unity/";
+            string path = GenUnityPath + "Unity/";
 			foreach (Type t in types)
 			{
 				if (filterType(t,noUseList,uselist) && Generate(t,path))
@@ -234,7 +236,7 @@ namespace SLua
 		[MenuItem("SLua/Unity/Clear Unity and UI")]
 		static public void ClearUnity()
 		{
-			clear(new string[] { GenPath+"Unity" });
+            clear(new string[] { GenUnityPath + "Unity" });
 			Debug.Log("Clear Unity & UI complete.");
 		}
 		
@@ -375,6 +377,7 @@ namespace SLua
 		[MenuItem("SLua/All/Clear")]
 		static public void ClearALL()
 		{
+            ClearUnity();
 			clear(new string[] { Path.GetDirectoryName(GenPath) });
 			Debug.Log("Clear all complete.");
 		}
@@ -452,6 +455,9 @@ namespace SLua
             "AnimatorControllerParameter.name",
             "Input.IsJoystickPreconfigured",
             "Resources.LoadAssetAtPath",
+            "Camera.GetWorldCorners",
+            "Camera.GetSides",
+            "Camera.GetWorldCorners",
 #if UNITY_4_6
 			"Motion.ValidateIfRetargetable",
 			"Motion.averageDuration",
@@ -467,17 +473,27 @@ namespace SLua
 
 		static Dictionary<System.Type,List<MethodInfo>> GenerateExtensionMethodsMap(){
 			Dictionary<Type,List<MethodInfo>> dic = new Dictionary<Type, List<MethodInfo>>();
-			Assembly assembly = Assembly.Load("Assembly-CSharp");
-			foreach(Type type in assembly.GetExportedTypes()){
-				if(type.IsSealed && !type.IsGenericType && !type.IsNested){
-					MethodInfo[] methods = type.GetMethods(BindingFlags.Static|BindingFlags.Public);
-					foreach(MethodInfo method in methods){
-						if(IsExtensionMethod(method)){
-							Type extendedType = method.GetParameters()[0].ParameterType;
-							if(!dic.ContainsKey(extendedType)){
-								dic.Add(extendedType,new List<MethodInfo>());
+			List<string> asems;
+			CustomExport.OnGetAssemblyToGenerateExtensionMethod(out asems);
+			foreach (string assstr in asems)
+			{
+				Assembly assembly = Assembly.Load(assstr);
+				foreach (Type type in assembly.GetExportedTypes())
+				{
+					if (type.IsSealed && !type.IsGenericType && !type.IsNested)
+					{
+						MethodInfo[] methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
+						foreach (MethodInfo method in methods)
+						{
+							if (IsExtensionMethod(method))
+							{
+								Type extendedType = method.GetParameters()[0].ParameterType;
+								if (!dic.ContainsKey(extendedType))
+								{
+									dic.Add(extendedType, new List<MethodInfo>());
+								}
+								dic[extendedType].Add(method);
 							}
-							dic[extendedType].Add(method);
 						}
 					}
 				}
@@ -1027,7 +1043,7 @@ namespace SLua
 		{
 			if (mi.IsDefined(typeof(MonoPInvokeCallbackAttribute), false))
 			{
-				instanceFunc = mi.IsDefined(typeof(StaticExportAttribute), false);
+				instanceFunc = !mi.IsDefined(typeof(StaticExportAttribute), false);
 				return true;
 			}
 			instanceFunc = true;

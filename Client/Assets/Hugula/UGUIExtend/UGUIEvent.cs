@@ -20,14 +20,21 @@ public static class UGUIEvent  {
         }
     }
 
-    public static void onPressHandle(GameObject sender, bool arg)
+    public static void onPressHandle(GameObject sender, object arg)
 	{
         if (onPressFn != null)
 		{
             onPressFn.call(sender, arg);
 		}
 	}
-
+    public static void onPressHandle(GameObject sender, bool arg)
+    {
+        if (onPressFn != null)
+        {
+            onPressFn.call(sender, arg);
+        }
+    }
+    
     public static void onClickHandle(GameObject sender, object arg)
 	{
 		if(onClickFn!=null)
@@ -35,18 +42,18 @@ public static class UGUIEvent  {
             onClickFn.call(sender, arg);
 		}
 	}
+    public static void onClickHandle(GameObject sender, Vector2 arg)
+    {
+        if (onClickFn != null)
+        {
+            onClickFn.call(sender, arg);
+        }
+    }
 
     public static void onDragHandle(GameObject sender, Vector2 arg)
 	{
 		if(onDragFn!=null)
 		{
-            //LuaState L=ToLuaCS.lua.L;
-            //onDragFn.push(L);
-            //ToLuaCS.push(L, sender);
-            //ToLuaCS.push(L, arg);
-            //if (LuaDLL.lua_call(L, 2, -1) != 0)
-            //{
-            //}
             onDragFn.call(sender, arg);
 		}
 	}
@@ -58,6 +65,21 @@ public static class UGUIEvent  {
             onDropFn.call(sender, arg);
 		}
 	}
+    public static void onDropHandle(GameObject sender, bool arg)
+    {
+        if (onDropFn != null)
+        {
+            onDropFn.call(sender, arg);
+        }
+    }
+
+    public static void onDropHandle(GameObject sender, Vector2 arg)
+    {
+        if (onDropFn != null)
+        {
+            onDropFn.call(sender, arg);
+        }
+    }
 
     public static void onSelectHandle(GameObject sender, object arg)
 	{

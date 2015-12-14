@@ -269,7 +269,7 @@ public class ScrollRectTable : MonoBehaviour
 				delt.x = recordCount*rect.width+this.padding.x*2;
 			else
 			{
-				int y=(recordCount)/columns+1;
+				int y=(recordCount)/columns;
 				int x=(recordCount) % columns;
 				if(this.direction==Direction.Down)
 					delt.y=(rect.height*y+ this.padding.y*2);

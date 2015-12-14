@@ -13,7 +13,6 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 --local SetReqDataFromData=toluacs.CHighway.SetReqDataFromData
 
 local AssetLoader=class(function(self,luaObj)
-	self.items={}
 	self.luaObj=luaObj
 	self.assets = nil
 	self.enable = true
@@ -34,7 +33,7 @@ function AssetLoader:onAssetLoaded(key,asset)
 		self.luaObj.assetsLoaded = true
 		self.luaObj:sendMessage("onAssetsLoad",self.assets)
 		if self.luaObj.onShowed then self.luaObj:onShowed() end
-		if StateManager then 
+		if StateManager and StateManager:getCurrentState():isAllLoaded() then 
 			StateManager:checkHideTransform() 
 			StateManager:callAllItemMethod()
 		end --StateManager:onItemObjectAssetsLoaded(self.luaObj) end
@@ -99,9 +98,6 @@ function AssetLoader:clear()
 	end	
 	--GAMEOBJECT_ATLAS[self.name]=nil
 	--if at then LuaHelper.Destroy(at.root) end
-	self.items=nil
-	self.url=nil
-	self.name=nil
 	self.luaObj.assetsLoaded = false
 --    unloadUnusedAssets()
 end

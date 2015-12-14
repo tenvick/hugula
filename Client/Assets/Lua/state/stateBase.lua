@@ -25,7 +25,7 @@ local StateBase = StateBase
 function StateBase:isAllLoaded()
     local itemList = self.m_itemList
     for k,v in ipairs(itemList) do
-        if not v.assetsLoaded then return false end
+        if v.assets and #v.assets>0 and v.assetsLoaded == false then return false end
     end
     return true
 end
@@ -97,54 +97,6 @@ function StateBase:onEvent(funName,...)
 
     self:checkSort()
 end
-
---function StateBase:onClick(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onClick then 
---            if v:onClick(sender,arg) then break end
---        end
---    end
---end
-
---function StateBase:onPress(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onPress then 
---            if v:onPress(sender,arg) then break end
---        end
---    end
---end
-
---function StateBase:onDrag(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onDrag then 
---            if v:onDrag(sender,arg) then break end
---        end
---    end
---end
-
---function StateBase:onDrop(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onDrop then 
---            if v:onDrop(sender,arg) then break end
---        end
---    end
---end
-
---function StateBase:onDouble(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onDouble then 
---            if v:onDouble(sender,arg) then break end
---        end
---    end
---end
-
---function StateBase:onCustomer(sender,arg)
---    for k,v in ipairs(self.m_itemList) do
---        if v.active and v.onCustomer then 
---            if v:onCustomer(sender,arg) then break end
---        end
---    end
---end
 
 function StateBase:__tostring()
     local str = ""

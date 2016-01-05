@@ -17,33 +17,21 @@ public class UGUIEventSystem : MonoBehaviour
     public StandaloneInputModule standaloneInputModule;
     public TouchInputModule touchInputModule;
 
+
+
     #region mono
 
-    //void Update()
-    //{
-    //    //touchInputModule.
-    //    //Button btn;
-    //    //eventSystem.currentInputModule
+    void Awake()
+    {
+#if UNITY_EDITOR
+        if(touchInputModule != null) touchInputModule.forceModuleActive = false;
+        if(standaloneInputModule != null) standaloneInputModule.forceModuleActive = true;
+#else
+        if(touchInputModule != null)  touchInputModule.forceModuleActive = true;
+        if(standaloneInputModule != null) standaloneInputModule.forceModuleActive = false;
+#endif
 
-    //    //if (eventSystem.currentSelectedGameObject != null)
-    //    //{
-    //    //    Debug.Log(eventSystem.currentSelectedGameObject.name);
-    //    //}
-
-    //    //if (eventSystem.currentInputModule != null)
-    //    //{
-    //    //    Debug.Log("currentInputModule" + eventSystem.currentInputModule);
-    //    //}
-
-    //    //if (eventSystem.IsPointerOverGameObject())
-    //    //{
-    //    //    Debug.Log("IsPointerOverGameObject" + eventSystem.IsPointerOverGameObject());
-    //    //}
-    //    //standaloneInputModule.
-    //            //standaloneInputModule.on
-
-    //}
-
+    }
     #endregion
 
 }

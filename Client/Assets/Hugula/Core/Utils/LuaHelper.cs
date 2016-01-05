@@ -12,7 +12,7 @@ using LuaState = SLua.LuaState;
 /// lua helper类
 /// </summary>
 [SLua.CustomLuaClass]
-public class  LuaHelper {
+public static class  LuaHelper {
 
     /// <summary>
     /// Destroy object
@@ -146,8 +146,8 @@ public class  LuaHelper {
 	public static int GetLayerMask(string args)
 	{
 		string[] a = args.Split (',');
-		foreach (var i in a)
-			Debug.Log (i);
+        //foreach (var i in a)
+        //    Debug.Log (i);
 		return LayerMask.GetMask (a);
 	}
 
@@ -422,7 +422,7 @@ public class  LuaHelper {
     /// <summary>
     /// 调用GC.Collect
     /// </summary>
-    public void GCCollect()
+    public static void GCCollect()
     {
         System.GC.Collect();
     }

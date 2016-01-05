@@ -172,6 +172,7 @@ end
 
 function Loader:setOnProgressFn(progFn)
 	self.multipleLoader.onProgressFn=progFn
+	self.multipleLoader:InitProgressState()
 end
 
 function Loader:RefreshAssetBundleManifest(onReady)

@@ -76,6 +76,7 @@ public class CHighway
             totalLoading = 0;
             this.currentLoaded = 0;
             this.loadingEvent.current = currentLoaded;
+            OnProcess(null, 0);
         }
     }
 
@@ -158,7 +159,10 @@ public class CHighway
     protected void OnProcess(CTransport loader, float progress)
     {
         loadingEvent.target = this;
-        loadingEvent.total = totalLoading;
+        if (totalLoading <= 0)
+            loadingEvent.total = 1;
+        else
+            loadingEvent.total = totalLoading;
         if (loadingEvent.current < currentLoaded) loadingEvent.current = currentLoaded;
         loadingEvent.progress = progress;
         if (OnProgress != null && totalLoading > 0)
@@ -261,6 +265,10 @@ public class CHighway
             else if (creq.cache)
             {
                 SetCache(creq.key, data);
+                currentLoaded++;
+            }
+            else
+            {
                 currentLoaded++;
             }
 

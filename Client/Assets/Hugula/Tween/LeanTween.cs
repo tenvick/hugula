@@ -2245,6 +2245,9 @@ public static void cancel( GameObject gameObject, bool callOnComplete ){
 		if(tweens[i].toggle && tweens[i].trans==trans){
             if (callOnComplete && tweens[i].onComplete != null)
                 tweens[i].onComplete();
+            if (callOnComplete && tweens[i].onCompleteObject != null){
+                tweens[i].onCompleteObject(null);
+            }
 			removeTween(i);
 		}
 	}

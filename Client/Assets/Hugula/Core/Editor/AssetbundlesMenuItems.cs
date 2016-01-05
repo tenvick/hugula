@@ -68,16 +68,16 @@ public class AssetbundlesMenuItems
     #endregion
 
     #region 加密
-    [MenuItem("Hugula AES/", false, 10)]
-    static void Breaker2() { }
+    //[MenuItem("Hugula/AES/", false, 10)]
+    //static void Breaker2() { }
 
-    [MenuItem("Hugula AES/GenerateKey", false, 12)]
+    [MenuItem("Hugula/AES/GenerateKey", false, 12)]
     static void GenerateKey()
     {
         ExportResources.GenerateKey();
     }
 
-    [MenuItem("Hugula AES/GenerateIV", false, 13)]
+    [MenuItem("Hugula/AES/GenerateIV", false, 13)]
     static void GenerateIV()
     {
         ExportResources.GenerateIV();

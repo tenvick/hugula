@@ -15,8 +15,8 @@ public class BuildScript
     public const string outPath = "Assets/StreamingAssets";
     public const string suffix = Common.ASSETBUNDLE_SUFFIX;
 
-    public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.CollectDependencies | BuildAssetBundleOptions.CompleteAssets; //
-    private const BuildAssetBundleOptions optionsDependency = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.CompleteAssets | BuildAssetBundleOptions.CollectDependencies;// 
+    public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
+    private const BuildAssetBundleOptions optionsDependency = BuildAssetBundleOptions.DeterministicAssetBundle ;// 
 #if UNITY_IPHONE
 	public const BuildTarget target=BuildTarget.iOS;
 #elif UNITY_ANDROID

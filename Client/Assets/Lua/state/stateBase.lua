@@ -34,7 +34,7 @@ end
 function StateBase:addItem(obj)
     for i, v in ipairs(self.m_itemList) do
         if v == obj  then
-            print("obj is exist in current state ")
+             print(tostring(obj).." is exist in current state "..self.name)
             table.sort(self.m_itemList,sortFn)
            return
         end
@@ -43,11 +43,10 @@ function StateBase:addItem(obj)
     self.willSort = true
 end
 
---ºÏ≤‚ «∑Ò–Ë“™≈≈–Ú
-function StateBase:checkSort()
-    if self.willSort then
-        table.sort(self.m_itemList,sortFn)
-        self.willSort = false
+function StateBase:check_sort()
+    if self.will_sort then
+        table.sort(self._item_list,sortFn)
+        self.will_sort = false
     end
 end
 
@@ -99,9 +98,7 @@ function StateBase:onEvent(funName,...)
 end
 
 function StateBase:__tostring()
-    local str = ""
-    for k,v in ipairs(self.m_itemList) do 
-        str =str..tostring(v).." " 
-    end
-    return string.format("StateBase.name = %s ,child = %s ", self.name,str)
+    local len = 0
+    if self.m_itemList then len = #self.m_itemList end
+    return string.format("StateBase.name = %s ,child = %d ", self.name,len)
 end

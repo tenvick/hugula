@@ -1,5 +1,5 @@
 ------------------------------------------------
---  Copyright © 2013-2014   Hugula: Arpg game Engine
+--  Copyright Â© 2013-2014   Hugula: Arpg game Engine
 --   
 --  author pu
 ------------------------------------------------
@@ -67,7 +67,7 @@ function StateBase:onFocus(previousState)
         v:onFocus(previousState)
     end
 
-    self:checkSort()
+    self:check_sort()
 end
 
 function StateBase:onBlur(newState)
@@ -94,7 +94,7 @@ function StateBase:onEvent(funName,...)
         end
     end
 
-    self:checkSort()
+    self:check_sort()
 end
 
 function StateBase:__tostring()

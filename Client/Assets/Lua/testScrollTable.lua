@@ -16,6 +16,8 @@ local function on_rootscroll_loaded(req)
 	local root = LuaHelper.Instantiate(req.data)
 	-- local root = LuaHelper.Find("RootScroll")
 scrollRectTable = LuaHelper.GetComponentInChildren(root,ScrollRectTable)
+-- scrollRectTable.columns = 0
+-- scrollRectTable.direction = 0
 
 scrollRectTable.onItemRender=function(scrollRectItem,index,dataItem)
 	scrollRectItem.gameObject:SetActive(true)
@@ -28,10 +30,13 @@ scrollRectTable.onItemRender=function(scrollRectItem,index,dataItem)
 	btn.onClick:AddListener(onBtnClick)
 	if index==3 then
 		btn.name = "click me!"
-		monos[1].text = "click me!"
+		monos[1].text = "ScrollTo 93"
+	elseif index==4 then
+		btn.name = "delete me!"
+		monos[1].text = "点我删除!"
 	elseif index ==100 or index ==90 then
 		btn.name = "click me back!"
-		monos[1].text = "click me back!"
+		monos[1].text = "点我返回 0 !"
 	else
 		btn.name = "click "..index
 	end
@@ -49,9 +54,13 @@ function onBtnClick()
 	local name = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name
 	print(name)
 	if name == "click me!" then
-		scrollRectTable:scrollTo(93)
+		scrollRectTable:ScrollTo(93)
+	elseif name == "delete me!" then
+		local i = scrollRectTable:RemoveDataAt(3)
+		scrollRectTable:Refresh(scrollRectTable.headIndex,-1)
+		print("scrollRectTable:removeDataAt"..tostring(i))
 	elseif name == "click me back!" then
-		scrollRectTable:scrollTo(0)
+		scrollRectTable:ScrollTo(0)
 	end
 end
 

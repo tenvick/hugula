@@ -114,7 +114,7 @@ public class ScrollRectTable : MonoBehaviour
 	
 	
 	#region public method
-	public int getIndex(ScrollRectItem item)
+	public int GetIndex(ScrollRectItem item)
 	{
 		int i=this.repositionTileList.IndexOf(item);
 		int j=-1;
@@ -122,38 +122,38 @@ public class ScrollRectTable : MonoBehaviour
 		return j;
 	}
 
-	public LuaTable getDataFromIndex(int index)
+	public LuaTable GetDataFromIndex(int index)
 	{
 		return (LuaTable)data[index + 1];
 	}
 
-	public int removeChild(ScrollRectItem item)
+	public int RemoveChild(ScrollRectItem item)
 	{
-		int i=getIndex(item);
+		int i=GetIndex(item);
 		if(i>=0)
 		{
-            if (onDataRemove == null) onDataRemove = LuaState.main.loadString(DataRemoveStr, "onDataRemove");
+            if (onDataRemove == null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove");
             onDataRemove.call(this.data,i+1,this);
 			this.CalcPage();
         }
 		return i;
 	}
 	
-	public int insertData(object item,int index)
+	public int InsertData(object item,int index)
 	{
 		if(index<0)index=0;
 		if(index>=this.recordCount)index=this.recordCount;
-		if (onDataInsert == null) onDataInsert = LuaState.main.loadString(DataInsertStr, "onDataInsert");
+        if (onDataInsert == null) onDataInsert = (LuaFunction)LuaState.main.doString(DataInsertStr, "onDataInsert");
 		onDataInsert.call(item,index+1,this);
 		this.CalcPage();
 		return index;
 	}
 	
-	public int removeDataAt(int index)
-	{
+	public int RemoveDataAt(int index)
+    {
 		if(index>=0 && index<this.recordCount)
 		{
-			if (onDataRemove == null) onDataRemove = LuaState.main.loadString(DataRemoveStr, "onDataRemove");
+			if (onDataRemove == null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove") ;
             onDataRemove.call(data,index+1,this);
 			this.CalcPage();
             return index;
@@ -162,7 +162,7 @@ public class ScrollRectTable : MonoBehaviour
 		return -1;
 	}
 	
-	public void clear()
+	public void Clear()
 	{
 		foreach(var item in repositionTileList)
 		{
@@ -170,7 +170,7 @@ public class ScrollRectTable : MonoBehaviour
 		}
 	}
 	
-	public void scrollTo(int index)
+	public void ScrollTo(int index)
 	{
 		Vector3 currPos=moveContainer.transform.localPosition;
 		if(index<0)index=0;
@@ -214,7 +214,7 @@ public class ScrollRectTable : MonoBehaviour
 			if(moveContainer!=null)
 				moveContainer.transform.localPosition=this.beginPosition;
 
-			scroll(0,true);
+			Scroll(0,true);
 		}
 		else
 		{
@@ -223,7 +223,7 @@ public class ScrollRectTable : MonoBehaviour
 			if (end==-1)
 				 end=this.currFirstIndex+this.pageSize;
 				
-			refresh(bg,end);
+			DoRefresh(bg,end);
 		}
 	}
 	
@@ -235,11 +235,11 @@ public class ScrollRectTable : MonoBehaviour
 	/// </param>
 	public void Refresh(ScrollRectItem item)
 	{
-		int i=getIndex(item);
+		int i=GetIndex(item);
 		if(i>=0)
 		{
 			i=i+currFirstIndex;
-			preRefresh(i);
+			PreRefresh(i);
 		}
 	}
 	
@@ -269,12 +269,12 @@ public class ScrollRectTable : MonoBehaviour
 				delt.x = recordCount*rect.width+this.padding.x*2;
 			else
 			{
-				int y=(recordCount)/columns;
-				int x=(recordCount) % columns;
+                int y =(int) Mathf.Ceil((float)recordCount / (float)columns);
+                //int x=(recordCount) % columns;
 				if(this.direction==Direction.Down)
-					delt.y=(rect.height*y+ this.padding.y*2);
+					delt.y=(rect.height*y + this.padding.y*2);
 				else
-					delt.y=-(rect.height*y+ this.padding.y*2);
+					delt.y=-(rect.height*y + this.padding.y*2);
 				
 //				delt.x=rect.width*x+this.padding.x*2;
 			}
@@ -307,7 +307,7 @@ public class ScrollRectTable : MonoBehaviour
 	}
 	
 	float renderframs=0;
-	void renderItem()
+	void RenderItem()
 	{
 		if(renderPerFrames<1)
 		{
@@ -315,18 +315,18 @@ public class ScrollRectTable : MonoBehaviour
 			if(renderframs>=1)
 			{
 				renderframs=0;
-				render();
+				Render();
 			}
 		}else
 		{
 			for(int i=0;i<this.renderPerFrames;i++)
 			{
-				render();
+				Render();
 			}
 		}
 	}
 	
-	void render()
+	void Render()
 	{
 		if(this.preRenderList.Count>0)
 		{
@@ -341,7 +341,7 @@ public class ScrollRectTable : MonoBehaviour
 		}
 	}
 	
-	void setPosition(Transform trans,int index)
+	void SetPosition(Transform trans,int index)
 	{
 		if(trans.parent!=this.transform)trans.SetParent(this.transform);
 		Vector3 pos=Vector3.zero;
@@ -360,7 +360,7 @@ public class ScrollRectTable : MonoBehaviour
 			if(this.direction==Direction.Down)
 				pos.y=-(rect.height*y+ this.padding.y+rect.height*.5f);
 			else
-				pos.y=rect.height*y+ this.padding.y+rect.height*.5f;
+                pos.y = rect.height * y + this.padding.y + rect.height * .5f;
 
 			pos.x=rect.width*x+rect.width*.5f+this.padding.x;
 
@@ -368,15 +368,15 @@ public class ScrollRectTable : MonoBehaviour
 		trans.localPosition=pos;
 	}
 	
-	void preRender(ScrollRectItem item,int index)
+	void PreRender(ScrollRectItem item,int index)
 	{
-		setPosition(item.transform,index);
-        if (this.onPreRender == null) onPreRender = LuaState.main.loadString(PreRenderStr, "onPreRenderStr");
+		SetPosition(item.transform,index);
+        if (this.onPreRender == null) onPreRender = (LuaFunction)LuaState.main.doString(PreRenderStr, "onPreRenderStr");
 		object dataI=index+1<=recordCount?data[index+1]:null;
 		onPreRender.call(item,index,dataI);
 	}
 	
-	void preRefresh(int i)
+	void PreRefresh(int i)
 	{
 		if(i>=0)
 		{
@@ -400,14 +400,14 @@ public class ScrollRectTable : MonoBehaviour
 					this.preRenderList.Add(tile);
 					repositionIntList.Add(i);	
 					scrollDirection=0;
-					preRender(tile,i);//Debug.Log(String.Format("preRefresh:{0}",i));
+					PreRender(tile,i);//Debug.Log(String.Format("preRefresh:{0}",i));
 				}
 			}
 		}
 		
 	}
 	
-	void preLeftUp(int i)
+	void PreLeftUp(int i)
 	{
 		if(i>=this.pageSize && !repositionIntList.Contains(i) && i<this.recordCount)
 		{
@@ -423,12 +423,12 @@ public class ScrollRectTable : MonoBehaviour
 			
 			this.lastEndIndex=i;//recorde last render data index
 			scrollDirection=1;
-			preRender(tile,i);//call preRender,set Postion
+			PreRender(tile,i);//call preRender,set Postion
 		}
 		
 	}
 	
-	void preRightDown(int i)
+	void PreRightDown(int i)
 	{
 		if(i>=0 && !repositionIntList.Contains(i) && i+pageSize<=recordCount) //i>pageSize)//
 		{
@@ -443,11 +443,11 @@ public class ScrollRectTable : MonoBehaviour
 			if(currFirstIndex<0)currFirstIndex=0;
 			CalcLastEndIndex();
 			scrollDirection=-1;
-			preRender(tile,i);
+			PreRender(tile,i);
 		}
 	}
 	
-	void scroll(int newHead ,bool force)
+	void Scroll(int newHead ,bool force)
 	{
 		if(newHead<0)newHead=0;
 			
@@ -460,7 +460,7 @@ public class ScrollRectTable : MonoBehaviour
 				int end=begin+step;
 				for(int i=begin;i<end;i++)	
 				{
-					preLeftUp(i);
+					PreLeftUp(i);
 				}
 				
 			}else if(step<0)
@@ -470,7 +470,7 @@ public class ScrollRectTable : MonoBehaviour
 				if(begin<0)begin=0;
 				for(int i=begin;i>end;i--)
 				{
-					preRightDown(i);
+					PreRightDown(i);
 				}
 			}else
 			{
@@ -478,7 +478,7 @@ public class ScrollRectTable : MonoBehaviour
 				int begin=newHead;//lastHeadIndex;
 				int end=begin+this.pageSize;
 				if(end>this.recordCount)end=recordCount;
-				for(int i=begin;i<end;i++)preRefresh(i);
+				for(int i=begin;i<end;i++)PreRefresh(i);
 				
 				if(begin==0)
 				{
@@ -488,11 +488,11 @@ public class ScrollRectTable : MonoBehaviour
 		}
 	}
 	
-	void refresh(int begin,int end)
+	void DoRefresh(int begin,int end)
 	{
 		for(int i=begin;i<=end;i++)
 		{
-			if(i>=this.currFirstIndex)preRefresh(i);
+			if(i>=this.currFirstIndex)PreRefresh(i);
 		}
 
 	}
@@ -523,7 +523,7 @@ public class ScrollRectTable : MonoBehaviour
 			
 		CalcBounds();
 		
-		scroll(0,true);
+		Scroll(0,true);
 	}
 	
 	void Update()
@@ -536,14 +536,14 @@ public class ScrollRectTable : MonoBehaviour
 			if(columns==0 )
 			{
 				headIndex=(int)(dtmove.x/rect.width);
-				scroll(headIndex,false);
+				Scroll(headIndex,false);
 			}else if(columns>0)
 			{
 				int cloumnIndex=(int)(dtmove.y/rect.height);
 				headIndex= (int) Mathf.Ceil((float)(Mathf.Abs(cloumnIndex)*this.columns)/(float)this.columns)*columns;//
 				if(headIndex!=lastHeadIndex)
 				{
-					scroll(headIndex,false);
+					Scroll(headIndex,false);
 				}
 			}
 			lastHeadIndex=headIndex;
@@ -555,7 +555,7 @@ public class ScrollRectTable : MonoBehaviour
 	/// </summary>
 	void LateUpdate ()
 	{
-		if(this.repositionIntList.Count>0)renderItem();
+		if(this.repositionIntList.Count>0)RenderItem();
 	}
 
 }

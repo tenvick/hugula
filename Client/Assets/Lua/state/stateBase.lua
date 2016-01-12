@@ -43,7 +43,7 @@ function StateBase:addItem(obj)
     self.willSort = true
 end
 
-function StateBase:check_sort()
+function StateBase:checkSort()
     if self.will_sort then
         table.sort(self._item_list,sortFn)
         self.will_sort = false

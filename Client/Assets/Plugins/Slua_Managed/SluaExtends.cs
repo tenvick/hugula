@@ -37,38 +37,38 @@ namespace SLua
         }
     }
 
-    public partial class LuaState : IDisposable
-    {
-        public LuaFunction loadString(string str)
-        {
-            return loadString(str, "chunkname");
-        }
+    //public partial class LuaState : IDisposable
+    //{
+    //    public LuaFunction loadString(string str)
+    //    {
+    //        return loadString(str, "chunkname");
+    //    }
 
-        public LuaFunction loadString(string str, string chunkname)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
+    //    public LuaFunction loadString(string str, string chunkname)
+    //    {
+    //        byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            object obj;
-            if (loadBuffer(bytes, chunkname, out obj))
-                return obj as LuaFunction;
-            return null; ;
-        }
+    //        object obj;
+    //        if (loadBuffer(bytes, chunkname, out obj))
+    //            return obj as LuaFunction;
+    //        return null; ;
+    //    }
 
-        public bool loadBuffer(byte[] bytes, string fn, out object ret)
-        {
-            ret = null;
-            int errfunc = LuaObject.pushTry(L);
-            if (LuaDLL.luaL_loadbuffer(L, bytes, bytes.Length, fn) == 0)
-            {
-                LuaDLL.lua_remove(L, errfunc); // pop error function
-                ret = topObjects(errfunc - 1);
-                return true;
-            }
-            string err = LuaDLL.lua_tostring(L, -1);
-            LuaDLL.lua_pop(L, 2);
-            throw new Exception(err);
-        }
-    }
+    //    public bool loadBuffer(byte[] bytes, string fn, out object ret)
+    //    {
+    //        ret = null;
+    //        int errfunc = LuaObject.pushTry(L);
+    //        if (LuaDLL.luaL_loadbuffer(L, bytes, bytes.Length, fn) == 0)
+    //        {
+    //            LuaDLL.lua_remove(L, errfunc); // pop error function
+    //            ret = topObjects(errfunc - 1);
+    //            return true;
+    //        }
+    //        string err = LuaDLL.lua_tostring(L, -1);
+    //        LuaDLL.lua_pop(L, 2);
+    //        throw new Exception(err);
+    //    }
+    //}
 
     public partial class LuaFunction : LuaVar
     {

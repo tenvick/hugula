@@ -42,7 +42,13 @@ public class AssetbundlesMenuItems
     [MenuItem("Hugula/export lua [Assets\\Lua]", false, 12)]
     public static void exportLua()
     {
-        ExportResources.exportLua();
+        ExportResources.exportLua(false);
+    }
+    
+    [MenuItem("Hugula/export lua with jit [Assets\\Lua]", false, 12)]
+    public static void exportLuaWithJit()
+    {
+        ExportResources.exportLua(true);
     }
 
     [MenuItem("Hugula/export config [Assets\\Config]", false, 13)]

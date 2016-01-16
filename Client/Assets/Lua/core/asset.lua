@@ -9,7 +9,7 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 Asset = class(function(self,url,names)
     self.base = false
     self.url = url --CUtils.GetAssetFullPath(url)
-    self.fullUrl=CUtils.GetAssetFullPath(url)
+    self.full_url=CUtils.GetAssetFullPath(url)
    -- print(url)
     self.key = CUtils.GetKeyURLFileName(url)
     self.names = names
@@ -64,11 +64,11 @@ function Asset:hide(...)
 end
 
 --
-function Asset:copyTo(asse)
+function Asset:copy_to(asse)
 	if asse.type == nil then asse.type = self.type end
 	asse.key = self.key
 	asse.url = self.url
-	asse.fullUrl = self.fullUrl
+	asse.full_url = self.full_url
 	local names=asse.names
 	if names then
 		asse.items={}

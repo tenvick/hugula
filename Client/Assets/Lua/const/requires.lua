@@ -21,13 +21,13 @@ Request=LRequest --luanet.import_type("LRequest")
 local LocalizationMy = Localization
 
 --获取语言包内容
-function getValue(key)
+function get_value(key)
     return LocalizationMy.Get(key)
 end
 
 --释放没使用的资源
-function unloadUnusedAssets()
-    luaGC()
+function unload_unused_assets()
+    lua_gc()
     Resources.UnloadUnusedAssets()
 end
 
@@ -35,11 +35,11 @@ end
 GAMEOBJECT_ATLAS={} --resource cach table
 UPDATECOMPONENTS={} --all update fun components
 ----------------------require-----------------------------
-require("core.luaObject")
+require("core.lua_object")
 require("core.asset")
 
-require("state.stateManager")
-require("state.itemObject")
-require("state.stateBase")
+require("state.state_manager")
+require("state.item_object")
+require("state.state_base")
 
 require("game.model.model")

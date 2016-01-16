@@ -1,4 +1,4 @@
-local tetris = LuaItemManager:getItemObject("tetris")
+local tetris = LuaItemManager:get_item_obejct("tetris")
 
 local LuaObject=LuaObject
 local isover=false
@@ -8,17 +8,17 @@ local assets=
  	Asset("blockroot.u3d")
 }
 
-local function ceraterussiaBlock( ... )
+local function ceraterussia_block( ... )
 	 local bolck = LuaObject("bolck")
-	bolck:addComponent("russianBlocks.block")
-	bolck:addComponent("russianBlocks.blockManager")
-	bolck:addComponent("assetLoader"):load(assets)
-	bolck:addComponent("russianBlocks.uiBlock")
+	bolck:add_component("russian_blocks.block")
+	bolck:add_component("russian_blocks.block_manager")
+	bolck:add_component("asset_loader"):load(assets)
+	bolck:add_component("russian_blocks.ui_block")
 	return bolck
 end
 
-function tetris:onClick(obj,arg)
-	-- print("you are click "..obj.name )
+function tetris:on_click(obj,arg)
+	print("you are click "..obj.name )
 	local cmd =obj.name 
 	-- print(self.bolck)
 	-- print(self.bolck.enable)
@@ -34,49 +34,49 @@ function tetris:onClick(obj,arg)
 		end
 	end
 
-	local blockManager=self.bolckObj.components.blockManager
+	local block_manager=self.bolckObj.components.block_manager
 
 	if  cmd == "ReplayBtn" then--isover and (cmd=="NGUIEvent" or  cmd == "Camera" ) then
-		if 	blockManager.leave>=1 then
-			blockManager:gameStart()
+		if 	block_manager.leave>=1 then
+			block_manager:gameStart()
 		else
-			self:Quit( )
+			self:quit( )
 		end
 	elseif cmd == "Quite" then
-		self:Quit( )
+		self:quit( )
 	elseif cmd == "StartPanel" then	
-		if 	blockManager.leave>=1 then
-			blockManager:gameStart()
+		if 	block_manager.leave>=1 then
+			block_manager:gameStart()
 		else
-			self:Quit( )
+			self:quit( )
 		end
 	end
 
 end
 
-function tetris:Quit( )
+function tetris:quit( )
 	-- print("Quit")
 end
 
-function tetris:gameOver(blockManager)
+function tetris:game_over(block_manager)
 	print("russia:gameOver")
 	isover=true
-	luaGC()
+	luagc()
 end
 
-function tetris:onBlur()
+function tetris:on_blur()
  	if self.bolck~=nil then self.bolck:hide() end
  	self.bolck = nil
 end
 
-function tetris:onFocus( ... )
+function tetris:on_focus( ... )
 	-- print("onFocus")
 	if self.bolckObj==nil then
-		self.bolckObj=ceraterussiaBlock()
+		self.bolckObj=ceraterussia_block()
 		self.bolckObj.parent=self
 		self.bolck=self.bolckObj.components.block
 	else
-		self.bolck.components.blockManager:gameStart()
+		self.bolck.components.block_manager:game_start()
 	end
 	isover=false
 end

@@ -20,18 +20,22 @@ C# 名字规范
 
 
 Lua 名字规范
+	ModuleName,ClassName,methodname,functionname,CONSTANT_NAME,global_var_name,instance_var_name,function_parameter,local_var_name
 
-	lua文件名，模块名 小骆驼式命名法 eg: main.lua
+	Type				Pulbic				Internal
+	File				lower_with_under
+	Modeule				CapWords
+	Constant			CAPS_WITH_UNDER
+	Define/Class Table	CapWrods			_CapWords
+	Variables			lower_with_under	
+	Function			lower_with_under	_lower_with_under
+	Member Variables	lower_with_under	_lower_with_under
 
-	类名 大骆驼式命名法				eg: Asset=class(function(self) end)
-	变量 小骆驼式命名法				eg:local myVar="hello lua"
-
-	方法 小骆驼式命名法				eg local function myFunction(arg1,arg2,...)
-
-
-Input
-
-Main.Update(dt)
+	时刻记得local ,仅在需要时unlocal
+2注意事项：
+	1:所有方法和变量必须加注释。
+	2:编码按照精简原则，尽可能用最少的代码实现功能，如果无需编码就能实现最最好。
+	3:重构原则 逻辑更加清晰，代码更加简洁。
 
 
 

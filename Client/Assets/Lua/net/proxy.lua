@@ -4,7 +4,7 @@ local Net=Net
 local NetChat=NetChat
 local Msg=Msg
 local NetProtocalPaser = NetProtocalPaser
-local getValue=getValue
+local get_value=get_value
 local Proxy=Proxy
 Proxy.tables = {}
 Proxy.errorTables = {}
@@ -39,7 +39,7 @@ function Proxy:distribute(msgType,data)
 		if errorfun then --如果有错误处理函数就直接调用
 			errorfun(data)
 		else --否则弹出提示框
-			local tips = getValue("g_notify_"..data.errno)
+			local tips = get_value("g_notify_"..data.errno)
 			showTips(tips)
 		end	
 	elseif msgType == NetAPIList.gs_good.Code then

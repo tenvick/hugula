@@ -16,6 +16,7 @@ local WWW = UnityEngine.WWW
 --local to2=luanet.CUtils
 local SetReqDataFromData=CHighway.SetReqDataFromData
 
+local LightHelper = LightHelper
 local LuaHelper = LuaHelper
 local delay = delay
 local CUtils = CUtils
@@ -26,12 +27,12 @@ Loader.resdic={} --cache dic
 Loader.shareCache ={}
 LMultipleLoader.cache=Loader.resdic
 
--- printTable(getmetatable(LMultipleLoader))
-local function dispatchComplete(req)
+-- print_table(getmetatable(LMultipleLoader))
+local function dispatch_complete(req)
 	if req.onCompleteFn then req.onCompleteFn(req) end
 end
 
-local function loadByUrl7(url,assetName,assetType,compFn,cache,endFn,head)
+local function load_by_url7(url,assetName,assetType,compFn,cache,endFn,head)
 	local req=Request(url,assetName,assetType)
 
 	if compFn then req.onCompleteFn=compFn end
@@ -40,12 +41,12 @@ local function loadByUrl7(url,assetName,assetType,compFn,cache,endFn,head)
 	if cache==nil or cache==true then req.cache=true end
 	local key=req.key
 	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
+	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req) 
 	end
 end
 
-local function loadByUrl5(url,compFn,cache,endFn,head)
+local function load_by_url5(url,compFn,cache,endFn,head)
 	local req=Request(url)	
 --    req.assetName=req.key
 	if compFn then req.onCompleteFn=compFn end
@@ -54,21 +55,21 @@ local function loadByUrl5(url,compFn,cache,endFn,head)
 	if cache==nil or cache==true then req.cache=true end
 	local key=req.key
 	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
+	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req) 
 	end
 end
 
-local function loadByReq( req,cache )
+local function load_by_req( req,cache )
 	if cache==nil or cache==true then req.cache=true end
 	local key=req.key
 	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
+	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req)
 	end 
 end
 
-local function loadByTable(tb,cache)
+local function load_by_table(tb,cache)
 	local arrList={} --ArrayList()
 	local len=#tb
 	local key = ""
@@ -90,7 +91,7 @@ local function loadByTable(tb,cache)
 			key=req.key
 			if cache==nil or cache==true then req.cache=true end
 			local cacheData=Loader.resdic[key]
-			if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatchComplete(req)
+			if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
 			else table.insert(arrList,req)--arrList:Add(req)
 			end
 		elseif typen=="userdata" then
@@ -100,7 +101,7 @@ local function loadByTable(tb,cache)
 	Loader.multipleLoader:LoadLuaTable(arrList)
 end
 
-function Loader:clearItem(key)
+function Loader:clear_item(key)
 	local assetBundle =	self.resdic[key]
 	if assetBundle then	assetBundle:Unload(false) end
 	self.resdic[key]=nil 
@@ -108,20 +109,20 @@ end
 
 function Loader:clear(key)
 	if key then 
-		self:clearItem(key)
+		self:clear_item(key)
 	elseif (key==true) then
 		for k, v in pairs(self.resdic) do
-			self:clearItem(k)
+			self:clear_item(k)
 		end
 	end 
---    unloadUnusedAssets()
+--    unload_unused_assets()
 end
 
-function Loader:clearSharedAB()
+function Loader:clear_shared_ab()
     local share = Loader.shareCache
     for k,v in pairs(share) do
         v:Unload(false) 
-        -- print("clearSharedAB "..k)
+        -- print("clear_shared_ab "..k)
     end
     Loader.shareCache = {}
 end
@@ -129,53 +130,62 @@ end
 function Loader:unload(url)
 	if url then
 		local key=CUtils.getURLFullFileName(url)
-		self:clearItem(key)
---        unloadUnusedAssets()
+		self:clear_item(key)
+--        unload_unused_assets()
 	end
 end
 
---loadByUrl(url,compFn,cache,endFn,head)
---loadByTable( {url,compFn,endFn,head},cache)
-function Loader:getResource(...)
+--load_by_url5(url,compFn,cache,endFn,head)
+--load_by_table( {url,compFn,endFn,head},cache)
+function Loader:get_resource(...)
 
 	local a,b,c,d,e,f,g=...
 	--url,onComplete
 	if type(a)=="string" and type(b)=="string" then 
-		loadByUrl7(a,b,c,d,e,f,g)
+		load_by_url7(a,b,c,d,e,f,g)
     elseif type(a)=="string" then
-		loadByUrl5(a,b,c,d,e)
+		load_by_url5(a,b,c,d,e)
 	elseif type(a)=="userdata" then
-		loadByReq(a,b)
+		load_by_req(a,b)
 	elseif type(a) == "table" then
-		loadByTable(a,b)
+		load_by_table(a,b)
 	end
 end
 
-local function onCache( key,www)
+local function on_cache( key,www)
 	-- local key=req.key
 	-- local www=req.data
 	Loader.resdic[key]=www
 end
 
-local function onSharedComplete(req)
+local function on_shared_complete(req)
 --	local typeName = req:GetType().Name
     local key=req.key
     local data=req.assetBundle
+-- print(key.." Shared is laoded")
+   	 LuaHelper.RefreshShader(data)
      Loader.resdic[key]= data
      Loader.shareCache[key] = data
-     data:LoadAllAssets()
+     local res = data:LoadAllAssets()
+     --temp for lightmap
+     local i = string.match(key,"lightmap%-(%d+)_comp_light")
+     -- print(i,key)
+     if i then
+     	LightHelper.SetLightMapSetting(tonumber(i),res[1],res[1])
+     	print("lightmap ",i,key,"settinged")
+     end     
 end
 
-function Loader:setOnAllCompelteFn(compFn)
+function Loader:set_onall_complete_fn(compFn)
 	self.multipleLoader.onAllCompleteFn=compFn
 end
 
-function Loader:setOnProgressFn(progFn)
+function Loader:set_onprogress_fn(progFn)
 	self.multipleLoader.onProgressFn=progFn
 	self.multipleLoader:InitProgressState()
 end
 
-function Loader:RefreshAssetBundleManifest(onReady)
+function Loader:refresh_assetbundle_manifest(onReady)
 
     local url = CUtils.GetAssetFullPath(CUtils.GetPlatformFolderForAssetBundles())
     local  function onCompleteFn (req1)
@@ -187,8 +197,8 @@ function Loader:RefreshAssetBundleManifest(onReady)
         if onReady then onReady() end
     end
 
-    self:getResource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)
+    self:get_resource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)
 end
 
--- Loader.multipleLoader.onCacheFn=onCache
-Loader.multipleLoader.onSharedCompleteFn=onSharedComplete
+-- Loader.multipleLoader.onCacheFn=on_cache
+Loader.multipleLoader.onSharedCompleteFn=on_shared_complete

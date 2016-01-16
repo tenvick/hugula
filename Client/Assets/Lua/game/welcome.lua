@@ -7,12 +7,12 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local welcome = LuaItemManager:getItemObject("welcome")
+local welcome = LuaItemManager:get_item_obejct("welcome")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper
 local CUtils = CUtils
-local getValue = getValue --多国语言
+local get_value = get_value --多国语言
 
 --UI资源
 welcome.assets=
@@ -33,11 +33,11 @@ end
 
 
 --点击事件
-function welcome:onClick(obj,arg)
+function welcome:on_click(obj,arg)
 	local cmd =obj.name
-    print("you are click"..cmd)
+    print("welcome  click"..cmd)
     if cmd == "BtnStart" then
-    	StateManager:setCurrentState(StateManager.tetris)
+    	StateManager:set_current_state(StateManager.tetris)
     end
 end
 

@@ -8,9 +8,9 @@ require("net.netAPIList")
 require("net.netProtocalPaser")
 require("net.proxy")
 require("const.requires")
-require("registerItemObjects")
-require("registerState")
-require("uiInput")
+require("register_item_objects")
+require("register_state")
+require("ui_input")
 
 local os=os
 local UPDATECOMPONENTS=UPDATECOMPONENTS
@@ -27,7 +27,7 @@ local Proxy=Proxy
 local NetMsgHelper = NetMsgHelper
 local NetAPIList = NetAPIList
 
-StateManager:setCurrentState(StateManager.welcome)
+StateManager:set_current_state(StateManager.welcome)
 
 -- require("netGame")
 
@@ -46,10 +46,10 @@ pLua.updateFn=update
 
 
 --load config
-require("game.common.loadCSV")
+require("game.common.load_csv")
 
 delay(function( ... )
-	print(getValue("level_name_001")) --language key
-	printTable(Model.getUnit(200001)) --read config
+	print(get_value("level_name_001")) --language key
+	print_table(Model.getUnit(200001)) --read config
 	-- Loader:clearSharedAB() 
 end,0.5)

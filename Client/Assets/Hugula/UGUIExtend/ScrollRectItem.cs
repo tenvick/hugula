@@ -9,19 +9,26 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public class ScrollRectItem : MonoBehaviour {
 
+    /// <summary>
+    /// for index
+    /// </summary>
+    [SLua.DoNotToLua]
+    [HideInInspector]
+    public List<string> names = new List<string>();
+
 	public RectTransform rectTransform;
 
-	public List<GameObject> refers;
-
-	public List<Behaviour> monos;
+	public GameObject[] refers;
+    [HideInInspector]
+    public Object[] monos;
 
 	public object data;
 
-	public float fdata;
+    public float fdata;
 
-	public int idata;
+    //public int idata;
 
-	public string sdata;
+    //public string sdata;
 
 	// Use this for initialization
 	void Awake () {
@@ -29,5 +36,43 @@ public class ScrollRectItem : MonoBehaviour {
 			rectTransform = this.GetComponent<RectTransform> ();
 	}
 
+    public Object Get(string n)
+    {
+        int index = names.IndexOf(n);
+        if (index == -1)
+        {
+            Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + n + "]");
+            return null;
+        }
+        else
+            return Get(index + 1);
+    }
 
+    public Object Get(int index)
+    {
+        index = index - 1;
+        if (index >= 0 && index < monos.Length)
+        {
+            return monos[index];
+        }
+        else
+        {
+            Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + index + "]");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// monos的长度
+    /// </summary>
+    public int Length
+    {
+        get
+        {
+            if (monos != null)
+                return monos.Length;
+            else
+                return 0;
+        }
+    }
 }

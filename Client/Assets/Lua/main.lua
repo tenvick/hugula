@@ -11,7 +11,7 @@ luanet = _G
 toluacs = _G
 local resourceURL ="http://192.168.18.152:8345/api" --http://121.199.51.39:8080/client_update?v_id=%s&platform=%s&code=%s";
 
-local progressBarTxt;
+local _progressbar_txt;
 local update_id="";
 local FRIST_VIEW = "frist.u3d";
 local VIDEO_NAME = "Loading.mp4";
@@ -34,27 +34,21 @@ local Loader = Loader
 
 --local fristView
 local all,loaded = 0,0
-local function languageInit()
-	local lan=PlayerPrefs.GetString("Language","")
-	-- if lan=="" then lan=Application.systemLanguage:ToString() end
-	Localization.language="chinese" --"Chinese"
-	print(Application.systemLanguage.."current language is "..Localization.language)
-end 
 
 local function enterGame()
-     languageInit()
+     -- languageInit()
  	 require("begin")
 end
 
-local function setProgressTxt(text)
- 	if progressBarTxt then progressBarTxt.text = text end
+local function set_progress_txt(text)
+ 	if _progressbar_txt then _progressbar_txt.text = text end
 end
 
-local function onProgress(loader,arg)
+local function on_progress(loader,arg)
 	-- body
 end
 
-local function addLoadedFile(key)
+local function add_loaded_file(key)
 	local da = FileHelper.ReadUTF8File(UPDATED_LIST_TMEP)
 	if da==nil then da = "{}" end
 	local jsda=json:decode(da)
@@ -63,33 +57,33 @@ local function addLoadedFile(key)
 	FileHelper.PersistentUTF8File(da,UPDATED_LIST_TMEP)
 end
 
-local function seveVersion()
+local function save_version()
 	FileHelper.PersistentUTF8File(update_id,VERSION_FILE_NAME)	
 end
 
-local function onAllUpdateResComp()
-	setProgressTxt("wait start...")
-    Loader:setOnAllCompelteFn(nil)
-	Loader:setOnProgressFn(nil)
-	seveVersion()
+local function on_all_update_res_comp()
+	set_progress_txt("wait start...")
+    Loader:set_onall_complete_fn(nil)
+	Loader:set_onprogress_fn(nil)
+	save_version()
 	FileHelper.DeleteFile(UPDATED_LIST_TMEP)
 	-- enterGame(true)
 	PLua:LoadBundle(enterGame) --reload LuaBind
 end
 
-local function onUpdateItemComp(req)
+local function on_update_item_comp(req)
 	local bytes=req.data --get_data().bytes
 	if(bytes~=nil) then
 		FileHelper.UnZipFile(bytes,Application.persistentDataPath)
-		addLoadedFile(req.key)
+		add_loaded_file(req.key)
 	end
 	loaded = loaded+1
-	setProgressTxt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
+	set_progress_txt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
 
-	if all<=loaded then onAllUpdateResComp() end
+	if all<=loaded then on_all_update_res_comp() end
 end
 
-local function  onUpdateResComp(req)
+local function  on_update_res_comp(req)
     local www=req.data;
 	if(www) then
 		local txt=www[0]
@@ -112,17 +106,17 @@ local function  onUpdateResComp(req)
 					itemURl = upURL[i]
 	 				key = CUtils.GetKeyURLFileName(itemURl)
 					if not loadtab[key] then
-						table.insert(reqs,{itemURl,onUpdateItemComp,assetType="System.Byte[]"})
+						table.insert(reqs,{itemURl,on_update_item_comp,assetType="System.Byte[]"})
 					end
 				end
 				all=#reqs
 				if all>0  then
 					loaded = 0 
-					setProgressTxt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
-					Loader:getResource(reqs)
+					set_progress_txt(string.format("%s %s/%s","开始从网络加载资源包请不要关闭程序。",loaded,all))
+					Loader:get_resource(reqs)
 					Loader:setOnProgressFn(onProgress)
 				else
-					onAllUpdateResComp()
+					on_all_update_res_comp()
 				end
 			else
 			 	enterGame()
@@ -133,7 +127,7 @@ local function  onUpdateResComp(req)
 	end
 end
 
-local function checkRes()
+local function check_res()
 
 	if(Application.platform==RuntimePlatform.OSXEditor) then
 		enterGame()
@@ -144,57 +138,58 @@ local function checkRes()
 		--[[
 		 local url=string.format(resourceURL,tonumber(ResVersion),WWW.EscapeURL(Application.platform:ToString()),"0.2")
 		 local req=Request(url)
-		 req.onCompleteFn=onUpdateResComp
+		 req.onCompleteFn=on_update_res_comp
          req.assetType="System.String"
 		 local function onErr( req )
-		 	print("checkRes on erro")
+		 	print("check_res on erro")
 		 	enterGame()
 		 end
-		 print("begin checkRes "..url)
+		 print("begin check_res "..url)
 		 req.onEndFn=onErr
-	     Loader:getResource(req,false)
+	     Loader:get_resource(req,false)
 	     ]]
 	end
 end
 
-local function checkVerion()
-	local function onURLComp(req )	ResVersion=req.data[0] checkRes() end
-	local function onURLErComp(req )   checkRes() end
+local function check_version()
+	local function onURLComp(req )	ResVersion=req.data[0] check_res() end
+	local function onURLErComp(req )   check_res() end
 	
 	local verPath=CUtils.GetFileFullPath(VERSION_FILE_NAME);
-	 print("checkVerion . verPath"..verPath)
+	 print("check_version . verPath"..verPath)
 	local req=Request(verPath)
     req.assetType ="System.String"
 	req.onCompleteFn=onURLComp
 	req.onEndFn=onURLErComp
   	--print("request create "..tostring(req))
   	--print(Loader)
-    Loader:getResource(req,false)
-    --print("checkVerion . Loader:getResource called  "..verPath)
+    Loader:get_resource(req,false)
+    --print("check_version . Loader:get_resource called  "..verPath)
 end
 
-local function loadFrist()
+local function load_frist()
 
-    Loader:RefreshAssetBundleManifest()
-	local function onLoadComp(r)
+    Loader:refresh_assetbundle_manifest()
+	local function onload_comp(r)
 		local www=r.data
 		 print(r.url.." loaded ")
 		--print(www)
         local fristView = LuaHelper.Instantiate(r.data)
-        progressBarTxt = LuaHelper.GetComponentInChildren(fristView,"UnityEngine.UI.Text")
-        -- progressBarTxt.text="check resource  ..."
+        _progressbar_txt = LuaHelper.GetComponentInChildren(fristView,"UnityEngine.UI.Text")
+        -- _progressbar_txt.text="check resource  ..."
         r.assetBundle:Unload(false)
-        fristView.name = "Frist"
-        checkVerion()
+        --fristView.name = "Frist"
+        UnityEngine.GameObject.Destroy(fristView)
+        check_version()        
     end
 
-	Application.targetFrameRate=30
+	Application.targetFrameRate=60
    
---    checkVerion()
+--    check_version()
 	 local url = CUtils.GetAssetFullPath(FRIST_VIEW)
 	 print("begin"..url)
-	 Loader:getResource(url,onLoadComp,false)
+	 Loader:get_resource(url,onload_comp,false)
 end
 
 
-loadFrist()
+load_frist()

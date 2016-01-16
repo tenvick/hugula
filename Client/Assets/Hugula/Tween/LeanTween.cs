@@ -3335,7 +3335,7 @@ public static LTDescr value(GameObject gameObject, Color from, Color to, float t
 * }<br>
 */
 
-public static LTDescr value(GameObject gameObject, Action<float> callOnUpdate, float from, float to, float time){
+public static LTDescr valueFloat(GameObject gameObject, Action<float> callOnUpdate, float from, float to, float time){
 	return pushNewTween( gameObject, new Vector3(to,0,0), time, TweenAction.CALLBACK, options().setTo( new Vector3(to,0,0) ).setFrom( new Vector3(from,0,0) ).setOnUpdate(callOnUpdate) );
 }
 
@@ -3363,7 +3363,7 @@ public static LTDescr value(GameObject gameObject, Action<float> callOnUpdate, f
 * }<br>
 */
 
-public static LTDescr value(GameObject gameObject, Action<float, float> callOnUpdateRatio, float from, float to, float time) {
+public static LTDescr valueFloat2(GameObject gameObject, Action<float, float> callOnUpdateRatio, float from, float to, float time) {
     return pushNewTween(gameObject, new Vector3(to, 0, 0), time, TweenAction.CALLBACK, options().setTo(new Vector3(to, 0, 0)).setFrom(new Vector3(from, 0, 0)).setOnUpdateRatio(callOnUpdateRatio));
 }
 
@@ -3391,7 +3391,8 @@ public static LTDescr value(GameObject gameObject, Action<float, float> callOnUp
 * }<br>
 */
 
-public static LTDescr value(GameObject gameObject, Action<Color> callOnUpdate, Color from, Color to, float time){
+public static LTDescr valueColor(GameObject gameObject, Action<Color> callOnUpdate, Color from, Color to, float time)
+{
 	return pushNewTween( gameObject, new Vector3(1.0f,to.a,0.0f), time, TweenAction.CALLBACK_COLOR, options().setPoint( new Vector3(to.r, to.g, to.b) )
 		.setAxis( new Vector3(from.r, from.g, from.b) ).setFrom( new Vector3(0.0f, from.a, 0.0f) ).setHasInitialized(false).setOnUpdateColor(callOnUpdate) );
 }
@@ -3407,7 +3408,8 @@ public static LTDescr value(GameObject gameObject, Action<Color> callOnUpdate, C
 * @param {float} time:float The time to complete the tween in
 * @return {LTDescr} LTDescr an object that distinguishes the tween
 */
-public static LTDescr value(GameObject gameObject, Action<Vector2> callOnUpdate, Vector2 from, Vector2 to, float time){
+public static LTDescr valueVector2(GameObject gameObject, Action<Vector2> callOnUpdate, Vector2 from, Vector2 to, float time)
+{
 	return pushNewTween( gameObject, new Vector3(to.x,to.y,0f), time, TweenAction.VALUE3, options().setTo( new Vector3(to.x,to.y,0f) ).setFrom( new Vector3(from.x,from.y,0f) ).setOnUpdateVector2(callOnUpdate) );
 }
 
@@ -3422,7 +3424,8 @@ public static LTDescr value(GameObject gameObject, Action<Vector2> callOnUpdate,
 * @param {float} time:float The time to complete the tween in
 * @return {LTDescr} LTDescr an object that distinguishes the tween
 */
-public static LTDescr value(GameObject gameObject, Action<Vector3> callOnUpdate, Vector3 from, Vector3 to, float time){
+public static LTDescr valueVector3(GameObject gameObject, Action<Vector3> callOnUpdate, Vector3 from, Vector3 to, float time)
+{
 	return pushNewTween( gameObject, to, time, TweenAction.VALUE3, options().setTo( to ).setFrom( from ).setOnUpdateVector3(callOnUpdate) );
 }
 

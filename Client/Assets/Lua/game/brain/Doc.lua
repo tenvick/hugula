@@ -13,7 +13,7 @@ ActionNotNode((System.Action<BTInput, BTOutput> action) --返回false
 --间隔时间执行的行动节点
 DeltaActionNode(float delta,System.Action<BTInput, BTOutput> action)
 -- 事件行动节点
-ActionEventNode(System.Action<BTInput,BTOutput> action)
+Action_eventNode(System.Action<BTInput,BTOutput> action)
 
 -------------------------------------等待节点------------------------------------- 
 WaitNode(float duration, float variation)--（等待指定时间后返回成功）

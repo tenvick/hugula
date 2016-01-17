@@ -125,8 +125,11 @@ public class ExportResources{
 			File.Copy(filePath, outfilePath, true);// source code copy
 #else
             arg = "-b " + filePath + " " + outfilePath; //for jit
-            //Debug.Log(arg);
-            //System.Diagnostics.Process.Start(luacPath, arg);//jit 
+            if (useJit)
+            {
+                Debug.Log(arg);
+                System.Diagnostics.Process.Start(luacPath, arg);//jit 
+            }
             File.Copy(filePath, outfilePath, true);// source code copy
 #endif
 		 }
@@ -198,7 +201,7 @@ public class ExportResources{
  
 	public static void exportPublish()
 	{
-		exportLua();
+		exportLua(true);
 		
 		exportConfig();
 

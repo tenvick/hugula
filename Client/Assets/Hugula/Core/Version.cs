@@ -6,6 +6,6 @@ using System.Collections;
 
 public class Version {
 
-	public const string VERSION="0.4.0";//<Majo>.<Minor>.Revision
+	public const uint VERSION= 0x000050;
 	
 }

@@ -13,6 +13,23 @@ namespace SLua
 
     public partial class LuaObject
     {
+        static public bool checkArray(IntPtr l, int p, out byte[] v)
+        {
+            LuaDLL.luaL_checktype(l, p, LuaTypes.LUA_TSTRING);
+            int strLen;
+            IntPtr str = LuaDLL.luaS_tolstring32(l, p, out strLen);
+            if (strLen > 0)
+            {
+                v = new byte[strLen];
+                Marshal.Copy(str, v, 0, strLen);
+            }
+            else
+            {
+                v = null;
+            }
+            return true;
+        }
+
         static public bool checkType(IntPtr l, int p, out byte[] v)
         {
             LuaDLL.luaL_checktype(l, p, LuaTypes.LUA_TSTRING);

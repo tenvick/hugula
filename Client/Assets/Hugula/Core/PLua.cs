@@ -232,7 +232,8 @@ public class PLua : MonoBehaviour
 
     public static void StopDelay(Coroutine coroutine)
     {
-        _instance.StopCoroutine(coroutine);
+        if (coroutine!=null)
+            _instance.StopCoroutine(coroutine);
     }
 
 	private static IEnumerator DelayDo(LuaFunction luafun,float time,params object[] args)

@@ -14,7 +14,7 @@ local function load_component(name)
 end
 
 local function get_component_name(path)
-   local _,b,name= string.find(path,"[%.,%/]*(%a+_*%a+)$") print(_,b,name)
+   local _,b,name= string.find(path,"[%.,%/]*(%a+_*%a+)$")
    return name
 end
 
@@ -52,7 +52,7 @@ function LuaObject:add_component(arg)
     end
     cmp = load_component(arg)
     assert(cmp, "component ".. name .. " does not exist!")
-print("add_component",name)
+
     local loadedcmp = cmp(self)
     self.components[name] = loadedcmp
     loadedcmp.name = name

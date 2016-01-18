@@ -13,7 +13,7 @@ local function get_diff_log(curr_state,curr_log)
     local items = curr_state:get_all_items() --当前的所有项目
     local add,remove = {},{}
     -- print("get_diff_log")
-    if curr_log == nil then --如果没有记录
+    if curr_log == nil or curr_log == false then --如果没有记录
         change = true
         return change,add,remove
     end
@@ -161,7 +161,13 @@ end
 
 function StateManager:record_state(force_record) --记录状态用于返回
     local curr_state = self._current_game_state --当前状态
-    if curr_state.log_enable == false then return nil end
+    if curr_state.log_enable == false then 
+        -- print(" cant record %s",tostring(curr_state)) 
+        self._log_state:push(false) --空位置
+        -- print("add log false ",os.time(),tostring(curr_state))
+        return nil 
+    end
+
     if self._record_enable == false and force_record == nil then return nil end --如果不能记录同时force_record没有值 直接返回
 
     local curr_log =  self._log_state:get(0) --get_log(self._log_state,-1) --上一个状态
@@ -188,6 +194,11 @@ function StateManager:go_back(index) --返回
     if index > 0  then index = -1 end
 
     local back_log = self._log_state:get(index) --上一个状态
+    -- print(back_log)
+    while back_log == false do
+        self._log_state:pop(1) --删除顶上第一个
+        back_log = self._log_state:get(index) --上一个状态
+    end
     self._log_state:pop(1) --删除顶上第一个
 
     if back_log == nil then return nil end 

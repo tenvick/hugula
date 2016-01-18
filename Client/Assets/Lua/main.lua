@@ -152,7 +152,11 @@ local function check_res()
 end
 
 local function check_version()
-	local function onURLComp(req )	ResVersion=req.data[0] check_res() end
+	local function onURLComp(req )	
+		print(req.data[1] )
+		ResVersion=req.data[1] 
+		check_res() 
+	end
 	local function onURLErComp(req )   check_res() end
 	
 	local verPath=CUtils.GetFileFullPath(VERSION_FILE_NAME);

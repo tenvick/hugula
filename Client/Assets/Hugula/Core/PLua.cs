@@ -101,7 +101,11 @@ public class PLua : MonoBehaviour
         if (luaLoader.error == null)
         {
 			byte[] byts=CryptographHelper.Decrypt(luaLoader.bytes,DESHelper.instance.Key,DESHelper.instance.IV);
-			AssetBundle item = AssetBundle.CreateFromMemoryImmediate(byts);
+#if UNITY_5_3
+            AssetBundle item = AssetBundle.LoadFromMemory(byts);
+#else
+            AssetBundle item = AssetBundle.CreateFromMemoryImmediate(byts);
+#endif
 
             TextAsset[] all = item.LoadAllAssets<TextAsset>();
             foreach (var ass in all)

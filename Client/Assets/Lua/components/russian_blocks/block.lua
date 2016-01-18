@@ -260,7 +260,7 @@ function Block:endGame()
 	lastFrameT = 0
 	cutdownLast=0
 	beginDelay = false
-	local asserts = self.luaObj.components.assetLoader.asserts
+	local asserts = self.luaObj.components.asset_loader.asserts
 	preBlocks:SetActive(false)
 	inputCenter:SetActive(false)
 	local function onItem(i,obj)

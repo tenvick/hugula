@@ -45,7 +45,18 @@ public static class  LuaHelper {
     /// <returns></returns>
     public static Object Instantiate(Object original)
     {
-        return GameObject.Instantiate(original);
+        Object clone = GameObject.Instantiate(original);
+#if UNITY_EDITOR
+        if (clone is GameObject)
+        {
+            var obj = clone as GameObject;
+            var active = obj.activeSelf;
+            if (active == false) obj.SetActive(true);
+            LuaHelper.RefreshShader(clone as GameObject);
+            if (active == false) obj.SetActive(active);
+        }
+#endif
+        return clone;
     }
 
     /// <summary>
@@ -76,6 +87,16 @@ public static class  LuaHelper {
 		Quaternion rota = tranformTa.localRotation;
 		Vector3 scale = tranformTa.localScale;
 		GameObject clone = (GameObject)GameObject.Instantiate(original);
+#if UNITY_EDITOR
+        if (clone is GameObject)
+        {
+            var obj = clone as GameObject;
+            var active = obj.activeSelf;
+            if (active == false) obj.SetActive(true);
+            LuaHelper.RefreshShader(clone as GameObject);
+            if (active == false) obj.SetActive(active);
+        }
+#endif
 		var transform=clone.transform;
 		if(parent!=null)clone.transform.SetParent(parent.transform);
 		transform.localPosition = pos;
@@ -97,6 +118,16 @@ public static class  LuaHelper {
 		Quaternion rota = tranformTa.rotation;
         Vector3 scale = tranformTa.localScale;
         GameObject clone = (GameObject)GameObject.Instantiate(original);
+#if UNITY_EDITOR
+        if (clone is GameObject)
+        {
+            var obj = clone as GameObject;
+            var active = obj.activeSelf;
+            if (active == false) obj.SetActive(true);
+            LuaHelper.RefreshShader(clone as GameObject);
+            if (active == false) obj.SetActive(active);
+        }
+#endif
         var transform = clone.transform;
         if (parent != null) clone.transform.SetParent(parent.transform);
         transform.position = pos;
@@ -233,6 +264,32 @@ public static class  LuaHelper {
 		return comp;
 	}
 
+	public static Component AddComponent(GameObject obj, string className)
+	{
+		System.Type t = GetType(className);
+		return AddComponent (obj, t);
+	}
+
+	public static Component AddComponent(GameObject obj, System.Type t)
+	{
+		Component comp = null;
+		comp = GetComponent(obj, t);
+		if(comp == null) comp = obj.AddComponent(t);
+
+		return comp;
+	}
+
+	public static void RemoveComponent(GameObject obj, string className)
+	{
+		Component comp = GetComponent(obj, className);
+		if(comp != null) RemoveComponent(comp);
+	}
+
+	public static void RemoveComponent(Component comp)
+	{
+		Destroy(comp);
+	}
+
     /// <summary>
     /// 
     /// </summary>
@@ -358,9 +415,11 @@ public static class  LuaHelper {
 #else
         UnityEngine.Object[] materials = assetBundle.LoadAll(typeof(Material));  //LoadAll<Material>();
 #endif
-        foreach (UnityEngine.Object m in materials)
+
+        //foreach (UnityEngine.Object m in materials)
+        for(int i = 0;i<materials.Length;i++)
         {
-            Material mat = m as Material;
+            Material mat = materials[i];
             string shaderName = mat.shader.name;
 			Shader newShader = Shader.Find(shaderName);
             if (newShader != null)
@@ -369,18 +428,42 @@ public static class  LuaHelper {
             }
             else
             {
-                Debug.LogWarning("unable to refresh shader: " + shaderName + " in material " + m.name);
+                Debug.LogWarning("unable to refresh shader: " + shaderName + " in material " + mat.name);
             }
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="www"></param>
-    public static void RefreshShader(WWW www)
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    ///// <param name="www"></param>
+    //public static void RefreshShader(WWW www)
+    //{
+    //    if (www.assetBundle != null) RefreshShader(www.assetBundle);
+    //}
+
+    public static void RefreshShader(GameObject obj)
     {
-        if (www.assetBundle != null) RefreshShader(www.assetBundle);
+        List<Renderer> meshrs = new List<Renderer>(obj.GetComponentsInChildren<Renderer>());
+        List<Material> mats = new List<Material>();
+        //meshrs.Add(obj.GetComponent<Renderer>());
+        for (int i = 0; i < meshrs.Count; i++)
+        {
+            Material[] mat = meshrs[i].materials;
+            mats.AddRange(mat);
+        }
+
+        for (int i = 0; i < mats.Count; i++)
+        {
+            Material mat = mats[i];
+            string shaderName = mat.shader.name;
+            Shader newShader = Shader.Find(shaderName);
+            if (newShader != null)
+            {
+                mat.shader = newShader;
+            }
+        }
+
     }
 
     /// <summary>
@@ -391,7 +474,7 @@ public static class  LuaHelper {
     /// <param name="p2x"></param>
     /// <param name="p2y"></param>
     /// <returns></returns>
-    public static float GetAngle(float p1x,float p1y,float p2x,float p2y)
+    public static float GetAngle(float p1x, float p1y, float p2x, float p2y)
     {
         var tmpx = p2x - p1x;
         var tmpy= p2y -p1y;
@@ -425,5 +508,16 @@ public static class  LuaHelper {
     public static void GCCollect()
     {
         System.GC.Collect();
+    }
+
+    /// <summary>
+    /// str 转换为hash code
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static int StringToHash(string str)
+    {
+        int hash = Animator.StringToHash(str);
+        return hash;
     }
 }

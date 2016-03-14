@@ -30,6 +30,12 @@ public class AssetbundlesMenuItems
             import.assetBundleName = s.name+"."+Common.ASSETBUNDLE_SUFFIX;
 			if(s.name.Contains(" ")) Debug.LogWarning(s.name+" contains space");
             Debug.Log(s.name);
+            if (s is GameObject)
+            {
+                GameObject tar = s as GameObject;
+                ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
+                refe.assetBundleName = s.name.ToLower();
+            }
         }
     }
 

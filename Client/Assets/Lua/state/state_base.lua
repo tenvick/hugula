@@ -95,10 +95,10 @@ function StateBase:on_back(new_state)
     local itemobj = nil
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
-        if itemobj then
-            itemobj:on_back(new_state) 
-            itemobj:show()  
-            itemobj:on_showed()
+        if itemobj and itemobj.on_back then
+            -- itemobj:on_back(new_state) 
+            -- itemobj:show()  
+            -- itemobj:on_showed()
             itemobj:on_back()
         end
     end
@@ -107,10 +107,15 @@ function StateBase:on_back(new_state)
 
 function StateBase:on_blur(new_state)
     local itemobj = nil
+    local on_blured = {}
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
-        if itemobj then  itemobj:on_blur(new_state) end
+        if itemobj and on_blured[itemobj] ~= true then 
+            on_blured[itemobj] = true 
+            itemobj:on_blur(new_state) 
+        end
     end
+    on_blured = nil
  end
 
 function StateBase:clear( ... )

@@ -35,60 +35,6 @@ namespace SLua
 
 	public interface ICustomExportPost { }
 
-	public class ConnectDebugger : EditorWindow
-	{
-		string addr = "localhost:10240";
-		static ConnectDebugger wnd;
-		[MenuItem("SLua/Console")]
-		static void Init()
-		{
-			if (wnd == null)
-				wnd = (ConnectDebugger)EditorWindow.GetWindow(typeof(ConnectDebugger), true, "Connect debugger");
-			wnd.position = new Rect(Screen.width / 2, Screen.height / 2, 500, 50);
-			wnd.Show();
-		}
-
-
-		void OnGUI()
-		{
-			addr = EditorGUILayout.TextField("Debugger IP:", addr);
-			if (GUILayout.Button("Connect", GUILayout.ExpandHeight(true)))
-			{
-				try
-				{
-					string ip = "localhost";
-					int port = 10240;
-					string[] comp = addr.Split(':');
-
-					ip = comp[0];
-					if (comp.Length > 0)
-						port = Convert.ToInt32(comp[1]);
-
-#if UNITY_EDITOR_WIN
-					System.Diagnostics.Process.Start("debugger\\win\\ldb.exe", string.Format("-host {0} -port {1}", ip, port));
-#else
-					System.Diagnostics.ProcessStartInfo proc = new System.Diagnostics.ProcessStartInfo();
-					proc.FileName = "bash";
-					proc.WorkingDirectory = "debugger/mac";
-					proc.Arguments =  @"-c ""./runldb.sh {0} {1} """;
-					proc.Arguments = string.Format(proc.Arguments,ip,port);
-					proc.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-					proc.CreateNoWindow = false;
-					proc.UseShellExecute = true;
-					System.Diagnostics.Process.Start(proc);
-#endif
-				}
-				catch (Exception e)
-				{
-					Debug.LogError(e);
-				}
-
-			}
-		}
-
-	}
-
-
 
     public class LuaCodeGen : MonoBehaviour
 	{
@@ -192,7 +138,7 @@ namespace SLua
 				// check type not in nouselist
 				foreach (string str in noUseList)
 				{
-					if (fullName.Contains(str))
+					if (Regex.IsMatch(fullName,str))
 					{
 						return false;
 					}
@@ -1158,21 +1104,25 @@ namespace SLua
 			return false;
 		}
 		
-		void WriteSet(StreamWriter file, Type t, string cls, string fn, bool isstatic = false)
+		void WriteSet(StreamWriter file, Type t, string cls, string fn, bool isstatic = false,bool canread = true)
 		{
 			if (t.BaseType == typeof(MulticastDelegate))
 			{
 				if (isstatic)
 				{
 					Write(file, "if(op==0) {0}.{1}=v;", cls, fn);
-					Write(file, "else if(op==1) {0}.{1}+=v;", cls, fn);
-					Write(file, "else if(op==2) {0}.{1}-=v;", cls, fn);
+					if(canread){
+						Write(file, "else if(op==1) {0}.{1}+=v;", cls, fn);
+						Write(file, "else if(op==2) {0}.{1}-=v;", cls, fn);
+					}
 				}
 				else
 				{
 					Write(file, "if(op==0) self.{0}=v;", fn);
-					Write(file, "else if(op==1) self.{0}+=v;", fn);
-					Write(file, "else if(op==2) self.{0}-=v;", fn);
+					if(canread){
+						Write(file, "else if(op==1) self.{0}+=v;", fn);
+						Write(file, "else if(op==2) self.{0}-=v;", fn);
+					}
 				}
 			}
 			else
@@ -1335,14 +1285,14 @@ namespace SLua
 					if (fi.GetSetMethod().IsStatic)
 					{
 						WriteValueCheck(file, fi.PropertyType, 2);
-						WriteSet(file, fi.PropertyType, TypeDecl(t), NormalName(fi.Name), true);
+						WriteSet(file, fi.PropertyType, TypeDecl(t), NormalName(fi.Name), true,fi.CanRead);
 						isInstance = false;
 					}
 					else
 					{
 						WriteCheckSelf(file, t);
 						WriteValueCheck(file, fi.PropertyType, 2);
-						WriteSet(file, fi.PropertyType, TypeDecl(t), NormalName(fi.Name));
+						WriteSet(file, fi.PropertyType, TypeDecl(t), NormalName(fi.Name),false,fi.CanRead);
 					}
 					
 					if (t.IsValueType)

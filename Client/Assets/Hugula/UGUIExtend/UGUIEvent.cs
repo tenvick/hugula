@@ -42,7 +42,7 @@ public static class UGUIEvent  {
             onClickFn.call(sender, arg);
 		}
 	}
-    public static void onClickHandle(GameObject sender, Vector2 arg)
+    public static void onClickHandle(GameObject sender, Vector3 arg)
     {
         if (onClickFn != null)
         {
@@ -50,7 +50,7 @@ public static class UGUIEvent  {
         }
     }
 
-    public static void onDragHandle(GameObject sender, Vector2 arg)
+    public static void onDragHandle(GameObject sender, Vector3 arg)
 	{
 		if(onDragFn!=null)
 		{

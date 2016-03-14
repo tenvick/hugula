@@ -23,7 +23,8 @@ public class PLua : MonoBehaviour
     public static bool isDebug = true;
 
     public Lua lua;
-    public static Dictionary<string, TextAsset> luacache;
+    private static Dictionary<string, byte[]> luacache;
+
 
     #region priveta
     private string luaMain = "";
@@ -47,7 +48,7 @@ public class PLua : MonoBehaviour
     void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
-        luacache = new Dictionary<string, TextAsset>();
+        luacache = new Dictionary<string, byte[]>();
         lua = new Lua();
         _instance = this;
         LoadScript();
@@ -111,10 +112,10 @@ public class PLua : MonoBehaviour
             foreach (var ass in all)
             {
 				keyName = ass.name;
-                luacache[keyName] = ass;
+                luacache[keyName] = ass.bytes;
             }
 
-			item.Unload(false);
+			item.Unload(true);
             luaLoader.Dispose();
         }
 
@@ -209,16 +210,16 @@ public class PLua : MonoBehaviour
 			name = name.Replace('.','_').Replace('/','_'); 
             if (luacache.ContainsKey(name))
             {
-                TextAsset file = luacache[name];
-                str = file.bytes;
+                var bytes = luacache[name];
+                str = bytes;
             }
         }
 #else
 		name = name.Replace('.','_').Replace('/','_'); 
         if(luacache.ContainsKey(name))
         {
-	        TextAsset file = luacache[name];
-	        str = file.bytes;
+	        var bytes = luacache[name];
+	        str = bytes;
         }
 #endif
         return str;

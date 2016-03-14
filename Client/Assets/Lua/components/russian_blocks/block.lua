@@ -385,7 +385,7 @@ end
 local deltaSpeed = 0.8
 local lastFrameT = 0
 local beginDelay = false
-function Block:onUpdate(time)
+function Block:on_update(time)
   --	pos = blocks.localPosition
   	if cutdownLast == 0  then cutdownLast=time end
   	local dt =  time - cutdownLast

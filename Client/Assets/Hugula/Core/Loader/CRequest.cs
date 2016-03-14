@@ -7,54 +7,50 @@ using System.Collections.Generic;
 /// <summary>
 /// Request.
 /// </summary>
-/**
-  * 加载资源的请求
-  */
 [SLua.CustomLuaClass]
- public class CRequest // IDispose
- {
-  /**
-   * 加载请求</br>
-   * 参数:</br>
-   * <b>url:*</b> 文件地址 可是二进制</br>
-   * <b>onComplete:Function(data:*,key:String)</b> 加载完成后的回调函数 参数为二个data加载的数据,key加载是用的key</br>
-   * key:文件名</br>
-   * <b>priority:int</b> 优先等级  值越大优先级越高
-   */
-  public CRequest(string url)
-  {
-    this.url=url;
-    //this.assetName = this.key;
-  }
+public class CRequest // IDispose
+{
+    /// <summary>
+    /// 加载请求 
+    /// </summary>
+    /// <param name="url"></param>
+    public CRequest(string url)
+    {
+        this.url = url;
+    }
 
-  public CRequest(string url,string assetName,string assetType)
-  {
-      this.url = url;
-      this.assetName = assetName;
-      this.assetType = assetType;
-  }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="url">地址 完整地址</param>
+    /// <param name="assetName">加载的资源名</param>
+    /// <param name="assetType">资源类型，默认为GameObject</param>
+    public CRequest(string url, string assetName, string assetType)
+    {
+        this.url = url;
+        this.assetName = assetName;
+        this.assetType = assetType;
+    }
 
-  public void Dispose()
-  {
-   this.url=null;
-   this.priority=0;
-   this.key=null;
-   this.suffix = null;
-   _data=null;
-   _head=null;
-  }
-	  
-  private object _data;
-  
-  private object _head;
-  
-  private string _key,_udKey;
-     
-  
-  /**
-   * 加载请求
-   */
-  private string _url;
+    public void Dispose()
+    {
+        this.url = null;
+        this.priority = 0;
+        this.key = null;
+        this.suffix = null;
+        _data = null;
+        _head = null;
+    }
+
+    private object _data;
+
+    private object _head;
+
+    private string _key, _udKey;
+
+    private int _keyHashCode;
+
+    private string _url;
 
     private string _suffix = string.Empty;
 
@@ -63,11 +59,12 @@ using System.Collections.Generic;
     private string _assetName = string.Empty;
 
     private bool _cache = false;
-    /**
-     * 文件后缀类型</br>
-     * 默认根据url后缀来生成</br>
-     * 如果设定以设定值为准.解码的时候是根据type来解码的.例如 解码后成相应的对象类型
-     */
+
+    /// <summary>
+    /// 文件后缀类型</br>
+    /// * 默认根据url后缀来生成</br>
+    /// * 如果设定以设定值为准.解码的时候是根据type来解码的.例如 解码后成相应的对象类型
+    /// </summary>
     public string suffix
     {
         get
@@ -117,9 +114,9 @@ using System.Collections.Generic;
     /// </summary>
     public string assetType = string.Empty;
 
-    /**
-     * 加载的头信息
-     */
+    /// <summary>
+    /// 加载的头信息
+    /// </summary>
     public object head
     {
         get { return this._head; }
@@ -127,9 +124,9 @@ using System.Collections.Generic;
     }
 
 
-    /**
-     * 加载的数据
-     */
+    /// <summary>
+    /// 加载的数据
+    /// </summary>
     public object data
     {
         get
@@ -141,14 +138,16 @@ using System.Collections.Generic;
             _data = value;
         }
     }
-    /// <summary>
-    /// assetBundle
-    /// </summary>
-    public AssetBundle assetBundle;
-    /// <summary>
-    /// www对象
-    /// </summary>
-    public WWW www;
+
+    ///// <summary>
+    ///// assetBundle
+    ///// </summary>
+    //public AssetBundle assetBundle;
+    ///// <summary>
+    ///// www对象
+    ///// </summary>
+    //public WWW www;
+
     /// <summary>
     /// The user data.
     /// </summary>
@@ -170,27 +169,11 @@ using System.Collections.Generic;
             OnEnd(this);
     }
 
-    public bool isShared { get; set; }
+    public bool isShared { get;internal set; }
 
-    /**
-     * 加载完成回调</br>
-     * <b>onComplete:Function(req:Request)</b> 
-     * 加载完成后的回调函数
-     * 参数为为当前请求</br>
-     */
-    // public event onComplete;
-
-    /**
-     * 重实n次加载失败后回调</br>
-     * <b>onError:Function(req:Request)</b> 
-     * 加载完成后的回调函数
-     * 参数为为当前请求</br>
-     */
-    //public var onEnd:Function;
-
-    /**
-     * 请求地址 网址，相对路径，绝对路径
-     */
+    /// <summary>
+    /// 请求地址 网址，相对路径，绝对路径
+    /// </summary>
     public string url
     {
         get
@@ -203,12 +186,10 @@ using System.Collections.Generic;
         }
     }
 
-
-
-    /**
-     *缓存用的关键字
-     * 如果没有设定 则为默认key生成规则
-     */
+    /// <summary>
+    /// 缓存用的关键字
+    /// 如果没有设定 则为默认key生成规则
+    /// </summary>
     public string key
     {
         get
@@ -220,6 +201,23 @@ using System.Collections.Generic;
         set
         {
             _key = value;
+        }
+    }
+
+    /// <summary>
+    /// assetBundle key的hashcode 用于计算缓存的资源key
+    /// </summary>
+    public int keyHashCode
+    {
+        get
+        {
+            if(_keyHashCode == 0 )
+                _keyHashCode = LuaHelper.StringToHash(key);
+            return _keyHashCode;
+        }
+        set
+        {
+            _keyHashCode = value;
         }
     }
 
@@ -244,10 +242,9 @@ using System.Collections.Generic;
     }
 
 
-    /**
-     * 缓存对应的字典类型
-     */
-    //public IDictionary<string,object> cache
+    /// <summary>
+    /// 缓存 不需要了 暂时保留
+    /// </summary>
     public bool cache
     {
         get
@@ -260,28 +257,28 @@ using System.Collections.Generic;
         }
     }
 
+    /// <summary>
+    ///  优先等级
+    ///  降序</br>
+    /// <b>priority:int</b> 优先等级  值越大优先级越高
+    /// </summary>
+    public int priority = 0;//优先级
 
-  //回调
-  /**
-   * 优先等级
-   * 降序</br>
-   *  <b>priority:int</b> 优先等级  值越大优先级越高
-   */
-  public int priority=0;//优先级
-  
-  /**
-   * 加载次数
-   * 加载失败的时候记录
-   */
-  public int times=0;
+    /// <summary>
+    /// 加载次数
+    /// 加载失败的时候记录
+    /// </summary>
+    public int times = 0;
 
+    /// <summary>
+    /// 被依赖的对象
+    /// </summary>
+    public CRequest childrenReq;
 
-	public CRequest childrenReq;
-
-	/// <summary>
-	/// dependencies count;
-	/// </summary>
-	public int dependenciesCount;
- }
+    /// <summary>
+    /// dependencies count;
+    /// </summary>
+    public int dependenciesCount;
+}
 
 public delegate void CompleteHandle(CRequest req);

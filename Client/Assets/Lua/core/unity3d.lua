@@ -5,45 +5,45 @@
 ------------------------------------------------
 -- luanet.load_assembly("UnityEngine.UI")
 -- import "UnityEngine"
-delay = PLua.Delay
-stop_delay = PLua.StopDelay
-
+-- delay = PLua.Delay
+-- stop_delay = PLua.StopDelay
+Vector3 = UnityEngine.Vector3
+local Resources = UnityEngine.Resources
+local LuaHelper = LuaHelper
+local LuaTimer = LuaTimer
 if unpack==nil then unpack=table.unpack end
 
---print =function(...)
-
---end
-
-
-function tojson(tbl,indent)
-  assert(tal==nil)
-	if not indent then indent = 0 end
-
-	local tab=string.rep("	",indent)
-	local havetable=false
-	local str="{"
-	local sp=""
-    if tbl then
-	     for k, v in pairs(tbl) do
-	        if type(v) == "table" then
-	    	    havetable=true
-	    	    if(indenct==0) then
-	    		    str=str..sp.."\r\n	"..tostring(k)..":"..tojson(v,indent+1)
-	    	    else
-	    		    str=str..sp.."\r\n"..tab..tostring(k)..":"..tojson(v,indent+1)
-	   		    end
-	        else
-	    	    str=str..sp..tostring(k)..":"..tostring(v)
-	        end
-		    sp=";"
-	     end
-     end
-
-	if(havetable) then	   	str=str.."\r\n"..tab.."}"	else	   	str=str.."}"	end
-
-   return str
+--用timer实现delay 函数
+function delay(fun,delay_time,...)
+    local arg = {...}
+    local function temp_delay(id)
+      fun(unpack(arg))
+    end
+    local id = LuaTimer.Add(delay_time*1000,temp_delay)
+    return id
 end
 
+function stop_delay(id)
+  if type(id) == "number" then LuaTimer.Delete(id) end
+end
+--
+--PrefabPool资源自动回收
+--当内存达到阈值的时候触发回收，回收按照PrefabCacheType从0开始每段回收
+--PrefabPool.gcDeltaTimeConfig = 10 两次GC检测间隔时间
+
+--资源放入缓存使用的类型,与回收密切相关
+PrefabCacheType =
+{
+  segment0 = 0, --最先被回收
+  segment1 = 1, --第一个内存阈值时候回收 (PrefabPool.threshold1 = 150)
+  segment2 = 2, 
+  segment3 = 3, --第二个内存阈值的时候回收(PrefabPool.threshold1 = 180)
+  segment4 = 4,
+  segment5 = 5,
+  segment6 = 6, --第三个阈值的时候回收 (PrefabPool.threshold1 = 200)
+  segment7 = 7, --手动调用回收PrefabPool.GCCollect(PrefabCacheType.segment7)
+  segment8 = 8  --永远不回收 TODO:自动收缩 
+}
 
 function get_angle(posFrom,posTo)  
     local tmpx=posTo.x - posFrom.x
@@ -111,46 +111,16 @@ function lua_gc()
   print(" gc end ="..tostring(c).." ")
 end
 
-LuaStack = {}
-LuaStack.__index = LuaStack
-local _mt = {}
-_mt.__call = function(tb,size)
-    return LuaStack.new(size)
+function math.randomseed1(i)
+    math.randomseed(tostring(os.time()+tonumber(i)):reverse():sub(1, 6)) 
 end
 
-setmetatable(LuaStack,_mt)
-
-function LuaStack.new(size)
-    if size == nil then size = 32 end
-    local o = {size = size}
-    setmetatable(o,LuaStack)
-    return o
+--释放没有使用的资源 (mesh,texture)
+function unload_unused_assets()
+  lua_gc()
+  Resources.UnloadUnusedAssets()
+  LuaHelper.GCCollect()
 end
 
-function LuaStack:push(v)
-    table.insert(self,v)
-    if #self > self.size then table.remove(self,1) end -- 确保长度
-end
-
-function LuaStack:get(i) --获取 i 位置 0 栈顶， 
-    local top = #self
-    i = top + i
-    if i > 0 and #self >= i then
-        return self[i]
-    else
-        return nil
-    end
-end
-
-function LuaStack:pop(i) --从顶部取出 i 个 
-    local top = #self
-    local re = {}
-    while (i>0) do
-        local r = table.remove(self,#self)
-        i = i - 1
-        table.insert(re,r)
-    end
-    return re
-end
 
 

@@ -17,7 +17,7 @@ public class ProfilerPanel : MonoBehaviour {
         timeleft = updateInterval;
         //memory = Util.Get<UILabel>(gameObject, "MemoryInfo");
         //framerate = Util.Get<UILabel>(gameObject, "FrameRate");
-    }
+     }
 
     void Update() {
         UpdateGameInfo();
@@ -62,11 +62,12 @@ public class ProfilerPanel : MonoBehaviour {
             accum = 0.0F;
             frames = 0;
         }
-        memory = string.Format("TotalAllocatedMemory£º{0}MB\n"+
-                                    "TotalReservedMemory£º{1}MB\n"+
-                                    "TotalUnusedReservedMemory:{2}MB\n"+
-                                    "MonoHeapSize:{3}MB\nMonoUsedSize:{4}MB", 
-                                    totalMemory, totalReservedMemory, 
+
+        memory = string.Format("TotalAllocatedMemory:{0}MB\n" + //TotalAllocatedMemory
+                                    "TotalReservedMemory:{1}MB\n" +
+                                    "TotalUnusedReservedMemory:{2}MB\n" +
+                                    "MonoHeapSize:{3}MB\nMonoUsedSize:{4}MB",
+                                    totalMemory, totalReservedMemory,
                                     totalUnusedReservedMemory, monoHeapSize, monoUsedSize);
     }
 }

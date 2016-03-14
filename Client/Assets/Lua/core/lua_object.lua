@@ -41,6 +41,7 @@ LuaObject=class(function(self,name)
 	self.updatecomponents = {}
     self.active = true
     self.parent = nil
+    self.is_disposed = false
 end)
 
 function LuaObject:add_component(arg)
@@ -58,7 +59,7 @@ function LuaObject:add_component(arg)
     loadedcmp.name = name
     if loadedcmp.start then loadedcmp:start() end
 
-    if loadedcmp.onUpdate then
+    if loadedcmp.on_update then
     	if not self.updatecomponents then self.updatecomponents={} end
     	self.updatecomponents[name]=loadedcmp
         add_global_update_comp(loadedcmp)
@@ -76,9 +77,9 @@ function LuaObject:add_component(arg)
     self.updatecomponents[name] = nil
  end
 
- function LuaObject:set_active(bl)
-    self.active = bl
- end
+ -- function LuaObject:set_active(bl)
+ --    self.active = bl
+ -- end
 
 function LuaObject:dispose()
 
@@ -89,18 +90,50 @@ function LuaObject:dispose()
     self.components=nil
     self.updatecomponents = nil
     self.active=false
+    self.is_disposed = true
+end
+
+--event eg:on_showed
+--method_args {{method = "",args = ...},}
+function LuaObject:register_event(event,method,...) --在某个事件后调用自己的某个方法
+    if self.event_fun == nil then self.event_fun = {} end
+    local event_call = self.event_fun[event]
+    if event_call == nil then event_call = {} self.event_fun[event] = event_call end
+    event_call[method] = {...}
+end
+
+function LuaObject:call_event(event) --触发注册的事件方法，调用之后此event会被remove
+    if self.event_fun == nil then return end
+    local event_call = self.event_fun[event]
+    if event_call and not self.is_disposed then
+        local t
+        for k,v in pairs(event_call) do
+            t = type(k) 
+            if t == "string" then
+                fn = self[k]
+                if fn then fn(self,unpack(v)) end
+            elseif t == "function" then
+                k(self,unpack(v))
+            end
+        end
+    end
+    self.event_fun[event] = nil
 end
 
  function LuaObject:send_message(method,...)
     local cmps=self.components
     local fn
-    for k,v in pairs(cmps) do
-        fn = v[method]
-       if fn then fn(v,...) end --fn(v,unpack({...}))
-    end
-
+    
     fn = self[method]
     if fn then fn(self,...) end --fn(self,{...})
+    
+    if cmps then
+        for k,v in pairs(cmps) do
+            fn = v[method]
+           if fn then fn(v,...) end --fn(v,unpack({...}))
+        end
+    end
+   
  end
 
 function LuaObject:__tostring()

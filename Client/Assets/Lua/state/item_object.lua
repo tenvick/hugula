@@ -69,14 +69,15 @@ function ItemObject:clear( ... )
    self.assets_loaded = false
    assert(assets ~= nil)
    for k,v in ipairs(assets) do
-        v:clear()
+        v:dispose()
     end
 end
 
 function ItemObject:on_focus( ... )
     if self.assets_loaded then 
         self:show()  
-        self:on_showed()     
+        self:on_showed()    
+        self:call_event("on_showed")
     else
         if self.assets and #self.assets >= 1 then --如果没有资源
             StateManager:check_show_transform()
@@ -85,13 +86,14 @@ function ItemObject:on_focus( ... )
             self.assets_loaded = true
             self:show()  
             self:on_showed() 
+            self:call_event("on_showed")
         end
     end
 end
 
-function ItemObject:on_back() --返回时候调用
+-- function ItemObject:on_back() --返回时候自己实现调用
 
-end
+-- end
 
 function ItemObject:on_hide()
 end

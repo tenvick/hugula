@@ -21,6 +21,10 @@ public class LHighway : CHighway {
 		base.OnSharedComplete += LHighway_onSharedComplete;
 	}
 	
+    /// <summary>
+    /// 加载luatable里面的request
+    /// </summary>
+    /// <param name="reqs"></param>
 	public void LoadLuaTable(LuaTable reqs)
 	{
         //System.Collections.IEnumerator luatb = reqs.GetEnumerator();
@@ -33,24 +37,6 @@ public class LHighway : CHighway {
             AddReqToQueue((CRequest)pair.value);
         }
         BeginQueue();
-	}
-
-
-	protected  override object  GetCache(string Key)
-	{
-		if (this._cache != null)
-			return _cache [Key];
-		else
-			return null;
-	}
-	
-	protected override void SetCache(string key,object Value)
-	{
-		if (onCacheFn != null) {
-			onCacheFn.call(key,Value);
-				}
-		else if (this._cache != null)
-			this._cache [key] = Value;
 	}
 
 	#region protected method
@@ -73,20 +59,6 @@ public class LHighway : CHighway {
 			onAllCompleteFn.call(loader);
 	}
 	
-	private LuaTable _cache;
-	
-	public override object cache
-	{
-		get { return _cache; }
-		set
-		{
-			if (value is LuaTable)
-				_cache = (LuaTable)value;
-		}
-	}
-
-
-
 	#endregion
 
 	#region  delegate and event

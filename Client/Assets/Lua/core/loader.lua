@@ -3,18 +3,16 @@
 --	loader loadresouce from assetbundl
 --	author pu
 ------------------------------------------------
--- import "UnityEngine"
 Loader={}
 local Resources = Resources
 local CTransport=CTransport
-local LMultipleLoader= LHighway-- luanet.import_type("LHighway") --toLuaCS.LMultipleLoader-- local LHighway = luanet.LHighway.instance LMultipleLoader
+local LMultipleLoader= LHighway-- 
 LMultipleLoader=LMultipleLoader.instance
 local Request=LRequest
 local AssetBundle = UnityEngine.AssetBundle
 local WWW = UnityEngine.WWW
---local to1=luanet.LuaHelper
---local to2=luanet.CUtils
-local SetReqDataFromData=CHighway.SetReqDataFromData
+local CacheManager = CacheManager
+local SetReqDataFromData= CacheManager.SetRequestDataFromCache 
 
 local LightHelper = LightHelper
 local LuaHelper = LuaHelper
@@ -23,9 +21,8 @@ local CUtils = CUtils
 
 local Loader=Loader 
 Loader.multipleLoader=LMultipleLoader
-Loader.resdic={} --cache dic
+-- Loader.resdic={} --cache dic
 Loader.shareCache ={}
-LMultipleLoader.cache=Loader.resdic
 
 -- print_table(getmetatable(LMultipleLoader))
 local function dispatch_complete(req)
@@ -38,10 +35,9 @@ local function load_by_url7(url,assetName,assetType,compFn,cache,endFn,head)
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head~=nil then req.head=head end 
-	if cache==nil or cache==true then req.cache=true end
+	-- if cache==nil or cache==true then req.cache=true end
 	local key=req.key
-	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
+	if SetReqDataFromData(req) then dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req) 
 	end
 end
@@ -52,19 +48,18 @@ local function load_by_url5(url,compFn,cache,endFn,head)
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head~=nil then req.head=head end 
-	if cache==nil or cache==true then req.cache=true end
+	-- if cache==nil or cache==true then req.cache=true end
 	local key=req.key
-	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
+	if SetReqDataFromData(req) then dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req) 
 	end
 end
 
 local function load_by_req( req,cache )
-	if cache==nil or cache==true then req.cache=true end
-	local key=req.key
-	local cacheData=Loader.resdic[key]
-	if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
+	-- if cache==nil or cache==true then req.cache=true end
+	-- local key=req.key
+	-- local cacheData=Loader.resdic[key]
+	if SetReqDataFromData(req) then dispatch_complete(req)
 	else Loader.multipleLoader:LoadReq(req)
 	end 
 end
@@ -89,48 +84,32 @@ local function load_by_table(tb,cache)
 			if v.onEndFn then req.onEndFn = v.onEndFn end
 			if v.head then req.head = v.head end
 			key=req.key
-			if cache==nil or cache==true then req.cache=true end
-			local cacheData=Loader.resdic[key]
-			if cacheData~=nil then SetReqDataFromData(req,cacheData) dispatch_complete(req)
+			-- if cache==nil or cache==true then req.cache=true end
+			if SetReqDataFromData(req) then dispatch_complete(req)
 			else table.insert(arrList,req)--arrList:Add(req)
 			end
 		elseif typen=="userdata" then
 			table.insert(arrList,v)
 		end
 	end
-	Loader.multipleLoader:LoadLuaTable(arrList)
-end
-
-function Loader:clear_item(key)
-	local assetBundle =	self.resdic[key]
-	if assetBundle then	assetBundle:Unload(false) end
-	self.resdic[key]=nil 
+	local multipleLoader = Loader.multipleLoader
+	multipleLoader.pushGroup = true --作为一组加载
+	Loader.multipleLoader:LoadLuaTable(arrList) 
+	multipleLoader.pushGroup = false
 end
 
 function Loader:clear(key)
-	if key then 
-		self:clear_item(key)
-	elseif (key==true) then
-		for k, v in pairs(self.resdic) do
-			self:clear_item(k)
-		end
+	local t = type(key)
+	if t == "string" then 
+		CacheManager.ClearCache(key)
 	end 
 --    unload_unused_assets()
-end
-
-function Loader:clear_shared_ab()
-    local share = Loader.shareCache
-    for k,v in pairs(share) do
-        v:Unload(false) 
-        -- print("clear_shared_ab "..k)
-    end
-    Loader.shareCache = {}
 end
 
 function Loader:unload(url)
 	if url then
 		local key=CUtils.getURLFullFileName(url)
-		self:clear_item(key)
+		self:clear(key)
 --        unload_unused_assets()
 	end
 end
@@ -152,28 +131,19 @@ function Loader:get_resource(...)
 	end
 end
 
-local function on_cache( key,www)
-	-- local key=req.key
-	-- local www=req.data
-	Loader.resdic[key]=www
-end
-
 local function on_shared_complete(req)
---	local typeName = req:GetType().Name
     local key=req.key
-    local data=req.assetBundle
--- print(key.." Shared is laoded")
-   	 LuaHelper.RefreshShader(data)
-     Loader.resdic[key]= data
-     Loader.shareCache[key] = data
+    local data=req.data --.assetBundle
+	-- print(key.." Shared is laoded")
+   	 -- LuaHelper.RefreshShader(data)
      local res = data:LoadAllAssets()
      --temp for lightmap
-     local i = string.match(key,"lightmap%-(%d+)_comp_light")
+     -- local i = string.match(key,"lightmap%-(%d+)_comp_light")
      -- print(i,key)
-     if i then
-     	LightHelper.SetLightMapSetting(tonumber(i),res[1],res[1])
-     	print("lightmap ",i,key,"settinged")
-     end     
+     -- if i then
+     -- 	LightHelper.SetLightMapSetting(tonumber(i),res[1],res[1])
+     -- 	print("lightmap ",i,key,"settinged")
+     -- end     
 end
 
 function Loader:set_onall_complete_fn(compFn)
@@ -192,13 +162,11 @@ function Loader:refresh_assetbundle_manifest(onReady)
 --        print(req1.key.." on comp ")
         local data=req1.data
         CTransport.m_AssetBundleManifest=data
-        req1.assetBundle:Unload(false)
-        req1.www:Dispose()
+        -- CacheManager.ClearCache(req1.key)
         if onReady then onReady() end
     end
 
     self:get_resource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)
 end
 
--- Loader.multipleLoader.onCacheFn=on_cache
 Loader.multipleLoader.onSharedCompleteFn=on_shared_complete

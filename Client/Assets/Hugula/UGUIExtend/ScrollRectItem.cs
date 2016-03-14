@@ -57,7 +57,7 @@ public class ScrollRectItem : MonoBehaviour {
         }
         else
         {
-            Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + index + "]");
+            Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + index + "]");
             return null;
         }
     }

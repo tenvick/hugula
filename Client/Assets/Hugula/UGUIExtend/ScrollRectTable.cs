@@ -336,7 +336,7 @@ public class ScrollRectTable : MonoBehaviour
 			repositionIntList.RemoveAt(0);
 			if(currRenderIndex+1<=recordCount)
 			{
-				if(onItemRender!=null)onItemRender.call(item,currRenderIndex,data[currRenderIndex+1]);
+				if(onItemRender!=null)onItemRender.call(item,currRenderIndex+1,data[currRenderIndex+1]);
 			}
 		}
 	}
@@ -373,7 +373,7 @@ public class ScrollRectTable : MonoBehaviour
 		SetPosition(item.transform,index);
         if (this.onPreRender == null) onPreRender = (LuaFunction)LuaState.main.doString(PreRenderStr, "onPreRenderStr");
 		object dataI=index+1<=recordCount?data[index+1]:null;
-		onPreRender.call(item,index,dataI);
+		onPreRender.call(item,index+1,dataI);
 	}
 	
 	void PreRefresh(int i)

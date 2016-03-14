@@ -52,6 +52,13 @@ namespace SLua
         {
             LuaDLLWrapper.luaS_pushlstring(l, buffer, buffer.Length);
         }
+
+        public static void checkValueType(IntPtr l, int p, out LayerMask lm)
+        {
+            int v;
+            checkType(l, p, out v);
+            lm = v;
+        }
     }
 
     //public partial class LuaState : IDisposable

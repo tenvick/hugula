@@ -11,7 +11,7 @@ public class ReferGameObjects : MonoBehaviour {
     /// </summary>
     [SLua.DoNotToLua]
     [HideInInspector]
-    public List<string> names = new List<string>();
+    public List<string> names ;//= new List<string>();
 
 	public GameObject[] refers ;//=new List<GameObject>();
 
@@ -23,6 +23,11 @@ public class ReferGameObjects : MonoBehaviour {
 	public bool userBool;
 
     public int userInt;
+
+    /// <summary>
+    /// 缓存使用的hash值
+    /// </summary>
+    internal int cacheHash;
 	
     public Object Get(string n)
     {

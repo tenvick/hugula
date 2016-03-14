@@ -6,6 +6,6 @@ using System.Collections;
 
 public class Version {
 
-	public const uint VERSION= 0x000050;
+	public const uint VERSION= 0x000060;
 	
 }

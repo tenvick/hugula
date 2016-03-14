@@ -152,11 +152,7 @@ local function check_res()
 end
 
 local function check_version()
-	local function onURLComp(req )	
-		print(req.data[1] )
-		ResVersion=req.data[1] 
-		check_res() 
-	end
+	local function onURLComp(req )	ResVersion=req.data[1] check_res() Loader:clear(req.key) end
 	local function onURLErComp(req )   check_res() end
 	
 	local verPath=CUtils.GetFileFullPath(VERSION_FILE_NAME);
@@ -181,13 +177,13 @@ local function load_frist()
         local fristView = LuaHelper.Instantiate(r.data)
         _progressbar_txt = LuaHelper.GetComponentInChildren(fristView,"UnityEngine.UI.Text")
         -- _progressbar_txt.text="check resource  ..."
-        r.assetBundle:Unload(false)
+        -- r.assetBundle:Unload(false)
         --fristView.name = "Frist"
         UnityEngine.GameObject.Destroy(fristView)
         check_version()        
     end
 
-	Application.targetFrameRate=60
+	-- Application.targetFrameRate=60
    
 --    check_version()
 	 local url = CUtils.GetAssetFullPath(FRIST_VIEW)

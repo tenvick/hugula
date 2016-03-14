@@ -147,9 +147,10 @@ public static class Localization
 #endif
             if (txt != null) Load(txt);
             SelectLanguage(mLanguage);
-            req1.assetBundle.Unload(true);
+            //req1.assetBundle.Unload(true);
             //www.Dispose();
             //www = null;
+            CacheManager.ClearCache(req1.keyHashCode);
             localizationHasBeenSet = true;
         };
 

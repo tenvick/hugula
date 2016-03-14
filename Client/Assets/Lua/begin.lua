@@ -3,6 +3,7 @@
 --   
 --  author pu
 ------------------------------------------------
+require("core.structure")
 require("net.netMsgHelper")
 require("net.netAPIList")
 require("net.netProtocalPaser")
@@ -38,7 +39,7 @@ local function update()
 	local ostime=os.clock()
 	for i=1,len do
 		cmp=UPDATECOMPONENTS[i]
-		if cmp.enable then	cmp:onUpdate(ostime) end
+		if cmp.enable then	cmp:on_update(ostime) end
 	end
 end
 
@@ -49,7 +50,7 @@ pLua.updateFn=update
 require("game.common.load_csv")
 
 delay(function( ... )
-	print(get_value("level_name_001")) --language key
-	print_table(Model.getUnit(200001)) --read config
+	-- print(get_value("level_name_001")) --language key
+	-- print_table(Model.getUnit(200001)) --read config
 	-- Loader:clearSharedAB() 
 end,0.5)

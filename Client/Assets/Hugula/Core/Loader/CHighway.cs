@@ -10,7 +10,7 @@ using System.Threading;
 /// <summary>
 /// C highway.
 /// </summary>
-[SLua.CustomLuaClass] 
+[SLua.CustomLuaClass]
 public class CHighway
 {
 
@@ -24,13 +24,10 @@ public class CHighway
         loaderPool = new List<CTransport>();
     }
 
-    /**
-   * 将多个资源加载到本地，不放入资源缓存。</br>
-   * 参数:</br>
-   * <b>req:Array</b> 请求的队列Request类型  </br>
-   * <b>onComplete:Function(e:Multiple):void</b> 全部加载完成时回调函数  </br>
-   * <b>onProgress：Function(e:ProgressEvent):void</b> 加载进度调用函数  </br>
-   */
+    /// <summary>
+    /// 将多个资源加载到本地并缓存。
+    /// </summary>
+    /// <param name="req"></param>
     public void LoadReq(IList<CRequest> req)//onAllCompleteHandle onAllCompletehandle=null,onProgressHandle onProgresshandle=null
     {
         for (int i = 0; i < req.Count; i++)
@@ -38,6 +35,10 @@ public class CHighway
         BeginQueue();
     }
 
+    /// <summary>
+    /// 将多个资源加载到本地并缓存。
+    /// </summary>
+    /// <param name="req"></param>
     public void LoadReq(CRequest req)
     {
         AddReqToQueue(req);
@@ -47,7 +48,11 @@ public class CHighway
     protected void AddReqToQueue(CRequest req)
     {
         string key = req.udKey;
-        if (requestCallBackList.ContainsKey(key))
+        if (CacheManager.SetRequestDataFromCache(req)) //如果有缓存
+        {
+            req.DispatchComplete();
+        }
+        else if (requestCallBackList.ContainsKey(key))
         {
             requestCallBackList[key].Add(req);
         }
@@ -56,7 +61,7 @@ public class CHighway
             requestCallBackList[key] = new List<CRequest>();
             requestCallBackList[key].Add(req);
 
-			queue.Add(req);
+            queue.Add(req);
             if (queue.Size() == 0 && currentLoading == 0)
             {
                 totalLoading = 1;
@@ -65,6 +70,14 @@ public class CHighway
             else if (!req.isShared)
             {
                 totalLoading++;
+            }
+
+            if (pushGroup && !req.isShared) //如果是一组
+            {
+                if (currGroupRequest == null)
+                    currGroupRequest = _currGroupRequestRef;
+
+                currGroupRequest.Add(req);
             }
         }
     }
@@ -103,9 +116,9 @@ public class CHighway
             req.times++;
             load.key = key;
             loader[key] = req;
-//#if UNITY_EDITOR
-//            			Debug.Log ("-----------beginLoad <<:" + req.key + ">>  shared=" + req.isShared + ",currentLoading=" + this.currentLoading + "  max=" + this.maxLoading);
-//#endif
+            //#if UNITY_EDITOR
+            //            			Debug.Log ("-----------beginLoad <<:" + req.key + ">>  shared=" + req.isShared + ",currentLoading=" + this.currentLoading + "  max=" + this.maxLoading);
+            //#endif
             load.BeginLoad(req);
             return true;
         }
@@ -126,7 +139,6 @@ public class CHighway
 
     }
 
-
     protected void RemoveCallbacklist(CRequest creq)
     {
         if (requestCallBackList.ContainsKey(creq.udKey))
@@ -137,6 +149,15 @@ public class CHighway
 
     protected void Callbacklist(CRequest creq)
     {
+        //group
+        if (currGroupRequest != null)
+        {
+            if (!currGroupRequest.Remove(creq))//加载完成
+            {
+                //Debug.LogWarning(string.Format("{0} group remove fail",creq.key));
+            }
+        }
+
         IList<CRequest> callbacklist = requestCallBackList[creq.udKey];
         if (callbacklist != null)
         {
@@ -147,6 +168,7 @@ public class CHighway
             for (int i = 0; i < count; i++)
             {// reqitem in  callbacklist)
                 reqitem = callbacklist[i];
+                //CacheManager.SetRequestDataFromCache(reqitem);
                 reqitem.data = data;
                 reqitem.DispatchComplete();
             }
@@ -206,13 +228,14 @@ public class CHighway
     protected void OnDependencyComp(CRequest req)
     {
         CRequest childReq = req.childrenReq;
+        CountMananger.Add(req.keyHashCode); //引用数量加1
         if (childReq != null)
         {
             childReq.dependenciesCount--;
             if (childReq.dependenciesCount <= 0)
             {
-                object data = SetReqDataFromWWW(childReq, childReq.www);
-                if (childReq.cache || childReq.isShared) SetCache(childReq.key, data);
+                CacheManager.SetRequestDataFromCache(childReq);
+                if (childReq.isShared && OnSharedComplete != null) OnSharedComplete(childReq);
                 Callbacklist(childReq);
             }
         }
@@ -233,19 +256,15 @@ public class CHighway
 
             CRequest req1 = null;
             creq.dependenciesCount = depens.Count;
-            string key = string.Empty;
 
-            for (int i = 0; i < depens.Count; i++)
+            for (int i = 0; i < depens.Count; i++) //被依赖项目
             {
                 req1 = depens[i];
                 req1.OnComplete += OnDependencyComp;
                 req1.OnEnd += OnDependencyComp;
                 req1.childrenReq = creq;
-                key = req1.key;
-                object cacheData = GetCache(key);
-                if (cacheData != null)
+                if (CacheManager.SetRequestDataFromCache(req1))
                 {
-                    SetReqDataFromData(req1, cacheData);
                     req1.DispatchComplete();
                     continue;
                 }
@@ -255,17 +274,12 @@ public class CHighway
         else
         {
 
-            object data = SetReqDataFromWWW(creq, creq.www);
+            CacheManager.SetRequestDataFromCache(creq);
 
             if (creq.isShared)
             {
                 if (OnSharedComplete != null)
                     OnSharedComplete(creq);
-            }
-            else if (creq.cache)
-            {
-                SetCache(creq.key, data);
-                currentLoaded++;
             }
             else
             {
@@ -281,7 +295,14 @@ public class CHighway
 
     protected void CheckAllComplete()
     {
-        if (currentLoading <= 0 && queue.Size() == 0)
+        //判断组是否完成
+        if (currGroupRequest != null && currGroupRequest.Count == 0)
+        {
+            if (this.OnAllComplete != null)
+                this.OnAllComplete(this);
+
+            currGroupRequest = null;
+        }else if (currentLoading <= 0 && queue.Size() == 0)
         {
             loadingEvent.target = this;
             loadingEvent.total = totalLoading;
@@ -326,83 +347,6 @@ public class CHighway
 
     }
 
-
-    protected virtual object GetCache(string Key)
-    {
-        if (this._cache != null && this._cache.ContainsKey(Key))
-            return _cache[Key];
-        else
-            return null;
-    }
-
-    protected virtual void SetCache(string key, object Value)
-    {
-        if (this._cache != null)
-            this._cache[key] = Value;
-    }
-
-    protected virtual object SetReqDataFromWWW(CRequest req, WWW www)
-    {
-        object re = null;
-        AssetBundle abundle = www.assetBundle;
-        System.Type assetType = LuaHelper.GetType(req.assetType);
-        if (assetType == null) assetType = typeof(UnityEngine.Object);
-
-        if (assetType.Equals(typeof(System.String)))
-        {
-            req.data = new string[] { www.text };
-            req.assetBundle = null;
-            re = req.data;
-        }
-        else if (assetType.Equals(typeof(System.Byte[])))
-        {
-            req.data = www.bytes;
-            req.assetBundle = null;
-            re = req.data;
-        }
-        else if (!assetType.IsArray)
-        {
-            re = req.assetBundle;
-            req.data = req.assetBundle.LoadAsset(req.assetName, assetType);
-        }
-        else if (assetType.IsArray)
-        {
-            req.data = req.assetBundle.LoadAllAssets(assetType);
-            re = req.assetBundle;
-        }
-//        www.Dispose();
-        return re;
-    }
-
-    public static void SetReqDataFromData(CRequest req, object data)
-    {
-        System.Type assetType = LuaHelper.GetType(req.assetType);
-        if (assetType == null) assetType = typeof(GameObject);
-        if (data is AssetBundle)
-        {
-            req.assetBundle = data as AssetBundle;
-			if(req.assetBundle!=null)
-			{
-	            if (!assetType.IsArray)
-	            {
-	                req.data = req.assetBundle.LoadAsset(req.assetName, assetType);
-	            }
-	            else
-	            {
-	                req.data = req.assetBundle.LoadAllAssets(assetType);
-	            }
-			}
-        }
-        else if (data.GetType() == typeof(System.String))
-        {
-            req.data = data;
-        }
-        else if (data.GetType() == typeof(System.Byte[]))
-        {
-            req.data = data;
-        }
-    }
-
     #endregion
 
     protected CQueueRequest queue;
@@ -413,11 +357,14 @@ public class CHighway
     /// </summary>
     protected IDictionary<string, CRequest> loader;
 
+    /// <summary>
+    /// 当前组加载请求
+    /// </summary>
+    protected HashSet<CRequest> currGroupRequest;// = new HashSet<CRequest>();
+
+    private HashSet<CRequest> _currGroupRequestRef = new HashSet<CRequest>();
+
     #region memeber
-
-    //	public int currentWillLoading{private set;get;}	
-
-    //	protected int _currentLoading;
 
     public int currentLoading
     {
@@ -470,19 +417,11 @@ public class CHighway
 
     protected HighwayEventArg loadingEvent;
     protected IList<CTransport> loaderPool;
-
-    private IDictionary<string, object> _cache;
-
-    public virtual object cache
-    {
-        get { return _cache; }
-        set
-        {
-            if (value is IDictionary)
-                _cache = (IDictionary<string, object>)value;
-        }
-    }
-
+    
+    /// <summary>
+    /// 将接下来的所有添加的加载请求放入一组，完成后触发on_allComplete事件
+    /// </summary>
+    public bool pushGroup = false;
     #endregion
 
     #region  delegate and event
@@ -490,7 +429,6 @@ public class CHighway
     public event System.Action<CHighway> OnAllComplete;
     public event System.Action<CHighway, HighwayEventArg> OnProgress;
     public event System.Action<CRequest> OnSharedComplete;
-    //	public event System.Action<CRequest> OnCache;
     #endregion
 
     private static CHighway _instance;
@@ -513,6 +451,3 @@ public class HighwayEventArg
     public int current;
     public float progress;
 }
-
-//public delegate void OnAllCompleteHandle(MultipleLoader loader);
-//public delegate void OnProgressHandle(MultipleLoader loader,LoaderEventArg arg);

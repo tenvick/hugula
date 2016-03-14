@@ -19,23 +19,23 @@ Asset = class(function(self,url,names)
 	end
     self.items = {}
     self.root = nil
+    self.refer = nil --ReferGameObjects
 end)
 
+--清理引用
 function Asset:clear()
-	-- if self.type == SINGLE then
-		print("clear"..self.root.name)
-		if self.root then LuaHelper.Destroy(self.root) end
-		self.root = nil
-		GAMEOBJECT_ATLAS[self.key]=nil
-		self.items={}
-		-- self.names=nil
-		--self.names=nil
-	-- elseif self.items then
-	-- 	for k,v in pairs(self.items) do
-	-- 		LuaHelper.Destory(v)
-	-- 	end
-	-- 	self.items=nil
-	-- end
+	self.root = nil
+	self.refer = nil
+	table.clear(self.items)
+end
+
+--消耗
+function Asset:dispose()
+	if self.root then LuaHelper.Destroy(self.root) end
+	self.root = nil
+	self.refer = nil
+	GAMEOBJECT_ATLAS[self.key]=nil
+	table.clear(self.items)
 end
 
 function Asset:show(...)
@@ -77,8 +77,12 @@ function Asset:copy_to(asse)
 			asse.items[v] = ref
 		end
 	else
-		asse.items=self.items
+		asse.items = {}
+		for k,v in pairs(self.items) do
+			asse.items[k]=v
+		end
 	end
+	asse.refer = self.refer
 	asse.root = self.root
 	return asse
 end

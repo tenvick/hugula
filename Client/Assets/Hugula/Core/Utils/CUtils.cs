@@ -216,7 +216,7 @@ public class CUtils {
 #elif UNITY_STANDALONE_OSX
 		return  "StandaloneOSXIntel";
 #else
-            return "Windows";
+        return "StandaloneWindows";
 #endif
 
 	}

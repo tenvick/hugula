@@ -607,35 +607,35 @@ end
 			// fix android performance drop with JIT on according to luajit mailist post
 			LuaState.get(L).doString("if jit then require('jit.opt').start('sizemcode=256','maxmcode=256') for i=1,1000 do end end");
 #endif
-			
+
 			pushcsfunction(L, dofile);
-            LuaDLL.lua_setglobal(L, "dofile");
+			LuaDLL.lua_setglobal(L, "dofile");
 
 			pushcsfunction(L, loadfile);
-            LuaDLL.lua_setglobal(L, "loadfile");
+			LuaDLL.lua_setglobal(L, "loadfile");
 
 			pushcsfunction(L, loader);
-            int loaderFunc = LuaDLL.lua_gettop(L);
+			int loaderFunc = LuaDLL.lua_gettop(L);
 
-            LuaDLL.lua_getglobal(L, "package");
+			LuaDLL.lua_getglobal(L, "package");
 #if LUA_5_3
 			LuaDLL.lua_getfield(L, -1, "searchers");
 #else
-            LuaDLL.lua_getfield(L, -1, "loaders");
+			LuaDLL.lua_getfield(L, -1, "loaders");
 #endif
-            int loaderTable = LuaDLL.lua_gettop(L);
+			int loaderTable = LuaDLL.lua_gettop(L);
 
-            // Shift table elements right
-            for (int e = LuaDLL.lua_rawlen(L, loaderTable) + 1; e > 1; e--)
-            {
-                LuaDLL.lua_rawgeti(L, loaderTable, e - 1);
-                LuaDLL.lua_rawseti(L, loaderTable, e);
-            }
-            LuaDLL.lua_pushvalue(L, loaderFunc);
-            LuaDLL.lua_rawseti(L, loaderTable, 1);
-            LuaDLL.lua_settop(L, 0);
-            return 0;
-        }
+			// Shift table elements right
+			for (int e = LuaDLL.lua_rawlen(L, loaderTable) + 1; e > 2; e--)
+			{
+				LuaDLL.lua_rawgeti(L, loaderTable, e - 1);
+				LuaDLL.lua_rawseti(L, loaderTable, e);
+			}
+			LuaDLL.lua_pushvalue(L, loaderFunc);
+			LuaDLL.lua_rawseti(L, loaderTable, 2);
+			LuaDLL.lua_settop(L, 0);
+			return 0;
+		}
 
 		public void Close()
 		{
@@ -737,7 +737,7 @@ end
 			}
 			catch (Exception e)
 			{
-				return LuaObject.error(l,e);
+				return LuaObject.error(l, e);
 			}
 		}
 
@@ -745,7 +745,7 @@ end
 		internal static int pcall(IntPtr L)
 		{
 			int status;
-			if(LuaDLL.lua_type(L,1)!=LuaTypes.LUA_TFUNCTION)
+			if (LuaDLL.lua_type(L, 1) != LuaTypes.LUA_TFUNCTION)
 			{
 				return LuaObject.error(L, "arg 1 expect function");
 			}
@@ -756,16 +756,16 @@ end
 			return LuaDLL.lua_gettop(L);  /* return status + all results */
 		}
 
-        internal static void pcall(IntPtr l,LuaCSFunction f)
-        {
-            int err = LuaObject.pushTry(l);
-            LuaDLL.lua_pushcfunction(l, f);
-            if(LuaDLL.lua_pcall(l, 0, 0, err)!=0)
-            {
-                LuaDLL.lua_pop(l, 1);
-            }
-            LuaDLL.lua_remove(l, err);
-        }
+		internal static void pcall(IntPtr l, LuaCSFunction f)
+		{
+			int err = LuaObject.pushTry(l);
+			LuaDLL.lua_pushcfunction(l, f);
+			if (LuaDLL.lua_pcall(l, 0, 0, err) != 0)
+			{
+				LuaDLL.lua_pop(l, 1);
+			}
+			LuaDLL.lua_remove(l, err);
+		}
 
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 		internal static int print(IntPtr L)
@@ -831,35 +831,35 @@ end
 				int k = LuaDLL.lua_gettop(L);
 				LuaDLL.lua_call(L, 0, LuaDLL.LUA_MULTRET);
 				k = LuaDLL.lua_gettop(L);
-				return k-n;
+				return k - n;
 			}
 		}
 
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 		static public int panicCallback(IntPtr l)
 		{
-			string reason = string.Format ("unprotected error in call to Lua API ({0})", LuaDLL.lua_tostring (l, -1));
-			throw new Exception (reason);
+			string reason = string.Format("unprotected error in call to Lua API ({0})", LuaDLL.lua_tostring(l, -1));
+			throw new Exception(reason);
 		}
 
 		static public void pushcsfunction(IntPtr L, LuaCSFunction function)
 		{
 			LuaDLL.lua_getref(L, get(L).PCallCSFunctionRef);
-			LuaDLL.lua_pushcclosure(L, Marshal.GetFunctionPointerForDelegate(function),0);
+			LuaDLL.lua_pushcclosure(L, Marshal.GetFunctionPointerForDelegate(function), 0);
 			LuaDLL.lua_call(L, 1, 1);
 		}
 
 		public object doString(string str)
 		{
 			byte[] bytes = Encoding.UTF8.GetBytes(str);
-			
+
 			object obj;
 			if (doBuffer(bytes, "temp buffer", out obj))
 				return obj;
 			return null; ;
 		}
 
-		public object doString(string str,string chunkname)
+		public object doString(string str, string chunkname)
 		{
 			byte[] bytes = Encoding.UTF8.GetBytes(str);
 
@@ -868,7 +868,7 @@ end
 				return obj;
 			return null; ;
 		}
-		
+
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 		internal static int loader(IntPtr L)
 		{
@@ -903,7 +903,7 @@ end
 			}
 
 			object obj;
-			if (doBuffer(bytes, "@"+fn, out obj))
+			if (doBuffer(bytes, "@" + fn, out obj))
 				return obj;
 			return null;
 		}
@@ -911,7 +911,7 @@ end
 		public bool doBuffer(byte[] bytes, string fn, out object ret)
 		{
 			ret = null;
-            int errfunc = LuaObject.pushTry(L);
+			int errfunc = LuaObject.pushTry(L);
 			if (LuaDLL.luaL_loadbuffer(L, bytes, bytes.Length, fn) == 0)
 			{
 				if (LuaDLL.lua_pcall(L, 0, LuaDLL.LUA_MULTRET, errfunc) != 0)
@@ -947,8 +947,6 @@ end
 				    bytes = File.ReadAllBytes(fn);
 #endif
 				}
-
-				if (bytes != null) DebugInterface.require(fn, bytes);
 				return bytes;
 			}
 			catch (Exception e)
@@ -1140,7 +1138,7 @@ end
 			// fix il2cpp lock issue on iOS
 			lock (refQueue)
 			{
-				cnt=refQueue.Count;
+				cnt = refQueue.Count;
 			}
 
 			for (int n = 0; n < cnt; n++)

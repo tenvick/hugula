@@ -33,6 +33,7 @@ function AssetLoader:on_asset_loaded(key,asset)
 		self.lua_obj.assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
 		if self.lua_obj.on_showed then self.lua_obj:on_showed() end
+		self.lua_obj:call_event("on_showed")
 		if StateManager and StateManager:get_current_state():is_all_loaded() then 
 			StateManager:check_hide_transform()
 			StateManager:call_all_item_method()
@@ -57,7 +58,7 @@ function AssetLoader:load_assets(assets)
 			base_asset=GAMEOBJECT_ATLAS[key]
 		else
 			local main=req.data --.assetBundle.mainAsset
-			LuaHelper.RefreshShader(req.assetBundle)
+			-- LuaHelper.RefreshShader(req.assetBundle)
 			-- print(req.key,req.url)
 			local root=LuaHelper.Instantiate(main)
 			root.name=main.name
@@ -69,7 +70,7 @@ function AssetLoader:load_assets(assets)
 			GAMEOBJECT_ATLAS[key]=base_asset
 		end
 		base_asset:copy_to(ass)
-		Loader:clear_item(req.key)
+		-- Loader:clear_item(req.key)
 		self:on_asset_loaded(key,ass)
 	end
 

@@ -64,6 +64,8 @@ public class CTransport : MonoBehaviour {
 			float pro=www.progress;
 			if(OnProcess!=null)
 				OnProcess(this,pro);
+
+            LoadUpdate();
 		}
 	}
 
@@ -74,72 +76,133 @@ public class CTransport : MonoBehaviour {
 	{
 		isFree=false;
 		this._req = req;
+        this.enabled = true;
 //		Debug.Log("BeginLoad : url "+req.url+" \n key:"+req.key);
-		StopCoroutine (Loadres ());
-		StartCoroutine(Loadres());
+        NewLoad();
 	}
 
 	#endregion
 
 
 	#region protected method
+    /// <summary>
+    /// 开始加载
+    /// </summary>
+    void NewLoad()
+    {
+        if (req.head is WWWForm)
+        {
+            www = new WWW(req.url, (WWWForm)req.head);
+        }
+        else if (req.head is byte[])
+        {
+            www = new WWW(req.url, (byte[])req.head);
+        }
+        else
+        {
+            www = new WWW(req.url); //WWW.LoadFromCacheOrDownload(req.url,1);  
+        }
+    }
 
-	IEnumerator Loadres()
-	{
-//		Debug.Log("StartCoroutine Loadres : url "+req.url+" \n key:"+req.key);
-		if(req.head is WWWForm)
-		{
-			www=new WWW(req.url,(WWWForm)req.head);
-		}else if(req.head is byte[])
-		{
-			www = new WWW(req.url, (byte[])req.head);
-		}
-		else
-		{
-			www=new WWW(req.url); //WWW.LoadFromCacheOrDownload(req.url,1);  
-		}
-//		Debug.Log("StartCoroutine www : url "+req.url+" \n key:"+req.key);
-		yield return www;
-
-		if(www.error!=null)
-		{
-			Debug.LogWarning("error : url "+req.url+" \n error:"+www.error);
-			isFree =true;
-			DispatchErrorEvent(req);
-		}
-		else
-		{
-			if(OnProcess!=null)
-				OnProcess(this,1);
-//            Debug.Log("will complete : url " + req.url + " \n key:" + req.key);
-			try
-			{
-
-                req.www = www;
-                req.assetBundle = www.assetBundle;
-                IList<CRequest> depens = null;
-                //if (string.IsNullOrEmpty(req.assetName)) req.assetName = req.key;
-                if(m_AssetBundleManifest!=null)
+    /// <summary>
+    /// 判断加载完成
+    /// </summary>
+    void LoadUpdate()
+    {
+        if (www.isDone)
+        {
+            isFree = true;
+            enabled = false;
+            if (www.error != null)
+            {
+                Debug.LogWarning("error : url " + req.url + " \n error:" + www.error);
+                DispatchErrorEvent(req);
+            }
+            else
+            {
+                if (OnProcess != null)
+                    OnProcess(this, 1);
+                //Debug.Log("will complete : url " + req.url + " \n key:" + req.key);
+                try
                 {
-                    string[] deps = m_AssetBundleManifest.GetAllDependencies(req.assetBundleName);
-                    //foreach (var n in deps)
-                    //{
-                    //    Debug.Log(n);
-                    //}
-                    depens = GetDependencies(deps);
-                }else if (m_AssetBundleManifest == null)
-                {
-					Debug.LogWarning(req.key+"Please initialize AssetBundleManifest");
+                    CacheData cacheData = new CacheData(www, www.assetBundle, req.key);//缓存
+                    CacheManager.AddCache(cacheData);
+
+                    IList<CRequest> depens = null;
+                    if (m_AssetBundleManifest != null)
+                    {
+                        string[] deps = m_AssetBundleManifest.GetAllDependencies(req.assetBundleName);
+                        depens = GetDependencies(deps);
+                        int[] alldepens = GetDependenciesHashCode(deps);
+                        cacheData.allDependencies = alldepens;
+                    }
+                    else if (m_AssetBundleManifest == null)
+                    {
+                        Debug.LogWarning(req.key + "Please initialize AssetBundleManifest");
+                    }
+                    this.DispatchCompleteEvent(this.req, depens);
                 }
-				isFree =true;
-				this.DispatchCompleteEvent(this.req,depens);
-			}
-			catch (Exception e)
-			{
-				Debug.LogError(e);
-			}
-		}
-	}
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+            }
+        }
+    }
+
+//    IEnumerator Loadres()
+//    {
+////		Debug.Log("StartCoroutine Loadres : url "+req.url+" \n key:"+req.key);
+//        if(req.head is WWWForm)
+//        {
+//            www=new WWW(req.url,(WWWForm)req.head);
+//        }else if(req.head is byte[])
+//        {
+//            www = new WWW(req.url, (byte[])req.head);
+//        }
+//        else
+//        {
+//            www=new WWW(req.url); //WWW.LoadFromCacheOrDownload(req.url,1);  
+//        }
+////		Debug.Log("StartCoroutine www : url "+req.url+" \n key:"+req.key);
+//        yield return www;
+
+//        if(www.error!=null)
+//        {
+//            Debug.LogWarning("error : url "+req.url+" \n error:"+www.error);
+//            isFree =true;
+//            DispatchErrorEvent(req);
+//        }
+//        else
+//        {
+//            if(OnProcess!=null)
+//                OnProcess(this,1);
+//            //Debug.Log("will complete : url " + req.url + " \n key:" + req.key);
+//            try
+//            {
+//                CacheData cacheData = new CacheData(www, www.assetBundle, req.key);//缓存
+//                CacheManager.AddCache(cacheData);
+
+//                IList<CRequest> depens = null;
+//                if(m_AssetBundleManifest!=null)
+//                {
+//                    string[] deps = m_AssetBundleManifest.GetAllDependencies(req.assetBundleName);
+//                    depens = GetDependencies(deps);
+//                    int[] alldepens = GetDependenciesHashCode(deps);
+//                    cacheData.allDependencies = alldepens;
+//                }else if (m_AssetBundleManifest == null)
+//                {
+//                    Debug.LogWarning(req.key+"Please initialize AssetBundleManifest");
+//                }
+//                isFree =true;
+//                this.DispatchCompleteEvent(this.req,depens);
+//            }
+//            catch (Exception e)
+//            {
+//                Debug.LogError(e);
+//            }
+//        }
+//    }
 
 	/// <summary>
 	/// get Dependencies req
@@ -149,7 +212,7 @@ public class CTransport : MonoBehaviour {
     private IList<CRequest> GetDependencies(string[] paths)
 	{
 
-        if (paths==null && paths.Length==0) return null;
+        if (paths==null || paths.Length==0) return null;
         
 		IList<CRequest> reqs=new List<CRequest>();
 		CRequest item;
@@ -169,13 +232,30 @@ public class CTransport : MonoBehaviour {
 						return null;
 	}
 
+    /// <summary>
+    /// 获取依赖的
+    /// </summary>
+    /// <param name="paths"></param>
+    /// <returns></returns>
+    private int[] GetDependenciesHashCode(string[] paths)
+    {
+        if (paths == null || paths.Length == 0) return null;
 
-	private void DispatchCompleteEvent(CRequest cReq,IList<CRequest> dependencies)
+        int[] hashs = new int[paths.Length];
+
+        for (int i = 0; i < paths.Length; i++)
+        {
+            hashs[i] = LuaHelper.StringToHash(CUtils.GetKeyURLFileName(paths[i]));
+        }
+
+        return hashs;
+    }
+
+    private void DispatchCompleteEvent(CRequest cReq, IList<CRequest> dependencies)
 	{
 		if(OnComplete!=null)
 			OnComplete(this,cReq,dependencies);
 	}
-	
 	
 	private void DispatchErrorEvent(CRequest cReq)
 	{

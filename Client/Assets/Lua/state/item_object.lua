@@ -76,7 +76,7 @@ end
 function ItemObject:on_focus( ... )
     if self.assets_loaded then 
         self:show()  
-        self:on_showed()    
+        self:send_message("on_showed")
         self:call_event("on_showed")
     else
         if self.assets and #self.assets >= 1 then --如果没有资源
@@ -85,7 +85,7 @@ function ItemObject:on_focus( ... )
         else
             self.assets_loaded = true
             self:show()  
-            self:on_showed() 
+            self:send_message("on_showed")
             self:call_event("on_showed")
         end
     end
@@ -100,7 +100,7 @@ end
 
 function ItemObject:on_blur( ... )
     self:hide()
-    self:on_hide()
+    self:send_message("on_hide")
 end
 
 function ItemObject:add_to_state(state)

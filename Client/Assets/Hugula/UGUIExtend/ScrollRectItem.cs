@@ -18,7 +18,7 @@ public class ScrollRectItem : MonoBehaviour {
 
 	public RectTransform rectTransform;
 
-	public GameObject[] refers;
+    //public GameObject[] refers;
     [HideInInspector]
     public Object[] monos;
 

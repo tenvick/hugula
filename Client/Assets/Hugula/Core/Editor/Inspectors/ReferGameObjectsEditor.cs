@@ -83,6 +83,7 @@ public class ReferGameObjectsEditor : Editor {
 
         if (GUILayout.Button("Add Item"))
         {
+            if(temp.names==null)temp.names = new List<string>();
             temp.names.Add("");
             AddMonos(temp,-1,null);
         }

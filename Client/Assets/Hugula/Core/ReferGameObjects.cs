@@ -13,7 +13,7 @@ public class ReferGameObjects : MonoBehaviour {
     [HideInInspector]
     public List<string> names ;//= new List<string>();
 
-	public GameObject[] refers ;//=new List<GameObject>();
+    //public GameObject[] refers ;//=new List<GameObject>();
 
     [HideInInspector]
 	public Object[] monos;// = new List<Behaviour>();

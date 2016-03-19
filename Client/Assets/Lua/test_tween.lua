@@ -14,7 +14,7 @@ LeanTween.rotateAround(cam, Vector3.up, 359.999, 10.0 ):setEase( LeanTweenType.e
 
 local obj=LuaHelper.Find("Camer1Path")
 local camera1Path=LuaHelper.GetComponent(obj,"ReferGameObjects")
-local refers = camera1Path.refers
+local refers = camera1Path.monos
 function oncomplete( paths )
 	print("on complete ")
 	print(paths[6])
@@ -22,7 +22,9 @@ end
 
 
 local paths={}--Vector3[4]
-for k,v in ipairs(refers) do
+local len = camera1Path.Length
+for i = 1,len do
+	local v = camera1Path:Get(i)
 	local vct =v.transform.position+cube.transform.position
 	table.insert(paths,vct)
 end

@@ -21,7 +21,7 @@ local block
 
 local UIBlock = class(function(self,luaObj )
 	self.luaObj=luaObj
-	self.enable=true
+	self.enable=false
 	RunTime =Application.platform
 end)
 -----------------------------private-------------------------------------
@@ -38,7 +38,7 @@ function UIBlock:getState()
 end
 
 function UIBlock:on_assets_load(items)
-
+	-- self.enable = true
 	print(" UIBlock .. onAssetsLoad...")
 	local asserts = self.luaObj.components.asset_loader.assets
 	startPanel = asserts.blockroot.items.StartPanel
@@ -57,11 +57,19 @@ function UIBlock:on_assets_load(items)
 	LuaHelper.ForeachChild(endPanel,onItem)
 end
 
+function UIBlock:on_showed()
+	self.enable = true
+end
+
+function UIBlock:on_hide()
+	self.enable = false
+end
+
 function UIBlock:setScore(score)
 	scoreLabel.text = string.format(" you got %s ",score)
 end
 
-function UIBlock:onUpdate(time)
+function UIBlock:on_update(time)
 	if RunTime==RuntimePlatform.WindowsEditor or RunTime==RuntimePlatform.OSXEditor or 
 		RunTime == RuntimePlatform.WindowsPlayer or RunTime == RuntimePlatform.OSXPlayer  then
 		local dt = time-lastInputTime
@@ -90,7 +98,7 @@ function UIBlock:onUpdate(time)
 end
 
 function UIBlock:onTapClick(pos)
-		print("you are onclick "..tostring(state))
+		-- print("you are onclick "..tostring(state))
 		if state==1   then state =2 
 		elseif state == 3   then 
 			self.luaObj.components.block:endGame()

@@ -27,8 +27,8 @@ youname.assets=
 ------------------public------------------
 -- 资源加载完成时候调用方法
 function youname:on_assets_load(items)
-	-- local ReferScript = LuaHelper.GetComponent(self.assets[1].root,"ReferGameObjects") 
-	-- local ReferScript1 = LuaHelper.GetComponent(self.assets[2].items["yourItemName"],"ReferGameObjects")
+	-- local refer = LuaHelper.GetComponent(self.assets[1].root,"ReferGameObjects") 
+	-- local refer1 = LuaHelper.GetComponent(self.assets[2].items["yourItemName"],"ReferGameObjects")
 end
 
 

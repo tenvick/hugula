@@ -1,22 +1,22 @@
 local tetris = LuaItemManager:get_item_obejct("tetris")
 
-local LuaObject=LuaObject
 local isover=false
 
-local assets=
+tetris.assets=
 {
  	Asset("blockroot.u3d")
 }
 
 local function ceraterussia_block( ... )
-	 local bolck = LuaObject("bolck")
-	bolck:add_component("russian_blocks.block")
-	bolck:add_component("russian_blocks.block_manager")
-	bolck:add_component("asset_loader"):load(assets)
-	bolck:add_component("russian_blocks.ui_block")
-	return bolck
+	tetris:add_component("russian_blocks.block")
+	tetris:add_component("russian_blocks.block_manager")
+	tetris:add_component("russian_blocks.ui_block")
 end
 
+ceraterussia_block()
+tetris.bolck=tetris.components.block
+
+-- print(tetris.components.block_manager)
 function tetris:on_click(obj,arg)
 	print("you are click "..obj.name )
 	local cmd =obj.name 
@@ -34,7 +34,7 @@ function tetris:on_click(obj,arg)
 		end
 	end
 
-	local block_manager=self.bolckObj.components.block_manager
+	local block_manager=self.components.block_manager
 
 	if  cmd == "ReplayBtn" then--isover and (cmd=="NGUIEvent" or  cmd == "Camera" ) then
 		if 	block_manager.leave>=1 then
@@ -55,7 +55,8 @@ function tetris:on_click(obj,arg)
 end
 
 function tetris:quit( )
-	-- print("Quit")
+	print("Quit")
+	StateManager:set_current_state(StateManager.welcome)
 end
 
 function tetris:game_over(block_manager)
@@ -64,19 +65,10 @@ function tetris:game_over(block_manager)
 	luagc()
 end
 
-function tetris:on_blur()
- 	if self.bolck~=nil then self.bolck:hide() end
- 	self.bolck = nil
+function tetris:on_showed()
+	-- body
 end
 
-function tetris:on_focus( ... )
-	-- print("onFocus")
-	if self.bolckObj==nil then
-		self.bolckObj=ceraterussia_block()
-		self.bolckObj.parent=self
-		self.bolck=self.bolckObj.components.block
-	else
-		self.bolck.components.block_manager:game_start()
-	end
-	isover=false
+function tetris:on_hide( ... )
+	-- body
 end

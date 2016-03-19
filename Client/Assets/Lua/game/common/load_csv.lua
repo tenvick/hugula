@@ -63,16 +63,17 @@ end
 
 
 local function load_comp(req)
-	FileHelper.UnpackConfigAssetBundleFn(req.assetBundle,decode_ziptxt)
-	print(req.data)
-	print(req.www)
-	req.assetBundle:Unload(false)
-	req.www:Dispose()
+	FileHelper.UnpackConfigAssetBundleFn(req.data,decode_ziptxt)
+	Loader:clear(req.key)
 end
 
 local function load_config_zip()
 	local url=CUtils.GetFileFullPath(CUtils.GetAssetPath("font1.u3d"))
-	Loader:get_resource(url,load_comp,false)
+	local req=Request(url)
+    req.assetType ="UnityEngine.TextAsset[]"
+	req.onCompleteFn=load_comp
+	Loader:get_resource(req,false)
+
 end
 
 load_config_zip()

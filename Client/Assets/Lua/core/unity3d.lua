@@ -54,14 +54,6 @@ end
 
 function print_table(tbl)	print(tojson(tbl)) end
 
-function string.split(s, delimiter)
-    result = {};
-    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match)
-    end
-    return result
-end
-
 function class(base, _ctor)
     local c = {}    -- a new class instance
     if not _ctor and type(base) == 'function' then
@@ -109,10 +101,6 @@ function lua_gc()
   collectgarbage("collect")
   c=collectgarbage("count")
   print(" gc end ="..tostring(c).." ")
-end
-
-function math.randomseed1(i)
-    math.randomseed(tostring(os.time()+tonumber(i)):reverse():sub(1, 6)) 
 end
 
 --释放没有使用的资源 (mesh,texture)

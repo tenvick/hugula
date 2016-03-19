@@ -32,7 +32,8 @@ function AssetLoader:on_asset_loaded(key,asset)
 	if self._load_curr >= self._load_count then
 		self.lua_obj.assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
-		if self.lua_obj.on_showed then self.lua_obj:on_showed() end
+		self.lua_obj:send_message("on_showed")
+		-- if self.lua_obj.on_showed then self.lua_obj:on_showed() end
 		self.lua_obj:call_event("on_showed")
 		if StateManager and StateManager:get_current_state():is_all_loaded() then 
 			StateManager:check_hide_transform()

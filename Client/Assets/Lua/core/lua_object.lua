@@ -48,7 +48,7 @@ function LuaObject:add_component(arg)
     local name = get_component_name(arg)
     local cmp = nil 
 	if self.components[name] then
-        print("component "..name.." already exists!")
+        -- print("component "..name.." already exists!")
         return self.components[name]
     end
     cmp = load_component(arg)
@@ -82,13 +82,8 @@ function LuaObject:add_component(arg)
  -- end
 
 function LuaObject:dispose()
-
-   -- for k,v in pairs(self.components) do
-       -- fn=v[method]
-       --if fn then  fn(v,unpack({...})) end
-    --end
-    self.components=nil
-    self.updatecomponents = nil
+    table.clear(self.components)
+    table.clear(self.updatecomponents)
     self.active=false
     self.is_disposed = true
 end

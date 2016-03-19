@@ -244,11 +244,7 @@ public class PrefabPool : MonoBehaviour
             }
 
 #if UNITY_EDITOR
-            var obj = value;
-            var active = obj.activeSelf;
-            if (active == false) obj.SetActive(true);
             LuaHelper.RefreshShader(value as GameObject);
-            if (active == false) obj.SetActive(active);
 #endif
             return true;
         }

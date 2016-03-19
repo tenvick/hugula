@@ -141,7 +141,6 @@ function StateManager:set_current_state(new_state,method,...)
     -- print("new_state",new_state)
     if(self._current_game_state ~= nil) then
         self._current_game_state:on_blur(new_state)
-        -- print("current_state",tostring(self._current_game_state))
     end
 
     local previousState = self._current_game_state
@@ -169,6 +168,7 @@ function StateManager:record_state(force_record) --记录状态用于返回
     end
 
     if self._record_enable == false and force_record == nil then return nil end --如果不能记录同时force_record没有值 直接返回
+    -- if self._record_enable == false then print("dont need record",tostring(curr_state)) return nil end
 
     local curr_log =  self._log_state:get(0) --get_log(self._log_state,-1) --上一个状态
     local need_record = get_diff_log(curr_state,curr_log) --是否需要记录
@@ -183,7 +183,7 @@ function StateManager:record_state(force_record) --记录状态用于返回
             end
         end
         self._log_state:push(log_state)
-        print("add log",os.time(),#self._log_state)
+        -- print("StateManager:record_state log",os.time(),#self._log_state,tostring(curr_state))
     end
 
 end
@@ -194,7 +194,7 @@ function StateManager:go_back(index) --返回
     if index > 0  then index = -1 end
 
     local back_log = self._log_state:get(index) --上一个状态
-    -- print(back_log)
+    -- print("StateManager:go_back ",back_log)
     while back_log == false do
         self._log_state:pop(1) --删除顶上第一个
         back_log = self._log_state:get(index) --上一个状态
@@ -207,19 +207,19 @@ function StateManager:go_back(index) --返回
 
     --添加状态
     local change,add,remove = get_diff_log(self._current_game_state,back_log)
-
+-- print(string.format("change = %s  add = %d remove = %d  back_state %s",change,#add,#remove,tostring(new_state)))
     if new_state == self._current_game_state then --如果是当前状态
         local curr = self._current_game_state
         for k,v in ipairs(add) do 
             curr:add_item(v)
             v:on_focus(curr)
-            v:on_back()
+            if v.onback then v:on_back() end
         end
 
         for k,v in ipairs(remove) do 
             curr:remove_item(v)
             v:on_blur(curr)
-            v:on_back()
+            -- v:on_back()
         end
     else
 
@@ -238,7 +238,8 @@ function StateManager:go_back(index) --返回
     
         local previous_state = self._current_game_state
         self._current_game_state = new_state
-        print("on_back",new_state)
+        -- print("on_back",new_state)
+        new_state:on_focus(previous_state)
         new_state:on_back(previous_state)
     end
 

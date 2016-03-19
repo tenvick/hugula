@@ -49,11 +49,7 @@ public static class  LuaHelper {
 #if UNITY_EDITOR
         if (clone is GameObject)
         {
-            var obj = clone as GameObject;
-            var active = obj.activeSelf;
-            if (active == false) obj.SetActive(true);
             LuaHelper.RefreshShader(clone as GameObject);
-            if (active == false) obj.SetActive(active);
         }
 #endif
         return clone;
@@ -90,11 +86,7 @@ public static class  LuaHelper {
 #if UNITY_EDITOR
         if (clone is GameObject)
         {
-            var obj = clone as GameObject;
-            var active = obj.activeSelf;
-            if (active == false) obj.SetActive(true);
             LuaHelper.RefreshShader(clone as GameObject);
-            if (active == false) obj.SetActive(active);
         }
 #endif
 		var transform=clone.transform;
@@ -121,11 +113,7 @@ public static class  LuaHelper {
 #if UNITY_EDITOR
         if (clone is GameObject)
         {
-            var obj = clone as GameObject;
-            var active = obj.activeSelf;
-            if (active == false) obj.SetActive(true);
             LuaHelper.RefreshShader(clone as GameObject);
-            if (active == false) obj.SetActive(active);
         }
 #endif
         var transform = clone.transform;
@@ -177,8 +165,6 @@ public static class  LuaHelper {
 	public static int GetLayerMask(string args)
 	{
 		string[] a = args.Split (',');
-        //foreach (var i in a)
-        //    Debug.Log (i);
 		return LayerMask.GetMask (a);
 	}
 
@@ -361,22 +347,22 @@ public static class  LuaHelper {
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="parent"></param>
-    /// <param name="eachFn"></param>
-    public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
-    {
-        GameObject[] lists = parent.refers;
-        int count = lists.Length;
-        GameObject child = null;
-        for (int i = 0; i < count; i++)
-        {
-            child = lists[i];
-            eachFn.call(i, child);
-        }
-    }
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    ///// <param name="parent"></param>
+    ///// <param name="eachFn"></param>
+    //public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
+    //{
+    //    GameObject[] lists = parent.refers;
+    //    int count = lists.Length;
+    //    GameObject child = null;
+    //    for (int i = 0; i < count; i++)
+    //    {
+    //        child = lists[i];
+    //        eachFn.call(i, child);
+    //    }
+    //}
 
 	/// <summary>
 	/// Raycast the specified ray.
@@ -433,34 +419,32 @@ public static class  LuaHelper {
         }
     }
 
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    ///// <param name="www"></param>
-    //public static void RefreshShader(WWW www)
-    //{
-    //    if (www.assetBundle != null) RefreshShader(www.assetBundle);
-    //}
-
     public static void RefreshShader(GameObject obj)
     {
-        List<Renderer> meshrs = new List<Renderer>(obj.GetComponentsInChildren<Renderer>());
+        List<Renderer> meshrs = new List<Renderer>(obj.GetComponentsInChildren<Renderer>(false));
         List<Material> mats = new List<Material>();
         //meshrs.Add(obj.GetComponent<Renderer>());
         for (int i = 0; i < meshrs.Count; i++)
         {
-            Material[] mat = meshrs[i].materials;
-            mats.AddRange(mat);
+            Material[] mat = meshrs[i].sharedMaterials;
+            if (mat == null) mat = meshrs[i].materials;
+            if (mat != null)
+            {
+                mats.AddRange(mat);
+            }
         }
 
         for (int i = 0; i < mats.Count; i++)
         {
             Material mat = mats[i];
-            string shaderName = mat.shader.name;
-            Shader newShader = Shader.Find(shaderName);
-            if (newShader != null)
+            if (mat != null)
             {
-                mat.shader = newShader;
+                string shaderName = mat.shader.name;
+                Shader newShader = Shader.Find(shaderName);
+                if (newShader != null)
+                {
+                    mat.shader = newShader;
+                }
             }
         }
 

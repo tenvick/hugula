@@ -168,16 +168,21 @@ public static class CacheManager
                 req.data = abundle;
                 re = true;
             }
-            else if (assetType.Equals(typeof(System.String)))
+            else if (assetType.Equals(Typeof_String))
             {
                 WWW www = cachedata.www;
                 req.data = new string[] { www.text };
                 re = true;
             }
-            else if (assetType.Equals(typeof(System.Byte[])))
+            else if (assetType.Equals(Typeof_Bytes))
             {
                 WWW www = cachedata.www;
                 req.data = www.bytes;
+                re = true;
+            }
+            else if (assetType.IsArray || assetType.Equals(Typeof_AssetBundle))
+            {
+                req.data = abundle;//.LoadAllAssets(assetType.UnderlyingSystemType);
                 re = true;
             }
             else if (!assetType.IsArray)
@@ -185,15 +190,17 @@ public static class CacheManager
                 req.data = abundle.LoadAsset(req.assetName, assetType);
                 re = true;
             }
-            else if (assetType.IsArray)
-            {
-                req.data = abundle.LoadAllAssets(assetType);
-                re = true;
-            }
         }
 
         return re;
     }
+
+    #region check type
+    private static Type Typeof_String = typeof(System.String);
+    private static Type Typeof_Bytes = typeof(System.Byte[]);
+    private static Type Typeof_AssetBundle = typeof(AssetBundle);
+
+    #endregion
 }
 
 /// <summary>

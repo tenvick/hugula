@@ -1,8 +1,8 @@
 ###Hugula 游戏框架 for slua
 
-Hugula是一个基于unity3d+slua技术的全LUA免费开源游戏框架。
-特点 全lua逻辑，基于状态模式，成熟项目中提取。
-下载完成后切换到IOS或者android平台。
+Hugula是一个基于unity3d+lua技术的全LUA免费开源游戏框架，能方便实现代码动态更新。
+特点：全lua逻辑，基于状态模式，包含引用计数，对象池，自动资源回收等功能，能极大提高开发速度。
+[帮助文档](https://github.com/tenvick/hugula/wiki)。
 qq群：19324776。
  
 ##本框架需要以下条件

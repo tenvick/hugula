@@ -42,7 +42,7 @@ local function load_by_url7(url,assetName,assetType,compFn,cache,endFn,head)
 	end
 end
 
-local function load_by_url5(url,compFn,cache,endFn,head)
+local function load_by_url5(url,compFn,cache,endFn,head)	
 	local req=Request(url)	
 --    req.assetName=req.key
 	if compFn then req.onCompleteFn=compFn end
@@ -116,9 +116,8 @@ end
 
 --load_by_url5(url,compFn,cache,endFn,head)
 --load_by_table( {url,compFn,endFn,head},cache)
-function Loader:get_resource(...)
-
-	local a,b,c,d,e,f,g=...
+function Loader:get_resource(...)	
+	local a,b,c,d,e,f,g=...	
 	--url,onComplete
 	if type(a)=="string" and type(b)=="string" then 
 		load_by_url7(a,b,c,d,e,f,g)

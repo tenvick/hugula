@@ -198,7 +198,11 @@ public class ExportResources{
  
 	public static void exportPublish()
 	{
-		exportLua();
+        ExportResources.DirectoryDelete(Path.Combine(Application.streamingAssetsPath, ExportAssetBundles.GetTarget().ToString()));
+
+        BuildScript.BuildAssetBundles(); //导出资源
+
+        exportLua();
 		
 		exportConfig();
 

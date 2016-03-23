@@ -176,7 +176,7 @@ public class ScrollRectTable : MonoBehaviour
 
     public void ScrollTo(int index)
     {
-        Vector3 currPos = moveContainer.transform.localPosition;
+        Vector3 currPos = moveContainer.localPosition;
         if (index < 0) index = 0;
         if (columns == 0)
         {
@@ -217,7 +217,7 @@ public class ScrollRectTable : MonoBehaviour
             bg = 0;//Debug.Log("Refresh 0 ");calc
             ed = this.pageSize;
             if (moveContainer != null)
-                moveContainer.transform.localPosition = this.beginPosition;
+                moveContainer.localPosition = this.beginPosition;
 
             Scroll(0, true);
         }
@@ -275,13 +275,10 @@ public class ScrollRectTable : MonoBehaviour
             else
             {
                 int y = (int)Mathf.Ceil((float)recordCount / (float)columns);
-                //int x=(recordCount) % columns;
                 if (this.direction == Direction.Down)
                     delt.y = (rect.height * y + this.padding.y * 2);
                 else
                     delt.y = -(rect.height * y + this.padding.y * 2);
-
-                //				delt.x=rect.width*x+this.padding.x*2;
             }
             moveContainer.sizeDelta = delt;
             sizeDelta = delt;
@@ -392,7 +389,7 @@ public class ScrollRectTable : MonoBehaviour
                     repositionTileList.Add(cloneRefer);
                     Vector3 scale = clone.transform.localScale;
                     Vector3 localpos = clone.transform.localPosition;
-                    clone.transform.SetParent(this.transform);
+                    clone.transform.SetParent(this.transform,false);
                     clone.transform.localScale = scale;
                     clone.transform.localPosition = localpos;
                     this.lastEndIndex = i;
@@ -517,7 +514,7 @@ public class ScrollRectTable : MonoBehaviour
 
         if (moveContainer != null)
         {
-            Vector3 bg = moveContainer.transform.localPosition;
+            Vector3 bg = moveContainer.localPosition;
             //if (direction == Direction.Down)
             beginPosition = new Vector3(bg.x, bg.y, bg.z);
             //else

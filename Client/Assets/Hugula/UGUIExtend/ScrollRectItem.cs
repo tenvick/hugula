@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 [SLua.CustomLuaClass]
+[ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 public class ScrollRectItem : MonoBehaviour {
 
@@ -31,7 +32,8 @@ public class ScrollRectItem : MonoBehaviour {
     //public string sdata;
 
 	// Use this for initialization
-	void Awake () {
+    void Start()
+    {
 		if (rectTransform == null)
 			rectTransform = this.GetComponent<RectTransform> ();
 	}

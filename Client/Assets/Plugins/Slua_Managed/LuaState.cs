@@ -290,6 +290,10 @@ namespace SLua
 			return null;
 		}
 
+		// you can add call method with specific type rather than object type to avoid gc alloc, like
+		// public object call(int a1,float a2,string a3,object a4)
+		
+		// using specific type to avoid type boxing/unboxing
 	}
 
 	public class LuaTable : LuaVar, IEnumerable<LuaTable.TablePair>
@@ -937,8 +941,8 @@ end
 					bytes = loaderDelegate(fn);
 				else
 				{
-					fn = fn.Replace(".", "/");
 #if !SLUA_STANDALONE
+					fn = fn.Replace(".", "/");
 					TextAsset asset = (TextAsset)Resources.Load(fn);
 					if (asset == null)
 						return null;

@@ -56,6 +56,6 @@ Assets
 
 ![](Client/Assets/Doc/hugula lua framework.png)
 
-##自带demo
-
-俄罗斯方块小游戏 apk下载地址：http://pan.baidu.com/s/1o6L4E86
+##框架案例
+百妖叛乱(卡牌) http://pan.baidu.com/s/1hssBiCG 
+俄罗斯方块小游戏 http://pan.baidu.com/s/1o6L4E86

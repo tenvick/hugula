@@ -75,8 +75,10 @@ function StateBase:remove_item(obj)
             if(obj.onremove_from_state~=nil) then
                 obj:onremove_from_state(self)
             end
+            return true
         end
     end
+    return false
 end
 
 function StateBase:on_focus(previous_state)
@@ -85,6 +87,7 @@ function StateBase:on_focus(previous_state)
     for k,v in ipairs(item_list) do
         if k <= _len then --确保新加入的不会被执行
             v:on_focus(previous_state)
+            if v.on_focused then v:on_focused(previous_state) end
         end
     end
 
@@ -96,9 +99,6 @@ function StateBase:on_back(new_state)
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
         if itemobj and itemobj.on_back then
-            -- itemobj:on_back(new_state) 
-            -- itemobj:show()  
-            -- itemobj:on_showed()
             itemobj:on_back()
         end
     end
@@ -113,6 +113,7 @@ function StateBase:on_blur(new_state)
         if itemobj and on_blured[itemobj] ~= true then 
             on_blured[itemobj] = true 
             itemobj:on_blur(new_state) 
+            if itemobj.on_blured then itemobj:on_blured(new_state) end
         end
     end
     on_blured = nil

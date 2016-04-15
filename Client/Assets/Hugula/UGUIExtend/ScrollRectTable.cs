@@ -389,7 +389,7 @@ public class ScrollRectTable : MonoBehaviour
                     repositionTileList.Add(cloneRefer);
                     Vector3 scale = clone.transform.localScale;
                     Vector3 localpos = clone.transform.localPosition;
-                    clone.transform.SetParent(this.transform,false);
+                    clone.transform.SetParent(this.transform, false);
                     clone.transform.localScale = scale;
                     clone.transform.localPosition = localpos;
                     this.lastEndIndex = i;
@@ -450,7 +450,6 @@ public class ScrollRectTable : MonoBehaviour
     void Scroll(int newHead, bool force)
     {
         if (newHead < 0) newHead = 0;
-
         int step = newHead - currFirstIndex;
         if ((step != 0 && this.headIndex != lastHeadIndex) || force)
         {
@@ -546,10 +545,10 @@ public class ScrollRectTable : MonoBehaviour
             else if (columns > 0)
             {
                 int cloumnIndex = (int)(dtmove.y / rect.height);
-                headIndex = (int)Mathf.Ceil((float)(Mathf.Abs(cloumnIndex) * this.columns) / (float)this.columns) * columns;//
-                if (headIndex != lastHeadIndex)
+                headIndex = (int)Mathf.Ceil((float)(cloumnIndex * this.columns) / (float)this.columns) * columns;//
+                if (headIndex != lastHeadIndex && headIndex <= 0)
                 {
-                    Scroll(headIndex, false);
+                    Scroll(Mathf.Abs(headIndex), false);
                 }
             }
             lastHeadIndex = headIndex;

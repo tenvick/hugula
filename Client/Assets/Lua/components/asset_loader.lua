@@ -42,6 +42,21 @@ function AssetLoader:on_asset_loaded(key,asset)
 	end
 end
 
+function AssetLoader:on_asset_loaded_error(key,asset)
+	self.assets[key]=asset
+	self._load_curr=self._load_curr+1
+	if self._load_curr >= self._load_count then
+		self.lua_obj.assets_loaded = true
+		self.lua_obj:send_message("on_assets_load",self.assets)
+		self.lua_obj:send_message("on_showed")
+		self.lua_obj:call_event("on_showed")
+		if StateManager and StateManager:get_current_state():is_all_loaded() then 
+			StateManager:check_hide_transform()
+			StateManager:call_all_item_method()
+		end 
+	end
+end
+
 function AssetLoader:load_assets(assets)
 	local req = nil
 	local reqs = {}
@@ -49,18 +64,15 @@ function AssetLoader:load_assets(assets)
 	local asset = nil
 
 	local on_req_loaded=function(req)
-		-- print(req.key)
 		local ass = req.head
 		local base_asset=Asset(ass.url)
 		base_asset.base = true
-		local key = ass.key  --CUtils.GetKeyURLFileName(ass.url)
+		local key = ass.key 
 
 		if (GAMEOBJECT_ATLAS[key]~=nil) then
 			base_asset=GAMEOBJECT_ATLAS[key]
 		else
-			local main=req.data --.assetBundle.mainAsset
-			-- LuaHelper.RefreshShader(req.assetBundle)
-			-- print(req.key,req.url)
+			local main=req.data 
 			local root=LuaHelper.Instantiate(main)
 			root.name=main.name
 			base_asset.root=root
@@ -71,11 +83,14 @@ function AssetLoader:load_assets(assets)
 			GAMEOBJECT_ATLAS[key]=base_asset
 		end
 		base_asset:copy_to(ass)
-		-- Loader:clear_item(req.key)
 		self:on_asset_loaded(key,ass)
 	end
 
-	local on_err=function(req) end
+	local on_err = function(req) 
+		local ass = req.head
+		local key = ass.key
+		self:on_asset_loaded_error(key,ass)
+	end
 
 	for k,v in ipairs(assets) do
 		key = v.key 

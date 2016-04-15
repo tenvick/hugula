@@ -504,4 +504,38 @@ public static class  LuaHelper {
         int hash = Animator.StringToHash(str);
         return hash;
     }
+
+    /// <summary>
+    /// 播放动画片段
+    /// </summary>
+    /// <param name="anim"></param>
+    /// <param name="name"></param>
+    /// <param name="dir"></param>
+    /// <returns></returns>
+    public static AnimationState PlayAnimation(Animation anim, string name, AnimationOrTween.Direction dir)
+    {
+        var state = anim[name];
+        if (state)
+        {
+            float speed = Mathf.Abs(state.speed);
+            state.speed = speed * (int)dir;
+            if (dir == AnimationOrTween.Direction.Reverse && state.time == 0f) state.time = state.length;
+            else if (dir == AnimationOrTween.Direction.Forward && state.time == state.length) state.time = 0f;
+            //Debug.Log(string.Format(" speed {0},dir ={1},time = {2},length={3}",state.speed,dir,state.time,state.length));
+            anim.Play(name);
+            anim.Sample();
+        }
+        return state;
+    }
+}
+
+namespace AnimationOrTween
+{
+    [SLua.CustomLuaClass]
+    public enum Direction
+    {
+        Reverse = -1,
+        Toggle = 0,
+        Forward = 1,
+    }
 }

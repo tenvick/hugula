@@ -99,8 +99,8 @@ function ItemObject:on_hide()
 end
 
 function ItemObject:on_blur( ... )
-    self:hide()
     self:send_message("on_hide")
+    self:hide()
 end
 
 function ItemObject:add_to_state(state)
@@ -115,9 +115,12 @@ end
 
 function ItemObject:remove_from_state(state)
   if state == nil then
-    StateManager:get_current_state():remove_item(self)
-    self:on_blur(StateManager:get_current_state())
-    if self.log_enable then StateManager:record_state() end
+    local current_state = StateManager:get_current_state()
+    local removed = current_state:remove_item(self)
+    if removed then --如果从当前状态移除成功
+        self:on_blur(current_state)
+        if self.log_enable then StateManager:record_state() end
+    end
   else
      state:remove_item(self)
   end

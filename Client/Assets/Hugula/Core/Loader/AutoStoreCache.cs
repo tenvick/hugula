@@ -9,23 +9,25 @@ public class AutoStoreCache : MonoBehaviour
 
     public ReferGameObjects refer;
 
-    /// <summary>
-    /// 自动放回对象到池子
-    /// </summary>
-    [Tooltip("自动放回对象到池子")]
-    public bool storeCacheOnDisable = true;
+    ///// <summary>
+    ///// 自动放回对象到池子
+    ///// </summary>
+    //[Tooltip("自动放回对象到池子")]
+    //public bool storeCacheOnDisable = true;
+    private bool isStart = false;
 
     // Use this for initialization
     void Start()
     {
         if (refer == null) refer = GetComponent<ReferGameObjects>();
+        isStart = true;
     }
 
     void OnDisable()
     {
-        if (storeCacheOnDisable)
+        if (isStart)
         {
-            //Debug.Log(string.Format("AutoStoreCache name = {0} cacheHash={1} ", this.name, refer != null ? refer.cacheHash : 0));
+            //Debug.Log(string.Format("AutoStoreCache name = {0} cacheHash={1} enable = {2} ", this.name, refer != null ? refer.cacheHash : 0,this.enabled));
             if (refer == null) refer = GetComponent<ReferGameObjects>();
             if (refer != null) PrefabPool.StoreCache(refer);
         }

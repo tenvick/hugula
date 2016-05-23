@@ -9,7 +9,6 @@ local LuaItemManager = LuaItemManager
 LuaItemManager.ItemObject=class(LuaObject,function(self,name) --implement luaobject
     LuaObject._ctor(self, name)
     self.asset_loader = self:add_component("asset_loader")
-    self.assets_loaded = false
     self.priority = 0
     self.log_enable = true -- 是否启用日志记录用于返回
 end)
@@ -35,7 +34,7 @@ function LuaItemManager:register_item_object(objectName, luaPath, instance_now)
 
     assert(self.items[objectName] == nil)
     local new_class   = ItemObject(objectName)
-    new_class._object_name  = objectName
+    new_class._key  = objectName
     new_class._lua_path = luaPath
     self.items[objectName] = new_class
 
@@ -66,28 +65,32 @@ end
 
 function ItemObject:clear( ... )
    local assets = self.assets
-   self.assets_loaded = false
    assert(assets ~= nil)
    for k,v in ipairs(assets) do
         v:dispose()
     end
+    self.is_call_assets_loaded = nil
 end
 
-function ItemObject:on_focus( ... )
-    if self.assets_loaded then 
+function ItemObject:check_assets_loaded() --检测资源是否加载完成
+    local assets = self.assets
+    if assets and #assets >= 1 then
+        for k,v in ipairs(assets) do
+          if v and v.root == nil then return false end --如果为空没有加载完成
+        end
+      if  self.is_call_assets_loaded ~= true then return false end --如果还没有加载过
+    end
+    return true --加载完成
+end
+
+function ItemObject:on_focus(...)
+    if self:check_assets_loaded() then 
         self:show()  
         self:send_message("on_showed")
         self:call_event("on_showed")
     else
-        if self.assets and #self.assets >= 1 then --如果没有资源
-            StateManager:check_show_transform()
-            self.asset_loader:load(self.assets)  
-        else
-            self.assets_loaded = true
-            self:show()  
-            self:send_message("on_showed")
-            self:call_event("on_showed")
-        end
+        StateManager:check_show_transform()
+        self.asset_loader:load(self.assets)  
     end
 end
 
@@ -96,11 +99,13 @@ end
 -- end
 
 function ItemObject:on_hide()
+  
 end
 
-function ItemObject:on_blur( ... )
-    self:send_message("on_hide")
+function ItemObject:on_blur( state )
+    self:send_message("on_hide",state) --开始隐藏
     self:hide()
+    -- self:send_message("on_hided",state) --隐藏完成
 end
 
 function ItemObject:add_to_state(state)

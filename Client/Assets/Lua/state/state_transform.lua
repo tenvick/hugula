@@ -12,7 +12,7 @@ transform.assets=
 }
 
 function transform:on_focus( ... )
-    if self.assets_loaded then 
+    if self:check_assets_loaded() then 
         self:show()  
         self:on_showed()     
     else

@@ -93,7 +93,7 @@ public class PLua : MonoBehaviour
     /// lua bundle
     /// </summary>
     /// <returns></returns>
-    private IEnumerator loadLuaBundle(bool domain,LuaFunction onLoadedFn)
+    private IEnumerator loadLuaBundle(bool domain, LuaFunction onLoadedFn)
     {
         string keyName = "";
         string luaP = CUtils.GetAssetFullPath("font.u3d");
@@ -101,7 +101,7 @@ public class PLua : MonoBehaviour
         yield return luaLoader;
         if (luaLoader.error == null)
         {
-			byte[] byts=CryptographHelper.Decrypt(luaLoader.bytes,DESHelper.instance.Key,DESHelper.instance.IV);
+            byte[] byts = CryptographHelper.Decrypt(luaLoader.bytes, DESHelper.instance.Key, DESHelper.instance.IV);
 #if UNITY_5_3
             AssetBundle item = AssetBundle.LoadFromMemory(byts);
 #else
@@ -111,11 +111,11 @@ public class PLua : MonoBehaviour
             TextAsset[] all = item.LoadAllAssets<TextAsset>();
             foreach (var ass in all)
             {
-				keyName = ass.name;
+                keyName = ass.name;
                 luacache[keyName] = ass.bytes;
             }
 
-			item.Unload(true);
+            item.Unload(true);
             luaLoader.Dispose();
         }
 
@@ -142,21 +142,22 @@ public class PLua : MonoBehaviour
     }
 
     /// <summary>
-	/// load assetbundle
+    /// load assetbundle
     /// </summary>
     public void LoadBundle(bool domain)
     {
-#if UNITY_EDITOR 
-		if(!isDebug)
-		{
-	        StopCoroutine(loadLuaBundle(domain, null));
-	        StartCoroutine(loadLuaBundle(domain, null));
-		}else
-		{
-			DoUnity3dLua();
-			if (domain)
-				DoMain();
-		}
+#if UNITY_EDITOR
+        if (!isDebug)
+        {
+            StopCoroutine(loadLuaBundle(domain, null));
+            StartCoroutine(loadLuaBundle(domain, null));
+        }
+        else
+        {
+            DoUnity3dLua();
+            if (domain)
+                DoMain();
+        }
 #else
 		StopCoroutine(loadLuaBundle(domain, null));
 		StartCoroutine(loadLuaBundle(domain, null));
@@ -178,7 +179,7 @@ public class PLua : MonoBehaviour
 
     public void RegisterFunc()
     {
-        LuaState.loaderDelegate=Loader;
+        LuaState.loaderDelegate = Loader;
     }
 
     /// <summary>

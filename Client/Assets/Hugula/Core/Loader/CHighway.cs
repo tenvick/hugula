@@ -47,6 +47,7 @@ public class CHighway
 
     protected void AddReqToQueue(CRequest req)
     {
+        if (req == null) return;
         string key = req.udKey;
         if (CacheManager.SetRequestDataFromCache(req)) //如果有缓存
         {

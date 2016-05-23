@@ -6,8 +6,6 @@
 Loader={}
 local Resources = Resources
 local CTransport=CTransport
-local LMultipleLoader= LHighway-- 
-LMultipleLoader=LMultipleLoader.instance
 local Request=LRequest
 local AssetBundle = UnityEngine.AssetBundle
 local WWW = UnityEngine.WWW
@@ -20,11 +18,11 @@ local delay = delay
 local CUtils = CUtils
 
 local Loader=Loader 
-Loader.multipleLoader=LMultipleLoader
+Loader.multipleLoader=LHighway.instance
 -- Loader.resdic={} --cache dic
 Loader.shareCache ={}
 
--- print_table(getmetatable(LMultipleLoader))
+-- print_table(getmetatable(LHighway))
 local function dispatch_complete(req)
 	if req.onCompleteFn then req.onCompleteFn(req) end
 end

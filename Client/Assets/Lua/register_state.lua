@@ -8,7 +8,7 @@ local LuaItemManager = LuaItemManager
 local StateBase = StateBase
 StateManager:set_state_transform(LuaItemManager:get_item_obejct("transform"))
 
--- StateManager.hall = StateBase({LuaItemManager:get_item_obejct("hall")})
-StateManager.welcome = StateBase({LuaItemManager:get_item_obejct("welcome")})
-StateManager.tetris=StateBase({LuaItemManager:get_item_obejct("tetris")},"tetris")
-StateManager.scroll_rect_table=StateBase({LuaItemManager:get_item_obejct("scroll_rect_table")},"scroll_rect_table")
+-- StateManager.hall = StateBase({"hall")})
+StateManager.welcome = StateBase({"welcome"})
+StateManager.tetris=StateBase({"tetris"})
+StateManager.scroll_rect_table=StateBase({"scroll_rect_table"})

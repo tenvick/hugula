@@ -20,9 +20,6 @@ local AssetLoader=class(function(self,lua_obj)
 	self._load_curr = 0
 end)
 
--- AssetLoader._load_count=0
--- AssetLoader._load_curr=0
-
 function AssetLoader:on_asset_loaded(key,asset)
 	self.assets[key]=asset
 	self._load_curr=self._load_curr+1
@@ -30,10 +27,10 @@ function AssetLoader:on_asset_loaded(key,asset)
 	self.lua_obj:send_message("on_asset_load",key,asset)
 	-- print(string.format("AssetLoader.name=%s  _load_count %s _load_curr %s",self.lua_obj.name,self._load_count,self._load_curr))
 	if self._load_curr >= self._load_count then
-		self.lua_obj.assets_loaded = true
+		self.lua_obj.is_call_assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
+		-- print(string.format("AssetLoader.name=%s  ",asset.root))
 		self.lua_obj:send_message("on_showed")
-		-- if self.lua_obj.on_showed then self.lua_obj:on_showed() end
 		self.lua_obj:call_event("on_showed")
 		if StateManager and StateManager:get_current_state():is_all_loaded() then 
 			StateManager:check_hide_transform()
@@ -46,7 +43,6 @@ function AssetLoader:on_asset_loaded_error(key,asset)
 	self.assets[key]=asset
 	self._load_curr=self._load_curr+1
 	if self._load_curr >= self._load_count then
-		self.lua_obj.assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
 		self.lua_obj:send_message("on_showed")
 		self.lua_obj:call_event("on_showed")
@@ -115,17 +111,28 @@ function AssetLoader:clear()
 	end	
 	--GAMEOBJECT_ATLAS[self.name]=nil
 	--if at then LuaHelper.Destroy(at.root) end
-	self.lua_obj.assets_loaded = false
 --    unload_unused_assets()
 end
 
 function AssetLoader:load(asts)
 	self._load_curr = 0
 	self.assets = {}
-	if asts~=nil then
-		self._load_count = #asts
-		self:load_assets(asts)
-	end
+	self._load_count = #asts
+	-- local real_loaded = asts
+
+	-- if self.lua_obj.is_call_assets_loaded == true then --如果加载过
+	-- 	real_loaded = {}
+	-- 	for k,v in ipairs(asts) do
+	-- 		if v.root == nil then --加载没有加载的资源
+	-- 			table.insert(real_loaded,v) 
+	-- 		end
+	-- 	end
+	-- end
+	-- self._load_count = #real_loaded
+	-- print("assets_loaded. %s %s",self.lua_obj.name,self._load_count)
+	-- print_table(real_loaded)
+	self:load_assets(asts)
+
 end
 
 function clear_assets()

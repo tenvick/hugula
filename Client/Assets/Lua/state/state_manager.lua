@@ -12,12 +12,11 @@ local function get_diff_log(curr_state,curr_log)
     local change = false
     local items = curr_state:get_all_items() --当前的所有项目
     local add,remove = {},{}
-    -- print("get_diff_log")
     if curr_log == nil or curr_log == false then --如果没有记录
         change = true
         return change,add,remove
     end
-    -- print(curr_log)
+
     local check_dup = {}
     local log_state = curr_log[1]
     local check_state = curr_state
@@ -29,14 +28,12 @@ local function get_diff_log(curr_state,curr_log)
     end
 
     for k,v in ipairs(items) do
-        -- print(v,v.log_enable,check_state:is_original_item(v))
         if v.log_enable and not check_state:is_original_item(v) then --不是原始项目并且可以log
             if check_dup[v] == nil then 
                 check_dup[v] = -1 -- -1 表示需要删除
             elseif check_dup[v] == 1 then --1 表示log表中存在
                 check_dup[v] = 0 --不需要改变
             end
-            -- print("need ",v,check_dup[v])
         end
 
         for ke,va in ipairs(curr_log) do
@@ -71,7 +68,7 @@ StateManager =
     _current_game_state = nil,
     _auto_show_loading = true,
     _transform = nil,
-    _log_state = LuaStack(8), --状态日志
+    _log_state = LuaStack(16), --状态日志
     _input_enable = true --输入控制
 }
 
@@ -138,7 +135,7 @@ end
 function StateManager:set_current_state(new_state,method,...)
     assert(new_state ~= nil)
     if(new_state == self._current_game_state)   then
-        print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
+        -- print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
         return
     end
     -- print("new_state",new_state)
@@ -164,15 +161,21 @@ end
 function StateManager:record_state() --记录状态用于返回
     local curr_state = self._current_game_state --当前状态
     if curr_state.log_enable == false then 
-        self._log_state:push(false) --空位置
-        return nil 
+        local top = self._log_state:get(-1) --顶部
+        if top ~= false and top ~= nil then
+            self._log_state:push(false) --空位置
+        end
+        return false 
     end
 
-    -- if self._record_enable == false and force_record == nil then return nil end --如果不能记录同时force_record没有值 直接返回
+    local curr_log =  self._log_state:get(-1) --栈顶
+    while curr_log == false do --如果栈顶为false
+        self._log_state:pop(1) --删除栈顶
+        curr_log = self._log_state:get(-1) --返回新的栈顶
+    end
 
-    local curr_log =  self._log_state:get(0) --get_log(self._log_state,-1) --上一个状态
     local need_record = get_diff_log(curr_state,curr_log) --是否需要记录
-    
+
     if need_record  then --可以记录
         local items = curr_state:get_all_items() --得到所有item
         local log_state = {}
@@ -185,24 +188,24 @@ function StateManager:record_state() --记录状态用于返回
         self._log_state:push(log_state)
     end
 
+    return need_record
 end
 
+-- 注 -1表示栈顶 所以默认为-2
 function StateManager:go_back(index) --返回
-    assert(type(index) == "number"," StateManager:go_back index is not number")
-    if index == nil then index = -1 end
-    if index > 0  then index = -1 end
-
-    local back_log = self._log_state:get(index) --上一个状态
+    if index == nil then index = 2 end --默认-2
+    index = -math.abs(index) --取绝对值
+    if index >= -1 then return false end --为当前状态
+    local back_log = self._log_state:get(index) --返回的状态 --self._log_state:get(index) --上一个状态
     while back_log == false do
         self._log_state:pop(1) --删除顶上第一个
-        back_log = self._log_state:get(index) --上一个状态
+        back_log = self._log_state:get(index) --返回的状态
     end
-    self._log_state:pop(1) --删除顶上第一个
-
-    if back_log == nil then return nil end 
+    local pop_len = math.abs(index)-1
+    self._log_state:pop(pop_len) --多余状态
+    if back_log == nil then return false end 
     local new_state = back_log[1] --pos 1 is state
     assert(new_state ~= nil,"返回的状态不能为空！")
-
     --添加状态
     local change,add,remove = get_diff_log(self._current_game_state,back_log)
     if new_state == self._current_game_state then --如果是当前状态
@@ -239,4 +242,5 @@ function StateManager:go_back(index) --返回
         new_state:on_back(previous_state)
     end
 
+    return true 
 end

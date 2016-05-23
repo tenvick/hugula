@@ -110,7 +110,6 @@ public class ScrollRectTable : MonoBehaviour
     Vector3 currPosition;
 
     bool mStarted = false;
-    bool foward = false;//panel true camera
 
     Rect rect;
     private Vector2 sizeDelta;
@@ -145,8 +144,7 @@ public class ScrollRectTable : MonoBehaviour
 
     public int InsertData(object item, int index)
     {
-        if (index < 0) index = 0;
-        if (index >= this.recordCount) index = this.recordCount;
+		if (index >= this.recordCount || index < 0) index = this.recordCount;
         if (onDataInsert == null) onDataInsert = (LuaFunction)LuaState.main.doString(DataInsertStr, "onDataInsert");
         onDataInsert.call(item, index + 1, this);
         this.CalcPage();
@@ -514,12 +512,17 @@ public class ScrollRectTable : MonoBehaviour
         if (moveContainer != null)
         {
             Vector3 bg = moveContainer.localPosition;
-            //if (direction == Direction.Down)
             beginPosition = new Vector3(bg.x, bg.y, bg.z);
-            //else
-            //    beginPosition = new Vector3(bg.x, bg.y, bg.z);
-
-            foward = false;
+            if(this.tileItem)this.tileItem.gameObject.SetActive(false);
+#if UNITY_EDITOR
+            if (Application.isPlaying == false)
+            {
+                Vector2 topleft = new Vector2(0, 1);
+                moveContainer.pivot = topleft;
+                moveContainer.anchorMax = topleft;
+                moveContainer.anchorMin = topleft;
+            }
+#endif
         }
 
         CalcBounds();

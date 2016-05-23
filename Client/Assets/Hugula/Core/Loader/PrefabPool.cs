@@ -61,7 +61,7 @@ public class PrefabPool : MonoBehaviour
             if (gcSegmentQueue.Count > 0) //队列有需要回收的片段
             {
                 byte segmentIndex = gcSegmentQueue.Dequeue();
-                GC(segmentIndex,false);
+                GC(segmentIndex, false);
             }
         }
 
@@ -307,13 +307,11 @@ public class PrefabPool : MonoBehaviour
         ReferGameObjects refer = null;
         //空闲队列
         Queue<ReferGameObjects> prefabQueueMe = null;
-        prefabFreeQueue.TryGetValue(key, out prefabQueueMe);
-        if (prefabQueueMe == null) return null;
+        if (!prefabFreeQueue.TryGetValue(key, out prefabQueueMe)) return null;
 
         //引用列表
         HashSet<ReferGameObjects> prefabCachesMe = null;
-        prefabRefCaches.TryGetValue(key, out prefabCachesMe);
-        if (prefabCachesMe == null) return null;
+        if (!prefabRefCaches.TryGetValue(key, out prefabCachesMe)) return null;
 
         if (prefabQueueMe.Count > 0)
         {
@@ -324,7 +322,7 @@ public class PrefabPool : MonoBehaviour
         }
         else
         {
-            GameObject prefab = (GameObject)Get(key);
+            GameObject prefab = Get(key);
             if (prefab == null) //如果没有 返回NUll
                 return null;
 
@@ -350,21 +348,17 @@ public class PrefabPool : MonoBehaviour
     public static bool StoreCache(ReferGameObjects refer)
     {
         HashSet<ReferGameObjects> prefabCachesMe = null;
-        prefabRefCaches.TryGetValue(refer.cacheHash, out prefabCachesMe);//从引用列表寻找
-        bool isremove = false;
-        if (prefabCachesMe != null)
-        {
-            isremove = prefabCachesMe.Remove(refer);
-        }
-
-        if (isremove)
-        {
-            Queue<ReferGameObjects> prefabQueueMe = null;
-            prefabFreeQueue.TryGetValue(refer.cacheHash, out prefabQueueMe);
-            if (prefabQueueMe != null)
+        if (prefabRefCaches.TryGetValue(refer.cacheHash, out prefabCachesMe))
+        {//从引用列表寻找
+            bool isremove = prefabCachesMe.Remove(refer);
+            if (isremove)
             {
-                prefabQueueMe.Enqueue(refer);//入列
-                return true;
+                Queue<ReferGameObjects> prefabQueueMe = null;
+                if (prefabFreeQueue.TryGetValue(refer.cacheHash, out prefabQueueMe)) ;
+                {
+                    prefabQueueMe.Enqueue(refer);//入列
+                    return true;
+                }
             }
         }
         return false;
@@ -392,31 +386,33 @@ public class PrefabPool : MonoBehaviour
     internal static void Remove(int key)
     {
         GameObject obj = null;
-        originalPrefabs.TryGetValue(key, out obj);
+        if (originalPrefabs.TryGetValue(key, out obj))
+        {
+            GameObject.Destroy(obj);
+        }
 
         originalPrefabs.Remove(key);
         prefabsType.Remove(key);
         prefabFreeQueue.Remove(key);
         prefabRefCaches.Remove(key);
 
-        if (obj != null)
-        {
-            //Debug.Log(string.Format(" ClearChache original key {0} ", obj.name));
-            GameObject.Destroy(obj);
-        }
+        //if (obj != null)
+        //{
+        //    //Debug.Log(string.Format(" ClearChache original key {0} ", obj.name));
+        //    GameObject.Destroy(obj);
+        //}
     }
 
     /// <summary>
     /// 清理当前key的缓存实例
     /// </summary>
     /// <param name="key"></param>
-    internal static bool ClearCache(int key,bool force)
+    internal static bool ClearCache(int key, bool force)
     {
         if (CanGC(key, force))
         {
             Queue<ReferGameObjects> freequeue;
-            prefabFreeQueue.TryGetValue(key, out freequeue);
-            if (freequeue != null)
+            if (prefabFreeQueue.TryGetValue(key, out freequeue))
             {
                 while (freequeue.Count > 0)
                 {
@@ -434,7 +430,7 @@ public class PrefabPool : MonoBehaviour
     public static bool ClearCache(string key)
     {
         int hash = LuaHelper.StringToHash(key);
-        return ClearCache(hash,true);
+        return ClearCache(hash, true);
     }
 
     /// <summary>
@@ -455,7 +451,7 @@ public class PrefabPool : MonoBehaviour
 
         if (force && reflist.Count == 0) return true; //如果是强行回收 没有引用就可以回收
 
-        if (reflist.Count <= 0 && prefabQueueMe.Count > 0 ) return true;//非强行回收，没有引用且使用过
+        if (reflist.Count <= 0 && prefabQueueMe.Count > 0) return true;//非强行回收，没有引用且使用过
 
         return false;
     }

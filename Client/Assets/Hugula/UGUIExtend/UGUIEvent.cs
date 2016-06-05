@@ -74,6 +74,7 @@ public static class UGUIEvent
             onDropFn.call(sender, arg);
         }
     }
+
     public static void onDropHandle(GameObject sender, bool arg)
     {
         if (onDropFn != null && sender != null)
@@ -82,7 +83,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onDropHandle(GameObject sender, Vector2 arg)
+    public static void onDropHandle(GameObject sender, Vector3 arg)
     {
         if (onDropFn != null && sender != null)
         {

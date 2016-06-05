@@ -2,6 +2,10 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
+using System;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 //using ICSharpCode.SharpZipLib.Zip;
@@ -11,15 +15,13 @@ using System.IO;
 /// </summary>
 public class Begin : MonoBehaviour {
 	
-	public bool editorDebug=false;
-
     public string enterLua = "main";
 
-    private LHighway multipleLoader;
+    //private LHighway multipleLoader;
 
     void Awake()
     {
-        multipleLoader = LHighway.instance;
+        //multipleLoader = LHighway.instance;
     }
 
 	// Use this for initialization
@@ -36,7 +38,6 @@ public class Begin : MonoBehaviour {
 		PLua luab=this.gameObject.GetComponent<PLua>();
 		if(luab==null)
 		{
-            PLua.isDebug = editorDebug;
             PLua.enterLua = this.enterLua;
             PLua p=gameObject.AddComponent<PLua>();
         }
@@ -49,6 +50,5 @@ public class Begin : MonoBehaviour {
 	#endregion
 
     #region protected
-
     #endregion
 }

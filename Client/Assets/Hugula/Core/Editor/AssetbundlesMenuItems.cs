@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,8 +11,8 @@ public class AssetbundlesMenuItems
 
     #region unity5 AssetBundles export
 
-    [MenuItem("Assets/AssetBundles/Build AssetBundles", false, 2)]
-    [MenuItem("AssetBundles/Build AssetBundles", false, 2)]
+    //[MenuItem("Assets/AssetBundles/Build AssetBundles", false, 2)]
+    [MenuItem("AssetBundles/Build AssetBundles &b", false, 2)]
     static public void BuildAssetBundles()
     {
         BuildScript.BuildAssetBundles();
@@ -39,25 +40,45 @@ public class AssetbundlesMenuItems
         }
     }
 
+    [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 2)]
+    static public void ClearAssetBundlesName()
+    {
+        Object[] selection = Selection.objects;
+
+        AssetImporter import = null;
+        foreach (Object s in selection)
+        {
+            import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
+            import.assetBundleName = null;
+            //if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
+            Debug.Log(s.name+" clear");
+            if (s is GameObject)
+            {
+                GameObject tar = s as GameObject;
+                ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
+                refe.assetBundleName = string.Empty;
+            }
+        }
+    }
     #endregion
 
     #region lua language config export
     [MenuItem("Hugula/", false, 11)]
     static void Breaker() { }
 
-    [MenuItem("Hugula/export lua [Assets\\Lua]", false, 12)]
+    [MenuItem("Hugula/Export Lua [Assets\\Lua] %l", false, 12)]
     public static void exportLua()
     {
         ExportResources.exportLua();
     }
 
-    [MenuItem("Hugula/export config [Assets\\Config]", false, 13)]
+    [MenuItem("Hugula/Export Config [Assets\\Config]", false, 13)]
     public static void exportConfig()
     {
         ExportResources.exportConfig();
     }
 
-    [MenuItem("Hugula/export language [Assets\\Lan]", false, 14)]
+    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
     public static void exportLanguage()
     {
         ExportResources.exportLanguage();
@@ -70,6 +91,23 @@ public class AssetbundlesMenuItems
     public static void exportPublish()
     {
         ExportResources.exportPublish();
+    }
+    #endregion
+
+    #region hugula debug
+    const string kDebugLuaAssetBundlesMenu = "Hugula/Debug Lua";
+
+    [MenuItem(kDebugLuaAssetBundlesMenu, false, 1)]
+    public static void ToggleSimulateAssetBundle()
+    {
+        PLua.isDebug = !PLua.isDebug;
+    }
+
+    [MenuItem(kDebugLuaAssetBundlesMenu, true,1)]
+    public static bool ToggleSimulateAssetBundleValidate()
+    {
+        Menu.SetChecked(kDebugLuaAssetBundlesMenu, PLua.isDebug);
+        return true;
     }
     #endregion
 

@@ -25,7 +25,7 @@ function AssetLoader:on_asset_loaded(key,asset)
 	self._load_curr=self._load_curr+1
     asset:show()
 	self.lua_obj:send_message("on_asset_load",key,asset)
-	-- print(string.format("AssetLoader.name=%s  _load_count %s _load_curr %s",self.lua_obj.name,self._load_count,self._load_curr))
+	-- print(string.format("AssetLoader.name=%s  _load_count %s _load_curr %s ,key %s",self.lua_obj.name,self._load_count,self._load_curr,key))
 	if self._load_curr >= self._load_count then
 		self.lua_obj.is_call_assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)

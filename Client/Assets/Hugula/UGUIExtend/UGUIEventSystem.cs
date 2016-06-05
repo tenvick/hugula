@@ -24,11 +24,11 @@ public class UGUIEventSystem : MonoBehaviour
     void Awake()
     {
 #if UNITY_EDITOR  || UNITY_STANDALONE
-        if (touchInputModule != null) touchInputModule.forceModuleActive = false;
+        if (touchInputModule != null) Object.Destroy(touchInputModule);// touchInputModule.forceModuleActive = false;
         if(standaloneInputModule != null) standaloneInputModule.forceModuleActive = true;
 #else
         if(touchInputModule != null)  touchInputModule.forceModuleActive = true;
-        if(standaloneInputModule != null) standaloneInputModule.forceModuleActive = false;
+        if (standaloneInputModule != null) Object.Destroy(standaloneInputModule);
 #endif
 
     }

@@ -34,21 +34,6 @@ public class LNet : MonoBehaviour, IDisposable
         sendQueue = ArrayList.Synchronized(new ArrayList());
     }
 
-    void OnApplicationPause(bool pauseStatus)
-    {
-        if (onAppPauseFn != null && isConnectCall)
-            onAppPauseFn.call(new object[] { pauseStatus });
-    }
-
-    void OnApplicationQuit()
-    {
-        if (lNetObj)
-        {
-            GameObject.Destroy(lNetObj);
-        }
-        lNetObj = null;
-    }
-
     void Update()
     {
         if (queue.Count > 0)
@@ -60,7 +45,7 @@ public class LNet : MonoBehaviour, IDisposable
             {
                 try
                 {
-                    onMessageReceiveFn.call(new object[] { msg });
+                    onMessageReceiveFn.call(msg);
                 }
                 catch (Exception e)
                 {
@@ -82,7 +67,7 @@ public class LNet : MonoBehaviour, IDisposable
                     isbegin = false;
                     callConnectioneFun = false;
                     callTimeOutFun = true;
-                    onConnectionTimeoutFn.call(new object[] { this });
+                    onConnectionTimeoutFn.call(this);
                 }
             }
             else if (client.Connected == false && isConnectioned)
@@ -92,7 +77,7 @@ public class LNet : MonoBehaviour, IDisposable
                 callTimeOutFun = false;
                 //if(receiveThread!=null)receiveThread.Abort();
                 if (onConnectionCloseFn != null)
-                    onConnectionCloseFn.call(new object[] { this });
+                    onConnectionCloseFn.call(this);
 
             }
 
@@ -100,7 +85,7 @@ public class LNet : MonoBehaviour, IDisposable
             {
                 callConnectioneFun = false;
                 if (onConnectionFn != null)
-                    onConnectionFn.call(new object[] { this });
+                    onConnectionFn.call(this);
             }
 
 
@@ -109,7 +94,7 @@ public class LNet : MonoBehaviour, IDisposable
                 float dt = Time.time - lastSeconds;
                 if (dt > pingDelay && onIntervalFn != null)
                 {
-                    onIntervalFn.call(new object[] { this });
+                    onIntervalFn.call(this);
                     lastSeconds = Time.time;
                 }
 
@@ -139,7 +124,7 @@ public class LNet : MonoBehaviour, IDisposable
         isConnectioned = false;
         isbegin = true;
         isConnectCall = true;
-        //Debug.Log("begin connect:" + host + " :" + port + " time:" + begin.ToString());
+        Debug.LogFormat("<color=green>begin connect:{0} :{1} time:{2}</color>", host, port, begin.ToString());
         if (client != null)
             client.Close();
         client = new TcpClient();
@@ -151,7 +136,7 @@ public class LNet : MonoBehaviour, IDisposable
     {
         Connect(Host, Port);
         if (onReConnectFn != null)
-            onReConnectFn.call(new object[] { this });
+            onReConnectFn.call(this);
     }
 
     public void Close()
@@ -284,7 +269,7 @@ public class LNet : MonoBehaviour, IDisposable
         TimeSpan ts = DateTime.Now - begin;
         stream = client.GetStream();
         breader = new BinaryReader(stream);
-        Debug.Log("Connection success" + Host + " cast" + ts.TotalMilliseconds);
+        Debug.LogFormat("<color=green>Connection success {0} cast {1} milliseconds</color>", Host, ts.TotalMilliseconds);
         callConnectioneFun = true;
         isConnectioned = true;
         if (receiveThread != null)
@@ -299,15 +284,15 @@ public class LNet : MonoBehaviour, IDisposable
     {
         if (onAppErrorFn != null)
         {
-            onAppErrorFn.call(new object[] { type, desc });
+            onAppErrorFn.call(type, desc);
         }
         else
         {
-            var error = new Msg();
-            error.Type = 233;
-            error.WriteString(type);
-            error.WriteString(desc);
-            this.Send(error);
+            //var error = new Msg();
+            //error.Type = 233;
+            //error.WriteString(type);
+            //error.WriteString(desc);
+            //this.Send(error);
         }
     }
 
@@ -323,7 +308,6 @@ public class LNet : MonoBehaviour, IDisposable
         onMessageReceiveFn = null;
         onConnectionTimeoutFn = null;
         onReConnectFn = null;
-        onAppPauseFn = null;
         onIntervalFn = null;
     }
 
@@ -339,8 +323,6 @@ public class LNet : MonoBehaviour, IDisposable
     public LuaFunction onConnectionTimeoutFn;
 
     public LuaFunction onReConnectFn;
-
-    public LuaFunction onAppPauseFn;
 
     public LuaFunction onIntervalFn;
     #endregion

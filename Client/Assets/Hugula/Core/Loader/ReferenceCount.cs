@@ -21,7 +21,7 @@ public class ReferenceCount : MonoBehaviour
 
         if (!CountMananger.Add(this.assetHashCode))
         {
-            Debug.LogWarning(string.Format("ReferenceCount: {0} {1} refer add error ", this.name, this.assetHashCode));
+            Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer add error ", this.name, this.assetBundleName));
         }
     }
 
@@ -29,7 +29,7 @@ public class ReferenceCount : MonoBehaviour
     {
         if (!CountMananger.Subtract(this.assetHashCode))
         {
-            Debug.LogWarning(string.Format("ReferenceCount: {0} {1} refer delete error ", this.name, this.assetHashCode));
+            Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer delete error ", this.name, this.assetBundleName));
         }
     }
 

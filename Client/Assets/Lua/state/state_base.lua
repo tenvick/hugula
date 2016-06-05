@@ -87,7 +87,7 @@ end
 function StateBase:add_item(obj)
     for i, v in ipairs(self._item_list) do
         if v == obj  then
-            print(tostring(obj).." is exist in current state "..self.name)
+            print(tostring(obj).." is exist in current state ")
            return
         end
     end

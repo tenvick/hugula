@@ -58,7 +58,7 @@ public class CRequest // IDispose
 
     private string _assetName = string.Empty;
 
-    private bool _cache = false;
+    private bool _async = true;
 
     /// <summary>
     /// 文件后缀类型</br>
@@ -139,15 +139,6 @@ public class CRequest // IDispose
         }
     }
 
-    ///// <summary>
-    ///// assetBundle
-    ///// </summary>
-    //public AssetBundle assetBundle;
-    ///// <summary>
-    ///// www对象
-    ///// </summary>
-    //public WWW www;
-
     /// <summary>
     /// The user data.
     /// </summary>
@@ -159,8 +150,17 @@ public class CRequest // IDispose
 
     public void DispatchComplete()
     {
+#if HUGULA_PROFILE_DEBUG
+        Profiler.BeginSample(this.key+"_onComplete");
+
         if (OnComplete != null)
             OnComplete(this);
+        
+        Profiler.EndSample();
+#else
+        if (OnComplete != null)
+            OnComplete(this);
+#endif
     }
 
     public void DispatchEnd()
@@ -243,24 +243,24 @@ public class CRequest // IDispose
 
 
     /// <summary>
-    /// 缓存 不需要了 暂时保留
+    /// 是否异步加载
     /// </summary>
-    public bool cache
+    public bool async
     {
         get
         {
-            return _cache;
+            return _async;
         }
         set
         {
-            _cache = value;
+            _async = value;
         }
     }
 
     /// <summary>
     ///  优先等级
-    ///  降序</br>
-    /// <b>priority:int</b> 优先等级  值越大优先级越高
+    ///  降序
+    ///  值越大优先级越高
     /// </summary>
     public int priority = 0;//优先级
 
@@ -270,15 +270,26 @@ public class CRequest // IDispose
     /// </summary>
     public int times = 0;
 
-    /// <summary>
-    /// 被依赖的对象
-    /// </summary>
-    public CRequest childrenReq;
+    ///// <summary>
+    ///// 被依赖的对象
+    ///// </summary>
+    //public CRequest childrenReq;
 
     /// <summary>
     /// dependencies count;
     /// </summary>
-    public int dependenciesCount;
+    internal int[] allDependencies;
+
+    /// <summary>
+    /// 异步请求的ab
+    /// </summary>
+    internal AssetBundleRequest assetBundleRequest;
+
+    /// <summary>
+    /// 加载完成后清理缓存
+    /// </summary>
+    internal bool clearCacheOnComplete = false;
+     
 }
 
 public delegate void CompleteHandle(CRequest req);

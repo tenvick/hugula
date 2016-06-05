@@ -239,7 +239,7 @@ public class ExportResources{
          }
     }
 
-    private static void CheckDirectory(string fullPath)
+    public static void CheckDirectory(string fullPath)
     {
         if (!Directory.Exists(fullPath))
         {
@@ -294,7 +294,7 @@ public class ExportResources{
 	public static void DirectoryDelete (string path)
 	{
 		DirectoryInfo di = new DirectoryInfo(path);
-		di.Delete(true);
+        if(di.Exists)di.Delete(true);
 	}
 	#endregion
 }

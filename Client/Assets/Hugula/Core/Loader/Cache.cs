@@ -9,9 +9,9 @@ using System;
 public class CacheData : IDisposable
 {
 
-    public CacheData(WWW www, AssetBundle assetBundle, string assetBundleName)
+    public CacheData(WWW data, AssetBundle assetBundle, string assetBundleName)
     {
-        this.www = www;
+        this.www = data;
         this.assetBundle = assetBundle;
         this.assetBundleName = assetBundleName;
         this.assetHashCode = LuaHelper.StringToHash(assetBundleName);
@@ -33,7 +33,7 @@ public class CacheData : IDisposable
     public AssetBundle assetBundle;
 
     /// <summary>
-    /// www对象
+    /// www data
     /// </summary>
     public WWW www;
 
@@ -53,6 +53,8 @@ public class CacheData : IDisposable
         if (assetBundle) assetBundle.Unload(true);
         if (www != null) www.Dispose();
         www = null;
+        assetBundle = null;
+        allDependencies = null;
     }
 }
 
@@ -77,10 +79,9 @@ public static class CacheManager
     {
         int assetHashCode = cacheData.assetHashCode;
         CacheData cacheout = null;
-        caches.TryGetValue(assetHashCode, out cacheout);
-        if (cacheout != null)
+        if (caches.TryGetValue(assetHashCode, out cacheout))
         {
-            Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleName));
+            //Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleName));
             caches.Remove(assetHashCode);
         }
         caches.Add(assetHashCode, cacheData);
@@ -107,9 +108,9 @@ public static class CacheManager
         if (cache != null)
         {
             caches.Remove(assethashcode);//删除
-            cache.Dispose();
             int[] alldep = cache.allDependencies;
             CacheData cachetmp = null;
+            cache.Dispose();
             if (alldep != null)
             {
                 for (int i = 0; i < alldep.Length; i++)
@@ -135,12 +136,17 @@ public static class CacheManager
     /// </summary>
     /// <param name="assetBundleName"></param>
     /// <returns></returns>
-    internal static CacheData GetCache(string assetBundleName)
+    public static CacheData GetCache(string assetBundleName)
     {
         int hash = LuaHelper.StringToHash(assetBundleName);
         return GetCache(hash);
     }
 
+    /// <summary>
+    /// 获取缓存
+    /// </summary>
+    /// <param name="assethashcode"></param>
+    /// <returns></returns>
     internal static CacheData GetCache(int assethashcode)
     {
         CacheData cache = null;
@@ -170,29 +176,78 @@ public static class CacheManager
             }
             else if (assetType.Equals(Typeof_String))
             {
-                WWW www = cachedata.www;
-                req.data = new string[] { www.text };
+
+                var str = cachedata.www.text;
+                req.data = new string[] { str };
+
+                req.clearCacheOnComplete = true;
                 re = true;
             }
             else if (assetType.Equals(Typeof_Bytes))
             {
-                WWW www = cachedata.www;
-                req.data = www.bytes;
+                req.data = cachedata.www.bytes;
+                req.clearCacheOnComplete = true;
                 re = true;
             }
-            else if (assetType.IsArray || assetType.Equals(Typeof_AssetBundle))
+            else if (assetType.Equals(Typeof_AssetBundle))
             {
-                req.data = abundle;//.LoadAllAssets(assetType.UnderlyingSystemType);
+                req.data = cachedata.assetBundle;
                 re = true;
             }
-            else if (!assetType.IsArray)
+            else
             {
-                req.data = abundle.LoadAsset(req.assetName, assetType);
+                if (req.async)
+                    req.assetBundleRequest = abundle.LoadAssetAsync(req.assetName, assetType);
+                else
+                {
+                    req.data = abundle.LoadAsset(req.assetName, assetType);
+                    //Debug.LogFormat("<color=yellow>set data {0},{1},{2},{3},{4}</color>",req.key,req.data, req.assetName, req.assetType, assetType);
+                }
                 re = true;
             }
         }
 
         return re;
+    }
+
+    /// <summary>
+    /// 判断所有依赖项目是否加载完成
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns></returns>
+    public static bool CheckDependenciesComplete(CRequest req)
+    {
+        if (req.allDependencies == null || req.allDependencies.Length == 0) return true;
+
+        int[] denps = req.allDependencies;
+
+        for (int i = 0; i < denps.Length; i++)
+        {
+            if (!caches.ContainsKey(denps[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 是否下载过资源
+    /// </summary>
+    /// <returns></returns>
+    public static bool Contains(int keyhash)
+    {
+        return caches.ContainsKey(keyhash);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static bool Contains(string key)
+    {
+        int keyhash = LuaHelper.StringToHash(key);
+        return Contains(keyhash);
     }
 
     #region check type
@@ -245,4 +300,19 @@ public static class CountMananger
         return false;
     }
 
+    /// <summary>
+    /// 目标引用加n
+    /// </summary>
+    /// <param name="hashcode"></param>
+    /// <returns></returns>
+    internal static bool Add(int hashcode,int add)
+    {
+        CacheData cached = CacheManager.GetCache(hashcode);
+        if (cached != null)
+        {
+            cached.count += add;//= cached.count + 1;
+            return true;
+        }
+        return false;
+    }
 }

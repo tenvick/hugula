@@ -70,7 +70,7 @@ end
 local function load_config_zip()
 	local url=CUtils.GetFileFullPath(CUtils.GetAssetPath("font1.u3d"))
 	local req=Request(url)
-    req.assetType ="UnityEngine.TextAsset[]"
+    req.assetType ="UnityEngine.AssetBundle"
 	req.onCompleteFn=load_comp
 	Loader:get_resource(req,false)
 

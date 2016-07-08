@@ -223,6 +223,16 @@ public class FileHelper
         if (File.Exists(path)) File.Delete(path);
     }
 
+	/// <summary>
+	/// 创建一个目录
+	/// </summary>
+	/// <param name="fileAbsPath"></param>
+	public static void CreatePath(string fileAbsPath)
+	{
+		string path = Application.persistentDataPath + "/" + fileAbsPath;
+		if(!Directory.Exists(path)) Directory.CreateDirectory(path);
+	}
+
     private static LuaFunction callBackFn;
 
     /// <summary>

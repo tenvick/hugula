@@ -29,14 +29,14 @@ public static class UGUIEvent
         }
     }
 
-    public static void onPressHandle(GameObject sender, object arg)
+    public static void onPressHandle(Object sender, object arg)
     {
         if (onPressFn != null && sender != null)
         {
             onPressFn.call(sender, arg);
         }
     }
-    public static void onPressHandle(GameObject sender, bool arg)
+	public static void onPressHandle(Object sender, bool arg)
     {
         if (onPressFn != null && sender != null)
         {
@@ -44,14 +44,14 @@ public static class UGUIEvent
         }
     }
 
-    public static void onClickHandle(GameObject sender, object arg)
+    public static void onClickHandle(Object sender, object arg)
     {
         if (onClickFn != null && sender != null)
         {
             onClickFn.call(sender, arg);
         }
     }
-    public static void onClickHandle(GameObject sender, Vector3 arg)
+	public static void onClickHandle(Object sender, Vector3 arg)
     {
         if (onClickFn != null && sender != null)
         {
@@ -59,7 +59,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onDragHandle(GameObject sender, Vector3 arg)
+	public static void onDragHandle(Object sender, Vector3 arg)
     {
         if (onDragFn != null && sender != null)
         {
@@ -67,7 +67,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onDropHandle(GameObject sender, object arg)
+	public static void onDropHandle(Object sender, object arg)
     {
         if (onDropFn != null && sender != null)
         {
@@ -75,7 +75,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onDropHandle(GameObject sender, bool arg)
+	public static void onDropHandle(Object sender, bool arg)
     {
         if (onDropFn != null && sender != null)
         {
@@ -83,7 +83,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onDropHandle(GameObject sender, Vector3 arg)
+	public static void onDropHandle(Object sender, Vector3 arg)
     {
         if (onDropFn != null && sender != null)
         {
@@ -91,7 +91,7 @@ public static class UGUIEvent
         }
     }
 
-    public static void onSelectHandle(GameObject sender, object arg)
+	public static void onSelectHandle(Object sender, object arg)
     {
         if (onSelectFn != null && sender != null)
         {
@@ -106,7 +106,7 @@ public static class UGUIEvent
     //        onDoubleFn.call(sender, arg);
     //    }
     //}
-    public static void onCancelHandle(GameObject sender, object arg)
+	public static void onCancelHandle(Object sender, object arg)
     {
         if (onCancelFn != null && sender != null)
         {

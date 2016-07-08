@@ -347,22 +347,22 @@ public static class  LuaHelper {
         }
     }
 
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    ///// <param name="parent"></param>
-    ///// <param name="eachFn"></param>
-    //public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
-    //{
-    //    GameObject[] lists = parent.refers;
-    //    int count = lists.Length;
-    //    GameObject child = null;
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        child = lists[i];
-    //        eachFn.call(i, child);
-    //    }
-    //}
+    // /// <summary>
+    // /// 
+    // /// </summary>
+    // /// <param name="parent"></param>
+    // /// <param name="eachFn"></param>
+    // public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
+    // {
+    //     GameObject[] lists = parent.refers;
+    //     int count = lists.Length;
+    //     GameObject child = null;
+    //     for (int i = 0; i < count; i++)
+    //     {
+    //         child = lists[i];
+    //         eachFn.call(i, child);
+    //     }
+    // }
 
 	/// <summary>
 	/// Raycast the specified ray.
@@ -526,6 +526,11 @@ public static class  LuaHelper {
             anim.Sample();
         }
         return state;
+    }
+
+    public static void ReleaseLuaFn(LuaFunction fn)
+    {
+        if (fn != null) fn.Dispose();
     }
 }
 

@@ -4,24 +4,16 @@
 --	author pu
 ------------------------------------------------
 Loader={}
-local Resources = Resources
-local CTransport=CTransport
 local Request=LRequest
 local AssetBundle = UnityEngine.AssetBundle
 local WWW = UnityEngine.WWW
 local CacheManager = CacheManager
 
-local LightHelper = LightHelper
-local LuaHelper = LuaHelper
-local delay = delay
 local CUtils = CUtils
 
 local Loader=Loader 
 Loader.multipleLoader= LResLoader.instance
--- Loader.resdic={} --cache dic
--- Loader.shareCache ={}
 
--- print_table(getmetatable(LHighway))
 local function dispatch_complete(req)
 	if req.onCompleteFn then req.onCompleteFn(req) end
 end
@@ -32,40 +24,25 @@ local function load_by_url7(url,assetName,assetType,compFn,cache,endFn,head)
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head~=nil then req.head=head end 
+
 	Loader.multipleLoader:LoadReq(req)
-	-- if cache==nil or cache==true then req.cache=true end
-	-- local key=req.key
-	-- if SetReqDataFromData(req) then dispatch_complete(req)
-	-- else Loader.multipleLoader:LoadReq(req) 
-	-- end
 end
 
 local function load_by_url5(url,compFn,cache,endFn,head)	
 	local req=Request(url)	
---    req.assetName=req.key
+
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head~=nil then req.head=head end 
-	-- print("load_by_url5",req.key)
+	
 	Loader.multipleLoader:LoadReq(req) 
-	-- if cache==nil or cache==true then req.cache=true end
-	-- local key=req.key
-	-- if SetReqDataFromData(req) then dispatch_complete(req)
-	-- else Loader.multipleLoader:LoadReq(req) 
-	-- end
 end
 
 local function load_by_req( req,cache )
-	-- if cache==nil or cache==true then req.cache=true end
-	-- local key=req.key
-	-- local cacheData=Loader.resdic[key]
 	Loader.multipleLoader:LoadReq(req)
-	-- if SetReqDataFromData(req) then dispatch_complete(req)
-	-- else Loader.multipleLoader:LoadReq(req)
-	-- end 
 end
 
-local function load_by_table(tb,cache)
+local function load_by_table(tb,group_fn)
 	local arrList={} --ArrayList()
 	local len=#tb
 	local key = ""
@@ -79,25 +56,21 @@ local function load_by_table(tb,cache)
 			if l1>1 then req.onCompleteFn=v[2] end
 			if l1>2 then req.onEndFn=v[3] end
 			if l1>3 then req.head=v[4] end
+			if l1>4 then req.async=v[5] end
+
 			if v.url then req.url = v.url end
 			if v.assetType then req.assetType = v.assetType end
 			if v.onCompleteFn then req.onCompleteFn = v.onCompleteFn end
 			if v.onEndFn then req.onEndFn = v.onEndFn end
 			if v.head then req.head = v.head end
-			-- key=req.key
-			-- if cache==nil or cache==true then req.cache=true end
-			-- if SetReqDataFromData(req) then dispatch_complete(req)
-			-- else table.insert(arrList,req)--arrList:Add(req)
-			-- end
+			if v.async ~= nil then req.async = v.async end
+
 			table.insert(arrList,req)
 		elseif typen=="userdata" then
 			table.insert(arrList,v)
 		end
 	end
-	-- local multipleLoader = Loader.multipleLoader
-	-- multipleLoader.pushGroup = true --作为一组加载
-	Loader.multipleLoader:LoadLuaTable(arrList) 
-	-- multipleLoader.pushGroup = false
+	Loader.multipleLoader:LoadLuaTable(arrList,group_fn) 
 end
 
 function Loader:clear(key)
@@ -133,20 +106,7 @@ function Loader:get_resource(...)
 end
 
 local function on_shared_complete(req)
-    local key=req.key
-    local data=req.data --.assetBundle
-	print(key.." on_shared_complete")
-   	 -- LuaHelper.RefreshShader(data)
-   	-- if data.LoadAllAssets then
-     -- local res = data:LoadAllAssets()
- 	-- end
-     --temp for lightmap
-     -- local i = string.match(key,"lightmap%-(%d+)_comp_light")
-     -- print(i,key)
-     -- if i then
-     -- 	LightHelper.SetLightMapSetting(tonumber(i),res[1],res[1])
-     -- 	print("lightmap ",i,key,"settinged")
-     -- end     
+
 end
 
 function Loader:set_onall_complete_fn(compFn)
@@ -155,17 +115,14 @@ end
 
 function Loader:set_onprogress_fn(progFn)
 	self.multipleLoader.onProgressFn=progFn
-	-- self.multipleLoader:InitProgressState()
 end
 
 function Loader:refresh_assetbundle_manifest(onReady)
 
     local url = CUtils.GetAssetFullPath(CUtils.GetPlatformFolderForAssetBundles())
     local  function onCompleteFn (req1)
-       -- print(req1.key.." on comp ",req1.data)
         local data=req1.data
         LResLoader.assetBundleManifest=data
-       	-- print(CTransport.m_AssetBundleManifest)
         if onReady then onReady() end
     end
 

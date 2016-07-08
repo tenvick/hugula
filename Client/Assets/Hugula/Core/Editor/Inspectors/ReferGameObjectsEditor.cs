@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 
-[CustomEditor(typeof(ReferGameObjects))]
-public class ReferGameObjectsEditor : Editor {
-
+[CustomEditor(typeof(ReferGameObjects), true)]
+public class ReferGameObjectsEditor : Editor
+{
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -83,16 +83,16 @@ public class ReferGameObjectsEditor : Editor {
 
         if (GUILayout.Button("Add Item"))
         {
-            if(temp.names==null)temp.names = new List<string>();
+            if (temp.names == null) temp.names = new List<string>();
             temp.names.Add("");
-            AddMonos(temp,-1,null);
+            AddMonos(temp, -1, null);
         }
         EditorGUILayout.Space();
         EditorGUILayout.EndHorizontal();
         EditorUtility.SetDirty(target);
     }
 
-    public void AddMonos(ReferGameObjects refer,int i, UnityEngine.Object obj)
+    public void AddMonos(ReferGameObjects refer, int i, UnityEngine.Object obj)
     {
         List<UnityEngine.Object> monos = null;
 
@@ -101,7 +101,7 @@ public class ReferGameObjectsEditor : Editor {
         else
             monos = new List<UnityEngine.Object>();
 
-       
+
         //monos.Add(obj);
         if (i < 0)
         {
@@ -116,7 +116,7 @@ public class ReferGameObjectsEditor : Editor {
         refer.monos = monos.ToArray();
     }
 
-    public void RemoveAtMonos(ReferGameObjects refer,int index)
+    public void RemoveAtMonos(ReferGameObjects refer, int index)
     {
         List<UnityEngine.Object> monos = new List<UnityEngine.Object>(refer.monos);
         monos.RemoveAt(index);
@@ -136,7 +136,7 @@ public class ReferGameObjectsEditor : Editor {
             refer.names.Add(null);
         refer.names[i] = GUILayout.TextField(refer.names[i], GUILayout.Width(60));
     }
-   public static  string[] ConvertTypeArrayToStringArray(List<Type> tps)
+    public static string[] ConvertTypeArrayToStringArray(List<Type> tps)
     {
         List<string> temp = new List<string>();
         for (int i = 0; i < tps.Count; i++)

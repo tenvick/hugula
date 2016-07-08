@@ -96,7 +96,7 @@ function AssetLoader:load_assets(assets)
 			--asst:show()
 			self:on_asset_loaded(key,v)
 		else
-			req={v.full_url,on_req_loaded,on_err,v}
+			req={v.full_url,on_req_loaded,on_err,v,true}
 			table.insert(reqs,req)
 		end
 	end

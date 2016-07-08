@@ -21,8 +21,6 @@ public class PrefabPool : MonoBehaviour
     private static float lastGcTime = 0;//上传检测GC时间
     private static float gcDeltaTime = 0;//上传检测GC时间
 
-    ReferGameObjects referRemove;//要删除的项目
-
     void Awake()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -98,6 +96,7 @@ public class PrefabPool : MonoBehaviour
     void DisposeRefer(int count)
     {
         if (count > willGcList.Count) count = willGcList.Count;
+        ReferGameObjects referRemove;//要删除的项目
         while (count > 0)
         {
             referRemove = willGcList.Dequeue();
@@ -354,7 +353,7 @@ public class PrefabPool : MonoBehaviour
             if (isremove)
             {
                 Queue<ReferGameObjects> prefabQueueMe = null;
-                if (prefabFreeQueue.TryGetValue(refer.cacheHash, out prefabQueueMe)) ;
+                if (prefabFreeQueue.TryGetValue(refer.cacheHash, out prefabQueueMe))
                 {
                     prefabQueueMe.Enqueue(refer);//入列
                     return true;
@@ -388,7 +387,8 @@ public class PrefabPool : MonoBehaviour
         GameObject obj = null;
         if (originalPrefabs.TryGetValue(key, out obj))
         {
-            GameObject.Destroy(obj);
+            Object.Destroy(obj);
+            //Object.DestroyImmediate(obj, true);
         }
 
         originalPrefabs.Remove(key);
@@ -412,14 +412,18 @@ public class PrefabPool : MonoBehaviour
         if (CanGC(key, force))
         {
             Queue<ReferGameObjects> freequeue;
+			ReferGameObjects refer = null;
             if (prefabFreeQueue.TryGetValue(key, out freequeue))
             {
                 while (freequeue.Count > 0)
                 {
-                    willGcList.Enqueue(freequeue.Dequeue());//入队
+					refer = freequeue.Dequeue ();
+					willGcList.Enqueue(refer);//入队
                 }
             }
-
+			#if UNITY_EDITOR
+            //Debug.LogFormat("<color=yellow>ClearCache {0} key{1}</color>", refer == null ? "" : refer.name, refer.GetComponent<ReferenceCount>().assetBundleName);
+			#endif
             Remove(key); //移除原始项目
             return true;
         }

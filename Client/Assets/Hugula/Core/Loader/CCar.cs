@@ -117,18 +117,22 @@ public class CCar
                 if (OnProcess != null)
                     OnProcess(this, 1);
                 //Debug.LogFormat("<color=yellow>will complete : url({0}),key:({1}) ab({2}) t({3}) bit({4})</color>", req.url, req.key, www.assetBundle, www.text, www.bytes.Length);
-                try
-                {
-                    CacheData cacheData = new CacheData(www, null, req.key);//缓存
-                    CacheManager.AddCache(cacheData);
-                    cacheData.allDependencies = this._req.allDependencies;
-                    cacheData.assetBundle = www.assetBundle;
-                    DispatchCompleteEvent(this._req);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
+                //try
+                //{
+                object data = null;
+                var ab = www.assetBundle;
+                if(ab==null)data=www.bytes;
+                CacheData cacheData = new CacheData(data, null, req.key);//缓存
+                CacheManager.AddCache(cacheData);
+                cacheData.allDependencies = this._req.allDependencies;
+                cacheData.assetBundle = ab;
+                www.Dispose();
+                DispatchCompleteEvent(this._req);
+                //}
+                //catch (Exception e)
+                //{
+                //    Debug.LogError(e);
+                //}
             }
 #if HUGULA_PROFILE_DEBUG
             Profiler.EndSample();

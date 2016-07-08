@@ -91,7 +91,7 @@ public class PLua : MonoBehaviour
         updateFn = null;
         lua = null;
         _instance = null;
-        luacache.Clear();
+        luacache = null;
     }
 
     void OnApplicationFocus(bool focusStatus)

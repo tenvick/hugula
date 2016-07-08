@@ -11,13 +11,14 @@ public class LResLoader : CResLoader
         base.OnAllComplete += L_onAllComplete;
         base.OnProgress += L_onProgress;
         base.OnSharedComplete += L_onSharedComplete;
+        base.OnGroupComplete += LResLoader_OnGroupComplete;
     }
 
     /// <summary>
     /// 加载luatable里面的request
     /// </summary>
     /// <param name="reqs"></param>
-    public void LoadLuaTable(LuaTable reqs)
+    public void LoadLuaTable(LuaTable reqs,LuaFunction groupCompleteFn)
     {
         pushGroup = true;
 
@@ -26,12 +27,20 @@ public class LResLoader : CResLoader
             AddReqToQueue((CRequest)pair.value);
         }
 
+        this.groupCompleteFn = groupCompleteFn;
+
         pushGroup = false;
 
         BeginQueue();
     }
 
     #region protected method
+
+    void LResLoader_OnGroupComplete(CResLoader obj)
+    {
+        if (groupCompleteFn != null) groupCompleteFn.call(obj);
+        groupCompleteFn = null;
+    }
 
     void L_onSharedComplete(CRequest req)
     {
@@ -54,7 +63,7 @@ public class LResLoader : CResLoader
     #endregion
 
     #region  delegate and event
-
+    private LuaFunction groupCompleteFn;
     public LuaFunction onAllCompleteFn;
     public LuaFunction onProgressFn;
     public LuaFunction onSharedCompleteFn;

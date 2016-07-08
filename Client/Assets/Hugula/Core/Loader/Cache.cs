@@ -9,7 +9,7 @@ using System;
 public class CacheData : IDisposable
 {
 
-    public CacheData(WWW data, AssetBundle assetBundle, string assetBundleName)
+    public CacheData(object data, AssetBundle assetBundle, string assetBundleName)
     {
         this.www = data;
         this.assetBundle = assetBundle;
@@ -35,7 +35,7 @@ public class CacheData : IDisposable
     /// <summary>
     /// www data
     /// </summary>
-    public WWW www;
+    public object www;
 
     /// <summary>
     /// 当前引用数量
@@ -51,7 +51,6 @@ public class CacheData : IDisposable
     public void Dispose()
     {
         if (assetBundle) assetBundle.Unload(true);
-        if (www != null) www.Dispose();
         www = null;
         assetBundle = null;
         allDependencies = null;
@@ -71,6 +70,11 @@ public static class CacheManager
     public static Dictionary<int, CacheData> caches = new Dictionary<int, CacheData>();
 
     /// <summary>
+    /// 锁定的缓存key，锁定后不能删除（异步解压使用）。
+    /// </summary>
+    private static List<int> lockedCaches = new List<int>(); 
+
+    /// <summary>
     /// 添加缓存
     /// </summary>
     /// <param name="assetBundleName"></param>
@@ -81,10 +85,30 @@ public static class CacheManager
         CacheData cacheout = null;
         if (caches.TryGetValue(assetHashCode, out cacheout))
         {
-            //Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleName));
+#if UNITY_EDITOR
+            Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleName));
+#endif
             caches.Remove(assetHashCode);
         }
         caches.Add(assetHashCode, cacheData);
+    }
+
+    /// <summary>
+    /// 锁定
+    /// </summary>
+    /// <param name="hashkey"></param>
+    internal static void AddLock(int hashkey)
+    {
+        lockedCaches.Add(hashkey);
+    }
+
+    /// <summary>
+    /// 移除锁定
+    /// </summary>
+    /// <param name="hashkey"></param>
+    internal static void RemoveLock(int hashkey)
+    {
+        lockedCaches.Remove(hashkey);
     }
 
     /// <summary>
@@ -107,20 +131,29 @@ public static class CacheManager
         caches.TryGetValue(assethashcode, out cache);
         if (cache != null)
         {
-            caches.Remove(assethashcode);//删除
-            int[] alldep = cache.allDependencies;
-            CacheData cachetmp = null;
-            cache.Dispose();
-            if (alldep != null)
+            if (lockedCaches.Contains(assethashcode)) //被锁定了不能删除
             {
-                for (int i = 0; i < alldep.Length; i++)
+#if UNITY_EDITOR
+                Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete.) ", cache.assetBundleName, cache.assetBundle);
+#endif
+            }
+            else
+            {
+                caches.Remove(assethashcode);//删除
+                int[] alldep = cache.allDependencies;
+                CacheData cachetmp = null;
+                cache.Dispose();
+                if (alldep != null)
                 {
-                    cachetmp = GetCache(alldep[i]);
-                    if (cachetmp != null)
+                    for (int i = 0; i < alldep.Length; i++)
                     {
-                        cachetmp.count--;// = cachetmp.count - 1; //因为被销毁了。
-                        if (cachetmp.count <= 0)
-                            ClearCache(cachetmp.assetHashCode);
+                        cachetmp = GetCache(alldep[i]);
+                        if (cachetmp != null)
+                        {
+                            cachetmp.count--;// = cachetmp.count - 1; //因为被销毁了。
+                            if (cachetmp.count <= 0)
+                                ClearCache(cachetmp.assetHashCode);
+                        }
                     }
                 }
             }
@@ -177,7 +210,11 @@ public static class CacheManager
             else if (assetType.Equals(Typeof_String))
             {
 
-                var str = cachedata.www.text;
+                var str = string.Empty;
+                if (cachedata.www is byte[])
+                {
+                    str = LuaHelper.GetUTF8String((byte[])cachedata.www);
+                }
                 req.data = new string[] { str };
 
                 req.clearCacheOnComplete = true;
@@ -185,7 +222,7 @@ public static class CacheManager
             }
             else if (assetType.Equals(Typeof_Bytes))
             {
-                req.data = cachedata.www.bytes;
+                req.data = cachedata.www;
                 req.clearCacheOnComplete = true;
                 re = true;
             }

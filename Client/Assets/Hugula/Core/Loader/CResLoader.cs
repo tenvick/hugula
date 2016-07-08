@@ -55,6 +55,11 @@ public class CResLoader : MonoBehaviour
     /// <summary>
     /// 异步加载队列
     /// </summary>
+    static protected List<CRequest> loadingAssetBundleQueue = new List<CRequest>();
+
+    ///<summary>
+    ///异步加载队列
+    ///</summary>
     static protected List<CRequest> loadingAssetQueue = new List<CRequest>();
 
     /// <summary>
@@ -104,12 +109,6 @@ public class CResLoader : MonoBehaviour
         CreateFreeLoader();
     }
 
-    //// Use this for initialization
-    //void Start()
-    //{
-
-    //}
-
     // Update is called once per frame
     void Update()
     {
@@ -118,7 +117,6 @@ public class CResLoader : MonoBehaviour
         {
             CCar load = loaderPool[i];
             //Debug.LogFormat(" <color=green>chekc loading  isfree {0} count{1}</color>", load.isFree, realyLoadingQueue.Count);
-
             if (load.isFree && realyLoadingQueue.Count > 0)
             {
                 var req = realyLoadingQueue.Dequeue();
@@ -135,21 +133,34 @@ public class CResLoader : MonoBehaviour
             }
         }
 
-        //解压
-        for (int i = 0; i < loadingAssetQueue.Count; )
+        //ab
+        for (int i = 0; i < loadingAssetBundleQueue.Count; )
+        {
+            var item = loadingAssetBundleQueue[i];
+            if (CacheManager.CheckDependenciesComplete(item))//判断依赖项目是否加载完成
+            {
+                CacheManager.SetRequestDataFromCache(item);//设置缓存数据。
+                loadingAssetQueue.Add(item);
+                if (item.assetBundleRequest != null) CacheManager.AddLock(item.keyHashCode);//异步需要锁定
+                loadingAssetBundleQueue.RemoveAt(i);
+            }
+            else
+                i++;
+        }
+
+        //asset
+        for (int i = 0; i < loadingAssetQueue.Count; i++)
         {
             var item = loadingAssetQueue[i];
-
             //if (item.assetBundleRequest != null) Debug.LogFormat("key:{0} loading {1} frameCount{2}", item.key, item.assetBundleRequest.progress, Time.frameCount);
             if (item.assetBundleRequest != null && item.assetBundleRequest.isDone) //如果加载完成
             {
-                //Debug.LogFormat("key:{0}  data:{1} loadcomplete", item.key, item.data);
                 item.data = item.assetBundleRequest.asset;//赋值
                 //Debug.LogFormat("end key:{0}  data:{1} loadcomplete  frameCount{2}", item.key, item.data, Time.frameCount);
                 loadedAssetQueue.Enqueue(item);
                 loadingAssetQueue.RemoveAt(i);
             }
-            else if (item.assetBundleRequest == null && CacheManager.CheckDependenciesComplete(item)) //非异步
+            else if (item.assetBundleRequest == null) //非异步
             {
                 loadedAssetQueue.Enqueue(item);
                 loadingAssetQueue.RemoveAt(i);
@@ -254,8 +265,8 @@ public class CResLoader : MonoBehaviour
             for (int i = 0; i < count; i++)
             {
                 reqitem = callbacklist[i];
-                CacheManager.SetRequestDataFromCache(reqitem);
-                loadingAssetQueue.Add(reqitem);
+                //CacheManager.SetRequestDataFromCache(reqitem);
+                loadingAssetBundleQueue.Add(reqitem);
                 //Debug.LogFormat("creq.key {0}  loadingAsyncQueue  {1} data:({2})", creq.key, loadingAssetQueue.Count, reqitem.data);
             }
             callbacklist.Clear();
@@ -263,7 +274,7 @@ public class CResLoader : MonoBehaviour
         }
         else
         {
-            loadingAssetQueue.Add(creq);
+            loadingAssetBundleQueue.Add(creq);
             //Debug.LogFormat(" no list creq.key {0}  loadingAsyncQueue  {1} ", creq.key, loadingAssetQueue.Count);
 
         }
@@ -297,12 +308,13 @@ public class CResLoader : MonoBehaviour
     {
         if (currGroupRequests != null && currGroupRequests.Count == 0)
         {
-            if (_instance && _instance.OnAllComplete != null)
-                _instance.OnAllComplete(_instance);
+            if (_instance && _instance.OnGroupComplete != null)
+                _instance.OnGroupComplete(_instance);
 
             currGroupRequests = null;
         }
-        else if (currentLoading <= 0 && queue.Size() == 0)
+
+        if (currentLoading <= 0 && queue.Size() == 0)
         {
             var loadingEvent = _instance.loadingEvent;
             loadingEvent.target = _instance;
@@ -323,7 +335,12 @@ public class CResLoader : MonoBehaviour
 
     protected static void LoadAssetComplate(CRequest req)
     {
-        req.DispatchComplete();
+        try
+        {
+            req.DispatchComplete();
+        }
+        catch { }
+        
         currentLoaded++;
         PopGroup(req);
         ClearNoABCache(req);
@@ -341,6 +358,7 @@ public class CResLoader : MonoBehaviour
         {
             if (req.assetBundleRequest != null)
             {
+                CacheManager.AddLock(req.keyHashCode);
                 loadingAssetQueue.Add(req);
                 //Debug.LogFormat("loadingAsyncQueue.Add key:{0} ", req.key);
             }
@@ -373,8 +391,15 @@ public class CResLoader : MonoBehaviour
     /// <param name="req"></param>
     static void ClearNoABCache(CRequest req)
     {
+        if (req.assetBundleRequest!=null) CacheManager.RemoveLock(req.keyHashCode);
+
         if (req.clearCacheOnComplete)
+        {
+#if UNITY_EDITOR
+            Debug.LogFormat("<color=#8cacbc>{0} ClearCache</color>", req.key);
+#endif
             CacheManager.ClearCache(req.keyHashCode);
+        }
     }
 
     /// <summary>
@@ -437,7 +462,7 @@ public class CResLoader : MonoBehaviour
     static void LoadError(CCar cloader, CRequest req)
     {
         downloadings.Remove(req.udKey);
-
+        req.times++;
         if (req.times < 2)
         {
             //req.priority = req.priority - 10;
@@ -620,6 +645,7 @@ public class CResLoader : MonoBehaviour
     #region  delegate and event
 
     public event System.Action<CResLoader> OnAllComplete;
+    public event System.Action<CResLoader> OnGroupComplete;
     public event System.Action<CResLoader, LoadingEventArg> OnProgress;
     public event System.Action<CRequest> OnSharedComplete;
     #endregion

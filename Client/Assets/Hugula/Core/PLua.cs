@@ -169,7 +169,7 @@ namespace Hugula
             if (onLoadedFn != null) onLoadedFn.call();
         }
 
-    #region public
+        #region public
 
         public void SetRequire(string key, Array bytes)
         {
@@ -207,8 +207,8 @@ namespace Hugula
                     DoMain();
             }
 #else
-			StopCoroutine(loadLuaBundle(domain, onLoadedFn));
-			StartCoroutine(loadLuaBundle(domain, onLoadedFn));
+			StopCoroutine(loadLuaBundle(domain, null));
+			StartCoroutine(loadLuaBundle(domain, null));
 #endif
         }
 

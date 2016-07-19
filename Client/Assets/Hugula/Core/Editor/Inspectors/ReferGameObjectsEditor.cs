@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using Hugula;
 
 [CustomEditor(typeof(ReferGameObjects), true)]
 public class ReferGameObjectsEditor : Editor

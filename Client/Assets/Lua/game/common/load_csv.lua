@@ -4,7 +4,7 @@
 --  author pu
 ------------------------------------------------
 local CUtils=CUtils
-local FileHelper=toluacs.FileHelper   --luanet.import_type("FileHelper")
+local FileHelper=FileHelper   --luanet.import_type("FileHelper")
 local Loader = Loader
 local Model = Model
 local json = json
@@ -68,12 +68,7 @@ local function load_comp(req)
 end
 
 local function load_config_zip()
-	local url=CUtils.GetFileFullPath(CUtils.GetAssetPath("font1.u3d"))
-	local req=Request(url)
-    req.assetType ="UnityEngine.AssetBundle"
-	req.onCompleteFn=load_comp
-	Loader:get_resource(req,false)
-
+    Loader:get_resource("font1.u3d",nil,"UnityEngine.AssetBundle",load_comp)
 end
 
 load_config_zip()

@@ -5,85 +5,92 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-[SLua.CustomLuaClass]
-[ExecuteInEditMode]
-[RequireComponent(typeof(RectTransform))]
-public class ScrollRectItem : MonoBehaviour {
-
+namespace Hugula.UGUIExtend
+{
     /// <summary>
-    /// for index
+    /// 滚动列表
     /// </summary>
-    [SLua.DoNotToLua]
-    [HideInInspector]
-    public List<string> names = new List<string>();
-
-	public RectTransform rectTransform;
-
-    //public GameObject[] refers;
-    [HideInInspector]
-    public Object[] monos;
-
-	public object data;
-
-    public float fdata;
-
-    //public int idata;
-
-    //public string sdata;
-
-	// Use this for initialization
-    void Start()
+    [SLua.CustomLuaClass]
+    [ExecuteInEditMode]
+    [RequireComponent(typeof(RectTransform))]
+    public class ScrollRectItem : MonoBehaviour
     {
-		if (rectTransform == null)
-			rectTransform = this.GetComponent<RectTransform> ();
+
+        /// <summary>
+        /// for index
+        /// </summary>
+        [SLua.DoNotToLua]
+        [HideInInspector]
+        public List<string> names = new List<string>();
+
+        public RectTransform rectTransform;
+
+        public GameObject[] refers;
+        [HideInInspector]
+        public Object[] monos;
+
+        public object data;
+
+        public float fdata;
+
+        //public int idata;
+
+        //public string sdata;
+
+        // Use this for initialization
+        void Start()
+        {
+            if (rectTransform == null)
+                rectTransform = this.GetComponent<RectTransform>();
 
 #if UNITY_EDITOR
-        if (Application.isPlaying == false)
-        {
-            Vector2 topleft = new Vector2(0, 1);
-            rectTransform.anchorMax = topleft;
-            rectTransform.anchorMin = topleft;
-        }
+            if (Application.isPlaying == false)
+            {
+                Vector2 topleft = new Vector2(0, 1);
+                rectTransform.anchorMax = topleft;
+                rectTransform.anchorMin = topleft;
+            }
 #endif
-	}
-
-    public Object Get(string n)
-    {
-        int index = names.IndexOf(n);
-        if (index == -1)
-        {
-            Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + n + "]");
-            return null;
         }
-        else
-            return Get(index + 1);
-    }
 
-    public Object Get(int index)
-    {
-        index = index - 1;
-        if (index >= 0 && index < monos.Length)
+        public Object Get(string n)
         {
-            return monos[index];
-        }
-        else
-        {
-            Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + index + "]");
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// monos的长度
-    /// </summary>
-    public int Length
-    {
-        get
-        {
-            if (monos != null)
-                return monos.Length;
+            int index = names.IndexOf(n);
+            if (index == -1)
+            {
+                Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + n + "]");
+                return null;
+            }
             else
-                return 0;
+                return Get(index + 1);
+        }
+
+        public Object Get(int index)
+        {
+            index = index - 1;
+            if (index >= 0 && index < monos.Length)
+            {
+                return monos[index];
+            }
+            else
+            {
+                Debug.LogWarning(gameObject.name + "ScrollRectItem : not found the key [" + index + "]");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// monos的长度
+        /// </summary>
+        public int Length
+        {
+            get
+            {
+                if (monos != null)
+                    return monos.Length;
+                else
+                    return 0;
+            }
         }
     }
 }

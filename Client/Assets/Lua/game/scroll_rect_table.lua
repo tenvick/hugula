@@ -36,7 +36,7 @@ end
 ------------------public------------------
 -- 资源加载完成时候调用方法
 function scroll_rect_table:on_assets_load(items)
-	local refer = LuaHelper.GetComponent(self.assets[1].root,"ReferGameObjects") 
+	local refer = LuaHelper.GetComponent(self.assets[1].root,"Hugula.ReferGameObjects") 
 	scroll_table = refer:Get(1)
 	scroll_table.onItemRender=function(scroll_rect_item,index,dataItem)
 		scroll_rect_item.data = {index,dataItem}

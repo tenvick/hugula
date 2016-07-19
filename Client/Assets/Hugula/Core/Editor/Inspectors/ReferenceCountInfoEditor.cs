@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEditor;
 
+using Hugula.Pool;
+using Hugula.Loader;
+
 [CustomEditor(typeof(ReferenceCountInfo))]
 public class ReferenceCountInfoEditor : Editor
 {

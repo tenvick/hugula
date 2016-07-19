@@ -300,9 +300,9 @@ function Block:on_assets_load(items)
 	local root = asserts.blockroot.root
 	preBlocks=self.gameObject
 	preBlocks:SetActive(true)
-	preRefs = LuaHelper.GetComponent(preBlocks,"ReferGameObjects")
+	preRefs = LuaHelper.GetComponent(preBlocks,"Hugula.ReferGameObjects")
 	blocks=LuaHelper.InstantiateLocal(preBlocks,root)
-	refs = LuaHelper.GetComponent(blocks,"ReferGameObjects")
+	refs = LuaHelper.GetComponent(blocks,"Hugula.ReferGameObjects")
 	blocks = blocks.transform
 	startPoint=asserts.blockroot.items.BeginPoint.transform-- StartPoint.transform
 	local bottom=asserts.blockroot.items.Bottom --.transform.localPosition.y

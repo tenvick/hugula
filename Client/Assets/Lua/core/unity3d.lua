@@ -3,30 +3,34 @@
 --   
 --  author pu
 ------------------------------------------------
--- luanet.load_assembly("UnityEngine.UI")
--- import "UnityEngine"
 -- delay = PLua.Delay
 -- stop_delay = PLua.StopDelay
 Vector3 = UnityEngine.Vector3
 local Resources = UnityEngine.Resources
-local LuaHelper = LuaHelper
 local LuaTimer = LuaTimer
 if unpack==nil then unpack=table.unpack end
+-- local json = require "cjson"
 
---用timer实现delay 函数
-function delay(fun,delay_time,...)
-    local arg = {...}
-    local function temp_delay(id)
-      fun(unpack(arg))
-    end
-    local id = LuaTimer.Add(delay_time*1000,temp_delay)
-    return id
+if Hugula ~= nil then
+  local Hugula = Hugula
+  CUtils = Hugula.Utils.CUtils
+  LuaHelper = Hugula.Utils.LuaHelper
+  FileHelper = Hugula.Utils.FileHelper
+  Version = Hugula.Utils.Version
+
+  LResLoader = Hugula.Loader.LResLoader
+  LRequest = Hugula.Loader.LRequest
+  CacheManager = Hugula.Loader.CacheManager
+  PrefabPool = Hugula.Pool.PrefabPool
+
+  PLua = Hugula.PLua
+  ReferGameObjects = Hugula.ReferGameObjects
+  ScrollRectItem = Hugula.UGUIExtend.ScrollRectItem
+  ScrollRectTable = Hugula.UGUIExtend.ScrollRectTable
+  UGUIEvent = Hugula.UGUIExtend.UGUIEvent
+  UGUIEventLuaTrigger = Hugula.UGUIExtend.UGUIEventLuaTrigger
 end
 
-function stop_delay(id)
-  if type(id) == "number" then LuaTimer.Delete(id) end
-end
---
 --PrefabPool资源自动回收
 --当内存达到阈值的时候触发回收，回收按照PrefabCacheType从0开始每段回收
 --PrefabPool.gcDeltaTimeConfig = 10 两次GC检测间隔时间
@@ -45,14 +49,86 @@ PrefabCacheType =
   segment8 = 8  --永远不回收 TODO:自动收缩 
 }
 
-function get_angle(posFrom,posTo)  
-    local tmpx=posTo.x - posFrom.x
-    local tmpy=posTo.y - posFrom.y
-    local angle= math.atan2(tmpy,tmpx)*(180/math.pi)
-    return angle
+-- function print() end
+
+function tojson(tbl,indent)
+    assert(tal==nil)
+    if not indent then indent = 0 end
+
+    local tab=string.rep("  ",indent)
+    local havetable=false
+    local str="{"
+    local sp=""
+    if tbl then
+        for k, v in pairs(tbl) do
+            if type(v) == "table" then
+                havetable=true
+                if(indenct==0) then
+                    str=str..sp.."\r\n  "..tostring(k)..":"..tojson(v,indent+1)
+                else
+                    str=str..sp.."\r\n"..tab..tostring(k)..":"..tojson(v,indent+1)
+                end
+            else
+                str=str..sp..tostring(k)..":"..tostring(v)
+            end
+            sp=";"
+        end
+    end
+
+    if(havetable) then      str=str.."\r\n"..tab.."}"   else        str=str.."}"    end
+
+    return str
 end
 
-function print_table(tbl)	print(tojson(tbl)) end
+function print_table(tbl)	
+  local DEBUG = true
+  if DEBUG then
+    print(tojson(tbl)) 
+  end
+end
+
+function math.randomseed1(i)
+    math.randomseed(tostring(os.time()+tonumber(i)):reverse():sub(1, 6)) 
+end
+
+function table.get_elem_size(tab)
+    if not tab then return 0 end
+    local i = 0
+    for k,v in pairs(tab) do
+        i = i + 1
+    end
+    return i
+end
+
+function lua_gc()
+  collectgarbage("collect")
+  local c=collectgarbage("count")
+  -- print(" gc end ="..tostring(c).." ")
+end
+
+--释放没有使用的资源 (mesh,texture)
+function unload_unused_assets()
+  lua_gc()
+  Resources.UnloadUnusedAssets()
+  LuaHelper.GCCollect()
+end
+
+--用timer实现delay 函数
+function delay(fun,delay_time,...)
+    local arg = {...}
+    local function temp_delay(id)
+      fun(unpack(arg))
+    end
+    local id = LuaTimer.Add(delay_time*1000,temp_delay)
+    return id
+end
+
+function stop_delay(id)
+  if type(id) == "number" then LuaTimer.Delete(id) end
+end
+
+
+---class
 
 function class(base, _ctor)
     local c = {}    -- a new class instance
@@ -66,28 +142,28 @@ function class(base, _ctor)
         end
         c._base = base
     end
-    
+
     -- the class will be the metatable for all its objects,
     -- and they will look up their methods in it.
     c.__index = c
 
     -- expose a constructor which can be called by <classname>(<args>)
     local mt = {}
-    
+
     mt.__call = function(class_tbl, ...)
         local obj = {}
         setmetatable(obj,c)
-  
+
         if _ctor then
             _ctor(obj,...)
         end
         return obj
-    end    
-        
+    end
+
     c._ctor = _ctor
     c.is_a = function(self, klass)
         local m = getmetatable(self)
-        while m do 
+        while m do
             if m == klass then return true end
             m = m._base
         end
@@ -96,19 +172,3 @@ function class(base, _ctor)
     setmetatable(c, mt)
     return c
 end
-
-function lua_gc()
-  collectgarbage("collect")
-  c=collectgarbage("count")
-  print(" gc end ="..tostring(c).." ")
-end
-
---释放没有使用的资源 (mesh,texture)
-function unload_unused_assets()
-  lua_gc()
-  Resources.UnloadUnusedAssets()
-  LuaHelper.GCCollect()
-end
-
-
-

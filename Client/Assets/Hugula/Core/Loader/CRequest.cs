@@ -3,153 +3,167 @@
 //
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
+using Hugula.Utils;
 
-/// <summary>
-/// Request.
-/// </summary>
-[SLua.CustomLuaClass]
-public class CRequest // IDispose
+namespace Hugula.Loader
 {
     /// <summary>
-    /// 加载请求 
+    /// Request.
     /// </summary>
-    /// <param name="url"></param>
-    public CRequest(string url)
+    [SLua.CustomLuaClass]
+    public class CRequest // IDispose
     {
-        this.url = url;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="url">地址 完整地址</param>
-    /// <param name="assetName">加载的资源名</param>
-    /// <param name="assetType">资源类型，默认为GameObject</param>
-    public CRequest(string url, string assetName, string assetType)
-    {
-        this.url = url;
-        this.assetName = assetName;
-        this.assetType = assetType;
-    }
-
-    public void Dispose()
-    {
-        this.url = null;
-        this.priority = 0;
-        this.key = null;
-        this.suffix = null;
-        _data = null;
-        _head = null;
-    }
-
-    private object _data;
-
-    private object _head;
-
-    private string _key, _udKey;
-
-    private int _keyHashCode;
-
-    private string _url;
-
-    private string _suffix = string.Empty;
-
-    private string _assetBundleName = string.Empty;
-
-    private string _assetName = string.Empty;
-
-    private bool _async = true;
-
-    /// <summary>
-    /// 文件后缀类型</br>
-    /// * 默认根据url后缀来生成</br>
-    /// * 如果设定以设定值为准.解码的时候是根据type来解码的.例如 解码后成相应的对象类型
-    /// </summary>
-    public string suffix
-    {
-        get
+        /// <summary>
+        /// 加载请求 
+        /// </summary>
+        /// <param name="url"></param>
+        public CRequest(string relativeUrl)
         {
-            if (string.IsNullOrEmpty(_suffix))
-                _suffix = CUtils.GetURLFileSuffix(_url);
-            return _suffix;
+            this.relativeUrl = relativeUrl;
         }
-        set
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url">地址 相对路径</param>
+        /// <param name="assetName">加载的资源名</param>
+        /// <param name="assetType">资源类型，默认为GameObject</param>
+        public CRequest(string relativeUrl, string assetName, string assetType)
         {
-            _suffix = value;
+            this.relativeUrl = relativeUrl;
+            this.assetName = assetName;
+            this.assetType = assetType;
         }
-    }
 
-    /// <summary>
-    /// assetbundleName 根据url计算出来
-    /// </summary>
-    public string assetBundleName
-    {
-        get
+        public void Dispose()
         {
-            if (string.IsNullOrEmpty(_assetBundleName))
-                _assetBundleName = CUtils.GetURLFullFileName(_url);
-            return _assetBundleName;
+            this._url = null;
+            this.relativeUrl = null;
+            this.priority = 0;
+            this._key = null;
+            this._uris = null;
+            this._uri = null;
+            this.index = 0;
+            this._data = null;
+            this._head = null;
+            this.userData = null;
         }
-        set
+
+        private object _data;
+
+        private object _head;
+
+        private string _key, _udKey;
+
+        private int _keyHashCode;
+
+        private string _url;
+
+        private string _assetBundleName = string.Empty;
+
+        private string _assetName = string.Empty;
+
+        private bool _async = true;
+
+        private string[] _uris;
+
+        private string _uri;
+
+        public string uri
         {
-            _assetBundleName = value;
-        }
-    }
+            get
+            {
 
-    /// <summary>
-    /// 要加载的asset 名称
-    /// </summary>
-    public string assetName
-    {
-        get
+                if (string.IsNullOrEmpty(_uri))
+                    _uri = CUtils.GetUri(uris, index);
+                return _uri;
+            }
+            set
+            {
+                _uri = value;
+                this._url = Path.Combine(_uri, this.relativeUrl);
+                _udKey = CUtils.GetUDKey(_uri, relativeUrl);  //CryptographHelper.CrypfString(this._url);//_key=CUtils.getURLFullFileName(url);		    	
+            }
+        }
+
+        /// <summary>
+        /// Gets the relative URL.
+        /// </summary>
+        /// <value>The relative URL.</value>
+        public string relativeUrl { private set; get; }
+
+        /// <summary>
+        /// assetbundleName 根据url计算出来
+        /// </summary>
+        public string assetBundleName
         {
-            if (string.IsNullOrEmpty(_assetName)) _assetName = key;
-            return _assetName;
+            get
+            {
+                if (string.IsNullOrEmpty(_assetBundleName))
+                    _assetBundleName = CUtils.GetURLFullFileName(relativeUrl);
+                return _assetBundleName;
+            }
+            set
+            {
+                _assetBundleName = value;
+            }
         }
-        set { _assetName = value; }
-    }
 
-    /// <summary>
-    /// asset Type name
-    /// </summary>
-    public string assetType = string.Empty;
-
-    /// <summary>
-    /// 加载的头信息
-    /// </summary>
-    public object head
-    {
-        get { return this._head; }
-        set { this._head = value; }
-    }
-
-
-    /// <summary>
-    /// 加载的数据
-    /// </summary>
-    public object data
-    {
-        get
+        /// <summary>
+        /// 要加载的asset 名称
+        /// </summary>
+        public string assetName
         {
-            return _data;
+            get
+            {
+                if (string.IsNullOrEmpty(_assetName)) _assetName = key;
+                return _assetName;
+            }
+            set { _assetName = value; }
         }
-        set
+
+        /// <summary>
+        /// asset Type name
+        /// </summary>
+        public string assetType = string.Empty;
+
+        /// <summary>
+        /// 加载的头信息
+        /// </summary>
+        public object head
         {
-            _data = value;
+            get { return this._head; }
+            set { this._head = value; }
         }
-    }
 
-    /// <summary>
-    /// The user data.
-    /// </summary>
-    public object userData;
 
-    public event CompleteHandle OnEnd;
+        /// <summary>
+        /// 加载的数据
+        /// </summary>
+        public object data
+        {
+            get
+            {
+                return _data;
+            }
+            set
+            {
+                _data = value;
+            }
+        }
 
-    public event CompleteHandle OnComplete;
+        /// <summary>
+        /// The user data.
+        /// </summary>
+        public object userData;
 
-    public void DispatchComplete()
-    {
+        public event CompleteHandle OnEnd;
+
+        public event CompleteHandle OnComplete;
+
+        public void DispatchComplete()
+        {
 #if HUGULA_PROFILE_DEBUG
         Profiler.BeginSample(this.key+"_onComplete");
 
@@ -158,138 +172,151 @@ public class CRequest // IDispose
         
         Profiler.EndSample();
 #else
-        if (OnComplete != null)
-            OnComplete(this);
+            if (OnComplete != null)
+                OnComplete(this);
 #endif
+        }
+
+        public void DispatchEnd()
+        {
+            if (OnEnd != null)
+                OnEnd(this);
+        }
+
+        public bool isShared { get; internal set; }
+
+        /// <summary>
+        /// 请求地址 网址，相对路径，绝对路径
+        /// </summary>
+        public string url
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_url))
+                    _url = Path.Combine(uri, relativeUrl); //Path.Combine (uri, this.relativeUrl);
+                return _url;
+            }
+        }
+
+        /// <summary>
+        /// 缓存用的关键字
+        /// 如果没有设定 则为默认key生成规则
+        /// </summary>
+        public string key
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_key))
+                    _key = CUtils.GetKeyURLFileName(relativeUrl);
+                return _key;
+            }
+            //        set
+            //        {
+            //            _key = value;
+            //        }
+        }
+
+        /// <summary>
+        /// assetBundle key的hashcode 用于计算缓存的资源key
+        /// </summary>
+        public int keyHashCode
+        {
+            get
+            {
+                if (_keyHashCode == 0)
+                    _keyHashCode = LuaHelper.StringToHash(key);
+                return _keyHashCode;
+            }
+            set
+            {
+                _keyHashCode = value;
+            }
+        }
+
+        /// <summary>
+        /// Sets the U dkey.
+        /// </summary>
+        /// <value>
+        /// The U dkey.
+        /// </value>
+        public string udKey
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_udKey))
+                    _udKey = CUtils.GetUDKey(uri, relativeUrl);//_key=CUtils.getURLFullFileName(url);		    	
+                return _udKey;
+            }
+        }
+
+
+        /// <summary>
+        /// 是否异步加载
+        /// </summary>
+        public bool async
+        {
+            get
+            {
+                return _async;
+            }
+            set
+            {
+                _async = value;
+            }
+        }
+
+        /// <summary>
+        ///  优先等级
+        ///  降序
+        ///  值越大优先级越高
+        /// </summary>
+        public int priority = 0;//优先级
+
+        /// <summary>
+        /// 加载次数
+        /// </summary>
+        public int index = 0;
+
+        /// <summary>
+        /// 资源位置列表
+        /// </summary>
+        public string[] uris
+        {
+            get
+            {
+                if (_uris == null)
+                    _uris = CResLoader.uriList;
+
+                return _uris;
+            }
+
+            set
+            {
+                _uris = value;
+            }
+        }
+
+        /// <summary>
+        /// The max try uri times.
+        /// </summary>
+        public int maxTimes = 2;
+
+        /// <summary>
+        /// dependencies count;
+        /// </summary>
+        internal int[] allDependencies;
+
+        /// <summary>
+        /// 异步请求的ab
+        /// </summary>
+        internal AssetBundleRequest assetBundleRequest;
+
+        /// <summary>
+        /// 加载完成后清理缓存
+        /// </summary>
+        internal bool clearCacheOnComplete = false;
+
     }
 
-    public void DispatchEnd()
-    {
-        if (OnEnd != null)
-            OnEnd(this);
-    }
-
-    public bool isShared { get;internal set; }
-
-    /// <summary>
-    /// 请求地址 网址，相对路径，绝对路径
-    /// </summary>
-    public string url
-    {
-        get
-        {
-            return _url;
-        }
-        set
-        {
-            _url = value;
-        }
-    }
-
-    /// <summary>
-    /// 缓存用的关键字
-    /// 如果没有设定 则为默认key生成规则
-    /// </summary>
-    public string key
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_key))
-                _key = CUtils.GetKeyURLFileName(url);
-            return _key;
-        }
-        set
-        {
-            _key = value;
-        }
-    }
-
-    /// <summary>
-    /// assetBundle key的hashcode 用于计算缓存的资源key
-    /// </summary>
-    public int keyHashCode
-    {
-        get
-        {
-            if(_keyHashCode == 0 )
-                _keyHashCode = LuaHelper.StringToHash(key);
-            return _keyHashCode;
-        }
-        set
-        {
-            _keyHashCode = value;
-        }
-    }
-
-    /// <summary>
-    /// Sets the U dkey.
-    /// </summary>
-    /// <value>
-    /// The U dkey.
-    /// </value>
-    public string udKey
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_udKey))
-                _udKey = CryptographHelper.CrypfString(this.url);//_key=CUtils.getURLFullFileName(url);		    	
-            return _udKey;
-        }
-        set
-        {
-            _udKey = value;
-        }
-    }
-
-
-    /// <summary>
-    /// 是否异步加载
-    /// </summary>
-    public bool async
-    {
-        get
-        {
-            return _async;
-        }
-        set
-        {
-            _async = value;
-        }
-    }
-
-    /// <summary>
-    ///  优先等级
-    ///  降序
-    ///  值越大优先级越高
-    /// </summary>
-    public int priority = 0;//优先级
-
-    /// <summary>
-    /// 加载次数
-    /// 加载失败的时候记录
-    /// </summary>
-    public int times = 0;
-
-    ///// <summary>
-    ///// 被依赖的对象
-    ///// </summary>
-    //public CRequest childrenReq;
-
-    /// <summary>
-    /// dependencies count;
-    /// </summary>
-    internal int[] allDependencies;
-
-    /// <summary>
-    /// 异步请求的ab
-    /// </summary>
-    internal AssetBundleRequest assetBundleRequest;
-
-    /// <summary>
-    /// 加载完成后清理缓存
-    /// </summary>
-    internal bool clearCacheOnComplete = false;
-     
+    public delegate void CompleteHandle(CRequest req);
 }
-
-public delegate void CompleteHandle(CRequest req);

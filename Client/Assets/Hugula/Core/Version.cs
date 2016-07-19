@@ -4,8 +4,30 @@
 using UnityEngine;
 using System.Collections;
 
-public class Version {
+namespace Hugula.Utils
+{
+    /// <summary>
+    /// 版本号
+    /// </summary>
+    public class Version
+    {
 
-	public const uint VERSION= 0x000060;
-	
+        public const uint VERSION = 0x000080;
+
+    }
 }
+/**
+ * 
+ * 预编译命名说明
+ * BUILD_COMMON_ASSETBUNDLE -- 使用未加密的名字构建 assetbundle
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+**/

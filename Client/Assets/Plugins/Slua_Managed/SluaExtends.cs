@@ -50,7 +50,10 @@ namespace SLua
 
         public static void pushValue(IntPtr l, byte[] buffer)
         {
-            LuaDLLWrapper.luaS_pushlstring(l, buffer, buffer.Length);
+			if (buffer != null)
+				LuaDLLWrapper.luaS_pushlstring (l, buffer, buffer.Length);
+			else
+				LuaDLL.lua_pushnil (l);
         }
 
         public static void checkValueType(IntPtr l, int p, out LayerMask lm)
@@ -194,7 +197,7 @@ namespace SLua
             return null;
         }
 
-        public object call(GameObject a1, bool a2)
+        public object call(object a1, bool a2)
         {
             int error = LuaObject.pushTry(state.L);
 
@@ -220,7 +223,7 @@ namespace SLua
             return null;
         }
 
-        public object call(int a1, GameObject a2)
+        public object call(int a1, UnityEngine.Object a2)
         {
             int error = LuaObject.pushTry(state.L);
 

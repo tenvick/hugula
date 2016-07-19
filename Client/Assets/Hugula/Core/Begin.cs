@@ -8,14 +8,17 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-//using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
-/// <summary>
-/// 
-/// </summary>
-public class Begin : MonoBehaviour {
-	
-    public string enterLua = "main";
+
+namespace Hugula
+{
+    /// <summary>
+    /// 开始脚本，入口
+    /// </summary>
+    public class Begin : MonoBehaviour
+    {
+
+        public string enterLua = "main";
 
     //private LHighway multipleLoader;
 
@@ -49,6 +52,7 @@ public class Begin : MonoBehaviour {
 	}
 	#endregion
 
-    #region protected
-    #endregion
+        #region protected
+        #endregion
+    }
 }

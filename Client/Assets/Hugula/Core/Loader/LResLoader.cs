@@ -1,92 +1,101 @@
-﻿using UnityEngine;
+﻿// Copyright (c) 2015 hugula
+// direct https://github.com/tenvick/hugula
+//
+using UnityEngine;
 using System.Collections;
 using SLua;
 
-[SLua.CustomLuaClass]
-public class LResLoader : CResLoader
+namespace Hugula.Loader
 {
-    // Use this for initialization
-    void Start()
-    {
-        base.OnAllComplete += L_onAllComplete;
-        base.OnProgress += L_onProgress;
-        base.OnSharedComplete += L_onSharedComplete;
-        base.OnGroupComplete += LResLoader_OnGroupComplete;
-    }
-
     /// <summary>
-    /// 加载luatable里面的request
+    /// 给lua使用的CResLoader
     /// </summary>
-    /// <param name="reqs"></param>
-    public void LoadLuaTable(LuaTable reqs,LuaFunction groupCompleteFn)
+    [SLua.CustomLuaClass]
+    public class LResLoader : CResLoader
     {
-        pushGroup = true;
-
-        foreach (var pair in reqs)
+        // Use this for initialization
+        void Start()
         {
-            AddReqToQueue((CRequest)pair.value);
+            base.OnAllComplete += L_onAllComplete;
+            base.OnProgress += L_onProgress;
+            base.OnSharedComplete += L_onSharedComplete;
+            base.OnGroupComplete += LResLoader_OnGroupComplete;
         }
 
-        this.groupCompleteFn = groupCompleteFn;
-
-        pushGroup = false;
-
-        BeginQueue();
-    }
-
-    #region protected method
-
-    void LResLoader_OnGroupComplete(CResLoader obj)
-    {
-        if (groupCompleteFn != null) groupCompleteFn.call(obj);
-        groupCompleteFn = null;
-    }
-
-    void L_onSharedComplete(CRequest req)
-    {
-        if (onSharedCompleteFn != null)
-            onSharedCompleteFn.call(req);
-    }
-
-    void L_onProgress(CResLoader loader, LoadingEventArg arg)
-    {
-        if (onProgressFn != null)
-            onProgressFn.call(loader, arg);
-    }
-
-    void L_onAllComplete(CResLoader loader)
-    {
-        if (onAllCompleteFn != null)
-            onAllCompleteFn.call(loader);
-    }
-
-    #endregion
-
-    #region  delegate and event
-    private LuaFunction groupCompleteFn;
-    public LuaFunction onAllCompleteFn;
-    public LuaFunction onProgressFn;
-    public LuaFunction onSharedCompleteFn;
-    public LuaFunction onCacheFn;
-    #endregion
-
-    #region instance
-    //protected static LResLoader _instance;
-    /// <summary>
-    /// the GetInstance
-    /// </summary>
-    /// <returns></returns>
-    public static CResLoader instance
-    {
-        get
+        /// <summary>
+        /// 加载luatable里面的request
+        /// </summary>
+        /// <param name="reqs"></param>
+        public void LoadLuaTable(LuaTable reqs, LuaFunction groupCompleteFn)
         {
-            if (_instance == null)
+            pushGroup = true;
+
+            foreach (var pair in reqs)
             {
-                var chighway = new GameObject("CResManager");
-                _instance = chighway.AddComponent<LResLoader>();
+                AddReqToQueue((CRequest)pair.value);
             }
-            return _instance;
+
+            this.groupCompleteFn = groupCompleteFn;
+
+            pushGroup = false;
+
+            BeginQueue();
         }
+
+        #region protected method
+
+        void LResLoader_OnGroupComplete(CResLoader obj)
+        {
+            if (groupCompleteFn != null) groupCompleteFn.call(obj);
+            groupCompleteFn = null;
+        }
+
+        void L_onSharedComplete(CRequest req)
+        {
+            if (onSharedCompleteFn != null)
+                onSharedCompleteFn.call(req);
+        }
+
+        void L_onProgress(CResLoader loader, LoadingEventArg arg)
+        {
+            if (onProgressFn != null)
+                onProgressFn.call(loader, arg);
+        }
+
+        void L_onAllComplete(CResLoader loader)
+        {
+            if (onAllCompleteFn != null)
+                onAllCompleteFn.call(loader);
+        }
+
+        #endregion
+
+        #region  delegate and event
+        private LuaFunction groupCompleteFn;
+        public LuaFunction onAllCompleteFn;
+        public LuaFunction onProgressFn;
+        public LuaFunction onSharedCompleteFn;
+        public LuaFunction onCacheFn;
+        #endregion
+
+        #region instance
+        //protected static LResLoader _instance;
+        /// <summary>
+        /// the GetInstance
+        /// </summary>
+        /// <returns></returns>
+        public static CResLoader instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    var chighway = new GameObject("CResManager");
+                    _instance = chighway.AddComponent<LResLoader>();
+                }
+                return _instance;
+            }
+        }
+        #endregion
     }
-    #endregion
 }

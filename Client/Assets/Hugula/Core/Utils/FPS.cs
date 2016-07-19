@@ -4,6 +4,8 @@
 using UnityEngine;
 using System.Collections;
 
+namespace Hugula.Utils
+{
 public class FPS : MonoBehaviour 
 {
     public float updateInterval = 0.5F;
@@ -33,4 +35,4 @@ public class FPS : MonoBehaviour
         }
     }
 }
-
+}

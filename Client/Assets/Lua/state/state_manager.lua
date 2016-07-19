@@ -155,7 +155,7 @@ function StateManager:set_current_state(new_state,method,...)
 
     unload_unused_assets()
 
-    self:record_state() --记录状态用于返回
+    self:record_state() --记录状态用于返回   
 end
 
 function StateManager:record_state() --记录状态用于返回

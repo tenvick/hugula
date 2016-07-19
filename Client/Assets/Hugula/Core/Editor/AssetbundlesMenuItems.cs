@@ -4,62 +4,85 @@ using System.IO;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
-
+using System.Linq;
+using Hugula;
 
 public class AssetbundlesMenuItems
 {
 
-    #region unity5 AssetBundles export
+	#region unity5 AssetBundles export
 
     //[MenuItem("Assets/AssetBundles/Build AssetBundles", false, 2)]
-    [MenuItem("AssetBundles/Build AssetBundles &b", false, 2)]
+    [MenuItem("AssetBundles/Build AssetBundles &b", false, 1)]
     static public void BuildAssetBundles()
     {
         BuildScript.BuildAssetBundles();
     }
 
+    [MenuItem("AssetBundles/Update All AssetBundle Name", false, 2)]
+    static public void UpdateAssetBundlesName()
+    {
+        var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+            (path.StartsWith("Assets/CustomerResource")
+            || path.StartsWith("Assets/TapEnjoy"))
+            && !(path.EndsWith(".cs"))
+            ).ToArray();
+
+		BuildScript.UpdateAssetBundlesName (allAssets);
+    }
+
+	[MenuItem("AssetBundles/Generate/AssetBundle Md5Mapping ", false, 5)]
+	static public void GenerateAssetBundlesMd5Mapping()
+	{
+		var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+			(path.StartsWith("Assets/CustomerResource")
+				|| path.StartsWith("Assets/TapEnjoy"))
+			&& !(path.EndsWith(".cs"))
+		).ToArray();
+		BuildScript.GenerateAssetBundlesMd5Mapping (allAssets);
+	}
+
+	[MenuItem("AssetBundles/Generate/AssetBundle Update File ", false, 6)]
+    static public void GenerateAssetBundlesUpdate()
+    {
+		ExportResources.buildAssetBundlesUpdateAB ();
+    }
+
+
+    [MenuItem("AssetBundles/", false, 11)]
+    static void Breaker_AssetBundles() { }
+
 
     [MenuItem("Assets/AssetBundles/Set AssetBundle Name", false, 1)]
     static public void SetAssetBundlesName()
     {
-        Object[] selection = Selection.objects;
-
-        AssetImporter import = null;
-        foreach (Object s in selection)
-        {
-            import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
-            import.assetBundleName = s.name+"."+Common.ASSETBUNDLE_SUFFIX;
-			if(s.name.Contains(" ")) Debug.LogWarning(s.name+" contains space");
-            Debug.Log(s.name);
-            if (s is GameObject)
-            {
-                GameObject tar = s as GameObject;
-                ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                refe.assetBundleName = s.name.ToLower();
-            }
-        }
+		BuildScript.SetAssetBundlesName ();
     }
 
     [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 2)]
     static public void ClearAssetBundlesName()
     {
-        Object[] selection = Selection.objects;
-
-        AssetImporter import = null;
-        foreach (Object s in selection)
-        {
-            import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
-            import.assetBundleName = null;
-            //if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-            Debug.Log(s.name+" clear");
-            if (s is GameObject)
-            {
-                GameObject tar = s as GameObject;
-                ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                refe.assetBundleName = string.Empty;
-            }
-        }
+		BuildScript.ClearAssetBundlesName ();
     }
+
+    [MenuItem("Assets/AssetBundles/Clear UnUsed AssetBundle Name", false, 3)]
+    static public void ClearUnUsedAssetBundlesName()
+    {
+		BuildScript.ClearUnUsedAssetBundlesName ();
+    }
+
+	[MenuItem("Assets/AssetBundles/Update Selected AssetBundle Name", false, 4)]
+	static public void UpdateSelectedAssetBundleNames()
+	{
+		Object[] selection = Selection.objects;
+		List<string> allAssetPaths = new List<string> ();
+		foreach (Object s in selection) {
+			allAssetPaths.Add(AssetDatabase.GetAssetPath (s));
+		}
+
+		BuildScript.UpdateAssetBundlesName (allAssetPaths.ToArray());
+	}
+
     #endregion
 
     #region lua language config export
@@ -78,7 +101,7 @@ public class AssetbundlesMenuItems
         ExportResources.exportConfig();
     }
 
-    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
+//    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
     public static void exportLanguage()
     {
         ExportResources.exportLanguage();

@@ -31,7 +31,7 @@ local eg_data = {
 function welcome:on_assets_load(items)
 	local fristView = LuaHelper.Find("Frist")
 	if fristView then LuaHelper.Destroy(fristView) end
-	local refer = LuaHelper.GetComponent(self.assets[1].root,"ReferGameObjects") 
+	local refer = LuaHelper.GetComponent(self.assets[1].root,"Hugula.ReferGameObjects") 
 	content_rect_table = refer:Get(1)
 
 	content_rect_table.onItemRender=function(scroll_rect_item,index,dataItem)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using Hugula.UGUIExtend;
 
 [CustomEditor(typeof(ScrollRectItem))]
 public class ScrollRectItemEditor : Editor

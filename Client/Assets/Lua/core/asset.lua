@@ -5,13 +5,14 @@
 ------------------------------------------------
 local CUtils=CUtils
 local LuaHelper=LuaHelper
+local CryptographHelper = CryptographHelper
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 Asset = class(function(self,url,names)
     self.base = false
-    self.url = url --CUtils.GetAssetFullPath(url)
-    self.full_url=CUtils.GetAssetFullPath(url)
-   -- print(url)
+    self.url = url
     self.key = CUtils.GetKeyURLFileName(url)
+    self.full_url = CUtils.GetFileName(url)
+   -- print(url)
     self.names = names
     if names then 
     	local len =#names local name

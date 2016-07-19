@@ -1,16 +1,14 @@
 ------------------------------------------------
---  Copyright © 2013-2014   Hugula: Arpg game Engine
+--  Copyright © 2013-2016   Hugula: Arpg game Engine
 --	loader loadresouce from assetbundl
 --	author pu
 ------------------------------------------------
+local Hugula = Hugula
 Loader={}
-local Request=LRequest
-local AssetBundle = UnityEngine.AssetBundle
-local WWW = UnityEngine.WWW
-local CacheManager = CacheManager
-
-local CUtils = CUtils
-
+local Request=Hugula.Loader.LRequest
+local CacheManager = Hugula.Loader.CacheManager
+local LResLoader = Hugula.Loader.LResLoader
+local CUtils = Hugula.Utils.CUtils
 local Loader=Loader 
 Loader.multipleLoader= LResLoader.instance
 
@@ -18,27 +16,27 @@ local function dispatch_complete(req)
 	if req.onCompleteFn then req.onCompleteFn(req) end
 end
 
-local function load_by_url7(url,assetName,assetType,compFn,cache,endFn,head)
+local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+	local key = CUtils.GetKeyURLFileName(url) --获取key
+	if assetName == nil then assetName = key end
+	url = CUtils.GetFileName(url) --判断加密
 	local req=Request(url,assetName,assetType)
 
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
-	if head~=nil then req.head=head end 
+	if head ~= nil then req.head=head end 
+	if uris then req.uris = uris end
+	if async ~= nil then req.async = async end
 
+	return req
+end
+
+local function load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+	local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
 	Loader.multipleLoader:LoadReq(req)
 end
 
-local function load_by_url5(url,compFn,cache,endFn,head)	
-	local req=Request(url)	
-
-	if compFn then req.onCompleteFn=compFn end
-	if endFn then req.onEndFn=endFn end
-	if head~=nil then req.head=head end 
-	
-	Loader.multipleLoader:LoadReq(req) 
-end
-
-local function load_by_req( req,cache )
+local function load_by_req( req )
 	Loader.multipleLoader:LoadReq(req)
 end
 
@@ -52,19 +50,26 @@ local function load_by_table(tb,group_fn)
 		if typen=="table" then
 			local l1=#v
 			local req 
-			if l1>0 then req=Request(v[1]) else req = Request("") end
-			if l1>1 then req.onCompleteFn=v[2] end
-			if l1>2 then req.onEndFn=v[3] end
-			if l1>3 then req.head=v[4] end
-			if l1>4 then req.async=v[5] end
+			local url,assetName,assetType,compFn,endFn,uris,head,async
+			if l1>0 then url = v[1]  end
+			if l1>1 then assetName=v[2] end
+			if l1>2 then assetType=v[3] end
+			if l1>3 then compFn=v[4] end
+			if l1>4 then endFn=v[5] end
+			if l1>5 then head=v[6] end
+			if l1>6 then uris=v[7] end
+			if l1>7 then async=v[8] end
 
-			if v.url then req.url = v.url end
-			if v.assetType then req.assetType = v.assetType end
-			if v.onCompleteFn then req.onCompleteFn = v.onCompleteFn end
-			if v.onEndFn then req.onEndFn = v.onEndFn end
-			if v.head then req.head = v.head end
-			if v.async ~= nil then req.async = v.async end
+			if v.url then url = v.url end
+			if v.assetName then assetName = v.assetName end
+			if v.assetType then assetType = v.assetType end
+			if v.onCompleteFn then compFn = v.onCompleteFn end
+			if v.onEndFn then endFn = v.onEndFn end
+			if v.uris then uris = v.uris end
+			if v.head ~= nil then head = v.head end
+			if v.async ~= nil then async = v.async end
 
+			local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
 			table.insert(arrList,req)
 		elseif typen=="userdata" then
 			table.insert(arrList,v)
@@ -89,24 +94,28 @@ function Loader:unload(url)
 	end
 end
 
---load_by_url5(url,compFn,cache,endFn,head)
---load_by_table( {url,compFn,endFn,head},cache)
+-- load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+-- load_by_url4(url,compFn,endFn,head,uris,async)
+--load_by_table( {url,compFn,endFn,head},group_fn)
 function Loader:get_resource(...)	
-	local a,b,c,d,e,f,g=...	
+	local a,b,c,d,e,f,g,h = ...	
 	--url,onComplete
-	if type(a)=="string" and type(b)=="string" then 
-		load_by_url7(a,b,c,d,e,f,g)
-    elseif type(a)=="string" then
-		load_by_url5(a,b,c,d,e)
-	elseif type(a)=="userdata" then
+	local t_a = type(a)
+	if t_a=="string" and (type(b)=="string" or type(b)=="nil")then 
+		load_by_url6(a,b,c,d,e,f,g,h)
+	elseif t_a=="string" and type(b) == "function" then
+		load_by_url6(a,nil,nil,b,c,d,e,f)
+	elseif t_a=="userdata" then
 		load_by_req(a,b)
-	elseif type(a) == "table" then
+	elseif t_a == "table" then
 		load_by_table(a,b)
+	else
+		error(" loader.lua line 116  this is no overloaded function for args")
 	end
 end
 
 local function on_shared_complete(req)
-
+	-- print(req.key.." on_shared_complete ")
 end
 
 function Loader:set_onall_complete_fn(compFn)
@@ -119,7 +128,7 @@ end
 
 function Loader:refresh_assetbundle_manifest(onReady)
 
-    local url = CUtils.GetAssetFullPath(CUtils.GetPlatformFolderForAssetBundles())
+    local url = CUtils.GetPlatformFolderForAssetBundles()
     local  function onCompleteFn (req1)
         local data=req1.data
         LResLoader.assetBundleManifest=data

@@ -1,32 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 光影 操作
-/// </summary>
-[SLua.CustomLuaClass]
-public static class LightHelper {
-
+namespace Hugula.Utils
+{
     /// <summary>
-    /// 设置场景lightmap
+    /// 光影 操作
     /// </summary>
-    /// <param name="index"></param>
-    /// <param name="near"></param>
-    /// <param name="far"></param>
-    public static void SetLightMapSetting(ushort index, Texture2D near, Texture2D far)
+    [SLua.CustomLuaClass]
+    public static class LightHelper
     {
-        LightmapData[] old = LightmapSettings.lightmaps;
-        List<LightmapData> newLightDatas = new List<LightmapData>(old);
 
-        while (newLightDatas.Count <= index)
-            newLightDatas.Add(new LightmapData());
+        /// <summary>
+        /// 设置场景lightmap
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="near"></param>
+        /// <param name="far"></param>
+        public static void SetLightMapSetting(ushort index, Texture2D near, Texture2D far)
+        {
+            LightmapData[] old = LightmapSettings.lightmaps;
+            List<LightmapData> newLightDatas = new List<LightmapData>(old);
 
-        LightmapData newLightData = newLightDatas[index];
+            while (newLightDatas.Count <= index)
+                newLightDatas.Add(new LightmapData());
 
-        if (far!=null) newLightData.lightmapFar = far;
-        if (near != null) newLightData.lightmapNear = near;
+            LightmapData newLightData = newLightDatas[index];
 
-        LightmapSettings.lightmaps = newLightDatas.ToArray();
-        LightmapSettings.lightmapsMode = LightmapsMode.NonDirectional;
+            if (far != null) newLightData.lightmapFar = far;
+            if (near != null) newLightData.lightmapNear = near;
+
+            LightmapSettings.lightmaps = newLightDatas.ToArray();
+            LightmapSettings.lightmapsMode = LightmapsMode.NonDirectional;
+        }
     }
 }

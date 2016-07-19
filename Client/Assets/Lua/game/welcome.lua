@@ -29,7 +29,7 @@ local eg_data = {
 ------------------public------------------
 -- 资源加载完成时候调用方法
 function welcome:on_assets_load(items)
-	local fristView = LuaHelper.Find("Frist")
+	local fristView = LuaHelper.Find("Logo")
 	if fristView then LuaHelper.Destroy(fristView) end
 	local refer = LuaHelper.GetComponent(self.assets[1].root,"Hugula.ReferGameObjects") 
 	content_rect_table = refer:Get(1)
@@ -40,6 +40,8 @@ function welcome:on_assets_load(items)
 		scroll_rect_item:Get(2).name = dataItem.name --button
 		scroll_rect_item.name = dataItem.name
 	end
+
+	
 end
 
 --资源加载完成后显示的时候调用

@@ -4,7 +4,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace Hugula.Utils
+namespace Hugula
 {
     /// <summary>
     /// 版本号

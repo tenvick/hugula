@@ -48,79 +48,83 @@ public class BuildScript
     #region assetbundle
 
     public static void GenerateAssetBundlesUpdateFile(string[] allBundles)
-    {
-        string title = "Generate Update File ";
-        string info = "Compute crc32";
-        EditorUtility.DisplayProgressBar(title, info, 0.1f);
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("return {");
+	{
+		string title = "Generate Update File ";
+		string info = "Compute crc32";
+		EditorUtility.DisplayProgressBar (title, info, 0.1f);
+		StringBuilder sb = new StringBuilder ();
+		sb.AppendLine ("return {");
 
-        var selected = string.Empty;
-        float i = 0;
-        float allLen = allBundles.Length;
+		var selected = string.Empty;
+		float i = 0;
+		float allLen = allBundles.Length;
 
-        //忽略列表
-        Dictionary<string, bool> ignore = new Dictionary<string, bool>();
-        ignore.Add("m_" + CUtils.GetFileName(fileCrc32ListName), true);
-        ignore.Add("m_" + CUtils.GetFileName(CUtils.GetKeyURLFileName(fileCrc32Ver)), true);
+		//忽略列表
+		Dictionary<string, bool> ignore = new Dictionary<string, bool> ();
+		ignore.Add ("m_" + CUtils.GetFileName (fileCrc32ListName), true);
+		ignore.Add ("m_" + CUtils.GetFileName (CUtils.GetKeyURLFileName (fileCrc32Ver)), true);
 
-        foreach (var str in allBundles)
-        {
-            string url = Path.Combine(CUtils.GetRealStreamingAssetsPath(), str);
-            if (!File.Exists(url))
-            {
-                Debug.LogError("could not find :" + url + " " + str);
-                continue;
-            }
-            string key = "m_" + CUtils.GetKeyURLFileName(str);
-            if (!ignore.ContainsKey(key))
-            {
-                var bytes = File.ReadAllBytes(url);
-                uint crc = Crc32.Compute(bytes);
-                sb.AppendLine(key + " = " + crc + ",");
-            }
-            EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-            i++;
-        }
-        sb.AppendLine("}");
-        Debug.Log(sb.ToString());
-        //输出到临时目录
-        string tmpPath = Path.Combine(Application.dataPath, TmpPath);
-        ExportResources.CheckDirectory(tmpPath);
-        string assetPath = "Assets/" + TmpPath + fileCrc32ListName + ".txt";
-        EditorUtility.DisplayProgressBar("Generate file list", "write file to " + assetPath, 0.99f);
+		foreach (var str in allBundles) {
+			string url = Path.Combine (CUtils.GetRealStreamingAssetsPath (), str);
+			if (!File.Exists (url)) {
+				Debug.LogError ("could not find :" + url + " " + str);
+				continue;
+			}
+			string key = "m_" + CUtils.GetKeyURLFileName (str);
+			if (!ignore.ContainsKey (key)) {
+				var bytes = File.ReadAllBytes (url);
+				uint crc = Crc32.Compute (bytes);
+				sb.AppendLine (key + " = " + crc + ",");
+			}
+			EditorUtility.DisplayProgressBar (title, info + "=>" + i.ToString () + "/" + allLen.ToString (), i / allLen);
+			i++;
+		}
+		sb.AppendLine ("}");
+		Debug.Log (sb.ToString ());
+		//输出到临时目录
+		string tmpPath = Path.Combine (Application.dataPath, TmpPath);
+		ExportResources.CheckDirectory (tmpPath);
+		string assetPath = "Assets/" + TmpPath + fileCrc32ListName + ".txt";
+		EditorUtility.DisplayProgressBar ("Generate file list", "write file to " + assetPath, 0.99f);
 
-        string outPath = Path.Combine(tmpPath, fileCrc32ListName + ".txt");
-        Debug.Log("write to path=" + outPath);
+		string outPath = Path.Combine (tmpPath, fileCrc32ListName + ".txt");
+		Debug.Log ("write to path=" + outPath);
+		using (StreamWriter sr = new StreamWriter (outPath, false)) {
+			sr.Write (sb.ToString ());
+		}
+		//
+		//打包到streaming path
+		AssetDatabase.Refresh ();
+		string crc32filename = CUtils.GetFileName (fileCrc32ListName + ".u3d");
+		BuildScript.BuildABs (new string[] { assetPath }, null, crc32filename, BuildAssetBundleOptions.DeterministicAssetBundle);
+		string topath = Path.Combine (GetOutPutPath (), crc32filename);
+		Debug.Log (info + " assetbunle build complate! " + topath);
+
+		//生成版本号码
+		string crc32Path = "file://" + Path.Combine (CUtils.GetRealStreamingAssetsPath (), CUtils.GetFileName (fileCrc32ListName + ".u3d")); //CUtils.GetAssetFullPath (fileCrc32ListName+".u3d"); 
+		WWW loaderVer = new WWW (crc32Path);
+		if (!string.IsNullOrEmpty (loaderVer.error)) {
+			Debug.LogError (loaderVer.error);
+			return;
+		}
+		uint crcVer = Crc32.Compute (loaderVer.bytes);
+		loaderVer.Dispose ();
+
+		
+		tmpPath = CUtils.GetRealStreamingAssetsPath ();//Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath(""));
+		outPath = Path.Combine (tmpPath, CUtils.GetFileName (fileCrc32Ver));
+		Debug.Log ("verion to path=" + outPath);
+		//json 化version{ code,crc32,version}
+		StringBuilder verJson = new StringBuilder();
+		verJson.Append ("{");
+		verJson.Append (@"""code"":"+CodeVersion.CODE_VERSION+",");
+		verJson.Append (@"""crc32"":"+crcVer.ToString()+",");
+		verJson.Append (@"""version"":1");
+		verJson.Append ("}");
+
         using (StreamWriter sr = new StreamWriter(outPath, false))
         {
-            sr.Write(sb.ToString());
-        }
-        //
-        //打包到streaming path
-        AssetDatabase.Refresh();
-        string crc32filename = CUtils.GetFileName(fileCrc32ListName + ".u3d");
-        BuildScript.BuildABs(new string[] { assetPath }, null, crc32filename, BuildAssetBundleOptions.DeterministicAssetBundle);
-        string topath = Path.Combine(GetOutPutPath(), crc32filename);
-        Debug.Log(info + " assetbunle build complate! " + topath);
-
-        //生成版本号码
-        string crc32Path = "file://" + Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetFileName(fileCrc32ListName + ".u3d")); //CUtils.GetAssetFullPath (fileCrc32ListName+".u3d"); 
-        WWW loaderVer = new WWW(crc32Path);
-        if (!string.IsNullOrEmpty(loaderVer.error))
-        {
-            Debug.LogError(loaderVer.error);
-            return;
-        }
-        uint crcVer = Crc32.Compute(loaderVer.bytes);
-        loaderVer.Dispose();
-
-        tmpPath = CUtils.GetRealStreamingAssetsPath();//Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath(""));
-        outPath = Path.Combine(tmpPath, CUtils.GetFileName(fileCrc32Ver));
-        Debug.Log("verion to path=" + outPath);
-        using (StreamWriter sr = new StreamWriter(outPath, false))
-        {
-            sr.Write(crcVer.ToString());
+			sr.Write(verJson.ToString());
         }
 
         Debug.Log(info + " Complete! ver=" + crcVer.ToString() + " path " + outPath);

@@ -13,6 +13,7 @@ local WWW = UnityEngine.WWW
 local GameObject = UnityEngine.GameObject
 local Request=LRequest 
 
+local CodeVersion = Hugula.CodeVersion
 local CUtils= Hugula.Utils.CUtils
 local LuaHelper=Hugula.Utils.LuaHelper
 local FileHelper=Hugula.Utils.FileHelper
@@ -60,7 +61,7 @@ local function enterGame(need_reload)
 end
 
 local function save_loaded_file(loaded_list)
-	local context = json.encode(loaded_list)
+	local context = json:encode(loaded_list)
 	local old_list_context = FileHelper.SavePersistentFile(context,DOWANLOAD_TEMP_FILE) --读取上次加载未完成列表
 end
 
@@ -130,7 +131,7 @@ local function load_server_file_list() --版本差异化对比
 		local old_list_context = FileHelper.ReadPersistentFile(DOWANLOAD_TEMP_FILE) --读取上次加载未完成列表
 		local old_list = {}
 		if old_list_context ~= nil then
-			old_list = json.decode(old_list_context)
+			old_list = json:decode(old_list_context)
 		end
 
 		local item_url,crc_path
@@ -187,10 +188,13 @@ local function load_server_verion() --加载服务器版本号
 
 	 local function on_comp( req )
 	 	-- print(req.url,"is onComplete")
-	 	local server_ver = req.data[1]
+	 	local ver_str = req.data[1]
+	 	local server_ver = json:decode(ver_str)
 	 	FileHelper.SavePersistentFile(tostring(server_ver),CUtils.GetFileName(VERSION_TEMP_FILE_NAME)) --临时文件
-	 	print(server_ver,ResVersion,VERSION_TEMP_FILE_NAME)
-	 	if tonumber(server_ver) ~= ResVersion then
+	 	-- print(server_ver,ResVersion,VERSION_TEMP_FILE_NAME)
+	 	if CodeVersion.CODE_VERSION ~= server_ver.code then --如果本地代码版本号不一致
+  			set_progress_txt("请更新app版本！")
+	 	elseif server_ver.crc32 ~= ResVersion.crc32 then
 	 		load_server_file_list()
 	 	else
 	 		enterGame()
@@ -202,18 +206,19 @@ end
 
 local function load_local_version() --加载本地版本号
 
-	local function onURLComp(req )	
-		ResVersion=tonumber(req.data[1]) 
+	local function on_verjson_comp(req )	
+		local ver_str = req.data[1]
+		local ver_json = json:decode(ver_str)
+		ResVersion=ver_json
 		load_server_verion() 
 	end
 
-	local function onURLErComp(req )   
-		-- load_server_verion()
+	local function on_verjson_err(req )   
 		enterGame()
 	end
 
   	set_progress_txt("版本号对比中")
-    Loader:get_resource(VERSION_FILE_NAME,nil,"System.String",onURLComp,onURLErComp)
+    Loader:get_resource(VERSION_FILE_NAME,nil,"System.String",on_verjson_comp,on_verjson_err)
 end
 
 local function init_frist()
@@ -223,7 +228,7 @@ local function init_frist()
 
 	set_progress_txt("初始化...")
 
-	if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor then
+	if Application.platform == RuntimePlatform.OSXEditor and Application.platform == RuntimePlatform.WindowsEditor then
 		enterGame()
 	else
 		load_local_version()

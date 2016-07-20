@@ -85,11 +85,16 @@ end
 
 local function all_file_down(isdown)
 	-- print("all file is down")
+
+	FileHelper.DeletePersistentFile(CUtils.GetFileName(UPDATED_LIST_NAME)) --删除旧文件
+	FileHelper.DeletePersistentFile(CUtils.GetFileName(VERSION_FILE_NAME)) --删除旧文件
+
 	FileHelper.ChangePersistentFileName(CUtils.GetFileName(UPDATED_TEMP_LIST_NAME),CUtils.GetFileName(UPDATED_LIST_NAME))
 	print("更新版本号！")
 	FileHelper.ChangePersistentFileName(CUtils.GetFileName(VERSION_TEMP_FILE_NAME),CUtils.GetFileName(VERSION_FILE_NAME))
 	print("更新文件列表！")
 	FileHelper.DeletePersistentFile(DOWANLOAD_TEMP_FILE)--删除零时文件
+
 	enterGame(true)
 	print("all_file_down")
 	Download.Dispose()
@@ -104,6 +109,7 @@ local function load_update_files(urls)
 	local file
 	for k,v in pairs(urls) do
 		file = v[1].."?"..v[2]
+		print(file)
 		download:Load(file,v[1])
 	end
 end
@@ -168,7 +174,6 @@ local function load_server_file_list() --版本差异化对比
 	local function on_local_err(req)
 	  enterGame() 
 	end
-
 	Loader:get_resource(UPDATED_LIST_NAME,nil,"UnityEngine.TextAsset",on_local_comp,on_local_err)
 end
 
@@ -199,7 +204,6 @@ local function load_local_version() --加载本地版本号
 
 	local function onURLComp(req )	
 		ResVersion=tonumber(req.data[1]) 
-		print("local ",ResVersion)
 		load_server_verion() 
 	end
 

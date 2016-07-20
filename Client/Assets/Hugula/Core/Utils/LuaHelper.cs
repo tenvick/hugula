@@ -351,23 +351,6 @@ namespace Hugula.Utils
             }
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="parent"></param>
-        ///// <param name="eachFn"></param>
-        //public static void ForeachChild(ReferGameObjects parent, LuaFunction eachFn)
-        //{
-        //    GameObject[] lists = parent.monos;
-        //    int count = lists.Length;
-        //    GameObject child = null;
-        //    for (int i = 0; i < count; i++)
-        //    {
-        //        child = lists[i];
-        //        eachFn.call(i, child);
-        //    }
-        //}
-
         /// <summary>
         /// Raycast the specified ray.
         /// </summary>
@@ -489,6 +472,18 @@ namespace Hugula.Utils
         {
             return System.Text.Encoding.UTF8.GetBytes(utf8Str);
         }
+
+		/// <summary>
+		/// Creates from byte array.
+		/// </summary>
+		/// <returns>The from byte array.</returns>
+		/// <param name="bytes">Bytes.</param>
+		public static AssetBundle LoadFromMemory(System.Array bytes)
+		{
+			byte[] bts = (byte[])bytes;
+			var ab = AssetBundle.LoadFromMemory (bts);
+			return ab;
+		}
 
         /// <summary>
         /// 调用GC.Collect

@@ -114,12 +114,13 @@ local function load_server_file_list() --版本差异化对比
   	set_progress_txt("更新列表对比")
 
 	local function on_server_comp(req)
-		local bytes = req.data.bytes
+		local bytes = req.data
 	 	FileHelper.SavePersistentFile(bytes,CUtils.GetFileName(UPDATED_TEMP_LIST_NAME)) --保存server端临时文件
-		PLua.instance:SetRequire("file1",req.data)
-		Loader:clear(req.key)
+	 	local ab = LuaHelper.LoadFromMemory(bytes)
+	 	local text_asset = ab:LoadAsset(req.assetName)
+		PLua.instance:SetRequire("file1",text_asset)
+		-- Loader:clear(req.key)
 		server_file=require("file1")
-
 		local old_list_context = FileHelper.ReadPersistentFile(DOWANLOAD_TEMP_FILE) --读取上次加载未完成列表
 		local old_list = {}
 		if old_list_context ~= nil then
@@ -152,7 +153,7 @@ local function load_server_file_list() --版本差异化对比
 	end
 
 	local function load_server( ... )
-		Loader:get_resource(UPDATED_LIST_NAME,nil,"UnityEngine.TextAsset",on_server_comp,on_server_err,nil,host)
+		Loader:get_resource(UPDATED_LIST_NAME,nil,"System.Byte[]",on_server_comp,on_server_err,nil,host)
 	end
 	
 

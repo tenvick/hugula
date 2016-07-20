@@ -240,7 +240,12 @@ namespace Hugula.Loader
                 }
                 else
                 {
-                    if (req.async)
+					if (abundle == null) {
+						#if UNITY_EDITOR
+						Debug.LogWarningFormat("SetRequestDataFromCache Assetbundle is null request(url={0},assetName={1},assetType={2})  ",req.url,req.assetName,req.assetType);
+						#endif
+					}
+                    else if (req.async)
                         req.assetBundleRequest = abundle.LoadAssetAsync(req.assetName, assetType);
                     else
                     {

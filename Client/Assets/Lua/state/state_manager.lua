@@ -124,6 +124,7 @@ end
 --调用设置的itemobject方法
 function StateManager:call_all_item_method( )
     local curr_state = self._current_game_state
+    self:input_enable()
     if curr_state.method then
         curr_state:on_event(curr_state.method,unpack(curr_state.args))
         curr_state.method = nil
@@ -138,6 +139,8 @@ function StateManager:set_current_state(new_state,method,...)
         -- print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
         return
     end
+
+    self:input_disable() --lock input
     -- print("new_state",new_state)
     if(self._current_game_state ~= nil) then
         self._current_game_state:on_blur(new_state)
@@ -222,7 +225,7 @@ function StateManager:go_back(index) --返回
             -- v:on_back()
         end
     else
-
+        self:input_disable() --lock
         for k,v in ipairs(add) do 
             new_state:add_item(v)
         end
@@ -240,6 +243,9 @@ function StateManager:go_back(index) --返回
         self._current_game_state = new_state
         new_state:on_focus(previous_state)
         new_state:on_back(previous_state)
+
+        if new_state:is_all_loaded() then self:call_all_item_method() end
+
     end
 
     return true 

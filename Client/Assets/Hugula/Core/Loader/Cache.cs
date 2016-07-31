@@ -203,6 +203,7 @@ namespace Hugula.Loader
             bool re = false;
             int keyhash = req.keyHashCode;
             CacheData cachedata = GetCache(keyhash);
+
             if (cachedata != null)
             {
                 AssetBundle abundle = cachedata.assetBundle;
@@ -365,4 +366,5 @@ namespace Hugula.Loader
             return false;
         }
     }
+
 }

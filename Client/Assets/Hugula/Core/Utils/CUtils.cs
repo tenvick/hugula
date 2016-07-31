@@ -80,6 +80,19 @@ namespace Hugula.Utils
         }
 
         /// <summary>
+        /// ¼ì²âwwwµÄurl
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string CheckWWWUrl(string url)
+        {
+            if (url.IndexOf("://") == -1)
+            {
+                url = "file://" + url;
+            }
+            return url;
+        }
+        /// <summary>
         /// Gets the file full path for www
         /// form Application.dataPath
         /// </summary>
@@ -169,8 +182,8 @@ namespace Hugula.Utils
             string uri = GetUri(req.uris, index);
             if (!string.IsNullOrEmpty(uri))
             {
-                req.uri = uri;
                 req.index = index;
+                req.uri = uri;
                 return true;
             }
             return false;
@@ -307,6 +320,11 @@ namespace Hugula.Utils
 
         public static bool currPersistentExist = false;
 
+        /// <summary>
+        /// Ê±¼ä´Á
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public static int ConvertDateTimeInt(System.DateTime time)
         {
             System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));

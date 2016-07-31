@@ -14,6 +14,7 @@ using SLua;
 using Lua = SLua.LuaSvr;
 using Hugula.Utils;
 using Hugula.Cryptograph;
+using Hugula.Update;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -53,7 +54,8 @@ namespace Hugula
 
         public Lua lua;
         private static Dictionary<string, byte[]> luacache;
-
+        private Coroutine loadLocalCoroutine;
+        private Coroutine loadPersistentCoroutine;
         #region priveta
         private string luaMain = "";
 
@@ -84,7 +86,7 @@ namespace Hugula
         void Start()
         {
             lua.init(null, () =>
-                    { LoadBundle(true); });
+            { LoadBundle(); });
         }
 
 	    void Update()
@@ -120,7 +122,6 @@ namespace Hugula
         private void SetLuaPath()
         {
             this.luaMain = "return require(\"" + enterLua + "\") \n";
-            //        Debug.Log(luaMain);
         }
 
         private void LoadScript()
@@ -137,36 +138,39 @@ namespace Hugula
         /// lua bundle
         /// </summary>
         /// <returns></returns>
-        private IEnumerator loadLuaBundle(bool domain, LuaFunction onLoadedFn)
+        private IEnumerator LoadLuaBundle(string luaPath, LuaFunction onLoadedFn)
         {
-            string keyName = "";
-            string luaP = CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
-            WWW luaLoader = new WWW(luaP);
+            luaPath = CUtils.CheckWWWUrl(luaPath);
+            WWW luaLoader = new WWW(luaPath);
             yield return luaLoader;
             if (luaLoader.error == null)
             {
+
                 byte[] byts = CryptographHelper.Decrypt(luaLoader.bytes, DESHelper.instance.Key, DESHelper.instance.IV);
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
                 AssetBundle item = AssetBundle.CreateFromMemoryImmediate(byts);
 #else
-				AssetBundle item = AssetBundle.LoadFromMemory(byts);
+                AssetBundle item = AssetBundle.LoadFromMemory(byts);
 #endif
-
                 TextAsset[] all = item.LoadAllAssets<TextAsset>();
                 foreach (var ass in all)
                 {
-                    keyName = ass.name;
-                    SetRequire(keyName, ass);
+                    SetRequire(ass.name, ass);
                 }
 
                 item.Unload(true);
                 luaLoader.Dispose();
             }
+            else
+            {
+                Debug.Log(luaLoader.error);
+            }
 
-            if (domain)
+            if (onLoadedFn != null)
+                onLoadedFn.call();
+            else
                 DoMain();
 
-            if (onLoadedFn != null) onLoadedFn.call();
         }
 
         #region public
@@ -193,22 +197,23 @@ namespace Hugula
         /// <summary>
         /// load assetbundle
         /// </summary>
-        public void LoadBundle(bool domain)
+        private void LoadBundle()
         {
+            string luaPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
+
 #if UNITY_EDITOR
             if (!isDebug)
             {
-                StopCoroutine(loadLuaBundle(domain, null));
-                StartCoroutine(loadLuaBundle(domain, null));
+                if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
+                loadLocalCoroutine = StartCoroutine(LoadLuaBundle(luaPath, null));
             }
             else
             {
-                if (domain)
-                    DoMain();
+                DoMain();
             }
 #else
-			StopCoroutine(loadLuaBundle(domain, null));
-			StartCoroutine(loadLuaBundle(domain, null));
+            if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
+            loadLocalCoroutine = StartCoroutine(LoadLuaBundle(luaPath, null));
 #endif
         }
 
@@ -217,15 +222,25 @@ namespace Hugula
         /// </summary>
         public void LoadBundle(LuaFunction onLoadedFn)
         {
-            StopCoroutine(loadLuaBundle(false, onLoadedFn));
-            StartCoroutine(loadLuaBundle(false, onLoadedFn));
+            string luaPath = Path.Combine(CUtils.GetRealPersistentDataPath(), CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
+            uint crc = 0;
+            if (CrcCheck.CheckFileCrc(luaPath, out crc))
+            {
+                if (loadPersistentCoroutine != null) StopCoroutine(loadPersistentCoroutine);
+                loadPersistentCoroutine = StartCoroutine(LoadLuaBundle(luaPath, onLoadedFn));
+            }
+            else
+            {
+                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! ");
+                if (onLoadedFn != null) onLoadedFn.call();
+            }
         }
 
         #endregion
 
         #region toolMethod
 
-        public void RegisterFunc()
+        private void RegisterFunc()
         {
             LuaState.loaderDelegate = Loader;
         }
@@ -235,7 +250,7 @@ namespace Hugula
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static byte[] Loader(string name)
+        private static byte[] Loader(string name)
         {
             byte[] str = null;
 #if UNITY_EDITOR
@@ -298,7 +313,6 @@ namespace Hugula
 #endif
             return str;
         }
-
 
         public static Coroutine Delay(LuaFunction luafun, float time, params object[] args)
         {

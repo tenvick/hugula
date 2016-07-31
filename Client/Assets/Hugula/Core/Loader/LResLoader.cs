@@ -26,18 +26,20 @@ namespace Hugula.Loader
         /// 加载luatable里面的request
         /// </summary>
         /// <param name="reqs"></param>
-        public void LoadLuaTable(LuaTable reqs, LuaFunction groupCompleteFn)
+        public void LoadLuaTable(LuaTable reqs, System.Action<object> groupCompleteFn)
         {
-            pushGroup = true;
+            GroupRequestRecord re = null;
+
+            if (groupCompleteFn != null)
+            {
+                re = GroupRequestRecordPool.Get();
+                re.onGroupComplate = groupCompleteFn;
+            }
 
             foreach (var pair in reqs)
             {
-                AddReqToQueue((CRequest)pair.value);
+                AddReqToQueue((CRequest)pair.value, re);
             }
-
-            this.groupCompleteFn = groupCompleteFn;
-
-            pushGroup = false;
 
             BeginQueue();
         }

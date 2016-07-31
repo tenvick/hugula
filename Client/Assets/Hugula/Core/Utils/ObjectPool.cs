@@ -8,7 +8,7 @@ namespace Hugula.Utils
     /// this copy from https://bitbucket.org/Unity-Technologies/ui/src/b5f9aae6ff7c2c63a521a1cb8b3e3da6939b191b/UnityEngine.UI/UI/Core/Utility/ObjectPool.cs?at=5.3&fileviewer=file-view-default
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class ObjectPool<T> where T : new()
+    public class ObjectPool<T> where T : new()
     {
         private readonly Stack<T> m_Stack = new Stack<T>();
         private readonly System.Action<T> m_ActionOnGet;
@@ -48,6 +48,26 @@ namespace Hugula.Utils
             if (m_ActionOnRelease != null)
                 m_ActionOnRelease(element);
             m_Stack.Push(element);
+        }
+    }
+
+    /// <summary>
+    /// this copy from https://bitbucket.org/Unity-Technologies/ui/src/b5f9aae6ff7c2c63a521a1cb8b3e3da6939b191b/UnityEngine.UI/UI/Core/Utility/ListPool.cs?at=5.3&fileviewer=file-view-default
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public static class ListPool<T>
+    {
+        // Object pool to avoid allocations.
+        private static readonly ObjectPool<List<T>> s_ListPool = new ObjectPool<List<T>>(null, l => l.Clear());
+
+        public static List<T> Get()
+        {
+            return s_ListPool.Get();
+        }
+
+        public static void Release(List<T> toRelease)
+        {
+            s_ListPool.Release(toRelease);
         }
     }
 }

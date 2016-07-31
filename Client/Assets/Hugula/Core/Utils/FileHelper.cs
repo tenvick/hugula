@@ -98,6 +98,15 @@ namespace Hugula.Utils
                 File.Delete(path);
         }
 
+        /// <summary>
+        /// Delete the persistent Directory
+        /// </summary>
+        public static void DeletePersistenDirectory()
+        {
+            string path = CUtils.GetRealPersistentDataPath();
+            DirectoryInfo dinfo = new DirectoryInfo(path);
+            if (dinfo.Exists) dinfo.Delete();
+        }
 
         /// <summary>
         /// Computes the crc32.

@@ -4,6 +4,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using Hugula.Utils;
 
 namespace Hugula.Loader
 {
@@ -72,11 +73,8 @@ namespace Hugula.Loader
             this.isFree = false;
             this._req = req;
             this.enabled = true;
-            string url = req.url;
-            if (url.IndexOf("://") == -1)
-            {
-                url = "file://" + url;
-            }
+            string url = CUtils.CheckWWWUrl(req.url);
+     
             if (req.head is WWWForm)
             {
                 www = new WWW(url, (WWWForm)req.head);
@@ -127,7 +125,7 @@ namespace Hugula.Loader
             {
                 if (OnProcess != null)
                     OnProcess(this, 1);
-                //                Debug.LogFormat("<color=yellow>will complete : url({0}),key:({1}) ab({2}) t({3}) bit({4})</color>", req.url, req.key, www.assetBundle, www.text, www.bytes.Length);
+                //Debug.LogFormat("<color=yellow>will complete : url({0}),key:({1}) ab({2}) t({3}) bit({4})</color>", req.url, req.key, req.keyHashCode, www.text, www.bytes.Length);
                 object data = null;
                 var ab = www.assetBundle;
                 if (ab == null) data = www.bytes;

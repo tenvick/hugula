@@ -3,6 +3,7 @@
 //
 using UnityEngine;
 using System.Collections;
+using Hugula.Utils;
 using SLua;
 
 namespace Hugula.Loader
@@ -13,6 +14,11 @@ namespace Hugula.Loader
     [SLua.CustomLuaClass]
     public class LRequest : CRequest
     {
+        public LRequest():base()
+        {
+            this.OnComplete += OnCompHandler;
+            this.OnEnd += OnEndHandler;
+        }
 
         public LRequest(string url)
             : base(url)
@@ -44,5 +50,44 @@ namespace Hugula.Loader
 
         public LuaFunction onEndFn;
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            onCompleteFn = null;
+            onEndFn = null;
+        }
     }
+
+
+    [SLua.CustomLuaClass]
+    public class LRequestPool
+    {
+        static ObjectPool<LRequest> pool = new ObjectPool<LRequest>(m_ActionOnGet, m_ActionOnRelease);
+
+        static public int countAll { get{return pool.countAll;} }
+        static public int countActive { get { return countAll - countInactive; } }
+        static public int countInactive { get { return pool.countInactive; } }
+
+        private static void m_ActionOnGet(LRequest req)
+        {
+            req.pool = true;
+        }
+
+        private static void m_ActionOnRelease(LRequest req)
+        {
+            req.Dispose();
+        }
+
+        public static LRequest Get()
+        {
+            return pool.Get();
+        }
+
+        public static void Release(CRequest toRelease)
+        {
+            if(toRelease is LRequest)
+                pool.Release((LRequest)toRelease);
+        }
+    }
+
 }

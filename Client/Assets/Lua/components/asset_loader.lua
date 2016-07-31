@@ -10,7 +10,7 @@ local CUtils=CUtils
 local Asset = Asset
 local StateManager = StateManager
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
-local Request = LRequest
+local LRequestPool = Hugula.Loader.LRequestPool --内存池
 --local SetReqDataFromData=toluacs.CHighway.SetReqDataFromData
 
 local AssetLoader=class(function(self,lua_obj)
@@ -97,13 +97,13 @@ function AssetLoader:load_assets(assets)
 			--asst:show()
 			self:on_asset_loaded(key,v)
 		else
-			local r = Request(v.full_url)
+			local r = LRequestPool.Get()--Request(v.full_url)
+			r.relativeUrl = v.full_url
 			r.onCompleteFn = on_req_loaded
 			r.onEndFn = on_err
 			r.head = v
 			r.async = true
 			r.assetName = v.key
-			--req={v.full_url,on_req_loaded,on_err,v,true}
 			table.insert(reqs,r)
 		end
 	end

@@ -6,6 +6,7 @@
 local Hugula = Hugula
 Loader={}
 local Request=Hugula.Loader.LRequest
+local LRequestPool = Hugula.Loader.LRequestPool --内存池
 local CacheManager = Hugula.Loader.CacheManager
 local LResLoader = Hugula.Loader.LResLoader
 local CUtils = Hugula.Utils.CUtils
@@ -20,8 +21,11 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	local key = CUtils.GetKeyURLFileName(url) --获取key
 	if assetName == nil then assetName = key end
 	url = CUtils.GetFileName(url) --判断加密
-	local req=Request(url,assetName,assetType)
-
+	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
+	req.relativeUrl = url
+	req.assetName = assetName
+	req.assetType = assetType
+	
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head ~= nil then req.head=head end 

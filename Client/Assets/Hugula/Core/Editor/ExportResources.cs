@@ -17,6 +17,7 @@ public class ExportResources
     #region public p
 
     public const string OutLuaPath = "/Tmp/" + Common.LUACFOLDER + "/";
+
 #if Nlua
 #if UNITY_EDITOR_OSX
 	    public static string luacPath=Application.dataPath+"/../tools/luaTools/luac";
@@ -102,6 +103,9 @@ public class ExportResources
             //Debug.Log(ab);
             assets.Add(ab);
         }
+
+        //add manifest
+        assets.Add(CUtils.GetFileName(CUtils.GetPlatformFolderForAssetBundles()));
 
         EditorUtility.ClearProgressBar();
         BuildScript.GenerateAssetBundlesUpdateFile(assets.ToArray());
@@ -222,24 +226,22 @@ public class ExportResources
         }
     }
 
-
     public static void exportPublish()
     {
-        ExportResources.DirectoryDelete(Path.Combine(Application.streamingAssetsPath, CUtils.GetAssetPath("")));
-
         exportLua();
-
-        exportConfig();
-        //
-        //       exportLanguage();
-
+        //exportConfig();
 		BuildScript.BuildAssetBundles(); //导出资源
         buildAssetBundlesUpdateAB();//更新列表和版本号码
     }
-
+    
     #endregion
 
     #region private
+
+    public static void DeleteStreamingOutPath()
+    {
+        ExportResources.DirectoryDelete(Path.Combine(Application.streamingAssetsPath, CUtils.GetAssetPath("")));
+    }
 
     public static void CheckDirectory(string fullPath)
     {

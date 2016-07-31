@@ -110,11 +110,12 @@ public class AssetbundlesMenuItems
     [MenuItem("Hugula/", false, 15)]
     static void Breaker1() { }
 
-    [MenuItem("Hugula/build for publish ", false, 16)]
+    [MenuItem("Hugula/Build For Publish ", false, 16)]
     public static void exportPublish()
     {
         ExportResources.exportPublish();
     }
+
     #endregion
 
     #region hugula debug

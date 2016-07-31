@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Net;
 using Hugula.Utils;
 using System.IO;
+using Hugula.Collections;
 
 namespace Hugula.Update
 {
@@ -45,15 +46,16 @@ namespace Hugula.Update
 
         bool isAllDone;
 
-        WebDownload[] webClients;
+        ArrayList webClients = ArrayList.Synchronized(new ArrayList());
         System.Action<string, bool> onOneDone;
         System.Action<bool> allDone;
         string outputPath;
         string[] hosts;
-        readonly Dictionary<string, ReqInfo> downloadings = new Dictionary<string, ReqInfo>();
-        readonly Dictionary<string, ReqInfo> waiting = new Dictionary<string, ReqInfo>();
+        SafeDictionary<String, ReqInfo> downloadings = new SafeDictionary<string, ReqInfo>();
+        SafeDictionary<String, ReqInfo> waiting = new SafeDictionary<string, ReqInfo>();
         ArrayList queue = ArrayList.Synchronized(new ArrayList());
-        readonly Dictionary<int, int> erroHostLog = new Dictionary<int, int>();
+        //ArrayList webClients
+        //readonly Dictionary<int, int> erroHostLog = new Dictionary<int, int>();
         int errorHostIndex = -1;
         #endregion
 
@@ -62,12 +64,13 @@ namespace Hugula.Update
         {
             this.hosts = hosts;
             this.maxLoading = maxLoading;
-            webClients = new WebDownload[maxLoading];
+            //webClients = new WebDownload[maxLoading];
             WebDownload item;
-            for (int i = 0; i < webClients.Length; i++)
+            for (int i = 0; i < maxLoading; i++)
             {
                 item = new WebDownload();
-                webClients[i] = item;
+                //webClients[i] = item;
+                webClients.Add(item);
                 item.DownloadFileCompleted += OnDownloadFileCompleted;
                 item.DownloadProgressChanged += OnDownloadProgressChanged;
                 item.isFree = true;
@@ -90,10 +93,31 @@ namespace Hugula.Update
             req.saveName = path;//CUtils.GetFileName (url);
             req.index = 0;
 
-            if (GetFree() != null)
+            BeginLoad(req);
+        }
+
+        bool BeginLoad(ReqInfo req)
+        {
+            string key = CUtils.GetUDKey("", req.url);
+
+            if (downloadings.ContainsKey(key)) return false;
+
+            var freedownload = GetFree();
+            if (freedownload != null)
             {
-                downloadings.Add(key, req);
-                BeginLoad(req);
+                int index = req.index;
+                Uri url = new Uri(hosts[index] + req.url);
+                string path = outputPath + req.saveName;
+                //Debug.LogFormat (" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
+                freedownload.isFree = false;
+                freedownload.DownloadFileAsync(url, path, req);
+
+                if (downloadings.ContainsKey(key))
+                    downloadings[key] = req;
+                else
+                    downloadings.Add(key, req);
+
+                return true;
             }
             else
             {
@@ -101,33 +125,9 @@ namespace Hugula.Update
                     waiting[key] = req;
                 else
                     waiting.Add(key, req);
-            }
-        }
 
-        void BeginLoad(ReqInfo req)
-        {
-            int index = req.index;
-            if (index == errorHostIndex)
-            {
-                int newIndex = index + 1;
-                if (newIndex < hosts.Length)
-                {
-                    req.index = newIndex;
-                    index = newIndex;
-                }
-                else
-                {
-                    index = 0;
-                    req.index = 0;
-                }
+                return false;
             }
-
-            Uri url = new Uri(hosts[index] + req.url);
-            string path = outputPath + req.saveName;
-            //			Debug.LogFormat (" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
-            var freedownload = GetFree();
-            freedownload.isFree = false;
-            freedownload.DownloadFileAsync(url, path, req);
         }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace Hugula.Update
         WebDownload GetFree()
         {
             WebDownload item;
-            for (int i = 0; i < webClients.Length; i++)
+            for (int i = 0; i < webClients.Count; i++)
             {
-                item = webClients[i];
+                item = (WebDownload)webClients[i];
                 if (item.isFree)
                     return item;
             }
@@ -148,8 +148,6 @@ namespace Hugula.Update
 
         void OnFileDown(string url, bool isComplate)
         {
-            string key = CUtils.GetUDKey("", url);
-            downloadings.Remove(key);
 
             LoadedInfo loadedInfo = new LoadedInfo { url = url, isError = isComplate };
             queue.Add(loadedInfo);
@@ -161,11 +159,6 @@ namespace Hugula.Update
                 var pfn = e.Current.Key;
                 var pinfo = e.Current.Value;
                 waiting.Remove(pfn);
-
-                if (downloadings.ContainsKey(pfn))
-                    downloadings[pfn] = pinfo;
-                else
-                    downloadings.Add(pfn, pinfo);
 
                 BeginLoad(pinfo);
             }
@@ -181,6 +174,10 @@ namespace Hugula.Update
             WebDownload webd = (WebDownload)sender;
             webd.isFree = true;
             ReqInfo req = (ReqInfo)e.UserState;
+
+            string key = CUtils.GetUDKey("", req.url);
+            downloadings.Remove(key);
+
             if (e.Error == null)
             { //success
 #if UNITY_EDITOR
@@ -190,34 +187,16 @@ namespace Hugula.Update
             }
             else
             {
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
                 Debug.LogWarning(e.Error);
-#endif
-                //纪录错误
-                if (erroHostLog.ContainsKey(req.index))
+//#endif
+                if (req.index < hosts.Length - 1)
                 {
-                    int logtimes = erroHostLog[req.index];
-                    logtimes++;
-                    erroHostLog[req.index] = logtimes;
-                    if (logtimes >= 5)
-                    {
-                        errorHostIndex = req.index;
-                        //						Debug.LogFormat(" errorHostIndex = {0}", errorHostIndex);
-                    }
-                }
-                else
-                    erroHostLog[req.index] = 1;
-
-
-                string key = CUtils.GetUDKey("", req.url);
-                var info = downloadings[key];
-                if (info.index < hosts.Length - 1)
-                {
-                    info.index++;
+                    req.index++;
 #if UNITY_EDITOR
                     Debug.LogFormat("reload {0}  save path = {1} ", req.url, req.saveName);
 #endif
-                    BeginLoad(info);
+                    BeginLoad(req);
                 }
                 else
                 {
@@ -260,9 +239,9 @@ namespace Hugula.Update
         void OnDestroy()
         {
             WebDownload item;
-            for (int i = 0; i < webClients.Length; i++)
+            for (int i = 0; i < webClients.Count; i++)
             {
-                item = webClients[i];
+                item = (WebDownload)webClients[i];
                 item.Dispose();
             }
             webClients = null;
@@ -307,11 +286,31 @@ namespace Hugula.Update
         #endregion
     }
 
-
-
+    /// <summary>
+    /// 超时功能的download
+    /// </summary>
     public class WebDownload : WebClient
     {
-        public bool isFree = true;
+        private object lockObj = new object();
+        private bool _isFree = true;
+        public bool isFree
+        {
+            get
+            {
+                lock (lockObj)
+                {
+                    return _isFree;
+                }
+            }
+
+            set
+            {
+                lock (lockObj)
+                {
+                    _isFree = value;
+                }
+            }
+        }
 
         public int Timeout { get; set; }
 

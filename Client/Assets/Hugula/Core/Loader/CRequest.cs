@@ -15,12 +15,20 @@ namespace Hugula.Loader
     public class CRequest // IDispose
     {
         /// <summary>
+        /// Request
+        /// </summary>
+        public CRequest()
+        {
+
+        }
+
+        /// <summary>
         /// 加载请求 
         /// </summary>
         /// <param name="url"></param>
         public CRequest(string relativeUrl)
         {
-            this.relativeUrl = relativeUrl;
+            this._relativeUrl = relativeUrl;
         }
 
         /// <summary>
@@ -31,40 +39,53 @@ namespace Hugula.Loader
         /// <param name="assetType">资源类型，默认为GameObject</param>
         public CRequest(string relativeUrl, string assetName, string assetType)
         {
-            this.relativeUrl = relativeUrl;
+            this._relativeUrl = relativeUrl;
             this.assetName = assetName;
             this.assetType = assetType;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             this._url = null;
-            this.relativeUrl = null;
-            this.priority = 0;
+            this._relativeUrl = null;
             this._key = null;
             this._uris = null;
             this._uri = null;
+            this._udKey = null;
+
+            this.priority = 0;
             this.index = 0;
-            this._data = null;
-            this._head = null;
+            this._keyHashCode = 0;
+            maxTimes = 2;
+
+            this.data = null;
+            this.head = null;
             this.userData = null;
+
+            _assetBundleName = string.Empty;
+            _assetName = string.Empty;
+            assetType = string.Empty;
+
+            async = true;
+            pool = false;
+            isShared = false;
+            clearCacheOnComplete = false;
+
+            this.assetBundleRequest = null;
+            this.allDependencies = null;
         }
 
-        private object _data;
-
-        private object _head;
+        private string _relativeUrl;
 
         private string _key, _udKey;
 
-        private int _keyHashCode;
+        private int _keyHashCode = 0;
 
         private string _url;
 
         private string _assetBundleName = string.Empty;
 
         private string _assetName = string.Empty;
-
-        private bool _async = true;
 
         private string[] _uris;
 
@@ -74,16 +95,18 @@ namespace Hugula.Loader
         {
             get
             {
-
                 if (string.IsNullOrEmpty(_uri))
                     _uri = CUtils.GetUri(uris, index);
                 return _uri;
             }
             set
             {
-                _uri = value;
-                this._url = Path.Combine(_uri, this.relativeUrl);
-                _udKey = CUtils.GetUDKey(_uri, relativeUrl);  //CryptographHelper.CrypfString(this._url);//_key=CUtils.getURLFullFileName(url);		    	
+                _url = null;
+                _udKey = null;
+                _uri = CUtils.GetUri(uris, index);
+                //_uri = value;
+                //_url = Path.Combine(_uri, this.relativeUrl);
+                //_udKey = CUtils.GetUDKey(_uri, relativeUrl);  //CryptographHelper.CrypfString(this._url);//_key=CUtils.getURLFullFileName(url);		    	
             }
         }
 
@@ -91,7 +114,19 @@ namespace Hugula.Loader
         /// Gets the relative URL.
         /// </summary>
         /// <value>The relative URL.</value>
-        public string relativeUrl { private set; get; }
+        public string relativeUrl
+        {
+            set
+            {
+                _assetBundleName = null;
+                _url = null;
+                _udKey = null;
+                _key = null;
+                _keyHashCode = 0;
+                _relativeUrl = value;
+            }
+            get { return _relativeUrl; }
+        }
 
         /// <summary>
         /// assetbundleName 根据url计算出来
@@ -131,36 +166,21 @@ namespace Hugula.Loader
         /// <summary>
         /// 加载的头信息
         /// </summary>
-        public object head
-        {
-            get { return this._head; }
-            set { this._head = value; }
-        }
-
+        public object head;
 
         /// <summary>
         /// 加载的数据
         /// </summary>
-        public object data
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-            }
-        }
+        public object data;
 
         /// <summary>
         /// The user data.
         /// </summary>
         public object userData;
 
-        public event CompleteHandle OnEnd;
+        public System.Action<CRequest> OnEnd;
 
-        public event CompleteHandle OnComplete;
+        public System.Action<CRequest> OnComplete;
 
         public void DispatchComplete()
         {
@@ -186,15 +206,22 @@ namespace Hugula.Loader
         public bool isShared { get; internal set; }
 
         /// <summary>
-        /// 请求地址 网址，相对路径，绝对路径
+        /// 请求地址 网址，绝对路径
         /// </summary>
         public string url
         {
             get
             {
                 if (string.IsNullOrEmpty(_url))
-                    _url = Path.Combine(uri, relativeUrl); //Path.Combine (uri, this.relativeUrl);
+                    url = string.Empty; //;
                 return _url;
+            }
+            set
+            {
+                if (value == null)
+                    _url = null;
+                else
+                    _url = Path.Combine(uri, relativeUrl); //Path.Combine (uri, this.relativeUrl);
             }
         }
 
@@ -207,13 +234,16 @@ namespace Hugula.Loader
             get
             {
                 if (string.IsNullOrEmpty(_key))
-                    _key = CUtils.GetKeyURLFileName(relativeUrl);
+                    key = string.Empty;
                 return _key;
             }
-            //        set
-            //        {
-            //            _key = value;
-            //        }
+            internal set
+            {
+                if (value == null)
+                    _key = null;
+                else
+                    _key = CUtils.GetKeyURLFileName(relativeUrl);
+            }
         }
 
         /// <summary>
@@ -224,12 +254,17 @@ namespace Hugula.Loader
             get
             {
                 if (_keyHashCode == 0)
-                    _keyHashCode = LuaHelper.StringToHash(key);
+                    keyHashCode = 1;
+
                 return _keyHashCode;
             }
-            set
+            internal set
             {
-                _keyHashCode = value;
+                //Debug.Log(" set keyHashCode" + value.ToString()+",key="+key);
+                if (value == 0)
+                    _keyHashCode = value;
+                else
+                    _keyHashCode = LuaHelper.StringToHash(key);
             }
         }
 
@@ -244,8 +279,15 @@ namespace Hugula.Loader
             get
             {
                 if (string.IsNullOrEmpty(_udKey))
-                    _udKey = CUtils.GetUDKey(uri, relativeUrl);//_key=CUtils.getURLFullFileName(url);		    	
+                    udKey = string.Empty;
                 return _udKey;
+            }
+            set
+            {
+                if (value == null)
+                    _udKey = null;
+                else
+                    _udKey = CUtils.GetUDKey(uri, relativeUrl);
             }
         }
 
@@ -253,17 +295,7 @@ namespace Hugula.Loader
         /// <summary>
         /// 是否异步加载
         /// </summary>
-        public bool async
-        {
-            get
-            {
-                return _async;
-            }
-            set
-            {
-                _async = value;
-            }
-        }
+        public bool async = true;
 
         /// <summary>
         ///  优先等级
@@ -316,7 +348,11 @@ namespace Hugula.Loader
         /// </summary>
         internal bool clearCacheOnComplete = false;
 
+        /// <summary>
+        /// 放入内存池
+        /// </summary>
+        internal bool pool = false;
     }
 
-    public delegate void CompleteHandle(CRequest req);
+    //public delegate void CompleteHandle(CRequest req);
 }

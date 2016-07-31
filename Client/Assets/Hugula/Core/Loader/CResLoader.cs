@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using Hugula.Utils;
+using Hugula.Update;
 
 namespace Hugula.Loader
 {
@@ -48,11 +49,6 @@ namespace Hugula.Loader
         /// 当前加载完成的数量
         /// </summary>
         public static int currentLoaded;
-
-        /// <summary>
-        /// 将接下来的所有添加的加载请求放入一组，完成后触发on_allComplete事件
-        /// </summary>
-        public static bool pushGroup = false;
 
 
         static string[] _uriList;
@@ -124,13 +120,13 @@ namespace Hugula.Loader
         /// <summary>
         /// 组回调
         /// </summary>
-        static HashSet<CRequest> currGroupRequests;
-        static HashSet<CRequest> currGroupRequestsRef = new HashSet<CRequest>();
+        static Dictionary<CRequest, GroupRequestRecord> currGroupRequestsRef = new Dictionary<CRequest, GroupRequestRecord>();
 
         /// <summary>
         /// 引用计数记录
         /// </summary>
         static Dictionary<int, int> referenceRecord = new Dictionary<int, int>();
+
         #endregion
 
         #region mono
@@ -219,14 +215,16 @@ namespace Hugula.Loader
         /// 将多个资源加载到本地并缓存。
         /// </summary>
         /// <param name="req"></param>
-        public void LoadReq(IList<CRequest> req)//onAllCompleteHandle onAllCompletehandle=null,onProgressHandle onProgresshandle=null
+        public void LoadReq(IList<CRequest> req, System.Action<object> onGroup)//onAllCompleteHandle onAllCompletehandle=null,onProgressHandle onProgresshandle=null
         {
-            pushGroup = true;
-
+            GroupRequestRecord groupFn = null;
+            if (onGroup != null)
+            {
+                groupFn = GroupRequestRecordPool.Get();
+                groupFn.onGroupComplate = onGroup;
+            }
             for (int i = 0; i < req.Count; i++)
-                AddReqToQueue(req[i]);
-
-            pushGroup = false;
+                AddReqToQueue(req[i], groupFn);
 
             BeginQueue();
         }
@@ -241,13 +239,22 @@ namespace Hugula.Loader
             BeginQueue();
         }
 
-        protected static bool AddReqToQueue(CRequest req)
+        protected static bool AddReqToQueue(CRequest req, GroupRequestRecord group = null)
         {
             if (req == null) return false;
 
-            CUtils.CheckUri0Exists(req);
-            string key = req.udKey;
+            if (!CrcCheck.CheckCrcUri0Exists(req)) //如果校验失败
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning("CResLoader.AddReqToQueue (" + req.assetName + ") not exists or crc check error, url(" + req.url + ") \n ");
+#endif
+                req.DispatchEnd();
+                PopGroup(req);
+                CheckAllComplete();
+                return false;
+            }
 
+            string key = req.udKey;//need re
             if (CheckLoadAssetAsync(req)) //已经下载
             {
                 return false;
@@ -256,13 +263,13 @@ namespace Hugula.Loader
             {
                 requestCallBackList[key].Add(req);
                 totalLoading++;
-                if (pushGroup) PushGroup(req);
+                if (group != null) PushGroup(req, group);
                 return true;
             }
             else
             {
-                var listreqs = new List<CRequest>();
-                requestCallBackList[key] = listreqs;
+                var listreqs = ListPool<CRequest>.Get(); //new List<CRequest>();
+                requestCallBackList.Add(key, listreqs);
                 listreqs.Add(req);
 
                 if (queue.Size() == 0 && currentLoading == 0)
@@ -272,7 +279,7 @@ namespace Hugula.Loader
                 }
                 queue.Add(req);
                 totalLoading++;
-                if (pushGroup) PushGroup(req);
+                if (group != null) PushGroup(req, group);
 
                 return true;
 
@@ -302,13 +309,13 @@ namespace Hugula.Loader
                     reqitem = callbacklist[i];
                     loadingAssetBundleQueue.Add(reqitem);
                 }
-                callbacklist.Clear();
+                //callbacklist.Clear();
+                ListPool<CRequest>.Release(callbacklist);
             }
             else
             {
                 loadingAssetBundleQueue.Add(creq);
                 //Debug.LogFormat(" no list creq.key {0}  loadingAsyncQueue  {1} ", creq.key, loadingAssetQueue.Count);
-
             }
         }
 
@@ -328,8 +335,8 @@ namespace Hugula.Loader
                     currentLoaded++;
                     PopGroup(reqitem);
                 }
-                //ClearNoABCache(creq);
-                callbacklist.Clear();
+                //callbacklist.Clear();
+                ListPool<CRequest>.Release(callbacklist);
             }
 
             CheckAllComplete();
@@ -337,14 +344,6 @@ namespace Hugula.Loader
 
         protected static void CheckAllComplete()
         {
-            if (currGroupRequests != null && currGroupRequests.Count == 0)
-            {
-                if (_instance && _instance.OnGroupComplete != null)
-                    _instance.OnGroupComplete(_instance);
-
-                currGroupRequests = null;
-            }
-
             if (currentLoading <= 0 && queue.Size() == 0)
             {
                 var loadingEvent = _instance.loadingEvent;
@@ -368,13 +367,9 @@ namespace Hugula.Loader
         {
 
             currentLoaded++;
-            PopGroup(req);
             ClearNoABCache(req);
-            try
-            {
-                req.DispatchComplete();
-            }
-            catch { }
+            req.DispatchComplete();
+            PopGroup(req);
             BeginQueue();
             CheckAllComplete();
         }
@@ -404,16 +399,32 @@ namespace Hugula.Loader
             return false;
         }
 
-        static void PushGroup(CRequest req)
+        static void PushGroup(CRequest req, GroupRequestRecord group)
         {
-            if (currGroupRequests == null) currGroupRequests = currGroupRequestsRef;
-            currGroupRequests.Add(req);
+            currGroupRequestsRef[req] = group;
+            group.Add(req);
         }
 
         static void PopGroup(CRequest req)
         {
-            if (currGroupRequests != null)
-                currGroupRequests.Remove(req);
+            GroupRequestRecord group;
+            if (currGroupRequestsRef.TryGetValue(req, out group))
+            {
+                currGroupRequestsRef.Remove(req);
+                group.Complete(req);
+                if (group.Count == 0)
+                {
+                    var act = group.onGroupComplate;
+                    GroupRequestRecordPool.Release(group);
+                    if (act != null)
+                    {
+                        Debug.Log("call group complete " + req.key);
+                        act(req);
+                    }
+                }
+            }
+
+            if (req.pool) LRequestPool.Release(req);
         }
 
         /// <summary>
@@ -483,6 +494,7 @@ namespace Hugula.Loader
                 if (_instance && _instance.OnSharedComplete != null)
                     _instance.OnSharedComplete(creq);
 
+                if (creq.pool) LRequestPool.Release(creq);
             }
             else
             {
@@ -506,7 +518,7 @@ namespace Hugula.Loader
                 }
                 var udkey = req.udKey;
                 if (callbacklist == null)
-                    callbacklist = new List<CRequest>();
+                    callbacklist = ListPool<CRequest>.Get();//new List<CRequest>();
 
                 if (requestCallBackList.ContainsKey(udkey))
                 { //if 正在加载
@@ -601,7 +613,7 @@ namespace Hugula.Loader
                     item = new CRequest(dep_url);
                     item.isShared = true;
                     item.async = false;
-                    CUtils.CheckUri0Exists(item);
+                    CrcCheck.CheckCrcUri0Exists(item);
                     realyLoadingQueue.Enqueue(item);
                     AddReference(keyhash);
                     //                Debug.LogFormat("loading denpendeny {0}，key({1})",dep_url,req.key);
@@ -728,7 +740,6 @@ namespace Hugula.Loader
         #endregion
     }
 
-
     [SLua.CustomLuaClass]
     public class LoadingEventArg
     {
@@ -738,4 +749,59 @@ namespace Hugula.Loader
         public int current;
         public float progress;
     }
+
+    public class GroupRequestRecordPool
+    {
+        static ObjectPool<GroupRequestRecord> pool = new ObjectPool<GroupRequestRecord>(null, m_ActionOnRelease);
+
+        private static void m_ActionOnRelease(GroupRequestRecord re)
+        {
+            re.Count = 0;
+            re.onGroupComplate = null;
+        }
+
+        public static GroupRequestRecord Get()
+        {
+            return pool.Get();
+        }
+
+        public static void Release(GroupRequestRecord toRelease)
+        {
+            pool.Release(toRelease);
+        }
+    }
+
+    public class GroupRequestRecord
+    {
+        public System.Action<object> onGroupComplate;
+
+        HashSet<CRequest> groupRes = new HashSet<CRequest>();
+
+        public void Add(CRequest req)
+        {
+            groupRes.Add(req);
+        }
+
+        public void Complete(CRequest req)
+        {
+            groupRes.Remove(req);
+        }
+
+        public int Count
+        {
+            get
+            {
+                return groupRes.Count;
+            }
+            set
+            {
+                groupRes.Clear();
+            }
+        }
+
+    }
+
+    //public class ListPool<CRequest>
+    //{
+    //}
 }

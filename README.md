@@ -2,6 +2,7 @@
 
 Hugula是一个基于unity3d+lua技术的全LUA免费开源游戏框架，能方便实现代码动态更新。
 特点：全lua逻辑，基于状态模式，包含引用计数，对象池，自动资源回收等功能，能极大提高开发速度。
+加入crc校验。 
 [帮助文档](https://github.com/tenvick/hugula/wiki)。
 qq群：19324776。
  
@@ -23,8 +24,6 @@ Assets
 
 -Hugula               （核心代码）
 
--Lan                  （多国语言包 csv   使用菜单 Hugula/export language [Assets\Lan]导出 lua中可直接调用）
-
 -Scene                （场景 begin为开始场景）
 
 -Slua                 （Slua插件）
@@ -36,21 +35,28 @@ Assets
 
 ##运行发布
 
-1 导出assetbundle资源 菜单 AssetBundles/Build AssetBundles
+1. 一键发布 Hugula -> Build For Publish (首次运行或者发布时候)
+1. 导出资源
 
-2 导出其他
+ 2.1  AssetBundles/Build AssetBundles 导出assetbundle资源
 
- 2.1 Hugula/export lua [Assets\Lua]          打包编译脚本
+ 2.2  AssetBundles/Generate/AssetBundle Update File  导出更新差异包和版本号等信息 
  
- 2.2 Hugula/export config [Assets\Config]    打包配置
- 
- 2.3 Hugula/export language [Assets\Lan]     打包语言包
- 
-3 导出slua接口
+ 2.3  AssetBundles/Generate/AssetBundle Md5Mapping  真实名字Md5映射值表
 
- 3.1 Slua/All/Make   导出slua所需要的wrap类。
+1. 导出其他 
+
+ 3.1 Hugula/export lua [Assets\Lua]          打包编译脚本
+
+ 3.2 Hugula/export config [Assets\Config]    打包配置
  
- 3.2 如果打开有报错 Slua/All/Clear	清理已经生成的wrap类
+ 3.3 Hugula/AES                              加密相关菜单 
+ 
+1. 导出slua接口
+
+ 4.1 Slua/All/Make   导出slua所需要的wrap类。
+
+ 4.2 如果打开有报错 Slua/All/Clear	清理已经生成的wrap类
 
 ### lua架构图
 

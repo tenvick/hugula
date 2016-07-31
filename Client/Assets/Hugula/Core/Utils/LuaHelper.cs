@@ -481,7 +481,11 @@ namespace Hugula.Utils
 		public static AssetBundle LoadFromMemory(System.Array bytes)
 		{
 			byte[] bts = (byte[])bytes;
-			var ab = AssetBundle.LoadFromMemory (bts);
+			#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+			AssetBundle ab = AssetBundle.CreateFromMemoryImmediate(bts);
+			#else
+			AssetBundle ab = AssetBundle.LoadFromMemory(bts);
+			#endif 
 			return ab;
 		}
 

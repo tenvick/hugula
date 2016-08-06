@@ -27,6 +27,17 @@ namespace Hugula.Update
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static uint GetCrc(string key)
+        {
+            uint out_crc = 0;
+            crc32Dic.TryGetValue(key, out out_crc);
+            return out_crc;
+        }
+        /// <summary>
         /// crc校验
         /// 1 crc==0 通过。
         /// 2 如果校验列表没值通过。
@@ -40,7 +51,7 @@ namespace Hugula.Update
             uint out_crc;
             if (crc32Dic.TryGetValue(key, out out_crc))
             {
-                return out_crc == crc;
+                return out_crc == crc || out_crc == 0;
             }
             return true;
         }
@@ -58,43 +69,87 @@ namespace Hugula.Update
             if (req.index == 0 && url.StartsWith(Application.persistentDataPath)) // && 
             {
                 uint crc = 0;
-                bool check = CheckFileCrc(req.url,out crc);
+                bool check = CheckFileCrc(req.url, out crc);
                 if (!check)
+                {
+                 //   Debug.Log("begin check file crc path =" + req.url + " check=" + check.ToString() + " crc=" + crc.ToString());
                     return CUtils.SetRequestUri(req, 1);
+                }
             }
 
             return true;
         }
 
         /// <summary>
-        /// 文件crc校验，
-        /// 1 如果文件不存在不通过。
-        /// 2 如果校验列表没值不通过。
+        /// 文件crc强制校验，
+        /// 
+        /// 1 如果校验列表没值不通过。
+        /// 1 文件不存在不通过。
+        /// 1 校验列表值为0通过。
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static bool CheckFileCrc(string path, out uint outCrc)
+        public static bool CheckFileCrc(string path, out uint fileCrc)
         {
-            string key = CUtils.GetUDKey("", path);
-            if (crcFileChecked.ContainsKey(key))
-            {
-                outCrc = crcFileChecked[key];
-                return outCrc != 0;
-            }
-
             string crcKey = CUtils.GetKeyURLFileName(path);
             bool ck = false;
-            uint crc = GetFileCrc(path);
-            outCrc = crc;
-            if (crc == 0)//不存在
+            fileCrc = 0;
+            uint sourceCrc = 0;
+
+            if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
+            {
+                if (sourceCrc == 0)//原始为0表示不校验
+                {
+                    ck = File.Exists(path);
+                }
+                else
+                {
+                    string key = CUtils.GetUDKey("", path);
+                    uint checkedCrc;
+                    if (crcFileChecked.TryGetValue(key, out checkedCrc) && checkedCrc != 0) //如果存在
+                    {
+                        fileCrc = checkedCrc;
+                    }
+                    else
+                    {
+                        fileCrc = GetFileCrc(path);//读取文件crc
+                        crcFileChecked[key] = fileCrc;//保存文件crc
+                    }
+                    ck = sourceCrc == fileCrc;//校验
+                }
+//                Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
+            }
+            else
             {
                 ck = false;
             }
-            else if (ContainsKey(crcKey)) //存在校验值
+            return ck;
+        }
+
+        /// <summary>
+        /// 文件crc
+        /// 1 如果校验列表没值并且文件存在返回false
+        /// 2 如果校验列表没值并且文件不存在返回true
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileCrc"></param>
+        /// <returns></returns>
+        public static bool CheckFileWeakCrc(string path, out uint fileCrc)
+        {
+
+            string crcKey = CUtils.GetKeyURLFileName(path);
+            bool ck = false;
+            uint sourceCrc = 0;
+            fileCrc = GetFileCrc(path);//读取文件crc
+
+            if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
             {
-                ck = CheckCrc(crcKey, crc);
+                ck = sourceCrc == fileCrc;//校验
             }
-            crcFileChecked[key] = crc;
+            else
+            {
+                ck = fileCrc == 0;
+            }
             return ck;
         }
 

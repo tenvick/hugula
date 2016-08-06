@@ -163,7 +163,7 @@ namespace Hugula
             }
             else
             {
-                Debug.Log(luaLoader.error);
+                Debug.LogWarning(luaLoader.error);
             }
 
             if (onLoadedFn != null)
@@ -231,7 +231,7 @@ namespace Hugula
             }
             else
             {
-                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! ");
+                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! crc="+crc.ToString());
                 if (onLoadedFn != null) onLoadedFn.call();
             }
         }

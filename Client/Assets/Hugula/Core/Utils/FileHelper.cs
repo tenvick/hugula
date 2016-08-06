@@ -105,7 +105,17 @@ namespace Hugula.Utils
         {
             string path = CUtils.GetRealPersistentDataPath();
             DirectoryInfo dinfo = new DirectoryInfo(path);
-            if (dinfo.Exists) dinfo.Delete();
+            if (dinfo.Exists)
+            {
+                var allFiles = dinfo.GetFiles("*", SearchOption.AllDirectories);
+                FileInfo fino;
+                for (int i = 0; i < allFiles.Length; i++)
+                {
+                    fino = allFiles[i];
+                    fino.Delete();
+                };
+                dinfo.Delete(true);
+            }
         }
 
         /// <summary>

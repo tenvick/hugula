@@ -11,7 +11,7 @@ local RuntimePlatform= UnityEngine.RuntimePlatform
 local Application= UnityEngine.Application
 local WWW = UnityEngine.WWW
 local GameObject = UnityEngine.GameObject
-local Request=LRequest 
+local LRequestPool = Hugula.Loader.LRequestPool --内存池
 
 local CodeVersion = Hugula.CodeVersion
 local CUtils= Hugula.Utils.CUtils
@@ -33,15 +33,21 @@ local UPDATED_LIST_NAME = Common.CRC32_FILELIST_NAME
 local UPDATED_TEMP_LIST_NAME =  CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)..".tmp"
 local DOWANLOAD_TEMP_FILE = "downloaded.tmp"
 local folder = CUtils.GetAssetPath("")
+local version_crc_key = CUtils.GetFileName(CUtils.GetKeyURLFileName(VERSION_FILE_NAME))
+local update_list_crc_key = CUtils.GetFileName(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME))
 
-local host = {"http://192.168.100.14/"..folder.."/"}--,"http://192.168.100.114/"..CUtils.GetAssetPath("").."/"} --更新列表
+local host = {"https://github.com/tenvick/hugula_resource/"..folder.."/"}--,"http://192.168.100.114/"..CUtils.GetAssetPath("").."/"} --更新列表
 
 --local fristView
 local all,loaded = 0,0
 local local_file,server_file = {},{}
 local loaded_file
-local local_version
+local local_version,server_ver
 local loaded_err = false
+
+local function print_time(times)
+	print(os.date("%c",times))
+end
 
 local function set_progress_txt(text)
  	if _progressbar_txt then _progressbar_txt.text = text end
@@ -99,6 +105,7 @@ local function all_file_down(isdown)
 	if loaded_err then
 		set_progress_txt("文件下载失败请重启游戏。")
 	else
+		ResVersion = server_ver
 		FileHelper.DeletePersistentFile(CUtils.GetFileName(UPDATED_LIST_NAME)) --删除旧文件
 		FileHelper.DeletePersistentFile(CUtils.GetFileName(VERSION_FILE_NAME)) --删除旧文件
 		print("更新文件列表！")
@@ -110,6 +117,7 @@ local function all_file_down(isdown)
 		enterGame(true)
 		print("all_file_down")
 	end
+
 	Download.Dispose()
 end 
 
@@ -124,8 +132,9 @@ local function load_update_files(urls)
 		v1 = v[1]
 		file = v1.."_"..v[2]..".u3d"
 		savefile =  v1..".u3d"
-		if v1 == floder then
+		if v1 == folder then
 			savefile = v1
+			print(" save file "..savefile)
 		end
 		download:Load(file,savefile)
 	end
@@ -139,8 +148,9 @@ local function load_server_file_list() --版本差异化对比
 		local bytes = req.data
 	 	FileHelper.SavePersistentFile(bytes,CUtils.GetFileName(UPDATED_TEMP_LIST_NAME)) --保存server端临时文件
 	 	local ab = LuaHelper.LoadFromMemory(bytes)
-	 	local text_asset = ab:LoadAsset(req.assetName)
+	 	local text_asset = ab:LoadAllAssets(UnityEngine.TextAsset)[1]
 		PLua.instance:SetRequire("_file1",text_asset)
+		ab:Unload(true) --释放ab
 		-- Loader:clear(req.key)
 		server_file=require("_file1")
 		add_crc(server_file) --加入验证列表
@@ -175,7 +185,17 @@ local function load_server_file_list() --版本差异化对比
 
 	local function load_server( ... )
 		set_progress_txt("加载服务器校验文件。")
-		Loader:get_resource(UPDATED_LIST_NAME,nil,"System.Byte[]",on_server_comp,on_server_err,nil,host)
+		local crc = tostring(server_ver.crc32)
+		local asset_name = CUtils.GetFileName(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME))
+		local file_name = asset_name.."_"..crc..".u3d"
+		print("load web server crc"..file_name)
+		local req = LRequestPool.Get()
+		req.relativeUrl = file_name
+		req.onCompleteFn = on_server_comp
+		req.onEndFn = on_server_err
+		req.assetType = "System.Byte[]"
+		req.uris = host
+		Loader:get_resource(req)
 	end
  
  	load_server()
@@ -192,16 +212,17 @@ local function load_server_verion() --加载服务器版本号
 	 	-- print(req.url,"is onComplete",req.data.Length)
 	 	local ver_str = req.data[1]
 		print("server var ",ver_str)
-	 	local server_ver = json:decode(ver_str)
+	 	server_ver = json:decode(ver_str)
+	 	print_time(server_ver.time)
+
 	 	FileHelper.SavePersistentFile(ver_str,CUtils.GetFileName(VERSION_TEMP_FILE_NAME)) --临时文件
 
-	 	if CodeVersion.CODE_VERSION ~= server_ver.code then --如果本地代码版本号不一致
-  			set_progress_txt("请更新app版本！")
-  		elseif server_ver.time <=  local_version.time then --如果发布时间不对。
+	 	if server_ver.time <=  local_version.time then --如果发布时间不对。
   			set_progress_txt("你的版本不需要更新！")
 	 		enterGame()
+	 	elseif CodeVersion.CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
+  			set_progress_txt("请更新app版本！")
 	 	elseif server_ver.crc32 ~= local_version.crc32 then
-	 		ResVersion = server_ver
 	 		load_server_file_list()
 	 	else
 	 		enterGame()
@@ -230,6 +251,7 @@ local function load_local_file_list()
 		print(" persistent crc32 file list")
 		print(local_file)
 		add_crc(local_file)
+		Loader:clear(req.key)
 		step.next_step()
 	end
 
@@ -238,8 +260,10 @@ local function load_local_file_list()
 		step.next_step()
 	end
 
-	if CrcCheck.ContainsKey(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)) then
+	if CrcCheck.ContainsKey(update_list_crc_key) then
 		set_progress_txt("读取本地校验文件。")
+		local crc = CrcCheck.GetCrc(update_list_crc_key)
+		print("persistent update file list"..tostring(crc))
 		Loader:get_resource(UPDATED_LIST_NAME,nil,"UnityEngine.TextAsset",step.on_persistent_comp,step.on_persistent_error,nil,{CUtils.GetRealPersistentDataPath()})
 	else
 		print("本地没有校验文件")
@@ -250,21 +274,20 @@ end
 local function compare_local_version() --对比本地版本号
 	local step = {}
 	step.key = CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)
-	step.m_key = CUtils.GetFileName(step.key)
-	print("set key",step.key)
 	step.on_persistent_comp=function ( req )
 		local ver_str = req.data[1] 
 		print("local persistent ver ",ver_str)
-		local ver_json = json:decode(ver_str)
+		local ver_json = json.decode(ver_str)
+		print_time(ver_json.time)
 		step.persistent_version = ver_json
-		CrcCheck.Add(CUtils.GetFileName(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)),tonumber(ver_json.crc32))--本地验证列表的crc验证
+		CrcCheck.Add(update_list_crc_key,tonumber(ver_json.crc32))--本地验证列表的crc验证
+		print("persistent ver crc",update_list_crc_key,"=",ver_json.crc32)
 		step.compare()
 	end
 
 	step.on_persistent_error=function ( req )
 		step.persistent_error = true
-		print("local persistent erro ",req.key)
-		-- CrcCheck.Add(CUtils.GetFileName(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)),0)--本地验证列表的crc验证
+		print("local verion persistent erro ",req.key)
 		step.compare()
 	end
 
@@ -284,9 +307,6 @@ local function compare_local_version() --对比本地版本号
 				set_progress_txt("清理旧的缓存。")
 				print("清理旧的缓存。"..CUtils.GetRealPersistentDataPath())
 				FileHelper.DeletePersistenDirectory()
-				-- FileHelper.DeletePersistentFile(CUtils.GetFileName(VERSION_FILE_NAME)) --删除旧的ver
-				-- FileHelper.DeletePersistentFile(CUtils.GetFileName(UPDATED_LIST_NAME)) --删除旧的verlist
-				-- FileHelper.DeletePersistentFile(CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME)) --删除lua
 				CrcCheck.Clear() --清除校验列表
 				package.loaded[step.key] = nil 
 				package.preload[step.key] = nil
@@ -302,6 +322,7 @@ local function compare_local_version() --对比本地版本号
 		local ver_str = req.data[1] 
 		print("local streaming ver ",ver_str)
 		local ver_json = json:decode(ver_str)
+		print_time(ver_json.time)
 		step.streaming_version = ver_json
 		step.load_persistent()
 	end
@@ -321,7 +342,7 @@ local function compare_local_version() --对比本地版本号
 	end
 
   	set_progress_txt("对比本地版本信息。")
-	-- CrcCheck.Add(CUtils.GetFileName(CUtils.GetKeyURLFileName(VERSION_FILE_NAME)),0) --ver 不需要验证crc
+	CrcCheck.Add(version_crc_key,0) --ver 不需要验证crc
 	step.load_streaming()
 end
 

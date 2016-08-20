@@ -54,6 +54,7 @@ namespace Hugula.UGUIExtend
         [SLua.DoNotToLua]
         public RectTransform moveContainer;
         public ScrollRectItem tileItem;//the template item
+		public GameObject emptyItem;//the empty Item
         public LuaFunction onItemRender;//function(tileItemClone,index,dataItem)
         public LuaFunction onPreRender;//function(tileItemClone,index,dataItem)
         public LuaFunction onDataRemove;//function(data,index,UIPanelCamackTable)
@@ -233,6 +234,8 @@ namespace Hugula.UGUIExtend
 
                 DoRefresh(bg, end);
             }
+
+			CheckShowEmpty ();
         }
 
         /// <summary>
@@ -500,6 +503,17 @@ namespace Hugula.UGUIExtend
             }
 
         }
+
+		void CheckShowEmpty()
+		{
+			if(this.emptyItem != null)
+			{
+				if( recordCount > 0 )
+					this.emptyItem.SetActive (false);
+				else if( recordCount <= 0)
+					this.emptyItem.SetActive (true);
+			}
+		}
 
         #endregion
 

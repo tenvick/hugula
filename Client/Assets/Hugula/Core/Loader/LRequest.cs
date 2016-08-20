@@ -12,7 +12,7 @@ namespace Hugula.Loader
     /// 给lua使用的request
     /// </summary>
     [SLua.CustomLuaClass]
-    public class LRequest : CRequest
+    public sealed class LRequest : CRequest
     {
         public LRequest():base()
         {

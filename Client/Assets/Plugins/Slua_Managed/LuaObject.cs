@@ -989,7 +989,21 @@ return index
 					&& matchType(l, from + 9, t10);
 		}
 
-		public static bool matchType(IntPtr l, int total, int from, ParameterInfo[] pars)
+        public static bool matchType(IntPtr l, int total, int from, params Type[] t)
+        {
+            if (total - from + 1 != t.Length)
+                return false;
+
+            for (int i = 0; i < t.Length; ++i)
+            {
+                if (!matchType(l, from + i, t[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool matchType(IntPtr l, int total, int from, ParameterInfo[] pars)
 		{
 			if (total - from + 1 != pars.Length)
 				return false;
@@ -1157,10 +1171,17 @@ return index
 			object obj = checkVar(l, p);
             try
             {
-                return obj==null?null:Convert.ChangeType(obj, t);
+                if (t.IsEnum)
+                {
+                    // double to int
+                    var number = Convert.ChangeType(obj, typeof(int));
+                    return Enum.ToObject(t, number);
+                }
+
+                return obj == null ? null : Convert.ChangeType(obj, t);
             }
-            catch(Exception) {
-				throw new Exception(string.Format("parameter {0} expected {1}, got {2}", p, t.Name, obj == null ? "null" : obj.GetType().Name));
+            catch(Exception e) {
+				throw new Exception(string.Format("parameter {0} expected {1}, got {2}, exception: {3}", p, t.Name, obj == null ? "null" : obj.GetType().Name, e.Message));
             }
         }
 
@@ -1425,6 +1446,28 @@ return index
 		static public void assert(bool cond,string err) {
 			if(!cond) throw new Exception(err);
 		}
+
+        /// <summary>
+        /// Change Type, alternative for Convert.ChangeType, but has exception handling
+        /// change fail, return origin value directly, useful for some LuaVarObject value assign
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+	    static public object changeType(object obj, Type t)
+        {
+            if (t == typeof (object)) return obj;
+            if (obj.GetType() == t) return obj;
+
+            try
+            {
+                return Convert.ChangeType(obj, t);
+            }
+            catch
+            {
+                return obj;
+            }
+	    }
 	}
 
 }

@@ -42,17 +42,6 @@ namespace SLua
             add(typeof(Dictionary<int, string>), "DictIntStr");
             add(typeof(string), "String");
             
-            //
-//            add(typeof(System.Func<bool>), null);
-//            add(typeof(UnityEngine.Events.UnityAction<bool>), null);
-//            add(typeof(UnityEngine.Events.UnityAction<float>), null);
-//            add(typeof(UnityEngine.Events.UnityAction<int>), null);
-//            add(typeof(UnityEngine.Events.UnityAction<string>), null);
-//            add(typeof(UnityEngine.Events.UnityEvent<UnityEngine.EventSystems.BaseEventData>), null);
-//            add(typeof(UnityEngine.Events.UnityEvent<UnityEngine.Vector2>), null);
-            //
-            //add(typeof(UnityEngine.RectTransform.Edge), null);
-            //add(typeof(UnityEngine.RectTransform.Axis), null);
             // add your custom class here
             // add( type, typename)
             // type is what you want to export
@@ -381,6 +370,7 @@ namespace SLua
             "jvalue",
             "iPhone",
             "iOS",
+			"Windows",
             "CalendarIdentifier",
             "CalendarUnit",
             "CalendarUnit",

@@ -72,8 +72,11 @@ namespace Hugula.Update
                 bool check = CheckFileCrc(req.url, out crc);
                 if (!check)
                 {
-                 //   Debug.Log("begin check file crc path =" + req.url + " check=" + check.ToString() + " crc=" + crc.ToString());
-                    return CUtils.SetRequestUri(req, 1);
+					var re = CUtils.SetRequestUri (req, 1);
+					#if HUGULA_LOADER_DEBUG
+					Debug.LogFormat("<color=yellow>CrcCheck.CheckCrcUri0Exists Req(assetname={0},url={1}) crc{2} setURI1=false</color>",req.assetName,req.url,crc,re);
+					#endif
+					return re;
                 }
             }
 

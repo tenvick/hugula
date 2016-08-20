@@ -47,6 +47,7 @@ local function get_diff_log(curr_state,curr_log)
                 end    
             end
         end
+
     end --end for
 
     for k,v in pairs(check_dup) do

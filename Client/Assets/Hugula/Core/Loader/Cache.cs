@@ -55,6 +55,13 @@ namespace Hugula.Loader
         /// </summary>
         public int[] allDependencies { get; internal set; }
 
+		/// <summary>
+		/// is asset loaded
+		/// </summary>
+		/// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
+		[SLua.DoNotToLua]
+		public bool isAssetLoaded{ get; internal set; }
+
         public void Dispose()
         {
             if (assetBundle) assetBundle.Unload(true);
@@ -99,6 +106,18 @@ namespace Hugula.Loader
             }
             caches.Add(assetHashCode, cacheData);
         }
+
+		/// <summary>
+		/// Sets the asset loaded.
+		/// </summary>
+		/// <param name="hashkey">Hashkey.</param>
+		internal static void SetAssetLoaded(int hashkey)
+		{
+			CacheData cacheout = null;
+			if (caches.TryGetValue (hashkey, out cacheout)) {
+				cacheout.isAssetLoaded = true;
+			} 
+		}
 
         /// <summary>
         /// 锁定
@@ -270,11 +289,16 @@ namespace Hugula.Loader
             if (req.allDependencies == null || req.allDependencies.Length == 0) return true;
 
             int[] denps = req.allDependencies;
+			CacheData cache = null;
 
             for (int i = 0; i < denps.Length; i++)
             {
-                if (!caches.ContainsKey(denps[i]))
-                    return false;
+				if(caches.TryGetValue(denps[i],out cache))
+				{
+					if (!cache.isAssetLoaded)
+						return false;
+				}else
+					return false;
             }
 
             return true;

@@ -33,7 +33,7 @@ namespace SLua
 	using System.Text;
 	using System.Text.RegularExpressions;
 
-    public interface ICustomExportPost { }
+	public interface ICustomExportPost { }
 
 
     public class LuaCodeGen : MonoBehaviour
@@ -74,10 +74,30 @@ namespace SLua
 			static void Update(){
 				EditorApplication.update -= Update;
 				Lua3rdMeta.Instance.ReBuildTypes();
+
+                // Remind user to generate lua interface code
+			    var remindGenerate = !EditorPrefs.HasKey("SLUA_REMIND_GENERTE_LUA_INTERFACE") || EditorPrefs.GetBool("SLUA_REMIND_GENERTE_LUA_INTERFACE");
 				bool ok = System.IO.Directory.Exists(GenPath+"Unity");
-				if (!ok && EditorUtility.DisplayDialog("Slua", "Not found lua interface for Unity, generate it now?", "Generate", "No"))
+				if (!ok && remindGenerate)
 				{
-					GenerateAll();
+				    if (EditorUtility.DisplayDialog("Slua", "Not found lua interface for Unity, generate it now?", "Generate", "No"))
+				    {
+				        GenerateAll();
+				    }
+				    else
+				    {
+				        if (!EditorUtility.DisplayDialog("Slua", "Remind you next time when no lua interface found for Unity?", "OK",
+				            "Don't remind me next time!"))
+				        {
+                            EditorPrefs.SetBool("SLUA_REMIND_GENERTE_LUA_INTERFACE", false);
+				        }
+				        else
+				        {
+				            
+                            EditorPrefs.SetBool("SLUA_REMIND_GENERTE_LUA_INTERFACE", true);
+				        }
+				        
+				    }
 				}
 			}
 
@@ -154,40 +174,41 @@ namespace SLua
 			Debug.Log("Generate engine interface finished");
 		}
 
-		static bool filterType(Type t, List<string> noUseList, List<string> uselist)
-		{
-			// check type in uselist
-			string fullName = t.FullName;
-			if (uselist != null && uselist.Count > 0)
-			{
-				return uselist.Contains(fullName);
-			}
-			else
-			{
-				// check type not in nouselist
-				foreach (string str in noUseList)
-				{
-					if (Regex.IsMatch(fullName,str))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-		
-		[MenuItem("SLua/Unity/Make UI (for Unity4.6+)")]
-		static public void GenerateUI()
-		{
-			if (IsCompiling) {
-				return;
-			}
+        static bool filterType(Type t, List<string> noUseList, List<string> uselist)
+        {
+            // check type in uselist
+            string fullName = t.FullName;
+            if (uselist != null && uselist.Count > 0)
+            {
+                return uselist.Contains(fullName);
+            }
+            else
+            {
+                // check type not in nouselist
+                foreach (string str in noUseList)
+                {
+                    if (Regex.IsMatch(fullName, str))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        [MenuItem("SLua/Unity/Make UI (for Unity4.6+)")]
+        static public void GenerateUI()
+        {
+            if (IsCompiling)
+            {
+                return;
+            }
 
 			List<string> uselist;
 			List<string> noUseList;
 
-			CustomExport.OnGetNoUseList(out noUseList);
-			CustomExport.OnGetUseList(out uselist);
+            CustomExport.OnGetNoUseList(out noUseList);
+            CustomExport.OnGetUseList(out uselist);
 
             // Get use and nouse list from custom export.
             object[] aCustomExport = new object[1];
@@ -317,25 +338,25 @@ namespace SLua
 
             //detect interface ICustomExportPost,and call OnAddCustomClass
             aCustomExport = new object[] { fun };
-			InvokeEditorMethod<ICustomExportPost>("OnAddCustomClass", ref aCustomExport);
+            InvokeEditorMethod<ICustomExportPost>("OnAddCustomClass", ref aCustomExport);
 
-			GenerateBind(exports, "BindCustom", 3, path);
-            if(autoRefresh)
-			    AssetDatabase.Refresh();
-			
-			Debug.Log("Generate custom interface finished");
-		}
+            GenerateBind(exports, "BindCustom", 3, path);
+            if (autoRefresh)
+                AssetDatabase.Refresh();
 
-		static public List<object> InvokeEditorMethod<T>(string methodName, ref object[] parameters)
+            Debug.Log("Generate custom interface finished");
+        }
+
+        static public List<object> InvokeEditorMethod<T>(string methodName, ref object[] parameters)
         {
             List<object> aReturn = new List<object>();
             System.Reflection.Assembly editorAssembly = System.Reflection.Assembly.Load("Assembly-CSharp-Editor");
-			Type[] editorTypes = editorAssembly.GetExportedTypes();
-			foreach (Type t in editorTypes)
-			{
-				if(typeof(T).IsAssignableFrom(t))
+            Type[] editorTypes = editorAssembly.GetExportedTypes();
+            foreach (Type t in editorTypes)
+            {
+                if (typeof(T).IsAssignableFrom(t))
                 {
-					System.Reflection.MethodInfo method =  t.GetMethod(methodName,System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                    System.Reflection.MethodInfo method = t.GetMethod(methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
                     if (method != null)
                     {
                         object cRes = method.Invoke(null, parameters);
@@ -344,11 +365,11 @@ namespace SLua
                             aReturn.Add(cRes);
                         }
                     }
-				}
-			}
+                }
+            }
 
             return aReturn;
-		}
+        }
 
         static public List<object> GetEditorField<T>(string strFieldName)
         {
@@ -374,99 +395,136 @@ namespace SLua
             return aReturn;
         }
 
-		[MenuItem("SLua/3rdDll/Make")]
-		static public void Generate3rdDll()
-		{
-			if (IsCompiling) {
-				return;
-			}
+        [MenuItem("SLua/3rdDll/Make")]
+        static public void Generate3rdDll()
+        {
+            if (IsCompiling)
+            {
+                return;
+            }
 
-			List<Type> cust = new List<Type>();
-			List<string> assemblyList = new List<string>();
-			CustomExport.OnAddCustomAssembly(ref assemblyList);
+            List<Type> cust = new List<Type>();
+            List<string> assemblyList = new List<string>();
+            CustomExport.OnAddCustomAssembly(ref assemblyList);
 
             //detect interface ICustomExportPost,and call OnAddCustomAssembly
             object[] aCustomExport = new object[] { assemblyList };
             InvokeEditorMethod<ICustomExportPost>("OnAddCustomAssembly", ref aCustomExport);
 
-			foreach (string assemblyItem in assemblyList)
-			{
-				Assembly assembly = Assembly.Load(assemblyItem);
-				Type[] types = assembly.GetExportedTypes();
-				foreach (Type t in types)
-				{
-					cust.Add(t);
-				}
-			}
-			if (cust.Count > 0)
-			{
-				List<Type> exports = new List<Type>();
-				string path = GenPath + "Dll/";
-				if (!Directory.Exists(path))
-				{
-					Directory.CreateDirectory(path);
-				}
-				foreach (Type t in cust)
-				{
-					if (Generate(t,path))
-						exports.Add(t);
-				}
-				GenerateBind(exports, "BindDll", 2, path);
-                if(autoRefresh)
-				    AssetDatabase.Refresh();
-				Debug.Log("Generate 3rdDll interface finished");
-			}
-		}
-		[MenuItem("SLua/3rdDll/Clear")]
-		static public void Clear3rdDll()
-		{
-			clear(new string[] { GenPath + "Dll" });
-			Debug.Log("Clear AssemblyDll complete.");
-		}
-		[MenuItem("SLua/Custom/Clear")]
-		static public void ClearCustom()
-		{
-			clear(new string[] { GenPath + "Custom" });
-			Debug.Log("Clear custom complete.");
-		}
-		
-		[MenuItem("SLua/All/Clear")]
-		static public void ClearALL()
-		{
-			clear(new string[] { Path.GetDirectoryName(GenPath) });
-			Debug.Log("Clear all complete.");
-		}
-		
-		static void clear(string[] paths)
-		{
-			try
-			{
-				foreach (string path in paths)
-				{
-					System.IO.Directory.Delete(path, true);
-					AssetDatabase.DeleteAsset(path);
-				}
-			}
-			catch
-			{
-				
-			}
-			
-			AssetDatabase.Refresh();
-		}
-		
-		static bool Generate(Type t, string path)
-		{
-			return Generate(t, null, path);
-		}
-		
-		static bool Generate(Type t, string ns, string path)
-		{
-			if (t.IsInterface)
-				return false;
-			
-			CodeGenerator cg = new CodeGenerator();
-			cg.givenNamespace = ns;
+            List<string> uselist;
+            List<string> noUseList;
+
+            CustomExport.OnGetNoUseList(out noUseList);
+            CustomExport.OnGetUseList(out uselist);
+
+            if (null != aCustomExport[0])
+            {
+                if (null != uselist)
+                {
+                    uselist.AddRange((List<string>)aCustomExport[0]);
+                }
+                else
+                {
+                    uselist = (List<string>)aCustomExport[0];
+                }
+            }
+
+            aCustomExport[0] = null;
+            InvokeEditorMethod<ICustomExportPost>("OnGetNoUseList", ref aCustomExport);
+            if (null != aCustomExport[0])
+            {
+                if ((null != noUseList))
+                {
+                    noUseList.AddRange((List<string>)aCustomExport[0]);
+                }
+                else
+                {
+                    noUseList = (List<string>)aCustomExport[0];
+                }
+            }
+
+            foreach (string assemblyItem in assemblyList)
+            {
+                Assembly assembly = Assembly.Load(assemblyItem);
+                Type[] types = assembly.GetExportedTypes();
+                foreach (Type t in types)
+                {
+                    //cust.Add(t);
+                    if (filterType(t, noUseList, uselist)) // && Generate(t, path)
+                        cust.Add(t);
+                }
+            }
+
+
+            if (cust.Count > 0)
+            {
+                List<Type> exports = new List<Type>();
+                string path = GenPath + "Dll/";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                foreach (Type t in cust)
+                {
+                    if (Generate(t, path))
+                        exports.Add(t);
+                }
+                GenerateBind(exports, "BindDll", 2, path);
+                if (autoRefresh)
+                    AssetDatabase.Refresh();
+                Debug.Log("Generate 3rdDll interface finished");
+            }
+        }
+        [MenuItem("SLua/3rdDll/Clear")]
+        static public void Clear3rdDll()
+        {
+            clear(new string[] { GenPath + "Dll" });
+            Debug.Log("Clear AssemblyDll complete.");
+        }
+        [MenuItem("SLua/Custom/Clear")]
+        static public void ClearCustom()
+        {
+            clear(new string[] { GenPath + "Custom" });
+            Debug.Log("Clear custom complete.");
+        }
+
+        [MenuItem("SLua/All/Clear")]
+        static public void ClearALL()
+        {
+            clear(new string[] { Path.GetDirectoryName(GenPath) });
+            Debug.Log("Clear all complete.");
+        }
+
+        static void clear(string[] paths)
+        {
+            try
+            {
+                foreach (string path in paths)
+                {
+                    System.IO.Directory.Delete(path, true);
+                    AssetDatabase.DeleteAsset(path);
+                }
+            }
+            catch
+            {
+
+            }
+
+            AssetDatabase.Refresh();
+        }
+
+        static bool Generate(Type t, string path)
+        {
+            return Generate(t, null, path);
+        }
+
+        static bool Generate(Type t, string ns, string path)
+        {
+            if (t.IsInterface)
+                return false;
+
+            CodeGenerator cg = new CodeGenerator();
+            cg.givenNamespace = ns;
             cg.path = path;
 			return cg.Generate(t);
 		}
@@ -1028,9 +1086,9 @@ namespace SLua
 			Write(file, "static public void reg(IntPtr l) {");
 			Write(file, "getEnumTable(l,\"{0}\");", string.IsNullOrEmpty(givenNamespace) ? FullName(t) : givenNamespace);
 
-			foreach (object value in Enum.GetValues (t))
+			foreach (string name in Enum.GetNames (t))
 			{
-				Write(file, "addMember(l,{0},\"{1}\");", Convert.ToInt32(value), value.ToString());
+				Write(file, "addMember(l,{0},\"{1}\");", Convert.ToInt32(Enum.Parse(t, name)), name);
 			}
 			
 			Write(file, "LuaDLL.lua_pop(l, 1);");
@@ -1056,7 +1114,6 @@ namespace SLua
 		
 		private void WriteHead(Type t, StreamWriter file)
 		{
-			Write(file, "using UnityEngine;");
 			Write(file, "using System;");
 			Write(file, "using LuaInterface;");
 			Write(file, "using SLua;");

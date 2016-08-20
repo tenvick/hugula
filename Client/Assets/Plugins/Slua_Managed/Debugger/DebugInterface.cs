@@ -21,7 +21,7 @@
 // THE SOFTWARE.
 
 // Comment out this line to switch off remote debugger for slua
-#define LuaDebugger
+//#define LuaDebugger
 
 namespace SLua
 {

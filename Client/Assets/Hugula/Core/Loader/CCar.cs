@@ -125,17 +125,23 @@ namespace Hugula.Loader
             {
                 if (OnProcess != null)
                     OnProcess(this, 1);
-                //Debug.LogFormat("<color=yellow>will complete : url({0}),key:({1}) ab({2}) t({3}) bit({4})</color>", req.url, req.key, req.keyHashCode, www.text, www.bytes.Length);
+				#if HUGULA_LOADER_DEBUG
+				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) ab({2}) txt({3}) len({4})</color>", req.url, req.key, req.keyHashCode, www.text, www.bytes.Length);
+				#endif
                 object data = null;
                 var ab = www.assetBundle;
                 if (ab == null) data = www.bytes;
                 if (req.assetType != null && req.assetType.Equals("System.Byte[]"))
                     data = www.bytes;
+				if (req.isShared)
+					req.data = ab;
+				
                 CacheData cacheData = new CacheData(data, null, req.key);//缓存
                 CacheManager.AddCache(cacheData);
                 cacheData.allDependencies = this._req.allDependencies;
                 cacheData.assetBundle = ab;
                 www.Dispose();
+
                 DispatchCompleteEvent(this._req);
 
             }

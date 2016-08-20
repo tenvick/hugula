@@ -11,7 +11,7 @@ namespace Hugula.Loader
     /// 给lua使用的CResLoader
     /// </summary>
     [SLua.CustomLuaClass]
-    public class LResLoader : CResLoader
+    public sealed class LResLoader : CResLoader
     {
         // Use this for initialization
         void Start()
@@ -20,6 +20,7 @@ namespace Hugula.Loader
             base.OnProgress += L_onProgress;
             base.OnSharedComplete += L_onSharedComplete;
             base.OnGroupComplete += LResLoader_OnGroupComplete;
+			base.OnSharedErr += L_onSharedErr;
         }
 
         /// <summary>
@@ -70,6 +71,12 @@ namespace Hugula.Loader
                 onAllCompleteFn.call(loader);
         }
 
+		void L_onSharedErr(CRequest req)
+		{
+			if (onSharedErrFn != null)
+				onSharedErrFn.call(req);
+		}
+
         #endregion
 
         #region  delegate and event
@@ -78,7 +85,8 @@ namespace Hugula.Loader
         public LuaFunction onProgressFn;
         public LuaFunction onSharedCompleteFn;
         public LuaFunction onCacheFn;
-        #endregion
+		public LuaFunction onSharedErrFn;
+		#endregion
 
         #region instance
         //protected static LResLoader _instance;

@@ -235,7 +235,7 @@ public class BuildScript
         string name = "";
         string nameMd5 = "";
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine("[");
+		sb.AppendLine("return {");
         foreach (string path in allAssets)
         {
             import = AssetImporter.GetAtPath(path);
@@ -245,7 +245,7 @@ public class BuildScript
                 name = s.name.ToLower();
                 nameMd5 = CryptographHelper.Md5String(name);
                 //				Debug.LogFormat("path({0}),nameMd5({1}),name({2})", path, nameMd5, name);
-                string line = "'" + nameMd5 + "'={'name':'" + name + "','path':'" + path + "' },";
+				string line = "[\"" + nameMd5 + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
                 sb.AppendLine(line);
                 if (name.Contains(" ")) Debug.LogWarning(name + " contains space");
             }
@@ -263,16 +263,16 @@ public class BuildScript
         {
             name = CUtils.GetKeyURLFileName(p);
             nameMd5 = CryptographHelper.Md5String(name);
-            string line = "'" + nameMd5 + "'={'name':'" + name + "','md5':'" + nameMd5 + "','path':'" + p + "' },";
+			string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
             sb.AppendLine(line);
         }
 
-        sb.AppendLine("{}]");
+		sb.AppendLine("}");
         string tmpPath = Path.Combine(Application.dataPath, TmpPath);
         ExportResources.CheckDirectory(tmpPath);
         EditorUtility.DisplayProgressBar("Generate AssetBundles Md5Mapping", "write file to Assets/" + TmpPath + "Md5Mapping.txt", 0.99f);
 
-        string outPath = Path.Combine(tmpPath, "Md5Mapping.txt");
+		string outPath = Path.Combine(tmpPath, "md5mapping.txt");
         Debug.Log("write to path=" + outPath);
         using (StreamWriter sr = new StreamWriter(outPath, false))
         {
@@ -280,7 +280,7 @@ public class BuildScript
         }
 
         EditorUtility.ClearProgressBar();
-        Debug.Log(info + " Complete! Assets/" + TmpPath + "Md5Mapping.txt");
+        Debug.Log(info + " Complete! Assets/" + TmpPath + "md5mapping.txt");
     }
 
     public static void ClearUnUsedAssetBundlesName()

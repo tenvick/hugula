@@ -3,13 +3,15 @@
 //
 using UnityEngine;
 using System.Collections;
+using System.Text;
 
 namespace Hugula.Utils
 {
     public class ProfilerPanel : MonoBehaviour
     {
         const float m_KBSize = 1024.0f * 1024.0f;
-        private string memory, framerate;
+		private string memory,framerate;
+		private StringBuilder memory1;
 
         private float updateInterval = 0.2F;
         private float accum = 0; // FPS accumulated over the interval
@@ -19,8 +21,7 @@ namespace Hugula.Utils
         void Start()
         {
             timeleft = updateInterval;
-            //memory = Util.Get<UILabel>(gameObject, "MemoryInfo");
-            //framerate = Util.Get<UILabel>(gameObject, "FrameRate");
+			memory1 = new StringBuilder ();
         }
 
         void Update()
@@ -31,7 +32,7 @@ namespace Hugula.Utils
         void OnGUI()
         {
             GUILayout.Label("fps:" + framerate);
-            GUILayout.Label("" + memory);
+			GUILayout.Label(memory);
 
         }
         /// <summary>
@@ -55,16 +56,6 @@ namespace Hugula.Utils
                 // display two fractional digits (f2 format)
                 float fps = accum / frames;
                 framerate = fps.ToString();// ioo.f("fps:{0:F2}", fps);
-
-                //if (fps < 30) {
-                //    framerate.color = Color.yellow;
-                //} else {
-                //    if (fps < 10) {
-                //        framerate.color = Color.red;
-                //    } else {
-                //        framerate.color = Color.green;
-                //    }
-                //}
                 timeleft = updateInterval;
                 accum = 0.0F;
                 frames = 0;
@@ -74,8 +65,8 @@ namespace Hugula.Utils
                                         "TotalReservedMemory:{1}MB\n" +
                                         "TotalUnusedReservedMemory:{2}MB\n" +
                                         "MonoHeapSize:{3}MB\nMonoUsedSize:{4}MB",
-                                        totalMemory, totalReservedMemory,
-                                        totalUnusedReservedMemory, monoHeapSize, monoUsedSize);
+										totalMemory.ToString(), totalReservedMemory.ToString(),
+										totalUnusedReservedMemory.ToString(), monoHeapSize.ToString(), monoUsedSize.ToString());
         }
     }
 }

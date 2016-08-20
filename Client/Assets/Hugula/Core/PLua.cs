@@ -231,7 +231,7 @@ namespace Hugula
             }
             else
             {
-                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! crc="+crc.ToString());
+				if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc="+crc.ToString()+" source_crc ="+CrcCheck.GetCrc(CUtils.GetKeyURLFileName(luaPath)));
                 if (onLoadedFn != null) onLoadedFn.call();
             }
         }

@@ -159,6 +159,11 @@ namespace SLua
 		{
 			LuaDLL.luaS_pushColor(l, o.r, o.g, o.b, o.a);
 		}
+
+		public static void pushValue(IntPtr l, Color32 c32) {
+			pushObject(l, c32); 
+		}
+
 	}
 }
 #endif

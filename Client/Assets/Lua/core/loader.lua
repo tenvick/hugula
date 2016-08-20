@@ -119,7 +119,11 @@ function Loader:get_resource(...)
 end
 
 local function on_shared_complete(req)
-	-- print(req.key.." on_shared_complete ")
+	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
+	-- print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
+	-- if deps.Length == 0 then
+	req.data:LoadAllAssets()
+	-- end
 end
 
 function Loader:set_onall_complete_fn(compFn)

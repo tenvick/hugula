@@ -349,6 +349,7 @@ end
 local function init_frist()
 
 	print(Hugula.Utils.CUtils.GetRealPersistentDataPath())
+	print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
 
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
 	_progressbar_txt = LuaHelper.GetComponentInChildren(ui_logo,"UnityEngine.UI.Text")	

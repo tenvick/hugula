@@ -458,8 +458,8 @@ end
 
         public static void reg(IntPtr l)
         {
-			LuaState L = LuaState.get(l);
-			L.doString(script);
+            LuaState L = LuaState.get(l);
+            L.doString(script);
         }
     }
 }

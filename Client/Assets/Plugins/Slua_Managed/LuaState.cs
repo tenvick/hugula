@@ -849,7 +849,7 @@ end
 		static public void pushcsfunction(IntPtr L, LuaCSFunction function)
 		{
 			LuaDLL.lua_getref(L, get(L).PCallCSFunctionRef);
-			LuaDLL.lua_pushcclosure(L, Marshal.GetFunctionPointerForDelegate(function), 0);
+			LuaDLL.lua_pushcclosure(L, function, 0);
 			LuaDLL.lua_call(L, 1, 1);
 		}
 
@@ -912,9 +912,27 @@ end
 			return null;
 		}
 
+	    /// <summary>
+	    /// Ensure remove BOM from bytes
+	    /// </summary>
+	    /// <param name="bytes"></param>
+	    /// <returns></returns>
+	    public static byte[] CleanUTF8Bom(byte[] bytes)
+	    {
+            if (bytes.Length > 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+            {
+                var oldBytes = bytes;
+                bytes = new byte[bytes.Length - 3];
+                Array.Copy(oldBytes, 3, bytes, 0, bytes.Length);
+            }
+            return bytes;
+	    }
+
 		public bool doBuffer(byte[] bytes, string fn, out object ret)
-		{
-			ret = null;
+        {        
+            // ensure no utf-8 bom, LuaJIT can read BOM, but Lua cannot!
+		    bytes = CleanUTF8Bom(bytes);
+            ret = null;
 			int errfunc = LuaObject.pushTry(L);
 			if (LuaDLL.luaL_loadbuffer(L, bytes, bytes.Length, fn) == 0)
 			{
@@ -1145,6 +1163,7 @@ end
 				cnt = refQueue.Count;
 			}
 
+			var l = L;
 			for (int n = 0; n < cnt; n++)
 			{
 				UnrefPair u;
@@ -1152,7 +1171,7 @@ end
 				{
 					u = refQueue.Dequeue();
 				}
-				u.act(L, u.r);
+				u.act(l, u.r);
 			}
 		}
 	}

@@ -22,7 +22,7 @@ namespace Hugula
  * BUILD_COMMON_ASSETBUNDLE -- 使用未加密的名字构建 assetbundle
  * 
  * 
- * 
+ * HUGULA_LOADER_DEBUG 加载模块打印调试
  * 
  * 
  * 

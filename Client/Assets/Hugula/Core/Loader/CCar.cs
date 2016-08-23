@@ -95,7 +95,6 @@ namespace Hugula.Loader
                 www = new WWW(url);
             }
 
-            //Debug.LogFormat("<color=green> begin load {0} </color>", url);
         }
 
         #endregion
@@ -117,7 +116,7 @@ namespace Hugula.Loader
             enabled = false;
             if (www.error != null)
             {
-                Debug.LogWarning(" (" + req.key + ")url(" + req.url + ") \n error:" + www.error);
+				Debug.LogWarning(" (" + req.assetName + ")url(" + req.url + ") \n error:" + www.error);
                 DispatchErrorEvent(req);
                 www = null;
             }
@@ -128,20 +127,8 @@ namespace Hugula.Loader
 				#if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) ab({2}) txt({3}) len({4})</color>", req.url, req.key, req.keyHashCode, www.text, www.bytes.Length);
 				#endif
-                object data = null;
-                var ab = www.assetBundle;
-                if (ab == null) data = www.bytes;
-                if (req.assetType != null && req.assetType.Equals("System.Byte[]"))
-                    data = www.bytes;
-				if (req.isShared)
-					req.data = ab;
-				
-                CacheData cacheData = new CacheData(data, null, req.key);//缓存
-                CacheManager.AddCache(cacheData);
-                cacheData.allDependencies = this._req.allDependencies;
-                cacheData.assetBundle = ab;
-                www.Dispose();
 
+				CacheManager.AddSourceCacheDataFromWWW(www,this._req);
                 DispatchCompleteEvent(this._req);
 
             }

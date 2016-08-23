@@ -148,15 +148,15 @@ namespace Hugula.Utils
         /// <returns>The URI.</returns>
         /// <param name="uris">Uris.</param>
         /// <param name="index">Index.</param>
-        public static string GetUri(string[] uris, int index)
-        {
-            string uri = "";
-            if (uris.Length > index && index >= 0)
-            {
-                uri = uris[index];
-            }
-            return uri;
-        }
+        //public static string GetUri(string[] uris, int index)
+        //{
+        //    string uri = "";
+        //    if (uris.Length > index && index >= 0)
+        //    {
+        //        uri = uris[index];
+        //    }
+        //    return uri;
+        //}
 
         /// <summary>
         /// Gets the UD key.
@@ -177,30 +177,30 @@ namespace Hugula.Utils
         /// <returns><c>true</c>, if request URI was set, <c>false</c> otherwise.</returns>
         /// <param name="req">Req.</param>
         /// <param name="index">Index.</param>
-        public static bool SetRequestUri(CRequest req, int index)
-        {
-            string uri = GetUri(req.uris, index);
-            if (!string.IsNullOrEmpty(uri))
-            {
-                req.index = index;
-                req.uri = uri;
-                return true;
-            }
-            return false;
-        }
+        //public static bool SetRequestUri(CRequest req, int index)
+        //{
+        //    string uri = GetUri(req.uris, index);
+        //    if (!string.IsNullOrEmpty(uri))
+        //    {
+        //        req.index = index;
+        //        req.uri = uri;
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
-        /// <summary>
-        /// 判断第0个资源是否存在
-        /// </summary>
-        /// <returns><c>true</c>, if exists was check0ed, <c>false</c> otherwise.</returns>
-        /// <param name="req">Req.</param>
-        public static void CheckUri0Exists(CRequest req)
-        {
-            if (req.index == 0 && !req.url.StartsWith(Common.HTTP_STRING) && !File.Exists(req.url))
-            { //如果没有更新
-                SetRequestUri(req, 1);
-            }
-        }
+        ///// <summary>
+        ///// 判断第0个资源是否存在
+        ///// </summary>
+        ///// <returns><c>true</c>, if exists was check0ed, <c>false</c> otherwise.</returns>
+        ///// <param name="req">Req.</param>
+        //public static void CheckUri0Exists(CRequest req)
+        //{
+        //    if (req.index == 0 && !req.url.StartsWith(Common.HTTP_STRING) && !File.Exists(req.url))
+        //    { //如果没有更新
+        //        SetRequestUri(req, 1);
+        //    }
+        //}
 
 
         public static string GetRealStreamingAssetsPath()

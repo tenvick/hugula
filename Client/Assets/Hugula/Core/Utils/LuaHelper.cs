@@ -178,7 +178,7 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="classname"></param>
         /// <returns></returns>
-        public static System.Type GetType(string classname)
+        public static System.Type GetClassType(string classname)
         {
             if (string.IsNullOrEmpty(classname)) return null;
 
@@ -223,7 +223,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component GetComponentInChildren(GameObject obj, string classname)
         {
-            System.Type t = GetType(classname);
+            System.Type t = GetClassType(classname);
             return GetComponentInChildren(obj, t);
         }
 
@@ -243,7 +243,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component GetComponent(GameObject obj, string classname)
         {
-            System.Type t = GetType(classname);
+            System.Type t = GetClassType(classname);
             return GetComponent(obj, t);
         }
 
@@ -256,7 +256,7 @@ namespace Hugula.Utils
 
         public static Component AddComponent(GameObject obj, string className)
         {
-            System.Type t = GetType(className);
+			System.Type t = GetClassType(className);
             return AddComponent(obj, t);
         }
 
@@ -288,7 +288,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component[] GetComponents(GameObject obj, string classname)
         {
-            System.Type t = GetType(classname);
+			System.Type t = GetClassType(classname);
             return GetComponents(obj, t);
         }
 
@@ -307,7 +307,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component[] GetComponentsInChildren(GameObject obj, string classname)
         {
-            System.Type t = GetType(classname);
+			System.Type t = GetClassType(classname);
             return GetComponentsInChildren(obj, t);
         }
 
@@ -365,15 +365,15 @@ namespace Hugula.Utils
             return null;
         }
 
-        /// <summary>
-        /// 得到类型
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static System.Type GetType(object obj)
-        {
-            return obj.GetType();
-        }
+//        /// <summary>
+//        /// 得到类型
+//        /// </summary>
+//        /// <param name="obj"></param>
+//        /// <returns></returns>
+//        public static System.Type GetType(object obj)
+//        {
+//            return obj.GetType();
+//        }
 
         /// <summary>
         /// 刷新shader

@@ -26,7 +26,7 @@ public class ReferenceCountInfoEditor : Editor
 
         foreach (var k in CacheManager.caches)
         {
-            str = string.Format(" {0} = {1}",k.Value.assetBundleName,k.Value.count);
+            str = string.Format(" {0} = {1}",k.Value.assetBundleKey,k.Value.count);
             GUILayout.Label(str, GUILayout.Width(500));
         }
 

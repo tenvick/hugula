@@ -21,6 +21,7 @@ local Common = Hugula.Utils.Common
 local PLua = Hugula.PLua
 local Download = Hugula.Update.Download 
 local CrcCheck = Hugula.Update.CrcCheck
+local UriGroup = Hugula.Loader.UriGroup
 local Loader = Loader
 
 ResVersion = {code=1,crc32=0}
@@ -47,6 +48,14 @@ local loaded_err = false
 
 local function print_time(times)
 	print(os.date("%c",times))
+end
+
+local function get_update_uri_group( ... )
+	local group = UriGroup()
+	for k,v in pairs(host) do
+		group:Add(v)
+	end
+	return group
 end
 
 local function set_progress_txt(text)
@@ -188,13 +197,13 @@ local function load_server_file_list() --版本差异化对比
 		local crc = tostring(server_ver.crc32)
 		local asset_name = CUtils.GetFileName(CUtils.GetKeyURLFileName(UPDATED_LIST_NAME))
 		local file_name = asset_name.."_"..crc..".u3d"
-		print("load web server crc"..file_name)
+		print("load web server crc "..file_name)
 		local req = LRequestPool.Get()
 		req.relativeUrl = file_name
 		req.onCompleteFn = on_server_comp
 		req.onEndFn = on_server_err
-		req.assetType = "System.Byte[]"
-		req.uris = host
+		req.assetType = LuaHelper.GetClassType("System.Byte[]")
+		req.uris = get_update_uri_group()
 		Loader:get_resource(req)
 	end
  
@@ -210,7 +219,7 @@ local function load_server_verion() --加载服务器版本号
 
 	 local function on_comp( req )
 	 	-- print(req.url,"is onComplete",req.data.Length)
-	 	local ver_str = req.data[1]
+	 	local ver_str = req.data
 		print("server var ",ver_str)
 	 	server_ver = json:decode(ver_str)
 	 	print_time(server_ver.time)
@@ -230,7 +239,7 @@ local function load_server_verion() --加载服务器版本号
 	 end
 
 	set_progress_txt("加载服务器信息。")
-    Loader:get_resource(VERSION_FILE_NAME,nil,"System.String",on_comp,on_err,nil,host)
+    Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_update_uri_group())
 end
 
 local function load_local_file_list()
@@ -264,7 +273,10 @@ local function load_local_file_list()
 		set_progress_txt("读取本地校验文件。")
 		local crc = CrcCheck.GetCrc(update_list_crc_key)
 		print("persistent update file list"..tostring(crc))
-		Loader:get_resource(UPDATED_LIST_NAME,nil,"UnityEngine.TextAsset",step.on_persistent_comp,step.on_persistent_error,nil,{CUtils.GetRealPersistentDataPath()})
+		local group = UriGroup()
+		group:Add(CUtils.GetRealPersistentDataPath())
+		group:SetCrcIndex(0)
+		Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step.on_persistent_comp,step.on_persistent_error,nil,group)
 	else
 		print("本地没有校验文件")
 		step.next_step()
@@ -275,7 +287,7 @@ local function compare_local_version() --对比本地版本号
 	local step = {}
 	step.key = CUtils.GetKeyURLFileName(UPDATED_LIST_NAME)
 	step.on_persistent_comp=function ( req )
-		local ver_str = req.data[1] 
+		local ver_str = req.data
 		print("local persistent ver ",ver_str)
 		local ver_json = json.decode(ver_str)
 		print_time(ver_json.time)
@@ -319,7 +331,7 @@ local function compare_local_version() --对比本地版本号
 	end
 
 	step.on_streaming_comp=function ( req )
-		local ver_str = req.data[1] 
+		local ver_str = req.data 
 		print("local streaming ver ",ver_str)
 		local ver_json = json:decode(ver_str)
 		print_time(ver_json.time)
@@ -329,16 +341,22 @@ local function compare_local_version() --对比本地版本号
 
 	step.on_streaming_error=function ( req ) --never happen
 		print("local streaming ver err ")
+		--temp
+		enterGame()
 	end
 
 	step.load_persistent=function(  )
 		print("加载本地缓存版本信息。")
-  		Loader:get_resource(VERSION_FILE_NAME,nil,"System.String",step.on_persistent_comp,step.on_persistent_error,nil,{CUtils.GetRealPersistentDataPath()})
+		local group = UriGroup()
+		group:Add(CUtils.GetRealPersistentDataPath())
+  		Loader:get_resource(VERSION_FILE_NAME,nil,String,step.on_persistent_comp,step.on_persistent_error,nil,group)
 	end
 
 	step.load_streaming=function(  )
-		print("加载本地版本信息。")
-    	Loader:get_resource(VERSION_FILE_NAME,nil,"System.String",step.on_streaming_comp,step.on_streaming_error,nil,{CUtils.GetRealStreamingAssetsPath()})
+		print("加载本地版本信息。") --
+		local group = UriGroup()
+		group:Add(CUtils.GetRealStreamingAssetsPath())
+    	Loader:get_resource(VERSION_FILE_NAME,nil,String,step.on_streaming_comp,step.on_streaming_error,nil,group)
 	end
 
   	set_progress_txt("对比本地版本信息。")

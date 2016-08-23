@@ -4,6 +4,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using Hugula.Utils;
 
 namespace Hugula.Loader
@@ -37,7 +38,7 @@ namespace Hugula.Loader
         /// <param name="url">地址 相对路径</param>
         /// <param name="assetName">加载的资源名</param>
         /// <param name="assetType">资源类型，默认为GameObject</param>
-        public CRequest(string relativeUrl, string assetName, string assetType)
+		public CRequest(string relativeUrl, string assetName, Type assetType)
         {
             this._relativeUrl = relativeUrl;
             this.assetName = assetName;
@@ -46,25 +47,25 @@ namespace Hugula.Loader
 
         public virtual void Dispose()
         {
-            this._url = null;
-            this._relativeUrl = null;
-            this._key = null;
-            this._uris = null;
-            this._uri = null;
-            this._udKey = null;
+            this._url = string.Empty;
+            this._relativeUrl = string.Empty;
+            this._key = string.Empty;
+            this._uri = string.Empty;
+            this._udKey = string.Empty;
 
             this.priority = 0;
             this.index = 0;
             this._keyHashCode = 0;
             maxTimes = 2;
 
+            this._uris = null;
             this.data = null;
             this.head = null;
             this.userData = null;
 
             _assetBundleName = string.Empty;
             _assetName = string.Empty;
-            assetType = string.Empty;
+			assetType = null;//string.Empty;
 
             async = true;
             pool = false;
@@ -87,7 +88,7 @@ namespace Hugula.Loader
 
         private string _assetName = string.Empty;
 
-        private string[] _uris;
+        private UriGroup _uris;
 
         private string _uri;
 
@@ -96,14 +97,14 @@ namespace Hugula.Loader
             get
             {
                 if (string.IsNullOrEmpty(_uri))
-                    _uri = CUtils.GetUri(uris, index);
+                    _uri = uris.GetUri(index);
                 return _uri;
             }
             set
             {
                 _url = null;
                 _udKey = null;
-                _uri = CUtils.GetUri(uris, index);
+                _uri = uris.GetUri(index);
                 //_uri = value;
                 //_url = Path.Combine(_uri, this.relativeUrl);
                 //_udKey = CUtils.GetUDKey(_uri, relativeUrl);  //CryptographHelper.CrypfString(this._url);//_key=CUtils.getURLFullFileName(url);		    	
@@ -161,7 +162,7 @@ namespace Hugula.Loader
         /// <summary>
         /// asset Type name
         /// </summary>
-        public string assetType = string.Empty;
+		public Type assetType ;//= string.Empty;
 
         /// <summary>
         /// 加载的头信息
@@ -305,14 +306,14 @@ namespace Hugula.Loader
         public int priority = 0;//优先级
 
         /// <summary>
-        /// 加载次数
+        /// 加载uri索引
         /// </summary>
         public int index = 0;
 
         /// <summary>
-        /// 资源位置列表
+        /// uri组策略
         /// </summary>
-        public string[] uris
+        public UriGroup uris
         {
             get
             {
@@ -354,5 +355,93 @@ namespace Hugula.Loader
         internal bool pool = false;
     }
 
-    //public delegate void CompleteHandle(CRequest req);
+
+    /// <summary>
+    /// uri 组策略
+    /// </summary>
+    [SLua.CustomLuaClass]
+    public class UriGroup
+    {
+        #region member
+        //private
+        private List<string> uris;
+
+        //public
+        /// <summary>
+        /// 需要进行crc check 的uri索引
+        /// </summary>
+        public int crcIndex { private set; get; }
+
+        public int count { get { return uris.Count; } }
+        #endregion
+
+        public UriGroup()
+        {
+            uris = new List<string>();
+            crcIndex = -1;
+        }
+
+        /// <summary>
+        /// 添加uri
+        /// </summary>
+        /// <param name="uri"></param>
+        public void Add(string uri)
+        {
+            uris.Add(uri);
+        }
+
+        /// <summary>
+        /// 设置需要校验的索引
+        /// </summary>
+        /// <param name="i"></param>
+        public void SetCrcIndex(int i)
+        {
+            crcIndex = i;
+        }
+
+        /// <summary>
+        /// 判断当前索引是否需要校验
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public bool IsCrcIndex(int index)
+        {
+            return index == crcIndex;
+        }
+
+        /// <summary>
+        /// 获取当前索引的uri
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public string GetUri(int index)
+        {
+            string uri = "";
+            if (uris.Count > index && index >= 0)
+            {
+                uri = uris[index];
+            }
+            return uri;
+        }
+
+        /// <summary>
+        /// 设置req index处的uri
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public bool SetNextUri(CRequest req)
+        {
+            int index = req.index + 1;
+            if (index >= count) index = 0;
+            string uri = GetUri(index);
+            if (!string.IsNullOrEmpty(uri))
+            {
+                req.index = index;
+                req.uri = uri;
+                return true;
+            }
+            return false;
+        }
+    }
 }

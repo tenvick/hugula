@@ -181,7 +181,8 @@ namespace SLua
 		#region uint
 		static public bool checkType(IntPtr l, int p, out uint v)
 		{
-			v = (uint)LuaDLL.luaL_checkinteger(l, p);
+            LuaDLL.luaL_checktype(l, p, LuaTypes.LUA_TNUMBER);
+            v = (uint)LuaDLL.lua_tonumber(l, p);
 			return true;
 		}
 		

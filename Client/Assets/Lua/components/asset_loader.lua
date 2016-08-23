@@ -125,19 +125,6 @@ function AssetLoader:load(asts)
 	self._load_curr = 0
 	self.assets = {}
 	self._load_count = #asts
-	-- local real_loaded = asts
-
-	-- if self.lua_obj.is_call_assets_loaded == true then --如果加载过
-	-- 	real_loaded = {}
-	-- 	for k,v in ipairs(asts) do
-	-- 		if v.root == nil then --加载没有加载的资源
-	-- 			table.insert(real_loaded,v) 
-	-- 		end
-	-- 	end
-	-- end
-	-- self._load_count = #real_loaded
-	-- print("assets_loaded. %s %s",self.lua_obj.name,self._load_count)
-	-- print_table(real_loaded)
 	self:load_assets(asts)
 
 end

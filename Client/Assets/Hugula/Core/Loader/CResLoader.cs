@@ -51,20 +51,20 @@ namespace Hugula.Loader
         public static int currentLoaded;
 
 
-        static string[] _uriList;
+        static UriGroup _uriList;
         /// <summary>
         /// The URI list.
         /// </summary>
-        public static string[] uriList
+        public static UriGroup uriList
         {
             get
             {
                 if (_uriList == null)
                 {
-                    _uriList = new string[] {
-					CUtils.GetRealPersistentDataPath(), //persistent frist
-					CUtils.GetRealStreamingAssetsPath()
-				};
+                    _uriList = new UriGroup();
+                    _uriList.Add(CUtils.GetRealPersistentDataPath());
+                    _uriList.Add(CUtils.GetRealStreamingAssetsPath());
+                    _uriList.SetCrcIndex(0);
                 }
                 return _uriList;
             }
@@ -244,7 +244,7 @@ namespace Hugula.Loader
         {
             if (req == null) return false;
 
-            if (!CrcCheck.CheckCrcUri0Exists(req)) //如果校验失败
+            if (!CrcCheck.CheckUriCrc(req)) //如果校验失败
             {
 #if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 0. <color=yellow>CheckCrcUri0Exists==false Req(assetname={0},url={1})  </color>",req.assetName,req.url);
@@ -331,8 +331,11 @@ namespace Hugula.Loader
         }
 
         protected static void CallbackError(CRequest creq)
-        {
-            List<CRequest> callbacklist = null;// requestCallBackList[creq.udKey];
+         {
+#if HUGULA_LOADER_DEBUG
+			Debug.LogFormat("<color=green>CallbackError DispatchEnd Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+#endif
+             List<CRequest> callbacklist = null;// requestCallBackList[creq.udKey];
             string udkey = creq.udKey;
 			if (creq.isShared) {
 				if (_instance.OnSharedErr != null)
@@ -354,9 +357,7 @@ namespace Hugula.Loader
 				creq.DispatchEnd();
 				PopGroup(creq);
 			}
-			#if HUGULA_LOADER_DEBUG
-			Debug.LogFormat("<color=green>CallbackError DispatchEnd Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
-			#endif
+
             CheckAllComplete();
         }
 
@@ -495,7 +496,7 @@ namespace Hugula.Loader
 			#if HUGULA_LOADER_DEBUG
 			Debug.LogFormat(" 2.<color=green>CResLoader.LoadError Request(assetName={0}, url={1},isShared={2})</color>", req.assetName,req.url,req.isShared);
 			#endif
-            if (req.index < req.maxTimes && CUtils.SetRequestUri(req, req.index))
+            if (req.index < req.uris.count && req.uris.SetNextUri(req))// CUtils.SetRequestUri(req, req.index))
             {
                 List<CRequest> callbacklist = null;
                 if (requestCallBackList.TryGetValue(oldUdKey, out callbacklist))

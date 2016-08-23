@@ -20,14 +20,14 @@ namespace Hugula.Loader
         {
             this.www = data;
             this.assetBundle = assetBundle;
-            this.assetBundleName = assetBundleName;
+            this.assetBundleKey = assetBundleName;
             this.assetHashCode = LuaHelper.StringToHash(assetBundleName);
         }
 
         /// <summary>
         /// assetBundle Name
         /// </summary>
-        public string assetBundleName { get; private set; }
+        public string assetBundleKey { get; private set; }
 
         /// <summary>
         /// hashcode
@@ -100,7 +100,7 @@ namespace Hugula.Loader
             if (caches.TryGetValue(assetHashCode, out cacheout))
             {
 #if UNITY_EDITOR
-                Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleName));
+                Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleKey));
 #endif
                 caches.Remove(assetHashCode);
             }
@@ -160,7 +160,7 @@ namespace Hugula.Loader
                 if (lockedCaches.Contains(assethashcode)) //被锁定了不能删除
                 {
 #if UNITY_EDITOR
-                    Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete.) ", cache.assetBundleName, cache.assetBundle);
+                    Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete.) ", cache.assetBundleKey, cache.assetBundle);
 #endif
                 }
                 else
@@ -213,6 +213,32 @@ namespace Hugula.Loader
             return cache;
         }
 
+		/// <summary>
+		/// Adds the source cache data from WW.
+		/// </summary>
+		/// <param name="www">Www.</param>
+		/// <param name="req">Req.</param>
+		internal static void AddSourceCacheDataFromWWW(WWW www,CRequest req)
+		{
+            object data = null;
+            var ab = www.assetBundle;
+            if (ab == null) data = www.bytes;
+		
+			if(Typeof_Bytes.Equals(req.assetType))
+                data = www.bytes;
+			else if(Typeof_String.Equals(req.assetType))
+				data = www.text;
+
+//			if (req.isShared)
+//				req.data = ab;
+			
+            CacheData cacheData = new CacheData(data, null, req.key);//缓存
+            CacheManager.AddCache(cacheData);
+			cacheData.allDependencies = req.allDependencies;
+            cacheData.assetBundle = ab;
+            www.Dispose();
+		}
+
         /// <summary>
         /// 从缓存设置数据
         /// </summary>
@@ -226,30 +252,16 @@ namespace Hugula.Loader
             if (cachedata != null)
             {
                 AssetBundle abundle = cachedata.assetBundle;
-                System.Type assetType = LuaHelper.GetType(req.assetType);
+				System.Type assetType = req.assetType;
                 if (assetType == null) assetType = typeof(UnityEngine.Object);
-
                 if (req.isShared) //共享的
                 {
                     req.data = abundle;
                     re = true;
                 }
-                else if (assetType.Equals(Typeof_String))
+				else if (assetType.Equals(Typeof_String) || assetType.Equals(Typeof_Bytes))
                 {
-
-                    var str = string.Empty;
-                    if (cachedata.www is byte[])
-                    {
-                        str = LuaHelper.GetUTF8String((byte[])cachedata.www);
-                    }
-                    req.data = new string[] { str };
-
-                    req.clearCacheOnComplete = true;
-                    re = true;
-                }
-                else if (assetType.Equals(Typeof_Bytes))
-                {
-                    req.data = cachedata.www;
+					req.data = cachedata.www;
                     req.clearCacheOnComplete = true;
                     re = true;
                 }
@@ -270,7 +282,6 @@ namespace Hugula.Loader
                     else
                     {
                         req.data = abundle.LoadAsset(req.assetName, assetType);
-                        //Debug.LogFormat("<color=yellow>set data {0},{1},{2},{3},{4}</color>",req.key,req.data, req.assetName, req.assetType, assetType);
                     }
                     re = true;
                 }
@@ -325,9 +336,9 @@ namespace Hugula.Loader
         }
 
         #region check type
-        internal static Type Typeof_String = typeof(System.String);
-        internal static Type Typeof_Bytes = typeof(System.Byte[]);
-        internal static Type Typeof_AssetBundle = typeof(AssetBundle);
+		public static readonly Type Typeof_String = typeof(System.String);
+		public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
+		public static readonly Type Typeof_AssetBundle = typeof(AssetBundle);
 
         #endregion
     }

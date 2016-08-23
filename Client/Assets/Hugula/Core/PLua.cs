@@ -224,7 +224,7 @@ namespace Hugula
         {
             string luaPath = Path.Combine(CUtils.GetRealPersistentDataPath(), CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
             uint crc = 0;
-            if (CrcCheck.CheckFileCrc(luaPath, out crc))
+            if (CrcCheck.CheckLocalFileCrc(luaPath, out crc))
             {
                 if (loadPersistentCoroutine != null) StopCoroutine(loadPersistentCoroutine);
                 loadPersistentCoroutine = StartCoroutine(LoadLuaBundle(luaPath, onLoadedFn));

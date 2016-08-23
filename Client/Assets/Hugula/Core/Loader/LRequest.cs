@@ -4,6 +4,7 @@
 using UnityEngine;
 using System.Collections;
 using Hugula.Utils;
+using System;
 using SLua;
 
 namespace Hugula.Loader
@@ -27,7 +28,7 @@ namespace Hugula.Loader
             this.OnEnd += OnEndHandler;
         }
 
-        public LRequest(string url, string assetName, string assetType)
+		public LRequest(string url, string assetName, Type assetType)
             : base(url, assetName, assetType)
         {
             this.OnComplete += OnCompHandler;

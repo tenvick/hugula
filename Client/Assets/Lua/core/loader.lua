@@ -11,6 +11,8 @@ local CacheManager = Hugula.Loader.CacheManager
 local LResLoader = Hugula.Loader.LResLoader
 local CUtils = Hugula.Utils.CUtils
 local Loader=Loader 
+local LuaHelper=Hugula.Utils.LuaHelper
+
 Loader.multipleLoader= LResLoader.instance
 
 local function dispatch_complete(req)
@@ -24,7 +26,11 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
 	req.relativeUrl = url
 	req.assetName = assetName
-	req.assetType = assetType
+	if type(assetType)=="string" then 
+		assetType = LuaHelper.GetClassType(assetType) 
+	end
+
+	if assetType ~= nil then req.assetType = assetType end
 	
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
@@ -143,7 +149,7 @@ function Loader:refresh_assetbundle_manifest(onReady)
         if onReady then onReady() end
     end
 
-    self:get_resource(url,"assetbundlemanifest","UnityEngine.AssetBundleManifest",onCompleteFn)
+    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn)
 end
 
 Loader.multipleLoader.onSharedCompleteFn=on_shared_complete

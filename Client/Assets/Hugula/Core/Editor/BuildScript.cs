@@ -113,7 +113,7 @@ public class BuildScript
             string url = Path.Combine(CUtils.GetRealStreamingAssetsPath(), str);
             uint outCrc = 0;
             string key = CUtils.GetKeyURLFileName(str);
-            if (!ignore.ContainsKey(key) && CrcCheck.CheckFileWeakCrc(url, out outCrc) == false) //如果不一致需要更新
+            if (!ignore.ContainsKey(key) && CrcCheck.CheckLocalFileWeakCrc(url, out outCrc) == false) //如果不一致需要更新
             {
                 updateList.Add(str,outCrc);//记录导出记录
                 sb.AppendLine("[\"" + key + "\"] = " + outCrc + ",");

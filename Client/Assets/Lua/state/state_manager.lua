@@ -133,6 +133,14 @@ function StateManager:call_all_item_method( )
     end
 end
 
+function StateManager:set_on_state_change(on_state_change)
+    self._on_state_change = on_state_change
+end
+
+function StateManager:call_on_state_change(new_state)
+    if self._on_state_change then self._on_state_change(new_state) end
+end
+
 --改变状态
 function StateManager:set_current_state(new_state,method,...)
     assert(new_state ~= nil)
@@ -160,8 +168,8 @@ function StateManager:set_current_state(new_state,method,...)
     unload_unused_assets()
 
     self:record_state() --记录状态用于返回   
+    self:call_on_state_change(new_state) --state change event
 end
-
 function StateManager:record_state() --记录状态用于返回
     local curr_state = self._current_game_state --当前状态
     if curr_state.log_enable == false then 
@@ -248,6 +256,6 @@ function StateManager:go_back(index) --返回
         if new_state:is_all_loaded() then self:call_all_item_method() end
 
     end
-
+    self:call_on_state_change(new_state)
     return true 
 end

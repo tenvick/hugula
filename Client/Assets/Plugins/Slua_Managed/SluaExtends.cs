@@ -50,10 +50,10 @@ namespace SLua
 
         public static void pushValue(IntPtr l, byte[] buffer)
         {
-			if (buffer != null)
-				LuaDLLWrapper.luaS_pushlstring (l, buffer, buffer.Length);
-			else
-				LuaDLL.lua_pushnil (l);
+            if (buffer != null)
+                LuaDLLWrapper.luaS_pushlstring(l, buffer, buffer.Length);
+            else
+                LuaDLL.lua_pushnil(l);
         }
 
         public static void checkValueType(IntPtr l, int p, out LayerMask lm)
@@ -236,5 +236,73 @@ namespace SLua
             return null;
         }
         #endregion
+    }
+
+    /// <summary>
+    /// 自己定义lua 命令
+    /// </summary>
+    public class LuaCMDHelper : LuaObject
+    {
+
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        public static int require_bytes(IntPtr l)
+        {
+            try
+            {
+                object a1;
+                checkType(l, 1, out a1);
+                byte[] bytes = null;
+                //Debug.LogFormat(" a1={0}  is array = {1}", a1.GetType(), a1 is System.Array);
+                if (a1 is TextAsset)
+                {
+                    bytes = ((TextAsset)a1).bytes;
+                }
+                else if (a1 is System.Array)
+                {
+                    bytes = (byte[])a1;
+                }
+                else if (a1 is string)
+                {
+                    bytes = System.Text.Encoding.UTF8.GetBytes((string)a1);
+                }
+
+                if (bytes != null)
+                {
+                    int errfunc = LuaObject.pushTry(l);
+                    LuaDLL.lua_pushboolean(l, true);
+
+                    if (LuaDLL.luaL_loadbuffer(l, bytes, bytes.Length, "tmp require") == 0)
+                    {
+                        if (LuaDLL.lua_pcall(l, 0, LuaDLL.LUA_MULTRET, errfunc) != 0)
+                        {
+                            LuaDLL.lua_pop(l, 2);
+                            return 1;
+                        }
+                        int top1 = LuaDLL.lua_gettop(l);
+                        LuaDLL.lua_remove(l, errfunc); // pop error function
+                        int top = LuaDLL.lua_gettop(l);
+                        int nArgs = top - (errfunc - 1);
+                        return nArgs;
+                    }
+                    string err = LuaDLL.lua_tostring(l, -1);
+                    LuaDLL.lua_pop(l, 2);
+                    throw new Exception(err);
+                }
+                pushValue(l, true);
+                LuaDLL.lua_pushnil(l);
+                return 2;
+            }
+            catch (Exception e)
+            {
+                return error(l, e);
+            }
+        }
+
+        static public void reg(IntPtr l)
+        {
+            getTypeTable(l, "SluaCMD");
+            addMember(l, require_bytes, false);
+            createTypeMetatable(l, null, typeof(LuaCMDHelper));
+        }
     }
 }

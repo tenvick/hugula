@@ -166,6 +166,7 @@ namespace SLua
 		{
 #if !SLUA_STANDALONE
 			LuaTimer.reg(L);
+            LuaCMDHelper.reg(L);
 #if UNITY_EDITOR
             if (UnityEditor.EditorApplication.isPlaying)
 #endif

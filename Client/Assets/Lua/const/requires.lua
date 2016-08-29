@@ -37,6 +37,7 @@ UPDATECOMPONENTS={} --all update fun components
 ----------------------require-----------------------------
 require("core.lua_object")
 require("core.asset")
+require("core.asset_scene")
 
 require("state.state_manager")
 require("state.item_object")

@@ -4,6 +4,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+#if UNITY_5_3 || UNITY_5_4
+using UnityEngine.SceneManagement;
+#endif
 using Hugula.Utils;
 
 namespace Hugula.Loader
@@ -55,12 +58,12 @@ namespace Hugula.Loader
         /// </summary>
         public int[] allDependencies { get; internal set; }
 
-		/// <summary>
-		/// is asset loaded
-		/// </summary>
-		/// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
-		[SLua.DoNotToLua]
-		public bool isAssetLoaded{ get; internal set; }
+        /// <summary>
+        /// is asset loaded
+        /// </summary>
+        /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
+        [SLua.DoNotToLua]
+        public bool isAssetLoaded { get; internal set; }
 
         public void Dispose()
         {
@@ -107,17 +110,18 @@ namespace Hugula.Loader
             caches.Add(assetHashCode, cacheData);
         }
 
-		/// <summary>
-		/// Sets the asset loaded.
-		/// </summary>
-		/// <param name="hashkey">Hashkey.</param>
-		internal static void SetAssetLoaded(int hashkey)
-		{
-			CacheData cacheout = null;
-			if (caches.TryGetValue (hashkey, out cacheout)) {
-				cacheout.isAssetLoaded = true;
-			} 
-		}
+        /// <summary>
+        /// Sets the asset loaded.
+        /// </summary>
+        /// <param name="hashkey">Hashkey.</param>
+        internal static void SetAssetLoaded(int hashkey)
+        {
+            CacheData cacheout = null;
+            if (caches.TryGetValue(hashkey, out cacheout))
+            {
+                cacheout.isAssetLoaded = true;
+            }
+        }
 
         /// <summary>
         /// 锁定
@@ -213,31 +217,28 @@ namespace Hugula.Loader
             return cache;
         }
 
-		/// <summary>
-		/// Adds the source cache data from WW.
-		/// </summary>
-		/// <param name="www">Www.</param>
-		/// <param name="req">Req.</param>
-		internal static void AddSourceCacheDataFromWWW(WWW www,CRequest req)
-		{
+        /// <summary>
+        /// Adds the source cache data from WW.
+        /// </summary>
+        /// <param name="www">Www.</param>
+        /// <param name="req">Req.</param>
+        internal static void AddSourceCacheDataFromWWW(WWW www, CRequest req)
+        {
             object data = null;
             var ab = www.assetBundle;
             if (ab == null) data = www.bytes;
-		
-			if(Typeof_Bytes.Equals(req.assetType))
-                data = www.bytes;
-			else if(Typeof_String.Equals(req.assetType))
-				data = www.text;
 
-//			if (req.isShared)
-//				req.data = ab;
-			
+            if (Typeof_Bytes.Equals(req.assetType))
+                data = www.bytes;
+            else if (Typeof_String.Equals(req.assetType))
+                data = www.text;
+
             CacheData cacheData = new CacheData(data, null, req.key);//缓存
             CacheManager.AddCache(cacheData);
-			cacheData.allDependencies = req.allDependencies;
+            cacheData.allDependencies = req.allDependencies;
             cacheData.assetBundle = ab;
             www.Dispose();
-		}
+        }
 
         /// <summary>
         /// 从缓存设置数据
@@ -252,16 +253,16 @@ namespace Hugula.Loader
             if (cachedata != null)
             {
                 AssetBundle abundle = cachedata.assetBundle;
-				System.Type assetType = req.assetType;
+                System.Type assetType = req.assetType;
                 if (assetType == null) assetType = typeof(UnityEngine.Object);
                 if (req.isShared) //共享的
                 {
                     req.data = abundle;
                     re = true;
                 }
-				else if (assetType.Equals(Typeof_String) || assetType.Equals(Typeof_Bytes))
+                else if (assetType.Equals(Typeof_String) || assetType.Equals(Typeof_Bytes))
                 {
-					req.data = cachedata.www;
+                    req.data = cachedata.www;
                     req.clearCacheOnComplete = true;
                     re = true;
                 }
@@ -270,13 +271,28 @@ namespace Hugula.Loader
                     req.data = cachedata.assetBundle;
                     re = true;
                 }
+                else if (assetType.Equals(Typeof_ABScene))
+                {
+                    //AsyncOperation
+                    Debug.Log(abundle);
+#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+                     if (req.isAdditive)
+                    req.assetBundleRequest = Application.LoadLevelAdditiveAsync(req.assetName);
+                else
+                    req.assetBundleRequest = Application.LoadLevelAsync(req.assetName);
+#else
+                    req.assetBundleRequest = SceneManager.LoadSceneAsync(req.assetName, req.isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+#endif
+                    re = true;
+                }
                 else
                 {
-					if (abundle == null) {
-						#if UNITY_EDITOR
-						Debug.LogWarningFormat("SetRequestDataFromCache Assetbundle is null request(url={0},assetName={1},assetType={2})  ",req.url,req.assetName,req.assetType);
-						#endif
-					}
+                    if (abundle == null)
+                    {
+#if UNITY_EDITOR
+                        Debug.LogWarningFormat("SetRequestDataFromCache Assetbundle is null request(url={0},assetName={1},assetType={2})  ", req.url, req.assetName, req.assetType);
+#endif
+                    }
                     else if (req.async)
                         req.assetBundleRequest = abundle.LoadAssetAsync(req.assetName, assetType);
                     else
@@ -300,16 +316,17 @@ namespace Hugula.Loader
             if (req.allDependencies == null || req.allDependencies.Length == 0) return true;
 
             int[] denps = req.allDependencies;
-			CacheData cache = null;
+            CacheData cache = null;
 
             for (int i = 0; i < denps.Length; i++)
             {
-				if(caches.TryGetValue(denps[i],out cache))
-				{
-					if (!cache.isAssetLoaded)
-						return false;
-				}else
-					return false;
+                if (caches.TryGetValue(denps[i], out cache))
+                {
+                    if (!cache.isAssetLoaded)
+                        return false;
+                }
+                else
+                    return false;
             }
 
             return true;
@@ -336,9 +353,10 @@ namespace Hugula.Loader
         }
 
         #region check type
-		public static readonly Type Typeof_String = typeof(System.String);
-		public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
-		public static readonly Type Typeof_AssetBundle = typeof(AssetBundle);
+        public static readonly Type Typeof_String = typeof(System.String);
+        public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
+        public static readonly Type Typeof_AssetBundle = typeof(AssetBundle);
+        public static readonly Type Typeof_ABScene = typeof(AssetBundleScene);
 
         #endregion
     }

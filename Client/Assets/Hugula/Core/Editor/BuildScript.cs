@@ -315,30 +315,32 @@ public class BuildScript
     {
         Object[] selection = Selection.objects;
 
-        AssetImporter import = null;
         foreach (Object s in selection)
         {
-            import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
-            string md5Name = s.name.ToLower();
-            if (isMd5)
-            {
-                md5Name = CryptographHelper.Md5String(s.name.ToLower());
-            }
+            SetAssetBundlesName(s);
+        }
+    }
+    public static void SetAssetBundlesName(Object s)
+    {
+        AssetImporter import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
+        string md5Name = s.name.ToLower();
+        if (isMd5)
+        {
+            md5Name = CryptographHelper.Md5String(s.name.ToLower());
+        }
 
-            import.assetBundleName = md5Name + "." + Common.ASSETBUNDLE_SUFFIX;
-            if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-            Debug.Log(s.name);
-            if (s is GameObject)
+        import.assetBundleName = md5Name + "." + Common.ASSETBUNDLE_SUFFIX;
+        if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
+        Debug.Log(s.name);
+        if (s is GameObject)
+        {
+            GameObject tar = s as GameObject;
+            ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
+            if (refe != null)
             {
-                GameObject tar = s as GameObject;
-                ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                if (refe != null)
-                {
-                    refe.assetBundleName = md5Name;
-                    EditorUtility.SetDirty(s);
-                }
+                refe.assetBundleName = md5Name;
+                EditorUtility.SetDirty(s);
             }
-
         }
     }
 

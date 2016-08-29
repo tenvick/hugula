@@ -4,6 +4,7 @@
 --  author pu
 ------------------------------------------------
 require("core.loader")
+require_bytes = SluaCMD.require_bytes
 json = require "lib.json"
 
 local Hugula = Hugula
@@ -23,7 +24,7 @@ local Download = Hugula.Update.Download
 local CrcCheck = Hugula.Update.CrcCheck
 local UriGroup = Hugula.Loader.UriGroup
 local Loader = Loader
-
+local require_bytes = require_bytes
 ResVersion = {code=1,crc32=0}
 
 local _progressbar_txt;
@@ -158,10 +159,10 @@ local function load_server_file_list() --版本差异化对比
 	 	FileHelper.SavePersistentFile(bytes,CUtils.GetFileName(UPDATED_TEMP_LIST_NAME)) --保存server端临时文件
 	 	local ab = LuaHelper.LoadFromMemory(bytes)
 	 	local text_asset = ab:LoadAllAssets(UnityEngine.TextAsset)[1]
-		PLua.instance:SetRequire("_file1",text_asset)
+
+		server_file= require_bytes(text_asset)
 		ab:Unload(true) --释放ab
-		-- Loader:clear(req.key)
-		server_file=require("_file1")
+
 		add_crc(server_file) --加入验证列表
 		local old_list_context = FileHelper.ReadPersistentFile(DOWANLOAD_TEMP_FILE) --读取上次加载未完成列表
 		local old_list = {}
@@ -255,8 +256,7 @@ local function load_local_file_list()
 
 	step.on_persistent_comp=function( req )
 		local text_asset = req.data
-		PLua.instance:SetRequire("_crc32",text_asset)
-		local_file = require("_crc32")
+		local_file = require_bytes(text_asset)
 		print(" persistent crc32 file list")
 		print(local_file)
 		add_crc(local_file)
@@ -273,6 +273,7 @@ local function load_local_file_list()
 		set_progress_txt("读取本地校验文件。")
 		local crc = CrcCheck.GetCrc(update_list_crc_key)
 		print("persistent update file list"..tostring(crc))
+	
 		local group = UriGroup()
 		group:Add(CUtils.GetRealPersistentDataPath())
 		group:SetCrcIndex(0)
@@ -371,7 +372,6 @@ local function init_frist()
 
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
 	_progressbar_txt = LuaHelper.GetComponentInChildren(ui_logo,"UnityEngine.UI.Text")	
-
 	set_progress_txt("初始化...")
 
 	compare_local_version()

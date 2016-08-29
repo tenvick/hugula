@@ -24,7 +24,8 @@ welcome.assets=
 local content_rect_table --内容列表
 local eg_data = {
 	{title="俄罗斯方块",name="tetris"},
-	{title="（大数据）滚动列表",name="scroll_rect_table"}
+	{title="（大数据）滚动列表",name="scroll_rect_table"},
+	{title="动态加载场景",name="load_scene"}
 }
 ------------------public------------------
 -- 资源加载完成时候调用方法

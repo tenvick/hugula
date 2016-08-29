@@ -15,4 +15,4 @@ LuaItemManager:register_item_object("alert_tips","game/alert_tips",true)
 LuaItemManager:register_item_object("welcome","game/welcome",false)
 LuaItemManager:register_item_object("tetris","game/tetris",false)
 LuaItemManager:register_item_object("scroll_rect_table","game/scroll_rect_table",false)
-
+LuaItemManager:register_item_object("load_scene","game/load_scene",false)

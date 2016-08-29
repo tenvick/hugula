@@ -56,7 +56,6 @@ namespace Hugula.Loader
             this.priority = 0;
             this.index = 0;
             this._keyHashCode = 0;
-            maxTimes = 2;
 
             this._uris = null;
             this.data = null;
@@ -69,6 +68,7 @@ namespace Hugula.Loader
 
             async = true;
             pool = false;
+            isAdditive = false;
             isShared = false;
             clearCacheOnComplete = false;
 
@@ -330,9 +330,9 @@ namespace Hugula.Loader
         }
 
         /// <summary>
-        /// The max try uri times.
+        /// 场景加载追加模式
         /// </summary>
-        public int maxTimes = 2;
+        public bool isAdditive = false;
 
         /// <summary>
         /// dependencies count;
@@ -342,7 +342,7 @@ namespace Hugula.Loader
         /// <summary>
         /// 异步请求的ab
         /// </summary>
-        internal AssetBundleRequest assetBundleRequest;
+        internal AsyncOperation assetBundleRequest;
 
         /// <summary>
         /// 加载完成后清理缓存

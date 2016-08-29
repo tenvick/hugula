@@ -15,6 +15,7 @@ using Lua = SLua.LuaSvr;
 using Hugula.Utils;
 using Hugula.Cryptograph;
 using Hugula.Update;
+using LuaInterface;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -53,15 +54,11 @@ namespace Hugula
 #endif
 
         public Lua lua;
-        private static Dictionary<string, byte[]> luacache;
+        private static Dictionary<string, TextAsset> luacache;
         private Coroutine loadLocalCoroutine;
         private Coroutine loadPersistentCoroutine;
-        #region priveta
         private string luaMain = "";
-
         private LuaFunction _updateFn;
-
-        #endregion
 
         #region mono
 
@@ -77,7 +74,7 @@ namespace Hugula
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
-            luacache = new Dictionary<string, byte[]>();
+            luacache = new Dictionary<string, TextAsset>();
             lua = new Lua();
             _instance = this;
             LoadScript();
@@ -119,6 +116,8 @@ namespace Hugula
         }
         #endregion
 
+        #region private method
+
         private void SetLuaPath()
         {
             this.luaMain = "return require(\"" + enterLua + "\") \n";
@@ -138,9 +137,10 @@ namespace Hugula
         /// lua bundle
         /// </summary>
         /// <returns></returns>
-        private IEnumerator LoadLuaBundle(string luaPath, LuaFunction onLoadedFn)
+        private IEnumerator DecryptLuaBundle(string luaPath, bool isStreaming, LuaFunction onLoadedFn)
         {
             luaPath = CUtils.CheckWWWUrl(luaPath);
+            Debug.Log("loadluabundle:" + luaPath);
             WWW luaLoader = new WWW(luaPath);
             yield return luaLoader;
             if (luaLoader.error == null)
@@ -158,7 +158,7 @@ namespace Hugula
                     SetRequire(ass.name, ass);
                 }
 
-                item.Unload(true);
+                item.Unload(false);
                 luaLoader.Dispose();
             }
             else
@@ -173,23 +173,11 @@ namespace Hugula
 
         }
 
-        #region public
-
-        public void SetRequire(string key, Array bytes)
-        {
-            var bytearr = (byte[])bytes;
-            luacache[key] = bytearr;
-        }
-
-        public void SetRequire(string key, TextAsset textAsset)
-        {
-            luacache[key] = textAsset.bytes;
-        }
 
         /// <summary>
         /// lua begin
         /// </summary>
-        public void DoMain()
+        private void DoMain()
         {
             lua.luaState.doString(this.luaMain);
         }
@@ -205,7 +193,7 @@ namespace Hugula
             if (!isDebug)
             {
                 if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
-                loadLocalCoroutine = StartCoroutine(LoadLuaBundle(luaPath, null));
+                loadLocalCoroutine = StartCoroutine(DecryptLuaBundle(luaPath, true, null));
             }
             else
             {
@@ -213,9 +201,13 @@ namespace Hugula
             }
 #else
             if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
-            loadLocalCoroutine = StartCoroutine(LoadLuaBundle(luaPath, null));
+            loadLocalCoroutine = StartCoroutine(DecryptLuaBundle(luaPath,true, null));
 #endif
         }
+
+        #endregion
+
+        #region public method
 
         /// <summary>
         /// load assetbundle
@@ -227,18 +219,41 @@ namespace Hugula
             if (CrcCheck.CheckLocalFileCrc(luaPath, out crc))
             {
                 if (loadPersistentCoroutine != null) StopCoroutine(loadPersistentCoroutine);
-                loadPersistentCoroutine = StartCoroutine(LoadLuaBundle(luaPath, onLoadedFn));
+                loadPersistentCoroutine = StartCoroutine(DecryptLuaBundle(luaPath, false, onLoadedFn));
             }
             else
             {
-				if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc="+crc.ToString()+" source_crc ="+CrcCheck.GetCrc(CUtils.GetKeyURLFileName(luaPath)));
+                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc=" + crc.ToString() + " source_crc =" + CrcCheck.GetCrc(CUtils.GetKeyURLFileName(luaPath)));
                 if (onLoadedFn != null) onLoadedFn.call();
             }
+        }
+
+        /// <summary>
+        /// ÉèÖÃrequire
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="textAsset"></param>
+        public void SetRequire(string key, TextAsset textAsset)
+        {
+            luacache[key] = textAsset;
         }
 
         #endregion
 
         #region toolMethod
+
+        /// <summary>
+        /// ´ÓabÖÐload bytes
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private byte[] LoadLuaBytes(string name)
+        {
+            byte[] ret = null;
+            if (luacache.ContainsKey(name))
+                ret = luacache[name].bytes;
+            return ret;
+        }
 
         private void RegisterFunc()
         {
@@ -250,7 +265,7 @@ namespace Hugula
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private static byte[] Loader(string name)
+        private byte[] Loader(string name)
         {
             byte[] str = null;
 #if UNITY_EDITOR
@@ -269,21 +284,13 @@ namespace Hugula
                 else
                 {
                     name = name.Replace('.', '_').Replace('/', '_');
-                    if (luacache.ContainsKey(name))
-                    {
-                        var bytes = luacache[name];
-                        str = bytes;
-                    }
+                    str = LoadLuaBytes(name);
                 }
             }
             else
             {
                 name = name.Replace('.', '_').Replace('/', '_');
-                if (luacache.ContainsKey(name))
-                {
-                    var bytes = luacache[name];
-                    str = bytes;
-                }
+                str = LoadLuaBytes(name);
             }
 #elif UNITY_STANDALONE
 
@@ -296,20 +303,12 @@ namespace Hugula
         else
         {
             name = name.Replace('.', '_').Replace('/', '_');
-            if (luacache.ContainsKey(name))
-            {
-                var bytes = luacache[name];
-                str = bytes;
-            }
+            str = LoadLuaBytes(name);
         }
 
 #else
 		name = name.Replace('.','_').Replace('/','_'); 
-        if(luacache.ContainsKey(name))
-        {
-	        var bytes = luacache[name];
-	        str = bytes;
-        }
+        str = LoadLuaBytes(name);
 #endif
             return str;
         }

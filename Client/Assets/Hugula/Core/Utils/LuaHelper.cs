@@ -256,7 +256,7 @@ namespace Hugula.Utils
 
         public static Component AddComponent(GameObject obj, string className)
         {
-			System.Type t = GetClassType(className);
+            System.Type t = GetClassType(className);
             return AddComponent(obj, t);
         }
 
@@ -288,7 +288,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component[] GetComponents(GameObject obj, string classname)
         {
-			System.Type t = GetClassType(classname);
+            System.Type t = GetClassType(classname);
             return GetComponents(obj, t);
         }
 
@@ -307,7 +307,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static Component[] GetComponentsInChildren(GameObject obj, string classname)
         {
-			System.Type t = GetClassType(classname);
+            System.Type t = GetClassType(classname);
             return GetComponentsInChildren(obj, t);
         }
 
@@ -365,15 +365,15 @@ namespace Hugula.Utils
             return null;
         }
 
-//        /// <summary>
-//        /// 得到类型
-//        /// </summary>
-//        /// <param name="obj"></param>
-//        /// <returns></returns>
-//        public static System.Type GetType(object obj)
-//        {
-//            return obj.GetType();
-//        }
+        //        /// <summary>
+        //        /// 得到类型
+        //        /// </summary>
+        //        /// <param name="obj"></param>
+        //        /// <returns></returns>
+        //        public static System.Type GetType(object obj)
+        //        {
+        //            return obj.GetType();
+        //        }
 
         /// <summary>
         /// 刷新shader
@@ -529,7 +529,7 @@ namespace Hugula.Utils
                     else
                         dir = AnimationDirection.Forward;
                 }
-                
+
                 if (dir == AnimationDirection.Reverse && state.time == 0f)
                 {
                     state.time = state.length;
@@ -551,6 +551,19 @@ namespace Hugula.Utils
         {
             if (fn != null) fn.Dispose();
         }
+
+        /// <summary>
+        /// 卸载场景
+        /// </summary>
+        /// <param name="scenename"></param>
+        public static void UnloadScene(string sceneName)
+        {
+#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+            Application.UnloadLevel(sceneName);
+#else
+            UnityEngine.SceneManagement.SceneManager.UnloadScene(sceneName);
+#endif
+        }
     }
 
 }
@@ -564,3 +577,12 @@ public enum AnimationDirection
     Forward = 1,
 }
 //}
+
+/// <summary>
+/// 用来加载场景的type类型
+/// </summary>
+[SLua.CustomLuaClass]
+public class AssetBundleScene
+{
+
+}

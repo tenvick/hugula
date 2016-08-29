@@ -11,7 +11,6 @@ local Asset = Asset
 local StateManager = StateManager
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 local LRequestPool = Hugula.Loader.LRequestPool --内存池
---local SetReqDataFromData=toluacs.CHighway.SetReqDataFromData
 
 local AssetLoader=class(function(self,lua_obj)
 	self.lua_obj=lua_obj
@@ -20,6 +19,26 @@ local AssetLoader=class(function(self,lua_obj)
 	self._load_count = 0
 	self._load_curr = 0
 end)
+
+local function create_request(v,on_req_loaded,on_err)
+	local r = LRequestPool.Get()--Request(v.full_url)
+	r.relativeUrl = v.full_url
+	r.onCompleteFn = on_req_loaded
+	r.onEndFn = on_err
+	r.head = v
+	r.async = true
+
+	if v:is_a(Asset) then
+		r.assetName = v.key
+	else
+		print("load scene ",v.scene_name)
+		r.assetName = v.scene_name
+		r.isAdditive = v.is_additive
+		r.assetType = AssetBundleScene --加载场景类型
+	end
+
+	return r
+end
 
 function AssetLoader:on_asset_loaded(key,asset)
 	self.assets[key]=asset
@@ -62,24 +81,29 @@ function AssetLoader:load_assets(assets)
 
 	local on_req_loaded=function(req)
 		local ass = req.head
-		local base_asset=Asset(ass.url)
-		base_asset.base = true
 		local key = ass.key 
+		print("on_req_loaded ",key)
+		if ass:is_a(Asset) then
+			local base_asset=Asset(ass.url)
+			base_asset.base = true
 
-		if (GAMEOBJECT_ATLAS[key]~=nil) then
-			base_asset=GAMEOBJECT_ATLAS[key]
-		else
-			local main=req.data 
-			local root=LuaHelper.Instantiate(main)
-			root.name=main.name
-			base_asset.root=root
-			local eachFn =function(i,obj)
-				base_asset.items[obj.name]=obj
+			if (GAMEOBJECT_ATLAS[key]~=nil) then
+				base_asset=GAMEOBJECT_ATLAS[key]
+			else
+				local main=req.data 
+				local root=LuaHelper.Instantiate(main)
+				root.name=main.name
+				base_asset.root=root
+				local eachFn =function(i,obj)
+					base_asset.items[obj.name]=obj
+				end
+				LuaHelper.ForeachChild(root,eachFn)
+				GAMEOBJECT_ATLAS[key]=base_asset
 			end
-			LuaHelper.ForeachChild(root,eachFn)
-			GAMEOBJECT_ATLAS[key]=base_asset
+			base_asset:copy_to(ass)
+		else
+			ass.root = ass
 		end
-		base_asset:copy_to(ass)
 		self:on_asset_loaded(key,ass)
 	end
 
@@ -91,19 +115,12 @@ function AssetLoader:load_assets(assets)
 
 	for k,v in ipairs(assets) do
 		key = v.key 
-		local asst=GAMEOBJECT_ATLAS[key]
+		local asst=GAMEOBJECT_ATLAS[key] print(key,asst)
 		if asst then
 			asst:copy_to(v)
-			--asst:show()
 			self:on_asset_loaded(key,v)
 		else
-			local r = LRequestPool.Get()--Request(v.full_url)
-			r.relativeUrl = v.full_url
-			r.onCompleteFn = on_req_loaded
-			r.onEndFn = on_err
-			r.head = v
-			r.async = true
-			r.assetName = v.key
+			local r = create_request(v,on_req_loaded,on_err)
 			table.insert(reqs,r)
 		end
 	end
@@ -132,7 +149,7 @@ end
 function clear_assets()
 	for k,v in pairs(GAMEOBJECT_ATLAS) do
 		-- print(k.." is Destroy ")
-		if v then LuaHelper.Destroy(v.root) end
+		if v then v:dispose() end
 	end
 	GAMEOBJECT_ATLAS={}
 end

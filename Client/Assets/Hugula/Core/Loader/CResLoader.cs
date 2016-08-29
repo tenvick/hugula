@@ -183,7 +183,10 @@ namespace Hugula.Loader
                 var item = loadingAssetQueue[i];
                 if (item.assetBundleRequest != null && item.assetBundleRequest.isDone) //如果加载完成
                 {
-                    item.data = item.assetBundleRequest.asset;//赋值
+                    if (item.assetBundleRequest is AssetBundleRequest)
+                        item.data = ((AssetBundleRequest)item.assetBundleRequest).asset;//赋值
+                    else
+                        item.data = item.assetBundleRequest;
 					#if HUGULA_LOADER_DEBUG
 					Debug.LogFormat(" 5. <color=yellow>set Req(assetname={0},url={1}).data asnyc frameCount{2}</color>",item.assetName,item.url,Time.frameCount);
 					#endif

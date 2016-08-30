@@ -12,7 +12,7 @@ Asset = class(function(self,url,names)
     self.url = url
     self.key = CUtils.GetKeyURLFileName(url)
     self.full_url = CUtils.GetFileName(url)
-   -- print(url)
+   print(url,self.full_url)
     self.names = names
     if names then 
     	local len =#names local name

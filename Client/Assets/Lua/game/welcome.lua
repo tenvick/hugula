@@ -25,7 +25,9 @@ local content_rect_table --内容列表
 local eg_data = {
 	{title="俄罗斯方块",name="tetris"},
 	{title="（大数据）滚动列表",name="scroll_rect_table"},
-	{title="动态加载场景",name="load_scene"}
+	{title="动态加载场景",name="load_scene"},
+	{title="扩展包资源加载",name="load_extends"}
+
 }
 ------------------public------------------
 -- 资源加载完成时候调用方法

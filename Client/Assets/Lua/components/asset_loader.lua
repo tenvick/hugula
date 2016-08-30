@@ -82,7 +82,7 @@ function AssetLoader:load_assets(assets)
 	local on_req_loaded=function(req)
 		local ass = req.head
 		local key = ass.key 
-		print("on_req_loaded ",key)
+
 		if ass:is_a(Asset) then
 			local base_asset=Asset(ass.url)
 			base_asset.base = true
@@ -115,7 +115,7 @@ function AssetLoader:load_assets(assets)
 
 	for k,v in ipairs(assets) do
 		key = v.key 
-		local asst=GAMEOBJECT_ATLAS[key] print(key,asst)
+		local asst=GAMEOBJECT_ATLAS[key] --print(key,asst)
 		if asst then
 			asst:copy_to(v)
 			self:on_asset_loaded(key,v)

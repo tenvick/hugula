@@ -125,10 +125,12 @@ function Loader:get_resource(...)
 end
 
 local function on_shared_complete(req)
-	local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
-	print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
+	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
+	-- print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
 	-- if deps.Length == 0 then
-	req.data:LoadAllAssets()
+	local ab = req.data
+	LuaHelper.RefreshShader(ab)
+	ab:LoadAllAssets()
 	-- end
 end
 

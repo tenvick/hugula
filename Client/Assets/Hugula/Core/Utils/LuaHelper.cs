@@ -540,19 +540,56 @@ namespace Hugula.Utils
                 }
 
                 state.speed = Mathf.Abs(speed) * (int)dir;
-                //Debug.Log(string.Format(" speed {0},dir ={1},time = {2},length={3},name={4}", state.speed, dir, state.time, state.length,name));
+
                 anim.Play(name);
                 anim.Sample();
             }
             return state;
         }
 
-        public static void ReleaseLuaFn(LuaFunction fn)
-        {
-            if (fn != null) fn.Dispose();
-        }
 
-        /// <summary>
+		/// <summary>
+		/// 播放动画片段
+		/// </summary>
+		/// <param name="anim"></param>
+		/// <param name="name"></param>
+		/// <param name="dir"></param>
+		/// <returns></returns>
+		public static AnimatorStateInfo PlayAnimator(Animator anim, string name, AnimationDirection dir)
+		{
+			
+			var state = anim.GetCurrentAnimatorStateInfo (0);
+			float speed = anim.GetFloat("speed");
+			float normalizedTime = 1;
+			if (dir == AnimationDirection.Toggle)
+			{
+				if (speed >= 0)
+					dir = AnimationDirection.Reverse;
+				else
+					dir = AnimationDirection.Forward;
+			}
+
+			if (dir == AnimationDirection.Reverse)
+			{
+				anim.SetFloat("speed", -1 * Mathf.Abs(speed));
+				normalizedTime = 1;
+			}
+			else if (dir == AnimationDirection.Forward )
+			{
+				anim.SetFloat("speed", Mathf.Abs(speed));
+				normalizedTime = 0;
+			}
+
+			if (!string.IsNullOrEmpty(name))
+				anim.Play(name,0,normalizedTime);
+			else
+				anim.Play (state.fullPathHash,0,normalizedTime);
+			
+			return state;
+		}
+
+
+		/// <summary>
         /// 卸载场景
         /// </summary>
         /// <param name="scenename"></param>
@@ -563,6 +600,12 @@ namespace Hugula.Utils
 #else
             UnityEngine.SceneManagement.SceneManager.UnloadScene(sceneName);
 #endif
+        }
+		
+		
+        public static void ReleaseLuaFn(LuaFunction fn)
+        {
+            if (fn != null) fn.Dispose();
         }
     }
 

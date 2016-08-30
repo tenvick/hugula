@@ -18,10 +18,18 @@ namespace Hugula.Loader
     public class CResLoader : MonoBehaviour
     {
         #region public static
+		static int _maxLoading = 4;
         /// <summary>
         /// 最大同时加载数量
         /// </summary>
-        public static int maxLoading = 2;
+        public static int maxLoading 
+		{
+			get{ return _maxLoading; }
+			set{ 
+				_maxLoading = value;
+				CreateFreeLoader ();
+			}
+		}
 
         /// <summary>
         /// 即将加载的总数

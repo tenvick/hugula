@@ -297,29 +297,31 @@ namespace Hugula.Utils
 #else
 
             if (string.IsNullOrEmpty(fileName)) return string.Empty;
-            string re = "";
             string fname = "";
 
             int len = fileName.Length - 1;
             char[] arr = fileName.ToCharArray();
-            while (len >= 0 && arr[len] != '/' && arr[len] != '\\')
-                len = len - 1;
-
-
-            re = fileName.Substring(len + 1);
-            int last = re.LastIndexOf(".");
-            if (last == -1)
+            int lastFileIndex = -1;
+            int lastDotIndex = -1;
+            int lastQueIndex = -1;
+            int l = len;
+            char cha;
+            while (l >= 0)
             {
-                last = re.Length;
-                fname = CryptographHelper.Md5String(re.Substring(0, last));
-            }
-            else
-            {
-                fname = CryptographHelper.Md5String(re.Substring(0, last));
-                string end = re.Substring(last, re.Length - last);
-                fname = fname + end;
-            }
+                cha = arr[l];
+                if ((cha == '/' || cha == '\\') && lastFileIndex == -1) lastFileIndex = l;
+                if (cha == '.') lastDotIndex = l;
+                if (cha == '?') lastQueIndex = l;
 
+                l = l - 1;
+            }
+            if (lastQueIndex == -1) lastQueIndex = len+1;
+            if (lastDotIndex == -1) lastDotIndex = lastQueIndex;
+            int endDt = lastQueIndex - lastDotIndex;
+            int crypLen = lastDotIndex - lastFileIndex -1;
+            if (lastFileIndex > 0) fname = fileName.Substring(0, lastFileIndex + 1);
+            fname += CryptographHelper.Md5String(fileName.Substring(lastFileIndex + 1, crypLen)); 
+            if (endDt > 0)fname += fileName.Substring(lastDotIndex, endDt); 
             return fname;
 #endif
         }

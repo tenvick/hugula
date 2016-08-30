@@ -10,7 +10,7 @@ using Hugula;
 public class AssetbundlesMenuItems
 {
 
-	#region unity5 AssetBundles export
+    #region unity5 AssetBundles export
 
     //[MenuItem("Assets/AssetBundles/Build AssetBundles", false, 2)]
     [MenuItem("AssetBundles/Build AssetBundles &b", false, 1)]
@@ -28,26 +28,25 @@ public class AssetbundlesMenuItems
             && !(path.EndsWith(".cs"))
             ).ToArray();
 
-		BuildScript.UpdateAssetBundlesName (allAssets);
+        BuildScript.UpdateAssetBundlesName(allAssets);
     }
 
-	[MenuItem("AssetBundles/Generate/AssetBundle Md5Mapping ", false, 5)]
-	static public void GenerateAssetBundlesMd5Mapping()
-	{
-		var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
-			(path.StartsWith("Assets/CustomerResource")
-				|| path.StartsWith("Assets/TapEnjoy"))
-			&& !(path.EndsWith(".cs"))
-		).ToArray();
-		BuildScript.GenerateAssetBundlesMd5Mapping (allAssets);
-	}
+    [MenuItem("AssetBundles/Generate/AssetBundle Md5Mapping ", false, 5)]
+    static public void GenerateAssetBundlesMd5Mapping()
+    {
+        var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+            (path.StartsWith("Assets/CustomerResource")
+                || path.StartsWith("Assets/TapEnjoy"))
+            && !(path.EndsWith(".cs"))
+        ).ToArray();
+        BuildScript.GenerateAssetBundlesMd5Mapping(allAssets);
+    }
 
-	[MenuItem("AssetBundles/Generate/AssetBundle Update File ", false, 6)]
+    [MenuItem("AssetBundles/Generate/AssetBundle Update File ", false, 6)]
     static public void GenerateAssetBundlesUpdate()
     {
-		ExportResources.buildAssetBundlesUpdateAB ();
+        ExportResources.buildAssetBundlesUpdateAB();
     }
-
 
     [MenuItem("AssetBundles/", false, 11)]
     static void Breaker_AssetBundles() { }
@@ -56,7 +55,7 @@ public class AssetbundlesMenuItems
     [MenuItem("Assets/AssetBundles/Set AssetBundle Name", false, 1)]
     static public void SetAssetBundlesName()
     {
-		BuildScript.SetAssetBundlesName ();
+        BuildScript.SetAssetBundlesName();
     }
 
     [MenuItem("Assets/AssetBundles/Set AssetBundle Variants And Name", false, 2)]
@@ -65,29 +64,43 @@ public class AssetbundlesMenuItems
         BuildScript.SetAssetBundlesVariantsAndName();
     }
 
-    [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 3)]
+    [MenuItem("Assets/AssetBundles/Set Extends Floder", false, 3)]
+    static public void SetExtendsFloder()
+    {
+        BuildScript.SetAsExtendsFloder();
+    }
+
+    [MenuItem("Assets/AssetBundles/Clear Extends Floder", false, 5)]
+    static public void ClearExtendsFloder()
+    {
+        BuildScript.ClearExtendsFloder();
+    }
+
+    [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 7)]
     static public void ClearAssetBundlesName()
     {
-		BuildScript.ClearAssetBundlesName ();
+        BuildScript.ClearAssetBundlesName();
     }
 
-    [MenuItem("Assets/AssetBundles/Clear UnUsed AssetBundle Name", false, 3)]
+    [MenuItem("Assets/AssetBundles/Clear UnUsed AssetBundle Name", false, 8)]
     static public void ClearUnUsedAssetBundlesName()
     {
-		BuildScript.ClearUnUsedAssetBundlesName ();
+        BuildScript.ClearUnUsedAssetBundlesName();
     }
 
-	[MenuItem("Assets/AssetBundles/Update Selected AssetBundle Name", false, 4)]
-	static public void UpdateSelectedAssetBundleNames()
-	{
-		Object[] selection = Selection.objects;
-		List<string> allAssetPaths = new List<string> ();
-		foreach (Object s in selection) {
-			allAssetPaths.Add(AssetDatabase.GetAssetPath (s));
-		}
+    [MenuItem("Assets/AssetBundles/Update Selected AssetBundle Name", false, 10)]
+    static public void UpdateSelectedAssetBundleNames()
+    {
+        Object[] selection = Selection.objects;
+        List<string> allAssetPaths = new List<string>();
+        foreach (Object s in selection)
+        {
+            allAssetPaths.Add(AssetDatabase.GetAssetPath(s));
+        }
 
-		BuildScript.UpdateAssetBundlesName (allAssetPaths.ToArray());
-	}
+        BuildScript.UpdateAssetBundlesName(allAssetPaths.ToArray());
+    }
+
 
     #endregion
 
@@ -107,7 +120,7 @@ public class AssetbundlesMenuItems
         ExportResources.exportConfig();
     }
 
-//    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
+    //    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
     public static void exportLanguage()
     {
         ExportResources.exportLanguage();
@@ -133,7 +146,7 @@ public class AssetbundlesMenuItems
         PLua.isDebug = !PLua.isDebug;
     }
 
-    [MenuItem(kDebugLuaAssetBundlesMenu, true,1)]
+    [MenuItem(kDebugLuaAssetBundlesMenu, true, 1)]
     public static bool ToggleSimulateAssetBundleValidate()
     {
         Menu.SetChecked(kDebugLuaAssetBundlesMenu, PLua.isDebug);

@@ -21,7 +21,7 @@ public class BuildScript
     #region 配置变量
     public const string streamingPath = "Assets/StreamingAssets";//打包assetbundle输出目录。
     public const string TmpPath = "Tmp/";
-
+    public const string HugulaFolder = "HugulaFolder";
     public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
 #if UNITY_IPHONE
 	public const BuildTarget target=BuildTarget.iOS;
@@ -329,6 +329,7 @@ public class BuildScript
         {
             apath = AssetDatabase.GetAssetPath(s);
             string[] myFolderNames;
+            string folder = GetLabelsByPath(apath);
             AssetImporter import = AssetImporter.GetAtPath(apath);
             myFolderNames = s.name.ToLower().Split('-');
             if (myFolderNames.Length == 2)
@@ -345,22 +346,26 @@ public class BuildScript
             }
             else
             {
-                Debug.LogWarningFormat("{0} file name not contains -xx", apath);
+                Debug.LogWarningFormat("{0} file name not like floderName-xx", apath);
             }
         }
     }
 
     public static void SetAssetBundlesName(Object s)
     {
-        AssetImporter import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
-        //bool isScene = import.assetPath.EndsWith(".unity");
+        string abPath = AssetDatabase.GetAssetPath(s);
+        AssetImporter import = AssetImporter.GetAtPath(abPath);
+        string folder = GetLabelsByPath(abPath);
         string md5Name = s.name.ToLower();
         if (isMd5)
         {
             md5Name = CryptographHelper.Md5String(s.name.ToLower());
         }
+        if(string.IsNullOrEmpty(folder))
+            import.assetBundleName = md5Name + "." + Common.ASSETBUNDLE_SUFFIX;
+        else
+            import.assetBundleName = string.Format("{0}/{1}.{2}",folder,md5Name,Common.ASSETBUNDLE_SUFFIX);
 
-        import.assetBundleName = md5Name + "." + Common.ASSETBUNDLE_SUFFIX;
         if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
         Debug.Log(s.name);
         if (s is GameObject)
@@ -453,6 +458,59 @@ public class BuildScript
         Debug.Log(info + " Complete!");
     }
 
+    /// <summary>
+    /// 设置为扩展包路径文件夹
+    /// </summary>
+    public static void SetAsExtendsFloder()
+    {
+        Object[] selection = Selection.objects;
+        string apath = null;
+        foreach (Object s in selection)
+        {
+            if (s is DefaultAsset)
+            {
+                apath = AssetDatabase.GetAssetPath(s);
+                AssetImporter import = AssetImporter.GetAtPath(apath);
+                import.assetBundleName = null;
+                //import.assetBundleVariant = null;
+                import.userData = HugulaFolder;
+                AssetDatabase.SetLabels(s, new string[] { HugulaFolder });
+                import.SaveAndReimport();
+                Debug.LogFormat("{0},AssetLabels={2},path ={1}", s.name, apath, HugulaFolder);
+                if (!HugulaSetting.instance.AssetLabels.Contains(apath))
+                {
+                    HugulaSetting.instance.AssetLabels.Add(apath);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 清理扩展文件夹
+    /// </summary>
+    public static void ClearExtendsFloder()
+    {
+        Object[] selection = Selection.objects;
+        string apath = null;
+        foreach (Object s in selection)
+        {
+            if (s is DefaultAsset)
+            {
+                apath = AssetDatabase.GetAssetPath(s);
+                AssetImporter import = AssetImporter.GetAtPath(apath);
+                import.userData = null;
+                import.assetBundleName = null;
+                //import.assetBundleVariant = null;
+                AssetDatabase.SetLabels(s, null);
+                import.SaveAndReimport();
+                Debug.LogFormat("{0},Clear AssetLabels,path ={1}", s.name, apath);
+                if (HugulaSetting.instance.AssetLabels.Contains(apath))
+                {
+                    HugulaSetting.instance.AssetLabels.Remove(apath);
+                }
+            }
+        }
+    }
     #endregion
 
 
@@ -529,6 +587,20 @@ public class BuildScript
             string re = string.Format("{0}/{1}", obj.parent.name, obj.name);
             return GetGameObjectPathInScene(obj.transform.parent, re);
         }
+    }
+
+    static public string GetLabelsByPath(string abPath)
+    {
+        string folder = null; 
+        var allLabels = HugulaSetting.instance.AssetLabels;
+        foreach (var labelPath in allLabels)
+        {
+            if (abPath.StartsWith(labelPath))
+            {
+                folder = CUtils.GetKeyURLFileName(labelPath).ToLower();
+            }
+        }
+        return folder;
     }
 
     #endregion

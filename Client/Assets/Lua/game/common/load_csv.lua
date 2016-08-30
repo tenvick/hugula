@@ -5,6 +5,7 @@
 ------------------------------------------------
 local CUtils=CUtils
 local FileHelper=FileHelper   --luanet.import_type("FileHelper")
+local Common = Hugula.Utils.Common
 local Loader = Loader
 local Model = Model
 local json = json
@@ -68,7 +69,7 @@ local function load_comp(req)
 end
 
 local function load_config_zip()
-    Loader:get_resource("font1.u3d",nil,"UnityEngine.AssetBundle",load_comp)
+    Loader:get_resource(Common.CONFIG_CSV_NAME,nil,UnityEngine.AssetBundle,load_comp)
 end
 
 load_config_zip()

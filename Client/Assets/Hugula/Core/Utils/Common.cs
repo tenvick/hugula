@@ -35,22 +35,22 @@ namespace Hugula.Utils
         /// <summary>
         /// 
         /// </summary>
-        public const string LUA_ASSETBUNDLE_FILENAME = "font.u3d";
+        public const string LUA_ASSETBUNDLE_FILENAME = "lua.u3d";
 
         /// <summary>
         /// crc32 file list
         /// </summary>
-        public const string CRC32_FILELIST_NAME = "crc32_file.u3d";
+        public const string CRC32_FILELIST_NAME = "file_crc32.u3d";
 
         /// <summary>
         /// 
         /// </summary>
-        public const string CRC32_VER_FILENAME = "crc32_ver.u3d";
+        public const string CRC32_VER_FILENAME = "ver.u3d";
 
        /// <summary>
        ///  配置
        /// </summary>
-        public const string CONFIG_CSV_NAME = "font1.u3d";
+        public const string CONFIG_CSV_NAME = "config.u3d";
 
         /// <summary>
         /// 语言包目录

@@ -66,17 +66,23 @@ namespace Hugula.Utils
             return cut;
         }
 
-        public static string GetURLFullFileName(string url)
+        /// <summary>
+        /// µÃµ½urlµÄassetbundleName
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string GetAssetBundleName(string url)
         {
             if (string.IsNullOrEmpty(url)) return string.Empty;
-            string re = "";
-            int len = url.Length - 1;
-            char[] arr = url.ToCharArray();
-            while (len >= 0 && arr[len] != '/' && arr[len] != '\\')
-                len = len - 1;
-
-            re = url.Substring(len + 1);
-            return re;
+            int idx = url.IndexOf('?');
+            if (idx == -1)
+                return url;
+            else
+            {
+                string re = string.Empty;
+                re = url.Substring(0, idx);
+                return re;
+            }
         }
 
         /// <summary>

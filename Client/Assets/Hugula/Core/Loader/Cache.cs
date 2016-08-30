@@ -273,8 +273,6 @@ namespace Hugula.Loader
                 }
                 else if (assetType.Equals(Typeof_ABScene))
                 {
-                    //AsyncOperation
-                    Debug.Log(abundle);
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
                      if (req.isAdditive)
                     req.assetBundleRequest = Application.LoadLevelAdditiveAsync(req.assetName);

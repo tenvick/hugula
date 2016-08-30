@@ -137,7 +137,7 @@ namespace Hugula.Loader
             get
             {
                 if (string.IsNullOrEmpty(_assetBundleName))
-                    _assetBundleName = CUtils.GetURLFullFileName(relativeUrl);
+                    _assetBundleName = CUtils.GetAssetBundleName(relativeUrl);
                 return _assetBundleName;
             }
             set

@@ -642,30 +642,24 @@ namespace Hugula.Loader
         /// </summary>
         public static AssetBundleManifest assetBundleManifest;
 
-        static string[] m_Variants = { };
+        static string[] _activeVariants = { };
 
         /// <summary>
         ///  Variants which is used to define the active variants.
         /// </summary>
-        public static string[] Variants
+        public static string[] ActiveVariants
         {
-            get { return m_Variants; }
-            set { m_Variants = value; }
+            get { return _activeVariants; }
+            set { _activeVariants = value; }
         }
-        /// <summary>
-        ///  Remaps the asset bundle name to the best fitting asset bundle variant.
-        /// </summary>
-        /// <param name="assetBundleName"></param>
-        /// <returns></returns>
-        public static string RemapVariantName(string assetBundleName)
+
+        // Remaps the asset bundle name to the best fitting asset bundle variant.
+        static protected string RemapVariantName(string assetBundleName)
         {
-            string[] bundlesWithVariant = assetBundleManifest.GetAllDependencies(assetBundleName); //.GetAllAssetBundlesWithVariant();
+            string[] bundlesWithVariant = assetBundleManifest.GetAllAssetBundlesWithVariant();
 
-            // If the asset bundle doesn't have variant, simply return.
-            if (System.Array.IndexOf(bundlesWithVariant, assetBundleName) < 0)
-                return assetBundleName;
-
-            string[] split = assetBundleName.Split('.');
+            // Get base bundle name
+            string baseName = assetBundleName.Split('.')[0];
 
             int bestFit = int.MaxValue;
             int bestFitIndex = -1;
@@ -673,21 +667,40 @@ namespace Hugula.Loader
             for (int i = 0; i < bundlesWithVariant.Length; i++)
             {
                 string[] curSplit = bundlesWithVariant[i].Split('.');
-                if (curSplit[0] != split[0])
+                string curBaseName = curSplit[0];
+                string curVariant = curSplit[1];
+
+                if (curBaseName != baseName)
                     continue;
 
-                int found = System.Array.IndexOf(m_Variants, curSplit[1]);
-                if (found != -1 && found < bestFit)
+                int found = System.Array.IndexOf(_activeVariants, curVariant);
+
+                // If there is no active variant found. We still want to use the first
+                if (found == -1)
+                    found = int.MaxValue - 1;
+
+                if (found < bestFit)
                 {
                     bestFit = found;
                     bestFitIndex = i;
                 }
             }
 
+            if (bestFit == int.MaxValue - 1)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning("Ambigious asset bundle variant chosen because there was no matching active variant: " + bundlesWithVariant[bestFitIndex]);
+#endif
+            }
+
             if (bestFitIndex != -1)
+            {
                 return bundlesWithVariant[bestFitIndex];
+            }
             else
+            {
                 return assetBundleName;
+            }
         }
 
         #endregion

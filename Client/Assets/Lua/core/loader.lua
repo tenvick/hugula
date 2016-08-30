@@ -125,8 +125,8 @@ function Loader:get_resource(...)
 end
 
 local function on_shared_complete(req)
-	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
-	-- print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
+	local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
+	print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
 	-- if deps.Length == 0 then
 	req.data:LoadAllAssets()
 	-- end
@@ -138,6 +138,10 @@ end
 
 function Loader:set_onprogress_fn(progFn)
 	self.multipleLoader.onProgressFn=progFn
+end
+
+function Loader:set_active_variants(vars)
+	LResLoader.ActiveVariants = vars --{"sd"}
 end
 
 function Loader:refresh_assetbundle_manifest(onReady)

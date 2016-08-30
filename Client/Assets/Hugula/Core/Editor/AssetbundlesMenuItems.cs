@@ -59,7 +59,13 @@ public class AssetbundlesMenuItems
 		BuildScript.SetAssetBundlesName ();
     }
 
-    [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 2)]
+    [MenuItem("Assets/AssetBundles/Set AssetBundle Variants And Name", false, 2)]
+    static public void SetAssetBundlesVariantsAndName()
+    {
+        BuildScript.SetAssetBundlesVariantsAndName();
+    }
+
+    [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 3)]
     static public void ClearAssetBundlesName()
     {
 		BuildScript.ClearAssetBundlesName ();

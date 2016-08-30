@@ -57,6 +57,7 @@ end
 function welcome:on_customer(obj,arg)
 	local cmd =obj.name
     print("welcome  click "..cmd)
+    Loader:set_active_variants({"sd"})
     StateManager:set_current_state(StateManager[cmd]) --切换到对应状态
 end
 

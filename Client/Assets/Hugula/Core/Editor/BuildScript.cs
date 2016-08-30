@@ -95,7 +95,7 @@ public class BuildScript
         #endregion
 
         #region 生成校验列表
-        Dictionary<string, uint> updateList = new Dictionary<string,uint>();
+        Dictionary<string, uint> updateList = new Dictionary<string, uint>();
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("return {");
 
@@ -115,7 +115,7 @@ public class BuildScript
             string key = CUtils.GetKeyURLFileName(str);
             if (!ignore.ContainsKey(key) && CrcCheck.CheckLocalFileWeakCrc(url, out outCrc) == false) //如果不一致需要更新
             {
-                updateList.Add(str,outCrc);//记录导出记录
+                updateList.Add(str, outCrc);//记录导出记录
                 sb.AppendLine("[\"" + key + "\"] = " + outCrc + ",");
             }
             EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
@@ -192,7 +192,7 @@ public class BuildScript
 
             if (!firstExists) updateList.Clear(); //如果没有首包，只导出校验文件。
 
-            updateList.Add(CUtils.GetFileName(Common.CRC32_VER_FILENAME),0);
+            updateList.Add(CUtils.GetFileName(Common.CRC32_VER_FILENAME), 0);
             updateList.Add(CUtils.GetFileName(Common.CRC32_FILELIST_NAME), crcVer);
 
             string sourcePath;
@@ -210,7 +210,7 @@ public class BuildScript
                 }
                 else
                 {
-                    key = key +"_"+k.Value.ToString()+ "." + Common.ASSETBUNDLE_SUFFIX;
+                    key = key + "_" + k.Value.ToString() + "." + Common.ASSETBUNDLE_SUFFIX;
                 }
                 outfilePath = Path.Combine(updateOutPath, key);
                 File.Copy(sourcePath, outfilePath, true);// source code copy
@@ -235,7 +235,7 @@ public class BuildScript
         string name = "";
         string nameMd5 = "";
         StringBuilder sb = new StringBuilder();
-		sb.AppendLine("return {");
+        sb.AppendLine("return {");
         foreach (string path in allAssets)
         {
             import = AssetImporter.GetAtPath(path);
@@ -245,7 +245,7 @@ public class BuildScript
                 name = s.name.ToLower();
                 nameMd5 = CryptographHelper.Md5String(name);
                 //				Debug.LogFormat("path({0}),nameMd5({1}),name({2})", path, nameMd5, name);
-				string line = "[\"" + nameMd5 + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                string line = "[\"" + nameMd5 + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
                 sb.AppendLine(line);
                 if (name.Contains(" ")) Debug.LogWarning(name + " contains space");
             }
@@ -263,16 +263,16 @@ public class BuildScript
         {
             name = CUtils.GetKeyURLFileName(p);
             nameMd5 = CryptographHelper.Md5String(name);
-			string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
+            string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
             sb.AppendLine(line);
         }
 
-		sb.AppendLine("}");
+        sb.AppendLine("}");
         string tmpPath = Path.Combine(Application.dataPath, TmpPath);
         ExportResources.CheckDirectory(tmpPath);
         EditorUtility.DisplayProgressBar("Generate AssetBundles Md5Mapping", "write file to Assets/" + TmpPath + "Md5Mapping.txt", 0.99f);
 
-		string outPath = Path.Combine(tmpPath, "md5mapping.txt");
+        string outPath = Path.Combine(tmpPath, "md5mapping.txt");
         Debug.Log("write to path=" + outPath);
         using (StreamWriter sr = new StreamWriter(outPath, false))
         {
@@ -320,9 +320,40 @@ public class BuildScript
             SetAssetBundlesName(s);
         }
     }
+
+    public static void SetAssetBundlesVariantsAndName()
+    {
+        Object[] selection = Selection.objects;
+        string apath = null;
+        foreach (Object s in selection)
+        {
+            apath = AssetDatabase.GetAssetPath(s);
+            string[] myFolderNames;
+            AssetImporter import = AssetImporter.GetAtPath(apath);
+            myFolderNames = s.name.ToLower().Split('-');
+            if (myFolderNames.Length == 2)
+            {
+                string md5Name = myFolderNames[0];
+                if (isMd5)
+                {
+                    md5Name = CryptographHelper.Md5String(md5Name);
+                }
+
+                import.assetBundleName = md5Name; //string.Format("{0}/{1}", md5Name, md5Name);
+                import.assetBundleVariant = myFolderNames[1];
+                EditorUtility.SetDirty(s);
+            }
+            else
+            {
+                Debug.LogWarningFormat("{0} file name not contains -xx", apath);
+            }
+        }
+    }
+
     public static void SetAssetBundlesName(Object s)
     {
         AssetImporter import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
+        //bool isScene = import.assetPath.EndsWith(".unity");
         string md5Name = s.name.ToLower();
         if (isMd5)
         {
@@ -341,6 +372,29 @@ public class BuildScript
                 refe.assetBundleName = md5Name;
                 EditorUtility.SetDirty(s);
             }
+        }
+        else if(s is SceneAsset) //如果是场景需要添加引用计数脚本
+        {//UnityEngine.SceneAsset
+            SceneAsset sce = s as SceneAsset;
+            Debug.Log(sce);
+            AssetDatabase.OpenAsset(sce);
+            GameObject gobj = GameObject.Find(sce.name);
+            if (gobj == null) gobj = new GameObject(sce.name);
+            ReferenceCount refe = LuaHelper.AddComponent(gobj, typeof(ReferenceCount)) as ReferenceCount;
+            if (refe != null)
+            {
+                refe.assetBundleName = md5Name;
+                EditorUtility.SetDirty(sce);
+            }
+
+           var refers = GameObject.FindObjectsOfType<ReferenceCount>();
+           foreach (var rf in refers)
+           {
+               if (rf != refe)
+               {
+                   Debug.LogWarningFormat("you should not add ReferenceCount in {0}", GetGameObjectPathInScene(rf.transform,string.Empty));
+               }
+           }
         }
     }
 
@@ -462,5 +516,20 @@ public class BuildScript
     {
         return target;
     }
+
+    static public string GetGameObjectPathInScene(Transform obj,string path)
+    {
+        if (obj.parent == null)
+        {
+            if (string.IsNullOrEmpty(path)) path = obj.name;
+            return path;//  +/+path
+        }
+        else
+        {
+            string re = string.Format("{0}/{1}", obj.parent.name, obj.name);
+            return GetGameObjectPathInScene(obj.transform.parent, re);
+        }
+    }
+
     #endregion
 }

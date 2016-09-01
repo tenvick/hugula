@@ -40,9 +40,9 @@ end
 function UIBlock:on_assets_load(items)
 	-- self.enable = true
 	print(" UIBlock .. onAssetsLoad...")
-	local asserts = self.luaObj.components.asset_loader.assets
-	startPanel = asserts.blockroot.items.StartPanel
-	endPanel = asserts.blockroot.items.EndPanel
+	local blockroot = self.luaObj.assets[1] --blockroot.u3d
+	startPanel = blockroot.items.StartPanel
+	endPanel = blockroot.items.EndPanel
 	startPanel:SetActive(true)
 	state = 1
 	block = self.luaObj.components.block

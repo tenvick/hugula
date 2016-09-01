@@ -1,5 +1,5 @@
 ﻿// Copyright (c) 2014 hugula
-// direct https://github.com/Hugulor/Hugula
+// direct https://github.com/tenvick/hugula
 //
 
 using System.Collections;
@@ -38,7 +38,7 @@ public class BuildScript
 #endif
 
 #if BUILD_COMMON_ASSETBUNDLE
-	public const bool isMd5 = false;
+    public const bool isMd5 = false;
 #else
     public const bool isMd5 = true;
 #endif
@@ -57,7 +57,7 @@ public class BuildScript
         DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
         string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, Common.FirstOutPath);
         string readPath = Path.Combine(firstPath, CUtils.GetAssetPath(""));
-        readPath = Path.Combine(readPath, CUtils.GetFileName(Common.CRC32_FILELIST_NAME));
+        readPath = Path.Combine(readPath, CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME));
         Debug.Log(readPath);
 
         WWW abload = new WWW("file://" + readPath);
@@ -69,7 +69,7 @@ public class BuildScript
             Debug.Log(ta);
             string context = ta.text;
             string[] split = context.Split('\n');
-            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\[""(\w+)""\]\s+=\s+(\d+)");
+            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\[""(.+)""\]\s+=\s+(\d+)");
             float j = 1;
             float l = split.Length;
             foreach (var line in split)
@@ -77,7 +77,7 @@ public class BuildScript
                 System.Text.RegularExpressions.Match match = regex.Match(line);
                 if (match.Success)
                 {
-                    //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
+                    Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
                     CrcCheck.Add(match.Groups[1].Value, System.Convert.ToUInt32(match.Groups[2].Value));
                 }
                 //Debug.Log(line);
@@ -105,17 +105,19 @@ public class BuildScript
 
         //忽略列表
         Dictionary<string, bool> ignore = new Dictionary<string, bool>();
-        ignore.Add(CUtils.GetFileName(CUtils.GetKeyURLFileName(Common.CRC32_FILELIST_NAME)), true);
-        ignore.Add(CUtils.GetFileName(CUtils.GetKeyURLFileName(Common.CRC32_VER_FILENAME)), true);
+        ignore.Add(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), true);
+        ignore.Add(CUtils.GetRightFileName(Common.CRC32_VER_FILENAME), true);
 
         foreach (var str in allBundles)
         {
             string url = Path.Combine(CUtils.GetRealStreamingAssetsPath(), str);
             uint outCrc = 0;
-            string key = CUtils.GetKeyURLFileName(str);
+            Debug.Log(str);
+            string abName = str.Replace("\\", "/");
+            string key = CUtils.GetAssetBundleName(abName);
             if (!ignore.ContainsKey(key) && CrcCheck.CheckLocalFileWeakCrc(url, out outCrc) == false) //如果不一致需要更新
             {
-                updateList.Add(str, outCrc);//记录导出记录
+                updateList.Add(abName, outCrc);//记录导出记录
                 sb.AppendLine("[\"" + key + "\"] = " + outCrc + ",");
             }
             EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
@@ -126,7 +128,7 @@ public class BuildScript
         CrcCheck.Clear();
 
         //输出到临时目录
-        var crc32filename = CUtils.GetKeyURLFileName(Common.CRC32_FILELIST_NAME);
+        var crc32filename = CUtils.GetAssetName(Common.CRC32_FILELIST_NAME);
         string tmpPath = Path.Combine(Application.dataPath, TmpPath);
         ExportResources.CheckDirectory(tmpPath);
         string assetPath = "Assets/" + TmpPath + crc32filename + ".txt";
@@ -141,7 +143,7 @@ public class BuildScript
         //
         //打包到streaming path
         AssetDatabase.Refresh();
-        string crc32outfilename = CUtils.GetFileName(Common.CRC32_FILELIST_NAME); //(fileCrc32ListName + ".u3d");
+        string crc32outfilename = CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME); //(fileCrc32ListName + ".u3d");
         BuildScript.BuildABs(new string[] { assetPath }, null, crc32outfilename, BuildAssetBundleOptions.DeterministicAssetBundle);
         string topath = Path.Combine(GetOutPutPath(), crc32outfilename);
         Debug.Log(info + " assetbunle build complate! " + topath);
@@ -150,7 +152,7 @@ public class BuildScript
 
         #region 生成版本号
         //生成版本号码
-        string crc32Path = "file://" + Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetFileName(Common.CRC32_FILELIST_NAME)); //CUtils.GetAssetFullPath (fileCrc32ListName+".u3d"); 
+        string crc32Path = "file://" + Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME)); //CUtils.GetAssetFullPath (fileCrc32ListName+".u3d"); 
         WWW loaderVer = new WWW(crc32Path);
         if (!string.IsNullOrEmpty(loaderVer.error))
         {
@@ -161,7 +163,7 @@ public class BuildScript
         loaderVer.Dispose();
 
         tmpPath = CUtils.GetRealStreamingAssetsPath();//Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath(""));
-        outPath = Path.Combine(tmpPath, CUtils.GetFileName(Common.CRC32_VER_FILENAME));
+        outPath = Path.Combine(tmpPath, CUtils.GetRightFileName(Common.CRC32_VER_FILENAME));
         Debug.Log("verion to path=" + outPath);
         //json 化version{ code,crc32,version}
         StringBuilder verJson = new StringBuilder();
@@ -185,15 +187,15 @@ public class BuildScript
         if (updateList.Count > 0)
         {
             info = "copy updated file ";
-            string updateOutPath = Path.Combine(firstPath, CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_hh-mm"));
+            string updateOutPath = Path.Combine(firstPath, CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm"));
             DirectoryInfo outDic = new DirectoryInfo(updateOutPath);
             if (outDic.Exists) outDic.Delete();
             outDic.Create();
 
             if (!firstExists) updateList.Clear(); //如果没有首包，只导出校验文件。
 
-            updateList.Add(CUtils.GetFileName(Common.CRC32_VER_FILENAME), 0);
-            updateList.Add(CUtils.GetFileName(Common.CRC32_FILELIST_NAME), crcVer);
+            updateList.Add(CUtils.GetRightFileName(Common.CRC32_VER_FILENAME), 0);
+            updateList.Add(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), crcVer);
 
             string sourcePath;
             string outfilePath;
@@ -202,17 +204,17 @@ public class BuildScript
             string key = "";
             foreach (var k in updateList)
             {
-                key = CUtils.GetKeyURLFileName(k.Key);
+                key = CUtils.GetAssetBundleName(k.Key);
                 sourcePath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), k.Key);
-                if (k.Value == 0)
+                if (k.Value != 0)
                 {
-                    key = key + "." + Common.ASSETBUNDLE_SUFFIX;
-                }
-                else
-                {
-                    key = key + "_" + k.Value.ToString() + "." + Common.ASSETBUNDLE_SUFFIX;
+                    if (key.Equals(CUtils.platformFloder))
+                        key = key + "_" + k.Value.ToString() + "." + Common.ASSETBUNDLE_SUFFIX;
+                    else
+                        key = CUtils.InsertAssetBundleName(key, "_" + k.Value.ToString());// 
                 }
                 outfilePath = Path.Combine(updateOutPath, key);
+                FileHelper.CheckCreateFilePathDirectory(outfilePath);
                 File.Copy(sourcePath, outfilePath, true);// source code copy
                 EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
                 i++;
@@ -243,9 +245,13 @@ public class BuildScript
             {
                 Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
                 name = s.name.ToLower();
-                nameMd5 = CryptographHelper.Md5String(name);
-                //				Debug.LogFormat("path({0}),nameMd5({1}),name({2})", path, nameMd5, name);
-                string line = "[\"" + nameMd5 + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+
+                string line = string.Empty;
+                if(string.IsNullOrEmpty(import.assetBundleVariant))
+                    line = "[\"" + import.assetBundleName + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                else
+                    line = "[\"" + import.assetBundleName + "." + import.assetBundleVariant + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+
                 sb.AppendLine(line);
                 if (name.Contains(" ")) Debug.LogWarning(name + " contains space");
             }
@@ -258,11 +264,11 @@ public class BuildScript
             i++;
         }
 
-        string[] spceil = new string[] { Common.LUA_ASSETBUNDLE_FILENAME, "iOS", "Android", "StandaloneWindows", Common.CONFIG_CSV_NAME, CUtils.GetKeyURLFileName(Common.CRC32_FILELIST_NAME), CUtils.GetKeyURLFileName(Common.CRC32_VER_FILENAME) };
+        string[] spceil = new string[] { Common.LUA_ASSETBUNDLE_FILENAME, CUtils.platform, Common.CONFIG_CSV_NAME, Common.CRC32_FILELIST_NAME, Common.CRC32_VER_FILENAME };
         foreach (string p in spceil)
         {
-            name = CUtils.GetKeyURLFileName(p);
-            nameMd5 = CryptographHelper.Md5String(name);
+            name = CUtils.GetAssetBundleName(p);
+            nameMd5 = CUtils.GetRightFileName(name);
             string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
             sb.AppendLine(line);
         }
@@ -321,6 +327,9 @@ public class BuildScript
         }
     }
 
+    /// <summary>
+    /// 设置变体
+    /// </summary>
     public static void SetAssetBundlesVariantsAndName()
     {
         Object[] selection = Selection.objects;
@@ -329,18 +338,18 @@ public class BuildScript
         {
             apath = AssetDatabase.GetAssetPath(s);
             string[] myFolderNames;
-            string folder = GetLabelsByPath(apath);
             AssetImporter import = AssetImporter.GetAtPath(apath);
             myFolderNames = s.name.ToLower().Split('-');
             if (myFolderNames.Length == 2)
             {
-                string md5Name = myFolderNames[0];
-                if (isMd5)
-                {
-                    md5Name = CryptographHelper.Md5String(md5Name);
-                }
+                string folder = GetLabelsByPath(apath);
+                string name = CUtils.GetRightFileName(myFolderNames[0]);
 
-                import.assetBundleName = md5Name; //string.Format("{0}/{1}", md5Name, md5Name);
+                if (string.IsNullOrEmpty(folder))
+                    import.assetBundleName = name;
+                else
+                    import.assetBundleName = string.Format("{0}/{1}", folder, name);
+
                 import.assetBundleVariant = myFolderNames[1];
                 EditorUtility.SetDirty(s);
             }
@@ -351,34 +360,35 @@ public class BuildScript
         }
     }
 
+    /// <summary>
+    /// 设置assetbundleName
+    /// </summary>
+    /// <param name="s"></param>
     public static void SetAssetBundlesName(Object s)
     {
         string abPath = AssetDatabase.GetAssetPath(s);
         AssetImporter import = AssetImporter.GetAtPath(abPath);
         string folder = GetLabelsByPath(abPath);
-        string md5Name = s.name.ToLower();
-        if (isMd5)
-        {
-            md5Name = CryptographHelper.Md5String(s.name.ToLower());
-        }
-        if(string.IsNullOrEmpty(folder))
-            import.assetBundleName = md5Name + "." + Common.ASSETBUNDLE_SUFFIX;
+        string name = CUtils.GetRightFileName(s.name.ToLower());
+
+        if (string.IsNullOrEmpty(folder))
+            import.assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
         else
-            import.assetBundleName = string.Format("{0}/{1}.{2}",folder,md5Name,Common.ASSETBUNDLE_SUFFIX);
+            import.assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
 
         if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-        Debug.Log(s.name);
+        Debug.Log(import.assetBundleName);
         if (s is GameObject)
         {
             GameObject tar = s as GameObject;
             ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
             if (refe != null)
             {
-                refe.assetBundleName = md5Name;
+                refe.assetBundleName = import.assetBundleName;
                 EditorUtility.SetDirty(s);
             }
         }
-        else if(s is SceneAsset) //如果是场景需要添加引用计数脚本
+        else if (s is SceneAsset) //如果是场景需要添加引用计数脚本
         {//UnityEngine.SceneAsset
             SceneAsset sce = s as SceneAsset;
             Debug.Log(sce);
@@ -388,18 +398,18 @@ public class BuildScript
             ReferenceCount refe = LuaHelper.AddComponent(gobj, typeof(ReferenceCount)) as ReferenceCount;
             if (refe != null)
             {
-                refe.assetBundleName = md5Name;
+                refe.assetBundleName = import.assetBundleName;
                 EditorUtility.SetDirty(sce);
             }
 
-           var refers = GameObject.FindObjectsOfType<ReferenceCount>();
-           foreach (var rf in refers)
-           {
-               if (rf != refe)
-               {
-                   Debug.LogWarningFormat("you should not add ReferenceCount in {0}", GetGameObjectPathInScene(rf.transform,string.Empty));
-               }
-           }
+            var refers = GameObject.FindObjectsOfType<ReferenceCount>();
+            foreach (var rf in refers)
+            {
+                if (rf != refe)
+                {
+                    Debug.LogWarningFormat("you should not add ReferenceCount in {0}", GetGameObjectPathInScene(rf.transform, string.Empty));
+                }
+            }
         }
     }
 
@@ -415,22 +425,42 @@ public class BuildScript
         float i = 0;
         float allLen = allAssets.Length;
         string name = "";
-        string nameMd5 = "";
+        string cacheAbName = "";
+        StringBuilder tipsInfo = new StringBuilder();
         foreach (string path in allAssets)
         {
             import = AssetImporter.GetAtPath(path);
             if (import != null && string.IsNullOrEmpty(import.assetBundleName) == false)
             {
+                string folder = GetLabelsByPath(path);
                 Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
                 name = s.name.ToLower();
-                if (isMd5)
-                    nameMd5 = CryptographHelper.Md5String(name);
+                if (string.IsNullOrEmpty(import.assetBundleVariant))
+                {
+                    name = CUtils.GetRightFileName(name);
+
+                    if (string.IsNullOrEmpty(folder))
+                        import.assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
+                    else
+                        import.assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
+
+                    cacheAbName = import.assetBundleName;
+                }
                 else
-                    nameMd5 = name;
+                {
+                    string[] names = name.Split('-');
+                    name = names[0];
+                    if (string.IsNullOrEmpty(folder))
+                        import.assetBundleName = CUtils.GetRightFileName(name);
+                    else
+                        import.assetBundleName = string.Format("{0}/{1}", folder, CUtils.GetRightFileName(name));
 
-                Debug.LogFormat("path({0}),assetBundleName({1}),name({2})", path, import.assetBundleName, name);
+                    import.assetBundleVariant = names[1];
 
-                import.assetBundleName = nameMd5 + "." + Common.ASSETBUNDLE_SUFFIX;
+                    cacheAbName = import.assetBundleName + "." + import.assetBundleVariant;
+                }
+
+                tipsInfo.AppendLine(cacheAbName + " path = " + path);
 
                 if (s is GameObject)
                 {
@@ -438,7 +468,7 @@ public class BuildScript
                     ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
                     if (refe != null)
                     {
-                        refe.assetBundleName = nameMd5;
+                        refe.assetBundleName = cacheAbName;
                         EditorUtility.SetDirty(s);
                     }
                 }
@@ -455,7 +485,7 @@ public class BuildScript
         }
 
         EditorUtility.ClearProgressBar();
-        Debug.Log(info + " Complete!");
+        Debug.Log(tipsInfo.ToString() + " Complete!");
     }
 
     /// <summary>
@@ -477,10 +507,11 @@ public class BuildScript
                 AssetDatabase.SetLabels(s, new string[] { HugulaFolder });
                 import.SaveAndReimport();
                 Debug.LogFormat("{0},AssetLabels={2},path ={1}", s.name, apath, HugulaFolder);
-                if (!HugulaSetting.instance.AssetLabels.Contains(apath))
+                if (!HugulaSettingEditor.instance.AssetLabels.Contains(apath))
                 {
-                    HugulaSetting.instance.AssetLabels.Add(apath);
+                    HugulaSettingEditor.instance.AssetLabels.Add(apath);
                 }
+                AssetDatabase.Refresh();
             }
         }
     }
@@ -504,17 +535,15 @@ public class BuildScript
                 AssetDatabase.SetLabels(s, null);
                 import.SaveAndReimport();
                 Debug.LogFormat("{0},Clear AssetLabels,path ={1}", s.name, apath);
-                if (HugulaSetting.instance.AssetLabels.Contains(apath))
+                if (HugulaSettingEditor.instance.AssetLabels.Contains(apath))
                 {
-                    HugulaSetting.instance.AssetLabels.Remove(apath);
+                    HugulaSettingEditor.instance.AssetLabels.Remove(apath);
                 }
             }
         }
     }
+
     #endregion
-
-
-
 
 
     #endregion
@@ -575,7 +604,7 @@ public class BuildScript
         return target;
     }
 
-    static public string GetGameObjectPathInScene(Transform obj,string path)
+    static public string GetGameObjectPathInScene(Transform obj, string path)
     {
         if (obj.parent == null)
         {
@@ -591,13 +620,13 @@ public class BuildScript
 
     static public string GetLabelsByPath(string abPath)
     {
-        string folder = null; 
-        var allLabels = HugulaSetting.instance.AssetLabels;
+        string folder = null;
+        var allLabels = HugulaSettingEditor.instance.AssetLabels;
         foreach (var labelPath in allLabels)
         {
             if (abPath.StartsWith(labelPath))
             {
-                folder = CUtils.GetKeyURLFileName(labelPath).ToLower();
+                folder = CUtils.GetAssetName(labelPath).ToLower();
             }
         }
         return folder;

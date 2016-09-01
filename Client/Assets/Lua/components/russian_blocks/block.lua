@@ -295,30 +295,30 @@ function Block:on_assets_load(items)
 	
 	blockManager = self.luaObj.components.block_manager
 
-	local asserts = self.luaObj.components.asset_loader.assets
-	self.gameObject=asserts.blockroot.items.Blocks
-	local root = asserts.blockroot.root
+	local blockroot = self.luaObj.assets[1]
+	self.gameObject=blockroot.items.Blocks
+	local root = blockroot.root
 	preBlocks=self.gameObject
 	preBlocks:SetActive(true)
 	preRefs = LuaHelper.GetComponent(preBlocks,"Hugula.ReferGameObjects")
 	blocks=LuaHelper.InstantiateLocal(preBlocks,root)
 	refs = LuaHelper.GetComponent(blocks,"Hugula.ReferGameObjects")
 	blocks = blocks.transform
-	startPoint=asserts.blockroot.items.BeginPoint.transform-- StartPoint.transform
-	local bottom=asserts.blockroot.items.Bottom --.transform.localPosition.y
-	blockBoxTrans = asserts.blockroot.items.BlockBox --.transform
+	startPoint=blockroot.items.BeginPoint.transform-- StartPoint.transform
+	local bottom=blockroot.items.Bottom --.transform.localPosition.y
+	blockBoxTrans = blockroot.items.BlockBox --.transform
 	preBlocks:SetActive(false)
 	blocks.localPosition =Vector3(10000,10000,10000)
 
-	scorelabel = LuaHelper.GetComponent(asserts.blockroot.items.ScoreLabel,"UnityEngine.UI.Text")
-	cutDownLabel = LuaHelper.GetComponentInChildren(asserts.blockroot.items.CutDownBg,"UnityEngine.UI.Text")
+	scorelabel = LuaHelper.GetComponent(blockroot.items.ScoreLabel,"UnityEngine.UI.Text")
+	cutDownLabel = LuaHelper.GetComponentInChildren(blockroot.items.CutDownBg,"UnityEngine.UI.Text")
 	cutDownLabel.text = "00:00:00"
 	scorelabel.text = ""
 	self:setScore(0,10,0)
 
 	--
-	startPanel = asserts.blockroot.items.StartPanel
-	endPanel = asserts.blockroot.items.EndPanel
+	startPanel = blockroot.items.StartPanel
+	endPanel = blockroot.items.EndPanel
 	startPanel:SetActive(true)
 	local function onItem(i,obj)
 		print(obj.name)
@@ -330,11 +330,11 @@ function Block:on_assets_load(items)
 	end
 	LuaHelper.ForeachChild(endPanel,onItem)
 	--for debug
-	-- DebugRoot = asserts.blockroot.items.Debug
-	-- DebugItem = asserts.blockroot.items.DebugBlock
+	-- DebugRoot = blockroot.items.Debug
+	-- DebugItem = blockroot.items.DebugBlock
 	--
-	inputCenter = asserts.blockroot.items.Input
-	-- local Camera = asserts.blockroot.items.Camera
+	inputCenter = blockroot.items.Input
+	-- local Camera = blockroot.items.Camera
 	-- local camera = LuaHelper.GetComponent(Camera,"Camera")
 	-- local screenp=camera:WorldToScreenPoint(inputCenter.transform.position)
 	-- print(string.format("screen pos = %s",screenp))

@@ -243,7 +243,7 @@ namespace Hugula.Loader
                 if (value == null)
                     _key = null;
                 else
-                    _key = CUtils.GetKeyURLFileName(relativeUrl);
+                    _key = CUtils.GetAssetBundleName(relativeUrl);
             }
         }
 
@@ -288,7 +288,7 @@ namespace Hugula.Loader
                 if (value == null)
                     _udKey = null;
                 else
-                    _udKey = CUtils.GetUDKey(uri, relativeUrl);
+                    _udKey = CUtils.GetUDKey(url);
             }
         }
 

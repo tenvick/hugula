@@ -100,7 +100,7 @@ namespace Hugula.Update
             fileCrc = 0;
             if (path.StartsWith(Common.HTTP_STRING)) return true;
 
-            string crcKey = CUtils.GetKeyURLFileName(path);
+            string crcKey = CUtils.GetAssetBundleName(path);
             bool ck = false;
             uint sourceCrc = 0;
 
@@ -115,7 +115,7 @@ namespace Hugula.Update
                 }
                 else
                 {
-                    string key = CUtils.GetUDKey("", path);
+                    string key = CUtils.GetUDKey(path);
                     uint checkedCrc;
                     if (crcFileChecked.TryGetValue(key, out checkedCrc) && checkedCrc != 0) //如果存在
                     {
@@ -139,7 +139,7 @@ namespace Hugula.Update
                     }
                     ck = sourceCrc == fileCrc;//校验
                 }
-                //Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
+                Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
             }
             else
             {
@@ -159,7 +159,7 @@ namespace Hugula.Update
         public static bool CheckLocalFileWeakCrc(string path, out uint fileCrc)
         {
 
-            string crcKey = CUtils.GetKeyURLFileName(path);
+            string crcKey = CUtils.GetAssetBundleName(path);
             bool ck = false;
             uint sourceCrc = 0;
             fileCrc = GetLocalFileCrc(path);//读取文件crc
@@ -183,33 +183,41 @@ namespace Hugula.Update
         public static uint GetLocalFileCrc(string path)
         {
             uint crc = 0;
-
-            FileInfo finfo = new FileInfo(path);
-            if (finfo.Exists)
+            try
             {
-                using (FileStream fileStream = finfo.OpenRead())
+                FileInfo finfo = new FileInfo(path);
+                if (finfo.Exists)
                 {
-                    byte[] array;
-                    int num = 0;
-                    long length = fileStream.Length;
-                    int i = (int)length;
-                    //if (length > 2147483647L)
-                    //{
-                    //    length = 2147483647L;
-                    //}
-                    array = new byte[i];
-                    while (i > 0)
+                    using (FileStream fileStream = finfo.OpenRead())
                     {
-                        int num2 = fileStream.Read(array, num, i);
-                        if (num2 == 0)
+                        byte[] array;
+                        int num = 0;
+                        long length = fileStream.Length;
+                        int i = (int)length;
+                        //if (length > 2147483647L)
+                        //{
+                        //    length = 2147483647L;
+                        //}
+                        array = new byte[i];
+                        while (i > 0)
                         {
-                            break;
+                            int num2 = fileStream.Read(array, num, i);
+                            if (num2 == 0)
+                            {
+                                break;
+                            }
+                            num += num2;
+                            i -= num2;
                         }
-                        num += num2;
-                        i -= num2;
+                        crc = Crc32.Compute(array);
                     }
-                    crc = Crc32.Compute(array);
                 }
+            }
+            catch (System.Exception e)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning(e);
+#endif
             }
 
             return crc;

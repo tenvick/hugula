@@ -59,19 +59,14 @@ end
 function welcome:on_customer(obj,arg)
 	local cmd =obj.name
     print("welcome  click "..cmd)
-    Loader:set_active_variants({"sd"})
+    Loader:set_active_variants({"hd"})
+    print("set hd 2016/9/1")
     StateManager:set_current_state(StateManager[cmd]) --切换到对应状态
 end
 
 --点击事件
 function welcome:on_click(obj,arg)
 	
-end
-
-
---显示时候调用
-function welcome:onShowed( ... )
-
 end
 
 --初始化函数只会调用一次

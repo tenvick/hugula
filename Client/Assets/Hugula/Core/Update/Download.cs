@@ -112,7 +112,7 @@ namespace Hugula.Update
         /// <param name="path"></param>
         public void Load(string url, string path)
         {
-            string key = CUtils.GetUDKey("", url);
+            string key = CUtils.GetUDKey(url);
             if (downloadings.ContainsKey(key))
                 return;
 
@@ -131,7 +131,7 @@ namespace Hugula.Update
         /// <returns></returns>
         bool CheckLoad(ReqInfo req)
         {
-            string key = CUtils.GetUDKey("", req.url);
+            string key = CUtils.GetUDKey(req.url);
 
             if (downloadings.ContainsKey(key)) return true;
 
@@ -143,6 +143,7 @@ namespace Hugula.Update
                 string path = outputPath + req.saveName;
                 //Debug.LogFormat(" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
                 freedownload.isFree = false;
+                FileHelper.CheckCreateFilePathDirectory(path);//检测存储文件夹是否存在
                 freedownload.DownloadFileAsync(url, path, req);
                 return true;
             }
@@ -196,7 +197,7 @@ namespace Hugula.Update
             webd.isFree = true;
             ReqInfo req = (ReqInfo)e.UserState;
 
-            string key = CUtils.GetUDKey("", req.url);
+            string key = CUtils.GetUDKey(req.url);
             downloadings.Remove(key);
 
             if (e.Error == null)

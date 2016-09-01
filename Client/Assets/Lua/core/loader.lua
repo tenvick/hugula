@@ -20,16 +20,15 @@ local function dispatch_complete(req)
 end
 
 local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
-	local key = CUtils.GetKeyURLFileName(url) --获取key
-	if assetName == nil then assetName = key end
-	url = CUtils.GetFileName(url) --判断加密
+	if assetName == nil then assetName = CUtils.GetAssetName(url) end
+	url = CUtils.GetRightFileName(url) --判断加密
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
 	req.relativeUrl = url
 	req.assetName = assetName
 	if type(assetType)=="string" then 
 		assetType = LuaHelper.GetClassType(assetType) 
 	end
-
+	--print("create_req_url6 url=",url,"assetName=",assetName)
 	if assetType ~= nil then req.assetType = assetType end
 	
 	if compFn then req.onCompleteFn=compFn end

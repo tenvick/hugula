@@ -1,18 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
+using Hugula;
 
 /// <summary>
-/// 本地设置
+/// 
 /// </summary>
-public class HugulaSetting : ScriptableObject
-{
-    /// <summary>
-    /// 列表
-    /// </summary>
-    public List<string> AssetLabels = new List<string>();
+public class HugulaSettingEditor  {
 
-    public const string SettingPath = "Assets/Hugula/Core/Hugula.asset";
+	public const string SettingPath = "Assets/Config/Hugula.asset";
 
     private static HugulaSetting _instance = null;
 
@@ -25,7 +21,8 @@ public class HugulaSetting : ScriptableObject
                 _instance = AssetDatabase.LoadAssetAtPath<HugulaSetting>(SettingPath);
                 if (_instance == null)
                 {
-                    _instance = HugulaSetting.CreateInstance<HugulaSetting>();
+                    _instance = ScriptableObject.CreateInstance<HugulaSetting>();
+                    _instance.AssetLabels = new List<string>();
                     AssetDatabase.CreateAsset(_instance, SettingPath);
                 }
             }

@@ -11,17 +11,17 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 AssetScene = class(function(self,url,scene_name,is_additive)
 	self.base = false
     self.url = url
-    self.key = CUtils.GetKeyURLFileName(url)
+    self.key = CUtils.GetAssetBundleName(url)
     self.is_additive = is_additive --(LoadSceneMode.Single,LoadSceneMode.Additive)
     self.scene_name = scene_name
-    self.full_url = CUtils.GetFileName(url)
+    self.full_url = CUtils.GetRightFileName(url)
     self.root = nil
 end)
 
 --清理引用
 function AssetScene:clear()
 	self.root = nil
-	print("clear ",self.scene_name)
+	-- print("clear ",self.scene_name)
 end
 
 --消耗
@@ -33,7 +33,7 @@ end
 
 function AssetScene:show(...)
 	self.root = self
-	print("scene show "..self.scene_name)
+	-- print("scene show "..self.scene_name)
 end
 
 function AssetScene:hide(...)

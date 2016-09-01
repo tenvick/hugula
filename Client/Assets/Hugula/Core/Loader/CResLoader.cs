@@ -18,7 +18,7 @@ namespace Hugula.Loader
     public class CResLoader : MonoBehaviour
     {
         #region public static
-		static int _maxLoading = 4;
+		static int _maxLoading = 2;
         /// <summary>
         /// 最大同时加载数量
         /// </summary>
@@ -598,7 +598,7 @@ namespace Hugula.Loader
             {
 				depAbName = deps [i];
 				dep_url = RemapVariantName(depAbName);
-                keyhash = LuaHelper.StringToHash(CUtils.GetKeyURLFileName(dep_url));
+                keyhash = LuaHelper.StringToHash(dep_url);
                 hashs[i] = keyhash;
 				if (CacheManager.Contains (keyhash)) {
 					CountMananger.Add (keyhash); //引用数量加1
@@ -616,7 +616,7 @@ namespace Hugula.Loader
 						{
 							depAbName = depds [i1];
 							dep_url = RemapVariantName(depAbName);
-							keyhash = LuaHelper.StringToHash(CUtils.GetKeyURLFileName(dep_url));
+							keyhash = LuaHelper.StringToHash(dep_url);
 							hash1s[i1] = keyhash;
 						}
 						item.allDependencies = hash1s;

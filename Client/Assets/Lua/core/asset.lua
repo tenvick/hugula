@@ -10,9 +10,9 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 Asset = class(function(self,url,names)
     self.base = false
     self.url = url
-    self.key = CUtils.GetKeyURLFileName(url)
-    self.full_url = CUtils.GetFileName(url)
-   print(url,self.full_url)
+    self.key = CUtils.GetAssetBundleName(url) --以assetbundle name为key
+    self.full_url = CUtils.GetRightFileName(url)
+   -- print("Asset url=",url,"full_url=",self.full_url,"abName=",self.key)
     self.names = names
     if names then 
     	local len =#names local name

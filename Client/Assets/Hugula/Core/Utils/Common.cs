@@ -17,7 +17,6 @@ namespace Hugula.Utils
         /// <summary>
         /// export assetbundle suffix
         /// </summary>
-        [SLua.DoNotToLua]
         public const string ASSETBUNDLE_SUFFIX = "u3d";
 
         /// <summary>

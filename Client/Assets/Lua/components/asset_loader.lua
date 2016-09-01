@@ -29,9 +29,9 @@ local function create_request(v,on_req_loaded,on_err)
 	r.async = true
 
 	if v:is_a(Asset) then
-		r.assetName = v.key
+		r.assetName = CUtils.GetAssetName(v.url)
 	else
-		print("load scene ",v.scene_name)
+		-- print("load scene ",v.scene_name)
 		r.assetName = v.scene_name
 		r.isAdditive = v.is_additive
 		r.assetType = AssetBundleScene --加载场景类型
@@ -90,6 +90,7 @@ function AssetLoader:load_assets(assets)
 			if (GAMEOBJECT_ATLAS[key]~=nil) then
 				base_asset=GAMEOBJECT_ATLAS[key]
 			else
+				-- print("on_req_loaded assetName=",req.assetName,"key=",req.key,req.assetBundleName)
 				local main=req.data 
 				local root=LuaHelper.Instantiate(main)
 				root.name=main.name

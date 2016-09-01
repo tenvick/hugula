@@ -160,5 +160,15 @@ namespace Hugula.Utils
                 }
             }
         }
+
+        /// <summary>
+        /// 检测文件路径文件夹是否存在
+        /// </summary>
+        /// <param name="filePath"></param>
+        public static void CheckCreateFilePathDirectory(string filePath)
+        {
+            FileInfo finfo = new FileInfo(filePath);
+            if (!finfo.Directory.Exists) finfo.Directory.Create();
+        }
     }
 }

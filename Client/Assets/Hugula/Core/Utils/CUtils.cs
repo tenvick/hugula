@@ -10,12 +10,11 @@ using Hugula.Loader;
 namespace Hugula.Utils
 {
     [SLua.CustomLuaClass]
-    public class CUtils
+    public static class CUtils
     {
 
-
         /// <summary>
-        /// Gets the name of the URL file.
+        /// Gets the assetname of the URL file.
         /// </summary>
         /// <returns>
         /// The URL file name.
@@ -23,66 +22,37 @@ namespace Hugula.Utils
         /// <param name='url'>
         /// URL.
         /// </param>
-        public static string GetURLFileName(string url)
+        public static string GetAssetName(string url)
         {
             if (string.IsNullOrEmpty(url)) return string.Empty;
-            string re = "";
-            int len = url.Length - 1;
-            char[] arr = url.ToCharArray();
-            while (len >= 0 && arr[len] != '/' && arr[len] != '\\')
-                len = len - 1;
-            //int sub = (url.Length - 1) - len;
-            //int end=url.Length-sub;
-
-            re = url.Substring(len + 1);
-            int last = re.LastIndexOf(".");
-            if (last == -1) last = re.Length;
-            string cut = re.Substring(0, last);
-            return cut;
+            string fname = "";
+            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            fname = url.Substring(lastFileIndex + 1, fileLen);
+            return fname;
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static string GetKeyURLFileName(string url)
-        {
-            //Debug.Log(url);
-            if (string.IsNullOrEmpty(url)) return string.Empty;
-            string re = "";
-            int len = url.Length - 1;
-            char[] arr = url.ToCharArray();
-            while (len >= 0 && arr[len] != '/' && arr[len] != '\\')
-                len = len - 1;
-            //int sub = (url.Length - 1) - len;
-            //int end=url.Length-sub;
-
-            re = url.Substring(len + 1);
-            int last = re.LastIndexOf(".");
-            if (last == -1) last = re.Length;
-            string cut = re.Substring(0, last);
-            cut = cut.Replace('.', '_');
-            return cut;
-        }
-
-        /// <summary>
-        /// 得到url的assetbundleName
+        /// AssetBundleName
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
         public static string GetAssetBundleName(string url)
         {
             if (string.IsNullOrEmpty(url)) return string.Empty;
-            int idx = url.IndexOf('?');
-            if (idx == -1)
-                return url;
+            int idxEnd = url.IndexOf('?');
+            int idxBegin = url.IndexOf(platformFloder);// 更新目录
+
+            if (idxBegin == -1)
+                idxBegin = 0;
             else
-            {
-                string re = string.Empty;
-                re = url.Substring(0, idx);
-                return re;
-            }
+                idxBegin = idxBegin + platformFloder.Length + 1;
+
+            if (idxBegin >= url.Length) idxBegin = 0;
+            if (idxEnd == -1) idxEnd = url.Length;
+
+            string re = url.Substring(idxBegin, idxEnd - idxBegin);
+            return re;
         }
 
         /// <summary>
@@ -98,6 +68,7 @@ namespace Hugula.Utils
             }
             return url;
         }
+        
         /// <summary>
         /// Gets the file full path for www
         /// form Application.dataPath
@@ -108,6 +79,7 @@ namespace Hugula.Utils
         /// <param name='absolutePath'>
         /// Absolute path.
         /// </param>
+        [System.Obsolete("即将删除此方法")]
         public static string GetFileFullPath(string absolutePath)
         {
             string path = "";
@@ -130,9 +102,10 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
+        [System.Obsolete("即将删除此方法")]
         public static string GetAssetFullPath(string assetPath)
         {
-            string name = GetFileName(assetPath);
+            string name = GetRightFileName(assetPath);
             string path = GetFileFullPath(GetAssetPath(name));
             return path;
         }
@@ -142,6 +115,7 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
+        [System.Obsolete("即将删除此方法")]
         public static string GetAssetOriginalFullPath(string assetPath)
         {
             string path = GetFileFullPath(GetAssetPath(assetPath));
@@ -149,76 +123,40 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// Gets the URI.
+        /// 
         /// </summary>
-        /// <returns>The URI.</returns>
-        /// <param name="uris">Uris.</param>
-        /// <param name="index">Index.</param>
-        //public static string GetUri(string[] uris, int index)
-        //{
-        //    string uri = "";
-        //    if (uris.Length > index && index >= 0)
-        //    {
-        //        uri = uris[index];
-        //    }
-        //    return uri;
-        //}
-
+        /// <param name="assetbundleName"></param>
+        /// <param name="insert"></param>
+        /// <returns></returns>
+        public static string InsertAssetBundleName(string assetbundleName, string insert)
+        {
+            int fileIndex, fileLen, dotIndex, suffixLen;
+            AnalysePathName(assetbundleName, out fileIndex, out fileLen, out dotIndex, out suffixLen);
+            string fname = string.Empty;
+            if (fileIndex > 0) fname = assetbundleName.Substring(0, fileIndex + 1);
+            fname += assetbundleName.Substring(fileIndex + 1, fileLen) + insert;
+            if (suffixLen > 0) fname += assetbundleName.Substring(dotIndex, suffixLen);
+            return fname;
+        }
         /// <summary>
         /// Gets the UD key.
         /// </summary>
         /// <returns>The UD key.</returns>
-        /// <param name="uri">URI.</param>
-        /// <param name="relativeUrl">Relative URL.</param>
-        public static string GetUDKey(string uri, string relativeUrl)
+        /// <param name="url">url.</param>
+        public static string GetUDKey(string url)
         {
-            string url = Path.Combine(uri, relativeUrl);
             string udKey = CryptographHelper.CrypfString(url);
             return udKey;
         }
 
-        /// <summary>
-        /// Sets the request URI.
-        /// </summary>
-        /// <returns><c>true</c>, if request URI was set, <c>false</c> otherwise.</returns>
-        /// <param name="req">Req.</param>
-        /// <param name="index">Index.</param>
-        //public static bool SetRequestUri(CRequest req, int index)
-        //{
-        //    string uri = GetUri(req.uris, index);
-        //    if (!string.IsNullOrEmpty(uri))
-        //    {
-        //        req.index = index;
-        //        req.uri = uri;
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// 判断第0个资源是否存在
-        ///// </summary>
-        ///// <returns><c>true</c>, if exists was check0ed, <c>false</c> otherwise.</returns>
-        ///// <param name="req">Req.</param>
-        //public static void CheckUri0Exists(CRequest req)
-        //{
-        //    if (req.index == 0 && !req.url.StartsWith(Common.HTTP_STRING) && !File.Exists(req.url))
-        //    { //如果没有更新
-        //        SetRequestUri(req, 1);
-        //    }
-        //}
-
-
         public static string GetRealStreamingAssetsPath()
         {
-            string path = Path.Combine(Application.streamingAssetsPath, GetAssetPath(""));
-            return path;
+            return realStreamingAssetsPath;
         }
 
         public static string GetRealPersistentDataPath()
         {
-            string path = Path.Combine(Application.persistentDataPath, GetAssetPath(""));
-            return path;
+            return realPersistentDataPath;
         }
 
         /// <summary>
@@ -228,28 +166,9 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetAssetPath(string name)
         {
-            string Platform = "";
-#if UNITY_IOS
-			Platform="iOS";
-#elif UNITY_ANDROID
-            Platform = "Android";
-#elif UNITY_WEBPLAYER
-            Platform ="WebPlayer";
-#elif UNITY_WP8
-			Platform="WP8Player";
-#elif UNITY_METRO
-            Platform = "MetroPlayer";
-#elif UNITY_OSX || UNITY_STANDALONE_OSX
-		    Platform = "StandaloneOSXIntel";
-#else
-            Platform = "StandaloneWindows";
-#endif
-
-#if BUILD_COMMON_ASSETBUNDLE 
-            string path = Path.Combine(Platform, name);
-#else
-            string path = Path.Combine(CryptographHelper.Md5String(Platform), name);
-#endif
+            string path = platformFloder;
+            if (!string.IsNullOrEmpty(name))
+                path = Path.Combine(platformFloder, name);
             return path;
         }
 
@@ -259,30 +178,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetPlatformFolderForAssetBundles()
         {
-            string manifest = string.Empty;
-#if UNITY_IOS
-			manifest = "iOS";
-#elif UNITY_ANDROID
-            manifest = "Android";
-#elif UNITY_WEBPLAYER
-            manifest = "WebPlayer";
-#elif UNITY_WP8
-			manifest = "WP8Player";
-#elif UNITY_METRO
-            manifest = "MetroPlayer";
-#elif UNITY_OSX 
-		    manifest = "OSX";
-#elif UNITY_STANDALONE_OSX
-		    manifest =  "StandaloneOSXIntel";
-#else
-            manifest = "StandaloneWindows";
-#endif
-            //#if BUILD_COMMON_ASSETBUNDLE 
-            return manifest;
-            //#else
-            //			return CryptographHelper.Md5String(manifest);
-            //#endif
-
+            return platform;
         }
 
         /// <summary>
@@ -290,40 +186,22 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static string GetFileName(string fileName)
+        public static string GetRightFileName(string fileName)
         {
-#if BUILD_COMMON_ASSETBUNDLE 
-        return fileName;
-#else
-
             if (string.IsNullOrEmpty(fileName)) return string.Empty;
-            string fname = "";
+            string fname = string.Empty;
 
-            int len = fileName.Length - 1;
-            char[] arr = fileName.ToCharArray();
-            int lastFileIndex = -1;
-            int lastDotIndex = -1;
-            int lastQueIndex = -1;
-            int l = len;
-            char cha;
-            while (l >= 0)
-            {
-                cha = arr[l];
-                if ((cha == '/' || cha == '\\') && lastFileIndex == -1) lastFileIndex = l;
-                if (cha == '.') lastDotIndex = l;
-                if (cha == '?') lastQueIndex = l;
-
-                l = l - 1;
-            }
-            if (lastQueIndex == -1) lastQueIndex = len+1;
-            if (lastDotIndex == -1) lastDotIndex = lastQueIndex;
-            int endDt = lastQueIndex - lastDotIndex;
-            int crypLen = lastDotIndex - lastFileIndex -1;
+            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
             if (lastFileIndex > 0) fname = fileName.Substring(0, lastFileIndex + 1);
-            fname += CryptographHelper.Md5String(fileName.Substring(lastFileIndex + 1, crypLen)); 
-            if (endDt > 0)fname += fileName.Substring(lastDotIndex, endDt); 
-            return fname;
+
+#if BUILD_COMMON_ASSETBUNDLE
+            fname += fileName.Substring(lastFileIndex + 1, fileLen);
+#else
+            fname += CryptographHelper.Md5String(fileName.Substring(lastFileIndex + 1, fileLen)); 
 #endif
+            if (suffixLen > 0) fname += fileName.Substring(lastDotIndex, suffixLen);
+            return fname;
         }
 
         public static bool currPersistentExist = false;
@@ -338,5 +216,110 @@ namespace Hugula.Utils
             System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));
             return (int)(time - startTime).TotalSeconds;
         }
+
+
+        #region private
+
+        /// <summary>
+        /// 分析文件路径
+        /// </summary>
+        /// <param name="pathName"></param>
+        /// <param name="fileIndex"></param>
+        /// <param name="fileLen"></param>
+        /// <param name="dotIndex"></param>
+        /// <param name="suffixLen"></param>
+        internal static void AnalysePathName(string pathName, out int fileIndex, out int fileLen, out int dotIndex, out int suffixLen)
+        {
+            int len = pathName.Length - 1;
+            char[] arr = pathName.ToCharArray();
+            fileIndex = -1;//文件名不带路径位置
+            dotIndex = -1;//最后一个点位置
+            int questIndex = -1;//最后一个？号位置
+
+            int l = len;
+            char cha;
+            while (l >= 0)
+            {
+                cha = arr[l];
+                if ((cha == '/' || cha == '\\') && fileIndex == -1) fileIndex = l;
+                if (cha == '.') dotIndex = l;
+                if (cha == '?') questIndex = l;
+
+                l = l - 1;
+            }
+            if (questIndex == -1) questIndex = len + 1;
+            if (dotIndex == -1) dotIndex = questIndex;
+            suffixLen = questIndex - dotIndex;
+            fileLen = dotIndex - fileIndex - 1;
+        }
+        #endregion
+
+        #region Platform info
+#if UNITY_IOS
+		public const string platform="ios";
+#elif UNITY_ANDROID
+        public const string platform = "android";
+#elif UNITY_WEBPLAYER
+        public const string platform ="webplayer";
+#elif UNITY_WP8
+		public const string platform="wp8player";
+#elif UNITY_METRO
+        public const string platform = "metroplayer";
+#elif UNITY_OSX || UNITY_STANDALONE_OSX
+	    public const string platform = "standaloneosxintel";
+#else
+        public const string platform = "standalonewindows";
+#endif
+
+#if BUILD_COMMON_ASSETBUNDLE
+        /// <summary>
+        /// 平台文件夹
+        /// </summary>
+        public const string platformFloder = platform;
+#else
+        private static string _platformFloder;
+        /// <summary>
+        /// 平台文件夹
+        /// </summary>
+        public static string platformFloder 
+        {
+            get{
+                if(string.IsNullOrEmpty(_platformFloder))
+                    _platformFloder = CryptographHelper.Md5String(platform);
+
+                return _platformFloder;
+            }
+        }
+#endif
+
+        private static string _realPersistentDataPath;
+        /// <summary>
+        /// 可持续化目录
+        /// </summary>
+        public static string realPersistentDataPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_realPersistentDataPath))
+                    _realPersistentDataPath = Path.Combine(Application.persistentDataPath, platformFloder);
+                return _realPersistentDataPath;
+            }
+        }
+
+        private static string _realStreamingAssetsPath;
+        /// <summary>
+        /// 本地Streaming目录
+        /// </summary>
+        public static string realStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_realStreamingAssetsPath))
+                    _realStreamingAssetsPath = Path.Combine(Application.streamingAssetsPath, platformFloder);
+                return _realStreamingAssetsPath;
+            }
+        }
+
+        #endregion
     }
 }

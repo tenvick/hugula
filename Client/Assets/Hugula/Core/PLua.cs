@@ -187,7 +187,7 @@ namespace Hugula
         /// </summary>
         private void LoadBundle()
         {
-            string luaPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
+            string luaPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
 
 #if UNITY_EDITOR
             if (!isDebug)
@@ -214,7 +214,7 @@ namespace Hugula
         /// </summary>
         public void LoadBundle(LuaFunction onLoadedFn)
         {
-            string luaPath = Path.Combine(CUtils.GetRealPersistentDataPath(), CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
+            string luaPath = Path.Combine(CUtils.GetRealPersistentDataPath(), CUtils.GetRightFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
             uint crc = 0;
             if (CrcCheck.CheckLocalFileCrc(luaPath, out crc))
             {
@@ -223,7 +223,7 @@ namespace Hugula
             }
             else
             {
-                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc=" + crc.ToString() + " source_crc =" + CrcCheck.GetCrc(CUtils.GetKeyURLFileName(luaPath)));
+                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc=" + crc.ToString() + " source_crc =" + CrcCheck.GetCrc(CUtils.GetAssetBundleName(luaPath)));
                 if (onLoadedFn != null) onLoadedFn.call();
             }
         }

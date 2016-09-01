@@ -93,19 +93,16 @@ public class ExportResources
     {
         EditorUtility.DisplayProgressBar("Generate FileList", "loading bundle manifest", 1 / 2);
 
-        string readPath = BuildScript.GetFileStreamingOutAssetsPath();
-        var u3dList = getAllChildFiles(readPath, "u3d");
-        Debug.Log(u3dList.Count);
+        string readPath = BuildScript.GetFileStreamingOutAssetsPath()+"\\";
+        var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$",null,false);
+        Debug.Log("all ab count = "+u3dList.Count);
         List<string> assets = new List<string>();
         foreach (var s in u3dList)
         {
-            string ab = s.Replace(readPath, "").Replace("/", "").Replace("\\", "");
+            string ab = s.Replace(readPath, "");//.Replace("/", "").Replace("\\", "");
             //Debug.Log(ab);
             assets.Add(ab);
         }
-
-        //add manifest
-        assets.Add(CUtils.GetFileName(CUtils.GetPlatformFolderForAssetBundles()));
 
         EditorUtility.ClearProgressBar();
         BuildScript.GenerateAssetBundlesUpdateFile(assets.ToArray());
@@ -148,7 +145,7 @@ public class ExportResources
         foreach (string file in childrens)
         {
             string filePath = Path.Combine(root, file);
-            fileName = CUtils.GetURLFileName(filePath);
+            fileName = CUtils.GetAssetName(filePath);
             crypName = file.Replace(path, "").Replace(path1, "").Replace(".lua", "." + Common.LUA_LC_SUFFIX).Replace("\\", "_").Replace("/", "_");
             outfilePath = Application.dataPath + OutLuaPath + crypName;
             exportNames.Add("Assets" + OutLuaPath + crypName);
@@ -182,7 +179,7 @@ public class ExportResources
         EditorUtility.DisplayProgressBar(title, "Encrypt lua", 0.99f);
         //Encrypt
         string tarName = Application.dataPath + OutLuaPath + "luaout.bytes";
-        string md5Name = CUtils.GetFileName(Common.LUA_ASSETBUNDLE_FILENAME);
+        string md5Name = CUtils.GetRightFileName(Common.LUA_ASSETBUNDLE_FILENAME);
         string realOutPath = Path.Combine(BuildScript.GetOutPutPath(), md5Name);
 
         byte[] by = File.ReadAllBytes(tarName);
@@ -200,7 +197,7 @@ public class ExportResources
          ).ToArray();
 
         BuildScript.CheckstreamingAssetsPath();
-        string cname = CUtils.GetFileName(Common.CONFIG_CSV_NAME);
+        string cname = CUtils.GetRightFileName(Common.CONFIG_CSV_NAME);
         BuildScript.BuildABs(files.ToArray(), null, cname, BuildAssetBundleOptions.DeterministicAssetBundle);
         Debug.Log(" Config export " + cname);
 
@@ -219,8 +216,8 @@ public class ExportResources
 
         foreach (string abPath in files)
         {
-            string name = CUtils.GetURLFileName(abPath);
-            string abName = CUtils.GetFileName(name + "." + Common.LANGUAGE_SUFFIX);
+            string name = CUtils.GetAssetName(abPath);
+            string abName = CUtils.GetRightFileName(name + "." + Common.LANGUAGE_SUFFIX);
             BuildScript.BuildABs(new string[] { abPath }, null, abName, BuildAssetBundleOptions.CompleteAssets);
             Debug.Log(name + " " + abName + " export");
         }
@@ -270,25 +267,25 @@ public class ExportResources
         }
     }
 
-    public static List<string> getAllChildFiles(string path, string suffix = "lua", List<string> files = null)
+    public static List<string> getAllChildFiles(string path, string suffix = "lua", List<string> files = null, bool isMatch = true)
     {
         if (files == null) files = new List<string>();
-        addFiles(path, suffix, files);
+        addFiles(path, suffix, files, isMatch);
         string[] dires = Directory.GetDirectories(path);
         foreach (string dirp in dires)
         {
             //            Debug.Log(dirp);
-            getAllChildFiles(dirp, suffix, files);
+            getAllChildFiles(dirp, suffix, files, isMatch);
         }
         return files;
     }
 
-    public static void addFiles(string direPath, string suffix, List<string> files)
+    public static void addFiles(string direPath, string suffix, List<string> files,bool isMatch=true)
     {
         string[] fileMys = Directory.GetFiles(direPath);
         foreach (string f in fileMys)
         {
-            if (f.ToLower().EndsWith(suffix.ToLower()))
+            if (System.Text.RegularExpressions.Regex.IsMatch(f,suffix) == isMatch)
             {
                 files.Add(f);
             }

@@ -10,6 +10,7 @@ local CUtils=CUtils
 local Asset = Asset
 local StateManager = StateManager
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
+local AssetBundleScene = AssetBundleScene
 local LRequestPool = Hugula.Loader.LRequestPool --内存池
 
 local AssetLoader=class(function(self,lua_obj)
@@ -21,18 +22,16 @@ local AssetLoader=class(function(self,lua_obj)
 end)
 
 local function create_request(v,on_req_loaded,on_err)
-	local r = LRequestPool.Get()--Request(v.full_url)
-	r.relativeUrl = v.full_url
+	local r = LRequestPool.Get()
+	r.relativeUrl = v.assetbundle_url
 	r.onCompleteFn = on_req_loaded
 	r.onEndFn = on_err
 	r.head = v
 	r.async = true
+	r.assetName = v.asset_name
 
-	if v:is_a(Asset) then
-		r.assetName = CUtils.GetAssetName(v.url)
-	else
+	if v:is_a(AssetScene) then
 		-- print("load scene ",v.scene_name)
-		r.assetName = v.scene_name
 		r.isAdditive = v.is_additive
 		r.assetType = AssetBundleScene --加载场景类型
 	end

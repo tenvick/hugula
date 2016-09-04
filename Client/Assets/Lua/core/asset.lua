@@ -10,9 +10,10 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 Asset = class(function(self,url,names)
     self.base = false
     self.url = url
-    self.key = CUtils.GetAssetBundleName(url) --以assetbundle name为key
-    self.full_url = CUtils.GetRightFileName(url)
-   -- print("Asset url=",url,"full_url=",self.full_url,"abName=",self.key)
+    self.asset_name = CUtils.GetAssetName(url) --asset name
+    self.assetbundle_url = CUtils.GetRightFileName(url) --real use url
+    self.key = CUtils.GetAssetBundleName(self.assetbundle_url) --以assetbundle name为key
+   -- print("Asset url=",url,"assetbundle_url=",self.assetbundle_url,"asset_name=",self.asset_name)
     self.names = names
     if names then 
     	local len =#names local name
@@ -67,9 +68,6 @@ end
 --
 function Asset:copy_to(asse)
 	if asse.type == nil then asse.type = self.type end
-	asse.key = self.key
-	asse.url = self.url
-	asse.full_url = self.full_url
 	local names=asse.names
 	if names then
 		asse.items={}

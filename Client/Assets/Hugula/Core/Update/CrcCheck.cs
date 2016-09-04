@@ -139,7 +139,7 @@ namespace Hugula.Update
                     }
                     ck = sourceCrc == fileCrc;//校验
                 }
-                Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
+                //Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
             }
             else
             {

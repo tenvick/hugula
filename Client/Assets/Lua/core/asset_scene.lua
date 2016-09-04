@@ -11,10 +11,10 @@ local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 AssetScene = class(function(self,url,scene_name,is_additive)
 	self.base = false
     self.url = url
-    self.key = CUtils.GetAssetBundleName(url)
     self.is_additive = is_additive --(LoadSceneMode.Single,LoadSceneMode.Additive)
-    self.scene_name = scene_name
-    self.full_url = CUtils.GetRightFileName(url)
+    self.asset_name = scene_name --asset name
+    self.assetbundle_url = CUtils.GetRightFileName(url) --real use url
+    self.key = CUtils.GetAssetBundleName(self.assetbundle_url) --以assetbundle name为key
     self.root = nil
 end)
 
@@ -33,23 +33,18 @@ end
 
 function AssetScene:show(...)
 	self.root = self
-	-- print("scene show "..self.scene_name)
+	-- print("scene show "..self.asset_name)
 end
 
 function AssetScene:hide(...)
 	self:clear()
-	LuaHelper.UnloadScene(self.scene_name)
+	LuaHelper.UnloadScene(self.asset_name)
 end
 
 --
 function AssetScene:copy_to(asse)
 	if asse.type == nil then asse.type = self.type end
-	asse.key = self.key
-	asse.url = self.url
-	asse.full_url = self.full_url
-	asse.root = self.root
-	asse.is_additive = self.is_additive
-    asse.scene_name = self.scene_name
+    asse.root = self.root
 	return asse
 end
 

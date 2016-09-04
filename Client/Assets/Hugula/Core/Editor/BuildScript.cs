@@ -77,7 +77,7 @@ public class BuildScript
                 System.Text.RegularExpressions.Match match = regex.Match(line);
                 if (match.Success)
                 {
-                    Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
+                    //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
                     CrcCheck.Add(match.Groups[1].Value, System.Convert.ToUInt32(match.Groups[2].Value));
                 }
                 //Debug.Log(line);
@@ -381,12 +381,16 @@ public class BuildScript
         if (s is GameObject)
         {
             GameObject tar = s as GameObject;
-            ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-            if (refe != null)
-            {
-                refe.assetBundleName = import.assetBundleName;
-                EditorUtility.SetDirty(s);
-            }
+			if(tar.transform.parent == null)
+			{
+				ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
+				if (refe != null)
+				{
+					refe.assetBundleName = import.assetBundleName;
+					EditorUtility.SetDirty(s);
+				}
+			}
+           
         }
         else if (s is SceneAsset) //如果是场景需要添加引用计数脚本
         {//UnityEngine.SceneAsset

@@ -250,11 +250,11 @@ local function load_local_file_list()
 
 	local step = {}
 	step.next_step=function( ... )
-		-- if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
-		-- 	enterGame()
-		-- else
+		if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
+			enterGame()
+		else
 			load_server_verion()
-		-- end
+		end
 	end
 
 	step.on_persistent_comp=function( req )

@@ -93,14 +93,14 @@ public class ExportResources
     {
         EditorUtility.DisplayProgressBar("Generate FileList", "loading bundle manifest", 1 / 2);
 
-        string readPath = BuildScript.GetFileStreamingOutAssetsPath()+"\\";
+		string readPath = BuildScript.GetFileStreamingOutAssetsPath ();//+"\\";
         var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$",null,false);
         Debug.Log("all ab count = "+u3dList.Count);
         List<string> assets = new List<string>();
         foreach (var s in u3dList)
         {
-            string ab = s.Replace(readPath, "");//.Replace("/", "").Replace("\\", "");
-            //Debug.Log(ab);
+			string ab = CUtils.GetAssetBundleName (s); //s.Replace(readPath, "").Replace("/", "").Replace("\\", "");
+//            Debug.Log(ab);
             assets.Add(ab);
         }
 
@@ -270,7 +270,7 @@ public class ExportResources
     public static List<string> getAllChildFiles(string path, string suffix = "lua", List<string> files = null, bool isMatch = true)
     {
         if (files == null) files = new List<string>();
-        addFiles(path, suffix, files, isMatch);
+		if(!string.IsNullOrEmpty(path))addFiles(path, suffix, files, isMatch);
         string[] dires = Directory.GetDirectories(path);
         foreach (string dirp in dires)
         {

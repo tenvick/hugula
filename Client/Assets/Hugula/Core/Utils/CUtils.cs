@@ -41,7 +41,7 @@ namespace Hugula.Utils
         {
             if (string.IsNullOrEmpty(url)) return string.Empty;
             int idxEnd = url.IndexOf('?');
-            int idxBegin = url.IndexOf(platformFloder);// 更新目录
+            int idxBegin = url.IndexOf(platformFloder);// ?üD?????
 
             if (idxBegin == -1)
                 idxBegin = 0;
@@ -56,7 +56,7 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 检测www的url
+        /// ?ì2awwwμ?url
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
@@ -79,7 +79,7 @@ namespace Hugula.Utils
         /// <param name='absolutePath'>
         /// Absolute path.
         /// </param>
-        [System.Obsolete("即将删除此方法")]
+        [System.Obsolete("please use UriGroup")]
         public static string GetFileFullPath(string absolutePath)
         {
             string path = "";
@@ -102,7 +102,7 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
-        [System.Obsolete("即将删除此方法")]
+        [System.Obsolete("please use UriGroup")]
         public static string GetAssetFullPath(string assetPath)
         {
             string name = GetRightFileName(assetPath);
@@ -111,11 +111,11 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 得到原始的名字
+        /// GetAssetOriginalFullPath
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
-        [System.Obsolete("即将删除此方法")]
+        [System.Obsolete("please use UriGroup")]
         public static string GetAssetOriginalFullPath(string assetPath)
         {
             string path = GetFileFullPath(GetAssetPath(assetPath));
@@ -123,7 +123,7 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 
+        /// insert some worlds before suffix
         /// </summary>
         /// <param name="assetbundleName"></param>
         /// <param name="insert"></param>
@@ -160,7 +160,7 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 得到资源的相对路径
+        /// add platformFloder  to asset path
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -173,7 +173,7 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 得到当前平台的manifest名字
+        /// the name manifest
         /// </summary>
         /// <returns></returns>
         public static string GetPlatformFolderForAssetBundles()
@@ -182,7 +182,7 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 得到加密或者没有加密的文件名
+        /// get Md5 or normal filename
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -207,7 +207,7 @@ namespace Hugula.Utils
         public static bool currPersistentExist = false;
 
         /// <summary>
-        /// 时间戳
+        /// convert time to timeline
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
@@ -221,7 +221,7 @@ namespace Hugula.Utils
         #region private
 
         /// <summary>
-        /// 分析文件路径
+        /// Analyse file Path Name
         /// </summary>
         /// <param name="pathName"></param>
         /// <param name="fileIndex"></param>
@@ -232,9 +232,9 @@ namespace Hugula.Utils
         {
             int len = pathName.Length - 1;
             char[] arr = pathName.ToCharArray();
-            fileIndex = -1;//文件名不带路径位置
-            dotIndex = -1;//最后一个点位置
-            int questIndex = -1;//最后一个？号位置
+            fileIndex = -1;//the last / or \ position
+            dotIndex = -1;//the last dot position
+            int questIndex = -1;//the ? position
 
             int l = len;
             char cha;
@@ -273,13 +273,13 @@ namespace Hugula.Utils
 
 #if BUILD_COMMON_ASSETBUNDLE
         /// <summary>
-        /// 平台文件夹
+        /// ??ì¨???t?D
         /// </summary>
         public const string platformFloder = platform;
 #else
         private static string _platformFloder;
         /// <summary>
-        /// 平台文件夹
+        /// platform Floder name
         /// </summary>
         public static string platformFloder 
         {
@@ -294,7 +294,7 @@ namespace Hugula.Utils
 
         private static string _realPersistentDataPath;
         /// <summary>
-        /// 可持续化目录
+        /// real persistentData Path
         /// </summary>
         public static string realPersistentDataPath
         {
@@ -308,7 +308,7 @@ namespace Hugula.Utils
 
         private static string _realStreamingAssetsPath;
         /// <summary>
-        /// 本地Streaming目录
+        /// real streamingAssets path
         /// </summary>
         public static string realStreamingAssetsPath
         {

@@ -140,6 +140,22 @@ namespace Hugula.Cryptograph
             return outStr;
         }
 
+        /// <summary>
+        /// byte[] md5加密
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string Md5BytesTo32(byte[] inputs)
+        {
+            byte[] result = Md5Instance.ComputeHash(inputs);
+            string outStr = "";
+            foreach (byte b in result)
+            {
+                outStr += b.ToString("x2");
+            }
+            return outStr;
+        }
+
         #endregion
     }
 }

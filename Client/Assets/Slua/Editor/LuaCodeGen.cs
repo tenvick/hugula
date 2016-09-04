@@ -68,6 +68,15 @@ namespace SLua
 
 					isPlaying=EditorApplication.isPlaying;
 				};
+
+                //if (!isPlaying)
+                //{
+                //    if (File.Exists(GenPath))
+                //    {
+                //        File.Delete(GenPath);
+                //        GenerateAll();
+                //    }
+                //}
 			} 
 
 

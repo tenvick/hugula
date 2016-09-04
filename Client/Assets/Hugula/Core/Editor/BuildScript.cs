@@ -378,6 +378,9 @@ public class BuildScript
 
         if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
         Debug.Log(import.assetBundleName);
+
+		bool isScene = abPath.EndsWith (".unity");
+
         if (s is GameObject)
         {
             GameObject tar = s as GameObject;
@@ -390,11 +393,10 @@ public class BuildScript
 					EditorUtility.SetDirty(s);
 				}
 			}
-           
         }
-        else if (s is SceneAsset) //如果是场景需要添加引用计数脚本
+		else if (isScene) //如果是场景需要添加引用计数脚本
         {//UnityEngine.SceneAsset
-            SceneAsset sce = s as SceneAsset;
+			var sce = s;// as SceneAsset;
             Debug.Log(sce);
             AssetDatabase.OpenAsset(sce);
             GameObject gobj = GameObject.Find(sce.name);
@@ -415,6 +417,7 @@ public class BuildScript
                 }
             }
         }
+
     }
 
     /// <summary>

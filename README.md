@@ -1,14 +1,18 @@
 ###Hugula 游戏框架 for slua
 
-Hugula是一个基于unity3d+lua技术的全LUA免费开源游戏框架，能方便实现代码动态更新。
-特点：全lua逻辑，基于状态模式，包含引用计数，对象池，自动资源回收等功能，能极大提高开发速度。
-加入crc校验。 
-[帮助文档](https://github.com/tenvick/hugula/wiki)。
-qq群：19324776。
+Hugula是一个基于unity3d+lua技术的免费开源游戏框架，特点。
+
+1. 全lua逻辑:
+  基于状态模式，包含引用计数，对象池，自动资源回收等功能，能极大提高开发速度。
+
+2. 热更新:
+ 完善的更新流程，支持md5加密，crc校验，跨版本更新。
+
+3. [帮助文档](https://github.com/tenvick/hugula/wiki)  交流qq群：19324776。
  
 ##本框架需要以下条件
 
-1)unity3d 版本为 5.0以上 （5.1以上需要自行清理lua wrap file，后重新make）
+1)unity3d 推荐5.3以上
 
 2)slua项目 地址 https://github.com/pangweiwei/slua
 

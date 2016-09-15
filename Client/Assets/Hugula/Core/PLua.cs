@@ -161,11 +161,14 @@ namespace Hugula
             {
 
                 byte[] byts = CryptographHelper.Decrypt(luaLoader.bytes, DESHelper.instance.Key, DESHelper.instance.IV);
-#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-                AssetBundle item = AssetBundle.CreateFromMemoryImmediate(byts);
+				AssetBundleCreateRequest abcreq = null;
+#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2 
+				abcreq = AssetBundle.CreateFromMemory(byts);
 #else
-                AssetBundle item = AssetBundle.LoadFromMemory(byts);
+				abcreq = AssetBundle.LoadFromMemoryAsync(byts);
 #endif
+				yield return abcreq;
+				var item = abcreq.assetBundle;
                 TextAsset[] all = item.LoadAllAssets<TextAsset>();
                 foreach (var ass in all)
                 {

@@ -101,7 +101,7 @@ namespace Hugula.Utils
         /// <summary>
         /// Delete the persistent Directory
         /// </summary>
-        public static void DeletePersistenDirectory()
+        public static void DeletePersistentDirectory()
         {
             string path = CUtils.GetRealPersistentDataPath();
             DirectoryInfo dinfo = new DirectoryInfo(path);
@@ -117,6 +117,17 @@ namespace Hugula.Utils
                 dinfo.Delete(true);
             }
         }
+
+		/// <summary>
+		/// the Persistents  file is Exists.
+		/// </summary>
+		/// <returns><c>true</c>, if file was persistented, <c>false</c> otherwise.</returns>
+		/// <param name="abpath">Abpath.</param>
+		public static bool PersistentFileExists(string abpath)
+		{
+			string path = CUtils.GetRealPersistentDataPath() + "/"+abpath;
+			return File.Exists (path); 
+		}
 
         /// <summary>
         /// Computes the crc32.

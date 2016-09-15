@@ -15,7 +15,7 @@ StateBase=class(function(self,item_objects,log_enable)
 
         if item_objects then 
             for k,v in ipairs(item_objects) do
-                self.original[v] = false
+                self.original[v] = true
             end
         end
 
@@ -35,7 +35,7 @@ function StateBase:check_initialize( ... ) --初始化
         local original = self.original
         local item_obj = nil
         for k,v in pairs(original) do
-            if v == false then
+            if v == true then
                 item_obj = LuaItemManager:get_item_obejct(k)
                 if item_obj then 
                     original[k] = item_obj 
@@ -50,14 +50,14 @@ end
 
 function StateBase:is_original_item(item) --是否是原始项目
     local original = self.original
-    local key = ""
+    local key = item
      if type(key) == "table" then
         key = item._key or ""
     elseif type(key) == "string" then
         key = item
     end
     local k = original[key]
-    return k
+    return k ~= nil
 end
 
 function StateBase:contains_item(key) --当前状态是否包含item
@@ -70,11 +70,12 @@ function StateBase:contains_item(key) --当前状态是否包含item
             if v and v._key == key then return true end
         end
     end
+    return false
 end
 
 function StateBase:is_all_loaded()
-    local item_list = self._item_list
-    for k,v in ipairs(item_list) do
+    local item_list = self.original
+    for k,v in pairs(item_list) do        
         if v:check_assets_loaded() == false then return false end
     end
     return true
@@ -118,9 +119,10 @@ end
 function StateBase:on_focus(previous_state)
     self:check_initialize()
     local item_list = self._item_list
-    local _len = #item_list
-    for k,v in ipairs(item_list) do
-        if k <= _len then --确保新加入的不会被执行
+    local _len = #item_list --print(_len)
+    for k,v in ipairs(self._item_list) do
+        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) then --确保新加入的不会被执行,前一个状态的item不需要 focus
+            if v.on_focusing then v:on_focusing(previous_state) end
             v:on_focus(previous_state)
             if v.on_focused then v:on_focused(previous_state) end
         end
@@ -144,8 +146,9 @@ function StateBase:on_blur(new_state)
     local on_blured = {}
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
-        if itemobj and on_blured[itemobj] ~= true then 
+        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj)) then --如果新状态包涵当前item不需要失去焦点
             on_blured[itemobj] = true 
+            if itemobj.on_bluring then itemobj:on_bluring(new_state) end
             itemobj:on_blur(new_state) 
             if itemobj.on_blured then itemobj:on_blured(new_state) end
         end
@@ -153,26 +156,28 @@ function StateBase:on_blur(new_state)
     on_blured = nil
  end
 
-function StateBase:clear( ... )
+function StateBase:dispose( ... )
     for k,v in ipairs(self._item_list) do
-        v:clear()
+        v:dispose()
     end
 end
 
-function StateBase:on_event(funName,...)
+function StateBase:on_event(fun_name,...)
+    self:on_filter_event(nil,fun_name,...)
+end
+
+function StateBase:on_filter_event(prev_state,fun_name,...)
     local fn,v = nil,nil
     local item = self._item_list
-    local len = #item
-    for k,v in ipairs(self._item_list) do
-        if k <= len then --确保新加入的item不会被执行
-            fn = v[funName]
+    local len = #item 
+    for k,v in ipairs(item) do
+        if k <= len and (prev_state == nil or not prev_state:is_original_item(v)) then --确保新加入的item不会被执行
+            fn = v[fun_name]
             if v.active and fn then 
                 if fn(v,...) then break end
             end
         end
     end
-
-    self:check_sort()
 end
 
 function StateBase:__tostring()

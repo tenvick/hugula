@@ -601,6 +601,23 @@ namespace Hugula.Utils
             UnityEngine.SceneManagement.SceneManager.UnloadScene(sceneName);
 #endif
         }
+
+		/// <summary>
+		/// Loads the scene.
+		/// </summary>
+		/// <param name="sceneName">Scene name.</param>
+		/// <param name="isAdditive">If set to <c>true</c> is additive.</param>
+		public static void LoadScene(string sceneName,bool isAdditive)
+		{
+			#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+			if (isAdditive)
+				Application.LoadLevelAdditive(sceneName);
+			else
+				Application.LoadLevel(sceneName);
+			#else
+			UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+			#endif
+		}
 		
 		
         public static void ReleaseLuaFn(LuaFunction fn)

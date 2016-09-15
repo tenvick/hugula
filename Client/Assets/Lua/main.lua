@@ -39,7 +39,7 @@ local folder = CUtils.GetAssetPath("")
 local update_list_crc_key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
 
 local host = {"http://192.168.103.49/"..folder.."/"}--,"http://192.168.100.114/"..CUtils.GetAssetPath("").."/"} --更新列表
-
+CRC_FILELIST = {}
 --local fristView
 local all,loaded = 0,0
 local local_file,server_file = {},{}
@@ -62,6 +62,13 @@ end
 local function set_progress_txt(text)
  	if _progressbar_txt then _progressbar_txt.text = text end
  	print(text)
+end
+
+local function add_file(crc_tb )
+	for k,v in pairs(crc_tb) do
+		CRC_FILELIST[k] = v
+		-- print(k,v)
+	end
 end
 
 local function add_crc(crc_tb)
@@ -158,15 +165,12 @@ local function load_server_file_list() --版本差异化对比
 
 	local function on_server_comp(req)
 		set_progress_txt("校验文件对比中。")
-		local bytes = req.data
-		print(bytes)
-	 	FileHelper.SavePersistentFile(bytes,CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME)) --保存server端临时文件
-	 	local ab = LuaHelper.LoadFromMemory(bytes)
-	 	local text_asset = ab:LoadAllAssets(UnityEngine.TextAsset)[1]
+		local text_asset = req.data
 		print(text_asset)
-		server_file= require_bytes(text_asset)
-		ab:Unload(true) --释放ab
+	 	FileHelper.SavePersistentFile(text_asset.bytes,CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME)) --保存server端临时文件
+	 	Loader:clear(req.key)
 		add_crc(server_file) --加入验证列表
+		add_file(server_file)
 		local old_list_context = FileHelper.ReadPersistentFile(DOWANLOAD_TEMP_FILE) --读取上次加载未完成列表
 		local old_list = {}
 		if old_list_context ~= nil then
@@ -199,14 +203,15 @@ local function load_server_file_list() --版本差异化对比
 	local function load_server( ... )
 		set_progress_txt("加载服务器校验文件。")
 		local crc = tostring(server_ver.crc32)
-		local asset_name = CUtils.GetRightFileName(CUtils.GetAssetName(UPDATED_LIST_NAME))
-		local file_name = asset_name.."_"..crc..".u3d"
+		local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
+		local assetbundle_name = CUtils.GetRightFileName(asset_name)
+		local file_name = assetbundle_name.."_"..crc..".u3d"
 		print("load web server crc "..file_name)
 		local req = LRequestPool.Get()
 		req.relativeUrl = file_name
 		req.onCompleteFn = on_server_comp
 		req.onEndFn = on_server_err
-		req.assetType = LuaHelper.GetClassType("System.Byte[]")
+		req.assetName = asset_name--LuaHelper.GetClassType("System.Byte[]")
 		req.uris = get_update_uri_group()
 		Loader:get_resource(req)
 	end
@@ -263,6 +268,7 @@ local function load_local_file_list()
 		print(" persistent crc32 file list")
 		print(local_file)
 		add_crc(local_file)
+		add_file(local_file)
 		Loader:clear(req.key)
 		step.next_step()
 	end
@@ -272,19 +278,43 @@ local function load_local_file_list()
 		step.next_step()
 	end
 
-	if CrcCheck.ContainsKey(update_list_crc_key) then
-		set_progress_txt("读取本地校验文件。")
-		local crc = CrcCheck.GetCrc(update_list_crc_key)
-		print("persistent update file list"..tostring(crc))
-	
-		local group = UriGroup()
-		group:Add(CUtils.GetRealPersistentDataPath())
-		group:SetCrcIndex(0)
-		Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step.on_persistent_comp,step.on_persistent_error,nil,group)
-	else
-		print("本地没有校验文件")
-		step.next_step()
+	step.load_persistent_file=function ( ... )
+		if CrcCheck.ContainsKey(update_list_crc_key) then
+			set_progress_txt("读取本地校验文件。")
+			local crc = CrcCheck.GetCrc(update_list_crc_key)
+			print("persistent update file list"..tostring(crc))
+		
+			local group = UriGroup()
+			group:Add(CUtils.GetRealPersistentDataPath())
+			group:SetCrcIndex(0)
+			Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step.on_persistent_comp,step.on_persistent_error,nil,group)
+		else
+			print("本地没有校验文件")
+			step.next_step()
+		end
 	end
+
+    --
+    local step1 = {}
+    step1.on_streaming_comp = function( req )
+    	local text_asset = req.data
+		local s_crc32_file = require_bytes(text_asset)
+		add_file(s_crc32_file)
+		Loader:clear(req.key)
+		step.load_persistent_file()
+    end
+    step1.on_streaming_error = function( req )
+    	print("never happen!!! load error "..req.url)
+    	step.load_persistent_file()
+    end
+    step1.load_streaming_file = function( ... )
+    	local group = UriGroup()
+		group:Add(CUtils.GetRealStreamingAssetsPath())
+		Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step1.on_streaming_comp,step1.on_streaming_error,nil,group)
+    end
+
+    step1.load_streaming_file()
+
 end
 
 local function compare_local_version() --对比本地版本号
@@ -322,7 +352,7 @@ local function compare_local_version() --对比本地版本号
 			else
 				set_progress_txt("清理旧的缓存。")
 				print("清理旧的缓存。"..CUtils.GetRealPersistentDataPath())
-				FileHelper.DeletePersistenDirectory()
+				FileHelper.DeletePersistentDirectory()
 				CrcCheck.Clear() --清除校验列表
 				package.loaded[step.key] = nil 
 				package.preload[step.key] = nil
@@ -364,7 +394,6 @@ local function compare_local_version() --对比本地版本号
 	end
 
   	set_progress_txt("对比本地版本信息。")
-	-- CrcCheck.Add(version_crc_key,0) --ver 不需要验证crc
 	step.load_streaming()
 end
 

@@ -72,11 +72,10 @@ namespace Hugula
         }
 
         void Awake()
-        {
-            DontDestroyOnLoad(this.gameObject);
+		{
+			DontDestroyOnLoad(this.gameObject);
             luacache = new Dictionary<string, TextAsset>();
             lua = new Lua();
-            _instance = this;
             LoadScript();
         }
 
@@ -93,10 +92,11 @@ namespace Hugula
 
         void OnDestroy()
         {
+			RemoveAllEvents ();
             if (onDestroyFn != null) onDestroyFn.call();
             updateFn = null;
             lua = null;
-            _instance = null;
+			if( _instance==this) _instance = null;
             luacache = null;
         }
 
@@ -132,6 +132,20 @@ namespace Hugula
             Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
 #endif
         }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="main"></param>
+		private IEnumerator ReOpen(float seconds,string sceneName)
+		{
+			RemoveAllEvents ();
+			yield return new WaitForSeconds(seconds);
+			lua.luaState.Close();
+			yield return new WaitForSeconds (seconds);
+			GameObject.Destroy (this.gameObject);
+			LuaHelper.LoadScene (sceneName, false);
+		}
 
         /// <summary>
         /// lua bundle
@@ -238,6 +252,25 @@ namespace Hugula
             luacache[key] = textAsset;
         }
 
+		/// <summary>
+		/// ReStart.
+		/// </summary>
+		/// <param name="sconds">Sconds.</param>
+		public void ReStart(float sconds,string sceneName)
+		{
+			StartCoroutine (ReOpen (sconds,sceneName));
+		}
+
+		/// <summary>
+		/// Removes all events.
+		/// </summary>
+		public void RemoveAllEvents()
+		{
+			onDestroyFn = null;
+			onAppPauseFn = null;
+			onAppQuitFn = null;
+			onAppFocusFn = null;
+		}
         #endregion
 
         #region toolMethod
@@ -315,14 +348,19 @@ namespace Hugula
 
         public static Coroutine Delay(LuaFunction luafun, float time, params object[] args)
         {
-            return _instance.StartCoroutine(DelayDo(luafun, time, args));
+			return instance.StartCoroutine(DelayDo(luafun, time, args));
         }
 
         public static void StopDelay(Coroutine coroutine)
         {
             if (coroutine != null)
-                _instance.StopCoroutine(coroutine);
+				instance.StopCoroutine(coroutine);
         }
+
+		public static void StopAllDelay()
+		{
+			instance.StopAllCoroutines ();
+		}
 
         private static IEnumerator DelayDo(LuaFunction luafun, float time, params object[] args)
         {
@@ -339,6 +377,10 @@ namespace Hugula
         {
             get
             {
+				if (_instance == null) {
+					var gam = new GameObject ("PLua");
+					_instance = gam.AddComponent<PLua> ();
+				}
                 return _instance;
             }
         }

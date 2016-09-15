@@ -127,7 +127,7 @@ namespace Hugula.Loader
         /// 锁定
         /// </summary>
         /// <param name="hashkey"></param>
-        internal static void AddLock(int hashkey)
+		public static void AddLock(int hashkey)
         {
             lockedCaches.Add(hashkey);
         }
@@ -136,7 +136,7 @@ namespace Hugula.Loader
         /// 移除锁定
         /// </summary>
         /// <param name="hashkey"></param>
-        internal static void RemoveLock(int hashkey)
+		public static void RemoveLock(int hashkey)
         {
             lockedCaches.Remove(hashkey);
         }
@@ -222,22 +222,37 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="www">Www.</param>
         /// <param name="req">Req.</param>
-        internal static void AddSourceCacheDataFromWWW(WWW www, CRequest req)
+		internal static bool AddSourceCacheDataFromWWW(WWW www, CRequest req)
         {
             object data = null;
             var ab = www.assetBundle;
-            if (ab == null) data = www.bytes;
+			req.isAssetBundle = false;
 
-            if (Typeof_Bytes.Equals(req.assetType))
-                data = www.bytes;
-            else if (Typeof_String.Equals(req.assetType))
-                data = www.text;
-
-            CacheData cacheData = new CacheData(data, null, req.key);//缓存
-            CacheManager.AddCache(cacheData);
-            cacheData.allDependencies = req.allDependencies;
-            cacheData.assetBundle = ab;
+			if (ab != null) {
+				data = ab;
+				req.isAssetBundle = true;
+				CacheData cacheData = new CacheData (data, null, req.key);//缓存
+				CacheManager.AddCache (cacheData);
+				cacheData.allDependencies = req.allDependencies;
+				cacheData.assetBundle = ab;
+			} else if (Typeof_String.Equals (req.assetType)) {
+				req.data = www.text;
+			}
+			else if(Typeof_AudioClip.Equals(req.assetType)) {
+				req.data = www.audioClip;
+			}else if(Typeof_Texture2D.Equals(req.assetType) ) {
+				if (req.assetName.Equals ("textureNonReadable"))
+					req.data = www.textureNonReadable;
+				else
+					req.data = www.texture;
+			}
+				
+			if (Typeof_Bytes.Equals (req.assetType)) {
+				req.data = www.bytes;
+				req.isAssetBundle = false;
+			}
             www.Dispose();
+			return req.isAssetBundle;
         }
 
         /// <summary>
@@ -254,30 +269,24 @@ namespace Hugula.Loader
             {
                 AssetBundle abundle = cachedata.assetBundle;
                 System.Type assetType = req.assetType;
-                if (assetType == null) assetType = typeof(UnityEngine.Object);
+				if (assetType == null) assetType = Typeof_Object;
                 if (req.isShared) //共享的
                 {
                     req.data = abundle;
                     re = true;
                 }
-                else if (assetType.Equals(Typeof_String) || assetType.Equals(Typeof_Bytes))
-                {
-                    req.data = cachedata.www;
-                    req.clearCacheOnComplete = true;
-                    re = true;
-                }
-                else if (assetType.Equals(Typeof_AssetBundle))
+				else if (Typeof_AssetBundle.Equals(assetType))
                 {
                     req.data = cachedata.assetBundle;
                     re = true;
                 }
-                else if (assetType.Equals(Typeof_ABScene))
+				else if (Typeof_ABScene.Equals(assetType))
                 {
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-                     if (req.isAdditive)
-                    req.assetBundleRequest = Application.LoadLevelAdditiveAsync(req.assetName);
-                else
-                    req.assetBundleRequest = Application.LoadLevelAsync(req.assetName);
+                	if (req.isAdditive)
+                    	req.assetBundleRequest = Application.LoadLevelAdditiveAsync(req.assetName);
+                	else
+                    	req.assetBundleRequest = Application.LoadLevelAsync(req.assetName);
 #else
                     req.assetBundleRequest = SceneManager.LoadSceneAsync(req.assetName, req.isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single);
 #endif
@@ -350,11 +359,38 @@ namespace Hugula.Loader
             return Contains(keyhash);
         }
 
+        /// <summary>
+        /// 清理所有缓存
+        /// </summary>
+        public static void RemoveAllLock()
+        {
+            lockedCaches.Clear();
+        }
+
+        /// <summary>
+        /// 清理所有资源
+        /// </summary>
+        public static void ClearAll()
+        {
+            lockedCaches.Clear();
+
+            var items = caches.GetEnumerator();
+            while(items.MoveNext())
+            {
+                items.Current.Value.Dispose();
+            }
+
+            caches.Clear();
+        }
+
         #region check type
         public static readonly Type Typeof_String = typeof(System.String);
         public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
         public static readonly Type Typeof_AssetBundle = typeof(AssetBundle);
         public static readonly Type Typeof_ABScene = typeof(AssetBundleScene);
+		public static readonly Type Typeof_AudioClip = typeof(AudioClip);
+		public static readonly Type Typeof_Texture2D = typeof(Texture2D);
+		public static readonly Type Typeof_Object = typeof(UnityEngine.Object);
 
         #endregion
     }
@@ -416,6 +452,20 @@ namespace Hugula.Loader
             }
             return false;
         }
+
+		/// <summary>
+		/// Adds the dependencies.
+		/// </summary>
+		/// <param name="hashcode">Hashcode.</param>
+		internal static void AddDependencies(int hashcode)
+		{
+			CacheData cached = CacheManager.GetCache(hashcode);
+			if (cached != null && cached.allDependencies!=null)
+			{
+				foreach (int hash in cached.allDependencies)
+					Add (hash);
+			}
+		}
     }
 
 }

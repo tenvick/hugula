@@ -77,6 +77,7 @@ namespace Hugula.Loader
      
             if (req.head is WWWForm)
             {
+//				Debug.Log ("request" + req.head);
                 www = new WWW(url, (WWWForm)req.head);
             }
             else if (req.head is byte[])
@@ -94,7 +95,9 @@ namespace Hugula.Loader
                 //            else
                 www = new WWW(url);
             }
-
+			#if HUGULA_LOADER_DEBUG
+			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) )</color>", req.url, req.key, req.assetName,req.assetBundleName);
+			#endif
         }
 
         #endregion
@@ -125,9 +128,8 @@ namespace Hugula.Loader
                 if (OnProcess != null)
                     OnProcess(this, 1);
 				#if HUGULA_LOADER_DEBUG
-				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) ab({2}) txt({3}) len({4})</color>", req.url, req.key, req.keyHashCode, www.text, www.bytes.Length);
+				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2}) txt({3}) len({4})</color>", req.url, req.key, req.assetName, www.text, www.bytes.Length);
 				#endif
-
 				CacheManager.AddSourceCacheDataFromWWW(www,this._req);
                 DispatchCompleteEvent(this._req);
 

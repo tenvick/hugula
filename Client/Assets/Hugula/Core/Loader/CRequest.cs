@@ -70,7 +70,8 @@ namespace Hugula.Loader
             pool = false;
             isAdditive = false;
             isShared = false;
-            clearCacheOnComplete = false;
+			isNormal = true;
+			isAssetBundle = true;
 
             this.assetBundleRequest = null;
             this.allDependencies = null;
@@ -329,6 +330,11 @@ namespace Hugula.Loader
             }
         }
 
+		/// <summary>
+		/// 是否普通加载 普通加载需要等待加载池空闲
+		/// </summary>
+		public bool isNormal = true;
+
         /// <summary>
         /// 场景加载追加模式
         /// </summary>
@@ -344,11 +350,10 @@ namespace Hugula.Loader
         /// </summary>
         internal AsyncOperation assetBundleRequest;
 
-        /// <summary>
-        /// 加载完成后清理缓存
-        /// </summary>
-        internal bool clearCacheOnComplete = false;
-
+		/// <summary>
+		/// The is asset bundle.
+		/// </summary>
+		internal bool isAssetBundle = true;
         /// <summary>
         /// 放入内存池
         /// </summary>

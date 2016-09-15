@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using Hugula.Utils;
 using Hugula.Update;
+using Hugula.Collections;
 
 namespace Hugula.Loader
 {
@@ -49,6 +50,7 @@ namespace Hugula.Loader
                     if (!loaderPool[i].isFree)
                         count++;
                 }
+//				count += freeLoader.Count;
                 return count;
             }
         }
@@ -88,7 +90,7 @@ namespace Hugula.Loader
         /// <summary>
         /// 所有请求队列
         /// </summary>
-        static protected CQueueRequest queue = new CQueueRequest();
+		static protected PriorityQueue<CRequest> queue = new PriorityQueue<CRequest>(new CRequestComparer());
 
         /// <summary>
         /// 异步加载队列
@@ -120,6 +122,9 @@ namespace Hugula.Loader
         /// </summary>
         static List<CCar> loaderPool = new List<CCar>();
 
+		//
+		static List<CCar> freeLoader = new List<CCar>();
+
         /// <summary>
         /// 加载完成解压回调队列
         /// </summary>
@@ -130,6 +135,10 @@ namespace Hugula.Loader
         /// </summary>
         static Dictionary<CRequest, GroupRequestRecord> currGroupRequestsRef = new Dictionary<CRequest, GroupRequestRecord>();
 
+		/// <summary>
+		/// All group request record.
+		/// </summary>
+		static List<GroupRequestRecord> allGroupRequestRecord = new List<GroupRequestRecord> ();
         #endregion
 
         #region mono
@@ -164,6 +173,24 @@ namespace Hugula.Loader
                 }
             }
 
+			for (int i = 0; i < freeLoader.Count; ) {
+				CCar load = freeLoader [i];
+				if (load.enabled)load.Update();
+					
+				if (load.isFree) {
+					
+					#if HUGULA_LOADER_DEBUG
+					if(load.req!=null)
+						Debug.LogFormat (" 1. a <color=yellow>freeLoader is free Req(assetname={0},url={1}) frameCount{2}</color>", load.req.assetName, load.req.url, Time.frameCount);
+					else
+						Debug.LogFormat (" 1. a <color=yellow>freeLoader is free Req(assetname={0},url={1}) frameCount{2}</color>", load, load, Time.frameCount);
+					#endif
+					freeLoader.RemoveAt(i);
+					ReleaseCCar (load); //放回对象池
+				} else
+					i++;
+			}
+
             //ab
             for (int i = 0; i < loadingAssetBundleQueue.Count; )
             {
@@ -196,7 +223,7 @@ namespace Hugula.Loader
                     else
                         item.data = item.assetBundleRequest;
 					#if HUGULA_LOADER_DEBUG
-					Debug.LogFormat(" 5. <color=yellow>set Req(assetname={0},url={1}).data asnyc frameCount{2}</color>",item.assetName,item.url,Time.frameCount);
+					Debug.LogFormat(" 5. <color=yellow>set Req(assetname={0},url={1}).data asnyc Count{2} frameCount{3} </color>",item.assetName,item.url,loadingAssetQueue.Count,Time.frameCount);
 					#endif
                     loadedAssetQueue.Enqueue(item);
                     loadingAssetQueue.RemoveAt(i);
@@ -206,7 +233,7 @@ namespace Hugula.Loader
                     loadedAssetQueue.Enqueue(item);
                     loadingAssetQueue.RemoveAt(i);
 					#if HUGULA_LOADER_DEBUG
-					Debug.LogFormat(" 5. <color=yellow>set Req(assetname={0},url={1}).data frameCount{2}</color>",item.assetName,item.url,Time.frameCount);
+					Debug.LogFormat(" 5. <color=yellow>set Req(assetname={0},url={1}).data  Count{2} frameCount{3}</color>",item.assetName,item.url,loadingAssetQueue.Count,Time.frameCount);
 					#endif
 				}
                 else
@@ -217,6 +244,25 @@ namespace Hugula.Loader
             {
                 LoadAssetComplate(loadedAssetQueue.Dequeue());
             }
+
+			//组进度条
+			for (int i = 0; i < allGroupRequestRecord.Count;) {
+				var group = allGroupRequestRecord [i];
+				group.Progress ();
+				if (group.Count > 0) {
+					i++;
+				}else
+				{
+					var act = group.onGroupComplate;
+					GroupRequestRecordPool.Release(group);
+					allGroupRequestRecord.RemoveAt (i);
+					if (act != null)
+					{
+						act(group);
+					}
+
+				}
+			}
         }
 
         #endregion
@@ -227,13 +273,14 @@ namespace Hugula.Loader
         /// 将多个资源加载到本地并缓存。
         /// </summary>
         /// <param name="req"></param>
-        public void LoadReq(IList<CRequest> req, System.Action<object> onGroup)//onAllCompleteHandle onAllCompletehandle=null,onProgressHandle onProgresshandle=null
+		public void LoadReq(IList<CRequest> req, System.Action<object> onGroup,System.Action<LoadingEventArg> onProgress)//onAllCompleteHandle onAllCompletehandle=null,onProgressHandle onProgresshandle=null
         {
             GroupRequestRecord groupFn = null;
             if (onGroup != null)
             {
                 groupFn = GroupRequestRecordPool.Get();
                 groupFn.onGroupComplate = onGroup;
+				groupFn.onGroupProgress = onProgress;
             }
             for (int i = 0; i < req.Count; i++)
                 AddReqToQueue(req[i], groupFn);
@@ -250,6 +297,30 @@ namespace Hugula.Loader
             AddReqToQueue(req);
             BeginQueue();
         }
+
+		/// <summary>
+		/// Loads the req.
+		/// </summary>
+		/// <param name="req">Req.</param>
+		/// <param name="group">Group.</param>
+		public void LoadReq(CRequest req,GroupRequestRecord group)
+		{
+			AddReqToQueue(req,group);
+			BeginQueue();
+		}
+
+		/// <summary>
+		/// Removes all actions.
+		/// </summary>
+		public void RemoveAllEvents()
+		{
+			OnAllComplete = null;
+			OnProgress = null;
+			OnSharedComplete = null;
+			OnSharedErr = null;
+			OnAssetBundleComplete = null;
+			OnAssetBundleErr = null;
+		}
 
         protected static bool AddReqToQueue(CRequest req, GroupRequestRecord group = null)
         {
@@ -273,7 +344,6 @@ namespace Hugula.Loader
             {
                 requestCallBackList[key].Add(req);
 				if (!req.isShared) {
-					totalLoading++;
 					if (group != null)
 						PushGroup (req, group);
 				}
@@ -285,16 +355,23 @@ namespace Hugula.Loader
                 requestCallBackList.Add(key, listreqs);
                 listreqs.Add(req);
 
-                if (queue.Size() == 0 && currentLoading == 0)
+				if (queue.Count == 0 && currentLoading == 0 && loadingAssetBundleQueue.Count == 0 )
                 {
-                    totalLoading = 1;
+                    totalLoading = 0;
                     currentLoaded = 0;
                 }
 
-				if (req.isShared) {
-					realyLoadingQueue.Enqueue (req);
-				} else {
-					queue.Add (req);
+				if (req.isShared){
+					QueueOrLoad (req);//realyLoadingQueue.Enqueue (req);
+				}
+				else if(!req.isNormal) 
+				{
+					QueueOrLoad (req);
+					if (group != null)
+						PushGroup (req, group);
+				}
+				else {
+					queue.Push (req);
 					totalLoading++;
 					if (group != null)
 						PushGroup (req, group);
@@ -306,9 +383,9 @@ namespace Hugula.Loader
 
         protected static void BeginQueue()
         {
-            if (queue.Size() > 0 && currentLoading < maxLoading)
+			if (queue.Count > 0 && currentLoading < maxLoading)
             {
-                var cur = queue.First();
+				var cur = queue.Pop();
                 LoadAssetBundle(cur);
             }
         }
@@ -317,7 +394,7 @@ namespace Hugula.Loader
         {
             List<CRequest> callbacklist = null;// requestCallBackList[creq.udKey];
             string udkey = creq.udKey;
-            if (requestCallBackList.TryGetValue(udkey, out callbacklist))
+			if (requestCallBackList.TryGetValue(udkey, out callbacklist))
             {
                 requestCallBackList.Remove(udkey);
                 int count = callbacklist.Count;
@@ -325,16 +402,30 @@ namespace Hugula.Loader
                 for (int i = 0; i < count; i++)
                 {
                     reqitem = callbacklist[i];
-                    loadingAssetBundleQueue.Add(reqitem);
+
+					if (!creq.isAssetBundle) { //如果加载的不是assetbundle
+						reqitem.data = creq.data;
+						loadedAssetQueue.Enqueue (reqitem);		
+						#if HUGULA_LOADER_DEBUG
+						Debug.LogFormat("3. <color=green>  Add all to loadedAssetQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+						#endif
+					} else if (!creq.isShared) { //非共享资源需要回调
+						loadingAssetBundleQueue.Add (reqitem);
+						#if HUGULA_LOADER_DEBUG
+						Debug.LogFormat("3. <color=green>  Add all to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+						#endif
+					}
                 }
 				ListPool<CRequest>.Release(callbacklist);
-				#if HUGULA_LOADER_DEBUG
-				Debug.LogFormat("3. <color=green>  Add all to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
-				#endif
+
+				if(creq.isShared)loadingAssetBundleQueue.Add(creq);
             }
             else
             {
-                loadingAssetBundleQueue.Add(creq);
+				if (!creq.isAssetBundle) //r如果不是assetbundle不需要load asset
+					loadedAssetQueue.Enqueue (creq);
+				else
+                	loadingAssetBundleQueue.Add(creq);
 				#if HUGULA_LOADER_DEBUG
 				Debug.LogFormat("3. <color=green> Add one to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
 				#endif
@@ -360,7 +451,6 @@ namespace Hugula.Loader
 				for (int i = 0; i < count; i++) {
 					reqitem = callbacklist [i];
 					reqitem.DispatchEnd ();
-					currentLoaded++;
 					PopGroup (reqitem);
 				}
 				ListPool<CRequest>.Release (callbacklist);
@@ -374,7 +464,7 @@ namespace Hugula.Loader
 
         protected static void CheckAllComplete()
         {
-            if (currentLoading <= 0 && queue.Size() == 0)
+			if (currentLoading <= 0 && queue.Count == 0)
             {
                 var loadingEvent = _instance.loadingEvent;
                 loadingEvent.target = _instance;
@@ -383,7 +473,7 @@ namespace Hugula.Loader
                 loadingEvent.current = currentLoaded;
                 if (_instance.OnProgress != null && totalLoading > 0)
                 {
-                    _instance.OnProgress(_instance, loadingEvent);
+                    _instance.OnProgress(loadingEvent);
                 }
 
                 if (_instance.OnAllComplete != null)
@@ -398,14 +488,14 @@ namespace Hugula.Loader
 			#endif
 			if (req.isShared) {
 				CountMananger.Add(req.keyHashCode);
+				CountMananger.AddDependencies (req.keyHashCode);
 				if (_instance && _instance.OnSharedComplete != null)
 					_instance.OnSharedComplete(req);
 
 				CacheManager.SetAssetLoaded (req.keyHashCode);
 				if (req.pool) LRequestPool.Release (req);
 			} else {
-				currentLoaded++;
-				ClearNoABCache (req);
+				if (req.assetBundleRequest != null) CacheManager.RemoveLock(req.keyHashCode);
 				req.DispatchComplete ();
 				PopGroup (req);
 			}
@@ -446,6 +536,8 @@ namespace Hugula.Loader
         {
             currGroupRequestsRef[req] = group;
             group.Add(req);
+			if (!allGroupRequestRecord.Contains (group))
+				allGroupRequestRecord.Add (group);
         }
 
         static void PopGroup(CRequest req)
@@ -455,36 +547,25 @@ namespace Hugula.Loader
             {
                 currGroupRequestsRef.Remove(req);
                 group.Complete(req);
-                if (group.Count == 0)
-                {
-                    var act = group.onGroupComplate;
-                    GroupRequestRecordPool.Release(group);
-                    if (act != null)
-                    {
-                        act(req);
-                    }
-                }
             }
 
             if (req.pool) LRequestPool.Release(req);
         }
 
-        /// <summary>
-        /// 清理没有ab的缓存
-        /// </summary>
-        /// <param name="req"></param>
-        static void ClearNoABCache(CRequest req)
-        {
-            if (req.assetBundleRequest != null) CacheManager.RemoveLock(req.keyHashCode);
-
-            if (req.clearCacheOnComplete)
-            {
-#if HUGULA_LOADER_DEBUG
-                Debug.LogFormat("<color=#8cacbc>{0} ClearCache</color>", req.key);
-#endif
-                CacheManager.ClearCache(req.keyHashCode);
-            }
-        }
+		/// <summary>
+		/// 排队或者加载
+		/// </summary>
+		/// <param name="req">Req.</param>
+		static void QueueOrLoad(CRequest req)
+		{
+			if (req.isNormal)
+				realyLoadingQueue.Enqueue (req);
+			else {
+				CCar car = GetCCar ();
+				freeLoader.Add (car);
+				car.BeginLoad (req);
+			}
+		}
 
         #endregion
 
@@ -496,7 +577,11 @@ namespace Hugula.Loader
 			Debug.LogFormat(" 2. <color=green>CResLoader.LoadComplete Request(assetName={0}, url={1},isShared={2})</color>", creq.assetName,creq.url,creq.isShared);
 			#endif
             downloadings.Remove(creq.udKey);
-            CallbackAsyncList(creq);
+			CallbackAsyncList (creq);
+			if (!creq.isShared || !creq.isNormal) //共享和非普通都不计数
+				currentLoaded++;
+			if (!creq.isShared && creq.isAssetBundle && _instance!=null && _instance.OnAssetBundleComplete != null)
+				_instance.OnAssetBundleComplete (creq);
         }
 
         static void LoadError(CCar cloader, CRequest req)
@@ -535,13 +620,17 @@ namespace Hugula.Loader
                     if (!callbacklist.Contains(req))
                         callbacklist.Add(req);
                     requestCallBackList[udkey] = callbacklist;
-                    realyLoadingQueue.Enqueue(req);
+					QueueOrLoad (req);//realyLoadingQueue.Enqueue(req);
                 }
 
             }
             else
             {
+				if (!req.isShared)
+					currentLoaded++;
                 CallbackError(req);
+				if (!req.isShared && !string.IsNullOrEmpty(req.assetBundleName) && _instance != null && _instance.OnAssetBundleErr != null)
+					_instance.OnAssetBundleErr (req);
                 BeginQueue();
                 CheckAllComplete();
             }
@@ -559,7 +648,7 @@ namespace Hugula.Loader
             loadingEvent.progress = progress;
             if (_instance && _instance.OnProgress != null && totalLoading > 0)
             {
-                _instance.OnProgress(_instance, loadingEvent);
+                _instance.OnProgress(loadingEvent);
             }
         }
 
@@ -573,9 +662,9 @@ namespace Hugula.Loader
         static protected void LoadAssetBundle(CRequest req)
         {
             if (assetBundleManifest != null)
-				req.allDependencies = LoadDependencies(req.assetBundleName); //加载依赖
+				req.allDependencies = LoadDependencies(req); //加载依赖
 
-            realyLoadingQueue.Enqueue(req);//加载自己
+			QueueOrLoad (req);//realyLoadingQueue.Enqueue(req);//加载自己
 
         }
 
@@ -583,9 +672,9 @@ namespace Hugula.Loader
         /// 加载依赖项目
         /// </summary>
         /// <param name="req"></param>
-		static protected int[] LoadDependencies(string assetBundleName)
+		static protected int[] LoadDependencies(CRequest req)
         {
-            string[] deps = assetBundleManifest.GetAllDependencies(assetBundleName);
+            string[] deps = assetBundleManifest.GetAllDependencies(req.assetBundleName);
 
 			if (deps.Length == 0) return null;
             string dep_url;
@@ -608,22 +697,24 @@ namespace Hugula.Loader
                     item.isShared = true;
                     item.async = false;
 					//依赖项目
-					string[] depds = assetBundleManifest.GetAllDependencies(item.assetBundleName);
-					if(depds.Length > 0)
-					{
-						int[] hash1s = new int[depds.Length];
-						for (int i1 = 0; i1 < depds.Length; i1++)
-						{
-							depAbName = depds [i1];
-							dep_url = RemapVariantName(depAbName);
-							keyhash = LuaHelper.StringToHash(dep_url);
-							hash1s[i1] = keyhash;
-						}
-						item.allDependencies = hash1s;
-					}
+                    string[] depds = assetBundleManifest.GetAllDependencies(item.assetBundleName);
+                    if(depds.Length > 0)
+                    {
+                        int[] hash1s = new int[depds.Length];
+                        for (int i1 = 0; i1 < depds.Length; i1++)
+                        {
+                            depAbName = depds [i1];
+                            dep_url = RemapVariantName(depAbName);
+                            keyhash = LuaHelper.StringToHash(dep_url);
+                            hash1s[i1] = keyhash;
+                        }
+                        item.allDependencies = hash1s;
+                    }
 					#if HUGULA_LOADER_DEBUG
-					Debug.LogFormat("<color=yellow> Req(assetname={0}) /r/n Begin LoadDependencies Req(assetname={1},url={2}) frameCount{3}</color>",assetBundleName,item.assetName,item.url,Time.frameCount);
+					Debug.LogFormat("<color=yellow> Req(assetname={0}) /r/n Begin LoadDependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetBundleName,item.assetName,item.url,Time.frameCount);
 					#endif
+					item.isNormal = req.isNormal;
+					item.uris = req.uris;
 					AddReqToQueue (item);									
 				}
             }
@@ -644,6 +735,13 @@ namespace Hugula.Loader
 
             return false;
         }
+
+		static int CompareFunc(CRequest a, CRequest b)
+		{
+			if (a.priority < b.priority) return 1;
+			if (a.priority > b.priority) return -1;
+			return 0;
+		}
 
         /// <summary>
         /// ab manifest
@@ -719,17 +817,24 @@ namespace Hugula.Loader
         /// 获取空闲的loader
         /// </summary>
         /// <returns></returns>
-        public static void CreateFreeLoader()
+		internal static void CreateFreeLoader()
         {
-            for (int i = loaderPool.Count; i < maxLoading; i++)
-            {
-                CCar cts = new CCar();
-                loaderPool.Add(cts);
-                cts.OnComplete = LoadComplete;
-                cts.OnError = LoadError;
-                cts.OnProcess = OnProcess;
-            }
+			int dtCount = loaderPool.Count - maxLoading;//计算差值
 
+			if (dtCount < 0) {
+				for (int i = dtCount; i <= -1; i++) {
+					CCar cts = GetCCar ();//new CCar ();
+					loaderPool.Add (cts);
+				}
+			} else if(dtCount > 0){
+				for (int i = dtCount; i >= 1; i--) {
+					int rIndex = loaderPool.Count - 1;
+					CCar cts = loaderPool [rIndex];
+					loaderPool.RemoveAt (rIndex);
+					freeLoader.Add (cts);
+				}
+			}
+//			Debug.LogFormat(" count = {0},dtCount {1} maxLoading {2}",loaderPool.Count,dtCount,maxLoading);
         }
 
         #endregion
@@ -737,16 +842,46 @@ namespace Hugula.Loader
         #region  delegate and event
 
         public System.Action<CResLoader> OnAllComplete;
-        public System.Action<CResLoader> OnGroupComplete;
-        public System.Action<CResLoader, LoadingEventArg> OnProgress;
+        public System.Action<LoadingEventArg> OnProgress;
         public System.Action<CRequest> OnSharedComplete;
 		public System.Action<CRequest> OnSharedErr;
-
+		public System.Action<CRequest> OnAssetBundleComplete;
+		public System.Action<CRequest> OnAssetBundleErr;
         #endregion
 
         #region instance
         protected static CResLoader _instance;
         #endregion
+
+		#region car pool 
+
+
+	
+		static ObjectPool<CCar> freeLoaderPool = new ObjectPool<CCar> (m_CCarOnGet, m_CCarOnRelease);
+
+		static void m_CCarOnGet(CCar cts)
+		{
+			cts.OnComplete = LoadComplete;
+			cts.OnError = LoadError;
+			cts.OnProcess = OnProcess;
+		}
+
+		static void m_CCarOnRelease(CCar re)
+		{
+			//re.isFree = true;
+		}
+
+		static CCar GetCCar()
+		{
+			return freeLoaderPool.Get ();			
+		}
+
+		static void ReleaseCCar(CCar car)
+		{
+			freeLoaderPool.Release(car);
+		}
+
+		#endregion
     }
 
     [SLua.CustomLuaClass]
@@ -759,6 +894,17 @@ namespace Hugula.Loader
         public float progress;
     }
 
+	public class CRequestComparer:IComparer<CRequest>
+	{
+		public int Compare(CRequest a, CRequest b)
+		{
+			if (a.priority < b.priority) return 1;
+			if (a.priority > b.priority) return -1;
+			return 0;
+		}
+	}
+
+	[SLua.CustomLuaClass]
     public class GroupRequestRecordPool
     {
         static ObjectPool<GroupRequestRecord> pool = new ObjectPool<GroupRequestRecord>(null, m_ActionOnRelease);
@@ -767,6 +913,7 @@ namespace Hugula.Loader
         {
             re.Count = 0;
             re.onGroupComplate = null;
+			re.onGroupProgress = null;
         }
 
         public static GroupRequestRecord Get()
@@ -780,15 +927,32 @@ namespace Hugula.Loader
         }
     }
 
+	[SLua.CustomLuaClass]
     public class GroupRequestRecord
     {
         public System.Action<object> onGroupComplate;
 
+		public System.Action<LoadingEventArg> onGroupProgress;
+
         HashSet<CRequest> groupRes = new HashSet<CRequest>();
+
+		public void Progress()
+		{
+			arg.total = Total;
+			arg.current = Total - Count;
+			if (onGroupProgress != null)
+				onGroupProgress (arg);
+		}
+
+		/// <summary>
+		/// The length.
+		/// </summary>
+		public int Total = 0;
 
         public void Add(CRequest req)
         {
             groupRes.Add(req);
+			Total++;
         }
 
         public void Complete(CRequest req)
@@ -796,6 +960,10 @@ namespace Hugula.Loader
             groupRes.Remove(req);
         }
 
+		/// <summary>
+		/// 当前数量
+		/// </summary>
+		/// <value>The count.</value>
         public int Count
         {
             get
@@ -805,9 +973,14 @@ namespace Hugula.Loader
             set
             {
                 groupRes.Clear();
+				Total = 0;
+				arg.current = 0;
+				arg.progress = 0;
+				arg.total = 0;
             }
         }
 
+		private LoadingEventArg arg = new LoadingEventArg();
     }
 
 }

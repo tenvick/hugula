@@ -114,9 +114,19 @@ namespace Hugula.Pool
 
         }
 
+		void OnDestroy()
+		{
+			if (_gameObject == this.gameObject)
+				_gameObject = null;
+			ClearAllCache ();
+			Clear();
+		}
+
+
         #endregion
 
         #region static
+
 
         #region config
         /// <summary>
@@ -388,6 +398,39 @@ namespace Hugula.Pool
             Remove(hash);
         }
 
+		/// <summary>
+		/// Clears all cache.
+		/// </summary>
+		public static void ClearAllCache()
+		{
+			prefabsType.Clear();
+			willGcList.Clear ();
+			var freeValues = prefabFreeQueue.Values.GetEnumerator();
+			while (freeValues.MoveNext ()) {
+				var queue = freeValues.Current;
+				while (queue.Count > 0)
+				{
+					var refer = queue.Dequeue();
+					if(refer)GameObject.Destroy(refer.gameObject);
+				}
+			}
+			prefabFreeQueue.Clear ();
+
+			var refValues = prefabRefCaches.Values.GetEnumerator ();
+			HashSet<ReferGameObjects> reflist;
+			ReferGameObjects item;
+			while (refValues.MoveNext ()) {
+				var items = refValues.Current.GetEnumerator ();
+				while (items.MoveNext())
+				{
+					item = items.Current;
+					if(item)GameObject.Destroy(item.gameObject);
+				}
+				items.Dispose ();
+			}
+			prefabRefCaches.Clear ();
+		}
+
         internal static void Remove(int key)
         {
             GameObject obj = null;
@@ -449,7 +492,7 @@ namespace Hugula.Pool
         /// <param name="key"></param>
         /// <param name="force"></param>
         /// <returns></returns>
-        internal static bool CanGC(int key, bool force)
+         internal static bool CanGC(int key, bool force)
         {
             HashSet<ReferGameObjects> reflist;
             prefabRefCaches.TryGetValue(key, out reflist);
@@ -533,6 +576,22 @@ namespace Hugula.Pool
         #endregion
 
         #endregion
+
+		#region gameobject
+		private static GameObject _gameObject;
+
+		public static GameObject instance
+		{
+			get {
+				if (_gameObject == null) {
+					_gameObject = new GameObject ("PrefabPool");
+					_gameObject.AddComponent<PrefabPool> ();
+				}
+
+				return _gameObject;
+			}
+		}
+		#endregion
     }
 
 

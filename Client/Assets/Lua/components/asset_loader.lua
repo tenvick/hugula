@@ -125,7 +125,11 @@ function AssetLoader:load_assets(assets)
 		end
 	end
 
-    if #reqs>0 then	Loader:get_resource(reqs) end
+    if #reqs>0 then
+    	Loader:get_resource(reqs,self._onall_complete,self._on_progress) 
+    else
+    	if self._onall_complete then self._onall_complete() end
+    end
 end
 
 function AssetLoader:clear()
@@ -138,10 +142,12 @@ function AssetLoader:clear()
 --    unload_unused_assets()
 end
 
-function AssetLoader:load(asts)
+function AssetLoader:load(asts,onall_complete,on_progress)
 	self._load_curr = 0
 	self.assets = {}
 	self._load_count = #asts
+	self._on_progress = on_progress
+	self._onall_complete = onall_complete
 	self:load_assets(asts)
 
 end

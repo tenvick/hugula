@@ -20,6 +20,10 @@ function transform:on_focus( ... )
     end
 end
 
+function transform:dispose( ... ) --override dispose need't dispose on reload
+
+end
+
 function transform:on_click( ... )
 	return true
 end

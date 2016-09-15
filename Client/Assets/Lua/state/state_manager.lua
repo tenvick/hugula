@@ -63,6 +63,11 @@ local function get_diff_log(curr_state,curr_log)
     return change,add,remove
 
 end
+
+local function unload_unused_assets()
+  collectgarbage("collect")
+  Resources.UnloadUnusedAssets()
+end
 -------------------------------------------------------------------
 StateManager =
 {
@@ -126,6 +131,13 @@ end
 function StateManager:call_all_item_method( )
     local curr_state = self._current_game_state
     self:input_enable()
+
+    local previous_state = curr_state._on_state_showed_flag
+    if previous_state and previous_state[1] then
+         curr_state:on_filter_event(previous_state[2],"on_state_showed",previous_state[2]) 
+         curr_state._on_state_showed_flag = nil
+    end--当前状态所有item显示完毕
+
     if curr_state.method then
         curr_state:on_event(curr_state.method,unpack(curr_state.args))
         curr_state.method = nil
@@ -153,23 +165,23 @@ function StateManager:set_current_state(new_state,method,...)
     -- print("new_state",new_state)
     if(self._current_game_state ~= nil) then
         self._current_game_state:on_blur(new_state)
+        unload_unused_assets()
     end
 
-    local previousState = self._current_game_state
+    local previous_state = self._current_game_state
     self._current_game_state = new_state
 
     new_state.method=method
     new_state.args={...}
-
-    new_state:on_focus(previousState)
+    new_state._on_state_showed_flag = {true,previous_state}
+    new_state:on_focus(previous_state)
 
     if new_state:is_all_loaded() then self:call_all_item_method() end
-
-    unload_unused_assets()
 
     self:record_state() --记录状态用于返回   
     self:call_on_state_change(new_state) --state change event
 end
+
 function StateManager:record_state() --记录状态用于返回
     local curr_state = self._current_game_state --当前状态
     if curr_state.log_enable == false then 
@@ -250,9 +262,9 @@ function StateManager:go_back(index) --返回
     
         local previous_state = self._current_game_state
         self._current_game_state = new_state
+        new_state._on_state_showed_flag = {true,previous_state}
         new_state:on_focus(previous_state)
         new_state:on_back(previous_state)
-
         if new_state:is_all_loaded() then self:call_all_item_method() end
 
     end

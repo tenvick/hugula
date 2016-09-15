@@ -15,6 +15,7 @@ public class ReferenceCountInfoEditor : Editor
 	string str = "";
 	bool showList = true;
 	int findCount = -1;
+    int allCount = 0;
 
     public override void OnInspectorGUI()
     {
@@ -52,7 +53,8 @@ public class ReferenceCountInfoEditor : Editor
 
 		EditorGUILayout.EndHorizontal ();
 
-		EditorGUILayout.LabelField("show reference count list ", GUILayout.Width(150));
+        allCount = CacheManager.caches.Keys.Count;
+        EditorGUILayout.LabelField("show reference count list " + allCount, GUILayout.Width(180));
 		showList = EditorGUILayout.Toggle (showList, GUILayout.Width (20));
 		if (showList) {
 			foreach (var k in CacheManager.caches) {

@@ -35,21 +35,17 @@ namespace Hugula
 
 	#region init
 	
-	void LuaBegin()
-    {
-        //Debug.Log("LuaBegin");
-		PLua luab=this.gameObject.GetComponent<PLua>();
-		if(luab==null)
-		{
-            PLua.enterLua = this.enterLua;
-            PLua p=gameObject.AddComponent<PLua>();
-        }
-        else if (luab.enabled == false)
+  void LuaBegin()
         {
-            luab.enabled = true;
+			PLua.enterLua = this.enterLua;
+			if(PLua.instance!=null)
+			{
+				#if UNITY_EDITOR
+				Debug.Log ("Lua Begin " + this.enterLua);
+				#endif
+			}
         }
-	
-	}
+
 	#endregion
 
         #region protected

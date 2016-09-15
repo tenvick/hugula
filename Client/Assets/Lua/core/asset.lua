@@ -31,9 +31,12 @@ function Asset:clear()
 	table.clear(self.items)
 end
 
---消耗
+--销毁
 function Asset:dispose()
-	if self.root then LuaHelper.Destroy(self.root) end
+	if self.root then
+		LuaHelper.Destroy(self.root)
+		--print("Asset.dispose",self.key,self.asset_name)
+	end
 	self.root = nil
 	self.refer = nil
 	GAMEOBJECT_ATLAS[self.key]=nil

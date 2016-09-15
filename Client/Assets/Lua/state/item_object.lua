@@ -63,10 +63,11 @@ function ItemObject:hide( ... )
   end
 end
 
-function ItemObject:clear( ... )
-   local assets = self.assets
-   assert(assets ~= nil)
-   for k,v in ipairs(assets) do
+function ItemObject:dispose( ... )
+    local assets = self.assets
+    if self.on_dispose then self:on_dispose() end
+    assert(assets ~= nil)
+    for k,v in ipairs(assets) do
         v:dispose()
     end
     self.is_call_assets_loaded = nil
@@ -111,7 +112,7 @@ end
 function ItemObject:add_to_state(state)
   if state == nil then
     StateManager:get_current_state():add_item(self)
-    self:on_focus(StateManager:get_current_state())
+    self:on_focus()
     if self.log_enable then StateManager:record_state() end
   else
     state:add_item(self)

@@ -95,9 +95,22 @@ public class AssetbundlesMenuItems
         List<string> allAssetPaths = new List<string>();
         foreach (Object s in selection)
         {
-            allAssetPaths.Add(AssetDatabase.GetAssetPath(s));
+			string filepath = AssetDatabase.GetAssetPath (s);
+			if (!File.Exists (filepath)) {
+				string dirpath = filepath.Replace (Application.dataPath, "");
+				Debug.Log (dirpath);
+				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
+					&& !(path.EndsWith(".cs"))
+				).ToArray();
+
+				allAssetPaths.AddRange (allAssets);
+			}else
+				allAssetPaths.Add(filepath);
         }
 
+//		foreach (var s in allAssetPaths)
+//			Debug.Log (s);
         BuildScript.UpdateAssetBundlesName(allAssetPaths.ToArray());
     }
 

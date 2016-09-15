@@ -19,15 +19,16 @@ namespace Hugula.Loader
             base.OnAllComplete += L_onAllComplete;
             base.OnProgress += L_onProgress;
             base.OnSharedComplete += L_onSharedComplete;
-            base.OnGroupComplete += LResLoader_OnGroupComplete;
 			base.OnSharedErr += L_onSharedErr;
+			base.OnAssetBundleComplete += L_OnAssetBundleComplete;
+			base.OnAssetBundleErr += L_OnAssetBundleErrFn;
         }
 
         /// <summary>
         /// 加载luatable里面的request
         /// </summary>
         /// <param name="reqs"></param>
-        public void LoadLuaTable(LuaTable reqs, System.Action<object> groupCompleteFn)
+		public void LoadLuaTable(LuaTable reqs, System.Action<object> groupCompleteFn,System.Action<LoadingEventArg> groupProgressFn)
         {
             GroupRequestRecord re = null;
 
@@ -35,6 +36,7 @@ namespace Hugula.Loader
             {
                 re = GroupRequestRecordPool.Get();
                 re.onGroupComplate = groupCompleteFn;
+				re.onGroupProgress = groupProgressFn;
             }
 
             foreach (var pair in reqs)
@@ -47,22 +49,16 @@ namespace Hugula.Loader
 
         #region protected method
 
-        void LResLoader_OnGroupComplete(CResLoader obj)
-        {
-            if (groupCompleteFn != null) groupCompleteFn.call(obj);
-            groupCompleteFn = null;
-        }
-
         void L_onSharedComplete(CRequest req)
         {
             if (onSharedCompleteFn != null)
                 onSharedCompleteFn.call(req);
         }
 
-        void L_onProgress(CResLoader loader, LoadingEventArg arg)
+        void L_onProgress(LoadingEventArg arg)
         {
             if (onProgressFn != null)
-                onProgressFn.call(loader, arg);
+                onProgressFn.call(arg);
         }
 
         void L_onAllComplete(CResLoader loader)
@@ -77,15 +73,39 @@ namespace Hugula.Loader
 				onSharedErrFn.call(req);
 		}
 
+		void L_OnAssetBundleComplete(CRequest req)
+		{
+			if (onAssetBundleCompleteFn != null)
+				onAssetBundleCompleteFn.call (req);
+		}
+
+		void L_OnAssetBundleErrFn(CRequest req)
+		{
+			if (onAssetBundleErrFn != null)
+				onAssetBundleErrFn.call (req);
+		}
+
         #endregion
 
+		public void RemoveAllEvents()
+		{
+			onAllCompleteFn = null;
+			onProgressFn = null;
+			onSharedCompleteFn = null;
+			onCacheFn = null;
+			onSharedErrFn = null;
+			onAssetBundleCompleteFn = null;
+			onAssetBundleErrFn = null;
+		}
+
         #region  delegate and event
-        private LuaFunction groupCompleteFn;
         public LuaFunction onAllCompleteFn;
         public LuaFunction onProgressFn;
         public LuaFunction onSharedCompleteFn;
         public LuaFunction onCacheFn;
 		public LuaFunction onSharedErrFn;
+		public LuaFunction onAssetBundleCompleteFn;
+		public LuaFunction onAssetBundleErrFn;
 		#endregion
 
         #region instance

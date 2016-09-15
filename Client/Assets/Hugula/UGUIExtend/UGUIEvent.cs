@@ -119,6 +119,17 @@ namespace Hugula.UGUIExtend
             }
         }
 
+		public static void RemoveAllEvents()
+		{
+			onCustomerFn = null;
+			onPressFn = null;
+			onClickFn = null;
+			onDragFn = null;
+			onDropFn = null;
+			onSelectFn = null;
+			onCancelFn = null;
+		}
+
         #endregion
         public static LuaFunction onCustomerFn;
 

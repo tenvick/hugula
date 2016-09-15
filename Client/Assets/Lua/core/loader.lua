@@ -28,15 +28,20 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	if type(assetType)=="string" then 
 		assetType = LuaHelper.GetClassType(assetType) 
 	end
-	--print("create_req_url6 url=",url,"assetName=",assetName)
+	
 	if assetType ~= nil then req.assetType = assetType end
 	
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head ~= nil then req.head=head end 
-	if uris then req.uris = uris end
-	if async ~= nil then req.async = async end
+	if uris then 
+		req.uris = uris 
+		local uri = uris:GetUri(0)
+		if string.lower(string.sub(uri,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
+	end
 
+	if async ~= nil then req.async = async end
+	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"isNormal=",req.isNormal)
 	return req
 end
 
@@ -49,7 +54,7 @@ local function load_by_req( req )
 	Loader.multipleLoader:LoadReq(req)
 end
 
-local function load_by_table(tb,group_fn)
+local function load_by_table(tb,group_fn,progress_fn)
 	local arrList={} --ArrayList()
 	local len=#tb
 	local key = ""
@@ -84,7 +89,7 @@ local function load_by_table(tb,group_fn)
 			table.insert(arrList,v)
 		end
 	end
-	Loader.multipleLoader:LoadLuaTable(arrList,group_fn) 
+	Loader.multipleLoader:LoadLuaTable(arrList,group_fn,progress_fn) 
 end
 
 function Loader:clear(key)
@@ -103,9 +108,9 @@ function Loader:unload(url)
 	end
 end
 
--- load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
--- load_by_url4(url,compFn,endFn,head,uris,async)
---load_by_table( {url,compFn,endFn,head},group_fn)
+-- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async)
+-- load_by_url4(assetBundleName,compFn,endFn,head,uris,async)
+--load_by_table( {assetBundleName,assetName,assetType,compFn,endFn,head,uris,async},group_fn,progress_fn)
 function Loader:get_resource(...)	
 	local a,b,c,d,e,f,g,h = ...	
 	--url,onComplete
@@ -117,32 +122,34 @@ function Loader:get_resource(...)
 	elseif t_a=="userdata" then
 		load_by_req(a,b)
 	elseif t_a == "table" then
-		load_by_table(a,b)
+		load_by_table(a,b,c)
 	else
 		error(" loader.lua line 116  this is no overloaded function for args")
 	end
 end
 
-local function on_shared_complete(req)
-	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
-	-- print(req.key.." on_shared_complete "..req.assetBundleName.." "..tostring(deps.Length).." "..req.relativeUrl)
-	-- if deps.Length == 0 then
-	local ab = req.data
-	LuaHelper.RefreshShader(ab)
-	ab:LoadAllAssets()
-	-- end
+function Loader:set_onall_complete_fn(fn)
+	self.multipleLoader.onAllCompleteFn = fn
 end
 
-function Loader:set_onall_complete_fn(compFn)
-	self.multipleLoader.onAllCompleteFn=compFn
+function Loader:set_onprogress_fn(fn)
+	self.multipleLoader.onProgressFn = fn
 end
 
-function Loader:set_onprogress_fn(progFn)
-	self.multipleLoader.onProgressFn=progFn
+function Loader:set_on_assetbundle_comp_fn(fn)
+	self.multipleLoader.onAssetBundleCompleteFn = fn
+end
+
+function Loader:set_on_assetbundle_err_fn(fn)
+	self.multipleLoader.onAssetBundleErrFn = fn
 end
 
 function Loader:set_active_variants(vars)
 	LResLoader.ActiveVariants = vars --{"sd"}
+end
+
+function Loader:set_maxloading(max)
+	LResLoader.maxLoading = max --{"sd"}
 end
 
 function Loader:refresh_assetbundle_manifest(onReady)
@@ -157,4 +164,15 @@ function Loader:refresh_assetbundle_manifest(onReady)
     self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn)
 end
 
-Loader.multipleLoader.onSharedCompleteFn=on_shared_complete
+
+local function on_shared_complete(req)
+	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
+	-- print("on_shared_complete "..req.assetBundleName.." "..req.assetName)
+	-- if deps.Length == 0 then
+	local ab = req.data
+	LuaHelper.RefreshShader(ab)
+	ab:LoadAllAssets()
+	-- end
+end
+
+Loader.multipleLoader.onSharedCompleteFn = on_shared_complete

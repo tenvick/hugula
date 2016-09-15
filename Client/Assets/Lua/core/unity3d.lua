@@ -31,6 +31,7 @@ if Hugula ~= nil then
   UGUIEventLuaTrigger = Hugula.UGUIExtend.UGUIEventLuaTrigger
 end
 
+local ins = PrefabPool.instance
 --PrefabPool资源自动回收
 --当内存达到阈值的时候触发回收，回收按照PrefabCacheType从0开始每段回收
 --PrefabPool.gcDeltaTimeConfig = 10 两次GC检测间隔时间
@@ -49,7 +50,7 @@ PrefabCacheType =
   segment8 = 8  --永远不回收 TODO:自动收缩 
 }
 
--- function print() end
+--function print() end
 
 function tojson(tbl,indent)
     assert(tal==nil)
@@ -110,7 +111,7 @@ end
 function unload_unused_assets()
   lua_gc()
   Resources.UnloadUnusedAssets()
-  LuaHelper.GCCollect()
+  -- LuaHelper.GCCollect()
 end
 
 --用timer实现delay 函数
@@ -126,6 +127,10 @@ end
 function stop_delay(id)
   if type(id) == "number" then LuaTimer.Delete(id) end
 end
+
+
+delay = PLua.Delay
+stop_delay = PLua.StopDelay
 
 
 ---class

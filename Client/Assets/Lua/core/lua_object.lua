@@ -120,12 +120,12 @@ end
     local fn
     
     fn = self[method]
-    if fn then fn(self,...) end --fn(self,{...})
+    if type(fn) == "function" then fn(self,...) end --fn(self,{...})
     
     if cmps then
         for k,v in pairs(cmps) do
             fn = v[method]
-           if fn then fn(v,...) end --fn(v,unpack({...}))
+           if type(fn) == "function" then fn(v,...) end --fn(v,unpack({...}))
         end
     end
    

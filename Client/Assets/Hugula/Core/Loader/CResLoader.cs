@@ -72,9 +72,8 @@ namespace Hugula.Loader
                 if (_uriList == null)
                 {
                     _uriList = new UriGroup();
-                    _uriList.Add(CUtils.GetRealPersistentDataPath());
+					_uriList.Add(CUtils.GetRealPersistentDataPath(),true);
                     _uriList.Add(CUtils.GetRealStreamingAssetsPath());
-                    _uriList.SetCrcIndex(0);
                 }
                 return _uriList;
             }
@@ -326,7 +325,7 @@ namespace Hugula.Loader
         {
             if (req == null) return false;
 
-            if (!CrcCheck.CheckUriCrc(req)) //如果校验失败
+			if (!req.uris.CheckUriCrc(req))//(!CrcCheck.CheckUriCrc(req)) //如果校验失败
             {
 #if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 0. <color=yellow>CheckCrcUri0Exists==false Req(assetname={0},url={1})  </color>",req.assetName,req.url);
@@ -409,7 +408,7 @@ namespace Hugula.Loader
 						#if HUGULA_LOADER_DEBUG
 						Debug.LogFormat("3. <color=green>  Add all to loadedAssetQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
 						#endif
-					} else if (!creq.isShared) { //非共享资源需要回调
+					} else { // if (!creq.isShared) { //非共享资源需要回调
 						loadingAssetBundleQueue.Add (reqitem);
 						#if HUGULA_LOADER_DEBUG
 						Debug.LogFormat("3. <color=green>  Add all to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
@@ -418,7 +417,7 @@ namespace Hugula.Loader
                 }
 				ListPool<CRequest>.Release(callbacklist);
 
-				if(creq.isShared)loadingAssetBundleQueue.Add(creq);
+				// if(creq.isShared)loadingAssetBundleQueue.Add(creq);
             }
             else
             {

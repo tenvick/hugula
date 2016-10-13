@@ -81,11 +81,8 @@ function tojson(tbl,indent)
     return str
 end
 
-function print_table(tbl)	
-  local DEBUG = true
-  if DEBUG then
-    print(tojson(tbl)) 
-  end
+function print_table(tbl)	  
+   print("<color=#00ff00>"..tojson(tbl).."</color>")  
 end
 
 function math.randomseed1(i)
@@ -114,20 +111,23 @@ function unload_unused_assets()
   -- LuaHelper.GCCollect()
 end
 
+function send_message(obj,method,...)
+    local fn = obj[method]
+    if type(fn) == "function" then fn(obj,...) end
+end
 --用timer实现delay 函数
-function delay(fun,delay_time,...)
-    local arg = {...}
-    local function temp_delay(id)
-      fun(unpack(arg))
-    end
-    local id = LuaTimer.Add(delay_time*1000,temp_delay)
-    return id
-end
+-- function delay(fun,delay_time,...)
+--     local arg = {...}
+--     local function temp_delay(id)
+--       fun(unpack(arg))
+--     end
+--     local id = LuaTimer.Add(delay_time*1000,temp_delay)
+--     return id
+-- end
 
-function stop_delay(id)
-  if type(id) == "number" then LuaTimer.Delete(id) end
-end
-
+-- function stop_delay(id)
+--   if type(id) == "number" then LuaTimer.Delete(id) end
+-- end
 
 delay = PLua.Delay
 stop_delay = PLua.StopDelay

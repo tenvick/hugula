@@ -24,6 +24,10 @@ function AssetScene:clear()
 	-- print("clear ",self.scene_name)
 end
 
+function AssetScene:is_loaded()
+	if self.root == nil then return false end
+	return true
+end
 --消耗
 function AssetScene:dispose()
 	CacheManager.ClearCache(self.key) --清理缓存
@@ -43,7 +47,6 @@ end
 
 --
 function AssetScene:copy_to(asse)
-	if asse.type == nil then asse.type = self.type end
     asse.root = self.root
 	return asse
 end

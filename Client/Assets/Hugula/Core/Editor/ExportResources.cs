@@ -94,7 +94,7 @@ public class ExportResources
         EditorUtility.DisplayProgressBar("Generate FileList", "loading bundle manifest", 1 / 2);
 
 		string readPath = BuildScript.GetFileStreamingOutAssetsPath ();//+"\\";
-        var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$",null,false);
+		var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$|\.DS_Store$",null,false);
         Debug.Log("all ab count = "+u3dList.Count);
         List<string> assets = new List<string>();
         foreach (var s in u3dList)

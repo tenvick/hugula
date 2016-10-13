@@ -77,22 +77,24 @@ namespace Hugula.Loader
      
             if (req.head is WWWForm)
             {
-//				Debug.Log ("request" + req.head);
                 www = new WWW(url, (WWWForm)req.head);
             }
             else if (req.head is byte[])
             {
                 www = new WWW(url, (byte[])req.head);
             }
+            else if(req.isLoadFromCacheOrDownload)
+            {
+                if(CResLoader.assetBundleManifest!=null)
+                {
+                    www = WWW.LoadFromCacheOrDownload (url, CResLoader.assetBundleManifest.GetAssetBundleHash (req.assetBundleName), 0);
+                }else
+                {
+                    www = WWW.LoadFromCacheOrDownload (url, 0);
+                }
+            }
             else
             {
-                //			if (url.StartsWith ("http")) {
-                //				if(CResLoader.assetBundleManifest!=null)
-                //					www = WWW.LoadFromCacheOrDownload (url, CResLoader.assetBundleManifest.GetAssetBundleHash (req.assetBundleName), 0);
-                //				else
-                //					www = WWW.LoadFromCacheOrDownload (url, 0);
-                //			}
-                //            else
                 www = new WWW(url);
             }
 			#if HUGULA_LOADER_DEBUG

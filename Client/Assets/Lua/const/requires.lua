@@ -38,9 +38,10 @@ UPDATECOMPONENTS={} --all update fun components
 require("core.lua_object")
 require("core.asset")
 require("core.asset_scene")
+require("core.view")
 
 require("state.state_manager")
 require("state.item_object")
 require("state.state_base")
 
-require("game.model.model")
+require("models.model")

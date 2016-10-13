@@ -16,6 +16,7 @@ end)
 local StateManager = StateManager
 local ItemObject = LuaItemManager.ItemObject
 LuaItemManager.items = {}
+
 function LuaItemManager:get_item_obejct(objectName)
     local obj=self.items[objectName]
     if obj == nil then
@@ -27,6 +28,19 @@ function LuaItemManager:get_item_obejct(objectName)
       obj._require = true require(obj._lua_path) 
       if obj.initialize ~= nil then obj:initialize() end
     end
+    return  obj
+end
+
+--小心调用这个只用于subview关联
+function LuaItemManager:get_item_clone_obejct(objectName)
+    local obj=self.items[objectName]
+    if obj == nil then
+         print(objectName .. " is not registered ")
+        return nil
+    end
+   
+    require(obj._lua_path) 
+    if obj.initialize ~= nil then obj:initialize() end
     return  obj
 end
 
@@ -71,13 +85,14 @@ function ItemObject:dispose( ... )
         v:dispose()
     end
     self.is_call_assets_loaded = nil
+    -- self.property_changed = nil
 end
 
 function ItemObject:check_assets_loaded() --检测资源是否加载完成
     local assets = self.assets
     if assets and #assets >= 1 then
         for k,v in ipairs(assets) do
-          if v and v.root == nil then return false end --如果为空没有加载完成
+          if v and v:is_loaded() == false then return false end --如果为空没有加载完成
         end
       if  self.is_call_assets_loaded ~= true then return false end --如果还没有加载过
     end
@@ -109,10 +124,29 @@ function ItemObject:on_blur( state )
     -- self:send_message("on_hided",state) --隐藏完成
 end
 
+--注册 属性改变事件
+function ItemObject:register_property_changed(func,view)
+    if self.property_changed == nil then self.property_changed = {} end
+    self.property_changed[func] = view
+end
+
+--mvvm property change 当属性改变的时候需要调用
+function ItemObject:raise_property_changed(property_name)
+    if self.property_changed ~= nil then
+        local changed_tb = self.property_changed
+        for k,v in pairs(changed_tb) do
+            k(v,self, property_name)
+        end
+    end
+end
+
 function ItemObject:add_to_state(state)
-  if state == nil then
-    StateManager:get_current_state():add_item(self)
-    self:on_focus()
+    local current_state = StateManager:get_current_state()
+  if state == nil or state == current_state then
+    current_state:add_item(self)
+    if self.on_focusing then self:on_focusing(current_state) end
+    self:on_focus(current_state)
+    if self.on_focused then self:on_focused(current_state) end
     if self.log_enable then StateManager:record_state() end
   else
     state:add_item(self)
@@ -120,11 +154,13 @@ function ItemObject:add_to_state(state)
 end
 
 function ItemObject:remove_from_state(state)
-  if state == nil then
     local current_state = StateManager:get_current_state()
+  if state == nil or state == current_state then
     local removed = current_state:remove_item(self)
     if removed then --如果从当前状态移除成功
-        self:on_blur(current_state)
+        if self.on_bluring then self:on_bluring(new_state) end
+        self:on_blur(current_state) 
+        if self.on_blured then self:on_blured(new_state) end
         if self.log_enable then StateManager:record_state() end
     end
   else

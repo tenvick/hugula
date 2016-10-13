@@ -5,13 +5,16 @@
 ------------------------------------------------
 local Hugula = Hugula
 Loader={}
-local Request=Hugula.Loader.LRequest
+local Request = Hugula.Loader.LRequest
 local LRequestPool = Hugula.Loader.LRequestPool --内存池
 local CacheManager = Hugula.Loader.CacheManager
 local LResLoader = Hugula.Loader.LResLoader
 local CUtils = Hugula.Utils.CUtils
-local Loader=Loader 
-local LuaHelper=Hugula.Utils.LuaHelper
+local Common = Hugula.Utils.Common
+local LuaHelper = Hugula.Utils.LuaHelper
+
+local Loader = Loader 
+local md5_patter = ".+%."..Common.ASSETBUNDLE_SUFFIX.."$"
 
 Loader.multipleLoader= LResLoader.instance
 
@@ -19,9 +22,9 @@ local function dispatch_complete(req)
 	if req.onCompleteFn then req.onCompleteFn(req) end
 end
 
-local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	if assetName == nil then assetName = CUtils.GetAssetName(url) end
-	url = CUtils.GetRightFileName(url) --判断加密
+	if string.match(url,md5_patter) then url = CUtils.GetRightFileName(url) end--判断加密
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
 	req.relativeUrl = url
 	req.assetName = assetName
@@ -34,6 +37,7 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	if compFn then req.onCompleteFn=compFn end
 	if endFn then req.onEndFn=endFn end
 	if head ~= nil then req.head=head end 
+	if isLoadFromCacheOrDownload ~= nil then req.isLoadFromCacheOrDownload = isLoadFromCacheOrDownload end
 	if uris then 
 		req.uris = uris 
 		local uri = uris:GetUri(0)
@@ -45,8 +49,8 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	return req
 end
 
-local function load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
-	local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+local function load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
+	local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	Loader.multipleLoader:LoadReq(req)
 end
 
@@ -64,7 +68,7 @@ local function load_by_table(tb,group_fn,progress_fn)
 		if typen=="table" then
 			local l1=#v
 			local req 
-			local url,assetName,assetType,compFn,endFn,uris,head,async
+			local url,assetName,assetType,compFn,endFn,uris,head,async,isLoadFromCacheOrDownload
 			if l1>0 then url = v[1]  end
 			if l1>1 then assetName=v[2] end
 			if l1>2 then assetType=v[3] end
@@ -73,6 +77,7 @@ local function load_by_table(tb,group_fn,progress_fn)
 			if l1>5 then head=v[6] end
 			if l1>6 then uris=v[7] end
 			if l1>7 then async=v[8] end
+			if l1>8 then isLoadFromCacheOrDownload = v[9] end
 
 			if v.url then url = v.url end
 			if v.assetName then assetName = v.assetName end
@@ -82,8 +87,9 @@ local function load_by_table(tb,group_fn,progress_fn)
 			if v.uris then uris = v.uris end
 			if v.head ~= nil then head = v.head end
 			if v.async ~= nil then async = v.async end
+			if v.isLoadFromCacheOrDownload ~= nil then isLoadFromCacheOrDownload = v.isLoadFromCacheOrDownload end
 
-			local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+			local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 			table.insert(arrList,req)
 		elseif typen=="userdata" then
 			table.insert(arrList,v)
@@ -108,17 +114,17 @@ function Loader:unload(url)
 	end
 end
 
--- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async)
--- load_by_url4(assetBundleName,compFn,endFn,head,uris,async)
---load_by_table( {assetBundleName,assetName,assetType,compFn,endFn,head,uris,async},group_fn,progress_fn)
+-- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
+-- load_by_url4(assetBundleName,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
+--load_by_table( {assetBundleName,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload},group_fn,progress_fn)
 function Loader:get_resource(...)	
-	local a,b,c,d,e,f,g,h = ...	
+	local a,b,c,d,e,f,g,h,i = ...	
 	--url,onComplete
 	local t_a = type(a)
-	if t_a=="string" and (type(b)=="string" or type(b)=="nil")then 
-		load_by_url6(a,b,c,d,e,f,g,h)
+	if t_a=="string" and type(b)~="function" then 
+		load_by_url6(a,b,c,d,e,f,g,h,i)
 	elseif t_a=="string" and type(b) == "function" then
-		load_by_url6(a,nil,nil,b,c,d,e,f)
+		load_by_url6(a,nil,nil,b,c,d,e,f,g)
 	elseif t_a=="userdata" then
 		load_by_req(a,b)
 	elseif t_a == "table" then
@@ -155,6 +161,7 @@ end
 function Loader:refresh_assetbundle_manifest(onReady)
 
     local url = CUtils.GetPlatformFolderForAssetBundles()
+	url = CUtils.GetRightFileName(url)
     local  function onCompleteFn (req1)
         local data=req1.data
         LResLoader.assetBundleManifest=data

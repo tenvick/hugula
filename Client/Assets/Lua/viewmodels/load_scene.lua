@@ -17,18 +17,13 @@ local get_value = get_value --多国语言
 --UI资源
 load_scene.assets=
 {
-	--AssetScene(assetbundleName,sceneName,isAdditive)
-    AssetScene("loadscene.u3d","LoadScene",true) 
+    View("loadscene_view",load_scene) 
 }
 
 ------------------private-----------------
 
 
 ------------------public------------------
--- 资源加载完成时候调用方法
-function load_scene:on_assets_load(items)
-	print(" Load scene loaded")
-end
 
 --点击事件
 function load_scene:on_click(obj,arg)

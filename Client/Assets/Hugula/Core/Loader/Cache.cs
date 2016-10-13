@@ -251,6 +251,9 @@ namespace Hugula.Loader
 				req.data = www.bytes;
 				req.isAssetBundle = false;
 			}
+
+			req.uris.OnWWWComplete (req, www.bytes);
+
             www.Dispose();
 			return req.isAssetBundle;
         }

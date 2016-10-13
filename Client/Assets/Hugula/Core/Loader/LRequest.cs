@@ -17,22 +17,25 @@ namespace Hugula.Loader
     {
         public LRequest():base()
         {
-            this.OnComplete += OnCompHandler;
-            this.OnEnd += OnEndHandler;
+            BindAction();
         }
 
         public LRequest(string url)
             : base(url)
         {
-            this.OnComplete += OnCompHandler;
-            this.OnEnd += OnEndHandler;
+            BindAction();
         }
 
 		public LRequest(string url, string assetName, Type assetType)
             : base(url, assetName, assetType)
         {
-            this.OnComplete += OnCompHandler;
-            this.OnEnd += OnEndHandler;
+            BindAction();
+        }
+
+        internal void BindAction()
+        {
+            this.OnComplete = OnCompHandler;
+            this.OnEnd = OnEndHandler;
         }
 
         private void OnCompHandler(CRequest req)
@@ -72,6 +75,7 @@ namespace Hugula.Loader
         private static void m_ActionOnGet(LRequest req)
         {
             req.pool = true;
+            req.BindAction();
         }
 
         private static void m_ActionOnRelease(LRequest req)

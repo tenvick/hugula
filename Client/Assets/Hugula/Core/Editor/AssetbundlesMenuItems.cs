@@ -36,7 +36,7 @@ public class AssetbundlesMenuItems
     {
         var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
             (path.StartsWith("Assets/CustomerResource")
-                || path.StartsWith("Assets/TapEnjoy"))
+				|| path.StartsWith("Assets/Scene"))
             && !(path.EndsWith(".cs"))
         ).ToArray();
         BuildScript.GenerateAssetBundlesMd5Mapping(allAssets);

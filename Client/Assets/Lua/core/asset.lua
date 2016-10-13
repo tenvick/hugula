@@ -5,7 +5,6 @@
 ------------------------------------------------
 local CUtils=CUtils
 local LuaHelper=LuaHelper
-local CryptographHelper = CryptographHelper
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 Asset = class(function(self,url,names)
     self.base = false
@@ -24,23 +23,54 @@ Asset = class(function(self,url,names)
     self.refer = nil --ReferGameObjects
 end)
 
+function Asset:add_child(asset)
+	if 	self.children == nil then self.children = {} end
+	local index = #self.children
+	table.insert(self.children,asset)
+	asset.parent = self
+	asset.index = index --position
+end
+
+function Asset:is_loaded()
+	if self.root == nil then return false end
+	if self.children then
+		for k,v in pairs(self.children) do
+			if v:is_loaded() == false then return false end
+		end
+	end
+	return true
+end
+
 --清理引用
 function Asset:clear()
 	self.root = nil
 	self.refer = nil
 	table.clear(self.items)
+	self.ui_parent_joint = nil
+	self.ui_joint = nil
 end
 
 --销毁
 function Asset:dispose()
+	if self.children then
+		for k,v in pairs(self.children) do
+			v:dispose()
+		end
+	end
+
 	if self.root then
 		LuaHelper.Destroy(self.root)
-		--print("Asset.dispose",self.key,self.asset_name)
+		print("Asset.dispose",self.key,self.asset_name)
 	end
+	self.ui_parent_joint = nil
+	self.ui_joint = nil
+	-- self.parent = nil
+	-- self.children = nil
 	self.root = nil
 	self.refer = nil
-	GAMEOBJECT_ATLAS[self.key]=nil
+	if self.is_clone ~= true then GAMEOBJECT_ATLAS[self.key] = nil	end
 	table.clear(self.items)
+
 end
 
 function Asset:show(...)
@@ -70,22 +100,26 @@ end
 
 --
 function Asset:copy_to(asse)
-	if asse.type == nil then asse.type = self.type end
-	local names=asse.names
-	if names then
-		asse.items={}
-		for k,v in pairs(names) do
-			local ref=self.items[v]
-			asse.items[v] = ref
-		end
-	else
+	
+	if asse.parent == nil then
 		asse.items = {}
 		for k,v in pairs(self.items) do
 			asse.items[k]=v
 		end
+		asse.refer = self.refer
+		asse.root = self.root
+		asse.ui_parent_joint = self.ui_parent_joint
+		self.is_clone = nil
+	else
+		local root = LuaHelper.Instantiate(self.root)
+		root.name = self.root.name
+		local eachFn =function(i,obj)
+			asse.items[obj.name]=obj
+		end
+		LuaHelper.ForeachChild(root,eachFn)
+		asse.is_clone = true
+		asse.root = root
 	end
-	asse.refer = self.refer
-	asse.root = self.root
 	return asse
 end
 

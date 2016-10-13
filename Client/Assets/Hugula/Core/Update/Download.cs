@@ -25,13 +25,15 @@ namespace Hugula.Update
             public string url;
             public string saveName;
             public int index;
+			public object args;
+			public bool isError;
         }
 
-        private class LoadedInfo
-        {
-            public string url;
-            public bool isError;
-        }
+//        private class LoadedInfo
+//        {
+//            public string url;
+//            public bool isError;
+//        }
 
         #endregion
 
@@ -65,7 +67,7 @@ namespace Hugula.Update
         }
 
         ArrayList webClients = ArrayList.Synchronized(new ArrayList());
-        System.Action<string, bool> onOneDone;
+		System.Action<string, bool,object> onOneDone;
         System.Action<bool> allDone;
         string outputPath;
         string[] hosts;
@@ -83,7 +85,7 @@ namespace Hugula.Update
         /// <param name="maxLoading"></param>
         /// <param name="oneDone"></param>
         /// <param name="allDone"></param>
-        public void Init(string[] hosts, int maxLoading, System.Action<string, bool> oneDone, System.Action<bool> allDone)
+		public void Init(string[] hosts, int maxLoading, System.Action<string, bool,object> oneDone, System.Action<bool> allDone)
         {
             this.hosts = hosts;
             this.maxLoading = maxLoading;
@@ -110,7 +112,7 @@ namespace Hugula.Update
         /// </summary>
         /// <param name="url"></param>
         /// <param name="path"></param>
-        public void Load(string url, string path)
+		public void Load(string url, string path,object args)
         {
             string key = CUtils.GetUDKey(url);
             if (downloadings.ContainsKey(key))
@@ -120,6 +122,7 @@ namespace Hugula.Update
             req.url = url;
             req.saveName = path;//CUtils.GetFileName (url);
             req.index = 0;
+			req.args = args;
 
             Load(req);
         }
@@ -141,7 +144,7 @@ namespace Hugula.Update
                 int index = req.index;
                 Uri url = new Uri(hosts[index] + req.url);
                 string path = outputPath + req.saveName;
-                //Debug.LogFormat(" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
+//                Debug.LogFormat(" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
                 freedownload.isFree = false;
                 FileHelper.CheckCreateFilePathDirectory(path);//检测存储文件夹是否存在
                 freedownload.DownloadFileAsync(url, path, req);
@@ -178,11 +181,10 @@ namespace Hugula.Update
             return null;
         }
 
-        void OnFileDown(string url, bool isComplate)
+        void OnFileDown(ReqInfo req, bool isError)
         {
-
-            LoadedInfo loadedInfo = new LoadedInfo { url = url, isError = isComplate };
-            queue.Add(loadedInfo);
+			req.isError = isError;
+            queue.Add(req);
 
             if (downloadings.Count == 0 && loadQueue.Count == 0)
             {
@@ -205,12 +207,12 @@ namespace Hugula.Update
 #if UNITY_EDITOR
                 Debug.LogFormat("OnDownloadFileCompleted {0}", req.url);
 #endif
-                OnFileDown(req.url, true);
+                OnFileDown(req, true);
             }
             else
             {
                 //#if UNITY_EDITOR
-                Debug.LogWarning(e.Error);
+				Debug.LogWarningFormat("{0} {1}",req.url,e.Error);
                 //#endif
                 if (req.index < hosts.Length - 1)
                 {
@@ -222,7 +224,7 @@ namespace Hugula.Update
                 }
                 else
                 {
-                    OnFileDown(req.url, false);
+                    OnFileDown(req, false);
                 }
             }
         }
@@ -250,11 +252,11 @@ namespace Hugula.Update
 
             while (queue.Count > 0)
             {
-                var info = (LoadedInfo)queue[0];
+				var info = (ReqInfo)queue[0];
                 queue.RemoveAt(0);
 
                 if (onOneDone != null)
-                    onOneDone(info.url, info.isError);
+					onOneDone(info.url, info.isError,info.args);
             }
 
             if (queue.Count == 0 && loadQueue.Count==0 && isAllDone)
@@ -276,6 +278,7 @@ namespace Hugula.Update
                 item = (WebDownload)webClients[i];
                 item.Dispose();
             }
+			webClients.Clear ();
             webClients = null;
         }
 

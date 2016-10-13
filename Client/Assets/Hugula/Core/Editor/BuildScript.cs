@@ -50,178 +50,46 @@ public class BuildScript
         string title = "Generate Update File ";
         string info = "Compute crc32";
         EditorUtility.DisplayProgressBar(title, info, 0.1f);
-
+		Dictionary<string,uint> firstCrcDict = new Dictionary<string, uint> ();
+		HashSet<string> whiteFileList = new HashSet<string> ();
+		HashSet<string> blackFileList = new HashSet<string> ();
+		Dictionary<string,uint> currCrcDict = new Dictionary<string, uint>();
+		Dictionary<string,uint> diffCrcDict = new Dictionary<string, uint> ();
         #region 读取首包
-        CrcCheck.Clear();
-        bool firstExists = false;
-        DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
-        string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, Common.FirstOutPath);
-        string readPath = Path.Combine(firstPath, CUtils.GetAssetPath(""));
-        readPath = Path.Combine(readPath, CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME));
-        Debug.Log(readPath);
-
-        WWW abload = new WWW("file://" + readPath);
-        if (string.IsNullOrEmpty(abload.error) && abload.assetBundle != null)
-        {
-            var ab = abload.assetBundle;
-            TextAsset ta = ab.LoadAllAssets<TextAsset>()[0];
-            //ta.text
-            Debug.Log(ta);
-            string context = ta.text;
-            string[] split = context.Split('\n');
-            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\[""(.+)""\]\s+=\s+(\d+)");
-            float j = 1;
-            float l = split.Length;
-            foreach (var line in split)
-            {
-                System.Text.RegularExpressions.Match match = regex.Match(line);
-                if (match.Success)
-                {
-                    //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
-                    CrcCheck.Add(match.Groups[1].Value, System.Convert.ToUInt32(match.Groups[2].Value));
-                }
-                //Debug.Log(line);
-                EditorUtility.DisplayProgressBar(title, "read first crc => " + j.ToString() + "/" + l.ToString(), j / l);
-                j++;
-            }
-            ab.Unload(true);
-            firstExists = true;
-        }
-        else
-        {
-            Debug.LogWarning(abload.error + "no frist packeage in " + readPath);
-        }
-        abload.Dispose();
+		bool firstExists =SplitPackage.ReadFirst(firstCrcDict,whiteFileList,blackFileList);
         #endregion
 
         #region 生成校验列表
-        Dictionary<string, uint> updateList = new Dictionary<string, uint>();
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("return {");
-
-        var selected = string.Empty;
-        float i = 0;
-        float allLen = allBundles.Length;
-
-        //忽略列表
-        Dictionary<string, bool> ignore = new Dictionary<string, bool>();
-        ignore.Add(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), true);
-        ignore.Add(CUtils.GetRightFileName(Common.CRC32_VER_FILENAME), true);
-
-        foreach (var str in allBundles)
-        {
-            string url = Path.Combine(CUtils.GetRealStreamingAssetsPath(), str);
-            uint outCrc = 0;
-            Debug.Log(str);
-            string abName = str.Replace("\\", "/");
-            string key = CUtils.GetAssetBundleName(abName);
-            if (!ignore.ContainsKey(key) && CrcCheck.CheckLocalFileWeakCrc(url, out outCrc) == false) //如果不一致需要更新
-            {
-                updateList.Add(abName, outCrc);//记录导出记录
-                sb.AppendLine("[\"" + key + "\"] = " + outCrc + ",");
-            }
-            EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-            i++;
-        }
-        sb.AppendLine("}");
-        //Debug.Log (sb.ToString ());
-        CrcCheck.Clear();
-
-        //输出到临时目录
-        var crc32filename = CUtils.GetAssetName(Common.CRC32_FILELIST_NAME);
-        string tmpPath = Path.Combine(Application.dataPath, TmpPath);
-        ExportResources.CheckDirectory(tmpPath);
-        string assetPath = "Assets/" + TmpPath + crc32filename + ".txt";
-        EditorUtility.DisplayProgressBar("Generate file list", "write file to " + assetPath, 0.99f);
-
-        string outPath = Path.Combine(tmpPath, crc32filename + ".txt");
-        Debug.Log("write to path=" + outPath);
-        using (StreamWriter sr = new StreamWriter(outPath, false))
-        {
-            sr.Write(sb.ToString());
-        }
-        //
-        //打包到streaming path
-        AssetDatabase.Refresh();
-        string crc32outfilename = CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME); //(fileCrc32ListName + ".u3d");
-        BuildScript.BuildABs(new string[] { assetPath }, null, crc32outfilename, BuildAssetBundleOptions.DeterministicAssetBundle);
-        string topath = Path.Combine(GetOutPutPath(), crc32outfilename);
-        Debug.Log(info + " assetbunle build complate! " + topath);
-
+        SplitPackage.UpdateOutPath = null;
+		StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles,firstCrcDict,currCrcDict,diffCrcDict,whiteFileList,blackFileList);
+		uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]);
+        System.Threading.Thread.Sleep(1000);
+        uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1],SplitPackage.UpdateOutPath);
+        System.Threading.Thread.Sleep(1000);
         #endregion
 
         #region 生成版本号
         //生成版本号码
-        string crc32Path = "file://" + Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME)); //CUtils.GetAssetFullPath (fileCrc32ListName+".u3d"); 
-        WWW loaderVer = new WWW(crc32Path);
-        if (!string.IsNullOrEmpty(loaderVer.error))
-        {
-            Debug.LogError(loaderVer.error);
-            return;
-        }
-        uint crcVer = Crc32.Compute(loaderVer.bytes);
-        loaderVer.Dispose();
-
-        tmpPath = CUtils.GetRealStreamingAssetsPath();//Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath(""));
-        outPath = Path.Combine(tmpPath, CUtils.GetRightFileName(Common.CRC32_VER_FILENAME));
-        Debug.Log("verion to path=" + outPath);
-        //json 化version{ code,crc32,version}
-        StringBuilder verJson = new StringBuilder();
-        verJson.Append("{");
-        verJson.Append(@"""code"":" + CodeVersion.CODE_VERSION + ",");
-        verJson.Append(@"""crc32"":" + crcVer.ToString() + ",");
-        verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now) + "");
-        verJson.Append("}");
-
-        using (StreamWriter sr = new StreamWriter(outPath, false))
-        {
-            sr.Write(verJson.ToString());
-        }
-
-        Debug.Log(info + " Complete! ver=" + crcVer.ToString() + " path " + outPath);
-        BuildScript.BuildAssetBundles();
-
+		SplitPackage.CreateVersionAssetBundle(diff_crc);
         #endregion
 
         #region copy更新文件导出
-        if (updateList.Count > 0)
-        {
-            info = "copy updated file ";
-            string updateOutPath = Path.Combine(firstPath, CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm"));
-            DirectoryInfo outDic = new DirectoryInfo(updateOutPath);
-            if (outDic.Exists) outDic.Delete();
-            outDic.Create();
 
-            if (!firstExists) updateList.Clear(); //如果没有首包，只导出校验文件。
+        SplitPackage.CopyVersionToSplitFolder(diff_crc);
 
-            updateList.Add(CUtils.GetRightFileName(Common.CRC32_VER_FILENAME), 0);
-            updateList.Add(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), crcVer);
+        SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, currCrcDict, diffCrcDict, whiteFileList, blackFileList);
+		
+		Debug.LogFormat("streaming_crc={0},diff_crc{1}",streaming_crc,diff_crc);
+		
+		Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},whiteFileList={3},blackFileList={4}",firstCrcDict.Count,currCrcDict.Count,diffCrcDict.Count,whiteFileList.Count,blackFileList.Count);
 
-            string sourcePath;
-            string outfilePath;
-            i = 1;
-            allLen = updateList.Count;
-            string key = "";
-            foreach (var k in updateList)
-            {
-                key = CUtils.GetAssetBundleName(k.Key);
-                sourcePath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), k.Key);
-                if (k.Value != 0)
-                {
-                    if (key.Equals(CUtils.platformFloder))
-                        key = key + "_" + k.Value.ToString() + "." + Common.ASSETBUNDLE_SUFFIX;
-                    else
-                        key = CUtils.InsertAssetBundleName(key, "_" + k.Value.ToString());// 
-                }
-                outfilePath = Path.Combine(updateOutPath, key);
-                FileHelper.CheckCreateFilePathDirectory(outfilePath);
-                File.Copy(sourcePath, outfilePath, true);// source code copy
-                EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-                i++;
-            }
-            Debug.Log(" copy  file complete!");
-        }
         #endregion
+
+		#region 删除扩展文件
+	#if (UNITY_ANDROID || UNITY_IOS ) //&& !UNITY_EDITOR
+		SplitPackage.DeleteStreamingFiles(blackFileList);
+	#endif
+		#endregion
 
         EditorUtility.ClearProgressBar();
 
@@ -513,10 +381,10 @@ public class BuildScript
                 import.userData = HugulaFolder;
                 AssetDatabase.SetLabels(s, new string[] { HugulaFolder });
                 import.SaveAndReimport();
-                Debug.LogFormat("{0},AssetLabels={2},path ={1}", s.name, apath, HugulaFolder);
-                if (!HugulaSettingEditor.instance.AssetLabels.Contains(apath))
+                if (!HugulaSettingEditor.ContainsExtendsPath(apath))
                 {
-                    HugulaSettingEditor.instance.AssetLabels.Add(apath);
+                    Debug.LogFormat("add extends path = {0}", s.name);
+                    HugulaSettingEditor.AddExtendsPath(apath);
                 }
                 AssetDatabase.Refresh();
             }
@@ -541,10 +409,12 @@ public class BuildScript
                 //import.assetBundleVariant = null;
                 AssetDatabase.SetLabels(s, null);
                 import.SaveAndReimport();
-                Debug.LogFormat("{0},Clear AssetLabels,path ={1}", s.name, apath);
-                if (HugulaSettingEditor.instance.AssetLabels.Contains(apath))
+                //apath = apath.Replace("\\","/");
+                if (HugulaSettingEditor.ContainsExtendsPath(apath))
                 {
-                    HugulaSettingEditor.instance.AssetLabels.Remove(apath);
+                    Debug.LogFormat("{0},Clear AssetLabels,path ={1}", s.name, apath);
+                    HugulaSettingEditor.RemoveExtendsPath(apath);
+                    AssetDatabase.Refresh();
                 }
             }
         }
@@ -576,7 +446,16 @@ public class BuildScript
         bab[0].assetNames = assets;
         if (string.IsNullOrEmpty(outPath))
             outPath = GetOutPutPath();
-        BuildPipeline.BuildAssetBundles(outPath, bab, bbo, target);
+        
+        string tmpPath = BuildScript.GetAssetTmpPath();
+        string tmpFileName = Path.Combine(tmpPath,abName);
+        BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
+
+        string targetFileName = Path.Combine(outPath,abName);
+        FileInfo tInfo = new FileInfo(targetFileName);
+        if (tInfo.Exists) tInfo.Delete();
+        FileInfo fino = new FileInfo(tmpFileName);
+        fino.CopyTo(targetFileName);
     }
 
     #region
@@ -606,6 +485,11 @@ public class BuildScript
         return Path.Combine(streamingPath, CUtils.GetAssetPath(""));
     }
 
+    public static string GetAssetTmpPath()
+    {
+        return Path.Combine(Application.dataPath, TmpPath);
+    }
+
     static public BuildTarget GetTarget()
     {
         return target;
@@ -627,16 +511,7 @@ public class BuildScript
 
     static public string GetLabelsByPath(string abPath)
     {
-        string folder = null;
-        var allLabels = HugulaSettingEditor.instance.AssetLabels;
-        foreach (var labelPath in allLabels)
-        {
-            if (abPath.StartsWith(labelPath))
-            {
-                folder = CUtils.GetAssetName(labelPath).ToLower();
-            }
-        }
-        return folder;
+        return HugulaSettingEditor.GetLabelsByPath(abPath);
     }
 
     #endregion

@@ -27,9 +27,9 @@ namespace Hugula.Utils
         public static void SavePersistentFile(Array context, string fileName)
         {
             string path = CUtils.GetRealPersistentDataPath() + "/";
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
             path = path + fileName;
+			FileInfo finfo = new FileInfo(path);
+			if(!finfo.Directory.Exists)finfo.Directory.Create();
 
             using (StreamWriter sw = new StreamWriter(path, false))
             {
@@ -80,6 +80,9 @@ namespace Hugula.Utils
             string newPath = path + newname;
             if (File.Exists(oldPath))
             {
+				FileInfo newFile = new FileInfo(newPath); //如果新的存在需要删除
+				if(newFile.Exists) newFile.Delete();
+
                 FileInfo finfo = new FileInfo(oldPath);
                 finfo.MoveTo(newPath);
                 return true;
@@ -93,7 +96,7 @@ namespace Hugula.Utils
         /// <param name="fileName">File name.</param>
         public static void DeletePersistentFile(string fileName)
         {
-            string path = CUtils.GetRealPersistentDataPath() + "/" + fileName;
+			string path = Path.Combine (CUtils.GetRealPersistentDataPath (), fileName);
             if (File.Exists(path))
                 File.Delete(path);
         }
@@ -101,9 +104,11 @@ namespace Hugula.Utils
         /// <summary>
         /// Delete the persistent Directory
         /// </summary>
-        public static void DeletePersistentDirectory()
+		public static void DeletePersistentDirectory(string relative=null)
         {
             string path = CUtils.GetRealPersistentDataPath();
+			if (!string.IsNullOrEmpty (relative))
+				path = Path.Combine (path, relative);
             DirectoryInfo dinfo = new DirectoryInfo(path);
             if (dinfo.Exists)
             {
@@ -125,7 +130,7 @@ namespace Hugula.Utils
 		/// <param name="abpath">Abpath.</param>
 		public static bool PersistentFileExists(string abpath)
 		{
-			string path = CUtils.GetRealPersistentDataPath() + "/"+abpath;
+			string path = Path.Combine(CUtils.GetRealPersistentDataPath(),abpath);
 			return File.Exists (path); 
 		}
 

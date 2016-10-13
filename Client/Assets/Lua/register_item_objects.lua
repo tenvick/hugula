@@ -7,13 +7,12 @@ local LuaItemManager = LuaItemManager
 local StateManager = StateManager
 --global
 LuaItemManager:register_item_object("transform","state/state_transform",true)
-LuaItemManager:register_item_object("alert_tips","game/alert_tips",true)
+LuaItemManager:register_item_object("alert_tips","viewmodels/alert_tips",true)
 
 
 --itemobject
--- LuaItemManager:register_item_object("hall","game/hall",false)
-LuaItemManager:register_item_object("welcome","game/welcome",false)
-LuaItemManager:register_item_object("tetris","game/tetris",false)
-LuaItemManager:register_item_object("scroll_rect_table","game/scroll_rect_table",false)
-LuaItemManager:register_item_object("load_scene","game/load_scene",false)
-LuaItemManager:register_item_object("load_extends","game/load_extends",false)
+LuaItemManager:register_item_object("welcome","viewmodels/welcome",false)
+LuaItemManager:register_item_object("tetris","viewmodels/tetris",false)
+LuaItemManager:register_item_object("scroll_rect_table","viewmodels/scroll_rect_table",false)
+LuaItemManager:register_item_object("load_scene","viewmodels/load_scene",false)
+LuaItemManager:register_item_object("load_extends","viewmodels/load_extends",false)

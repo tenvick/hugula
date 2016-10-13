@@ -2,8 +2,8 @@
 --===============================================================================================--
 --filename: moban.lua
 --data:2016..
---author:
---desc:功能
+--author:pu
+--desc: viewmodel
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
@@ -11,20 +11,18 @@ local your_name = LuaItemManager:get_item_obejct("your_name")
 ---------global lua to local------------------
 local StateManager = StateManager
 local delay = delay
-local LuaHelper=LuaHelper
-local CUtils = CUtils
 local Proxy = Proxy --网络代理
 local get_value = get_value --多国语言
 ---------C#----------------
-
+local LuaHelper=LuaHelper
 
 ---------local----------
 
 --UI资源
 your_name.assets=
 {
-    -- Asset("youresource.u3d"),
-    -- Asset("youresource1.u3d",{"yourItemName"})
+    -- View("you_view_name",your_name),
+    -- View("you_view_name1","your_viewmodel_name",{"sub_view_name1"},{"sub_view_name1","sub_view_model_name"})
 }
 
 ------------------private-----------------
@@ -41,25 +39,25 @@ your_name.assets=
 -- function your_name:on_blur() end --失去焦点时候调用
 ------------------override ----------------
 --即将获取焦点 调用on_focus之前 用于对上一个状态处理
-function your_name:on_focusing( previous_state ) 
+-- function your_name:on_focusing( previous_state ) 
 
-end
+-- end
 
 --获取焦点之后 调用on_focus之后，此时资源可能还没加载完成
-function your_name:on_focused( previous_state ) 
+-- function your_name:on_focused( previous_state ) 
 
-end
+-- end
 
---某一个资源asset加载完毕
-function your_name:on_asset_load(key,asset)
+-- --某一个资源asset加载完毕 --mvvm 后不在viewmodel调用此方法这里用来兼容老版本。
+-- function your_name:on_asset_load(key,asset)
 
-end
+-- end
 
--- 当前全部资源assets加载完成时候调用方法
-function your_name:on_assets_load(items)
-	-- local refer = LuaHelper.GetComponent(self.assets[1].root,CSNameSpace.ReferGameObjects) 
-	-- local refer1 = LuaHelper.GetComponent(self.assets[2].items["yourItemName"],CSNameSpace.ReferGameObjects)
-end
+-- 当前全部资源assets加载完成时候调用方法 --mvvm 后不在viewmodel调用此方法这里用来兼容老版本。
+-- function your_name:on_assets_load(items)
+-- 	-- local refer = LuaHelper.GetComponent(self.assets[1].root,CSNameSpace.ReferGameObjects) 
+-- 	-- local refer1 = LuaHelper.GetComponent(self.assets[2].items["yourItemName"],CSNameSpace.ReferGameObjects)
+-- end
 
 --显示时候调用 
 function your_name:on_showed( ... )
@@ -67,19 +65,19 @@ function your_name:on_showed( ... )
 end
 
 --当前StateManager:get_current_state()所有原始itemObject显示完毕后调用
-function your_name:on_state_showed( ... )
-	-- body
-end
+-- function your_name:on_state_showed( ... )
+-- 	-- body
+-- end
 
 --失去焦点之前调用
-function your_name:on_bluring( new_state ) 
+-- function your_name:on_bluring( new_state ) 
 
-end
+-- end
 
---失去焦点之后调用
-function your_name:on_blured( new_state ) 
+-- --失去焦点之后调用
+-- function your_name:on_blured( new_state ) 
 	
-end
+-- end
 
 --每次隐藏时候调用
 function your_name:on_hide( ... )
@@ -91,7 +89,7 @@ end
 
 -- end
 
----dispose之前调用，用来清理缓存数据和引用
+---dispose之前调用，用来清理缓存数据和引用 
 function your_name:on_dispose()
 	
 end

@@ -48,7 +48,7 @@ pLua.updateFn=update
 
 
 --load config
-require("game.common.load_csv")
+require("common.load_csv")
 
 delay(function( ... )
 	-- print(get_value("level_name_001")) --language key

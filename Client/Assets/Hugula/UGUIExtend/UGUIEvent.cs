@@ -2,10 +2,7 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
-using System.Collections;
-
 using SLua;
-using Lua = SLua.LuaState;
 
 namespace Hugula.UGUIExtend
 {

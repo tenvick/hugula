@@ -244,7 +244,7 @@ namespace Hugula.Pool
             if (!contains) //不能重复添加
             {
                 if (type > SegmentSize) type = SegmentSize;
-
+                LuaHelper.AddComponent(value,typeof(ReferGameObjects));
                 originalPrefabs[hash] = value;
                 prefabFreeQueue[hash] = new Queue<ReferGameObjects>(); //空闲队列
                 prefabsType[hash] = type;
@@ -259,7 +259,7 @@ namespace Hugula.Pool
                 }
 
 #if UNITY_EDITOR
-                LuaHelper.RefreshShader(value as GameObject);
+                LuaHelper.RefreshShader(value);
 #endif
                 return true;
             }

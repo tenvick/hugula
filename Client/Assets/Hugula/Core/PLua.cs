@@ -380,10 +380,11 @@ namespace Hugula
         {
             get
             {
-				if (_instance == null) {
-					var gam = new GameObject ("PLua");
-					_instance = gam.AddComponent<PLua> ();
-				}
+                if (_instance == null)
+                {
+                    var gam = new GameObject("PLua");
+                    _instance = gam.AddComponent<PLua>();
+                }
                 return _instance;
             }
         }

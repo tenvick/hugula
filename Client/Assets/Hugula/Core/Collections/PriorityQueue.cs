@@ -63,6 +63,14 @@ namespace Hugula.Collections
 			get { return _list.Count; }
 		}
 
+		public T this[int index]
+		{
+			get
+			{
+				return _list[index];
+			}
+		}
+
 		public bool Empty
 		{
 			get { return _list.Count == 0; }
@@ -138,6 +146,16 @@ namespace Hugula.Collections
 			{
 				throw new InvalidOperationException(e.Message);
 			}
+		}
+
+		public bool Remove(T item)
+		{
+			return _list.Remove(item);
+		}
+
+		public void RemoveAt(int i)
+		{
+			_list.RemoveAt(i);
 		}
 
 		private void remove(int n)

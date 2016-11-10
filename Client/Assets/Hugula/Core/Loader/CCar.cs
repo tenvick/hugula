@@ -97,9 +97,33 @@ namespace Hugula.Loader
             {
                 www = new WWW(url);
             }
+
+            if(req.priority > 10000)
+                 www.threadPriority = ThreadPriority.High;
+            else if(req.priority < -10000)
+                www.threadPriority = ThreadPriority.Low;
+            else if(req.priority < 0)
+                www.threadPriority = ThreadPriority.BelowNormal;
+
 			#if HUGULA_LOADER_DEBUG
-			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) )</color>", req.url, req.key, req.assetName,req.assetBundleName);
+			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) frame{4} )</color>", req.url, req.key, req.assetName,req.assetBundleName,Time.frameCount);
 			#endif
+        }
+
+        public void StopLoad()
+        {
+            if(isFree && !enabled && www!=null)
+            {
+                enabled = false;
+                isFree = true;
+                www.Dispose();
+                 if(this.req!=null && req.pool)
+                {
+                    LRequestPool.Release(req);
+                }
+                this._req = null;
+            }
+           
         }
 
         #endregion
@@ -115,11 +139,11 @@ namespace Hugula.Loader
         {
 
 #if HUGULA_PROFILE_DEBUG
-            Profiler.BeginSample(this.req.key, this.gameObject);
+            Profiler.BeginSample("CCar.LoadDone:"+this.req.assetName);
 #endif
             isFree = true;
             enabled = false;
-            if (www.error != null)
+            if (www.error != null) 
             {
 				Debug.LogWarning(" (" + req.assetName + ")url(" + req.url + ") \n error:" + www.error);
                 DispatchErrorEvent(req);
@@ -130,7 +154,7 @@ namespace Hugula.Loader
                 if (OnProcess != null)
                     OnProcess(this, 1);
 				#if HUGULA_LOADER_DEBUG
-				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2}) txt({3}) len({4})</color>", req.url, req.key, req.assetName, www.text, www.bytes.Length);
+				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2})  len({3} frame{4})</color>", req.url, req.key, req.assetName, www.bytes.Length,Time.frameCount);
 				#endif
 				CacheManager.AddSourceCacheDataFromWWW(www,this._req);
                 DispatchCompleteEvent(this._req);
@@ -147,6 +171,7 @@ namespace Hugula.Loader
             {
                 OnComplete(this, cReq);
             }
+            this._req = null;
         }
 
         private void DispatchErrorEvent(CRequest cReq)
@@ -155,6 +180,7 @@ namespace Hugula.Loader
             {
                 OnError(this, cReq);
             }
+            this._req = null;
         }
         #endregion
 

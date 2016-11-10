@@ -19,7 +19,7 @@ public class AssetbundlesMenuItems
         BuildScript.BuildAssetBundles();
     }
 
-    [MenuItem("AssetBundles/Update All AssetBundle Name", false, 2)]
+    [MenuItem("AssetBundles/Generate/Update All AssetBundle Name", false, 2)]
     static public void UpdateAssetBundlesName()
     {
         var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>

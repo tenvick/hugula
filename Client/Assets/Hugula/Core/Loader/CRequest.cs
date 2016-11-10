@@ -64,14 +64,14 @@ namespace Hugula.Loader
 
             _assetBundleName = string.Empty;
             _assetName = string.Empty;
-			assetType = null;//string.Empty;
+            assetType = null;//string.Empty;
 
             async = true;
             pool = false;
             isAdditive = false;
             isShared = false;
-			isNormal = true;
-			isAssetBundle = true;
+            isNormal = true;
+            isAssetBundle = true;
             isLoadFromCacheOrDownload = false;
 
             this.assetBundleRequest = null;
@@ -79,7 +79,7 @@ namespace Hugula.Loader
 
             this.OnComplete = null;
             this.OnEnd = null;
-                
+
         }
 
         private string _relativeUrl;
@@ -109,7 +109,7 @@ namespace Hugula.Loader
             set
             {
                 _url = null;
-                _udKey = null;
+                // _udKey = null;不需要重新计算udkey
                 _uri = uris.GetUri(index);
             }
         }
@@ -165,7 +165,7 @@ namespace Hugula.Loader
         /// <summary>
         /// asset Type name
         /// </summary>
-		public Type assetType ;//= string.Empty;
+		public Type assetType;//= string.Empty;
 
         /// <summary>
         /// 加载的头信息
@@ -189,7 +189,7 @@ namespace Hugula.Loader
         public void DispatchComplete()
         {
 #if HUGULA_PROFILE_DEBUG
-        Profiler.BeginSample(this.key+"_onComplete");
+        Profiler.BeginSample(this.assetName+"_req_onComplete");
 
         if (OnComplete != null)
             OnComplete(this);
@@ -332,10 +332,10 @@ namespace Hugula.Loader
             }
         }
 
-		/// <summary>
-		/// 是否普通加载 普通加载需要等待加载池空闲
-		/// </summary>
-		public bool isNormal = true;
+        /// <summary>
+        /// 是否普通加载 普通加载需要等待加载池空闲
+        /// </summary>
+        public bool isNormal = true;
 
         /// <summary>
         /// 场景加载追加模式
@@ -357,14 +357,25 @@ namespace Hugula.Loader
         /// </summary>
         internal AsyncOperation assetBundleRequest;
 
-		/// <summary>
-		/// The is asset bundle.
-		/// </summary>
-		internal bool isAssetBundle = true;
+        /// <summary>
+        /// The is asset bundle.
+        /// </summary>
+        internal bool isAssetBundle = true;
         /// <summary>
         /// 放入内存池
         /// </summary>
         internal bool pool = false;
+
+        /// <summary>
+        /// 获取key URL
+        /// </summary>
+        public static string GetUDKeyURL(CRequest req)
+        {
+            string url = string.Empty;
+            string uri = req.uris.GetUri(0);
+            url = CUtils.PathCombine(uri, req.relativeUrl);
+            return url;
+        }
     }
 
 }

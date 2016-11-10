@@ -4,9 +4,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
 using Hugula.Utils;
-using Hugula.Update;
 using Hugula.Collections;
 
 namespace Hugula.Loader
@@ -104,7 +102,7 @@ namespace Hugula.Loader
         /// <summary>
         /// 正在下载Loader
         /// </summary>
-        static Dictionary<string, bool> downloadings = new Dictionary<string, bool>();
+        static Dictionary<string, CCar> downloadings = new Dictionary<string, CCar>();
 
         /// <summary>
         /// 即将开始下载的队列
@@ -153,26 +151,7 @@ namespace Hugula.Loader
         // Update is called once per frame
         void Update()
         {
-            //加载
-            for (int i = 0; i < loaderPool.Count; i++)
-            {
-                CCar load = loaderPool[i];
-                if (load.isFree && realyLoadingQueue.Count > 0)
-                {
-                    var req = realyLoadingQueue.Dequeue();
-                    if (!CheckLoadAssetBundle(req))
-                    {
-                        downloadings[req.udKey] = true;
-                        load.BeginLoad(req);
-                    }
-                }
-                if (load.enabled)
-                {
-                    load.Update();
-                }
-            }
-
-			for (int i = 0; i < freeLoader.Count; ) {
+            for (int i = 0; i < freeLoader.Count; ) {
 				CCar load = freeLoader [i];
 				if (load.enabled)load.Update();
 					
@@ -189,6 +168,25 @@ namespace Hugula.Loader
 				} else
 					i++;
 			}
+
+            //加载
+            for (int i = 0; i < loaderPool.Count; i++)
+            {
+                CCar load = loaderPool[i];
+                if (load.isFree && realyLoadingQueue.Count > 0)
+                {
+                    var req = realyLoadingQueue.Dequeue();
+                    if (!CheckLoadAssetBundle(req))
+                    {
+                        downloadings[req.udKey] = load;
+                        load.BeginLoad(req);
+                    }
+                }
+                if (load.enabled)
+                {
+                    load.Update();
+                }
+            }
 
             //ab
             for (int i = 0; i < loadingAssetBundleQueue.Count; )
@@ -308,11 +306,165 @@ namespace Hugula.Loader
 			BeginQueue();
 		}
 
+        /// <summary>
+		/// stop the req.
+		/// </summary>
+		/// <param name="req">Req.</param>
+		/// <param name="group">Group.</param>
+        public void StopReq(CRequest req)
+        {
+             string url = CRequest.GetUDKeyURL(req);
+             StopURL(url);
+        }
+
+        /// <summary>
+		/// stop the url.
+		/// </summary>
+		/// <param name="req">Req.</param>
+		/// <param name="group">Group.</param>
+        public void StopURL(string url)
+        {
+            string udKey = CUtils.GetUDKey(url);
+            //step 1 remove request list
+            List<CRequest> removeReqs = ListPool<CRequest>.Get();
+            CRequest req;
+            for (int i = 0; i < queue.Count; )
+            {
+                req = queue[i];
+                if(req.udKey.Equals(udKey))
+                {
+                    queue.RemoveAt (i);
+                    removeReqs.Add(req);
+                }else
+                    i++;
+            }
+
+            // step 2 remove loading assetbundle
+            CCar load = null;
+            if(downloadings.TryGetValue(udKey,out load))
+            {
+                removeReqs.Add(load.req);
+                load.StopLoad();
+                downloadings.Remove(udKey);
+            }
+
+            for (int i = 0; i < loadingAssetBundleQueue.Count; )
+            {
+                req = loadingAssetBundleQueue[i];
+                if(req.udKey.Equals(udKey))
+                {
+                    loadingAssetBundleQueue.RemoveAt (i);
+                    removeReqs.Add(req);
+                }else
+                    i++;
+            }
+
+            //step 3 remove loadingAssetQueue
+            for (int i = 0; i < loadingAssetQueue.Count; )
+            {
+                req = loadingAssetQueue[i];
+                if(req.udKey.Equals(udKey))
+                {
+                    loadingAssetQueue.RemoveAt (i);
+                    removeReqs.Add(req);
+                }else
+                    i++;
+            }
+
+             //step 4 remove loadedAssetQueue
+            // while (loadedAssetQueue.Count > 0)
+            // {
+            //     req = loadedAssetQueue.Dequeue();
+            //     removeReqs.Add(req);
+            // }
+
+            //remove from  requestCallBackList
+            List<CRequest> callbacklist = null;
+			if (requestCallBackList.TryGetValue(udKey, out callbacklist))
+            {
+                requestCallBackList.Remove(udKey);
+                ListPool<CRequest>.Release(callbacklist);
+            }
+
+            for(int i =0 ;i<removeReqs.Count;i++)
+            {
+                 req = removeReqs[i];
+                 PopGroup(req);
+            }
+
+            ListPool<CRequest>.Release(removeReqs);
+
+        }
+
+        public void StopAll()
+        {
+             
+            List<CRequest> removeReqs = ListPool<CRequest>.Get();
+            CRequest req = null;
+            for (int i = 0; i < queue.Count; )
+            {
+                req = queue[i];
+                queue.RemoveAt (i);
+                removeReqs.Add(req);
+            }
+
+            // step 2 remove loading assetbundle
+            CCar load = null;
+
+            foreach(var kv in downloadings)
+            {
+                load = kv.Value;
+                removeReqs.Add(load.req);
+                load.StopLoad();
+            }
+            downloadings.Clear();
+          
+            for (int i = 0; i < loadingAssetBundleQueue.Count; )
+            {
+                req = loadingAssetBundleQueue[i];
+                loadingAssetBundleQueue.RemoveAt (i);
+                removeReqs.Add(req);
+            }
+
+            //step 3 remove loadingAssetQueue
+            for (int i = 0; i < loadingAssetQueue.Count; )
+            {
+                req = loadingAssetQueue[i];
+                loadingAssetQueue.RemoveAt (i);
+                removeReqs.Add(req);
+            }
+
+            //step 4 remove loadedAssetQueue
+             while (loadedAssetQueue.Count > 0)
+            {
+                req = loadedAssetQueue.Dequeue();
+                removeReqs.Add(req);
+            }
+
+            //remove from  requestCallBackList
+            List<CRequest> callbacklist = null;
+            foreach(var kv in requestCallBackList)
+            {
+                callbacklist = kv.Value;
+                ListPool<CRequest>.Release(callbacklist);
+            }
+
+            for(int i =0 ;i<removeReqs.Count;i++)
+            {
+                 req = removeReqs[i];
+                 PopGroup(req);
+            }
+
+            ListPool<CRequest>.Release(removeReqs);
+
+        }
+
 		/// <summary>
 		/// Removes all actions.
 		/// </summary>
 		public void RemoveAllEvents()
 		{
+            StopAll();
 			OnAllComplete = null;
 			OnProgress = null;
 			OnSharedComplete = null;
@@ -324,6 +476,7 @@ namespace Hugula.Loader
         protected static bool AddReqToQueue(CRequest req, GroupRequestRecord group = null)
         {
             if (req == null) return false;
+            string key = req.udKey;//the udkey never change 第一个URI和relativeUrl评级而成。
 
 			if (!req.uris.CheckUriCrc(req))//(!CrcCheck.CheckUriCrc(req)) //如果校验失败
             {
@@ -334,7 +487,6 @@ namespace Hugula.Loader
                 return false;
             }
 
-            string key = req.udKey;//need re
             if (CheckLoadAssetAsync(req)) //已经下载
             {
                 return false;
@@ -365,7 +517,7 @@ namespace Hugula.Loader
 				}
 				else if(!req.isNormal) 
 				{
-					QueueOrLoad (req);
+                    LoadAssetBundle(req);
 					if (group != null)
 						PushGroup (req, group);
 				}
@@ -406,18 +558,17 @@ namespace Hugula.Loader
 						reqitem.data = creq.data;
 						loadedAssetQueue.Enqueue (reqitem);		
 						#if HUGULA_LOADER_DEBUG
-						Debug.LogFormat("3. <color=green>  Add all to loadedAssetQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+						Debug.LogFormat("3. <color=green>  Add all to loadedAssetQueue Req(assetname={0},url={1} )frame={2}  </color>",creq.assetName,creq.url,Time.frameCount);
 						#endif
 					} else { // if (!creq.isShared) { //非共享资源需要回调
 						loadingAssetBundleQueue.Add (reqitem);
 						#if HUGULA_LOADER_DEBUG
-						Debug.LogFormat("3. <color=green>  Add all to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+						Debug.LogFormat("3. <color=green>  Add all to loadingAssetBundleQueue Req(assetname={0},url={1}) frame={2} </color>",creq.assetName,creq.url,Time.frameCount);
 						#endif
 					}
                 }
 				ListPool<CRequest>.Release(callbacklist);
 
-				// if(creq.isShared)loadingAssetBundleQueue.Add(creq);
             }
             else
             {
@@ -426,7 +577,7 @@ namespace Hugula.Loader
 				else
                 	loadingAssetBundleQueue.Add(creq);
 				#if HUGULA_LOADER_DEBUG
-				Debug.LogFormat("3. <color=green> Add one to loadingAssetBundleQueue Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+				Debug.LogFormat("3. <color=green> Add one to loadingAssetBundleQueue Req(assetname={0},url={1}) frame={2} </color>",creq.assetName,creq.url,Time.frameCount);
 				#endif
             }
         }
@@ -434,10 +585,11 @@ namespace Hugula.Loader
         protected static void CallbackError(CRequest creq)
          {
 #if HUGULA_LOADER_DEBUG
-			Debug.LogFormat("<color=green>CallbackError DispatchEnd Req(assetname={0},url={1})  </color>",creq.assetName,creq.url);
+			Debug.LogFormat("<color=green>CallbackError DispatchEnd Req(assetname={0},url={1}) frame={2} </color>",creq.assetName,creq.url,Time.frameCount);
 #endif
              List<CRequest> callbacklist = null;// requestCallBackList[creq.udKey];
             string udkey = creq.udKey;
+            // load
 			if (creq.isShared) {
 				if (_instance.OnSharedErr != null)
 					_instance.OnSharedErr (creq);
@@ -585,43 +737,14 @@ namespace Hugula.Loader
 
         static void LoadError(CCar cloader, CRequest req)
         {
-            string oldUdKey = req.udKey;
-            downloadings.Remove(oldUdKey);
-            req.index++;
+            downloadings.Remove(req.udKey);
+
 			#if HUGULA_LOADER_DEBUG
-			Debug.LogFormat(" 2.<color=green>CResLoader.LoadError Request(assetName={0}, url={1},isShared={2})</color>", req.assetName,req.url,req.isShared);
+			Debug.LogFormat(" 2.<color=green>CResLoader.LoadError Request(assetName={0}, url={1},isShared={2} req.index={3},req.uris.count={4})</color>", req.assetName,req.url,req.isShared,req.index,req.uris.count);
 			#endif
-            if (req.index < req.uris.count && req.uris.SetNextUri(req))// CUtils.SetRequestUri(req, req.index))
+            if (req.index < req.uris.count-1 && req.uris.SetNextUri(req))// CUtils.SetRequestUri(req, req.index))
             {
-                List<CRequest> callbacklist = null;
-                if (requestCallBackList.TryGetValue(oldUdKey, out callbacklist))
-                {
-                    requestCallBackList.Remove(oldUdKey);
-                }
-                var udkey = req.udKey;
-                if (callbacklist == null)
-                    callbacklist = ListPool<CRequest>.Get();//new List<CRequest>();
-
-                if (requestCallBackList.ContainsKey(udkey))
-                { //if 正在加载
-                    var old = requestCallBackList[udkey];
-
-                    CRequest chekReq = null;
-                    for (int i = 0; i < callbacklist.Count; i++)
-                    {
-                        chekReq = callbacklist[i];
-                        if (!old.Contains(chekReq))
-                            old.Add(chekReq);
-                    }
-                }
-                else
-                {
-                    if (!callbacklist.Contains(req))
-                        callbacklist.Add(req);
-                    requestCallBackList[udkey] = callbacklist;
-					QueueOrLoad (req);//realyLoadingQueue.Enqueue(req);
-                }
-
+				QueueOrLoad (req);
             }
             else
             {
@@ -713,6 +836,7 @@ namespace Hugula.Loader
 					Debug.LogFormat("<color=yellow> Req(assetname={0}) /r/n Begin LoadDependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetBundleName,item.assetName,item.url,Time.frameCount);
 					#endif
 					item.isNormal = req.isNormal;
+                    item.priority = req.priority;
 					item.uris = req.uris;
 					AddReqToQueue (item);									
 				}
@@ -730,7 +854,7 @@ namespace Hugula.Loader
         {
             if (CacheManager.Contains(req.keyHashCode)) return true;
 
-            if (downloadings.ContainsKey(req.udKey)) return true;
+            if (downloadings.ContainsKey(req.udKey) && req.index == 0 ) return true;
 
             return false;
         }

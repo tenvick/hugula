@@ -4,9 +4,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
-
 using SLua;
-using LuaState = SLua.LuaState;
 
 namespace Hugula.Utils
 {
@@ -383,8 +381,7 @@ namespace Hugula.Utils
         {
 
 #if UNITY_5
-            UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
-
+        UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
 #else
         UnityEngine.Object[] materials = assetBundle.LoadAll(typeof(Material));  //LoadAll<Material>();
 #endif
@@ -397,7 +394,7 @@ namespace Hugula.Utils
                 Shader newShader = Shader.Find(shaderName);
                 if (newShader != null)
                 {
-                    mat.shader = newShader;
+                    mat.shader = newShader;      Debug.Log("refresh shader: " + shaderName + " in material " + mat.name);
                 }
                 else
                 {
@@ -410,7 +407,7 @@ namespace Hugula.Utils
         {
             List<Renderer> meshrs = new List<Renderer>(obj.GetComponentsInChildren<Renderer>(false));
             List<Material> mats = new List<Material>();
-            //meshrs.Add(obj.GetComponent<Renderer>());
+
             for (int i = 0; i < meshrs.Count; i++)
             {
                 Material[] mat = meshrs[i].sharedMaterials;

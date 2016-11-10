@@ -94,13 +94,15 @@ namespace Hugula.Loader
 			return true;
 		}
 
-		internal void OnWWWComplete(CRequest req,byte[] www)
+		internal void OnWWWComplete(CRequest req,WWW www)
 		{
 			if (onWWWCompletes.Count > 0 && onWWWCompletes.Count > req.index) {
+				
 				var act = onWWWCompletes[req.index];
 				if (act != null) {
-					act (req,www);
+					act (req,www.bytes);
 				}
+
 			}
 		}
 

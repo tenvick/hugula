@@ -142,9 +142,11 @@ namespace Hugula.Update
             if (freedownload != null)
             {
                 int index = req.index;
-                Uri url = new Uri(hosts[index] + req.url);
-                string path = outputPath + req.saveName;
-//                Debug.LogFormat(" begin load {0} ,save path ={1}", url.AbsoluteUri, path);
+                Uri url = new Uri(CUtils.PathCombine(hosts[index],req.url));
+                string path = CUtils.PathCombine(outputPath,req.saveName);
+                #if UNITY_EDITOR
+                    Debug.LogFormat(" begin load {0} ,save path ={1} ,index ={2}", url.AbsoluteUri, path,index);
+                #endif
                 freedownload.isFree = false;
                 FileHelper.CheckCreateFilePathDirectory(path);//检测存储文件夹是否存在
                 freedownload.DownloadFileAsync(url, path, req);
@@ -211,14 +213,14 @@ namespace Hugula.Update
             }
             else
             {
-                //#if UNITY_EDITOR
-				Debug.LogWarningFormat("{0} {1}",req.url,e.Error);
-                //#endif
+                #if UNITY_EDITOR
+				// Debug.LogWarningFormat("{0} req.index={1}hosts.Length{2} \r\n {3}",req.url,req.index,hosts.Length,e.Error);
+                #endif
                 if (req.index < hosts.Length - 1)
                 {
                     req.index++;
 #if UNITY_EDITOR
-                    Debug.LogFormat("reload {0}  save path = {1} ", req.url, req.saveName);
+                    Debug.LogFormat("reload {0}  save path = {1} index = {2} ", req.url, req.saveName,req.index);
 #endif
                     Load(req);
                 }

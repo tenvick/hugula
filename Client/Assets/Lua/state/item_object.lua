@@ -100,6 +100,7 @@ function ItemObject:check_assets_loaded() --检测资源是否加载完成
 end
 
 function ItemObject:on_focus(...)
+    if self.is_loading then return end
     if self:check_assets_loaded() then 
         self:show()  
         self:send_message("on_showed")

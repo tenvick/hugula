@@ -1,11 +1,10 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-using UnityEngine;
-using System.Collections;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using System;
 
 namespace Hugula.Cryptograph
 {
@@ -26,9 +25,7 @@ namespace Hugula.Cryptograph
         {
             byte[] inputs = Encoding.UTF8.GetBytes(source);
             byte[] hash = inputs;//Md5Instance.ComputeHash(inputs);
-            string outStr = System.Convert.ToBase64String(hash);
-            outStr = outStr.Replace("=", "");
-            outStr = outStr.Replace(@"/", "-");
+            string outStr = Convert.ToBase64String(hash);
             return outStr;
         }
 
@@ -120,8 +117,16 @@ namespace Hugula.Cryptograph
         /// <returns></returns>
         public static string Md5String(string source)
         {
-            byte[] inputs = Encoding.UTF8.GetBytes(source);
-            return Md5Bytes(inputs);
+            // byte[] result = Md5Instance.ComputeHash(Encoding.UTF8.GetBytes(source));
+            // string re = string.Empty;
+            // using(gstring.Block())
+            // {
+            //     gstring md5gstring = StringKeySection.BytesToHexString(result,0);
+            //     re = md5gstring.ToLower().Intern();
+            // }
+            // re = System.BitConverter.ToString(result).Replace("-",string.Empty).ToLower();
+            // return re;
+            return Md5Bytes(Encoding.UTF8.GetBytes(source));
         }
 
         /// <summary>
@@ -132,12 +137,9 @@ namespace Hugula.Cryptograph
         public static string Md5Bytes(byte[] inputs)
         {
             byte[] result = Md5Instance.ComputeHash(inputs);
-            string outStr = "";
-            foreach (byte b in result)
-            {
-                outStr += System.Convert.ToString(b, 16);
-            }
-            return outStr;
+            string md5str = string.Empty;
+            md5str = System.BitConverter.ToString(result).Replace("-",string.Empty).ToLower();
+            return md5str;
         }
 
         /// <summary>
@@ -147,13 +149,7 @@ namespace Hugula.Cryptograph
         /// <returns></returns>
         public static string Md5BytesTo32(byte[] inputs)
         {
-            byte[] result = Md5Instance.ComputeHash(inputs);
-            string outStr = "";
-            foreach (byte b in result)
-            {
-                outStr += b.ToString("x2");
-            }
-            return outStr;
+            return Md5Bytes(inputs);
         }
 
         #endregion

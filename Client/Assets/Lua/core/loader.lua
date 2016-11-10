@@ -106,6 +106,14 @@ function Loader:clear(key)
 --    unload_unused_assets()
 end
 
+function Loader:stop_url(url)
+	self.multipleLoader:StopURL(url)
+end
+
+function Loader:stop_req(req)
+	self.multipleLoader:StopReq(req)
+end
+
 function Loader:unload(url)
 	if url then
 		local key=CUtils.getURLFullFileName(url)

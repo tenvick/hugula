@@ -237,7 +237,7 @@ public class ExportResources
 
     public static void DeleteStreamingOutPath()
     {
-        ExportResources.DirectoryDelete(Path.Combine(Application.streamingAssetsPath, CUtils.GetAssetPath("")));
+        ExportResources.DirectoryDelete(Application.streamingAssetsPath);
     }
 
     public static void CheckDirectory(string fullPath)

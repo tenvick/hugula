@@ -18,7 +18,10 @@ using Hugula.Pool;
 public class SplitPackage
 {
 
+    public const string VerExtends = "VerExtends.txt";
+    public const string VerExtendsPath = "Assets/Hugula/Core/";
 
+    public const string ResFolderName = "res";
     #region public
 
 
@@ -32,7 +35,7 @@ public class SplitPackage
         CrcCheck.Clear();
         bool firstExists = false;
 
-        string readPath = Path.Combine(GetFirstOutPath(), CUtils.GetAssetPath(""));
+        string readPath = Path.Combine(GetFirstOutPath(), CUtils.platform);
         readPath = Path.Combine(readPath, CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME));
         Debug.Log(readPath);
 
@@ -191,7 +194,7 @@ public class SplitPackage
     /// Creates the streaming crc list.
     /// </summary>
     /// <param name="sb">Sb.</param>
-    public static uint CreateStreamingCrcList(StringBuilder sb, string outPath = null)
+    public static uint CreateStreamingCrcList(StringBuilder sb,bool firstExists = false, string outPath = null)
     {
         var crc32filename = CUtils.GetAssetName(Common.CRC32_FILELIST_NAME);
         string tmpPath = BuildScript.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
@@ -212,15 +215,17 @@ public class SplitPackage
         Debug.Log(sb.ToString());
         //读取crc
         string abPath = string.Empty;
+        string resOutPath = null;
         if (string.IsNullOrEmpty(outPath))
             abPath = Path.Combine(CUtils.realStreamingAssetsPath, crc32outfilename);
         else
         {
-            
-            abPath = Path.Combine(outPath, crc32outfilename);
+            resOutPath = Path.Combine(outPath,ResFolderName);
+            ExportResources.CheckDirectory(resOutPath);
+            abPath = Path.Combine(resOutPath, crc32outfilename);
         }
 
-        BuildScript.BuildABs(new string[] { assetPath }, outPath, crc32outfilename, BuildAssetBundleOptions.DeterministicAssetBundle);
+        BuildScript.BuildABs(new string[] { assetPath }, resOutPath, crc32outfilename, BuildAssetBundleOptions.DeterministicAssetBundle);
 
         CrcCheck.Clear();
 
@@ -229,8 +234,17 @@ public class SplitPackage
         Debug.Log("Crc file list assetbunle build complate! " + fileCrc.ToString() + abPath);
         if (!string.IsNullOrEmpty(outPath))
         {
-            string newName = Path.Combine(outPath,CUtils.InsertAssetBundleName(crc32outfilename,"_"+fileCrc.ToString()));
+            
+            string newName = Path.Combine(resOutPath,CUtils.InsertAssetBundleName(crc32outfilename,"_"+fileCrc.ToString()));
+            if(File.Exists(newName))File.Delete(newName);
             FileInfo finfo = new FileInfo(abPath);
+            if(!firstExists) //如果没有首包
+            {
+                string destFirst = Path.Combine(outPath,crc32outfilename);
+                Debug.Log("destFirst:"+destFirst);
+
+                finfo.CopyTo(destFirst);
+            }
             finfo.MoveTo(newName);
             Debug.Log(" change name to " + newName);
         }
@@ -243,6 +257,25 @@ public class SplitPackage
     /// <param name="fileCrc">File crc.</param>
     public static void CreateVersionAssetBundle(uint fileCrc)
     {
+        //read ver extends
+        string ver_file_name = VerExtends;
+        ver_file_name = VerExtendsPath+CUtils.InsertAssetBundleName(ver_file_name,"_"+CUtils.platform).Replace("//", "/");
+
+        StringBuilder verExtSB = new StringBuilder();
+        if(File.Exists(ver_file_name))
+        {
+            using(StreamReader sr = new StreamReader(ver_file_name))
+            {
+                string item;
+                while ((item = sr.ReadLine())!=null)
+                {
+                    verExtSB.AppendFormat(",{0}",item);
+                }
+            }
+            
+            Debug.LogFormat("read extends:{0},coutent={1}",ver_file_name,verExtSB.ToString());
+        }
+
         string path = CUtils.GetRealStreamingAssetsPath();//Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath(""));
         string outPath = Path.Combine(path, CUtils.GetRightFileName(Common.CRC32_VER_FILENAME));
         Debug.Log("verion to path=" + outPath);
@@ -252,9 +285,10 @@ public class SplitPackage
         verJson.Append("{");
         verJson.Append(@"""code"":" + CodeVersion.CODE_VERSION + ",");
         verJson.Append(@"""crc32"":" + fileCrc.ToString() + ",");
-        verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now) + "");
+        verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now));
+        verJson.Append(verExtSB.ToString());
         verJson.Append("}");
-
+// platform
         using (StreamWriter sr = new StreamWriter(outPath, false))
         {
             sr.Write(verJson.ToString());
@@ -266,12 +300,24 @@ public class SplitPackage
     }
 
     /// <summary>
+    ///   delete res folder
+    /// </summary>
+    public static void DeleteSplitPackageResFolder()
+    {
+        string updateOutPath = Path.Combine(UpdateOutPath,ResFolderName);
+        ExportResources.DirectoryDelete(updateOutPath);
+    }
+
+    /// <summary>
     /// Copies the version and crc file list assetbundle to split folder.
     /// </summary>
     public static void CopyVersionToSplitFolder(uint filelistCrc)
     {
         AssetDatabase.Refresh();
-        string updateOutPath = UpdateOutPath;
+        string updateOutPath = string.Format("{0}/v{1}",UpdateOutPath,CodeVersion.CODE_VERSION);
+        DirectoryInfo dicInfo = new DirectoryInfo(updateOutPath);
+        if(!dicInfo.Exists)dicInfo.Create();
+
         EditorUtility.DisplayProgressBar("Copy Version AssetBundle File", "copy file to " + updateOutPath, 0.99f);
 
         string sourcePath, outfilePath;
@@ -279,6 +325,7 @@ public class SplitPackage
         string verName = CUtils.GetRightFileName(Common.CRC32_VER_FILENAME);
         sourcePath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), verName);
         outfilePath = Path.Combine(updateOutPath, verName);
+        if(File.Exists(outfilePath))File.Delete(outfilePath);
         EditorUtility.DisplayProgressBar("Copy Version AssetBundle ", "copy " + verName + " to " + outfilePath, 0.99f);
         File.Copy(sourcePath, outfilePath);
         Debug.LogFormat("Copy {0} to {1} sccuess!", sourcePath, outfilePath);
@@ -289,7 +336,27 @@ public class SplitPackage
     public static void CopyChangeFileToSplitFolder(bool firstExists, Dictionary<string, uint> firstCrcDict, Dictionary<string, uint> currCrcDict, Dictionary<string, uint> diffCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
     {
         Dictionary<string, uint> updateList = new Dictionary<string, uint>();
+
+        // foreach (var kv in diffCrcDict)
+        // {
+        //     updateList[kv.Key] = kv.Value;
+        // }
+
+        // if(!firstExists)
+        // {
+        //     uint crc = 0;
+
+        //     foreach (var abName in blackFileList)
+        //     {
+        //         if (currCrcDict.TryGetValue(abName, out crc))
+        //         {
+        //             updateList[abName] = crc;
+        //         }
+        //     }
+        // }
+
         uint crc = 0;
+
         if (firstExists)
         {
             foreach (var kv in diffCrcDict)
@@ -360,7 +427,8 @@ public class SplitPackage
         {
             if (string.IsNullOrEmpty(_updateOutPath))
             {
-                _updateOutPath = Path.Combine(GetFirstOutPath(), CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm"));
+                // _updateOutPath = Path.Combine(GetFirstOutPath(), CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm"));
+                _updateOutPath = Path.Combine(GetFirstOutPath(), CUtils.platform);
                 DirectoryInfo dinfo = new DirectoryInfo(_updateOutPath);
                 if (!dinfo.Exists) dinfo.Create();
             }
@@ -388,7 +456,9 @@ public class SplitPackage
 
     private static void CopyFileToSplitFolder(Dictionary<string, uint> updateList)
     {
-        string updateOutPath = UpdateOutPath;
+        string updateOutPath = Path.Combine(UpdateOutPath,ResFolderName);
+        ExportResources.CheckDirectory(updateOutPath);
+
         int allLen = updateList.Count;
         int i = 0;
 

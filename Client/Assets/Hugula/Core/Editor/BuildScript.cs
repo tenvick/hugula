@@ -59,12 +59,14 @@ public class BuildScript
 		bool firstExists =SplitPackage.ReadFirst(firstCrcDict,whiteFileList,blackFileList);
         #endregion
 
+        SplitPackage.DeleteSplitPackageResFolder();
+
         #region 生成校验列表
         SplitPackage.UpdateOutPath = null;
 		StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles,firstCrcDict,currCrcDict,diffCrcDict,whiteFileList,blackFileList);
-		uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]);
+		uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
         System.Threading.Thread.Sleep(1000);
-        uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1],SplitPackage.UpdateOutPath);
+        uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists,SplitPackage.UpdateOutPath);//增量列表
         System.Threading.Thread.Sleep(1000);
         #endregion
 
@@ -178,7 +180,8 @@ public class BuildScript
                 ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
                 if (refe != null)
                 {
-                    refe.assetBundleName = string.Empty;
+                    // refe.assetHashCode = 0;//LuaHelper.StringToHash(assetBundleName);
+                    refe.assetbundle = string.Empty;
                     EditorUtility.SetDirty(s);
                 }
             }
@@ -257,7 +260,8 @@ public class BuildScript
 				ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
 				if (refe != null)
 				{
-					refe.assetBundleName = import.assetBundleName;
+                    // refe.assetHashCode = LuaHelper.StringToHash(import.assetBundleName);
+					refe.assetbundle = import.assetBundleName;
 					EditorUtility.SetDirty(s);
 				}
 			}
@@ -272,7 +276,8 @@ public class BuildScript
             ReferenceCount refe = LuaHelper.AddComponent(gobj, typeof(ReferenceCount)) as ReferenceCount;
             if (refe != null)
             {
-                refe.assetBundleName = import.assetBundleName;
+                refe.assetbundle = import.assetBundleName;
+                // refe.assetHashCode = LuaHelper.StringToHash(import.assetBundleName);
                 EditorUtility.SetDirty(sce);
             }
 
@@ -343,7 +348,8 @@ public class BuildScript
                     ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
                     if (refe != null)
                     {
-                        refe.assetBundleName = cacheAbName;
+                        refe.assetbundle = cacheAbName;
+                        // refe.assetHashCode = LuaHelper.StringToHash(cacheAbName);
                         EditorUtility.SetDirty(s);
                     }
                 }

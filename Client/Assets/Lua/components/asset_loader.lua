@@ -80,6 +80,7 @@ function AssetLoader:on_asset_loaded(key,asset)
 	send_message(asset,"on_asset_load",key,asset)
 	-- print(string.format("AssetLoader.name=%s  _load_count %s _load_curr %s ,key %s",self.lua_obj.name,self._load_count,self._load_curr,key))
 	if self._load_curr >= self._load_count then
+		self.lua_obj.is_loading = nil
 		self.lua_obj.is_call_assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
 		-- print(string.format("AssetLoader.name=%s  ",asset.root))
@@ -96,6 +97,7 @@ function AssetLoader:on_asset_loaded_error(key,asset)
 	self.assets[key]=asset
 	self._load_curr=self._load_curr+1
 	if self._load_curr >= self._load_count then
+		self.lua_obj.is_loading = nil
 		self.lua_obj:send_message("on_assets_load",self.assets)
 		self.lua_obj:send_message("on_showed")
 		self.lua_obj:call_event("on_showed")
@@ -107,6 +109,7 @@ function AssetLoader:on_asset_loaded_error(key,asset)
 end
 
 function AssetLoader:load_assets(assets)
+	self.lua_obj.is_loading = true
 	local req = nil
 	local reqs = {}
 	local url = "" local key=""

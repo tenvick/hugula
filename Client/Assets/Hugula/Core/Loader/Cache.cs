@@ -164,15 +164,19 @@ namespace Hugula.Loader
                 if (lockedCaches.Contains(assethashcode)) //被锁定了不能删除
                 {
 #if UNITY_EDITOR
-                    Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete.) ", cache.assetBundleKey, cache.assetBundle);
+                    Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete. frameCount{2} ", cache.assetBundleKey, cache.assetBundle,Time.frameCount);
 #endif
                 }
                 else
                 {
+#if HUGULA_LOADER_DEBUG
+					Debug.LogFormat (" <color=#8cacbc>ClearCache (assetBundle={0}) frameCount{1}</color>", cache.assetBundleKey, Time.frameCount);
+#endif
                     caches.Remove(assethashcode);//删除
                     int[] alldep = cache.allDependencies;
                     CacheData cachetmp = null;
                     cache.Dispose();
+
                     if (alldep != null)
                     {
                         for (int i = 0; i < alldep.Length; i++)
@@ -235,6 +239,7 @@ namespace Hugula.Loader
 				CacheManager.AddCache (cacheData);
 				cacheData.allDependencies = req.allDependencies;
 				cacheData.assetBundle = ab;
+       
 			} else if (Typeof_String.Equals (req.assetType)) {
 				req.data = www.text;
 			}
@@ -252,9 +257,9 @@ namespace Hugula.Loader
 				req.isAssetBundle = false;
 			}
 
-			req.uris.OnWWWComplete (req, www.bytes);
-
+			req.uris.OnWWWComplete (req, www);
             www.Dispose();
+
 			return req.isAssetBundle;
         }
 

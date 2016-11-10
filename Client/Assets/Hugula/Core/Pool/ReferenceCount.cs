@@ -16,21 +16,19 @@ namespace Hugula.Pool
     [SLua.CustomLuaClass]
     public class ReferenceCount : MonoBehaviour
     {
-        public string assetBundleName;
-
         internal int assetHashCode;
+
+        public string assetbundle;
 
         void Awake()
         {
-            if (string.IsNullOrEmpty(assetBundleName))
-                assetBundleName = this.name;
+            if(string.IsNullOrEmpty(assetbundle)) assetbundle = CUtils.GetRightFileName(this.name.Replace("(Clone)","")+".u3d");
 
-            //if(assetHashCode == 0)
-            assetHashCode = LuaHelper.StringToHash(assetBundleName);
+            assetHashCode = LuaHelper.StringToHash(assetbundle);
 
             if (!CountMananger.Add(this.assetHashCode))
             {
-                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer add error ", this.name, this.assetBundleName));
+                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer add error ", this.name.Replace("(Clone)",""),assetbundle));
             }
         }
 
@@ -38,17 +36,9 @@ namespace Hugula.Pool
         {
             if (!CountMananger.Subtract(this.assetHashCode))
             {
-                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer delete error ", this.name, this.assetBundleName));
+                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer delete error ", this.name,assetbundle));
             }
         }
 
-        ///// <summary>
-        ///// 设置gameobject管理的assetbundle.name
-        ///// </summary>
-        ///// <param name="assetBundleName"></param>
-        //public void SetAssetBundleName(string assetBundleName)
-        //{
-        //    assetHashCode = LuaHelper.StringToHash(assetBundleName);
-        //}
     }
 }

@@ -120,7 +120,8 @@ namespace Hugula.Update
                     }
                     else
                     {
-                        fileCrc = GetLocalFileCrc(path);//读取文件crc
+                        uint fileSize = 0;
+                        fileCrc = GetLocalFileCrc(path,out fileSize);//读取文件crc
                         crcFileChecked[key] = fileCrc;//保存文件crc
                         HashSet<string> checkMap = null;
                         if (crcKeyCheckedFileMap.TryGetValue(crcKey, out checkMap))
@@ -159,7 +160,8 @@ namespace Hugula.Update
             string crcKey = CUtils.GetAssetBundleName(path);
             bool ck = false;
             uint sourceCrc = 0;
-            fileCrc = GetLocalFileCrc(path);//读取文件crc
+            uint l = 0;
+            fileCrc = GetLocalFileCrc(path,out l);//读取文件crc
 
             if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
             {
@@ -177,9 +179,10 @@ namespace Hugula.Update
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static uint GetLocalFileCrc(string path)
+        public static uint GetLocalFileCrc(string path,out uint l)
         {
             uint crc = 0;
+            l = 0;
             try
             {
                 FileInfo finfo = new FileInfo(path);
@@ -191,10 +194,11 @@ namespace Hugula.Update
                         int num = 0;
                         long length = fileStream.Length;
                         int i = (int)length;
-                        //if (length > 2147483647L)
-                        //{
+                        // if (length > 2147483647L)
+                        // {
                         //    length = 2147483647L;
-                        //}
+                        // }
+                        l = (uint)i;
                         array = new byte[i];
                         while (i > 0)
                         {

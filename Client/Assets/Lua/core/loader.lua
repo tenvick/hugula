@@ -15,7 +15,8 @@ local LuaHelper = Hugula.Utils.LuaHelper
 
 local Loader = Loader 
 local md5_patter = ".+%."..Common.ASSETBUNDLE_SUFFIX.."$"
-
+local is_md5_patter = "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u3d$" 
+--warnning assetBundle 原始名字最好以  aa_bb 命名并且长度<=30
 Loader.multipleLoader= LResLoader.instance
 
 local function dispatch_complete(req)
@@ -24,7 +25,9 @@ end
 
 local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	if assetName == nil then assetName = CUtils.GetAssetName(url) end
-	if string.match(url,md5_patter) then url = CUtils.GetRightFileName(url) end--判断加密
+	if string.match(url,md5_patter) then --以u3d结尾
+	  if string.match(url,is_md5_patter) == nil then url = CUtils.GetRightFileName(url) end --不是md5编码
+	end--判断加密
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
 	req.relativeUrl = url
 	req.assetName = assetName
@@ -164,6 +167,10 @@ end
 
 function Loader:set_maxloading(max)
 	LResLoader.maxLoading = max --{"sd"}
+end
+
+function Loader:set_uris(uris)
+	LResLoader.uriList = uris
 end
 
 function Loader:refresh_assetbundle_manifest(onReady)

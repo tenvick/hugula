@@ -2,11 +2,9 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
-using System.Collections;
 using System.IO;
 using System;
 using SLua;
-using System.Text;
 using Hugula.Update;
 
 namespace Hugula.Utils
@@ -26,8 +24,7 @@ namespace Hugula.Utils
         /// <param name="fileName">File name.</param>
         public static void SavePersistentFile(Array context, string fileName)
         {
-            string path = CUtils.GetRealPersistentDataPath() + "/";
-            path = path + fileName;
+            string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),fileName);
 			FileInfo finfo = new FileInfo(path);
 			if(!finfo.Directory.Exists)finfo.Directory.Create();
 
@@ -60,7 +57,7 @@ namespace Hugula.Utils
         /// <param name="fileName">File name.</param>
         public static byte[] ReadPersistentFile(string fileName)
         {
-            string path = CUtils.GetRealPersistentDataPath() + "/" + fileName;
+            string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath() , fileName);
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
@@ -75,9 +72,9 @@ namespace Hugula.Utils
         /// <param name="newname">Newname.</param>
         public static bool ChangePersistentFileName(string oldName, string newname)
         {
-            string path = CUtils.GetRealPersistentDataPath() + "/";
-            string oldPath = path + oldName;
-            string newPath = path + newname;
+            string path = CUtils.GetRealPersistentDataPath();
+            string oldPath = CUtils.PathCombine(path,oldName);
+            string newPath = CUtils.PathCombine(path , newname);
             if (File.Exists(oldPath))
             {
 				FileInfo newFile = new FileInfo(newPath); //如果新的存在需要删除
@@ -96,7 +93,7 @@ namespace Hugula.Utils
         /// <param name="fileName">File name.</param>
         public static void DeletePersistentFile(string fileName)
         {
-			string path = Path.Combine (CUtils.GetRealPersistentDataPath (), fileName);
+			string path = CUtils.PathCombine (CUtils.GetRealPersistentDataPath (), fileName);
             if (File.Exists(path))
                 File.Delete(path);
         }
@@ -108,7 +105,7 @@ namespace Hugula.Utils
         {
             string path = CUtils.GetRealPersistentDataPath();
 			if (!string.IsNullOrEmpty (relative))
-				path = Path.Combine (path, relative);
+				path = CUtils.PathCombine (path, relative);
             DirectoryInfo dinfo = new DirectoryInfo(path);
             if (dinfo.Exists)
             {
@@ -130,7 +127,7 @@ namespace Hugula.Utils
 		/// <param name="abpath">Abpath.</param>
 		public static bool PersistentFileExists(string abpath)
 		{
-			string path = Path.Combine(CUtils.GetRealPersistentDataPath(),abpath);
+			string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),abpath);
 			return File.Exists (path); 
 		}
 

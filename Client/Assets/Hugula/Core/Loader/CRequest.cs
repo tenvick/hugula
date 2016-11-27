@@ -225,7 +225,7 @@ namespace Hugula.Loader
                 if (value == null)
                     _url = null;
                 else
-                    _url = Path.Combine(uri, relativeUrl); //Path.Combine (uri, this.relativeUrl);
+                    _url = CUtils.PathCombine (uri, this.relativeUrl);
             }
         }
 
@@ -321,7 +321,7 @@ namespace Hugula.Loader
             get
             {
                 if (_uris == null)
-                    _uris = CResLoader.uriList;
+                    _uris = LResLoader.uriList;
 
                 return _uris;
             }

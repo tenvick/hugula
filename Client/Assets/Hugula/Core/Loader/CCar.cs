@@ -2,8 +2,6 @@
 // direct https://github.com/tenvick/hugula
 
 using UnityEngine;
-using System.Collections;
-using System;
 using Hugula.Utils;
 
 namespace Hugula.Loader
@@ -73,8 +71,12 @@ namespace Hugula.Loader
             this.isFree = false;
             this._req = req;
             this.enabled = true;
-            string url = CUtils.CheckWWWUrl(req.url);
-     
+            string url = req.url;
+#if HUGULA_WEB_MODE
+            if (req.isAssetBundle) url = req.uris.OnOverrideUrl(req);
+			// Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) frame{4} isAssetBundle:{5} )</color>", url, req.key, req.assetName,req.assetBundleName,Time.frameCount,req.isAssetBundle);
+#endif
+            url = CUtils.CheckWWWUrl(url);
             if (req.head is WWWForm)
             {
                 www = new WWW(url, (WWWForm)req.head);
@@ -83,14 +85,15 @@ namespace Hugula.Loader
             {
                 www = new WWW(url, (byte[])req.head);
             }
-            else if(req.isLoadFromCacheOrDownload)
+            else if (req.isLoadFromCacheOrDownload)
             {
-                if(CResLoader.assetBundleManifest!=null)
+                if (CResLoader.assetBundleManifest != null)
                 {
-                    www = WWW.LoadFromCacheOrDownload (url, CResLoader.assetBundleManifest.GetAssetBundleHash (req.assetBundleName), 0);
-                }else
+                    www = WWW.LoadFromCacheOrDownload(url, CResLoader.assetBundleManifest.GetAssetBundleHash(req.assetBundleName), 0);
+                }
+                else
                 {
-                    www = WWW.LoadFromCacheOrDownload (url, 0);
+                    www = WWW.LoadFromCacheOrDownload(url, 0);
                 }
             }
             else
@@ -98,32 +101,32 @@ namespace Hugula.Loader
                 www = new WWW(url);
             }
 
-            if(req.priority > 10000)
-                 www.threadPriority = ThreadPriority.High;
-            else if(req.priority < -10000)
+            if (req.priority > 10000)
+                www.threadPriority = ThreadPriority.High;
+            else if (req.priority < -10000)
                 www.threadPriority = ThreadPriority.Low;
-            else if(req.priority < 0)
+            else if (req.priority < 0)
                 www.threadPriority = ThreadPriority.BelowNormal;
 
-			#if HUGULA_LOADER_DEBUG
-			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) frame{4} )</color>", req.url, req.key, req.assetName,req.assetBundleName,Time.frameCount);
-			#endif
+#if HUGULA_LOADER_DEBUG
+			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) frame{4} )</color>", url, req.key, req.assetName,req.assetBundleName,Time.frameCount);
+#endif
         }
 
         public void StopLoad()
         {
-            if(isFree && !enabled && www!=null)
+            if (isFree && !enabled && www != null)
             {
                 enabled = false;
                 isFree = true;
                 www.Dispose();
-                 if(this.req!=null && req.pool)
+                if (this.req != null && req.pool)
                 {
                     LRequestPool.Release(req);
                 }
                 this._req = null;
             }
-           
+
         }
 
         #endregion
@@ -143,9 +146,9 @@ namespace Hugula.Loader
 #endif
             isFree = true;
             enabled = false;
-            if (www.error != null) 
+            if (www.error != null)
             {
-				Debug.LogWarning(" (" + req.assetName + ")url(" + req.url + ") \n error:" + www.error);
+                Debug.LogWarning(" (" + req.assetName + ")url(" + req.url + ") \n error:" + www.error);
                 DispatchErrorEvent(req);
                 www = null;
             }
@@ -153,10 +156,10 @@ namespace Hugula.Loader
             {
                 if (OnProcess != null)
                     OnProcess(this, 1);
-				#if HUGULA_LOADER_DEBUG
+#if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2})  len({3} frame{4})</color>", req.url, req.key, req.assetName, www.bytes.Length,Time.frameCount);
-				#endif
-				CacheManager.AddSourceCacheDataFromWWW(www,this._req);
+#endif
+                CacheManager.AddSourceCacheDataFromWWW(www, this._req);
                 DispatchCompleteEvent(this._req);
 
             }

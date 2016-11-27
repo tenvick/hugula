@@ -1,10 +1,6 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Hugula.Utils
 {
@@ -64,15 +60,29 @@ namespace Hugula.Utils
         public const string LANGUAGE_SUFFIX = "lan";
 
         /// <summary>
-        /// The HTT p STAR.
+        /// The Http STAR.
         /// </summary>
         public const string HTTP_STRING = "http://";
+
+         /// <summary>
+        /// The Https STAR.
+        /// </summary>
+        public const string HTTPS_STRING = "https://";
 
         /// <summary>
         /// 首包路径
         /// </summary>
         [SLua.DoNotToLua]
         public const string FirstOutPath = "FirstPackage";
+
+        /// <summary>
+        /// is web mode
+        /// </summary>
+        #if HUGULA_WEB_MODE 
+            public const bool IS_WEB_MODE = true;
+        #else
+            public const bool IS_WEB_MODE = false;
+        #endif
     }
 
 }

@@ -218,7 +218,7 @@ namespace Hugula.Utils
                  }
 
                 gstring subname = g_fileName.Substring(lastFileIndex + 1, fileLen);
-#if !BUILD_COMMON_ASSETBUNDLE
+#if !HUGULA_COMMON_ASSETBUNDLE
                 subname = CryptographHelper.Md5String (subname.Intern()); 
 #endif
                 if(haslast)
@@ -258,6 +258,9 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string PathCombine(string path1,string path2)
         {
+            if(string.IsNullOrEmpty(path1) || string.IsNullOrEmpty(path2))
+                return Path.Combine(path1,path2);
+
             string re = string.Empty;
             using(gstring.Block())
             {
@@ -329,7 +332,7 @@ namespace Hugula.Utils
         public const string platform = "standalonewindows";
 #endif
 
-#if BUILD_COMMON_ASSETBUNDLE
+#if HUGULA_COMMON_ASSETBUNDLE
         /// <summary>
         /// ??����???t?D
         /// </summary>

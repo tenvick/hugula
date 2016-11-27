@@ -394,7 +394,7 @@ namespace Hugula.Utils
                 Shader newShader = Shader.Find(shaderName);
                 if (newShader != null)
                 {
-                    mat.shader = newShader;      Debug.Log("refresh shader: " + shaderName + " in material " + mat.name);
+                    mat.shader = newShader;  //    Debug.Log("refresh shader: " + shaderName + " in material " + mat.name);
                 }
                 else
                 {
@@ -520,8 +520,8 @@ namespace Hugula.Utils
             {
                 float speed = state.speed;
                 if (dir == AnimationDirection.Toggle)
-                {
-                    if (speed >= 0)
+                {    
+                    if (speed > 0 && state.time == 0 )
                         dir = AnimationDirection.Reverse;
                     else
                         dir = AnimationDirection.Forward;
@@ -560,7 +560,7 @@ namespace Hugula.Utils
 			float normalizedTime = 1;
 			if (dir == AnimationDirection.Toggle)
 			{
-				if (speed >= 0)
+				if (speed > 0)
 					dir = AnimationDirection.Reverse;
 				else
 					dir = AnimationDirection.Forward;

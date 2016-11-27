@@ -7,6 +7,8 @@ using UnityEngine;
 using System.Linq;
 using Hugula;
 
+using Hugula.Editor;
+
 public class AssetbundlesMenuItems
 {
 

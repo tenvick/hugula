@@ -87,7 +87,7 @@ function AssetLoader:on_asset_loaded(key,asset)
 		self.lua_obj:send_message("on_showed")
 		self.lua_obj:call_event("on_showed")
 		if StateManager and StateManager:get_current_state():is_all_loaded() then 
-			StateManager:check_hide_transform()
+			-- StateManager:check_hide_transform(self.lua_obj._transform)
 			StateManager:call_all_item_method()
 		end 
 	end
@@ -102,7 +102,7 @@ function AssetLoader:on_asset_loaded_error(key,asset)
 		self.lua_obj:send_message("on_showed")
 		self.lua_obj:call_event("on_showed")
 		if StateManager and StateManager:get_current_state():is_all_loaded() then 
-			StateManager:check_hide_transform()
+			-- StateManager:check_hide_transform(self.lua_obj._transform)
 			StateManager:call_all_item_method()
 		end 
 	end

@@ -14,7 +14,7 @@ namespace Hugula.Loader
     /// 新的资源加载类
     /// </summary>
     [SLua.CustomLuaClass]
-    public class CResLoader : MonoBehaviour
+    public abstract class CResLoader : MonoBehaviour
     {
         #region public static
 		static int _maxLoading = 2;
@@ -783,7 +783,9 @@ namespace Hugula.Loader
         /// </summary>
         static protected void LoadAssetBundle(CRequest req)
         {
-            if (assetBundleManifest != null)
+            if(req.url.EndsWith(Common.ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
+
+            if (assetBundleManifest != null && req.isAssetBundle)
 				req.allDependencies = LoadDependencies(req); //加载依赖
 
 			QueueOrLoad (req);//realyLoadingQueue.Enqueue(req);//加载自己
@@ -818,6 +820,7 @@ namespace Hugula.Loader
                     item.relativeUrl = dep_url;
                     item.isShared = true;
                     item.async = false;
+                    item.isAssetBundle = true;
 					//依赖项目
                     string[] depds = assetBundleManifest.GetAllDependencies(item.assetBundleName);
                     if(depds.Length > 0)

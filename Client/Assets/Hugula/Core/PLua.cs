@@ -4,11 +4,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
-using System.Text.RegularExpressions;
 using System;
-using System.Text;
 
 using SLua;
 using Lua = SLua.LuaSvr;
@@ -133,19 +130,20 @@ namespace Hugula
 #endif
         }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="main"></param>
-		private IEnumerator ReOpen(float seconds,string sceneName)
-		{
-			RemoveAllEvents ();
-			yield return new WaitForSeconds(seconds);
-			lua.luaState.Close();
-			yield return new WaitForSeconds (seconds);
-			GameObject.Destroy (this.gameObject);
-			LuaHelper.LoadScene (sceneName, false);
-		}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="main"></param>
+        private IEnumerator ReOpen(float seconds)
+        {
+            RemoveAllEvents();
+            yield return new WaitForSeconds(seconds);
+            lua.luaState.Close();
+            yield return new WaitForSeconds(seconds);
+            GameObject.Destroy(this.gameObject);
+   
+            LoadFirstHelper.BeginLoadScene();
+        }
 
         /// <summary>
         /// lua bundle
@@ -255,14 +253,14 @@ namespace Hugula
             luacache[key] = textAsset;
         }
 
-		/// <summary>
-		/// ReStart.
-		/// </summary>
-		/// <param name="sconds">Sconds.</param>
-		public void ReStart(float sconds,string sceneName)
-		{
-			StartCoroutine (ReOpen (sconds,sceneName));
-		}
+        /// <summary>
+        /// ReStart.
+        /// </summary>
+        /// <param name="sconds">Sconds.</param>
+        public void ReStart(float sconds)
+        {
+            StartCoroutine(ReOpen(sconds));
+        }
 
 		/// <summary>
 		/// Removes all events.

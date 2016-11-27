@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor;
-using Hugula;
 using System.IO;
 using Hugula.Utils;
+
+
+namespace Hugula.Editor
+{
 
 /// <summary>
 /// 
@@ -11,7 +13,13 @@ using Hugula.Utils;
 public class HugulaSettingEditor
 {
 
-    public const string SettingPath = "Assets/Hugula/Core/SettingHugula.txt";
+    public static string SettingPath 
+    {
+        get{
+            string re = Path.Combine(EditorCommon.ConfigPath,EditorCommon.SettingFile);
+            return re;
+        }
+    }  //"Assets/Hugula/Config/SettingHugula.txt";
 
     private static HugulaSetting _instance = null;
 
@@ -23,7 +31,11 @@ public class HugulaSettingEditor
             {
                 _instance = new HugulaSetting();
                 List<string> list = new List<string>();
-                if (!File.Exists(SettingPath)) File.Create(SettingPath);
+                if (!File.Exists(SettingPath))
+                {  
+                    FileHelper.CheckCreateFilePathDirectory(SettingPath);
+                    File.Create(SettingPath);
+                }
                 using (StreamReader file = new StreamReader(SettingPath.Replace("//", "/")))
                 {
                     string item;
@@ -119,4 +131,4 @@ public class HugulaSetting
     /// </summary>
     public List<string> AssetLabels = new List<string>();
 
-}
+}}

@@ -40,7 +40,7 @@ public class ReferenceCountInfoEditor : Editor
 		} else {
 			if (GUILayout.Button ("check", GUILayout.Width (50))) {
 				string mdstring = input;
-				#if BUILD_COMMON_ASSETBUNDLE 
+				#if HUGULA_COMMON_ASSETBUNDLE 
 					
 				#else
 				mdstring  = CUtils.GetRightFileName(input);

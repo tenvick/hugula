@@ -1,8 +1,6 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-using UnityEngine;
-using System.Collections;
 
 namespace Hugula
 {
@@ -12,15 +10,15 @@ namespace Hugula
     public class Version
     {
 
-        public const uint VERSION = 0x000086;
+        public const uint VERSION = 0x000087;
 
     }
 }
 /**
  * 
  * 预编译命名说明
- * BUILD_COMMON_ASSETBUNDLE -- 使用未加密的名字构建 assetbundle
- * 
+ * HUGULA_COMMON_ASSETBUNDLE -- 使用未加密的名字构建 assetbundle
+ * HUGULA_WEB_MODE 启用页游模式
  * 
  * HUGULA_LOADER_DEBUG 加载模块打印调试
  * 

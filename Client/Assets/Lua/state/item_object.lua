@@ -106,7 +106,7 @@ function ItemObject:on_focus(...)
         self:send_message("on_showed")
         self:call_event("on_showed")
     else
-        StateManager:check_show_transform()
+        -- StateManager:check_show_transform(self._transform)
         self.asset_loader:load(self.assets)  
     end
 end

@@ -8,31 +8,40 @@ local function sortFn(a,b)
     return tonumber(a.priority) > tonumber(b.priority) 
 end
 
-StateBase=class(function(self,item_objects,log_enable)
+StateBase=class(function(self,item_objects,arg1,arg2)
         
         self._item_list={} --所有项
-        self.original = {} --原始item
+        self._original = {} --原始item
 
         if item_objects then 
             for k,v in ipairs(item_objects) do
-                self.original[v] = true
+                self._original[v] = true
             end
         end
 
         self.will_sort = false
         self.method = nil
-        if log_enable == nil then  -- 是否启用日志记录用于返回
-            self.log_enable = true 
-        else
-            self.log_enable = log_enable 
+
+        if type(arg1) == "string" then
+            self._transform_original = arg1
         end
+
+        local log_enable = true
+        if type(arg1) == "boolean" then
+            log_enable = arg1
+        elseif  type(arg2) == "boolean" then
+            log_enable = arg2
+        end
+
+        self.log_enable = log_enable
+
     end)
 
 local StateBase = StateBase
 
 function StateBase:check_initialize( ... ) --初始化
     if self.initialize ~= true then
-        local original = self.original
+        local original = self._original
         local item_obj = nil
         for k,v in pairs(original) do
             if v == true then
@@ -44,12 +53,38 @@ function StateBase:check_initialize( ... ) --初始化
             end
         end
         table.sort(self._item_list,sortFn)
+
+        if self._transform_original then
+            self._transform = LuaItemManager:get_item_obejct(self._transform_original)
+        end
         self.initialize = true
     end
 end
 
+--显示切换UI
+function StateBase:show_transform(on_act)
+    if self._transform then
+        self._transform._once_act = on_act
+        self._transform:on_focus()
+        return true
+    else
+        return  false
+    end
+end
+
+--隐藏切换效果
+function StateBase:hide_transform()
+    if self._transform then
+        self._transform:on_blur()
+        return true
+    else
+        return  false
+    end
+
+end
+
 function StateBase:is_original_item(item) --是否是原始项目
-    local original = self.original
+    local original = self._original
     local key = item
      if type(key) == "table" then
         key = item._key or ""
@@ -74,8 +109,9 @@ function StateBase:contains_item(key) --当前状态是否包含item
 end
 
 function StateBase:is_all_loaded()
-    local item_list = self.original
-    for k,v in pairs(item_list) do        
+    local item_list = self._original
+    for k,v in pairs(item_list) do     
+        if v == true then return false end  -- true has not initialize 
         if v:check_assets_loaded() == false then return false end
     end
     return true
@@ -117,7 +153,7 @@ function StateBase:remove_item(obj)
 end
 
 function StateBase:on_focus(previous_state)
-    self:check_initialize()
+    -- self:check_initialize()
     local item_list = self._item_list
     local _len = #item_list --print(_len)
     for k,v in ipairs(self._item_list) do

@@ -118,18 +118,30 @@ function StateManager:hide_transform()
 end
 
 --检测显示切换效果
-function StateManager:check_show_transform( ... )
-    if self._auto_show_loading then self:show_transform() end
+function StateManager:check_show_transform( state,on_changed,is_back)
+    if not is_back and state and state:show_transform(on_changed) then
+        -- do nothing
+    elseif self._auto_show_loading and state and state:is_all_loaded() == false then
+        self:show_transform()
+        on_changed()
+    else
+        on_changed()
+    end
 end
 
 --检测隐藏切换效果
-function StateManager:check_hide_transform( ... )
-    if self._auto_show_loading then self:hide_transform() end
+function StateManager:check_hide_transform( state )
+    if state and state:hide_transform() then
+        --do nothing        
+    elseif self._auto_show_loading and state then
+        self:hide_transform()
+    end
 end
 
 --调用设置的itemobject方法
 function StateManager:call_all_item_method( )
     local curr_state = self._current_game_state
+
     self:input_enable()
 
     local previous_state = curr_state._on_state_showed_flag
@@ -143,6 +155,9 @@ function StateManager:call_all_item_method( )
         curr_state.method = nil
         curr_state.args = nil
     end
+
+
+    self:check_hide_transform(curr_state)
 end
 
 function StateManager:set_on_state_change(on_state_change)
@@ -153,16 +168,9 @@ function StateManager:call_on_state_change(new_state)
     if self._on_state_change then self._on_state_change(new_state) end
 end
 
---改变状态
-function StateManager:set_current_state(new_state,method,...)
-    assert(new_state ~= nil)
-    if(new_state == self._current_game_state)   then
-        -- print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
-        return
-    end
+function StateManager:real_change_to_state(is_back)
+     local new_state = self._new_state
 
-    self:input_disable() --lock input
-    -- print("new_state",new_state)
     if(self._current_game_state ~= nil) then
         self._current_game_state:on_blur(new_state)
         unload_unused_assets()
@@ -170,16 +178,32 @@ function StateManager:set_current_state(new_state,method,...)
 
     local previous_state = self._current_game_state
     self._current_game_state = new_state
-
-    new_state.method=method
-    new_state.args={...}
     new_state._on_state_showed_flag = {true,previous_state}
     new_state:on_focus(previous_state)
-
+    if is_back then new_state:on_back(previous_state) end
     if new_state:is_all_loaded() then self:call_all_item_method() end
 
-    self:record_state() --记录状态用于返回   
+    if not is_back then self:record_state() end--记录状态用于返回   
     self:call_on_state_change(new_state) --state change event
+
+    self._new_state = nil
+   
+end
+
+--改变状态
+function StateManager:set_current_state(new_state,method,...)
+    assert(new_state ~= nil)
+    if new_state == self._current_game_state or self._new_state  then
+        print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
+        return
+    end
+    new_state:check_initialize()
+    new_state.method=method
+    new_state.args={...}
+    self:input_disable() --lock input
+    self._new_state = new_state
+    local function do_change() StateManager:real_change_to_state()  end
+    self:check_show_transform(new_state,do_change)
 end
 
 function StateManager:record_state() --记录状态用于返回
@@ -245,6 +269,9 @@ function StateManager:go_back(index) --返回
             v:on_blur(curr)
             -- v:on_back()
         end
+           
+        self:call_on_state_change(new_state)
+
     else
         self:input_disable() --lock
         for k,v in ipairs(add) do 
@@ -256,18 +283,10 @@ function StateManager:go_back(index) --返回
             v:on_blur(self._current_game_state)
         end
 
-        if  self._current_game_state ~= nil then
-            self._current_game_state:on_blur(new_state)
-        end
-    
-        local previous_state = self._current_game_state
-        self._current_game_state = new_state
-        new_state._on_state_showed_flag = {true,previous_state}
-        new_state:on_focus(previous_state)
-        new_state:on_back(previous_state)
-        if new_state:is_all_loaded() then self:call_all_item_method() end
+        self._new_state = new_state
+        local function do_change() StateManager:real_change_to_state(true)  end
+        self:check_show_transform(new_state,do_change,true)
 
     end
-    self:call_on_state_change(new_state)
     return true 
 end

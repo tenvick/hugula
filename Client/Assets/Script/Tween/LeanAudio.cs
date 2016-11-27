@@ -34,7 +34,7 @@ public class LeanAudioStream {
 * @constructor
 */
 [SLua.CustomLuaClass]
-public class LeanAudio : MonoBehaviour {
+public class LeanAudio : object {
 
 	public static float MIN_FREQEUNCY_PERIOD = 0.000115f;
 	public static int PROCESSING_ITERATIONS_MAX = 50000;
@@ -106,6 +106,8 @@ public class LeanAudio : MonoBehaviour {
 					height *= peakMulti;
 				}	
 			}
+
+			
 			// Debug.Log("i:"+i+" f:"+f+" passed:"+passed+" height:"+height+" time:"+time);
 			if(passed + 0.5f*f>=time)
 				break;
@@ -113,9 +115,13 @@ public class LeanAudio : MonoBehaviour {
 				Debug.LogError("LeanAudio has reached it's processing cap. To avoid this error increase the number of iterations ex: LeanAudio.PROCESSING_ITERATIONS_MAX = "+(PROCESSING_ITERATIONS_MAX*2));
 				break;
 			}else{
-				generatedWaveDistances[ listLength / 2 ] = f;
+				int distPoint = listLength / 2;
+				
 				//generatedWaveDistances.Add( f );
 				passed += f;
+
+				generatedWaveDistances[ distPoint ] = passed;
+				//Debug.Log("distPoint:"+distPoint+" passed:"+passed);
 
 				//list.Add( passed );
 				//list.Add( i%2==0 ? -height : height );
@@ -132,6 +138,7 @@ public class LeanAudio : MonoBehaviour {
 
 		listLength += -2;
 		generatedWaveDistancesCount = listLength / 2;
+
 		/*float[] wave = new float[ listLength ];
 		for(int i = 0; i < wave.Length; i++){
 			wave[i] = longList[i];
@@ -161,10 +168,46 @@ public class LeanAudio : MonoBehaviour {
 			float ratioElapsed = subWaveTime / subWaveDiff;
 
 			float value = Mathf.Sin( ratioElapsed * Mathf.PI );
+
+			if(options.waveStyle==LeanAudioOptions.LeanAudioWaveStyle.Square){
+				if(value>0f)
+					value = 1f;
+				if(value<0f)
+					value = -1f;
+			}else if(options.waveStyle==LeanAudioOptions.LeanAudioWaveStyle.Sawtooth){
+				float sign = value > 0f ? 1f : -1f;
+				if(ratioElapsed<0.5f){
+					value = (ratioElapsed*2f)*sign;
+				}else{ // 0.5f - 1f
+					value = (1f - ratioElapsed)*2f*sign;
+				}
+			}else if(options.waveStyle==LeanAudioOptions.LeanAudioWaveStyle.Noise){
+				float peakMulti = (1f-options.waveNoiseInfluence) + Mathf.PerlinNoise(0f, passedTime * options.waveNoiseScale ) * options.waveNoiseInfluence;
+				
+				/*if(i<25){
+					Debug.Log("passedTime:"+passedTime+" peakMulti:"+peakMulti+" infl:"+options.waveNoiseInfluence);
+				}*/
+
+				value *= peakMulti;
+			}
+			
 			//if(i<25)
 			//	Debug.Log("passedTime:"+passedTime+" value:"+value+" ratioElapsed:"+ratioElapsed+" subWaveTime:"+subWaveTime+" subWaveDiff:"+subWaveDiff);
 			
 			value *= waveHeight;
+
+
+			if(options.modulation!=null){
+				for(int k=0; k<options.modulation.Length; k++){
+					float peakMulti = Mathf.Abs( Mathf.Sin( 1.5708f + passedTime * (1f/options.modulation[k][0]) * Mathf.PI ) );
+					float diff = (1f-options.modulation[k][1]);
+					peakMulti = options.modulation[k][1] + diff*peakMulti;
+					// if(k<10){
+						// Debug.Log("k:"+k+" peakMulti:"+peakMulti+" value:"+value+" after:"+(value*peakMulti));
+					// }
+					value *= peakMulti;
+				}	
+			}
 
 			audioArr[i] = value;
 			// Debug.Log("pt:"+pt+" i:"+i+" val:"+audioArr[i]+" len:"+audioArr.Length);
@@ -173,7 +216,7 @@ public class LeanAudio : MonoBehaviour {
 		
 		int lengthSamples = audioArr.Length;
 		
-		#if UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6
+		#if UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
 		bool is3dSound = false;
 		AudioClip audioClip = AudioClip.Create("Generated Audio", lengthSamples, 1, options.frequencyRate, is3dSound, false);
 		#else
@@ -183,7 +226,7 @@ public class LeanAudio : MonoBehaviour {
 			audioClip.SetData(audioArr, 0);
 		}else{
 			options.stream = new LeanAudioStream(audioArr);
-			Debug.Log("len:"+audioArr.Length+" lengthSamples:"+lengthSamples+" freqRate:"+options.frequencyRate);
+			// Debug.Log("len:"+audioArr.Length+" lengthSamples:"+lengthSamples+" freqRate:"+options.frequencyRate);
 			audioClip = AudioClip.Create("Generated Audio", lengthSamples, 1, options.frequencyRate, false, options.stream.OnAudioRead, options.stream.OnAudioSetPosition);
 			options.stream.audioClip = audioClip;
 		}
@@ -210,7 +253,7 @@ public class LeanAudio : MonoBehaviour {
 		}
 
 		int lengthSamples = audioArr.Length;//(int)( (float)frequencyRate * curveTime );
-		#if UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6
+		#if UNITY_3_5 || UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
 		bool is3dSound = false;
 		AudioClip audioClip = AudioClip.Create("Generated Audio", lengthSamples, 1, frequencyRate, is3dSound, false);
 		#else
@@ -221,15 +264,37 @@ public class LeanAudio : MonoBehaviour {
 		return audioClip;
 	}
 
-	public static AudioSource play( AudioClip audio, Vector3 pos = default(Vector3), float volume = 1f, float pitch = 1f ){
+	public static AudioSource play( AudioClip audio, float volume ){
+		AudioSource audioSource = playClipAt(audio, Vector3.zero);
+		audioSource.volume = volume;
+		return audioSource; 
+	}
+
+	public static AudioSource play( AudioClip audio ){
+		return playClipAt( audio, Vector3.zero ); 
+	}
+
+	public static AudioSource play( AudioClip audio, Vector3 pos ){
+		return playClipAt( audio, pos ); 
+	}
+
+	public static AudioSource play( AudioClip audio, Vector3 pos, float volume ){
+		// Debug.Log("audio length:"+audio.length);
+		AudioSource audioSource = playClipAt(audio, pos);
+		audioSource.minDistance = 1f;
+		//audioSource.pitch = pitch;
+		audioSource.volume = volume;
+
+		return audioSource;
+	}
+
+	public static AudioSource playClipAt( AudioClip clip, Vector3 pos ) {
 		GameObject tempGO = new GameObject(); // create the temp object
 		tempGO.transform.position = pos; // set its position
 		AudioSource aSource = tempGO.AddComponent<AudioSource>(); // add an audio source
-		aSource.volume = volume;
-		aSource.pitch = pitch;
-		aSource.clip = audio; // define the clip
+		aSource.clip = clip; // define the clip
 		aSource.Play(); // start the sound
-		Destroy(tempGO, audio.length); // destroy object after clip duration
+		GameObject.Destroy(tempGO, clip.length); // destroy object after clip duration
 		return aSource; // return the AudioSource reference
 	}
 
@@ -257,8 +322,20 @@ public class LeanAudio : MonoBehaviour {
 */
 [SLua.CustomLuaClass]
 public class LeanAudioOptions : object {
+
+	public enum LeanAudioWaveStyle{
+		Sine,
+		Square,
+		Sawtooth,
+		Noise
+	}
+
+	public LeanAudioWaveStyle waveStyle = LeanAudioWaveStyle.Sine;
 	public Vector3[] vibrato;
+	public Vector3[] modulation;
 	public int frequencyRate = 44100;
+	public float waveNoiseScale = 1000;
+	public float waveNoiseInfluence = 1f;
 
 	public bool useSetData = true;
 	public LeanAudioStream stream;
@@ -282,7 +359,7 @@ public class LeanAudioOptions : object {
 	}
 
 	/**
-	* Set details about the shape of the curve by adding vibrato waves through it. You can add as many as you want to sculpt out more detail in the sound wave.
+	* Set details about the shape of the curve by adding vibrato modulations through it (alters the peak values giving it a wah-wah effect). You can add as many as you want to sculpt out more detail in the sound wave.
 	* 
 	* @method setVibrato
 	* @param {Vector3[]} vibratoArray:Vector3[] The first value is the period in seconds that you wish to have the vibrato wave fluctuate at. The second value is the minimum height you wish the vibrato wave to dip down to (default is zero). The third is reserved for future effects.
@@ -294,6 +371,48 @@ public class LeanAudioOptions : object {
 	*/
 	public LeanAudioOptions setVibrato( Vector3[] vibrato ){
 		this.vibrato = vibrato;
+		return this;
+	}
+
+	/*
+	public LeanAudioOptions setModulation( Vector3[] modulation ){
+		this.modulation = modulation;
+		return this;
+	}*/
+
+	public LeanAudioOptions setWaveSine(){
+		this.waveStyle = LeanAudioWaveStyle.Sine;
+		return this;
+	}
+
+	public LeanAudioOptions setWaveSquare(){
+		this.waveStyle = LeanAudioWaveStyle.Square;
+		return this;
+	}
+
+	public LeanAudioOptions setWaveSawtooth(){
+		this.waveStyle = LeanAudioWaveStyle.Sawtooth;
+		return this;
+	}
+
+	public LeanAudioOptions setWaveNoise(){
+		this.waveStyle = LeanAudioWaveStyle.Noise;
+		return this;
+	}
+
+	public LeanAudioOptions setWaveStyle( LeanAudioWaveStyle style ){
+		this.waveStyle = style;
+		return this;
+	}
+
+
+	public LeanAudioOptions setWaveNoiseScale( float waveScale ){
+		this.waveNoiseScale = waveScale;
+		return this;
+	}
+
+	public LeanAudioOptions setWaveNoiseInfluence( float influence ){
+		this.waveNoiseInfluence = influence;
 		return this;
 	}
 }

@@ -3,16 +3,12 @@
 //
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System;
 
 using SLua;
 using Lua = SLua.LuaSvr;
 using Hugula.Utils;
-using Hugula.Cryptograph;
-using Hugula.Update;
-using LuaInterface;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,7 +17,7 @@ using UnityEditor;
 namespace Hugula
 {
     /// <summary>
-    /// ¼ÓÔØºÍÔËÐÐlua
+    /// 
     /// </summary>
     [CustomLuaClass]
     public class PLua : MonoBehaviour
@@ -51,9 +47,6 @@ namespace Hugula
 #endif
 
         public Lua lua;
-        private static Dictionary<string, TextAsset> luacache;
-        private Coroutine loadLocalCoroutine;
-        private Coroutine loadPersistentCoroutine;
         private string luaMain = "";
         private LuaFunction _updateFn;
 
@@ -69,17 +62,20 @@ namespace Hugula
         }
 
         void Awake()
-		{
-			DontDestroyOnLoad(this.gameObject);
-            luacache = new Dictionary<string, TextAsset>();
+        {
+            DontDestroyOnLoad(this.gameObject);
             lua = new Lua();
             LoadScript();
         }
 
         void Start()
         {
+            CUtils.DebugCastTime("Plua Start");
             lua.init(null, () =>
-            { LoadBundle(); });
+            { 
+                CUtils.DebugCastTime("Slua binded");
+                DoMain();
+            });
         }
 
 	    void Update()
@@ -89,12 +85,11 @@ namespace Hugula
 
         void OnDestroy()
         {
-			RemoveAllEvents ();
+            RemoveAllEvents();
             if (onDestroyFn != null) onDestroyFn.call();
             updateFn = null;
             lua = null;
-			if( _instance==this) _instance = null;
-            luacache = null;
+            if (_instance == this) _instance = null;
         }
 
         void OnApplicationFocus(bool focusStatus)
@@ -146,50 +141,6 @@ namespace Hugula
         }
 
         /// <summary>
-        /// lua bundle
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator DecryptLuaBundle(string luaPath, bool isStreaming, LuaFunction onLoadedFn)
-        {
-            luaPath = CUtils.CheckWWWUrl(luaPath);
-            Debug.Log("loadluabundle:" + luaPath);
-            WWW luaLoader = new WWW(luaPath);
-            yield return luaLoader;
-            if (luaLoader.error == null)
-            {
-
-                byte[] byts = CryptographHelper.Decrypt(luaLoader.bytes, DESHelper.instance.Key, DESHelper.instance.IV);
-				AssetBundleCreateRequest abcreq = null;
-#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2 
-				abcreq = AssetBundle.CreateFromMemory(byts);
-#else
-				abcreq = AssetBundle.LoadFromMemoryAsync(byts);
-#endif
-				yield return abcreq;
-				var item = abcreq.assetBundle;
-                TextAsset[] all = item.LoadAllAssets<TextAsset>();
-                foreach (var ass in all)
-                {
-                    SetRequire(ass.name, ass);
-                }
-
-                item.Unload(false);
-                luaLoader.Dispose();
-            }
-            else
-            {
-                Debug.LogWarning(luaLoader.error);
-            }
-
-            if (onLoadedFn != null)
-                onLoadedFn.call();
-            else
-                DoMain();
-
-        }
-
-
-        /// <summary>
         /// lua begin
         /// </summary>
         private void DoMain()
@@ -197,61 +148,9 @@ namespace Hugula
             lua.luaState.doString(this.luaMain);
         }
 
-        /// <summary>
-        /// load assetbundle
-        /// </summary>
-        private void LoadBundle()
-        {
-            string luaPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
-
-#if UNITY_EDITOR
-            if (!isDebug)
-            {
-                if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
-                loadLocalCoroutine = StartCoroutine(DecryptLuaBundle(luaPath, true, null));
-            }
-            else
-            {
-                DoMain();
-            }
-#else
-            if (loadLocalCoroutine != null) StopCoroutine(loadLocalCoroutine);
-            loadLocalCoroutine = StartCoroutine(DecryptLuaBundle(luaPath,true, null));
-#endif
-        }
-
         #endregion
 
         #region public method
-
-        /// <summary>
-        /// load assetbundle
-        /// </summary>
-        public void LoadBundle(LuaFunction onLoadedFn)
-        {
-            string luaPath = Path.Combine(CUtils.GetRealPersistentDataPath(), CUtils.GetRightFileName(Common.LUA_ASSETBUNDLE_FILENAME));// CUtils.GetAssetFullPath(Common.LUA_ASSETBUNDLE_FILENAME);
-            uint crc = 0;
-            if (CrcCheck.CheckLocalFileCrc(luaPath, out crc))
-            {
-                if (loadPersistentCoroutine != null) StopCoroutine(loadPersistentCoroutine);
-                loadPersistentCoroutine = StartCoroutine(DecryptLuaBundle(luaPath, false, onLoadedFn));
-            }
-            else
-            {
-                if (crc != 0) Debug.LogWarningFormat("luabundle crc check error! lua_crc=" + crc.ToString() + " source_crc =" + CrcCheck.GetCrc(CUtils.GetAssetBundleName(luaPath)));
-                if (onLoadedFn != null) onLoadedFn.call();
-            }
-        }
-
-        /// <summary>
-        /// ÉèÖÃrequire
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="textAsset"></param>
-        public void SetRequire(string key, TextAsset textAsset)
-        {
-            luacache[key] = textAsset;
-        }
 
         /// <summary>
         /// ReStart.
@@ -262,30 +161,90 @@ namespace Hugula
             StartCoroutine(ReOpen(sconds));
         }
 
-		/// <summary>
-		/// Removes all events.
-		/// </summary>
-		public void RemoveAllEvents()
-		{
-			onDestroyFn = null;
-			onAppPauseFn = null;
-			onAppQuitFn = null;
-			onAppFocusFn = null;
-		}
+        /// <summary>
+        /// Removes all events.
+        /// </summary>
+        public void RemoveAllEvents()
+        {
+            onDestroyFn = null;
+            onAppPauseFn = null;
+            onAppQuitFn = null;
+            onAppFocusFn = null;
+        }
         #endregion
 
         #region toolMethod
 
         /// <summary>
-        /// ´ÓabÖÐload bytes
+        /// load lua bytes
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         private byte[] LoadLuaBytes(string name)
         {
             byte[] ret = null;
-            if (luacache.ContainsKey(name))
-                ret = luacache[name].bytes;
+            // #if UNITY_EDITOR_WIN && UNITY_ANDROID
+            //     string cryName = CUtils.GetRightFileName(name+Common.CHECK_ASSETBUNDLE_SUFFIX);
+            //     string path = CUtils.PathCombine(CUtils.realStreamingAssetsPath,cryName);
+            //     var ab = AssetBundle.LoadFromFile(path);
+            //     if(ab!=null)
+            //     {
+            //         var luaBytes = ab.LoadAllAssets<Hugula.BytesAsset>() ; //LoadAsset<Hugula.BytesAsset>();
+            //         if(luaBytes.Length>0 )
+            //             ret = luaBytes[0].bytes;
+            //         ab.Unload(true);
+            //     }
+            // #elif
+            #if UNITY_EDITOR_WIN 
+                string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
+                string path = CUtils.PathCombine(Application.dataPath,Common.LUACFOLDER+"/win");
+                path =  CUtils.PathCombine(path,cryName);
+                ret = File.ReadAllBytes(path);
+            #elif UNITY_EDITOR_OSX
+                string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
+                string path = CUtils.PathCombine(Application.dataPath,Common.LUACFOLDER+"/osx");
+                path =  CUtils.PathCombine(path,cryName);
+                Debug.Log(path);
+                ret = File.ReadAllBytes(path);
+            #elif UNITY_IOS
+                string cryName = "";
+                if(System.IntPtr.Size == 4) 
+                    cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
+                else
+                    cryName = CUtils.GetRightFileName(string.Format("{0}_64.{1}",name,Common.LUA_LC_SUFFIX));
+
+                string path = CUtils.PathCombine(CUtils.realPersistentDataPath,cryName);
+                if(!File.Exists(path))
+                {
+                    path = CUtils.PathCombine(CUtils.realStreamingAssetsPath,cryName);
+                }
+                ret = File.ReadAllBytes(path);
+
+            #elif UNITY_ANDROID
+                string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
+                string path = CUtils.PathCombine(CUtils.realPersistentDataPath,cryName);
+                if(!File.Exists(path))
+                {
+                    path =  CUtils.PathCombine(CUtils.androidFileStreamingAssetsPath,cryName);
+                }
+                var ab = AssetBundle.LoadFromFile(path);
+                if(ab!=null)
+                {
+                    var luaBytes = ab.LoadAllAssets<Hugula.BytesAsset>(); 
+                    if(luaBytes.Length>0 )
+                        ret = luaBytes[0].bytes;
+                    ab.Unload(true);
+                }
+            #else
+                string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
+                string path = CUtils.PathCombine(CUtils.realPersistentDataPath,cryName);
+                if(!File.Exists(path))
+                {
+                    path = CUtils.PathCombine(CUtils.realStreamingAssetsPath,cryName);
+                }
+                ret = File.ReadAllBytes(path);
+
+            #endif
             return ret;
         }
 
@@ -317,31 +276,32 @@ namespace Hugula
                 }
                 else
                 {
-                    name = name.Replace('.', '_').Replace('/', '_');
+                    name = name.Replace('.', '+').Replace('/', '+');
                     str = LoadLuaBytes(name);
                 }
             }
             else
             {
-                name = name.Replace('.', '_').Replace('/', '_');
+                name = name.Replace('.', '+').Replace('/', '+');
                 str = LoadLuaBytes(name);
             }
+    
 #elif UNITY_STANDALONE
 
         name = name.Replace('.', '/');
-        string path = Application.dataPath + "/config_data/" + name + ".lua"; //ÓÅÏÈ¶ÁÈ¡ÅäÖÃÎÄ¼þ
+        string path = Application.dataPath + "/config_data/" + name + ".lua"; //���ȶ�ȡ�����ļ�
         if (File.Exists(path))
         {
             str = File.ReadAllBytes(path);
         }
         else
         {
-            name = name.Replace('.', '_').Replace('/', '_');
+            name = name.Replace('.', '+').Replace('/', '+');
             str = LoadLuaBytes(name);
         }
 
 #else
-		name = name.Replace('.','_').Replace('/','_'); 
+		name = name.Replace('.','+').Replace('/','+'); 
         str = LoadLuaBytes(name);
 #endif
             return str;
@@ -349,19 +309,19 @@ namespace Hugula
 
         public static Coroutine Delay(LuaFunction luafun, float time, params object[] args)
         {
-			return instance.StartCoroutine(DelayDo(luafun, time, args));
+            return instance.StartCoroutine(DelayDo(luafun, time, args));
         }
 
         public static void StopDelay(Coroutine coroutine)
         {
             if (coroutine != null)
-				instance.StopCoroutine(coroutine);
+                instance.StopCoroutine(coroutine);
         }
 
-		public static void StopAllDelay()
-		{
-			instance.StopAllCoroutines ();
-		}
+        public static void StopAllDelay()
+        {
+            instance.StopAllCoroutines();
+        }
 
         private static IEnumerator DelayDo(LuaFunction luafun, float time, params object[] args)
         {

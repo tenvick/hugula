@@ -152,13 +152,22 @@ function StateBase:remove_item(obj)
     return false
 end
 
+function StateBase:on_focusing(previous_state) --获取焦点之前
+     local item_list = self._item_list
+    local _len = #item_list --print(_len)
+    for k,v in ipairs(self._item_list) do
+        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) then --确保新加入的不会被执行,前一个状态的item不需要 focus
+            if v.on_focusing then v:on_focusing(previous_state) end
+        end
+    end
+end
+
 function StateBase:on_focus(previous_state)
     -- self:check_initialize()
     local item_list = self._item_list
     local _len = #item_list --print(_len)
     for k,v in ipairs(self._item_list) do
         if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) then --确保新加入的不会被执行,前一个状态的item不需要 focus
-            if v.on_focusing then v:on_focusing(previous_state) end
             v:on_focus(previous_state)
             if v.on_focused then v:on_focused(previous_state) end
         end
@@ -177,7 +186,7 @@ function StateBase:on_back(new_state)
 
  end
 
-function StateBase:on_blur(new_state)
+function StateBase:on_bluring(new_state) --失去焦点之前
     local itemobj = nil
     local on_blured = {}
     for i=#self._item_list,1,-1 do
@@ -185,6 +194,19 @@ function StateBase:on_blur(new_state)
         if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj)) then --如果新状态包涵当前item不需要失去焦点
             on_blured[itemobj] = true 
             if itemobj.on_bluring then itemobj:on_bluring(new_state) end
+        end
+    end
+    on_blured = nil
+ end
+
+function StateBase:on_blur(new_state)
+    local itemobj = nil
+    local on_blured = {}
+    for i=#self._item_list,1,-1 do
+        itemobj=self._item_list[i]
+        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj)) then --如果新状态包涵当前item不需要失去焦点
+            on_blured[itemobj] = true 
+            -- if itemobj.on_bluring then itemobj:on_bluring(new_state) end
             itemobj:on_blur(new_state) 
             if itemobj.on_blured then itemobj:on_blured(new_state) end
         end

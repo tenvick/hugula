@@ -29,6 +29,7 @@ local Application= UnityEngine.Application
 local WWW = UnityEngine.WWW
 local GameObject = UnityEngine.GameObject
 local LRequestPool = Hugula.Loader.LRequestPool --内存池
+local LResLoader = Hugula.Loader.LResLoader
 
 local CODE_VERSION = Hugula.CodeVersion.CODE_VERSION
 local CUtils= Hugula.Utils.CUtils
@@ -46,7 +47,7 @@ local stop_delay = PLua.StopDelay
 
 ResVersion = {code=1,crc32=0,time=1}
 
-local _progressbar_txt;
+local _progressbar_txt,_progressbar_slider
 local FRIST_VIEW = "Logo"
 local VERSION_FILE_NAME = Common.CRC32_VER_FILENAME 
 local VERSION_TEMP_FILE_NAME = CUtils.GetAssetName(VERSION_FILE_NAME)..".tmp"
@@ -65,10 +66,12 @@ local loaded_file
 local local_version,server_ver
 local loaded_err = false
 local main_update = {} 
+local MAX_STEP = 6
 --- global
 CRC_FILELIST = {}
 BACKGROUND_DOWNLOAD = {} --
 cdn_hosts = {}
+
 
 function CRC_FILELIST.get_item(key)
 	local val = nil
@@ -83,6 +86,10 @@ end
 
 local function print_time(times)
 	print(os.date("%c",times))
+end
+
+function run_times(arg)
+	CUtils.DebugCastTime(arg or debug.traceback())
 end
 
 local function set_resversion(ver)
@@ -105,8 +112,12 @@ local function get_update_uri_group(hosts, on_www_comp,on_crc_check)
 	return group
 end
 
-local function set_progress_txt(text)
+local function set_progress_txt(text,step,per)
  	if _progressbar_txt then _progressbar_txt.text = text end
+	if _progressbar_slider and per and step then
+		local p = (step+per)/MAX_STEP
+	 	_progressbar_slider.value = p 
+	end
  	print(text)
 end
 
@@ -141,25 +152,32 @@ local function check_extends_folder(path,v1)
 	return true
 end 
 
-local function enterGame()
+local function enterGame(manifest)
 
 	local function to_begin( ... )
+		run_times("enterGame begin.lua ")
 		require("begin")
 	end
 
 	local function load_manifest( ... )
-		set_progress_txt("进入游戏。")
-	 	Loader:refresh_assetbundle_manifest(to_begin)
+		set_progress_txt("进入游戏......",5,1)
+		print(manifest)
+		if manifest then --如果有更新需要刷新
+			print("刷新manifest")
+	 		Loader:refresh_assetbundle_manifest(to_begin)
+		else
+			to_begin()
+		end
 	end
 
-	set_progress_txt("刷新脚本。")
+	set_progress_txt("刷新脚本。",5,0.2)
 
-	local  function refresh_lua( ... )
-		PLua.instance:LoadBundle(load_manifest)
-	end
+	-- local  function refresh_lua( ... )
+	-- 	PLua.instance:LoadBundle(load_manifest)
+	-- end
 
 	cdn_hosts = ResVersion.cdn_host or {}
-	delay(refresh_lua,0.2)
+	delay(load_manifest,0.1)
 	
 end
 
@@ -171,7 +189,7 @@ local function one_file_down(BACKGROUND_DOWNLOAD,url,bol,arg)
 		local m = BACKGROUND_DOWNLOAD.m
 		local loaded_s = math.ceil( BACKGROUND_DOWNLOAD.loaded_size/m)
 		local loaded_t = math.floor( BACKGROUND_DOWNLOAD.total_size/m)
-		set_progress_txt(string.format("网络资源加载中(消耗流量) %d kb/ %d kb。",loaded_s,loaded_t))
+		set_progress_txt(string.format("网络资源加载中(消耗流量) %d kb/ %d kb。",loaded_s,loaded_t),4,loaded_s/loaded_t)
 	end
 end
 
@@ -188,7 +206,10 @@ local function all_file_down(BACKGROUND_DOWNLOAD)
 		print("更新版本号！")
 		FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME),CUtils.GetRightFileName(VERSION_FILE_NAME))
 		-- FileHelper.DeletePersistentFile(DOWANLOAD_TEMP_FILE)--删除零时文件
-		set_progress_txt("更新完毕，进入游戏！")
+		set_progress_txt("更新完毕，进入游戏！",4,1)
+		local loader_key = "core.loader"
+		package.loaded[loader_key] = nil 
+		package.preload[loader_key] = nil
 		enterGame(true)
 		print("all_file_down")
 	end
@@ -217,7 +238,7 @@ BACKGROUND_DOWNLOAD.on_file_down=function(url,bol,arg)
 		BACKGROUND_DOWNLOAD.loaded_err = true
 		print(url," download error ",arg[1])
 	else
-		BACKGROUND_DOWNLOAD.loaded_size = BACKGROUND_DOWNLOAD.loaded_size + arg[2]
+		BACKGROUND_DOWNLOAD.loaded_size = BACKGROUND_DOWNLOAD.loaded_size + math.ceil(arg[2])
 		-- save loaded file 
 		local key = CUtils.GetAssetBundleName(url)
 		BACKGROUND_DOWNLOAD.loaded_file[key] = arg
@@ -265,7 +286,7 @@ BACKGROUND_DOWNLOAD.load_files = function(urls,cdns,one_file_down,all_file_down)
 	BACKGROUND_DOWNLOAD.one_file_down = one_file_down
 	BACKGROUND_DOWNLOAD.all_file_down = all_file_down
 	download:Init(cdns,BACKGROUND_DOWNLOAD.max_loading or 2,BACKGROUND_DOWNLOAD.on_file_down,BACKGROUND_DOWNLOAD.on_all_file_down)
-	BACKGROUND_DOWNLOAD.total_size = 0.001
+	BACKGROUND_DOWNLOAD.total_size = 0
 	BACKGROUND_DOWNLOAD.loaded_err = false
 	BACKGROUND_DOWNLOAD.is_loading = true
 	BACKGROUND_DOWNLOAD.loaded_size = 0
@@ -273,7 +294,7 @@ BACKGROUND_DOWNLOAD.load_files = function(urls,cdns,one_file_down,all_file_down)
 	local file,savefile,crc
 	for k,v in pairs(urls) do
 		crc = v[1]
-		BACKGROUND_DOWNLOAD.total_size = BACKGROUND_DOWNLOAD.total_size + v[2]
+		BACKGROUND_DOWNLOAD.total_size = BACKGROUND_DOWNLOAD.total_size + math.ceil(v[2])
 		file = CUtils.InsertAssetBundleName(k,"_"..crc) --拼接
 		savefile =  k
 		if k == BACKGROUND_DOWNLOAD.folder then --如果是目录
@@ -281,7 +302,7 @@ BACKGROUND_DOWNLOAD.load_files = function(urls,cdns,one_file_down,all_file_down)
 			file = k.."_"..crc.."."..Common.ASSETBUNDLE_SUFFIX
 			-- print(" load folder "..file)
 		end
-		print("begin load "..file.." save name "..savefile)
+		-- print("begin load "..file.." save name "..savefile)
 		download:Load(file,savefile,v)
 	end
 end
@@ -298,7 +319,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 	local function on_server_comp(req)
 		set_progress_txt("校验列表对比中。")
 		local text_asset = req.data
-		server_file = require_bytes(text_asset)
+		server_file = require_bytes(text_asset.bytes)
 		print(text_asset)
 	 	Loader:clear(req.key)
 		add_crc(server_file) --加入验证列表
@@ -321,7 +342,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 		add_file(server_file)
 
 		if change then
-			set_progress_txt("开始从服务器加载新的资源。")
+			set_progress_txt("开始从服务器加载新的资源。",4,0.01)
 			BACKGROUND_DOWNLOAD.load_files(urls,server_ver.cdn_host,one_file_down,all_file_down)
 		else
 			enterGame()
@@ -382,7 +403,7 @@ main_update.load_server_verion = function () --加载服务器版本号
 	 	end
 	 end
 
-	set_progress_txt("加载服务器信息。")
+	set_progress_txt("加载服务器信息。",3,0.5)
     Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_update_uri_group(ver_host))
 end
 
@@ -393,7 +414,11 @@ main_update.load_local_file_list = function () --加载本地列表
 	step.next_step=function( ... )
 
 		if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
-			enterGame()
+			if LResLoader.assetBundleManifest == nil then
+				enterGame(true)
+			else
+				enterGame()
+			end
 		else
 			main_update.load_server_verion()
 		end
@@ -401,7 +426,7 @@ main_update.load_local_file_list = function () --加载本地列表
 
 	step.on_persistent_comp=function( req )
 		local text_asset = req.data
-		local_file = require_bytes(text_asset)
+		local_file = require_bytes(text_asset.bytes)
 		print(" on_persistent_file_list",text_asset)
 		add_crc(local_file)
 		add_file(local_file)
@@ -422,7 +447,7 @@ main_update.load_local_file_list = function () --加载本地列表
 		
 			local group = UriGroup()
 			group:Add(CUtils.GetRealPersistentDataPath(),true)
-			Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step.on_persistent_comp,step.on_persistent_error,nil,group)
+			Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step.on_persistent_comp,step.on_persistent_error,nil,group)
 		else
 			print("本地没有校验文件")
 			step.next_step()
@@ -434,7 +459,7 @@ main_update.load_local_file_list = function () --加载本地列表
     step1.on_streaming_comp = function( req )
     	local text_asset = req.data
     	print("on_streaming_filelist",text_asset)
-		local s_crc32_file = require_bytes(text_asset)
+		local s_crc32_file = require_bytes(text_asset.bytes)
 		add_file(s_crc32_file)
 		if Common.IS_WEB_MODE then  add_crc(s_crc32_file) end
 		Loader:clear(req.key)
@@ -447,7 +472,7 @@ main_update.load_local_file_list = function () --加载本地列表
     step1.load_streaming_file = function( ... )
     	local group = UriGroup()
 		group:Add(CUtils.GetRealStreamingAssetsPath())
-		Loader:get_resource(UPDATED_LIST_NAME,nil,UnityEngine.TextAsset,step1.on_streaming_comp,step1.on_streaming_error,nil,group)
+		Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step1.on_streaming_comp,step1.on_streaming_error,nil,group)
     end
 
     step1.load_streaming_file()
@@ -511,9 +536,9 @@ main_update.compare_local_version = function () --对比本地版本号
 	end
 
 	step.on_streaming_error=function ( req ) --never happen
-		print("local streaming ver err ")
+		print("local streaming ver err never happen!!! ")
 		--temp
-		enterGame()
+		enterGame(true)
 	end
 
 	step.load_persistent=function(  )
@@ -530,23 +555,27 @@ main_update.compare_local_version = function () --对比本地版本号
     	Loader:get_resource(VERSION_FILE_NAME,nil,String,step.on_streaming_comp,step.on_streaming_error,nil,group)
 	end
 
-  	set_progress_txt("对比本地版本信息。")
+  	set_progress_txt("对比本地版本信息。",2,0.2)
 	step.load_streaming()
 	step.load_persistent()
 
 end
 
-local function init_frist()
+local function init_step1()
 
 	print(Hugula.Utils.CUtils.GetRealPersistentDataPath())
 	print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
-	print(UnityEngine.Application.version,Application.bundleIdentifier)
+	-- print(UnityEngine.Application.version,Application.bundleIdentifier)
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
-	_progressbar_txt = LuaHelper.GetComponentInChildren(ui_logo,"UnityEngine.UI.Text")	
-	set_progress_txt("初始化...")
+	_progressbar_txt = ui_logo:GetComponentInChildren(UnityEngine.UI.Text,true)
+	_progressbar_slider = ui_logo:GetComponentInChildren(UnityEngine.UI.Slider,true)
+	set_progress_txt("初始化...",1,1)
 	
 	main_update.compare_local_version()
 
 end
 
-init_frist()
+run_times("main.lua ")
+
+
+init_step1()

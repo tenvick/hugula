@@ -153,6 +153,19 @@ namespace Hugula.Cryptograph
         }
 
         #endregion
+
+        #region base64
+        public static string Base64ToString(byte[] src)
+        {
+            return Convert.ToBase64String(src);
+        }
+
+        public static byte[] Base64ToBinary(string src)
+        {
+            //byte[] a = Convert.FromBase64String (src);
+            return Convert.FromBase64String(src);
+        }
+        #endregion
     }
 }
 

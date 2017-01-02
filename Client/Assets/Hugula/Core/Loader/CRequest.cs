@@ -71,8 +71,9 @@ namespace Hugula.Loader
             isAdditive = false;
             isShared = false;
             isNormal = true;
-            isAssetBundle = true;
+            isAssetBundle = false;
             isLoadFromCacheOrDownload = false;
+            isNativeFile = false;
 
             this.assetBundleRequest = null;
             this.allDependencies = null;
@@ -103,7 +104,10 @@ namespace Hugula.Loader
             get
             {
                 if (string.IsNullOrEmpty(_uri))
+                {
                     _uri = uris.GetUri(index);
+                    CheckNavtiveFile(_uri);
+                }
                 return _uri;
             }
             set
@@ -111,6 +115,7 @@ namespace Hugula.Loader
                 _url = null;
                 // _udKey = null;不需要重新计算udkey
                 _uri = uris.GetUri(index);
+                CheckNavtiveFile(_uri);
             }
         }
 
@@ -348,6 +353,11 @@ namespace Hugula.Loader
         public bool isLoadFromCacheOrDownload = false;
 
         /// <summary>
+        /// 是否加载本地文件
+        /// </summary>
+        internal bool isNativeFile{private set;get;}
+
+        /// <summary>
         /// dependencies count;
         /// </summary>
         internal int[] allDependencies;
@@ -360,11 +370,23 @@ namespace Hugula.Loader
         /// <summary>
         /// The is asset bundle.
         /// </summary>
-        internal bool isAssetBundle = true;
+        internal bool isAssetBundle = false;
         /// <summary>
         /// 放入内存池
         /// </summary>
         internal bool pool = false;
+
+        private void CheckNavtiveFile(string uri_str)
+        {
+            if (!string.IsNullOrEmpty(uri_str))
+            {
+                uri_str = uri_str.ToLower();
+                if(uri_str.StartsWith(Common.HTTP_STRING) || uri_str.StartsWith(Common.HTTP_STRING))
+                    isNativeFile = false;
+                else
+                    isNativeFile = true;
+            }
+        }
 
         /// <summary>
         /// 获取key URL

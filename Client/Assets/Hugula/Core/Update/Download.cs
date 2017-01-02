@@ -77,7 +77,7 @@ namespace Hugula.Update
         ArrayList loadQueue = ArrayList.Synchronized(new ArrayList());
         int errorHostIndex = -1;
         #endregion
-
+         
         #region method
         /// <summary>
         /// 

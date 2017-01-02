@@ -417,7 +417,7 @@ namespace Hugula.Pool
 			prefabFreeQueue.Clear ();
 
 			var refValues = prefabRefCaches.Values.GetEnumerator ();
-			HashSet<ReferGameObjects> reflist;
+            //HashSet<ReferGameObjects> reflist;
 			ReferGameObjects item;
 			while (refValues.MoveNext ()) {
 				var items = refValues.Current.GetEnumerator ();

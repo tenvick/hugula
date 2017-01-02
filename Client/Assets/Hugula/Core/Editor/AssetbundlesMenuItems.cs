@@ -50,8 +50,8 @@ public class AssetbundlesMenuItems
         ExportResources.buildAssetBundlesUpdateAB();
     }
 
-    [MenuItem("AssetBundles/", false, 11)]
-    static void Breaker_AssetBundles() { }
+    // [MenuItem("AssetBundles/--------", false, 11)]
+    // static void Breaker_AssetBundles() { }
 
 
     [MenuItem("Assets/AssetBundles/Set AssetBundle Name", false, 1)]
@@ -116,12 +116,18 @@ public class AssetbundlesMenuItems
         BuildScript.UpdateAssetBundlesName(allAssetPaths.ToArray());
     }
 
+     [MenuItem("Assets/AssetBundles/Delete Selected Prefab's AssetBundle ", false, 11)]
+    static public void DeleteAssetBundlesName()
+    {
+        BuildScript.DeleteAssetBundlesName();
+    }
+
 
     #endregion
 
     #region lua language config export
-    [MenuItem("Hugula/", false, 11)]
-    static void Breaker() { }
+    // [MenuItem("Hugula/-------- ", false, 11)]
+    // static void Breaker() { }
 
     [MenuItem("Hugula/Export Lua [Assets\\Lua] %l", false, 12)]
     public static void exportLua()
@@ -141,8 +147,8 @@ public class AssetbundlesMenuItems
         ExportResources.exportLanguage();
     }
 
-    [MenuItem("Hugula/", false, 15)]
-    static void Breaker1() { }
+    // [MenuItem("Hugula/--------", false, 15)]
+    // static void Breaker1() { }
 
     [MenuItem("Hugula/Build For Publish ", false, 16)]
     public static void exportPublish()
@@ -173,17 +179,17 @@ public class AssetbundlesMenuItems
     //[MenuItem("Hugula/AES/", false, 10)]
     //static void Breaker2() { }
 
-    [MenuItem("Hugula/AES/GenerateKey", false, 12)]
-    static void GenerateKey()
-    {
-        ExportResources.GenerateKey();
-    }
+    // [MenuItem("Hugula/AES/GenerateKey", false, 12)]
+    // static void GenerateKey()
+    // {
+    //     ExportResources.GenerateKey();
+    // }
 
-    [MenuItem("Hugula/AES/GenerateIV", false, 13)]
-    static void GenerateIV()
-    {
-        ExportResources.GenerateIV();
-    }
+    // [MenuItem("Hugula/AES/GenerateIV", false, 13)]
+    // static void GenerateIV()
+    // {
+    //     ExportResources.GenerateIV();
+    // }
 
     #endregion
 }

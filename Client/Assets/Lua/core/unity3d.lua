@@ -50,7 +50,12 @@ PrefabCacheType =
   segment8 = 8  --永远不回收 TODO:自动收缩 
 }
 
---function print() end
+local gprint=print
+function print(...)
+  local arg={...}
+  table.insert(arg,"\r\n\r\n"..debug.traceback().."\r\n\r\n")
+  gprint(unpack(arg))
+end
 
 function tojson(tbl,indent)
     assert(tal==nil)

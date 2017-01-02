@@ -10,7 +10,7 @@ namespace Hugula
     public class Version
     {
 
-        public const uint VERSION = 0x000087;
+        public const uint VERSION = 0x000088;
 
     }
 }
@@ -21,7 +21,7 @@ namespace Hugula
  * HUGULA_WEB_MODE 启用页游模式
  * 
  * HUGULA_LOADER_DEBUG 加载模块打印调试
- * 
+ * HUGULA_PROFILE_DEBUG profile debug 信息
  * 
  * 
  * 

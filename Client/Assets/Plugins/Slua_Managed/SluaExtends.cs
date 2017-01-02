@@ -278,7 +278,7 @@ namespace SLua
                             LuaDLL.lua_pop(l, 2);
                             return 1;
                         }
-                        int top1 = LuaDLL.lua_gettop(l);
+                        //int top1 = LuaDLL.lua_gettop(l);
                         LuaDLL.lua_remove(l, errfunc); // pop error function
                         int top = LuaDLL.lua_gettop(l);
                         int nArgs = top - (errfunc - 1);

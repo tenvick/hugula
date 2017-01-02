@@ -13,9 +13,14 @@ local CUtils = Hugula.Utils.CUtils
 local Common = Hugula.Utils.Common
 local LuaHelper = Hugula.Utils.LuaHelper
 
+local RuntimePlatform= UnityEngine.RuntimePlatform
+local Application= UnityEngine.Application
+
 local Loader = Loader 
-local md5_patter = ".+%."..Common.ASSETBUNDLE_SUFFIX.."$"
-local is_md5_patter = "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u3d$" 
+local u3d_pattern = ".+%."..Common.ASSETBUNDLE_SUFFIX.."$"
+local u_pattern = ".+%.u$"
+local u3d_is_md5_patter = "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u3d$"
+local u_is_md5_patter =  "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u$"
 --warnning assetBundle 原始名字最好以  aa_bb 命名并且长度<=30
 Loader.multipleLoader= LResLoader.instance
 
@@ -25,10 +30,15 @@ end
 
 local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	if assetName == nil then assetName = CUtils.GetAssetName(url) end
-	if string.match(url,md5_patter) then --以u3d结尾
-	  if string.match(url,is_md5_patter) == nil then url = CUtils.GetRightFileName(url) end --不是md5编码
-	end--判断加密
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
+
+	if string.match(url,u3d_pattern) and  string.match(url,u3d_is_md5_patter) == nil then --以u3d结尾
+		-- req.isLoadFromCacheOrDownload = true --从缓存加载
+	  	url = CUtils.GetRightFileName(url)  --md5编码
+	elseif string.match(url,u_pattern) and  string.match(url,u_is_md5_patter) == nil then
+	  	url = CUtils.GetRightFileName(url)  --md5编码
+	end--判断加密
+	
 	req.relativeUrl = url
 	req.assetName = assetName
 	if type(assetType)=="string" then 
@@ -44,7 +54,7 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	if uris then 
 		req.uris = uris 
 		local uri = uris:GetUri(0)
-		if string.lower(string.sub(uri,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
+		if string.lower(string.sub(uri,1,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
 	end
 
 	if async ~= nil then req.async = async end
@@ -182,7 +192,7 @@ function Loader:refresh_assetbundle_manifest(onReady)
         LResLoader.assetBundleManifest=data
         if onReady then onReady() end
     end
-
+	self:clear(url) --清理旧的缓存
     self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn)
 end
 
@@ -191,10 +201,15 @@ local function on_shared_complete(req)
 	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
 	-- print("on_shared_complete "..req.assetBundleName.." "..req.assetName)
 	-- if deps.Length == 0 then
-	local ab = req.data
-	LuaHelper.RefreshShader(ab)
-	ab:LoadAllAssets()
-	-- end
+	if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
+		
+	else
+		local ab = req.data
+		-- LuaHelper.RefreshShader(ab)
+		ab:LoadAllAssets()
+	end
 end
 
 Loader.multipleLoader.onSharedCompleteFn = on_shared_complete
+
+-- print("require loader:"..os.time())

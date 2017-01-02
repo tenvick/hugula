@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 namespace Hugula
 {
 	/// <summary>

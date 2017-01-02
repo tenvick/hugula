@@ -22,7 +22,7 @@ public class ReferenceCountInfoEditor : Editor
         base.OnInspectorGUI();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
-        ReferenceCountInfo temp = target as ReferenceCountInfo;
+        //ReferenceCountInfo temp = target as ReferenceCountInfo;
 
 		EditorGUILayout.BeginHorizontal ();
 

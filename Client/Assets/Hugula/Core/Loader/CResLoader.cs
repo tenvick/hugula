@@ -545,6 +545,9 @@ namespace Hugula.Loader
         {
             List<CRequest> callbacklist = null;// requestCallBackList[creq.udKey];
             string udkey = creq.udKey;
+
+            if(!creq.isShared) CacheManager.SetAssetLoaded (creq.keyHashCode);
+
 			if (requestCallBackList.TryGetValue(udkey, out callbacklist))
             {
                 requestCallBackList.Remove(udkey);
@@ -643,7 +646,7 @@ namespace Hugula.Loader
 				if (_instance && _instance.OnSharedComplete != null)
 					_instance.OnSharedComplete(req);
 
-				CacheManager.SetAssetLoaded (req.keyHashCode);
+                CacheManager.SetAssetLoaded (req.keyHashCode);
 				if (req.pool) LRequestPool.Release (req);
 			} else {
 				if (req.assetBundleRequest != null) CacheManager.RemoveLock(req.keyHashCode);
@@ -783,7 +786,7 @@ namespace Hugula.Loader
         /// </summary>
         static protected void LoadAssetBundle(CRequest req)
         {
-            if(req.url.EndsWith(Common.ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
+            if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
 
             if (assetBundleManifest != null && req.isAssetBundle)
 				req.allDependencies = LoadDependencies(req); //加载依赖
@@ -810,6 +813,14 @@ namespace Hugula.Loader
             for (int i = 0; i < deps.Length; i++)
             {
 				depAbName = deps [i];
+                if(string.IsNullOrEmpty(depAbName)) // Dependency assetbundle name is empty  unity bug?
+                {
+                    #if UNITY_EDITOR
+                    Debug.LogWarningFormat("the request({0},{1}) Dependencies {2} is empty ",req.assetName,req.url,i);
+                    #endif
+                    hashs[i] = 0;
+                    continue;
+                }
 				dep_url = RemapVariantName(depAbName);
                 keyhash = LuaHelper.StringToHash(dep_url);
                 hashs[i] = keyhash;
@@ -836,9 +847,9 @@ namespace Hugula.Loader
                         item.allDependencies = hash1s;
                     }
 					#if HUGULA_LOADER_DEBUG
-					Debug.LogFormat("<color=yellow> Req(assetname={0}) /r/n Begin LoadDependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetBundleName,item.assetName,item.url,Time.frameCount);
+					Debug.LogFormat("<color=yellow> Request(assetname={0}) Begin Dependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetBundleName,item.assetName,item.url,Time.frameCount);
 					#endif
-					item.isNormal = req.isNormal;
+					item.isNormal = false;
                     item.priority = req.priority;
 					item.uris = req.uris;
 					AddReqToQueue (item);									

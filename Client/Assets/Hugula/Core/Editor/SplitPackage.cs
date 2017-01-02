@@ -45,30 +45,38 @@ namespace Hugula.Editor
             if (string.IsNullOrEmpty(abload.error) && abload.assetBundle != null)
             {
                 var ab = abload.assetBundle;
-                TextAsset ta = ab.LoadAllAssets<TextAsset>()[0];
-                //ta.text
-                Debug.Log(ta);
-                string context = ta.text;
-                string[] split = context.Split('\n');
-                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\[""(.+)""\]\s+=\s+{(\d+),(\d+)}");
-                float j = 1;
-                float l = split.Length;
-                foreach (var line in split)
+                Object[] assets = ab.LoadAllAssets();
+                BytesAsset ba;
+                foreach(Object o in assets)
                 {
-                    System.Text.RegularExpressions.Match match = regex.Match(line);
-                    if (match.Success)
-                    {
-                        //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
-                        //					CrcCheck.Add (match.Groups [1].Value, System.Convert.ToUInt32 (match.Groups [2].Value));
-                        uint[] val = new uint[] { System.Convert.ToUInt32(match.Groups[2].Value), System.Convert.ToUInt32(match.Groups[3].Value) };
-                        firstCrcDict.Add(match.Groups[1].Value, val);
-                    }
-                    //Debug.Log(line);
-                    EditorUtility.DisplayProgressBar(title, "read first crc => " + j.ToString() + "/" + l.ToString(), j / l);
-                    j++;
+                     ba = o as BytesAsset;
+                     if(ba!=null)
+                     {
+                        byte[] bytes = ba.bytes;
+                        string context = LuaHelper.GetUTF8String(bytes);
+                        Debug.Log(context);
+                        string[] split = context.Split('\n');
+                        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"\[""(.+)""\]\s+=\s+{(\d+),(\d+)}");
+                        float j = 1;
+                        float l = split.Length;
+                        foreach (var line in split)
+                        {
+                            System.Text.RegularExpressions.Match match = regex.Match(line);
+                            if (match.Success)
+                            {
+                                //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
+                                //					CrcCheck.Add (match.Groups [1].Value, System.Convert.ToUInt32 (match.Groups [2].Value));
+                                uint[] val = new uint[] { System.Convert.ToUInt32(match.Groups[2].Value), System.Convert.ToUInt32(match.Groups[3].Value) };
+                                firstCrcDict.Add(match.Groups[1].Value, val);
+                            }
+                            //Debug.Log(line);
+                            EditorUtility.DisplayProgressBar(title, "read first crc => " + j.ToString() + "/" + l.ToString(), j / l);
+                            j++;
+                        }    
+                        firstExists = true;
+                     }
                 }
                 ab.Unload(true);
-                firstExists = true;
             }
             else
             {
@@ -88,21 +96,21 @@ namespace Hugula.Editor
         }
 #else
             //读取忽略扩展包
-            string firstStreamingPath = CUtils.realStreamingAssetsPath;
-            DirectoryInfo dinfo = new DirectoryInfo(firstStreamingPath);
-            var dircs = dinfo.GetDirectories();
-            foreach (var dir in dircs)
-            {
-                var u3dList = ExportResources.getAllChildFiles(dir.FullName, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
-                List<string> assets = new List<string>();
-                foreach (var s in u3dList)
-                {
-                    string ab = CUtils.GetAssetBundleName(s);
-                    ab = ab.Replace("\\", "/");
-                    blackFileList.Add(ab);
-                    Debug.Log("extends folder:" + ab);
-                }
-            }
+            // string firstStreamingPath = CUtils.realStreamingAssetsPath;
+            // DirectoryInfo dinfo = new DirectoryInfo(firstStreamingPath);
+            // var dircs = dinfo.GetDirectories();
+            // foreach (var dir in dircs)
+            // {
+            //     var u3dList = ExportResources.getAllChildFiles(dir.FullName, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
+            //     //List<string> assets = new List<string>();
+            //     foreach (var s in u3dList)
+            //     {
+            //         string ab = CUtils.GetAssetBundleName(s);
+            //         ab = ab.Replace("\\", "/");
+            //         blackFileList.Add(ab);
+            //         Debug.Log("extends folder:" + ab);
+            //     }
+            // }
 #endif
             //从网络读取白名单列表 todo
 
@@ -125,7 +133,7 @@ namespace Hugula.Editor
             sbs[0] = new StringBuilder();
             sbs[1] = new StringBuilder();
 
-            var selected = string.Empty;
+            //var selected = string.Empty;
             float i = 0;
             float allLen = allBundles.Length;
 
@@ -210,10 +218,10 @@ namespace Hugula.Editor
             var crc32filename = CUtils.GetAssetName(Common.CRC32_FILELIST_NAME);
             string tmpPath = BuildScript.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
             ExportResources.CheckDirectory(tmpPath);
-            string assetPath = "Assets/" + BuildScript.TmpPath + crc32filename + ".txt";
+            string assetPath = "Assets/" + BuildScript.TmpPath + crc32filename + ".asset";
             EditorUtility.DisplayProgressBar("Generate streaming crc file list", "write file to " + assetPath, 0.99f);
 
-            string outTmpPath = Path.Combine(tmpPath, crc32filename + ".txt");
+            string outTmpPath = Path.Combine(tmpPath, crc32filename + ".lua");
             using (StreamWriter sr = new StreamWriter(outTmpPath, false))
             {
                 sr.Write(sb.ToString());
@@ -221,6 +229,11 @@ namespace Hugula.Editor
             //
             //打包到streaming path
             AssetDatabase.Refresh();
+
+            BytesAsset ba = ScriptableObject.CreateInstance(typeof(BytesAsset)) as BytesAsset;
+            ba.bytes = File.ReadAllBytes(outTmpPath);
+            AssetDatabase.CreateAsset(ba,assetPath);
+
             string crc32outfilename = CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME);
             Debug.Log("write to path=" + outPath);
             Debug.Log(sb.ToString());
@@ -253,8 +266,8 @@ namespace Hugula.Editor
                 {
                     string destFirst = Path.Combine(outPath, crc32outfilename);
                     Debug.Log("destFirst:" + destFirst);
-
-                    finfo.CopyTo(destFirst);
+                    File.Copy(abPath,destFirst,true);
+                    // finfo.CopyTo(destFirst);
                 }
                 finfo.MoveTo(newName);
                 Debug.Log(" change name to " + newName);

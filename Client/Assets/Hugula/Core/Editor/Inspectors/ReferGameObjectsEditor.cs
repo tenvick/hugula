@@ -149,6 +149,16 @@ public class ReferGameObjectsEditor : Editor
                 index += 1;
                 s = s.Substring(index);
             }
+
+            int n = 0;
+            for (int j = 0; j < temp.Count; j++)
+            {
+                string ts = temp[j].Split('|')[0];
+                if (ts == s)
+                    n += 1;
+            }
+            if (n > 0)
+                s += "|  " + n;
             temp.Add(s);
         }
         return temp.ToArray();

@@ -10,28 +10,37 @@ namespace Hugula.Utils
     [SLua.CustomLuaClass]
     public class Common
     {
+
         /// <summary>
         /// export assetbundle suffix
         /// </summary>
         public const string ASSETBUNDLE_SUFFIX = "u3d";
 
+        public const string CHECK_ASSETBUNDLE_SUFFIX = "."+ASSETBUNDLE_SUFFIX;
+
         /// <summary>
         /// the lua out path
         /// </summary>
         [SLua.DoNotToLua]
-        public const string LUACFOLDER = "PW";
+        public const string LUACFOLDER = "LuaBytes";
 
         /// <summary>
         /// the lua suffix
         /// </summary>
         [SLua.DoNotToLua]
-        public const string LUA_LC_SUFFIX = "bytes";
+        public const string LUA_LC_SUFFIX = ASSETBUNDLE_SUFFIX;//"u3d";
 
         /// <summary>
+        /// lua 编译零时目录
+        /// </summary>
+        [SLua.DoNotToLua]
+        public const string LUA_TMP_FOLDER = "PW";
+
+		/// <summary>
         /// 
         /// </summary>
         public const string LUA_ASSETBUNDLE_FILENAME = "lua.u3d";
-
+		
         /// <summary>
         /// crc32 file list
         /// </summary>
@@ -74,6 +83,11 @@ namespace Hugula.Utils
         /// </summary>
         [SLua.DoNotToLua]
         public const string FirstOutPath = "FirstPackage";
+
+       /// <summary>
+        /// jar前坠
+        /// </summary>
+        public const string JAR_FILE = "jar:file://";
 
         /// <summary>
         /// is web mode

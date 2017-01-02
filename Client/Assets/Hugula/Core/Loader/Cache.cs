@@ -4,7 +4,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-#if UNITY_5_3 || UNITY_5_4
+#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+
+#else
 using UnityEngine.SceneManagement;
 #endif
 using Hugula.Utils;
@@ -228,18 +230,11 @@ namespace Hugula.Loader
         /// <param name="req">Req.</param>
 		internal static bool AddSourceCacheDataFromWWW(WWW www, CRequest req)
         {
-            object data = null;
             var ab = www.assetBundle;
 			req.isAssetBundle = false;
 
 			if (ab != null) {
-				data = ab;
-				req.isAssetBundle = true;
-				CacheData cacheData = new CacheData (data, null, req.key);//缓存
-				CacheManager.AddCache (cacheData);
-				cacheData.allDependencies = req.allDependencies;
-				cacheData.assetBundle = ab;
-       
+				AddSourceCacheDataFromWWW(ab,req);       
 			} else if (Typeof_String.Equals (req.assetType)) {
 				req.data = www.text;
 			}
@@ -261,6 +256,24 @@ namespace Hugula.Loader
             www.Dispose();
 
 			return req.isAssetBundle;
+        }
+
+        internal static bool AddSourceCacheDataFromWWW(AssetBundle ab,CRequest req)
+        {
+            if (ab)
+            {
+                req.isAssetBundle = true;
+                CacheData cacheData = new CacheData (ab, null, req.key);//缓存
+                CacheManager.AddCache (cacheData);
+                cacheData.allDependencies = req.allDependencies;
+                cacheData.assetBundle = ab;
+                return req.isAssetBundle;
+            }
+            else
+            {
+                req.isAssetBundle = false;
+                return false;
+            }
         }
 
         /// <summary>
@@ -332,10 +345,15 @@ namespace Hugula.Loader
 
             int[] denps = req.allDependencies;
             CacheData cache = null;
-
+            int hash = 0;
             for (int i = 0; i < denps.Length; i++)
             {
-                if (caches.TryGetValue(denps[i], out cache))
+                hash = denps[i];
+                if (hash == 0)
+                {
+
+                }
+                else if (caches.TryGetValue(hash, out cache))
                 {
                     if (!cache.isAssetLoaded)
                         return false;

@@ -66,7 +66,7 @@ end
 
 local function unload_unused_assets()
   collectgarbage("collect")
-  Resources.UnloadUnusedAssets()
+  --Resources.UnloadUnusedAssets()
 end
 -------------------------------------------------------------------
 StateManager =
@@ -200,10 +200,22 @@ function StateManager:set_current_state(new_state,method,...)
     new_state:check_initialize()
     new_state.method=method
     new_state.args={...}
+
+    local previous_state = self._current_game_state
+    if previous_state then previous_state:on_bluring(new_state) end
+    new_state:on_focusing(previous_state)
+
     self:input_disable() --lock input
     self._new_state = new_state
+
     local function do_change() StateManager:real_change_to_state()  end
     self:check_show_transform(new_state,do_change)
+end
+
+function StateManager:record_pop(i) --删除日志记录 --从顶部删除    到第 i 个
+    if type(i) == "number" then
+        self._log_state:pop(i)
+    end
 end
 
 function StateManager:record_state() --记录状态用于返回
@@ -273,6 +285,11 @@ function StateManager:go_back(index) --返回
         self:call_on_state_change(new_state)
 
     else
+
+        local previous_state = self._current_game_state
+        if previous_state then previous_state:on_bluring(new_state) end
+        new_state:on_focusing(previous_state)
+
         self:input_disable() --lock
         for k,v in ipairs(add) do 
             new_state:add_item(v)

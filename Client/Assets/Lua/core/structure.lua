@@ -35,7 +35,7 @@ end
 setmetatable(LuaStack,_mt)
 
 function LuaStack.new(size)
-	if size == nil then size = 32 end
+	if size == nil then size = 16 end
 	local o = {data={},size = size}
 	setmetatable(o,LuaStack)
 	return o

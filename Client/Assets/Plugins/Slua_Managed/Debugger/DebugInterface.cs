@@ -21,8 +21,8 @@
 // THE SOFTWARE.
 
 // Comment out this line to switch off remote debugger for slua
-//#define LuaDebugger
-
+//#define LuaDebugger 
+//#pragma warning disable 0414
 namespace SLua
 {
 	using System.Collections;
@@ -50,8 +50,7 @@ namespace SLua
 		Dictionary<string, string[]> luaSource = new Dictionary<string, string[]>();
 		static Dictionary<string, string> sourceMd5 = new Dictionary<string, string>();
 		static Dictionary<string, string> md5Source = new Dictionary<string, string>();
-
-		int DebugPort = SLuaSetting.Instance.debugPort;
+        int DebugPort = SLuaSetting.Instance.debugPort;
 		string DebugIP = SLuaSetting.Instance.debugIP;
 
 

@@ -33,64 +33,128 @@ namespace Hugula.UGUIExtend
 
         public static void onPressHandle(Object sender, object arg)
         {
+
             if (onPressFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onPressHandle");
+#endif
                 onPressFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
         public static void onPressHandle(Object sender, bool arg)
         {
+
             if (onPressFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onPressHandle");
+#endif
                 onPressFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onClickHandle(Object sender, object arg)
         {
+
             if (onClickFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onClickHandle");
+#endif
                 onClickFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
         public static void onClickHandle(Object sender, Vector3 arg)
         {
+
             if (onClickFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onClickHandle");
+#endif
                 onClickFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onDragHandle(Object sender, Vector3 arg)
         {
+
             if (onDragFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onDragHandle");
+#endif
                 onDragFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onDropHandle(Object sender, object arg)
         {
+
             if (onDropFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onDropHandle");
+#endif
                 onDropFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onDropHandle(Object sender, bool arg)
         {
+
             if (onDropFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onDropHandle");
+#endif
                 onDropFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onDropHandle(Object sender, Vector3 arg)
         {
+
             if (onDropFn != null && sender != null)
             {
+#if HUGULA_PROFILE_DEBUG
+                Profiler.BeginSample(sender.name + "_onDropHandle");
+#endif
                 onDropFn.call(sender, arg);
+#if HUGULA_PROFILE_DEBUG
+                Profiler.EndSample();
+#endif
             }
+
         }
 
         public static void onSelectHandle(Object sender, object arg)
@@ -116,16 +180,16 @@ namespace Hugula.UGUIExtend
             }
         }
 
-		public static void RemoveAllEvents()
-		{
-			onCustomerFn = null;
-			onPressFn = null;
-			onClickFn = null;
-			onDragFn = null;
-			onDropFn = null;
-			onSelectFn = null;
-			onCancelFn = null;
-		}
+        public static void RemoveAllEvents()
+        {
+            onCustomerFn = null;
+            onPressFn = null;
+            onClickFn = null;
+            onDragFn = null;
+            onDropFn = null;
+            onSelectFn = null;
+            onCancelFn = null;
+        }
 
         #endregion
         public static LuaFunction onCustomerFn;

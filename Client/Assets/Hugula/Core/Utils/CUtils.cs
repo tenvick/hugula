@@ -260,15 +260,17 @@ namespace Hugula.Utils
         {
             if(string.IsNullOrEmpty(path1) || string.IsNullOrEmpty(path2))
                 return Path.Combine(path1,path2);
-
             string re = string.Empty;
             using(gstring.Block())
             {
                 gstring p1 = path1;
-                p1 = p1 +"/";
+                if(p1.EndsWith("/")) p1 = p1.Substring(0,p1.Length-1);
+                if(p1.EndsWith(@"\\")) p1 = p1.Substring(0,p1.Length-1);
                 gstring p2 = path2;
-                gstring p = p1+p2;
-                p.Replace("//","/").Replace(@"\/","/");
+                if(p2.StartsWith("/")) p2 = p2.Substring(1);
+                if(p2.StartsWith(@"\\")) p2 = p2.Substring(1);
+                gstring p = p1+"/";
+                p = p+p2;
                 re = p.Intern();
             }
             return re;
@@ -320,8 +322,6 @@ namespace Hugula.Utils
 		public const string platform="ios";
 #elif UNITY_ANDROID
         public const string platform = "android";
-#elif UNITY_WEBPLAYER
-        public const string platform ="webplayer";
 #elif UNITY_WP8
 		public const string platform="wp8player";
 #elif UNITY_METRO
@@ -381,6 +381,32 @@ namespace Hugula.Utils
             }
         }
 
+        public static string _androidFileStreamingAssetsPath;
+          /// <summary>
+        /// android streamingAssets path
+        /// </summary>
+        public static string androidFileStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_androidFileStreamingAssetsPath))
+                    _androidFileStreamingAssetsPath = PathCombine(Application.dataPath+"!assets",platformFloder);
+                return _androidFileStreamingAssetsPath;
+            }
+        }
+
         #endregion
+
+        private static System.DateTime _last_time = System.DateTime.Now;
+        private static System.DateTime _begin_time = System.DateTime.Now;
+        public static double DebugCastTime(string tips)
+        {
+            var ds = System.DateTime.Now-_last_time;
+            var all_ds = System.DateTime.Now - _begin_time;
+            double cast = ds.TotalSeconds;
+             _last_time = System.DateTime.Now;
+             Debug.LogFormat(tips+" Cast({0})s runtime({1})s  ",cast,all_ds.TotalSeconds);
+            return cast;
+        }
     }
 }

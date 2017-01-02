@@ -2,13 +2,6 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
-using System;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Hugula
 {
@@ -20,12 +13,6 @@ namespace Hugula
 
         public string enterLua = "main";
 
-    //private LHighway multipleLoader;
-
-    void Awake()
-    {
-        //multipleLoader = LHighway.instance;
-    }
 
 	// Use this for initialization
 	void Start () 

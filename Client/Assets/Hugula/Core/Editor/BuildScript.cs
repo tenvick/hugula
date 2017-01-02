@@ -24,9 +24,14 @@ namespace Hugula.Editor
         public const string streamingPath = "Assets/StreamingAssets";//打包assetbundle输出目录。
         public const string TmpPath = "Tmp/";
         public const string HugulaFolder = "HugulaFolder";
+#if UNITY_STANDALONE_WIN
+        public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression  ; //
+#else
         public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
+  #endif      
+
 #if UNITY_IPHONE
-        public const BuildTarget target = BuildTarget.iOS;
+    public const BuildTarget target = BuildTarget.iOS;
 #elif UNITY_ANDROID
     public const BuildTarget target = BuildTarget.Android;
 #elif UNITY_WP8
@@ -60,7 +65,7 @@ namespace Hugula.Editor
             #region 读取首包
             bool firstExists = SplitPackage.ReadFirst(firstCrcDict, whiteFileList, blackFileList);
             #endregion
-
+            // return ;
             SplitPackage.DeleteSplitPackageResFolder();
 
             #region 生成校验列表
@@ -152,7 +157,7 @@ namespace Hugula.Editor
                 i++;
             }
 
-            string[] spceil = new string[] { Common.LUA_ASSETBUNDLE_FILENAME, CUtils.platform, Common.CONFIG_CSV_NAME, Common.CRC32_FILELIST_NAME, Common.CRC32_VER_FILENAME };
+            string[] spceil = new string[] { CUtils.platform, Common.CONFIG_CSV_NAME, Common.CRC32_FILELIST_NAME, Common.CRC32_VER_FILENAME };
             foreach (string p in spceil)
             {
                 name = CUtils.GetAssetBundleName(p);
@@ -204,6 +209,32 @@ namespace Hugula.Editor
                     }
                 }
             }
+        }
+
+         public static void DeleteAssetBundlesName()
+        {
+            Object[] selection = Selection.objects;
+
+            string assetBundleName = "";
+            List<string> del = new List<string>();
+
+            foreach (Object s in selection)
+            {
+                string abPath = AssetDatabase.GetAssetPath(s);
+                string folder = GetLabelsByPath(abPath);
+                string name = CUtils.GetRightFileName(s.name.ToLower());
+
+                if (string.IsNullOrEmpty(folder))
+                    assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
+                else
+                    assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
+
+                if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
+                Debug.Log("delete : "+assetBundleName);
+                del.Add(assetBundleName);
+            }
+
+            SplitPackage.DeleteStreamingFiles(del);//删除选中对象的ab
         }
 
         public static void SetAssetBundlesName()
@@ -481,7 +512,7 @@ namespace Hugula.Editor
             FileInfo fino = new FileInfo(tmpFileName);
             fino.CopyTo(targetFileName);
         }
-
+     
         #region
 
         /// <summary>
@@ -533,10 +564,10 @@ namespace Hugula.Editor
             }
         }
 
-    static public string GetLabelsByPath(string abPath)
-    {
-        return HugulaSettingEditor.GetLabelsByPath(abPath);
-    }
+        static public string GetLabelsByPath(string abPath)
+        {
+            return HugulaSettingEditor.GetLabelsByPath(abPath);
+        }
 
         #endregion
     }

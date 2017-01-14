@@ -44,7 +44,7 @@ function view:dispose()
  end
 
 function view:databind(item_obj,property_name)
-    if property_name == item_obj.set_eg_data then
+    if property_name == "eg_data" then
         self:show_eg_list(item_obj:get_eg_data())
     end
 end

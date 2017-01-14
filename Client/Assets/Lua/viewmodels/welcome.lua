@@ -30,16 +30,17 @@ local eg_data = {
 }
 ------------------public------------------
 function welcome:get_eg_data()
-	return eg_data
+	return self.eg_data
 end
 
 function welcome:set_eg_data(val)
-	self:raise_property_changed(self.set_eg_data)
+	self:set_property("eg_data",val) --设置属性触发属性改变事件
+	print(self.eg_data)
 end
 
 --资源加载完成后显示的时候调用
 function welcome:on_showed()
-	self:set_eg_data()
+	self:set_eg_data(eg_data)
 end
 
 --列表点击事件 Button绑定CEventReceive.OnCustomerEvent

@@ -10,7 +10,7 @@ using SLua;
 namespace Hugula.UGUIExtend
 {
     /// <summary>
-    /// ��������
+    /// ��������
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("UGUI/ScrollRectTable")]
@@ -34,13 +34,6 @@ namespace Hugula.UGUIExtend
       table.remove(data,index)
   end";
 
-        /// <summary>
-        /// prerender
-        /// </summary>
-        public static string PreRenderStr = @"return function(referScipt,index,dataItem)
-    referScipt.name=""Pre""..tostring(index)  
-    referScipt.gameObject:SetActive(false)
-  end";
         #endregion
 
         #region public attribute
@@ -49,7 +42,6 @@ namespace Hugula.UGUIExtend
             Down,
             Up,
         }
-        public int scrollDirection { get; private set; }
         public Direction direction = Direction.Down;
         [SLua.DoNotToLua]
         public RectTransform moveContainer;
@@ -79,16 +71,11 @@ namespace Hugula.UGUIExtend
             get { return _data; }
             set
             {
-                if (_data != null)
-                {
-                    foreach (var obj in this.repositionTileList)
-                        obj.gameObject.SetActive(false);
-                }
                 _data = value;
+                currFirstIndex = 0;
+                Clear();
                 CalcBounds();
                 CalcPage();
-                this.currFirstIndex = 0;
-                this.lastEndIndex = 0;
             }
         }
         #endregion
@@ -102,14 +89,16 @@ namespace Hugula.UGUIExtend
             private set;
         }
         public int currFirstIndex { get; private set; }//=0;//current pageBegin data index
-        int lastEndIndex = 0;// last time render last data index
-        int currRenderIndex = 0;//current render index
         int lastHeadIndex = 0;
 
-        List<int> repositionIntList = new List<int>();
+        //所有clone项目
         List<ScrollRectItem> repositionTileList = new List<ScrollRectItem>();
-        List<ScrollRectItem> preRenderList = new List<ScrollRectItem>();//
-
+        //当前item的数据索引
+        List<int> repositionTileIndexList = new List<int>();
+        //预渲染队列
+        Queue<ScrollRectItem> preRenderList = new Queue<ScrollRectItem>();//
+        //预渲染索引
+        Queue<int> preRepositionIntList = new Queue<int>();
 
         Vector3 dtmove;
         Vector3 beginPosition;
@@ -117,7 +106,7 @@ namespace Hugula.UGUIExtend
 
         bool mStarted = false;
 
-        Rect rect;
+        public Rect itemRect { private set; get;}
         private Vector2 sizeDelta;
         #endregion
 
@@ -127,7 +116,10 @@ namespace Hugula.UGUIExtend
         {
             int i = this.repositionTileList.IndexOf(item);
             int j = -1;
-            if (i >= 0) j = this.currFirstIndex + i;
+            if (i >= 0)
+            {
+                i = repositionTileIndexList[i];
+            } 
             return j;
         }
 
@@ -141,7 +133,7 @@ namespace Hugula.UGUIExtend
             int i = GetIndex(item);
             if (i >= 0)
             {
-                if (onDataRemove == null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove");
+                if (onDataRemove == null && LuaState.main!=null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove");
                 onDataRemove.call(this.data, i + 1, this);
                 this.CalcPage();
             }
@@ -151,8 +143,8 @@ namespace Hugula.UGUIExtend
         public int InsertData(object item, int index)
         {
             if (index >= this.recordCount || index < 0) index = this.recordCount;
-            if (onDataInsert == null) onDataInsert = (LuaFunction)LuaState.main.doString(DataInsertStr, "onDataInsert");
-            onDataInsert.call(item, index + 1, this);
+            if (onDataInsert == null && LuaState.main!=null) onDataInsert = (LuaFunction)LuaState.main.doString(DataInsertStr, "onDataInsert");
+            if (onDataInsert != null)onDataInsert.call(item, index + 1, this);
             this.CalcPage();
             return index;
         }
@@ -161,8 +153,8 @@ namespace Hugula.UGUIExtend
         {
             if (index >= 0 && index < this.recordCount)
             {
-                if (onDataRemove == null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove");
-                onDataRemove.call(data, index + 1, this);
+                if (onDataRemove == null && LuaState.main!=null) onDataRemove = (LuaFunction)LuaState.main.doString(DataRemoveStr, "onDataRemove");
+                if (onDataRemove != null) onDataRemove.call(data, index + 1, this);
                 this.CalcPage();
                 return index;
             }
@@ -172,10 +164,12 @@ namespace Hugula.UGUIExtend
 
         public void Clear()
         {
-            foreach (var item in repositionTileList)
+            for(int i=0;i<repositionTileList.Count;i++)
             {
-                item.gameObject.SetActive(false);
+                this.PreRender(repositionTileList[i],i);
             }
+            for(int i = 0;i<repositionTileIndexList.Count;i++)
+                repositionTileIndexList[i] = -1;
         }
 
         public void ScrollTo(int index)
@@ -184,7 +178,7 @@ namespace Hugula.UGUIExtend
             if (index < 0) index = 0;
             if (columns == 0)
             {
-                float x = index * rect.width;
+                float x = index * (itemRect.width+this.padding.x);
                 currPos.x = beginPosition.x - x;
                 currPos.y = beginPosition.y;
                 currPos.z = beginPosition.z;
@@ -192,18 +186,17 @@ namespace Hugula.UGUIExtend
             }
             else if (columns > 0)
             {
-                float y = ((int)((float)index / (float)columns)) * rect.height;
+                float y = ((int)((float)index / (float)columns)) * (itemRect.height+this.padding.y);
 
                 currPos.x = beginPosition.x;
                 currPos.z = beginPosition.z;
                 if (this.direction == Direction.Down)
-                    currPos.y = Math.Abs(beginPosition.y + y + this.padding.y);//pos.y=-(rect.height*y+ this.padding.y);
+                    currPos.y = Math.Abs(beginPosition.y + y + this.padding.y);//pos.y=-(itemRect.height*y+ this.padding.y);
                 else
-                    currPos.y = beginPosition.y - (y + rect.height + this.padding.y); //beginPosition.y + y + this.padding.y;//pos.y=(rect.height*y+ this.padding.y);
+                    currPos.y = beginPosition.y - (y + itemRect.height + this.padding.y); //beginPosition.y + y + this.padding.y;//pos.y=(itemRect.height*y+ this.padding.y);
             }
 
             moveContainer.localPosition = currPos;
-            //		SpringPanel.Begin(moveContainer,currPos,13f);
         }
 
         /// <summary>
@@ -218,7 +211,7 @@ namespace Hugula.UGUIExtend
             int bg = 0, ed = 0;
             if (begin < 0)
             {
-                bg = 0;//Debug.Log("Refresh 0 ");calc
+                bg = 0;
                 ed = this.pageSize;
                 if (moveContainer != null)
                     moveContainer.localPosition = this.beginPosition;
@@ -250,7 +243,7 @@ namespace Hugula.UGUIExtend
             if (i >= 0)
             {
                 i = i + currFirstIndex;
-                PreRefresh(i);
+                PreRefresh(i,currFirstIndex,currFirstIndex,true);
             }
         }
 
@@ -258,7 +251,22 @@ namespace Hugula.UGUIExtend
 
         #region private method
 
-        void CalcPage()
+        internal ScrollRectItem GetItemAndSetPreRender(int currIndex,int newIndex)
+        {
+            int i = repositionTileIndexList.IndexOf(currIndex);
+            if (i == -1 ) i = repositionTileIndexList.IndexOf(-1);
+            ScrollRectItem item = null;
+            if (i >= 0)
+            {
+                repositionTileIndexList[i] = newIndex;
+                item = repositionTileList[i];
+                preRenderList.Enqueue(item);
+                preRepositionIntList.Enqueue(newIndex);
+            } 
+            return item;
+        }
+
+        internal void CalcPage()
         {
             if (this._data != null)
             {
@@ -268,38 +276,36 @@ namespace Hugula.UGUIExtend
             {
                 recordCount = 0;
             }
-            SetRangeSymbol();
+            SetRangeSymbol(recordCount);
         }
 
-        void SetRangeSymbol()
+        [SLua.DoNotToLua]
+        public void SetRangeSymbol(int itemCount) // for editor
         {
             if (moveContainer != null)
             {
                 var delt = moveContainer.sizeDelta;
                 if (columns <= 0)
-                    delt.x = recordCount * rect.width + this.padding.x * 2;
+                {
+                    delt.x = itemCount * (itemRect.width +this.padding.x) + this.padding.x ;
+                    delt.y = itemRect.height + this.padding.y + this.padding.y;
+                }
                 else
                 {
-                    int y = (int)Mathf.Ceil((float)recordCount / (float)columns);
+                    int y = (int)Mathf.Ceil((float)itemCount / (float)columns);
                     if (this.direction == Direction.Down)
-                        delt.y = (rect.height * y + this.padding.y * 2);
+                        delt.y = (itemRect.height+this.padding.y) * y + this.padding.y;
                     else
-                        delt.y = -(rect.height * y + this.padding.y * 2);
+                        delt.y = -((itemRect.height+this.padding.y) * y + this.padding.y);
                 }
+                moveContainer.pivot = new Vector2(0f,1f);
                 moveContainer.sizeDelta = delt;
                 sizeDelta = delt;
             }
 
         }
 
-        void CalcLastEndIndex()
-        {
-            int last = this.currFirstIndex + this.pageSize - 1;
-            if (last >= this.recordCount) last = recordCount - 1;
-            this.lastEndIndex = last;
-        }
-
-        void CalcBounds()
+        internal void CalcBounds()
         {
             if (tileItem && tileItem.rectTransform)
             {
@@ -310,7 +316,25 @@ namespace Hugula.UGUIExtend
                 wi = tileSize.x <= 0 ? size.x : tileSize.x;
                 he = tileSize.y <= 0 ? size.y : tileSize.y;
 
-                rect = new Rect(0, 0, wi + padding.x, he + padding.y);
+                if(columns==0 ) //如果只有一排
+                {
+                    var dtAnchor = rectTrans.anchorMax - rectTrans.anchorMin;
+                    if (1 - dtAnchor.y <= 0.001 ) // 而且是高度适配 
+                    {
+                        he = moveContainer.rect.height;//-this.padding.y;
+                        if(wi<=0) wi = moveContainer.rect.width;//-this.padding.x;
+                    }
+                }else if(columns==1) //如果只有一列
+                {
+                    var dtAnchor = rectTrans.anchorMax - rectTrans.anchorMin;
+                    if (1 - dtAnchor.x <= 0.001 ) // 而且是宽度适配 
+                    {
+                        wi = moveContainer.rect.width;//-this.padding.x;
+                        if(he<=0) he = moveContainer.rect.height;//-this.padding.y;
+                    }
+                }
+
+                itemRect = new Rect(0, 0, wi, he);//new Rect(0, 0, wi + padding.x, he + padding.y);
             }
         }
 
@@ -337,161 +361,97 @@ namespace Hugula.UGUIExtend
 
         void Render()
         {
-            if (this.preRenderList.Count > 0)
+            if (this.preRepositionIntList.Count > 0)
             {
-                ScrollRectItem item = preRenderList[0];
-                currRenderIndex = this.repositionIntList[0];
-                preRenderList.RemoveAt(0);
-                repositionIntList.RemoveAt(0);
+                ScrollRectItem item = preRenderList.Dequeue();
+                int currRenderIndex = this.preRepositionIntList.Dequeue();
+               
                 if (currRenderIndex + 1 <= recordCount)
                 {
+                    SetPosition(item.rectTransform, currRenderIndex);
                     if (onItemRender != null) onItemRender.call(item, currRenderIndex + 1, data[currRenderIndex + 1]);
                 }
             }
         }
 
-        void SetPosition(RectTransform trans, int index)
+        [SLua.DoNotToLua]
+        public void SetPosition(RectTransform trans, int index)
         {
-            if (trans.parent != this.transform) trans.SetParent(this.transform);
-            Vector2 pos = trans.anchoredPosition;
+            if (trans.parent != this.transform) trans.SetParent(this.transform,false);
+            var pos = trans.localPosition;
             if (this.columns == 0)
             {
-                pos.x = rect.width * index + rect.width * .5f + this.padding.x;
+                pos.x = (itemRect.width+this.padding.x) * index + this.padding.x + itemRect.width*.5f ;
             }
             else
             {
                 int y = index / columns;
                 int x = index % columns;
                 if (this.direction == Direction.Down)
-                    pos.y = -(rect.height * y + this.padding.y + rect.height * .5f);
+                    pos.y = -(itemRect.height+this.padding.y) * y - itemRect.height*.5f - this.padding.y;//+ itemRect.height * .5f
                 else
-                    pos.y = rect.height * y + this.padding.y + rect.height * .5f;
+                    pos.y = (itemRect.height+this.padding.y) * y + itemRect.height*.5f + this.padding.y ;//+ itemRect.height * .5f;
 
-                pos.x = rect.width * x + rect.width * .5f + this.padding.x;
+                pos.x = (itemRect.width+this.padding.x)* x + this.padding.x + itemRect.width * .5f; 
             }
-            trans.anchoredPosition = pos;
+            trans.localPosition = pos;
         }
 
         void PreRender(ScrollRectItem item, int index)
         {
-            SetPosition(item.rectTransform, index);
-            if (this.onPreRender == null) onPreRender = (LuaFunction)LuaState.main.doString(PreRenderStr, "onPreRenderStr");
-            object dataI = index + 1 <= recordCount ? data[index + 1] : null;
-            onPreRender.call(item, index + 1, dataI);
+            if (onPreRender!=null)
+            {
+                object dataI = index + 1 <= recordCount ? data[index + 1] : null;
+                onPreRender.call(item, index + 1, dataI);
+            }
+            else
+                onLocalPreRender(item, index + 1);
         }
 
-        void PreRefresh(int i)
+        void onLocalPreRender(ScrollRectItem item, int index)
         {
-            if (i >= 0)
-            {
-                int Cindex = i - this.currFirstIndex;
-                if (Cindex >= 0)
-                {
-                    if (repositionTileList.Count < this.pageSize)
-                    {
-                        GameObject obj = this.tileItem.gameObject;
-                        GameObject clone = (GameObject)GameObject.Instantiate(obj);
-                        ScrollRectItem cloneRefer = clone.GetComponent<ScrollRectItem>();
-                        repositionTileList.Add(cloneRefer);
-                        Vector3 scale = clone.transform.localScale;
-                        Vector3 localpos = clone.transform.localPosition;
-                        clone.transform.SetParent(this.transform, false);
-                        clone.transform.localScale = scale;
-                        clone.transform.localPosition = localpos;
-                        this.lastEndIndex = i;
-                    }
-                    if (Cindex < this.pageSize)
-                    {
-                        ScrollRectItem tile = repositionTileList[Cindex];
-                        this.preRenderList.Add(tile);
-                        repositionIntList.Add(i);
-                        scrollDirection = 0;
-                        PreRender(tile, i);//Debug.Log(String.Format("preRefresh:{0}",i));
-                    }
-                }
-            }
-
+            // item.name="PreItem";  
+            var pos = item.transform.localPosition;
+            pos.x = -10000;
+            item.transform.localPosition = pos;
         }
 
-        void PreLeftUp(int i)
+        void PreRefresh(int i,int newHeadIndex,int currIndex,bool force=false)
         {
-            if (i >= this.pageSize && !repositionIntList.Contains(i) && i < this.recordCount)
+            if (repositionTileList.Count < this.pageSize)
             {
-                ScrollRectItem tile = repositionTileList[0];
-                repositionTileList.RemoveAt(0);//remove first
-                repositionTileList.Add(tile);//to end
-
-                this.preRenderList.Add(tile);//add to preRenderList
-                repositionIntList.Add(i);//add data index	
-
-                currFirstIndex++;
-                if (currFirstIndex + pageSize > recordCount) currFirstIndex = recordCount - this.pageSize;
-
-                this.lastEndIndex = i;//recorde last render data index
-                scrollDirection = 1;
-                PreRender(tile, i);//call preRender,set Postion
+                GameObject obj = this.tileItem.gameObject;
+                GameObject clone = (GameObject)GameObject.Instantiate(obj);
+                ScrollRectItem cloneRefer = clone.GetComponent<ScrollRectItem>();
+                repositionTileList.Add(cloneRefer);
+                repositionTileIndexList.Add(-1);
+                clone.transform.SetParent(this.transform, false);
             }
 
-        }
-
-        void PreRightDown(int i)
-        {
-            if (i >= 0 && !repositionIntList.Contains(i) && i + pageSize <= recordCount) //i>pageSize)//
+            if(!(i>=currIndex && i< currIndex+this.pageSize && !force)) //dont need refresh
             {
-                int end1 = repositionTileList.Count - 1;
-                ScrollRectItem tile = repositionTileList[end1];
-                repositionTileList.RemoveAt(end1);//remove end
-                repositionTileList.Insert(0, tile);//to first
-
-                this.preRenderList.Add(tile);//add to preRenderList
-                repositionIntList.Add(i);//add data index	
-                currFirstIndex--;
-                if (currFirstIndex < 0) currFirstIndex = 0;
-                CalcLastEndIndex();
-                scrollDirection = -1;
-                PreRender(tile, i);
+                int moveIndex = i;
+                if (currIndex != newHeadIndex) moveIndex = currIndex + pageSize - ( i - newHeadIndex ) - 1;
+                ScrollRectItem tile = GetItemAndSetPreRender(moveIndex,i);//查找对应的移动索引项目，如果没找到就从-1开始查找
+                if(tile)PreRender(tile, i);
             }
+
         }
 
         void Scroll(int newHead, bool force)
         {
             if (newHead < 0) newHead = 0;
-            int step = newHead - currFirstIndex;
-            if ((step != 0 && this.headIndex != lastHeadIndex) || force)
+            if (newHead > this.recordCount ) newHead = recordCount;
+            var currIndex = currFirstIndex;
+            int moveStep = newHead - currIndex;
+            if(moveStep!=0 || force)
             {
-                if (step > 0)
+                for(int i = newHead;i < newHead + pageSize;i++)
                 {
-                    int begin = lastEndIndex + 1;
-                    int end = begin + step;
-                    for (int i = begin; i < end; i++)
-                    {
-                        PreLeftUp(i);
-                    }
+                    PreRefresh(i,newHead,currIndex,force);
+                }
 
-                }
-                else if (step < 0)
-                {
-                    int begin = currFirstIndex - 1;
-                    int end = begin + step;
-                    if (begin < 0) begin = 0;
-                    for (int i = begin; i > end; i--)
-                    {
-                        PreRightDown(i);
-                    }
-                }
-                else
-                {
-                    scrollDirection = 0;
-                    int begin = newHead;//lastHeadIndex;
-                    int end = begin + this.pageSize;
-                    if (end > this.recordCount) end = recordCount;
-                    for (int i = begin; i < end; i++) PreRefresh(i);
-
-                    if (begin == 0)
-                    {
-                        CalcLastEndIndex();
-                    }
-                }
+                this.currFirstIndex = newHead;
             }
         }
 
@@ -499,9 +459,10 @@ namespace Hugula.UGUIExtend
         {
             for (int i = begin; i <= end; i++)
             {
-                if (i >= this.currFirstIndex) PreRefresh(i);
+                if (i >= this.currFirstIndex){
+                     PreRefresh(i,currFirstIndex,currFirstIndex,true);
+                }
             }
-
         }
 
 		void CheckShowEmpty()
@@ -524,6 +485,8 @@ namespace Hugula.UGUIExtend
         /// 
         void Start()
         {
+            renderPerFrames = this.pageSize;
+
             mStarted = true;
             if (moveContainer == null)
                 moveContainer = this.GetComponent<RectTransform>();
@@ -532,21 +495,14 @@ namespace Hugula.UGUIExtend
             {
                 Vector3 bg = moveContainer.localPosition;
                 beginPosition = new Vector3(bg.x, bg.y, bg.z);
-                if (this.tileItem) this.tileItem.gameObject.SetActive(false);
-#if UNITY_EDITOR
-                if (Application.isPlaying == false)
-                {
-                    Vector2 topleft = new Vector2(0, 1);
-                    moveContainer.pivot = topleft;
-                    moveContainer.anchorMax = topleft;
-                    moveContainer.anchorMin = topleft;
-                }
-#endif
+                moveContainer.pivot = new Vector2(0f,1f);
+                if(this.tileItem)PreRender(this.tileItem,0);
             }
 
             CalcBounds();
 
-            Scroll(0, true);
+            if(this.data!=null)Scroll(0, true);
+
         }
 
         void Update()
@@ -561,12 +517,12 @@ namespace Hugula.UGUIExtend
 
                 if (columns == 0)
                 {
-                    headIndex = (int)(dtmove.x / rect.width);
+                    headIndex = (int)(dtmove.x / (itemRect.width+this.padding.x));
                     Scroll(headIndex, false);
                 }
                 else if (columns > 0)
                 {
-                    int cloumnIndex = (int)(dtmove.y / rect.height);
+                    int cloumnIndex = (int)(dtmove.y / (itemRect.height+this.padding.y));
                     headIndex = (int)Mathf.Ceil((float)(cloumnIndex * this.columns) / (float)this.columns) * columns;//
                     if (headIndex != lastHeadIndex && headIndex <= 0)
                     {
@@ -582,7 +538,24 @@ namespace Hugula.UGUIExtend
         /// </summary>
         void LateUpdate()
         {
-            if (this.repositionIntList.Count > 0) RenderItem();
+            if (this.preRepositionIntList.Count > 0) RenderItem();
+        }
+
+        /// <summary>
+        /// This function is called when the MonoBehaviour will be destroyed.
+        /// </summary>
+        void OnDestroy()
+        {
+            this._data = null;
+            if(onPreRender!=null)onPreRender.Dispose();
+            if(onItemRender!=null)onItemRender.Dispose();
+            if(onDataInsert!=null)onDataInsert.Dispose();
+            if(onDataRemove!=null)onDataRemove.Dispose();
+
+            this.onPreRender = null;
+            this.onItemRender = null;
+            this.onDataInsert = null;
+            this.onDataRemove = null;
         }
 
     }

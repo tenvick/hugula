@@ -43,14 +43,6 @@ namespace Hugula.UGUIExtend
             if (rectTransform == null)
                 rectTransform = this.GetComponent<RectTransform>();
 
-#if UNITY_EDITOR
-            if (Application.isPlaying == false)
-            {
-                Vector2 topleft = new Vector2(0, 1);
-                rectTransform.anchorMax = topleft;
-                rectTransform.anchorMin = topleft;
-            }
-#endif
         }
 
         public Object Get(string n)

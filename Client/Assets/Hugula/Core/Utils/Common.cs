@@ -36,11 +36,6 @@ namespace Hugula.Utils
         [SLua.DoNotToLua]
         public const string LUA_TMP_FOLDER = "PW";
 
-		/// <summary>
-        /// 
-        /// </summary>
-        public const string LUA_ASSETBUNDLE_FILENAME = "lua.u3d";
-		
         /// <summary>
         /// crc32 file list
         /// </summary>

@@ -126,19 +126,27 @@ function ItemObject:on_blur( state )
 end
 
 --注册 属性改变事件
-function ItemObject:register_property_changed(func,view)
+function ItemObject:register_property_changed(fun,view)
     if self.property_changed == nil then self.property_changed = {} end
-    self.property_changed[func] = view
+    self.property_changed[fun] = view
 end
 
 --mvvm property change 当属性改变的时候需要调用
 function ItemObject:raise_property_changed(property_name)
     if self.property_changed ~= nil then
         local changed_tb = self.property_changed
-        for k,v in pairs(changed_tb) do
-            k(v,self, property_name)
+        for f,v in pairs(changed_tb) do
+            f(v,self, property_name)
         end
     end
+end
+
+function ItemObject:set_property(propertyName,value) --设置属性
+    if  self[propertyName] == value or not propertyName then return false end
+        print(value)
+        self[propertyName] = value;
+        self:raise_property_changed(propertyName);
+    return true;
 end
 
 function ItemObject:add_to_state(state)

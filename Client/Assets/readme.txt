@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.1.4
+1 CacheData CacheManager访问控制,。
+2 ScrollRectTable控件易用性优化，支持editor预览。
 2017.1.2
 1 lua bytes支持,lua单文件热更支持。
 2 本地assetbundle 以loadfromfile加载。

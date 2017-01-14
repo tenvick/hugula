@@ -49,18 +49,23 @@ function scroll_rect_table:remove_data_at(data)
 	self:raise_property_changed(self.remove_data_at)
 end
 
+function scroll_rect_table:add_data_at(data)
+	self.add_data = data
+	self:raise_property_changed(self.add_data_at)
+end
+
 --列表点击事件 Button绑定CEventReceive.OnCustomerEvent
 function scroll_rect_table:on_customer(obj,arg)
 	local name =obj.name
 	print("scroll_rect_table:on_customer"..name)
    if name == "click me!" then
-		self:ScrollTo(10+math.random(100))
+		self:scroll_to(10+math.random(1000))
 	elseif name == "delete me!" then
 		print(arg)
 		local data = arg.data
 		self:remove_data_at(data)
 	elseif name == "click me back!" then
-		self:ScrollTo(0)
+		self:scroll_to(0)
 	end
 end
 
@@ -73,5 +78,10 @@ function scroll_rect_table:on_click(obj,arg)
 	local cmd = obj.name
 	if cmd == "Back" then
 		StateManager:set_current_state(StateManager.welcome)
+	elseif cmd == "BtnADD" then
+		local it ={}
+		it.name="name "..math.random()*1000
+		it.title ="title"..math.random()*1000
+		self:add_data_at(it)
 	end
 end

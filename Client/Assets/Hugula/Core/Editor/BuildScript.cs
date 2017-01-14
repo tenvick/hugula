@@ -230,7 +230,7 @@ namespace Hugula.Editor
                     assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
 
                 if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-                Debug.Log("delete : "+assetBundleName);
+                Debug.Log("delete : "+s.name+" md5 = "+assetBundleName);
                 del.Add(assetBundleName);
             }
 

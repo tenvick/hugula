@@ -28,13 +28,13 @@ function view:on_asset_load(key,asset)
 		scroll_rect_item:Get(2).text = dataItem.name
 		scroll_rect_item.name = dataItem.name
 		local btn = monos[4]
-		if index % 30 == 0 then
+		if index % 9 == 0 then
 			btn.name = "click me!"
 			monos[2].text = "ScrollTo 93"
-		elseif index % 39 == 1 then
+		elseif index % 10 == 0 then
 			btn.name = "delete me!"
 			monos[2].text = "点我删除!"
-		elseif index % 100 == 0 or index % 90 == 0 then
+		elseif index % 30 == 0 then
 			btn.name = "click me back!"
 			monos[2].text = "点我返回 0 !"
 		else
@@ -49,13 +49,21 @@ function view:show_scroll_list(data)
 end
 
 function view:scroll_to(i)
+	print("scroll_to",i)
     self.scroll_table:ScrollTo(i)
 end
 
 function view:remove_data_at(data)
-    local i = self.scroll_table:RemoveDataAt(data[1])
-    self.scroll_table:Refresh(i,-1)
+	print(data[1]-1)
+    local i = self.scroll_table:RemoveDataAt(data[1]-1)
+    self.scroll_table:Refresh(i-1,-1)
     print(" you are remove "..i)
+end
+
+function view:add_data_at( data )
+	local i = self.scroll_table:InsertData(data,1000)
+    self.scroll_table:Refresh(i-1,-1)
+	  print(" you are add "..i)
 end
 
 function view:dispose()
@@ -70,6 +78,8 @@ function view:databind(item_obj,property_name)
         self:remove_data_at(item_obj.remove_data)
     elseif property_name == item_obj.set_scroll_data then
         self:show_scroll_list(item_obj.scroll_data)
+	elseif property_name == item_obj.add_data_at then
+		self:add_data_at(item_obj.add_data)
     end
 end
 

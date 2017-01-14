@@ -13,7 +13,6 @@ namespace Hugula.Pool
     /// <summary>
     /// 引用计数器
     /// </summary>
-    [SLua.CustomLuaClass]
     public class ReferenceCount : MonoBehaviour
     {
         internal int assetHashCode;

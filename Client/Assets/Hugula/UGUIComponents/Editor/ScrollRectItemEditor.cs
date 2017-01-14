@@ -5,7 +5,7 @@ using UnityEditor;
 using Hugula.UGUIExtend;
 
 [CustomEditor(typeof(ScrollRectItem))]
-public class ScrollRectItemEditor : Editor
+public class ScrollRectItemEditor : UnityEditor.Editor
 {
     public override void OnInspectorGUI()
     {
@@ -101,7 +101,7 @@ public class ScrollRectItemEditor : Editor
         else
             monos = new List<UnityEngine.Object>();
 
-       
+    
         //monos.Add(obj);
         if (i < 0)
         {
@@ -136,7 +136,7 @@ public class ScrollRectItemEditor : Editor
             refer.names.Add(null);
         refer.names[i] = GUILayout.TextField(refer.names[i], GUILayout.Width(60));
     }
-   public static  string[] ConvertTypeArrayToStringArray(List<Type> tps)
+public static  string[] ConvertTypeArrayToStringArray(List<Type> tps)
     {
         List<string> temp = new List<string>();
         for (int i = 0; i < tps.Count; i++)

@@ -17,7 +17,6 @@ namespace Hugula.Loader
     /// <summary>
     /// 缓存资源
     /// </summary>
-    [SLua.CustomLuaClass]
     public class CacheData : IDisposable
     {
 
@@ -52,7 +51,6 @@ namespace Hugula.Loader
         /// <summary>
         /// 当前引用数量
         /// </summary>
-        [SLua.DoNotToLua]
         public int count;
 
         /// <summary>
@@ -64,7 +62,6 @@ namespace Hugula.Loader
         /// is asset loaded
         /// </summary>
         /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
-        [SLua.DoNotToLua]
         public bool isAssetLoaded { get; internal set; }
 
         public void Dispose()
@@ -129,7 +126,7 @@ namespace Hugula.Loader
         /// 锁定
         /// </summary>
         /// <param name="hashkey"></param>
-		public static void AddLock(int hashkey)
+		internal static void AddLock(int hashkey)
         {
             lockedCaches.Add(hashkey);
         }
@@ -138,7 +135,7 @@ namespace Hugula.Loader
         /// 移除锁定
         /// </summary>
         /// <param name="hashkey"></param>
-		public static void RemoveLock(int hashkey)
+		internal static void RemoveLock(int hashkey)
         {
             lockedCaches.Remove(hashkey);
         }
@@ -205,6 +202,7 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="assetBundleName"></param>
         /// <returns></returns>
+        [SLua.DoNotToLua]
         public static CacheData GetCache(string assetBundleName)
         {
             int hash = LuaHelper.StringToHash(assetBundleName);
@@ -280,7 +278,7 @@ namespace Hugula.Loader
         /// 从缓存设置数据
         /// </summary>
         /// <param name="req"></param>
-        public static bool SetRequestDataFromCache(CRequest req)
+        internal static bool SetRequestDataFromCache(CRequest req)
         {
             bool re = false;
             int keyhash = req.keyHashCode;
@@ -339,7 +337,7 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public static bool CheckDependenciesComplete(CRequest req)
+        internal static bool CheckDependenciesComplete(CRequest req)
         {
             if (req.allDependencies == null || req.allDependencies.Length == 0) return true;
 
@@ -424,6 +422,7 @@ namespace Hugula.Loader
     /// <summary>
     /// 计数器管理
     /// </summary>
+    [SLua.CustomLuaClass]
     public static class CountMananger
     {
         /// <summary>
@@ -431,7 +430,7 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="hashcode"></param>
         /// <returns></returns>
-        internal static bool Subtract(int hashcode)
+        public static bool Subtract(int hashcode)
         {
             CacheData cached = CacheManager.GetCache(hashcode);
             if (cached != null)
@@ -452,7 +451,7 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="hashcode"></param>
         /// <returns></returns>
-        internal static bool Add(int hashcode)
+        public static bool Add(int hashcode)
         {
             CacheData cached = CacheManager.GetCache(hashcode);
             if (cached != null)

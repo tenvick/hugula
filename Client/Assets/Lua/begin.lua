@@ -55,14 +55,21 @@ local function check_mode()
 		end
 		Loader:set_uris(uris)
 	elseif cdn_hosts then
-		local uris = Hugula.Loader.LResLoader.uriList
-		for k,v in pairs(cdn_hosts) do
-			uris:Add(v,false,true,true)
-		end
+		-- local uris = Hugula.Loader.LResLoader.uriList
+		-- for k,v in pairs(cdn_hosts) do
+		-- 	uris:Add(v,false,true,true)
+		-- end
 	end
 
 	if Application.platform == RuntimePlatform.WindowsPlayer then --如果是windows平台删除缓存记录
 		Hugula.Utils.FileHelper.DeletePersistentDirectory(nil)
+	end
+end
+
+local function on_state_change(state) --资源回收
+	if state == StateManager.welcome then --当切换到welcome状态时候
+		StateManager:auto_dispose_items() --回收标记的item_object
+		unload_unused_assets()
 	end
 end
 
@@ -84,7 +91,7 @@ pLua.updateFn=update
 
 StateManager:input_disable() --锁定输入
 StateManager:set_current_state(StateManager.welcome)
-
+StateManager:register_state_change(on_state_change,true)
 
 --load config
 require("common.load_csv")

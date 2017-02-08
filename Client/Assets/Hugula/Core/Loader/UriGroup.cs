@@ -130,39 +130,21 @@ namespace Hugula.Loader
             return req.url;
         }
 
-        /// <summary>
-        /// 获取当前索引的uri
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public string GetUri(int index)
+        internal string this[int index]
         {
-            string uri = "";
-            if (uris.Count > index && index >= 0)
+            get
             {
-                uri = uris[index];
+                if (uris.Count > index && index >= 0)
+                {
+                    return uris[index];
+                }else
+                    return string.Empty;
             }
-            return uri;
         }
 
-        /// <summary>
-        /// 设置req index处的uri
-        /// </summary>
-        /// <param name="req"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public bool SetNextUri(CRequest req)
+        public string GetUri(int index )
         {
-            int index = req.index + 1;
-            if (index >= count) index = 0;
-            string uri = GetUri(index);
-            if (!string.IsNullOrEmpty(uri))
-            {
-                req.index = index;
-                req.uri = uri;
-                return true;
-            }
-            return false;
+            return this[index];
         }
 
         public void Clear()
@@ -175,6 +157,66 @@ namespace Hugula.Loader
 
 
         #region static
+		/// <summary>
+        /// 设置crequest next index处的url
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+		public static bool CheckAndSetNextUriGroup(CRequest req)
+		{
+			if(req.uris==null) return false;
+
+			int count = req.uris.count;
+			int index = req.index + 1;
+			if (index >= count) index = 0;
+			if (count > index && index >= 0)
+			{
+				req.index = index;
+				req.url = string.Empty;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+        /// <summary>
+		/// 检测CRequest index 处的url crc校验，默认返回true
+		/// </summary>
+		/// <param name="req"></param>
+		/// <returns></returns>
+        public static bool CheckRequestCurrentIndexCrc(CRequest req)
+        {
+            if(req.uris!=null)
+                return req.uris.CheckUriCrc(req);
+            else
+                return true;
+        }
+
+		/// <summary>
+		/// Check WWW Complete event
+		/// </summary>
+		/// <param name="req"></param>
+		/// <returns></returns>
+		public static void CheckWWWComplete(CRequest req,WWW www)
+		{
+			if(req.uris!=null)req.uris.OnWWWComplete (req, www);
+		}
+
+        public static bool CheckRequestUrlIsAssetbundle(CRequest req)
+        {
+            if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX))
+                req.isAssetBundle = true;
+
+            if(req.isAssetBundle && req.uris==null)
+            {
+                req.uris = LResLoader.uriList;
+            }
+
+            return req.isAssetBundle;
+        }
+
         public static void SaveWWWFileToPersistent(CRequest req, Array www)
         {
             string saveName = req.assetBundleName;

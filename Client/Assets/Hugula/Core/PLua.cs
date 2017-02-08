@@ -183,18 +183,6 @@ namespace Hugula
         private byte[] LoadLuaBytes(string name)
         {
             byte[] ret = null;
-            // #if UNITY_EDITOR_WIN && UNITY_ANDROID
-            //     string cryName = CUtils.GetRightFileName(name+Common.CHECK_ASSETBUNDLE_SUFFIX);
-            //     string path = CUtils.PathCombine(CUtils.realStreamingAssetsPath,cryName);
-            //     var ab = AssetBundle.LoadFromFile(path);
-            //     if(ab!=null)
-            //     {
-            //         var luaBytes = ab.LoadAllAssets<Hugula.BytesAsset>() ; //LoadAsset<Hugula.BytesAsset>();
-            //         if(luaBytes.Length>0 )
-            //             ret = luaBytes[0].bytes;
-            //         ab.Unload(true);
-            //     }
-            // #elif
             #if UNITY_EDITOR_WIN 
                 string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
                 string path = CUtils.PathCombine(Application.dataPath,Common.LUACFOLDER+"/win");
@@ -204,7 +192,7 @@ namespace Hugula
                 string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}",name,Common.LUA_LC_SUFFIX));
                 string path = CUtils.PathCombine(Application.dataPath,Common.LUACFOLDER+"/osx");
                 path =  CUtils.PathCombine(path,cryName);
-                Debug.Log(path);
+                // Debug.Log(path);
                 ret = File.ReadAllBytes(path);
             #elif UNITY_IOS
                 string cryName = "";

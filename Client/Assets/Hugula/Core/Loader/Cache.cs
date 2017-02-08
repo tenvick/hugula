@@ -71,6 +71,11 @@ namespace Hugula.Loader
             assetBundle = null;
             allDependencies = null;
         }
+
+        public void Unload()
+        {
+            if (assetBundle) assetBundle.Unload(false);
+        }
     }
 
     /// <summary>
@@ -148,6 +153,75 @@ namespace Hugula.Loader
         {
             int hash = LuaHelper.StringToHash(assetBundleName);
             ClearCache(hash);
+        }
+
+        /// <summary>
+        /// unload assetbundle false
+        /// </summary>
+        /// <param name="assetBundleName"></param>
+        public static void UnloadCacheFalse(string assetBundleName)
+        {
+            int hash = LuaHelper.StringToHash(assetBundleName);
+            UnloadCacheFalse(hash);
+        }
+
+        /// <summary>
+        /// unload assetbundle false
+        /// </summary>
+        /// <param name="assetBundleName"></param>
+        public static void UnloadCacheFalse(int assethashcode)
+        {
+            CacheData cache = null;
+            caches.TryGetValue(assethashcode, out cache);
+            if (cache != null)
+            {
+               cache.Unload();
+            }
+            else
+            {
+                Debug.LogWarningFormat("UnloadCacheFalse {0} fail ", assethashcode);
+            }
+        }
+
+        /// <summary>
+        /// unload assetbundle and Dependencies false
+        /// </summary>
+        /// <param name="assetBundleName"></param>
+        public static void UnloadDependenciesCacheFalse(string assetBundleName)
+        {
+            int hash = LuaHelper.StringToHash(assetBundleName);
+            UnloadDependenciesCacheFalse(hash);
+        }
+
+        /// <summary>
+        /// unload assetbundle and Dependencies false
+        /// </summary>
+        /// <param name="assethashcode"></param>
+        public static void UnloadDependenciesCacheFalse(int assethashcode)
+        {
+            CacheData cache = null;
+            caches.TryGetValue(assethashcode, out cache);
+            if (cache != null)
+            {
+                int[] alldep = cache.allDependencies;
+                CacheData cachetmp = null;
+                cache.Unload();
+                    if (alldep != null)
+                    {
+                        for (int i = 0; i < alldep.Length; i++)
+                        {
+                            cachetmp = GetCache(alldep[i]);
+                            if (cachetmp != null)
+                            {
+                                cachetmp.Unload();
+                            }
+                        }
+                    }
+            }
+            else
+            {
+                Debug.LogWarningFormat("UnloadDependenciesCacheFalse {0} fail ", assethashcode);
+            }
         }
 
         /// <summary>
@@ -250,7 +324,7 @@ namespace Hugula.Loader
 				req.isAssetBundle = false;
 			}
 
-			req.uris.OnWWWComplete (req, www);
+			UriGroup.CheckWWWComplete(req, www);
             www.Dispose();
 
 			return req.isAssetBundle;
@@ -447,6 +521,17 @@ namespace Hugula.Loader
         }
 
         /// <summary>
+        /// 目标引用减一
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool Subtract(string key)
+        {
+            int hashcode =  LuaHelper.StringToHash(key);
+            return Subtract(hashcode);
+        }
+
+        /// <summary>
         /// 目标引用加一
         /// </summary>
         /// <param name="hashcode"></param>
@@ -460,6 +545,17 @@ namespace Hugula.Loader
                 return true;
             }
             return false;
+        }
+
+         /// <summary>
+        /// 目标引用加一
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool Add(string key)
+        {
+            int hashcode =  LuaHelper.StringToHash(key);
+            return Add(hashcode);
         }
 
         /// <summary>

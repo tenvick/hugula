@@ -460,30 +460,59 @@ namespace Hugula.Pool
         {
             if (CanGC(key, force))
             {
-                Queue<ReferGameObjects> freequeue;
-                ReferGameObjects refer = null;
-                if (prefabFreeQueue.TryGetValue(key, out freequeue))
-                {
-                    while (freequeue.Count > 0)
-                    {
-                        refer = freequeue.Dequeue();
-                        willGcList.Enqueue(refer);//入队
-                    }
-                }
-#if UNITY_EDITOR
-                //Debug.LogFormat("<color=yellow>ClearCache {0} key{1}</color>", refer == null ? "" : refer.name, refer.GetComponent<ReferenceCount>().assetBundleName);
-#endif
-                Remove(key); //移除原始项目
+                ClearKey(key);
                 return true;
             }
-
             return false;
         }
 
+        /// <summary>
+        /// 安全回收
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="force"></param>
+        /// <returns></returns>
         public static bool ClearCache(string key)
         {
             int hash = LuaHelper.StringToHash(key);
             return ClearCache(hash, true);
+        }
+
+        /// <summary>
+        /// 强行回收
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="force"></param>
+        /// <returns></returns>
+        public static bool ClearCacheImmediate(string key)
+        {
+            int hash = LuaHelper.StringToHash(key);
+            ClearKey(hash);
+            return true;
+        }
+
+        /// <summary>
+        /// 清理当前key的对象
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        internal static void ClearKey(int key)
+        {
+            Queue<ReferGameObjects> freequeue;
+            ReferGameObjects refer = null;
+            if (prefabFreeQueue.TryGetValue(key, out freequeue))
+            {
+                while (freequeue.Count > 0)
+                {
+                    refer = freequeue.Dequeue();
+                    willGcList.Enqueue(refer);//入队
+                }
+            }
+#if UNITY_EDITOR
+            //Debug.LogFormat("<color=yellow>ClearCache {0} key{1}</color>", refer == null ? "" : refer.name, refer.GetComponent<ReferenceCount>().assetBundleName);
+#endif
+            Remove(key); //移除原始项目
+
         }
 
         /// <summary>

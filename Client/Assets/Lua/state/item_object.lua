@@ -44,12 +44,13 @@ function LuaItemManager:get_item_clone_obejct(objectName)
     return  obj
 end
 
-function LuaItemManager:register_item_object(objectName, luaPath, instance_now)
+function LuaItemManager:register_item_object(objectName, luaPath, instance_now,auto_mark_dispose)
 
     assert(self.items[objectName] == nil)
     local new_class   = ItemObject(objectName)
     new_class._key  = objectName
     new_class._lua_path = luaPath
+    new_class._auto_mark_dispose = auto_mark_dispose
     self.items[objectName] = new_class
 
     if instance_now then 
@@ -80,9 +81,8 @@ end
 function ItemObject:dispose( ... )
     local assets = self.assets
     if self.on_dispose then self:on_dispose() end
-    assert(assets ~= nil)
-    for k,v in ipairs(assets) do
-        v:dispose()
+    if assets then
+        for k,v in ipairs(assets) do  v:dispose()   end
     end
     self.is_call_assets_loaded = nil
     -- self.property_changed = nil
@@ -115,6 +115,10 @@ end
 
 -- end
 
+function ItemObject:mark_dispose_flag(flag) -- dispose when  StateManager:auto_dispose_items() called
+    self._auto_mark_dispose = flag
+end
+
 function ItemObject:on_hide()
   
 end
@@ -122,21 +126,25 @@ end
 function ItemObject:on_blur( state )
     self:send_message("on_hide",state) --开始隐藏
     self:hide()
+    -- print(self.name,"on_blur",self._auto_mark_dispose)
+    if self._auto_mark_dispose then 
+        StateManager:mark_dispose_flag(self) --标记销毁
+    end
     -- self:send_message("on_hided",state) --隐藏完成
 end
 
 --注册 属性改变事件
-function ItemObject:register_property_changed(fun,view)
+function ItemObject:register_property_changed(func,view)
     if self.property_changed == nil then self.property_changed = {} end
-    self.property_changed[fun] = view
+    self.property_changed[func] = view
 end
 
 --mvvm property change 当属性改变的时候需要调用
 function ItemObject:raise_property_changed(property_name)
     if self.property_changed ~= nil then
         local changed_tb = self.property_changed
-        for f,v in pairs(changed_tb) do
-            f(v,self, property_name)
+        for k,v in pairs(changed_tb) do
+            k(v,self, property_name)
         end
     end
 end
@@ -164,17 +172,17 @@ end
 
 function ItemObject:remove_from_state(state)
     local current_state = StateManager:get_current_state()
-  if state == nil or state == current_state then
+    if state == nil or state == current_state then    
     local removed = current_state:remove_item(self)
-    if removed then --如果从当前状态移除成功
-        if self.on_bluring then self:on_bluring(new_state) end
-        self:on_blur(current_state) 
-        if self.on_blured then self:on_blured(new_state) end
-        if self.log_enable then StateManager:record_state() end
+        if removed then --如果从当前状态移除成功        
+            if self.on_bluring then self:on_bluring(new_state) end
+            self:on_blur(current_state) 
+            if self.on_blured then self:on_blured(new_state) end
+            if self.log_enable then StateManager:record_state() end
+        end
+    else     
+        state:remove_item(self)
     end
-  else
-     state:remove_item(self)
-  end
 end
 
 function ItemObject:__tostring()

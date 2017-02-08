@@ -73,7 +73,7 @@ namespace Hugula.Update
             bool check = CheckLocalFileCrc(req.url, out crc);
 			if (!check)
             {
-                var re = req.uris.SetNextUri(req); //CUtils.SetRequestUri(req, 1);
+                var re = UriGroup.CheckAndSetNextUriGroup(req); //CUtils.SetRequestUri(req, 1);
 #if HUGULA_LOADER_DEBUG
                 Debug.LogFormat("<color=red>CrcCheck.CheckUriCrc Req(assetname={0},url={1}) crc={2},CheckFileCrc=false,SetNextUri={3}</color>", req.assetName, req.url, crc, re);
 #endif

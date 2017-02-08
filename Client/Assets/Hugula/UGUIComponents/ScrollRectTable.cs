@@ -10,7 +10,7 @@ using SLua;
 namespace Hugula.UGUIExtend
 {
     /// <summary>
-    /// ��������
+    /// ScrollRectTable
     /// </summary>
     [ExecuteInEditMode]
     [AddComponentMenu("UGUI/ScrollRectTable")]
@@ -333,8 +333,8 @@ namespace Hugula.UGUIExtend
                         if(he<=0) he = moveContainer.rect.height;//-this.padding.y;
                     }
                 }
-
                 itemRect = new Rect(0, 0, wi, he);//new Rect(0, 0, wi + padding.x, he + padding.y);
+
             }
         }
 
@@ -488,8 +488,8 @@ namespace Hugula.UGUIExtend
             renderPerFrames = this.pageSize;
 
             mStarted = true;
-            if (moveContainer == null)
-                moveContainer = this.GetComponent<RectTransform>();
+            if (moveContainer == null)moveContainer = this.GetComponent<RectTransform>();
+            if(tileItem==null)tileItem = this.GetComponentInChildren<ScrollRectItem>(true);
 
             if (moveContainer != null)
             {
@@ -498,6 +498,7 @@ namespace Hugula.UGUIExtend
                 moveContainer.pivot = new Vector2(0f,1f);
                 if(this.tileItem)PreRender(this.tileItem,0);
             }
+
 
             CalcBounds();
 

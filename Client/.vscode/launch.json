@@ -1,12 +1,36 @@
 {
-	"version":"0.2.0",
-	"configurations":[ 
+	"version": "0.2.0",
+	"configurations": [
 		{
-			"name":"Unity",
-			"type":"mono",
-			"request":"attach",
-			"address":"localhost",
-			"port":12936
+			"name": "Unity Editor",
+			"type": "unity",
+			"request": "launch"
+		},
+		{
+			"name": "Windows Player",
+			"type": "unity",
+			"request": "launch"
+		},
+		{
+			"name": "OSX Player",
+			"type": "unity",
+			"request": "launch"
+		},
+		{
+			"name": "Linux Player",
+			"type": "unity",
+			"request": "launch"
+		},
+		{
+			"name": "iOS Player",
+			"type": "unity",
+			"request": "launch"
+		},
+		{
+			"name": "Android Player",
+			"type": "unity",
+			"request": "launch"
+
 		}
 	]
 }

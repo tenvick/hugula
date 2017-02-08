@@ -478,7 +478,9 @@ namespace Hugula.Loader
             if (req == null) return false;
             string key = req.udKey;//the udkey never change 第一个URI和relativeUrl评级而成。
 
-			if (!req.uris.CheckUriCrc(req))//(!CrcCheck.CheckUriCrc(req)) //如果校验失败
+            UriGroup.CheckRequestUrlIsAssetbundle(req);
+
+			if (!UriGroup.CheckRequestCurrentIndexCrc(req)) //如果校验失败
             {
 #if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 0. <color=yellow>CheckCrcUri0Exists==false Req(assetname={0},url={1})  </color>",req.assetName,req.url);
@@ -745,7 +747,7 @@ namespace Hugula.Loader
 			#if HUGULA_LOADER_DEBUG
 			Debug.LogFormat(" 2.<color=green>CResLoader.LoadError Request(assetName={0}, url={1},isShared={2} req.index={3},req.uris.count={4})</color>", req.assetName,req.url,req.isShared,req.index,req.uris.count);
 			#endif
-            if (req.index < req.uris.count-1 && req.uris.SetNextUri(req))// CUtils.SetRequestUri(req, req.index))
+            if (req.uris!=null && req.index < req.uris.count-1 && UriGroup.CheckAndSetNextUriGroup(req))// CUtils.SetRequestUri(req, req.index))
             {
 				QueueOrLoad (req);
             }
@@ -786,7 +788,7 @@ namespace Hugula.Loader
         /// </summary>
         static protected void LoadAssetBundle(CRequest req)
         {
-            if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
+            // if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
 
             if (assetBundleManifest != null && req.isAssetBundle)
 				req.allDependencies = LoadDependencies(req); //加载依赖

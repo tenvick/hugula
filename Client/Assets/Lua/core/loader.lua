@@ -31,14 +31,12 @@ end
 local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	if assetName == nil then assetName = CUtils.GetAssetName(url) end
 	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
-
 	if string.match(url,u3d_pattern) and  string.match(url,u3d_is_md5_patter) == nil then --以u3d结尾
 		-- req.isLoadFromCacheOrDownload = true --从缓存加载
 	  	url = CUtils.GetRightFileName(url)  --md5编码
 	elseif string.match(url,u_pattern) and  string.match(url,u_is_md5_patter) == nil then
 	  	url = CUtils.GetRightFileName(url)  --md5编码
 	end--判断加密
-	
 	req.relativeUrl = url
 	req.assetName = assetName
 	if type(assetType)=="string" then 
@@ -51,11 +49,12 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	if endFn then req.onEndFn=endFn end
 	if head ~= nil then req.head=head end 
 	if isLoadFromCacheOrDownload ~= nil then req.isLoadFromCacheOrDownload = isLoadFromCacheOrDownload end
+	local uri = url
 	if uris then 
 		req.uris = uris 
-		local uri = uris:GetUri(0)
-		if string.lower(string.sub(uri,1,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
+		uri = uris:GetUri(0)
 	end
+	if string.lower(string.sub(uri,1,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
 
 	if async ~= nil then req.async = async end
 	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"isNormal=",req.isNormal)
@@ -112,10 +111,10 @@ local function load_by_table(tb,group_fn,progress_fn)
 end
 
 function Loader:clear(key)
-	local t = type(key)
-	if t == "string" then 
-		CacheManager.ClearCache(key)
-	end 
+	-- local t = type(key)
+	--if t == "string" then 
+	CacheManager.ClearCache(key)
+	--end 
 --    unload_unused_assets()
 end
 
@@ -129,10 +128,18 @@ end
 
 function Loader:unload(url)
 	if url then
-		local key=CUtils.getURLFullFileName(url)
+		local key=CUtils.GetAssetBundleName(url)
 		self:clear(key)
 --        unload_unused_assets()
 	end
+end
+
+function Loader:unload_cache_false(assetbundle_name)
+	CacheManager.UnloadCacheFalse(assetbundle_name)
+end
+
+function Loader:unload_dependencies_cache_false(assetbundle_name)
+	CacheManager.UnloadDependenciesCacheFalse(assetbundle_name)
 end
 
 -- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
@@ -191,9 +198,11 @@ function Loader:refresh_assetbundle_manifest(onReady)
         local data=req1.data
         LResLoader.assetBundleManifest=data
         if onReady then onReady() end
+		CacheManager.UnloadCacheFalse(url) --清理缓存
     end
 	self:clear(url) --清理旧的缓存
-    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn)
+	
+    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn,nil,nil,LResLoader.uriList)
 end
 
 

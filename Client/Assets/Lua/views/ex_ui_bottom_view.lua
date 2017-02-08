@@ -27,7 +27,7 @@ function view:dispose()
 
 function view:databind(item_obj,property_name)
     if property_name == item_obj.on_hide then
-        self:dispose()
+        -- self:dispose()
     end
 end
 

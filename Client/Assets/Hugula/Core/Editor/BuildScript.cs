@@ -502,7 +502,8 @@ namespace Hugula.Editor
             if (string.IsNullOrEmpty(outPath))
                 outPath = GetOutPutPath();
 
-            string tmpPath = BuildScript.GetAssetTmpPath();
+            string tmpPath = BuildScript.GetProjectTempPath();
+            ExportResources.CheckDirectory(tmpPath);
             string tmpFileName = Path.Combine(tmpPath, abName);
             BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
 
@@ -511,6 +512,36 @@ namespace Hugula.Editor
             if (tInfo.Exists) tInfo.Delete();
             FileInfo fino = new FileInfo(tmpFileName);
             fino.CopyTo(targetFileName);
+        }
+
+        /// <summary>
+        /// 自动构建ab
+        /// </summary>
+        /// <param name="assets"></param>
+        /// <param name="outPath"></param>
+        /// <param name="abName"></param>
+        /// <param name="bbo"></param>
+        static public void BuildABs(AssetBundleBuild[] bab, string outPath, BuildAssetBundleOptions bbo)
+        {
+            if (string.IsNullOrEmpty(outPath))
+                outPath = GetOutPutPath();
+
+            string tmpPath = BuildScript.GetProjectTempPath();
+            ExportResources.CheckDirectory(tmpPath);
+
+            BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
+
+            foreach(AssetBundleBuild abb in  bab)
+            {
+                string abName = abb.assetBundleName;
+                string tmpFileName = Path.Combine(tmpPath, abName);
+                string targetFileName = Path.Combine(outPath, abName);
+                FileInfo tInfo = new FileInfo(targetFileName);
+                if (tInfo.Exists) tInfo.Delete();
+                FileInfo fino = new FileInfo(tmpFileName);
+                fino.CopyTo(targetFileName);
+            }
+
         }
      
         #region
@@ -538,6 +569,11 @@ namespace Hugula.Editor
         public static string GetOutPutPath()
         {
             return Path.Combine(streamingPath, CUtils.GetAssetPath(""));
+        }
+
+        public static string GetProjectTempPath()
+        {
+            return Path.Combine(Application.dataPath.Replace("Assets",""), "Temp/hugula");
         }
 
         public static string GetAssetTmpPath()

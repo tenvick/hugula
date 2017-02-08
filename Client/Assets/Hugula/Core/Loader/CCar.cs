@@ -92,9 +92,9 @@ namespace Hugula.Loader
             url = CUtils.CheckWWWUrl(url);
 
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-            if (req.isLoadFromCacheOrDownload)
+            if (req.isAssetBundle && req.isLoadFromCacheOrDownload)
 #else
-            if (req.isNativeFile && req.isAssetBundle)
+            if (req.isNativeFile && req.isAssetBundle && !req.isLoadFromCacheOrDownload)
             {
                 /*
                 *Stream Compressed (LZMA) Mem: LZ4 compressed bundle size.  Perf: reading from disk + LZMA decompression + LZ4 compression.
@@ -102,20 +102,13 @@ namespace Hugula.Loader
                 */
                 #if UNITY_ANDROID && !UNITY_EDITOR
                     string android_url = req.url;
-                    using(gstring.Block())
-                    {
-                        gstring gurl = android_url;
-                        gurl = gurl.Replace(Common.JAR_FILE,""); //                    android_url = android_url.Replace(Common.JAR_FILE,"").Replace(;
-                        gurl = gurl.Replace("apk!/assets","apk!assets");
-                        android_url = gurl.Intern();
-                    }
+                    android_url = android_url.Replace(Common.JAR_FILE,"").Replace("apk!/assets","apk!assets");
                     abRequest = AssetBundle.LoadFromFileAsync(android_url);
                 #else
                     abRequest = AssetBundle.LoadFromFileAsync(req.url);
                 #endif
-                // Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) frame{4} isAssetBundle:{5} )</color>", url, req.key, req.assetName,req.assetBundleName,Time.frameCount,req.isAssetBundle);
             } 
-            else if (req.isLoadFromCacheOrDownload)
+            else if (req.isAssetBundle && req.isLoadFromCacheOrDownload)
 #endif
             {
                 if (CResLoader.assetBundleManifest != null)

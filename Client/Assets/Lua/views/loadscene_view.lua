@@ -28,9 +28,7 @@ function view:dispose()
  end
 
 function view:databind(item_obj,property_name)
-    -- if property_name == item_obj.get_npc_map_ack then
-    --     self:show_npc_map(item_obj:get_server_source_npc_map())
-    -- end
+    
 end
 
 return view

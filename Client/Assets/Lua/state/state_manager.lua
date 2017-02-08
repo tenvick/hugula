@@ -66,7 +66,7 @@ end
 
 local function unload_unused_assets()
   collectgarbage("collect")
-  --Resources.UnloadUnusedAssets()
+--   Resources.UnloadUnusedAssets()
 end
 -------------------------------------------------------------------
 StateManager =
@@ -160,15 +160,34 @@ function StateManager:call_all_item_method( )
     self:check_hide_transform(curr_state)
 end
 
-function StateManager:set_on_state_change(on_state_change)
-    self._on_state_change = on_state_change
+function StateManager:register_state_change(on_state_change,flag)
+    if self._on_state_change == nil then self._on_state_change = {} end
+    self._on_state_change[on_state_change] = flag
 end
 
-function StateManager:call_on_state_change(new_state)
-    if self._on_state_change then self._on_state_change(new_state) end
+function StateManager:call_on_state_change(new_state) --call when sate chage
+    if self._on_state_change then
+        for k,v in pairs(self._on_state_change) do
+            k(new_state) 
+        end
+    end
 end
 
-function StateManager:real_change_to_state(is_back)
+function StateManager:mark_dispose_flag(item_obj)
+    if self.mark_dispose_items == nil then self.mark_dispose_items = {} end
+    self.mark_dispose_items[item_obj] = true
+end
+
+function StateManager:auto_dispose_items() -- dispose marked item_object 
+    if self.mark_dispose_items ~= nil then 
+        for k,v in pairs(self.mark_dispose_items) do
+            if k.dispose and self._current_game_state:contains_item(k) == false then k:dispose() end
+            self.mark_dispose_items[k] = nil
+        end
+    end
+end
+
+function StateManager:real_change_to_state(is_back) --real change state
      local new_state = self._new_state
 
     if(self._current_game_state ~= nil) then

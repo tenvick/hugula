@@ -71,7 +71,7 @@ function LuaObject:add_component(arg)
  function LuaObject:remove_component(name)
 	local cmp=self.components[name]
 	if cmp then remove_global_update_comp(cmd)
-    elseif cmp and cmp.remove then cmp:remove() 
+        if cmp.remove then cmp:remove() end
     end 
     self.components[name] = nil
     self.updatecomponents[name] = nil

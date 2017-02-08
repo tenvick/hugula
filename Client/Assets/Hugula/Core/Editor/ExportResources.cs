@@ -214,7 +214,7 @@ namespace Hugula.Editor
             }
 
             Debug.Log("lua:" + path + "files=" + childrens.Length + " completed");
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(100);
             //AssetDatabase.Refresh();
 
             //out md5 mapping file
@@ -264,13 +264,21 @@ namespace Hugula.Editor
                 title = "lua asset to assetbundle";
                 allLen = abbs.Count;
                 i = 0;
-                foreach (var abb in abbs)
-                {
-                    BuildScript.BuildABs(abb.assetNames, null, abb.assetBundleName, BuildAssetBundleOptions.None);
-                    i++;
-                    EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-                }
+
+                // foreach (var abb in abbs)
+                // {
+                //     BuildScript.BuildABs(abb.assetNames, null, abb.assetBundleName, BuildAssetBundleOptions.None);
+                //     i++;
+                //     EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
+                // }
+
+                title = "build lua assetbundle ";
+                EditorUtility.DisplayProgressBar(title, info + "=>", 1);
+
+                BuildScript.BuildABs(abbs.ToArray(),null, BuildAssetBundleOptions.None);
             }
+
+          
 
 #endif
 

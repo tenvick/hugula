@@ -87,7 +87,7 @@ function Asset:show(...)
 end
 
 function Asset:hide(...)
-	if  self.names then
+	if  self.names and self.root then
 		local kill
 		for k,v in pairs(self.names) do
 			kill = self.items[v]

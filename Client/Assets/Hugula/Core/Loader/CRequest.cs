@@ -50,7 +50,6 @@ namespace Hugula.Loader
             this._url = string.Empty;
             this._relativeUrl = string.Empty;
             this._key = string.Empty;
-            this._uri = string.Empty;
             this._udKey = string.Empty;
 
             this.priority = 0;
@@ -96,28 +95,6 @@ namespace Hugula.Loader
         private string _assetName = string.Empty;
 
         private UriGroup _uris;
-
-        private string _uri;
-
-        public string uri
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_uri))
-                {
-                    _uri = uris.GetUri(index);
-                    CheckNavtiveFile(_uri);
-                }
-                return _uri;
-            }
-            set
-            {
-                _url = null;
-                // _udKey = null;不需要重新计算udkey
-                _uri = uris.GetUri(index);
-                CheckNavtiveFile(_uri);
-            }
-        }
 
         /// <summary>
         /// Gets the relative URL.
@@ -230,7 +207,16 @@ namespace Hugula.Loader
                 if (value == null)
                     _url = null;
                 else
-                    _url = CUtils.PathCombine (uri, this.relativeUrl);
+				{
+					if(_uris == null)
+					{
+						_url = relativeUrl;
+					}else
+					{
+						_url = GetURL(this);//CUtils.PathCombine (uri, this.relativeUrl);
+					}
+					CheckNavtiveFile(_url);
+				}
             }
         }
 
@@ -325,8 +311,8 @@ namespace Hugula.Loader
         {
             get
             {
-                if (_uris == null)
-                    _uris = LResLoader.uriList;
+                // if (_uris == null)
+                //     _uris = LResLoader.uriList;
 
                 return _uris;
             }
@@ -388,15 +374,38 @@ namespace Hugula.Loader
             }
         }
 
+		/// <summary>
+		/// 获取当前 URL
+		/// </summary>
+		private static string GetURL(CRequest req)
+		{
+			string url = string.Empty;
+            var uris = req.uris;
+            int index = req.index;
+            if(uris!=null && uris.count > index && index >= 0)
+            {
+                url = CUtils.PathCombine(uris[index],req.relativeUrl);
+            }
+			return url;
+		}
+
         /// <summary>
         /// 获取key URL
         /// </summary>
         public static string GetUDKeyURL(CRequest req)
         {
             string url = string.Empty;
-            string uri = req.uris.GetUri(0);
-            url = CUtils.PathCombine(uri, req.relativeUrl);
-            return url;
+            var uris = req.uris;
+            int index = 0;
+            if(uris!=null && uris.count > index && index >= 0)
+            {
+                url = CUtils.PathCombine(uris[index],req.relativeUrl);
+            }
+            else
+            {
+                url = req.relativeUrl;
+            }
+			return url;
         }
     }
 

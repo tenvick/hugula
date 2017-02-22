@@ -24,19 +24,30 @@ namespace Hugula.Pool
             if(string.IsNullOrEmpty(assetbundle)) assetbundle = CUtils.GetRightFileName(this.name.Replace("(Clone)","")+".u3d");
 
             assetHashCode = LuaHelper.StringToHash(assetbundle);
+            int addre = CountMananger.Add(this.assetHashCode);
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+                if (addre == -1)
+                {
+                    Debug.LogWarningFormat("ReferenceCount: name({0}) abName({1}) refer add error ", this.name.Replace("(Clone)",""),assetbundle);
+                }
+#endif
+#if HUGULA_CACHE_DEBUG                
+                else{
+                    Debug.LogFormat("<color=green>ReferenceCount: name({0}) abName({1}) referCount={2} </color> ", this.name.Replace("(Clone)",""),assetbundle,addre);
+                }
+#endif
 
-            if (!CountMananger.Add(this.assetHashCode))
-            {
-                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer add error ", this.name.Replace("(Clone)",""),assetbundle));
-            }
         }
 
         void OnDestroy()
         {
-            if (!CountMananger.Subtract(this.assetHashCode))
+            bool subre = CountMananger.Subtract(this.assetHashCode);
+ #if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+            if (!subre)
             {
                 Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer delete error ", this.name,assetbundle));
             }
+#endif
         }
 
     }

@@ -51,6 +51,7 @@ namespace Hugula.Loader
             this._relativeUrl = string.Empty;
             this._key = string.Empty;
             this._udKey = string.Empty;
+            this._udAssetKey = string.Empty;
 
             this.priority = 0;
             this.index = 0;
@@ -65,7 +66,7 @@ namespace Hugula.Loader
             _assetName = string.Empty;
             assetType = null;//string.Empty;
 
-            async = true;
+            async = false;
             pool = false;
             isAdditive = false;
             isShared = false;
@@ -84,7 +85,7 @@ namespace Hugula.Loader
 
         private string _relativeUrl;
 
-        private string _key, _udKey;
+        private string _key, _udKey,_udAssetKey;
 
         private int _keyHashCode = 0;
 
@@ -107,6 +108,7 @@ namespace Hugula.Loader
                 _assetBundleName = null;
                 _url = null;
                 _udKey = null;
+                _udAssetKey = null;
                 _key = null;
                 _keyHashCode = 0;
                 _relativeUrl = value;
@@ -264,10 +266,10 @@ namespace Hugula.Loader
         }
 
         /// <summary>
-        /// Sets the U dkey.
+        /// The url unique key.
         /// </summary>
         /// <value>
-        /// The U dkey.
+        /// The url unique key.
         /// </value>
         public string udKey
         {
@@ -286,11 +288,34 @@ namespace Hugula.Loader
             }
         }
 
+         /// <summary>
+        /// Sets the url and asse unique key
+        /// </summary>
+        /// <value>
+        /// The unique key.
+        /// </value>
+        public string udAssetKey
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_udAssetKey))
+                    udAssetKey = string.Empty;
+                return _udAssetKey;
+            }
+            set
+            {
+                if (value == null)
+                    _udAssetKey = null;
+                else
+                    _udAssetKey = string.Format("{0}+{1}",udKey,assetName);
+            }
+        }
+
 
         /// <summary>
         /// 是否异步加载
         /// </summary>
-        public bool async = true;
+        public bool async = false;
 
         /// <summary>
         ///  优先等级

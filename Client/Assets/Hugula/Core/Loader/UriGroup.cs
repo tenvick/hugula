@@ -206,7 +206,7 @@ namespace Hugula.Loader
 
         public static bool CheckRequestUrlIsAssetbundle(CRequest req)
         {
-            if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX))
+            if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX) && !typeof(string).Equals(req.assetType))
                 req.isAssetBundle = true;
 
             if(req.isAssetBundle && req.uris==null)

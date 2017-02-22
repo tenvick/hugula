@@ -107,15 +107,15 @@ namespace Hugula.Editor
 
         #region export
 
-        public static void exportLua(bool android_ab_build = false)
+        public static void doExportLua(string[] childrens,bool android_ab_build = false)
         {
-            BuildScript.CheckstreamingAssetsPath();
+             BuildScript.CheckstreamingAssetsPath();
 
             string info = "luac";
             string title = "build lua";
             EditorUtility.DisplayProgressBar(title, info, 0);
 
-            var childrens = AssetDatabase.GetAllAssetPaths().Where(p =>
+            var checkChildrens = AssetDatabase.GetAllAssetPaths().Where(p =>
                 (p.StartsWith("Assets/Lua")
                 || p.StartsWith("Assets/Config"))
                 && (p.EndsWith(".lua"))
@@ -127,7 +127,7 @@ namespace Hugula.Editor
             string crypName = "", fileName = "", outfilePath = "", arg = "";
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             //refresh directory
-            DirectoryDelete(OutLuaPath);
+            if (checkChildrens.Length == childrens.Length) DirectoryDelete(OutLuaPath);
             CheckDirectory(OutLuaPath);
 
             float allLen = childrens.Length;
@@ -285,6 +285,16 @@ namespace Hugula.Editor
             EditorUtility.ClearProgressBar();
         }
 
+        public static void exportLua(bool android_ab_build = false)
+        {
+             var childrens = AssetDatabase.GetAllAssetPaths().Where(p =>
+                (p.StartsWith("Assets/Lua")
+                || p.StartsWith("Assets/Config"))
+                && (p.EndsWith(".lua"))
+                ).ToArray();
+           doExportLua(childrens,android_ab_build);
+        }
+
         public static void exportConfig()
         {
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
@@ -328,8 +338,10 @@ namespace Hugula.Editor
         }
 
         #endregion
+        
 
         #region private
+        
 
         public static void DeleteStreamingOutPath()
         {

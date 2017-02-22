@@ -130,6 +130,8 @@ function AssetLoader:load_assets(assets)
 				local main=req.data 
 				local root=LuaHelper.Instantiate(main)
 				root.name=main.name
+				-- Loader:unload_cache_false(req.keyHashCode)
+				-- print("unload_cache_false"..req.assetName)
 				base_asset.root=root
 				local eachFn =function(i,obj)
 					base_asset.items[obj.name]=obj
@@ -181,6 +183,9 @@ function AssetLoader:load_assets(assets)
     else
     	if self._onall_complete then self._onall_complete() end
     end
+
+	self._onall_complete = nil
+	self._on_progress = nil
 end
 
 function AssetLoader:clear()
@@ -194,7 +199,7 @@ function AssetLoader:clear()
 end
 
 function AssetLoader:load(asts,onall_complete,on_progress)
-	self._load_curr = 0
+
 	self.assets = {}
 	local all_assets = {}
 	for k,v in ipairs(asts) do
@@ -203,6 +208,8 @@ function AssetLoader:load(asts,onall_complete,on_progress)
 			for k1,v1 in ipairs(v.children) do table.insert(all_assets,v1)  end
 		end
 	end
+	if self.lua_obj.is_loading then print("warring something is loading ") end
+	self._load_curr = 0
 	self._load_count = #all_assets
 	self._on_progress = on_progress
 	self._onall_complete = onall_complete

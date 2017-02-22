@@ -470,9 +470,11 @@ main_update.load_local_file_list = function () --加载本地列表
     	step.load_persistent_file()
     end
     step1.load_streaming_file = function( ... )
-    	local group = UriGroup()
-		group:Add(CUtils.GetRealStreamingAssetsPath())
-		Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step1.on_streaming_comp,step1.on_streaming_error,nil,group)
+    	-- local group = UriGroup()
+		-- group:Add(CUtils.GetRealStreamingAssetsPath())
+		local uri = CUtils.GetRealStreamingAssetsPath()
+		local url = CUtils.PathCombine(uri,UPDATED_LIST_NAME)
+		Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step1.on_streaming_comp,step1.on_streaming_error,nil)
     end
 
     step1.load_streaming_file()
@@ -543,16 +545,20 @@ main_update.compare_local_version = function () --对比本地版本号
 
 	step.load_persistent=function(  )
 		print("加载本地缓存版本信息。")
-		local group = UriGroup()
-		group:Add(CUtils.GetRealPersistentDataPath())
-  		Loader:get_resource(VERSION_FILE_NAME,nil,String,step.on_persistent_comp,step.on_persistent_error,nil,group)
+		local uri = CUtils.GetRealPersistentDataPath()
+		local url = CUtils.PathCombine(uri,VERSION_FILE_NAME)
+		print(url)
+  		Loader:get_resource(url,nil,String,step.on_persistent_comp,step.on_persistent_error,nil)
 	end
 
 	step.load_streaming=function(  )
 		print("加载本地版本信息。") --
-		local group = UriGroup()
-		group:Add(CUtils.GetRealStreamingAssetsPath())
-    	Loader:get_resource(VERSION_FILE_NAME,nil,String,step.on_streaming_comp,step.on_streaming_error,nil,group)
+		-- local group = UriGroup()
+		-- group:Add(CUtils.GetRealStreamingAssetsPath())
+		local uri = CUtils.GetRealStreamingAssetsPath()
+		local url = CUtils.PathCombine(uri,VERSION_FILE_NAME)
+		print(url)
+    	Loader:get_resource(url,nil,String,step.on_streaming_comp,step.on_streaming_error,nil)
 	end
 
   	set_progress_txt("对比本地版本信息。",2,0.2)

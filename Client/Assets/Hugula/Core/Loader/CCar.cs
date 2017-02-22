@@ -147,7 +147,7 @@ namespace Hugula.Loader
                 abRequest.priority = req.priority;
             }
 #if HUGULA_LOADER_DEBUG
-			Debug.LogFormat(" 0. <color=#8cacbc> begin load : url({0}),key:({1}) assetName({2}) abName({3}) isNativeFile({4}) isAssetBundle({5}) frame{6} )</color>", url, req.key, req.assetName,req.assetBundleName,req.isNativeFile,req.isAssetBundle,Time.frameCount);
+			Debug.LogFormat(" 1.0 <color=#15C1B2> begin load : url({0}),key:({1}) assetName({2}) abName({3}) isNativeFile({4}) isAssetBundle({5}) frame{6} )</color>", url, req.key, req.assetName,req.assetBundleName,req.isNativeFile,req.isAssetBundle,Time.frameCount);
 #endif
         }
 
@@ -200,7 +200,7 @@ namespace Hugula.Loader
                 if (OnProcess != null)
                     OnProcess(this, 1);
 #if HUGULA_LOADER_DEBUG
-				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2})  len({3} frame{4})</color>", req.url, req.key, req.assetName, www.bytes.Length,Time.frameCount);
+				Debug.LogFormat(" 1.1 <color=#15C1B2> will complete : url({0}),key:({1}) assetName({2})  len({3} frame{4})</color>", req.url, req.key, req.assetName, www.bytes.Length,Time.frameCount);
 #endif
                 if (req.isLoadFromCacheOrDownload) //load from cache no www.bytes
                 {
@@ -239,7 +239,7 @@ namespace Hugula.Loader
                 if (OnProcess != null)
                     OnProcess(this, 1);
 #if HUGULA_LOADER_DEBUG
-				Debug.LogFormat(" 1. <color=#8cacbc> will complete : url({0}),key:({1}) assetName({2}) frame{3})</color>", req.url, req.key, req.assetName, Time.frameCount);
+				Debug.LogFormat(" 1.2 <color=#15C1B2> will complete : url({0}),key:({1}) assetName({2}) frame{3})</color>", req.url, req.key, req.assetName, Time.frameCount);
 #endif
                 CacheManager.AddSourceCacheDataFromWWW(ab, this._req);
                 DispatchCompleteEvent(this._req);

@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.2.22
+1 slua IOS原版libslua.a编译报错问题解决。
+2 Cache类分离。
+3 加载debuglog优化。
+4 选中lua文件导出。
+
 2017.2.7
 1 Gstring 去除。
 2 item_object 标记销毁功能，方便控制模块的资源释放。

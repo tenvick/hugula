@@ -135,7 +135,7 @@ function Loader:unload(url)
 end
 
 function Loader:unload_cache_false(assetbundle_name)
-	CacheManager.UnloadCacheFalse(assetbundle_name)
+	return CacheManager.UnloadCacheFalse(assetbundle_name)
 end
 
 function Loader:unload_dependencies_cache_false(assetbundle_name)
@@ -208,14 +208,16 @@ end
 
 local function on_shared_complete(req)
 	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
-	-- print("on_shared_complete "..req.assetBundleName.." "..req.assetName)
+	-- print("<color=red>on_shared_complete "..req.assetBundleName.." "..req.assetName.."</color>")
 	-- if deps.Length == 0 then
+	local ab = req.data
 	if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
 		
-	else
-		local ab = req.data
+	elseif ab then
 		-- LuaHelper.RefreshShader(ab)
-		ab:LoadAllAssets()
+		-- ab:LoadAllAssets()
+	else
+		print("on_shared_complete data is nil req(",req.assetBundleName,req.assetName)
 	end
 end
 

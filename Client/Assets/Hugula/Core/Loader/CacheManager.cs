@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016 hugula
+﻿// Copyright (c) 2017 hugula
 // direct https://github.com/tenvick/hugula
 
 using UnityEngine;
@@ -10,75 +10,9 @@ using System;
 using UnityEngine.SceneManagement;
 #endif
 using Hugula.Utils;
-
 namespace Hugula.Loader
 {
-
-    /// <summary>
-    /// 缓存资源
-    /// </summary>
-    public class CacheData : IDisposable
-    {
-
-        public CacheData(object data, AssetBundle assetBundle, string assetBundleName)
-        {
-            this.www = data;
-            this.assetBundle = assetBundle;
-            this.assetBundleKey = assetBundleName;
-            this.assetHashCode = LuaHelper.StringToHash(assetBundleName);
-        }
-
-        /// <summary>
-        /// assetBundle Name
-        /// </summary>
-        public string assetBundleKey { get; private set; }
-
-        /// <summary>
-        /// hashcode
-        /// </summary>
-        public int assetHashCode { get; private set; }
-
-        /// <summary>
-        /// assetbundle对象
-        /// </summary>
-        public AssetBundle assetBundle;
-
-        /// <summary>
-        /// www data
-        /// </summary>
-        public object www;
-
-        /// <summary>
-        /// 当前引用数量
-        /// </summary>
-        public int count;
-
-        /// <summary>
-        /// 所有依赖项目
-        /// </summary>
-        public int[] allDependencies { get; internal set; }
-
-        /// <summary>
-        /// is asset loaded
-        /// </summary>
-        /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
-        public bool isAssetLoaded { get; internal set; }
-
-        public void Dispose()
-        {
-            if (assetBundle) assetBundle.Unload(true);
-            www = null;
-            assetBundle = null;
-            allDependencies = null;
-        }
-
-        public void Unload()
-        {
-            if (assetBundle) assetBundle.Unload(false);
-        }
-    }
-
-    /// <summary>
+ 	/// <summary>
     /// 缓存管理
     /// </summary>
     [SLua.CustomLuaClass]
@@ -106,7 +40,7 @@ namespace Hugula.Loader
             CacheData cacheout = null;
             if (caches.TryGetValue(assetHashCode, out cacheout))
             {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
                 Debug.LogWarning(string.Format("AddCache  {0} assetBundleName = {1} has exist", assetHashCode, cacheout.assetBundleKey));
 #endif
                 caches.Remove(assetHashCode);
@@ -145,6 +79,15 @@ namespace Hugula.Loader
             lockedCaches.Remove(hashkey);
         }
 
+         /// <summary>
+        /// 是否被锁定
+        /// </summary>
+        /// <param name="hashkey"></param>
+        internal static bool IsLock(int hashkey)
+        {
+            return lockedCaches.Contains(hashkey);
+        }
+
         /// <summary>
         /// 清理缓存释放资源
         /// </summary>
@@ -159,27 +102,34 @@ namespace Hugula.Loader
         /// unload assetbundle false
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void UnloadCacheFalse(string assetBundleName)
+        public static bool UnloadCacheFalse(string assetBundleName)
         {
             int hash = LuaHelper.StringToHash(assetBundleName);
-            UnloadCacheFalse(hash);
+            if(!UnloadCacheFalse(hash))
+            {
+                #if UNITY_EDITOR  || HUGULA_CACHE_DEBUG
+                    Debug.LogWarningFormat("Unload Cache False {0} fail is null or locked ", assetBundleName);
+                #endif
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
         /// unload assetbundle false
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void UnloadCacheFalse(int assethashcode)
+        public static bool UnloadCacheFalse(int assethashcode)
         {
-            CacheData cache = null;
-            caches.TryGetValue(assethashcode, out cache);
-            if (cache != null)
+            CacheData cache = TryGetCache(assethashcode);
+            if (cache != null && !IsLock(assethashcode))
             {
                cache.Unload();
+               return true;
             }
             else
             {
-                Debug.LogWarningFormat("UnloadCacheFalse {0} fail ", assethashcode);
+                return false;
             }
         }
 
@@ -187,21 +137,28 @@ namespace Hugula.Loader
         /// unload assetbundle and Dependencies false
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void UnloadDependenciesCacheFalse(string assetBundleName)
+        public static bool UnloadDependenciesCacheFalse(string assetBundleName)
         {
             int hash = LuaHelper.StringToHash(assetBundleName);
-            UnloadDependenciesCacheFalse(hash);
+            if(!UnloadDependenciesCacheFalse(hash))
+            {
+                 #if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+                    Debug.LogWarningFormat("Unload Dependencies Cache False {0} fail is null or locked ", assetBundleName);
+                #endif
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
         /// unload assetbundle and Dependencies false
         /// </summary>
         /// <param name="assethashcode"></param>
-        public static void UnloadDependenciesCacheFalse(int assethashcode)
+        public static bool UnloadDependenciesCacheFalse(int assethashcode)
         {
-            CacheData cache = null;
-            caches.TryGetValue(assethashcode, out cache);
-            if (cache != null)
+            CacheData cache = TryGetCache(assethashcode);
+
+            if (cache != null && !IsLock(assethashcode))
             {
                 int[] alldep = cache.allDependencies;
                 CacheData cachetmp = null;
@@ -210,17 +167,21 @@ namespace Hugula.Loader
                     {
                         for (int i = 0; i < alldep.Length; i++)
                         {
-                            cachetmp = GetCache(alldep[i]);
-                            if (cachetmp != null)
+                            cachetmp = TryGetCache(alldep[i]);
+                            if (cachetmp != null && !IsLock(cachetmp.assetHashCode))
                             {
                                 cachetmp.Unload();
                             }
                         }
                     }
+                return true;
             }
             else
             {
-                Debug.LogWarningFormat("UnloadDependenciesCacheFalse {0} fail ", assethashcode);
+                #if HUGULA_CACHE_DEBUG
+                    Debug.LogWarningFormat("Unload Dependencies Cache False {0} fail is null or locked ", assethashcode);
+                #endif
+                return false;
             }
         }
 
@@ -230,31 +191,31 @@ namespace Hugula.Loader
         /// <param name="assetBundleName"></param>
         public static void ClearCache(int assethashcode)
         {
-            CacheData cache = null;
-            caches.TryGetValue(assethashcode, out cache);
+            CacheData cache = TryGetCache(assethashcode);
+
             if (cache != null)
             {
-                if (lockedCaches.Contains(assethashcode)) //被锁定了不能删除
+                if (IsLock(assethashcode)) //被锁定了不能删除
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR ||  HUGULA_CACHE_DEBUG
                     Debug.LogWarningFormat(" the cache ab({0},{1}) are locked,cant delete. frameCount{2} ", cache.assetBundleKey, cache.assetBundle,Time.frameCount);
 #endif
                 }
                 else
                 {
-#if HUGULA_LOADER_DEBUG
+#if HUGULA_CACHE_DEBUG
 					Debug.LogFormat (" <color=#8cacbc>ClearCache (assetBundle={0}) frameCount{1}</color>", cache.assetBundleKey, Time.frameCount);
 #endif
                     caches.Remove(assethashcode);//删除
                     int[] alldep = cache.allDependencies;
                     CacheData cachetmp = null;
-                    cache.Dispose();
+                    CacheDataPool.Release(cache);
 
                     if (alldep != null)
                     {
                         for (int i = 0; i < alldep.Length; i++)
                         {
-                            cachetmp = GetCache(alldep[i]);
+                            cachetmp = TryGetCache(alldep[i]);
                             if (cachetmp != null)
                             {
                                 cachetmp.count--;// = cachetmp.count - 1; //因为被销毁了。
@@ -267,7 +228,9 @@ namespace Hugula.Loader
             }
             else
             {
+            #if UNITY_EDITOR ||  HUGULA_CACHE_DEBUG
                 Debug.LogWarningFormat("ClearCache {0} fail ", assethashcode);
+            #endif
             }
         }
 
@@ -284,11 +247,26 @@ namespace Hugula.Loader
         }
 
         /// <summary>
-        /// 获取缓存
+        /// 获取缓存 对外使用
         /// </summary>
         /// <param name="assethashcode"></param>
         /// <returns></returns>
         internal static CacheData GetCache(int assethashcode)
+        {
+            CacheData cache = null;
+            caches.TryGetValue(assethashcode, out cache);
+            if(cache!=null && !cache.isUnloaded)
+                return cache;
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// 获取缓存
+        /// </summary>
+        /// <param name="assethashcode"></param>
+        /// <returns></returns>
+        internal static CacheData TryGetCache(int assethashcode)
         {
             CacheData cache = null;
             caches.TryGetValue(assethashcode, out cache);
@@ -335,7 +313,8 @@ namespace Hugula.Loader
             if (ab)
             {
                 req.isAssetBundle = true;
-                CacheData cacheData = new CacheData (ab, null, req.key);//缓存
+                CacheData cacheData = CacheDataPool.Get();
+                cacheData.SetCacheData(ab, null, req.key);//缓存
                 CacheManager.AddCache (cacheData);
                 cacheData.allDependencies = req.allDependencies;
                 cacheData.assetBundle = ab;
@@ -357,7 +336,6 @@ namespace Hugula.Loader
             bool re = false;
             int keyhash = req.keyHashCode;
             CacheData cachedata = GetCache(keyhash);
-
             if (cachedata != null)
             {
                 AssetBundle abundle = cachedata.assetBundle;
@@ -427,7 +405,7 @@ namespace Hugula.Loader
                 }
                 else if (caches.TryGetValue(hash, out cache))
                 {
-                    if (!cache.isAssetLoaded)
+                    if (!cache.isAssetLoaded || cache.isUnloaded)
                         return false;
                 }
                 else
@@ -443,7 +421,12 @@ namespace Hugula.Loader
         /// <returns></returns>
         public static bool Contains(int keyhash)
         {
-            return caches.ContainsKey(keyhash);
+            CacheData cdata = null;
+            caches.TryGetValue(keyhash, out cdata);
+            if(cdata!=null && !cdata.isUnloaded)
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -492,101 +475,4 @@ namespace Hugula.Loader
 
         #endregion
     }
-
-    /// <summary>
-    /// 计数器管理
-    /// </summary>
-    [SLua.CustomLuaClass]
-    public static class CountMananger
-    {
-        /// <summary>
-        /// 目标引用减一
-        /// </summary>
-        /// <param name="hashcode"></param>
-        /// <returns></returns>
-        public static bool Subtract(int hashcode)
-        {
-            CacheData cached = CacheManager.GetCache(hashcode);
-            if (cached != null)
-            {
-                cached.count--;// = cached.count - 1;
-                if (cached.count <= 0) //所有引用被清理。
-                {
-                    CacheManager.ClearCache(hashcode);
-                }
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 目标引用减一
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool Subtract(string key)
-        {
-            int hashcode =  LuaHelper.StringToHash(key);
-            return Subtract(hashcode);
-        }
-
-        /// <summary>
-        /// 目标引用加一
-        /// </summary>
-        /// <param name="hashcode"></param>
-        /// <returns></returns>
-        public static bool Add(int hashcode)
-        {
-            CacheData cached = CacheManager.GetCache(hashcode);
-            if (cached != null)
-            {
-                cached.count++;//= cached.count + 1;
-                return true;
-            }
-            return false;
-        }
-
-         /// <summary>
-        /// 目标引用加一
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool Add(string key)
-        {
-            int hashcode =  LuaHelper.StringToHash(key);
-            return Add(hashcode);
-        }
-
-        /// <summary>
-        /// 目标引用加n
-        /// </summary>
-        /// <param name="hashcode"></param>
-        /// <returns></returns>
-        internal static bool Add(int hashcode, int add)
-        {
-            CacheData cached = CacheManager.GetCache(hashcode);
-            if (cached != null)
-            {
-                cached.count += add;//= cached.count + 1;
-                return true;
-            }
-            return false;
-        }
-
-		/// <summary>
-		/// Adds the dependencies.
-		/// </summary>
-		/// <param name="hashcode">Hashcode.</param>
-		internal static void AddDependencies(int hashcode)
-		{
-			CacheData cached = CacheManager.GetCache(hashcode);
-			if (cached != null && cached.allDependencies!=null)
-			{
-				foreach (int hash in cached.allDependencies)
-					Add (hash);
-			}
-		}
-    }
-
 }

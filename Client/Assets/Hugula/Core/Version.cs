@@ -22,7 +22,7 @@ namespace Hugula
  * 
  * HUGULA_LOADER_DEBUG 加载模块打印调试
  * HUGULA_PROFILE_DEBUG profile debug 信息
- * 
+ * HUGULA_CACHE_DEBUG 引用计数与销毁debug信息
  * 
  * 
  * 

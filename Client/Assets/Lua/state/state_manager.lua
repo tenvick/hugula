@@ -91,9 +91,10 @@ end
 function StateManager:get_input_enable()
     return self._input_enable
 end
+
 --得到当前状态
 function StateManager:get_current_state()
-    return self._current_game_state
+    return self._new_state or self._current_game_state
 end
 
 --设置统一场景切换效果
@@ -160,6 +161,7 @@ function StateManager:call_all_item_method( )
     self:check_hide_transform(curr_state)
 end
 
+--注册状态改变事件
 function StateManager:register_state_change(on_state_change,flag)
     if self._on_state_change == nil then self._on_state_change = {} end
     self._on_state_change[on_state_change] = flag
@@ -173,11 +175,13 @@ function StateManager:call_on_state_change(new_state) --call when sate chage
     end
 end
 
+--标记回收
 function StateManager:mark_dispose_flag(item_obj)
     if self.mark_dispose_items == nil then self.mark_dispose_items = {} end
     self.mark_dispose_items[item_obj] = true
 end
 
+--回收标记的item_object
 function StateManager:auto_dispose_items() -- dispose marked item_object 
     if self.mark_dispose_items ~= nil then 
         for k,v in pairs(self.mark_dispose_items) do
@@ -187,6 +191,7 @@ function StateManager:auto_dispose_items() -- dispose marked item_object
     end
 end
 
+--真正开始改变
 function StateManager:real_change_to_state(is_back) --real change state
      local new_state = self._new_state
 
@@ -206,19 +211,26 @@ function StateManager:real_change_to_state(is_back) --real change state
     self:call_on_state_change(new_state) --state change event
 
     self._new_state = nil
-   
+    -- print("self._new_state = nil")
 end
 
---改变状态
+--设置新的状态
 function StateManager:set_current_state(new_state,method,...)
     assert(new_state ~= nil)
     if new_state == self._current_game_state or self._new_state  then
-        print("setCurrent State: "..tostring(new_state).." is same as currentState"..tostring(self._current_game_state))
+        print("setCurrent State: "..tostring(new_state).." is fail ")
         return
     end
+
+    local go_transform = nil
     new_state:check_initialize()
-    new_state.method=method
-    new_state.args={...}
+
+    if method == true then
+        go_transform = true
+    else
+        new_state.method = method
+        new_state.args={...}
+    end
 
     local previous_state = self._current_game_state
     if previous_state then previous_state:on_bluring(new_state) end
@@ -228,16 +240,19 @@ function StateManager:set_current_state(new_state,method,...)
     self._new_state = new_state
 
     local function do_change() StateManager:real_change_to_state()  end
-    self:check_show_transform(new_state,do_change)
+    
+    self:check_show_transform(new_state,do_change,go_transform)
 end
 
-function StateManager:record_pop(i) --删除日志记录 --从顶部删除    到第 i 个
+--删除日志记录
+function StateManager:record_pop(i)  --从顶部删除    到第 i 个
     if type(i) == "number" then
         self._log_state:pop(i)
     end
 end
 
-function StateManager:record_state() --记录状态用于返回
+--记录状态用于返回
+function StateManager:record_state() 
     local curr_state = self._current_game_state --当前状态
     if curr_state.log_enable == false then 
         local top = self._log_state:get(-1) --顶部

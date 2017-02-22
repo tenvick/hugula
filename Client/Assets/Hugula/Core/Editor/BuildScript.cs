@@ -196,18 +196,14 @@ namespace Hugula.Editor
             {
                 import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
                 import.assetBundleName = null;
-                Debug.Log(s.name + " clear");
                 if (s is GameObject)
                 {
                     GameObject tar = s as GameObject;
-                    ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                    if (refe != null)
-                    {
-                        // refe.assetHashCode = 0;//LuaHelper.StringToHash(assetBundleName);
-                        refe.assetbundle = string.Empty;
-                        EditorUtility.SetDirty(s);
-                    }
+                    ReferenceCount refe = tar.GetComponent<ReferenceCount>(); //LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
+                    Object.DestroyImmediate(refe,true);
+                    EditorUtility.SetDirty(s);
                 }
+                Debug.Log(s.name + " clear");
             }
         }
 

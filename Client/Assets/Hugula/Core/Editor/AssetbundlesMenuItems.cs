@@ -128,6 +128,31 @@ public class AssetbundlesMenuItems
     #region lua language config export
     // [MenuItem("Hugula/-------- ", false, 11)]
     // static void Breaker() { }
+    [MenuItem("Assets/Export Selected Lua ", false, 12)]
+    public static void exportSelectedLua()
+    {
+        Object[] selection = Selection.objects;
+        List<string> allAssetPaths = new List<string>();
+        foreach (Object s in selection)
+        {
+			string filepath = AssetDatabase.GetAssetPath (s);
+			if (!File.Exists (filepath)) {
+				string dirpath = filepath.Replace (Application.dataPath, "");
+				Debug.Log (dirpath);
+				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
+					&& (path.EndsWith(".lua"))
+				).ToArray();
+				allAssetPaths.AddRange (allAssets);
+			}else
+				allAssetPaths.Add(filepath);
+        }
+
+        foreach(var p in allAssetPaths){ Debug.Log(p);}  
+
+        ExportResources.doExportLua(allAssetPaths.ToArray(),true);
+    }
+    
 
     [MenuItem("Hugula/Export Lua [Assets\\Lua] %l", false, 12)]
     public static void exportLua()

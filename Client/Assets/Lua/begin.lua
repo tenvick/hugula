@@ -94,7 +94,7 @@ StateManager:set_current_state(StateManager.welcome)
 StateManager:register_state_change(on_state_change,true)
 
 --load config
-require("common.load_csv")
+-- require("common.load_csv")
 
 delay(function( ... )
 	-- print(get_value("level_name_001")) --language key

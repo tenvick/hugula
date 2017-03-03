@@ -42,7 +42,7 @@ public class LoadFirstHelper
 	}
 	public static void BeginLoadScene()
 	{
-
+		CUtils.DebugCastTime("LoadingFirst");
 		var req = LRequestPool.Get();
 		req.relativeUrl = CUtils.GetRightFileName(sceneAssetBundleName);
 		req.assetName = sceneName;

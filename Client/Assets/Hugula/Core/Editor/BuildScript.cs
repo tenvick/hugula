@@ -338,6 +338,18 @@ namespace Hugula.Editor
 
         }
 
+        public static void ChangeAssetsToBytesAsset(string[] allAssets)
+        {
+            foreach(var p in allAssets)
+            {
+                byte[] luabytes = File.ReadAllBytes(p);
+                var bytesAsset = ScriptableObject.CreateInstance<BytesAsset>();
+                bytesAsset.bytes = luabytes;
+                string assetPath = p.Replace(".bytes" , ".asset").Replace(".txt" , ".asset");
+                AssetDatabase.CreateAsset(bytesAsset, assetPath);
+            }
+        }
+
         /// <summary>
         /// Updates the name of the asset bundles.
         /// </summary>

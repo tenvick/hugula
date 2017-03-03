@@ -215,7 +215,7 @@ local function on_shared_complete(req)
 		
 	elseif ab then
 		-- LuaHelper.RefreshShader(ab)
-		-- ab:LoadAllAssets()
+		ab:LoadAllAssets()
 	else
 		print("on_shared_complete data is nil req(",req.assetBundleName,req.assetName)
 	end

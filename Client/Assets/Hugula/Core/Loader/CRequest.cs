@@ -210,7 +210,7 @@ namespace Hugula.Loader
                     _url = null;
                 else
 				{
-					if(_uris == null)
+					if(uris == null)
 					{
 						_url = relativeUrl;
 					}else
@@ -336,9 +336,11 @@ namespace Hugula.Loader
         {
             get
             {
-                // if (_uris == null)
-                //     _uris = LResLoader.uriList;
-
+                if (_uris == null && CheckNeedUriGroup(relativeUrl))
+                {
+                     _uris = LResLoader.uriList;
+                }
+                    
                 return _uris;
             }
 
@@ -432,6 +434,20 @@ namespace Hugula.Loader
             }
 			return url;
         }
+
+        /// <summary>
+        /// check need set uri group
+        /// </summary>
+        public static bool CheckNeedUriGroup(string url)
+        {
+            if(url.StartsWith("http") ||  url.IndexOf("://") != -1 ||
+                url.StartsWith(Application.persistentDataPath) || 
+                url.StartsWith(Application.streamingAssetsPath))
+                return false;
+            else
+                return true;
+        }
+
     }
 
 }

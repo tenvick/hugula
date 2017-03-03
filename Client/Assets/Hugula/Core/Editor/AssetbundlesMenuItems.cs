@@ -152,6 +152,31 @@ public class AssetbundlesMenuItems
 
         ExportResources.doExportLua(allAssetPaths.ToArray(),true);
     }
+
+    [MenuItem("Assets/Change To BytesAsset ", false, 13)]
+    public static void changeSelectedToBytesAsset()
+    {
+        Object[] selection = Selection.objects;
+        List<string> allAssetPaths = new List<string>();
+        foreach (Object s in selection)
+        {
+			string filepath = AssetDatabase.GetAssetPath (s);
+			if (!File.Exists (filepath)) {
+				string dirpath = filepath.Replace (Application.dataPath, "");
+				Debug.Log (dirpath);
+				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
+					&& (path.EndsWith(".bytes") || path.EndsWith(".txt"))
+				).ToArray();
+				allAssetPaths.AddRange (allAssets);
+			}else
+				allAssetPaths.Add(filepath);
+        }
+
+        foreach(var p in allAssetPaths){ Debug.Log(p);}  
+
+        BuildScript.ChangeAssetsToBytesAsset(allAssetPaths.ToArray());
+    }
     
 
     [MenuItem("Hugula/Export Lua [Assets\\Lua] %l", false, 12)]

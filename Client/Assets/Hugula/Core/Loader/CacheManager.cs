@@ -255,7 +255,7 @@ namespace Hugula.Loader
         {
             CacheData cache = null;
             caches.TryGetValue(assethashcode, out cache);
-            if(cache!=null && !cache.isUnloaded)
+            if(cache!=null && !cache.isError && !cache.isUnloaded)
                 return cache;
             else
                 return null;
@@ -266,7 +266,7 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="assethashcode"></param>
         /// <returns></returns>
-        internal static CacheData TryGetCache(int assethashcode)
+        private static CacheData TryGetCache(int assethashcode)
         {
             CacheData cache = null;
             caches.TryGetValue(assethashcode, out cache);
@@ -325,6 +325,17 @@ namespace Hugula.Loader
                 req.isAssetBundle = false;
                 return false;
             }
+        }
+
+        internal static bool AddErrorSourceCacheDataFromReq(CRequest req)
+        {
+            CacheData cacheData = CacheDataPool.Get();
+            cacheData.SetCacheData(null, null, req.key);//缓存
+            CacheManager.AddCache (cacheData);
+            cacheData.allDependencies = req.allDependencies;
+            cacheData.isAssetLoaded = true;
+            cacheData.isError = true;
+            return req.isAssetBundle;
         }
 
         /// <summary>

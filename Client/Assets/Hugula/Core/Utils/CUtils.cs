@@ -354,7 +354,8 @@ namespace Hugula.Utils
             var all_ds = System.DateTime.Now - _begin_time;
             double cast = ds.TotalSeconds;
              _last_time = System.DateTime.Now;
-             Debug.LogFormat(tips+" Cast({0})s runtime({1})s  ",cast,all_ds.TotalSeconds);
+             if(!string.IsNullOrEmpty(tips))
+                Debug.LogFormat(tips+" Cast({0})s runtime({1})s  ",cast,all_ds.TotalSeconds);
             return cast;
         }
     }

@@ -90,7 +90,9 @@ namespace Hugula.Loader
             if (req.isAssetBundle) url = req.uris.OnOverrideUrl(req);
 #endif
             url = CUtils.CheckWWWUrl(url);
-
+#if HUGULA_LOADER_DEBUG
+			Debug.LogFormat(" 1.0 <color=#15C1B2> begin load : url({0}),key:({1}) assetName({2}) abName({3}) isNativeFile({4}) isAssetBundle({5}) frame{6} )</color>", url, req.key, req.assetName,req.assetBundleName,req.isNativeFile,req.isAssetBundle,Time.frameCount);
+#endif
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
             if (req.isAssetBundle && req.isLoadFromCacheOrDownload)
 #else
@@ -146,9 +148,7 @@ namespace Hugula.Loader
             {
                 abRequest.priority = req.priority;
             }
-#if HUGULA_LOADER_DEBUG
-			Debug.LogFormat(" 1.0 <color=#15C1B2> begin load : url({0}),key:({1}) assetName({2}) abName({3}) isNativeFile({4}) isAssetBundle({5}) frame{6} )</color>", url, req.key, req.assetName,req.assetBundleName,req.isNativeFile,req.isAssetBundle,Time.frameCount);
-#endif
+
         }
 
         public void StopLoad()
@@ -192,6 +192,10 @@ namespace Hugula.Loader
             if (www.error != null)
             {
                 Debug.LogWarningFormat(" ({0})url({1}) isNormal({2}) \n error:{3}", req.assetName, req.url, req.isNormal, www.error);
+                if(req.isShared)
+                {
+                    CacheManager.AddErrorSourceCacheDataFromReq(this._req);
+                }
                 DispatchErrorEvent(req);
                 www = null;
             }
@@ -231,6 +235,10 @@ namespace Hugula.Loader
             if (ab == null)
             {
                 Debug.LogWarningFormat(" ({0}) isNormal({2}) \n error:Unable to open archive file:{1}", req.assetName, req.url, req.isNormal);
+                if(req.isShared)
+                {
+                    CacheManager.AddErrorSourceCacheDataFromReq(this._req);
+                }
                 DispatchErrorEvent(req);
                 abRequest = null;
             }

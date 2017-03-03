@@ -12,6 +12,7 @@ namespace Hugula.Update
     [SLua.CustomLuaClass]
     public static class CrcCheck
     {
+        public static bool beginCheck = false;
         /// <summary>
         /// crc校验对比值
         /// </summary>
@@ -138,6 +139,13 @@ namespace Hugula.Update
                     ck = sourceCrc == fileCrc;//校验
                 }
                 //Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
+            }
+            else if(!beginCheck)
+            {
+                if (path.StartsWith(Application.persistentDataPath) && !File.Exists(path))
+                        ck = false;
+                    else
+                        ck = true;
             }
             else
             {

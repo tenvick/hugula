@@ -70,6 +70,12 @@ namespace Hugula.Loader
         /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
         public bool isAssetLoaded { get; internal set; }
 
+         /// <summary>
+        /// is loaded Error 
+        /// </summary>
+        /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
+         public bool isError { get; internal set; }
+
         /// <summary>
         /// is assetbundle unload(false)
         /// </summary>
@@ -87,10 +93,11 @@ namespace Hugula.Loader
             allDependencies = null;
             isUnloaded = false;
             isAssetLoaded =false;
+            isError = false;
+
             assetBundleKey = string.Empty;
             assetHashCode = 0;
             count = 0;
-           
         }
         public void Unload()
         {

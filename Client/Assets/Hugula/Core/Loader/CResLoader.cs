@@ -675,8 +675,10 @@ namespace Hugula.Loader
 				if (_instance.OnSharedErr != null)
 					_instance.OnSharedErr (creq);
 
-				if (creq.pool) LRequestPool.Release (creq);
-			} else if (requestCallBackList.TryGetValue (udkey, out callbacklist)) {
+				// if (creq.pool) LRequestPool.Release (creq);
+			} 
+            
+            if (requestCallBackList.TryGetValue (udkey, out callbacklist)) {
 				requestCallBackList.Remove (udkey);
 				int count = callbacklist.Count;
 				CRequest reqitem;
@@ -894,7 +896,7 @@ namespace Hugula.Loader
         {
             // if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX)) req.isAssetBundle = true;
 
-            if (assetBundleManifest != null )
+            if (assetBundleManifest != null && req.isAssetBundle)
 				req.allDependencies = LoadDependencies(req); //加载依赖
 
 			QueueOrLoad (req);//realyLoadingQueue.Enqueue(req);//加载自己
@@ -970,12 +972,12 @@ namespace Hugula.Loader
                         }
                         item.allDependencies = hash1s;
                     }
-					#if HUGULA_LOADER_DEBUG
-					Debug.LogFormat("<color=#153AC1>0.5  Request(assetname={0}) Begin Load Dependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetName,item.assetName,item.url,Time.frameCount);
-					#endif
 					item.isNormal = false;
                     item.priority = req.priority;
 					item.uris = req.uris;
+                    #if HUGULA_LOADER_DEBUG
+					Debug.LogFormat("<color=#153AC1>0.5  Request(assetname={0}) Begin Load Dependencies Req(assetname={1},url={2}) frameCount{3}</color>",req.assetName,item.assetName,item.url,Time.frameCount);
+					#endif
 					AddReqToQueue (item);									
 				}
             }

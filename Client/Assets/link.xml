@@ -1,0 +1,13 @@
+﻿<linker>
+       <assembly fullname="mscorlib">
+         	<type fullname="System.Security.Cryptography.SHA1CryptoServiceProvider" preserve="all"/>
+          <type fullname ="System.Net.HttpWebRequest" preserve ="all"/>
+          <type fullname ="System.Net.WebRequest" preserve ="all"/>
+       </assembly>
+       <assembly fullname="UnityEngine">
+         	<namespace fullname="UnityEngine" preserve="all"/>
+       </assembly>
+       <assembly fullname="UnityEngine.UI">
+         	<namespace fullname="UnityEngine.UI" preserve="all"/>
+       </assembly>
+</linker>

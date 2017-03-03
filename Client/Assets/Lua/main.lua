@@ -6,7 +6,7 @@
 -- 	1热更新流程
 --	.1 对比本地版本号 streaming 和 persistent 的版本文件。
 --	.2 加载文件列表 分别加载streaming 和 persistent的文件列表
---	.3 加载 ver_host 版本文件 对比最新的本地版本号
+--	.3 加载版本文件 对比最新的本地版本号
 --	.4 如果不一致下载更新列表。
 --	.5 对比 本地文件列表 查找变化的文件。
 --	.6 下载变化文件列表。
@@ -48,17 +48,14 @@ local stop_delay = PLua.StopDelay
 ResVersion = {code=1,crc32=0,time=1}
 
 local _progressbar_txt,_progressbar_slider
-local FRIST_VIEW = "Logo"
+local FRIST_VIEW = "/Logo"
 local VERSION_FILE_NAME = Common.CRC32_VER_FILENAME 
 local VERSION_TEMP_FILE_NAME = CUtils.GetAssetName(VERSION_FILE_NAME)..".tmp"
 local UPDATED_LIST_NAME = Common.CRC32_FILELIST_NAME 
 local UPDATED_TEMP_LIST_NAME =  CUtils.GetAssetName(UPDATED_LIST_NAME)..".tmp"
 local DOWANLOAD_TEMP_FILE = "downloaded.tmp"
--- local folder = CUtils.GetAssetPath("")
 local update_list_crc_key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
-local http_url = ""
-http_url = "http://192.168.103.200:8055/"
-local ver_host = {http_url..CUtils.platform.."/v"..CODE_VERSION.."/"}--,"http://192.168.100.114/"..CUtils.GetAssetPath("").."/"} --更新列表
+local http_ver_hosts = {"http://192.168.103.200:8055/"} --版本文件加载URL
 
 --local fristView
 local local_file,server_file = {},{}
@@ -98,6 +95,15 @@ local function set_resversion(ver)
 			ResVersion[k] = v
 		end
 	end
+end
+
+local function get_ver_uri_group() --ver 列表
+	local group = UriGroup()
+	local ver_str = CUtils.platform.."/v"..CODE_VERSION.."/"
+	for k,v in ipairs(http_ver_hosts) do
+		group:Add(v..ver_str)
+	end
+	return group
 end
 
 local function get_update_uri_group(hosts, on_www_comp,on_crc_check)
@@ -156,6 +162,10 @@ local function enterGame(manifest)
 
 	local function to_begin( ... )
 		run_times("enterGame begin.lua ")
+		if manifest then
+			Loader:unload_dependencies_cache_false(CUtils.GetRightFileName("scene_begin.u3d"))
+		end
+		CrcCheck.beginCheck = true
 		require("begin")
 	end
 
@@ -404,7 +414,7 @@ main_update.load_server_verion = function () --加载服务器版本号
 	 end
 
 	set_progress_txt("加载服务器信息。",3,0.5)
-    Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_update_uri_group(ver_host))
+    Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_ver_uri_group())--get_update_uri_group(ver_host))
 end
 
 

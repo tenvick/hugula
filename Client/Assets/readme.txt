@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.3.3
+1 依赖项目加载失败也可完成资源complete。
+2 热更新后依赖项目资源路径读取问题。
+3 bytes转BytesAsset对象功能。
+
 2017.2.22
 1 slua IOS原版libslua.a编译报错问题解决。
 2 Cache类分离。

@@ -70,11 +70,12 @@ namespace Hugula.Editor
 
             #region 生成校验列表
             SplitPackage.UpdateOutPath = null;
+            AssetDatabase.Refresh();
             StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, whiteFileList, blackFileList);
             uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
-            System.Threading.Thread.Sleep(1000);
+            // System.Threading.Thread.Sleep(1000);
             uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, SplitPackage.UpdateOutPath);//增量列表
-            System.Threading.Thread.Sleep(1000);
+            // System.Threading.Thread.Sleep(1000);
             #endregion
 
             #region 生成版本号

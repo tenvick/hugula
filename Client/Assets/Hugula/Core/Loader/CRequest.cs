@@ -85,7 +85,7 @@ namespace Hugula.Loader
 
         private string _relativeUrl;
 
-        private string _key, _udKey,_udAssetKey;
+        private string _key, _udKey, _udAssetKey;
 
         private int _keyHashCode = 0;
 
@@ -209,16 +209,17 @@ namespace Hugula.Loader
                 if (value == null)
                     _url = null;
                 else
-				{
-					if(uris == null)
-					{
-						_url = relativeUrl;
-					}else
-					{
-						_url = GetURL(this);//CUtils.PathCombine (uri, this.relativeUrl);
-					}
-					CheckNavtiveFile(_url);
-				}
+                {
+                    if (uris == null)
+                    {
+                        _url = relativeUrl;
+                    }
+                    else
+                    {
+                        _url = GetURL(this);//CUtils.PathCombine (uri, this.relativeUrl);
+                    }
+                    CheckNavtiveFile(_url);
+                }
             }
         }
 
@@ -288,7 +289,7 @@ namespace Hugula.Loader
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// Sets the url and asse unique key
         /// </summary>
         /// <value>
@@ -307,7 +308,7 @@ namespace Hugula.Loader
                 if (value == null)
                     _udAssetKey = null;
                 else
-                    _udAssetKey = string.Format("{0}+{1}",udKey,assetName);
+                    _udAssetKey = string.Format("{0}+{1}", udKey, assetName);
             }
         }
 
@@ -338,9 +339,8 @@ namespace Hugula.Loader
             {
                 if (_uris == null && CheckNeedUriGroup(relativeUrl))
                 {
-                     _uris = LResLoader.uriList;
+                    _uris = LResLoader.uriList;
                 }
-                    
                 return _uris;
             }
 
@@ -368,7 +368,7 @@ namespace Hugula.Loader
         /// <summary>
         /// 是否加载本地文件
         /// </summary>
-        internal bool isNativeFile{private set;get;}
+        internal bool isNativeFile { private set; get; }
 
         /// <summary>
         /// dependencies count;
@@ -394,27 +394,27 @@ namespace Hugula.Loader
             if (!string.IsNullOrEmpty(uri_str))
             {
                 uri_str = uri_str.ToLower();
-                if(uri_str.StartsWith(Common.HTTP_STRING) || uri_str.StartsWith(Common.HTTP_STRING))
+                if (uri_str.StartsWith(Common.HTTP_STRING) || uri_str.StartsWith(Common.HTTP_STRING))
                     isNativeFile = false;
                 else
                     isNativeFile = true;
             }
         }
 
-		/// <summary>
-		/// 获取当前 URL
-		/// </summary>
-		private static string GetURL(CRequest req)
-		{
-			string url = string.Empty;
+        /// <summary>
+        /// 获取当前 URL
+        /// </summary>
+        private static string GetURL(CRequest req)
+        {
+            string url = string.Empty;
             var uris = req.uris;
             int index = req.index;
-            if(uris!=null && uris.count > index && index >= 0)
+            if (uris != null && uris.count > index && index >= 0)
             {
-                url = CUtils.PathCombine(uris[index],req.relativeUrl);
+                url = CUtils.PathCombine(uris[index], req.relativeUrl);
             }
-			return url;
-		}
+            return url;
+        }
 
         /// <summary>
         /// 获取key URL
@@ -424,15 +424,15 @@ namespace Hugula.Loader
             string url = string.Empty;
             var uris = req.uris;
             int index = 0;
-            if(uris!=null && uris.count > index && index >= 0)
+            if (uris != null && uris.count > index && index >= 0)
             {
-                url = CUtils.PathCombine(uris[index],req.relativeUrl);
+                url = CUtils.PathCombine(uris[index], req.relativeUrl);
             }
             else
             {
                 url = req.relativeUrl;
             }
-			return url;
+            return url;
         }
 
         /// <summary>
@@ -440,14 +440,19 @@ namespace Hugula.Loader
         /// </summary>
         public static bool CheckNeedUriGroup(string url)
         {
-            if(url.StartsWith("http") ||  url.IndexOf("://") != -1 ||
-                url.StartsWith(Application.persistentDataPath) || 
+            if (url.StartsWith("http") || url.IndexOf("://") != -1 ||
+                url.StartsWith(Application.persistentDataPath) ||
                 url.StartsWith(Application.streamingAssetsPath))
+            {
                 return false;
+            }
             else
+            {
                 return true;
+            }
         }
 
     }
+
 
 }

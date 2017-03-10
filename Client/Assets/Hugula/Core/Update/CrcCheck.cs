@@ -25,7 +25,7 @@ namespace Hugula.Update
         /// <summary>
         /// crc key与文件校验值的映射。
         /// </summary>
-        private static Dictionary<string, HashSet<string>> crcKeyCheckedFileMap = new Dictionary<string, HashSet<string>>();
+        // private static Dictionary<string, HashSet<string>> crcKeyCheckedFileMap = new Dictionary<string, HashSet<string>>();
 
         public static bool ContainsKey(string key)
         {
@@ -72,11 +72,11 @@ namespace Hugula.Update
         {
             uint crc = 0;
             bool check = CheckLocalFileCrc(req.url, out crc);
-			if (!check)
+            if (!check)
             {
                 var re = UriGroup.CheckAndSetNextUriGroup(req); //CUtils.SetRequestUri(req, 1);
 #if HUGULA_LOADER_DEBUG
-                Debug.LogFormat("<color=#2b2b2b>CrcCheck.CheckUriCrc Req(assetname={0},url={1}) crc={2},CheckFileCrc=false,SetNextUri={3}</color>", req.assetName, req.url, crc, re);
+                Debug.LogFormat("<color=#ff0000>CrcCheck.CheckUriCrc Req(assetname={0},url={1}) crc={2},CheckFileCrc=false,SetNextUri={3}</color>", req.assetName, req.url, crc, re);
 #endif
                 return re;
             }
@@ -101,7 +101,7 @@ namespace Hugula.Update
             string crcKey = CUtils.GetAssetBundleName(path);
             bool ck = false;
             uint sourceCrc = 0;
-
+            bool fromcache = false;
             if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
             {
                 if (sourceCrc == 0)//原始为0表示不校验
@@ -118,34 +118,29 @@ namespace Hugula.Update
                     if (crcFileChecked.TryGetValue(key, out checkedCrc) && checkedCrc != 0) //如果存在
                     {
                         fileCrc = checkedCrc;
+                        fromcache = true;
                     }
                     else
                     {
                         uint fileSize = 0;
-                        fileCrc = GetLocalFileCrc(path,out fileSize);//读取文件crc
+                        fileCrc = GetLocalFileCrc(path, out fileSize);//读取文件crc
                         crcFileChecked[key] = fileCrc;//保存文件crc
-                        HashSet<string> checkMap = null;
-                        if (crcKeyCheckedFileMap.TryGetValue(crcKey, out checkMap))
-                        {
-                            checkMap.Add(key);
-                        }
-                        else
-                        {
-                            checkMap = new HashSet<string>();
-                            checkMap.Add(key);
-                            crcKeyCheckedFileMap.Add(crcKey, checkMap);
-                        }
                     }
                     ck = sourceCrc == fileCrc;//校验
                 }
-                //Debug.LogWarning(string.Format("sourceCrc{0},filecrc{1},ck{2},path{3},crcKey{4}", sourceCrc, fileCrc, ck, path, crcKey));
+#if HUGULA_LOADER_DEBUG
+                if (ck)
+                    Debug.LogFormat(" 0.0. crc <color=#00ff00>sourceCrc({0}==filecrc{1}),return {2},path{3},crcKey{4},from cache={5}</color>", sourceCrc, fileCrc, ck, path, crcKey,fromcache);
+                else
+                    Debug.LogFormat(" 0.0. crc <color=#ffff00>sourceCrc({0}!=filecrc{1}),return {2},path{3},crcKey{4}from cache={5}</color>", sourceCrc, fileCrc, ck, path, crcKey,fromcache);
+#endif
             }
-            else if(!beginCheck)
+            else if (!beginCheck)
             {
                 if (path.StartsWith(Application.persistentDataPath) && !File.Exists(path))
-                        ck = false;
-                    else
-                        ck = true;
+                    ck = false;
+                else
+                    ck = true;
             }
             else
             {
@@ -169,7 +164,7 @@ namespace Hugula.Update
             bool ck = false;
             uint sourceCrc = 0;
             uint l = 0;
-            fileCrc = GetLocalFileCrc(path,out l);//读取文件crc
+            fileCrc = GetLocalFileCrc(path, out l);//读取文件crc
 
             if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
             {
@@ -187,7 +182,7 @@ namespace Hugula.Update
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static uint GetLocalFileCrc(string path,out uint l)
+        public static uint GetLocalFileCrc(string path, out uint l)
         {
             uint crc = 0;
             l = 0;
@@ -202,10 +197,10 @@ namespace Hugula.Update
                         int num = 0;
                         long length = fileStream.Length;
                         int i = (int)length;
-                        // if (length > 2147483647L)
-                        // {
-                        //    length = 2147483647L;
-                        // }
+                        if (length > 2147483647L)
+                        {
+                           length = 2147483647L;
+                        }
                         l = (uint)i;
                         array = new byte[i];
                         while (i > 0)
@@ -234,32 +229,32 @@ namespace Hugula.Update
 
         public static void Add(string key, uint crc)
         {
-            ClearCrcCheckedMap(key);
+            // ClearCrcCheckedMap(key);
             crc32Dic[key] = crc;
         }
 
         public static bool Remove(string key)
         {
-            ClearCrcCheckedMap(key);
+            // ClearCrcCheckedMap(key);
             return crc32Dic.Remove(key);
         }
 
         public static void Clear()
         {
-            crcKeyCheckedFileMap.Clear();
+            // crcKeyCheckedFileMap.Clear();
             crcFileChecked.Clear();
             crc32Dic.Clear();
         }
 
-        private static void ClearCrcCheckedMap(string crcKey)
-        {
-            HashSet<string> checkMap = null;
-            if (crcKeyCheckedFileMap.TryGetValue(crcKey, out checkMap))
-            {
-                foreach (var k in checkMap)
-                    crcFileChecked.Remove(k);
-                crcKeyCheckedFileMap.Remove(crcKey);
-            }
-        }
+        // private static void ClearCrcCheckedMap(string crcKey)
+        // {
+        //     HashSet<string> checkMap = null;
+        //     if (crcKeyCheckedFileMap.TryGetValue(crcKey, out checkMap))
+        //     {
+        //         foreach (var k in checkMap)
+        //             crcFileChecked.Remove(k);
+        //         crcKeyCheckedFileMap.Remove(crcKey);
+        //     }
+        // }
     }
 }

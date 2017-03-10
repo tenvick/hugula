@@ -13,7 +13,7 @@ namespace Hugula.Utils
 		private string memory,framerate;
 		private StringBuilder memory1;
 
-        private float updateInterval = 0.2F;
+        private float updateInterval = 1F;
         private float accum = 0; // FPS accumulated over the interval
         private int frames = 0; // Frames drawn over the interval
         private float timeleft; // Left time for current interval
@@ -55,7 +55,7 @@ namespace Hugula.Utils
             {
                 // display two fractional digits (f2 format)
                 float fps = accum / frames;
-                framerate = fps.ToString();// ioo.f("fps:{0:F2}", fps);
+                framerate = Mathf.RoundToInt(fps).ToString();// ioo.f("fps:{0:F2}", fps);
                 timeleft = updateInterval;
                 accum = 0.0F;
                 frames = 0;

@@ -142,7 +142,7 @@ end
 local function add_crc(crc_tb) --加入了crc值的assetbundle会进行校验
 	for k,v in pairs(crc_tb) do
 		for k1,v1 in pairs(v) do
-			CrcCheck.Add(k1,v1[1])
+			CrcCheck.Add(k1,v1[1]) --str = str..string.format("%s=%s,",k1,v1[1])
 		end
 	end
 end
@@ -181,10 +181,6 @@ local function enterGame(manifest)
 	end
 
 	set_progress_txt("刷新脚本。",5,0.2)
-
-	-- local  function refresh_lua( ... )
-	-- 	PLua.instance:LoadBundle(load_manifest)
-	-- end
 
 	cdn_hosts = ResVersion.cdn_host or {}
 	delay(load_manifest,0.1)
@@ -480,11 +476,10 @@ main_update.load_local_file_list = function () --加载本地列表
     	step.load_persistent_file()
     end
     step1.load_streaming_file = function( ... )
-    	-- local group = UriGroup()
-		-- group:Add(CUtils.GetRealStreamingAssetsPath())
 		local uri = CUtils.GetRealStreamingAssetsPath()
 		local url = CUtils.PathCombine(uri,UPDATED_LIST_NAME)
-		Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step1.on_streaming_comp,step1.on_streaming_error,nil)
+		print("load_streaming_file  "..url)
+		Loader:get_resource(url,nil,nil,step1.on_streaming_comp,step1.on_streaming_error)
     end
 
     step1.load_streaming_file()
@@ -563,8 +558,6 @@ main_update.compare_local_version = function () --对比本地版本号
 
 	step.load_streaming=function(  )
 		print("加载本地版本信息。") --
-		-- local group = UriGroup()
-		-- group:Add(CUtils.GetRealStreamingAssetsPath())
 		local uri = CUtils.GetRealStreamingAssetsPath()
 		local url = CUtils.PathCombine(uri,VERSION_FILE_NAME)
 		print(url)

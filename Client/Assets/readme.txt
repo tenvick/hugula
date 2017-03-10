@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.3.10
+1 CRequest 默认urigroup规则更改。
+2 FirstPackage copy assetbundle crc错误校验日志 Assets/Tmp 下面。
+3 ScrollRectTable onItemDispose事件增加。
+4 CrcCheck 无用代码去除。
 2017.3.3
 1 依赖项目加载失败也可完成资源complete。
 2 热更新后依赖项目资源路径读取问题。

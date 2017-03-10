@@ -474,6 +474,7 @@ namespace Hugula.Editor
             string outfilePath;
             string key;
             uint crc = 0;
+            StringBuilder erro = new StringBuilder();
             foreach (var k in updateList)
             {
                 key = k.Key;//CUtils.GetAssetBundleName(k.Key);
@@ -489,11 +490,33 @@ namespace Hugula.Editor
                 outfilePath = Path.Combine(updateOutPath, key);
                 FileHelper.CheckCreateFilePathDirectory(outfilePath);
                 File.Copy(sourcePath, outfilePath, true);// source code copy
+                //check file crc
+                uint filelen = 0;
+                var copyFileCrc = CrcCheck.GetLocalFileCrc(outfilePath,out filelen);
+                if(copyFileCrc!=crc)
+                {
+                    string e = string.Format("crc(source{0}!=copy{1}),path={2}",crc,copyFileCrc,outfilePath);
+                    Debug.LogError(e);
+                    erro.AppendLine(e);
+                }
                 EditorUtility.DisplayProgressBar("copy file to split folder " + updateOutPath, " copy file  =>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
                 i++;
             }
             Debug.Log(" copy  file complete!");
             EditorUtility.ClearProgressBar();
+            string errContent = erro.ToString();
+            if(!string.IsNullOrEmpty(errContent))
+            {
+                string tmpPath = BuildScript.GetAssetTmpPath();
+                ExportResources.CheckDirectory(tmpPath);
+                string outPath = Path.Combine(tmpPath, "crc_error.txt");
+                Debug.Log("write to path=" + outPath);
+                using (StreamWriter sr = new StreamWriter(outPath, true))
+                {
+                    sr.WriteLine(" Error : "+System.DateTime.Now.ToString());
+                    sr.Write(errContent);
+                }
+            }
         }
 
         #endregion

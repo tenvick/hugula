@@ -209,11 +209,6 @@ namespace Hugula.Loader
             if(req.url.EndsWith(Common.CHECK_ASSETBUNDLE_SUFFIX) && !typeof(string).Equals(req.assetType))
                 req.isAssetBundle = true;
 
-            if(req.isAssetBundle && req.uris==null)
-            {
-                req.uris = LResLoader.uriList;
-            }
-
             return req.isAssetBundle;
         }
 

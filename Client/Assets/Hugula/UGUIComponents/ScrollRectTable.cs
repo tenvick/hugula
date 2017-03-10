@@ -33,7 +33,7 @@ namespace Hugula.UGUIExtend
         public static string DataRemoveStr = @"return function(data,index,script)
       table.remove(data,index)
   end";
-
+  
         #endregion
 
         #region public attribute
@@ -48,9 +48,10 @@ namespace Hugula.UGUIExtend
         public ScrollRectItem tileItem;//the template item
 		public GameObject emptyItem;//the empty Item
         public LuaFunction onItemRender;//function(tileItemClone,index,dataItem)
+        public LuaFunction onItemDispose;//function(tileItemClone,index)
         public LuaFunction onPreRender;//function(tileItemClone,index,dataItem)
-        public LuaFunction onDataRemove;//function(data,index,UIPanelCamackTable)
-        public LuaFunction onDataInsert;//function(data,index,UIPanelCamackTable)
+        public LuaFunction onDataRemove;//function(data,index,ScrollRectTable)
+        public LuaFunction onDataInsert;//function(data,index,ScrollRectTable)
 
         public int pageSize = 5;
         public float renderPerFrames = 1;
@@ -338,6 +339,16 @@ namespace Hugula.UGUIExtend
             }
         }
 
+        void OnItemsDispose()
+        {
+            // onItemDispose
+             for(int i=0;i<repositionTileList.Count;i++)
+            {
+                this.ItemDispose(repositionTileList[i],i);
+            }
+        
+        }
+
         float renderframs = 0;
         void RenderItem()
         {
@@ -414,6 +425,14 @@ namespace Hugula.UGUIExtend
             var pos = item.transform.localPosition;
             pos.x = -10000;
             item.transform.localPosition = pos;
+        }
+
+        void ItemDispose(ScrollRectItem item, int index)
+        {
+            if(onItemDispose!=null)
+            {
+                onItemDispose.call(item, index + 1);
+             }
         }
 
         void PreRefresh(int i,int newHeadIndex,int currIndex,bool force=false)
@@ -547,16 +566,19 @@ namespace Hugula.UGUIExtend
         /// </summary>
         void OnDestroy()
         {
+            OnItemsDispose();
             this._data = null;
             if(onPreRender!=null)onPreRender.Dispose();
             if(onItemRender!=null)onItemRender.Dispose();
             if(onDataInsert!=null)onDataInsert.Dispose();
             if(onDataRemove!=null)onDataRemove.Dispose();
+            if(onItemDispose!=null)onItemDispose.Dispose();
 
             this.onPreRender = null;
             this.onItemRender = null;
             this.onDataInsert = null;
             this.onDataRemove = null;
+            this.onItemDispose = null;
         }
 
     }

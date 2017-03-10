@@ -543,7 +543,7 @@ namespace Hugula.Loader
             }else if (!UriGroup.CheckRequestCurrentIndexCrc(req)) //如果校验失败
             {
 #if HUGULA_LOADER_DEBUG
-				Debug.LogFormat(" 0.0 <color=#949494>CheckCrcUri0Exists==false Req(assetname={0},url={1})  </color>",req.assetName,req.url);
+				Debug.LogFormat(" 0.0 <color=#ff0000>CheckCrcUri0Exists==false Req(assetname={0},url={1})  </color>",req.assetName,req.url);
 #endif
 				CallbackError(req);
                 return false;

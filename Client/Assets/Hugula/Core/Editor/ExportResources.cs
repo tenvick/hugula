@@ -63,6 +63,9 @@ namespace Hugula.Editor
     public static string OutLuaPath = CurrentRootFolder+"Assets/" + Common.LUACFOLDER + "/osx";
 #endif
 
+    //lua bytes 输出目录
+    public static string OutLuaBytesPath = CurrentRootFolder+"Assets/" + Common.LUACFOLDER + "/Resources";
+
 #if UNITY_ANDROID
         public static string LuaTmpPath = "Assets/Tmp/" + Common.LUA_TMP_FOLDER;//"/Tmp/" + Common.LUACFOLDER + "/";
 #endif
@@ -87,19 +90,28 @@ namespace Hugula.Editor
         {
             EditorUtility.DisplayProgressBar("Generate FileList", "loading bundle manifest", 1 / 2);
             AssetDatabase.Refresh();
-            string readPath = BuildScript.GetFileStreamingOutAssetsPath();//+"\\";
-            var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
-            Debug.Log("all ab count = " + u3dList.Count);
+            string readPath = BuildScript.GetFileStreamingOutAssetsPath();// 读取Streaming目录
+            var u3dList = getAllChildFiles(readPath, @"\.meta$|\.manifest$|\.DS_Store$|\.u$", null, false);
             List<string> assets = new List<string>();
             foreach (var s in u3dList)
             {
-                string ab = CUtils.GetAssetBundleName(s); //s.Replace(readPath, "").Replace("/", "").Replace("\\", "");
-                //            Debug.Log(ab);
+                string ab = GetAssetPath(s); //s.Replace(readPath, "").Replace("/", "").Replace("\\", "");
+                assets.Add(ab);
+            }
+
+            readPath = BuildScript.GetLuaBytesResourcesPath();// 读取lua 目录
+            u3dList = getAllChildFiles(readPath, @"\.bytes$", null);
+            foreach (var s in u3dList)
+            {
+                string ab = GetAssetPath(s); //s.Replace(readPath, "").Replace("/", "").Replace("\\", "");
                 assets.Add(ab);
             }
 
             EditorUtility.ClearProgressBar();
+            CUtils.DebugCastTime("Time Generate FileList End");
+            Debug.Log("all assetbundle count = " + assets.Count);
             BuildScript.GenerateAssetBundlesUpdateFile(assets.ToArray());
+            CUtils.DebugCastTime("Time GenerateAssetBundlesUpdateFile End");
         }
 
         #endregion
@@ -107,7 +119,7 @@ namespace Hugula.Editor
 
         #region export
 
-        public static void doExportLua(string[] childrens,bool android_ab_build = false)
+        public static void doExportLua(string[] childrens)
         {
              BuildScript.CheckstreamingAssetsPath();
 
@@ -124,7 +136,7 @@ namespace Hugula.Editor
             string path1 = "Assets/Config/"; //config path
             string root = CurrentRootFolder;//Application.dataPath.Replace("Assets", "");
 
-            string crypName = "", fileName = "", outfilePath = "", arg = "";
+            string crypName = "", crypEditorName = "",fileName = "", outfilePath = "", arg = "";
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             //refresh directory
             if (checkChildrens.Length == childrens.Length) DirectoryDelete(OutLuaPath);
@@ -153,35 +165,29 @@ namespace Hugula.Editor
             Debug.Log("luajit32Path:" + luajit32Path);
             Debug.Log("luajit64Path:" + luajit64Path);
             Debug.Log("luacPath:" + luacPath);
-#if UNITY_ANDROID
-            string streamingAssetsPath = Path.Combine(CurrentRootFolder, LuaTmpPath);
+
+            string streamingAssetsPath =  OutLuaBytesPath; //Path.Combine(CurrentRootFolder, LuaTmpPath);
             DirectoryDelete(streamingAssetsPath);
             CheckDirectory(streamingAssetsPath);
-#else
-            string streamingAssetsPath = CUtils.realStreamingAssetsPath;
-#endif
+
             Debug.Log(streamingAssetsPath);
             luaProccess.StartInfo.WorkingDirectory = luaWorkingPath;
-            List<string> exportNames = new List<string>();
 
             foreach (string file in childrens)
             {
                 string filePath = Path.Combine(root, file);
                 fileName = CUtils.GetAssetName(filePath);
-                crypName = file.Replace(path, "").Replace(path1, "").Replace(".lua", "." + Common.LUA_LC_SUFFIX).Replace("\\", "+").Replace("/", "+");
-
+                crypName = file.Replace(path, "").Replace(path1, "").Replace(".lua", ".bytes").Replace("\\", "+").Replace("/", "+");
+                crypEditorName = file.Replace(path, "").Replace(path1, "").Replace(".lua", "."+Common.LUA_LC_SUFFIX).Replace("\\", "+").Replace("/", "+");
                 if (!string.IsNullOrEmpty(luajit32Path))// luajit32
                 {
                     string override_name = CUtils.GetRightFileName(crypName);
                     string override_lua = Path.Combine(streamingAssetsPath, override_name);
                     arg = "-b " + filePath + " " + override_lua; //for jit
+                    // Debug.Log(arg);
                     luajit32Proccess.StartInfo.Arguments = arg;
                     luajit32Proccess.Start();
                     luajit32Proccess.WaitForExit();
-#if UNITY_ANDROID
-                    Debug.Log(luajit32Proccess.StartInfo.FileName + " " + arg);
-                    exportNames.Add(Path.Combine(LuaTmpPath, override_name));
-#endif
                     sb.AppendLine("[\"" + crypName + "\"] = { name = \"" + override_name + "\", path = \"" + file + "\", out path = \"" + override_lua + "\"},");
                 }
                 if (!string.IsNullOrEmpty(luajit64Path)) //luajit64
@@ -190,6 +196,7 @@ namespace Hugula.Editor
                     string override_name = CUtils.GetRightFileName(crypName_64);
                     string override_lua = Path.Combine(streamingAssetsPath, override_name);
                     arg = "-b " + filePath + " " + override_lua; //for jit
+                    //  Debug.Log(arg);
                     luajit64Proccess.StartInfo.Arguments = arg;
                     luajit64Proccess.Start();
                     luajit64Proccess.WaitForExit();
@@ -197,17 +204,18 @@ namespace Hugula.Editor
                 }
                 if (!string.IsNullOrEmpty(luacPath)) //for editor
                 {
-                    string override_name = CUtils.GetRightFileName(crypName); //CUtils.GetRightFileName(CUtils.InsertAssetBundleName(crypName,"_64"));
+                    string override_name = CUtils.GetRightFileName(crypEditorName); //CUtils.GetRightFileName(CUtils.InsertAssetBundleName(crypName,"_64"));
                     string override_lua = Path.Combine(OutLuaPath, override_name);
 #if UNITY_EDITOR_OSX  && !UNITY_STANDALONE_WIN  
                     arg="-o "+override_lua+" "+filePath; //for lua
 #else
                     arg = "-b " + filePath + " " + override_lua; //for jit
 #endif
+                    // Debug.Log(arg);
                     luaProccess.StartInfo.Arguments = arg;
                     luaProccess.Start();
                     luaProccess.WaitForExit();
-                    sb.AppendLine("[\"" + crypName + "(editor)\"] = { name = \"" + override_name + "\", path = \"" + file + "\", out path = \"" + override_lua + "\"},");
+                    sb.AppendLine("[\"" + crypEditorName + "(editor)\"] = { name = \"" + override_name + "\", path = \"" + file + "\", out path = \"" + override_lua + "\"},");
                 }
                 i++;
                 EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
@@ -215,7 +223,6 @@ namespace Hugula.Editor
 
             Debug.Log("lua:" + path + "files=" + childrens.Length + " completed");
             System.Threading.Thread.Sleep(100);
-            //AssetDatabase.Refresh();
 
             //out md5 mapping file
             string tmpPath = BuildScript.GetAssetTmpPath();
@@ -227,72 +234,17 @@ namespace Hugula.Editor
                 sr.Write(sb.ToString());
             }
 
-            //
-#if UNITY_ANDROID
-            if (android_ab_build)
-            {
-                title = "lua bytes to asset";
-                allLen = exportNames.Count;
-                i = 0;
-                string luaStreamingAssetsPath = "Assets" + CUtils.realStreamingAssetsPath.Replace(Application.dataPath, "");
-                Debug.Log(luaStreamingAssetsPath);
-                // AssetImporter import = null;
-                List<AssetBundleBuild> abbs = new List<AssetBundleBuild>();
-                foreach (var luapath in exportNames)
-                {
-                    try
-                    {
-                        byte[] luabytes = File.ReadAllBytes(luapath);
-                        string assetName = Path.GetFileName(luapath);//CUtils.GetAssetBundleName(luapath);
-                        var bytesAsset = ScriptableObject.CreateInstance<BytesAsset>();
-                        bytesAsset.bytes = luabytes;
-                        string assetPath = luapath.Replace("." + Common.LUA_LC_SUFFIX, ".asset");
-                        AssetDatabase.CreateAsset(bytesAsset, assetPath);
-                        AssetBundleBuild abb = new AssetBundleBuild();
-                        abb.assetBundleName = assetName;
-                        abb.assetNames = new string[] { assetPath };
-                        abbs.Add(abb);
-                        i++;
-                        EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogError(e.ToString());
-                    }
-                }
-
-                title = "lua asset to assetbundle";
-                allLen = abbs.Count;
-                i = 0;
-
-                // foreach (var abb in abbs)
-                // {
-                //     BuildScript.BuildABs(abb.assetNames, null, abb.assetBundleName, BuildAssetBundleOptions.None);
-                //     i++;
-                //     EditorUtility.DisplayProgressBar(title, info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-                // }
-
-                title = "build lua assetbundle ";
-                EditorUtility.DisplayProgressBar(title, info + "=>", 1);
-
-                BuildScript.BuildABs(abbs.ToArray(),null, BuildAssetBundleOptions.None);
-            }
-
-          
-
-#endif
-
             EditorUtility.ClearProgressBar();
         }
 
-        public static void exportLua(bool android_ab_build = false)
+        public static void exportLua()
         {
              var childrens = AssetDatabase.GetAllAssetPaths().Where(p =>
                 (p.StartsWith("Assets/Lua")
                 || p.StartsWith("Assets/Config"))
                 && (p.EndsWith(".lua"))
                 ).ToArray();
-           doExportLua(childrens,android_ab_build);
+           doExportLua(childrens);
         }
 
         public static void exportConfig()
@@ -331,10 +283,14 @@ namespace Hugula.Editor
 
         public static void exportPublish()
         {
-            exportLua(true);
+            exportLua();
+            CUtils.DebugCastTime("Time exportLua End");
             //exportConfig();
             BuildScript.BuildAssetBundles(); //导出资源
+            //CleanAssetbundle.Clean();        //清理多余的资源
+            CUtils.DebugCastTime("Time BuildAssetBundles End");
             buildAssetBundlesUpdateAB();//更新列表和版本号码
+            CUtils.DebugCastTime("Time buildAssetBundlesUpdateAB End");
         }
 
         #endregion
@@ -356,23 +312,10 @@ namespace Hugula.Editor
             }
         }
 
-        private static void checkLuaChildDirectory(string fullpath)
+        public static string GetAssetPath(string filePath)
         {
-            DirectoryInfo info = Directory.GetParent(fullpath);
-            string Dir = info.FullName;
-            if (!Directory.Exists(Dir))
-            {
-                Directory.CreateDirectory(Dir);
-            }
-        }
-
-        private static void checkLuaExportPath()
-        {
-            string dircAssert = Application.dataPath + OutLuaPath;
-            if (!Directory.Exists(dircAssert))
-            {
-                Directory.CreateDirectory(dircAssert);
-            }
+            string path = filePath.Replace(Application.dataPath+"/","");
+            return path;//Path.Combine("Assets",path);
         }
 
         public static List<string> getAllChildFiles(string path, string suffix = "lua", List<string> files = null, bool isMatch = true)

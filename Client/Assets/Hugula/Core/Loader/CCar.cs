@@ -165,7 +165,7 @@ namespace Hugula.Loader
                 if (abRequest != null) abRequest = null;
                 if (this.req != null && req.pool)
                 {
-                    LRequestPool.Release(req);
+                    LRequest.Release(req);
                 }
                 this._req = null;
             }

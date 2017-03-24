@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2017 hugula
 // direct https://github.com/tenvick/hugula
 
+using Hugula.Utils;
 using System.Collections.Generic;
 
 namespace Hugula.Loader
@@ -60,5 +61,26 @@ namespace Hugula.Loader
         }
 
 		private LoadingEventArg arg = new LoadingEventArg();
+
+        #region objectpool
+        static ObjectPool<GroupRequestRecord> objectPool = new ObjectPool<GroupRequestRecord>(null, m_ActionOnRelease);
+
+        private static void m_ActionOnRelease(GroupRequestRecord re)
+        {
+            re.Count = 0;
+            re.onGroupComplate = null;
+			re.onGroupProgress = null;
+        }
+
+        public static GroupRequestRecord Get()
+        {
+            return objectPool.Get();
+        }
+
+        public static void Release(GroupRequestRecord toRelease)
+        {
+            objectPool.Release(toRelease);
+        }
+        #endregion
     }
 }

@@ -18,10 +18,14 @@ public class FPS : MonoBehaviour
         lastInterval = Time.realtimeSinceStartup;
         frames = 0;
     }
+    
+#if UNITY_EDITOR
     void OnGUI()
     {
         GUILayout.Label("fps:" + fps);
     }
+#endif
+
     void Update()
     {
         ++frames;

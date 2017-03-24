@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using Hugula;
-
+using Hugula.Loader;
 using Hugula.Editor;
 
 public class AssetbundlesMenuItems
@@ -122,6 +122,20 @@ public class AssetbundlesMenuItems
         BuildScript.DeleteAssetBundlesName();
     }
 
+    const string kSimulationMode = "AssetBundles/Simulation Mode";
+
+    [MenuItem(kSimulationMode)]
+    public static void ToggleSimulationMode()
+    {
+        CResLoader.SimulateAssetBundleInEditor = !CResLoader.SimulateAssetBundleInEditor;
+    }
+
+    [MenuItem(kSimulationMode, true)]
+    public static bool ToggleSimulationModeValidate()
+    {
+        Menu.SetChecked(kSimulationMode, CResLoader.SimulateAssetBundleInEditor);
+        return true;
+    }
 
     #endregion
 
@@ -150,7 +164,7 @@ public class AssetbundlesMenuItems
 
         foreach(var p in allAssetPaths){ Debug.Log(p);}  
 
-        ExportResources.doExportLua(allAssetPaths.ToArray(),true);
+        ExportResources.doExportLua(allAssetPaths.ToArray());
     }
 
     [MenuItem("Assets/Change To BytesAsset ", false, 13)]
@@ -197,8 +211,10 @@ public class AssetbundlesMenuItems
         ExportResources.exportLanguage();
     }
 
-    // [MenuItem("Hugula/--------", false, 15)]
-    // static void Breaker1() { }
+    // [MenuItem("Hugula/Test ", false, 15)]
+    // public static void Breaker1() {
+    //     ExportResources.buildAssetBundlesUpdateAB();
+    //  }
 
     [MenuItem("Hugula/Build For Publish ", false, 16)]
     public static void exportPublish()

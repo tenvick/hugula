@@ -115,7 +115,7 @@ end
 
 --隐藏切换效果
 function StateManager:hide_transform()
-    if self._transform then self._transform:hide() end
+    if self._transform then self._transform:on_blur() end
 end
 
 --检测显示切换效果
@@ -131,10 +131,11 @@ function StateManager:check_show_transform( state,on_changed,is_back)
 end
 
 --检测隐藏切换效果
-function StateManager:check_hide_transform( state )
-    if state and state:hide_transform() then
+function StateManager:check_hide_transform(curr_state)
+    curr_state = curr_state or self._current_game_state
+    if curr_state and curr_state:hide_transform() then
         --do nothing        
-    elseif self._auto_show_loading and state then
+    elseif self._auto_show_loading and curr_state then
         self:hide_transform()
     end
 end
@@ -146,6 +147,7 @@ function StateManager:call_all_item_method( )
     self:input_enable()
 
     local previous_state = curr_state._on_state_showed_flag
+
     if previous_state and previous_state[1] then
          curr_state:on_filter_event(previous_state[2],"on_state_showed",previous_state[2]) 
          curr_state._on_state_showed_flag = nil
@@ -156,7 +158,6 @@ function StateManager:call_all_item_method( )
         curr_state.method = nil
         curr_state.args = nil
     end
-
 
     self:check_hide_transform(curr_state)
 end
@@ -194,6 +195,7 @@ end
 --真正开始改变
 function StateManager:real_change_to_state(is_back) --real change state
      local new_state = self._new_state
+     self._new_state = nil
 
     if(self._current_game_state ~= nil) then
         self._current_game_state:on_blur(new_state)
@@ -210,13 +212,16 @@ function StateManager:real_change_to_state(is_back) --real change state
     if not is_back then self:record_state() end--记录状态用于返回   
     self:call_on_state_change(new_state) --state change event
 
-    self._new_state = nil
-    -- print("self._new_state = nil")
+end
+
+function StateManager:is_in_current_state(state)
+    local curr = self:get_current_state()
+    return curr:contains_item(state)
 end
 
 --设置新的状态
 function StateManager:set_current_state(new_state,method,...)
-    assert(new_state ~= nil)
+    assert(new_state ~= nil) 
     if new_state == self._current_game_state or self._new_state  then
         print("setCurrent State: "..tostring(new_state).." is fail ")
         return

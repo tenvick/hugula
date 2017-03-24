@@ -29,12 +29,15 @@ namespace Hugula.Utils
             UpdateGameInfo();
         }
 
+#if UNITY_EDITOR
         void OnGUI()
         {
             GUILayout.Label("fps:" + framerate);
 			GUILayout.Label(memory);
 
         }
+#endif
+
         /// <summary>
         /// 更新游戏信息
         /// </summary>

@@ -28,7 +28,7 @@ namespace Hugula.Editor
         /// 1 读取首包，找出忽略文件
         /// </summary>
         /// <param name="ignoreFiles">Ignore files.</param>
-        public static bool ReadFirst(Dictionary<string, uint[]> firstCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
+        public static bool ReadFirst(Dictionary<string, object[]> firstCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
         {
             string title = "read first crc file list";
             CrcCheck.Clear();
@@ -66,8 +66,8 @@ namespace Hugula.Editor
                             {
                                 //Debug.Log(match.Groups[1].Value + " " + match.Groups[2].Value);
                                 //					CrcCheck.Add (match.Groups [1].Value, System.Convert.ToUInt32 (match.Groups [2].Value));
-                                uint[] val = new uint[] { System.Convert.ToUInt32(match.Groups[2].Value), System.Convert.ToUInt32(match.Groups[3].Value) };
-                                firstCrcDict.Add(match.Groups[1].Value, val);
+                                object[] val = new object[] { System.Convert.ToUInt32(match.Groups[2].Value), System.Convert.ToUInt32(match.Groups[3].Value) };
+                                firstCrcDict[match.Groups[1].Value] = val;
                             }
                             //Debug.Log(line);
                             EditorUtility.DisplayProgressBar(title, "read first crc => " + j.ToString() + "/" + l.ToString(), j / l);
@@ -126,7 +126,7 @@ namespace Hugula.Editor
         /// <param name="allBundles">All bundles.</param>
         /// <param name="whiteFileList">White file list.</param>
         /// <param name="blackFileList">Black file list.</param>
-        public static StringBuilder[] CreateCrcListContent(string[] allBundles, Dictionary<string, uint[]> firstCrcDict, Dictionary<string, uint[]> currCrcDict, Dictionary<string, uint[]> diffCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
+        public static StringBuilder[] CreateCrcListContent(string[] allBundles, Dictionary<string, object[]> firstCrcDict, Dictionary<string, object[]> currCrcDict, Dictionary<string, object[]> diffCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
         {
             string title = "create crc list content ";
             StringBuilder[] sbs = new StringBuilder[2];
@@ -159,24 +159,30 @@ namespace Hugula.Editor
             };
 
             StringBuilder currSb;
-
+            string extension ;
             foreach (var str in allBundles)
             {
-                string url = Path.Combine(CUtils.GetRealStreamingAssetsPath(), str);
+                string url = Path.Combine(Application.dataPath, str);
                 uint outCrc = 0;
                 uint fileLen = 0;
                 string abName = str.Replace("\\", "/");
                 string key = CUtils.GetAssetBundleName(abName);
+                //后缀替换
+                extension = System.IO.Path.GetExtension(key);
+                if(!string.IsNullOrEmpty(extension) && !extension.Equals(Common.CHECK_ASSETBUNDLE_SUFFIX))
+                {
+                    key = key.Replace(extension,Common.CHECK_ASSETBUNDLE_SUFFIX);
+                }
                 if (!ignore.ContainsKey(key))
                 {
                     outCrc = CrcCheck.GetLocalFileCrc(url, out fileLen);
-                    currCrcDict.Add(key, new uint[] { outCrc, fileLen });
+                    currCrcDict[key] = new object[] { outCrc, fileLen, str};
                     currSb = getCurrSB(key, white0, black0, other0, whiteFileList, blackFileList);
                     currSb.AppendLine("[\"" + key + "\"] = {" + outCrc + "," + fileLen + "},");
-                    uint[] fCrc = null;
-                    if (firstCrcDict.TryGetValue(key, out fCrc) == false || fCrc[0] != outCrc)//如果不一样
+                    object[] fCrc = null;
+                    if (firstCrcDict.TryGetValue(key, out fCrc) == false || (uint)fCrc[0] != outCrc)//如果不一样
                     {
-                        diffCrcDict.Add(key, new uint[] { outCrc, fileLen });
+                        diffCrcDict[key] = new object[] { outCrc, fileLen , str};
                         //					Debug.LogFormat("need update abName = {0} = {1} = {2}",abName,key,outCrc);
                         currSb = getCurrSB(key, white1, black1, other1, whiteFileList, blackFileList);
                         currSb.AppendLine("[\"" + key + "\"] = {" + outCrc + "," + fileLen + "},");
@@ -305,11 +311,15 @@ namespace Hugula.Editor
             Debug.Log("verion to path=" + outPath);
             EditorUtility.DisplayProgressBar("Create Version AssetBundle File", "write file to " + outPath, 0.99f);
             //json 化version{ code,crc32,version}
+            CodeVersion.CODE_VERSION = 0;
+            CodeVersion.APP_NUMBER = 0;
+            CodeVersion.RES_VERSION = 0;
             StringBuilder verJson = new StringBuilder();
             verJson.Append("{");
             verJson.Append(@"""code"":" + CodeVersion.CODE_VERSION + ",");
             verJson.Append(@"""crc32"":" + fileCrc.ToString() + ",");
-            verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now));
+            verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now)+",");
+            verJson.Append(@"""version"":" + CodeVersion.APP_NUMBER);
             verJson.Append(verExtSB.ToString());
             verJson.Append("}");
             // platform
@@ -357,11 +367,11 @@ namespace Hugula.Editor
             EditorUtility.ClearProgressBar();
         }
 
-        public static void CopyChangeFileToSplitFolder(bool firstExists, Dictionary<string, uint[]> firstCrcDict, Dictionary<string, uint[]> currCrcDict, Dictionary<string, uint[]> diffCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
+        public static void CopyChangeFileToSplitFolder(bool firstExists, Dictionary<string, object[]> firstCrcDict, Dictionary<string, object[]> currCrcDict, Dictionary<string, object[]> diffCrcDict, HashSet<string> whiteFileList, HashSet<string> blackFileList)
         {
-            Dictionary<string, uint[]> updateList = new Dictionary<string, uint[]>();
+            Dictionary<string, object[]> updateList = new Dictionary<string, object[]>();
 
-            uint[] crc = null;
+            object[] crc = null;
 
             if (firstExists)
             {
@@ -456,11 +466,11 @@ namespace Hugula.Editor
         private static string GetFirstOutPath()
         {
             DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
-            string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, Common.FirstOutPath);
+            string firstPath = Path.Combine(firstDir.Parent.FullName, Common.FirstOutPath);
             return firstPath;
         }
 
-        private static void CopyFileToSplitFolder(Dictionary<string, uint[]> updateList)
+        private static void CopyFileToSplitFolder(Dictionary<string, object[]> updateList)
         {
             string updateOutPath = Path.Combine(UpdateOutPath, ResFolderName);
             ExportResources.CheckDirectory(updateOutPath);
@@ -472,20 +482,33 @@ namespace Hugula.Editor
 
             string sourcePath;
             string outfilePath;
-            string key;
+            string key,extension;
             uint crc = 0;
             StringBuilder erro = new StringBuilder();
             foreach (var k in updateList)
             {
                 key = k.Key;//CUtils.GetAssetBundleName(k.Key);
-                sourcePath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), k.Key);
-                crc = k.Value[0];
+                sourcePath = Path.Combine(Application.dataPath, k.Value[2].ToString());
+                if(!File.Exists(sourcePath)) //
+                {
+                    string e = string.Format("copy file ({0}) not Exists ",sourcePath);
+                    Debug.LogError(e);
+                    erro.AppendLine(e);
+                    continue;
+                }
+                extension = System.IO.Path.GetExtension(key);
+                crc = (uint)k.Value[0];
                 if (crc != 0)
                 {
-                    if (key.Equals(CUtils.platformFloder))
-                        key = key + "_" + crc.ToString() + "." + Common.ASSETBUNDLE_SUFFIX;
-                    else
+                    if(string.IsNullOrEmpty(extension))
+                    {
+                        key = key + "_" + crc.ToString() + Common.CHECK_ASSETBUNDLE_SUFFIX;
+                    }else if(extension!=Common.CHECK_ASSETBUNDLE_SUFFIX)
+                    {
+                        key = key.Replace(extension,Common.CHECK_ASSETBUNDLE_SUFFIX);
                         key = CUtils.InsertAssetBundleName(key, "_" + crc.ToString());// 
+                    }else
+                         key = CUtils.InsertAssetBundleName(key, "_" + crc.ToString());// 
                 }
                 outfilePath = Path.Combine(updateOutPath, key);
                 FileHelper.CheckCreateFilePathDirectory(outfilePath);
@@ -509,7 +532,7 @@ namespace Hugula.Editor
             {
                 string tmpPath = BuildScript.GetAssetTmpPath();
                 ExportResources.CheckDirectory(tmpPath);
-                string outPath = Path.Combine(tmpPath, "crc_error.txt");
+                string outPath = Path.Combine(tmpPath, "error.txt");
                 Debug.Log("write to path=" + outPath);
                 using (StreamWriter sr = new StreamWriter(outPath, true))
                 {

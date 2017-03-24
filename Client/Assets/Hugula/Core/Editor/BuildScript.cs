@@ -57,11 +57,11 @@ namespace Hugula.Editor
             string title = "Generate Update File ";
             string info = "Compute crc32";
             EditorUtility.DisplayProgressBar(title, info, 0.1f);
-            Dictionary<string, uint[]> firstCrcDict = new Dictionary<string, uint[]>();
+            Dictionary<string, object[]> firstCrcDict = new Dictionary<string, object[]>();
             HashSet<string> whiteFileList = new HashSet<string>();
             HashSet<string> blackFileList = new HashSet<string>();
-            Dictionary<string, uint[]> currCrcDict = new Dictionary<string, uint[]>();
-            Dictionary<string, uint[]> diffCrcDict = new Dictionary<string, uint[]>();
+            Dictionary<string, object[]> currCrcDict = new Dictionary<string, object[]>();
+            Dictionary<string, object[]> diffCrcDict = new Dictionary<string, object[]>();
             #region 读取首包
             bool firstExists = SplitPackage.ReadFirst(firstCrcDict, whiteFileList, blackFileList);
             #endregion
@@ -76,11 +76,13 @@ namespace Hugula.Editor
             // System.Threading.Thread.Sleep(1000);
             uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, SplitPackage.UpdateOutPath);//增量列表
             // System.Threading.Thread.Sleep(1000);
+            CUtils.DebugCastTime("Time CreateStreamingCrcList End");
             #endregion
 
             #region 生成版本号
             //生成版本号码
             SplitPackage.CreateVersionAssetBundle(diff_crc);
+            CUtils.DebugCastTime("Time CreateVersionAssetBundle End");
             #endregion
 
             #region copy更新文件导出
@@ -88,6 +90,8 @@ namespace Hugula.Editor
             SplitPackage.CopyVersionToSplitFolder(diff_crc);
 
             SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, currCrcDict, diffCrcDict, whiteFileList, blackFileList);
+
+            CUtils.DebugCastTime("Time CopyChangeFileToSplitFolder End");
 
             Debug.LogFormat("streaming_crc={0},diff_crc{1}", streaming_crc, diff_crc);
 
@@ -161,7 +165,7 @@ namespace Hugula.Editor
             string[] spceil = new string[] { CUtils.platform, Common.CONFIG_CSV_NAME, Common.CRC32_FILELIST_NAME, Common.CRC32_VER_FILENAME };
             foreach (string p in spceil)
             {
-                name = CUtils.GetAssetBundleName(p);
+                name = GetAssetBundleName(p);
                 nameMd5 = CUtils.GetRightFileName(name);
                 string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
                 sb.AppendLine(line);
@@ -491,9 +495,12 @@ namespace Hugula.Editor
 
         public static void BuildAssetBundles()
         {
-            CheckstreamingAssetsPath();
+            CUtils.DebugCastTime("Time HandleUpdateMaterail End");
 
+            CheckstreamingAssetsPath();
+            CUtils.DebugCastTime("Time CheckstreamingAssetsPath End");
             BuildPipeline.BuildAssetBundles(GetOutPutPath(), optionsDefault, target);
+            CUtils.DebugCastTime("Time BuildPipeline.BuildAssetBundles End");
         }
 
         /// <summary>
@@ -575,6 +582,13 @@ namespace Hugula.Editor
             return dircAssert;
         }
 
+        public static string GetLuaBytesResourcesPath()
+        {
+            string luapath = Path.Combine(Application.dataPath,Common.LUACFOLDER);
+            luapath = Path.Combine(luapath,"Resources");
+            return luapath; 
+        }
+
         public static string GetOutPutPath()
         {
             return Path.Combine(streamingPath, CUtils.GetAssetPath(""));
@@ -607,6 +621,26 @@ namespace Hugula.Editor
                 string re = string.Format("{0}/{1}", obj.parent.name, obj.name);
                 return GetGameObjectPathInScene(obj.transform.parent, re);
             }
+        }
+
+        static public string GetAssetBundleName(string url)
+        {
+             if (string.IsNullOrEmpty (url)) return string.Empty;
+            int idxEnd = url.IndexOf ('?');
+            int idxBegin = url.IndexOf (CUtils.platformFloder); // 
+
+            if (idxBegin == -1) {
+                idxBegin = url.LastIndexOf ("/")+1;
+                int idx1 = url.LastIndexOf ("\\")+1;
+                if (idx1 > idxBegin) idxBegin = idx1;
+            } else
+                idxBegin = idxBegin + CUtils.platformFloder.Length + 1;
+
+            if (idxBegin >= url.Length) idxBegin = 0;
+            if (idxEnd == -1) idxEnd = url.Length;
+
+            string re = url.Substring (idxBegin, idxEnd - idxBegin);
+            return re;
         }
 
         static public string GetLabelsByPath(string abPath)

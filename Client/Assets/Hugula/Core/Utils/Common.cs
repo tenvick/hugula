@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
+// using CustomLuaClass = SLua.CustomLuaClass;
+// using DoNotToLua = SLua.DoNotToLua;
 
 namespace Hugula.Utils
 {
@@ -17,6 +19,8 @@ namespace Hugula.Utils
         public const string ASSETBUNDLE_SUFFIX = "u3d";
 
         public const string CHECK_ASSETBUNDLE_SUFFIX = "."+ASSETBUNDLE_SUFFIX;
+
+        public const string DOT_BYTES = ".bytes";
 
         /// <summary>
         /// the lua out path

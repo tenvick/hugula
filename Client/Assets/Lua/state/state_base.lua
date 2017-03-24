@@ -211,6 +211,7 @@ function StateBase:on_blur(new_state)
             if itemobj.on_blured then itemobj:on_blured(new_state) end
         end
     end
+    -- self:hide_transform()
     on_blured = nil
  end
 
@@ -239,11 +240,12 @@ function StateBase:on_filter_event(prev_state,fun_name,...)
 end
 
 function StateBase:__tostring()
-    local str = ""
+    local str,len = "",0
     if self._item_list then 
         for k,v in ipairs(self._item_list)  do
             str = str .. tostring(v)
         end
+        len = #self._item_list
     end
-    return string.format("StateBase(%s) {%s} ", tostring(self._item_list),tostring(str))
+    return string.format("StateBase(%s)len(%d) {%s} ", tostring(self._item_list),len,str)
 end

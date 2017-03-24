@@ -4,11 +4,14 @@
 --  author pu
 ------------------------------------------------
 --Gameobject 资源集合
+local RuntimePlatform= UnityEngine.RuntimePlatform
+local Application= UnityEngine.Application
+
 local LuaHelper=LuaHelper
 local GAMEOBJECT_ATLAS = GAMEOBJECT_ATLAS
 local CUtils=CUtils
 local AssetBundleScene = AssetBundleScene
-local LRequestPool = Hugula.Loader.LRequestPool --内存池
+local LRequest = Hugula.Loader.LRequest --内存池
 local UIJoint = UIJoint
 local UIParentJoint = UIParentJoint
 
@@ -55,12 +58,16 @@ end
 
 
 local function create_request(v,on_req_loaded,on_err)
-	local r = LRequestPool.Get()
+	local r = LRequest.Get()
 	r.relativeUrl = v.assetbundle_url
 	r.onCompleteFn = on_req_loaded
 	r.onEndFn = on_err
 	r.head = v
-	r.async = true
+	if Application.platform == RuntimePlatform.IPhonePlayer then
+		r.async = false
+	else
+		r.async = true
+	end
 	r.assetName = v.asset_name
 
 	if v:is_a(AssetScene) then
@@ -83,13 +90,20 @@ function AssetLoader:on_asset_loaded(key,asset)
 		self.lua_obj.is_loading = nil
 		self.lua_obj.is_call_assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
-		-- print(string.format("AssetLoader.name=%s  ",asset.root))
-		self.lua_obj:send_message("on_showed")
-		self.lua_obj:call_event("on_showed")
-		if StateManager and StateManager:get_current_state():is_all_loaded() then 
-			-- StateManager:check_hide_transform(self.lua_obj._transform)
+
+		if not self.is_on_blur then 
+			self.lua_obj:send_message("on_showed")
+			self.lua_obj:call_event("on_showed")
+		end
+
+		if StateManager:is_in_current_state(self.lua_obj) and StateManager:get_current_state():is_all_loaded() then 
+			-- print(string.format("call_all_item_method lua_object.name=%s  ",self.lua_obj._key))
 			StateManager:call_all_item_method()
 		end 
+	end
+
+	if self.is_on_blur then 
+		asset:hide()
 	end
 end
 
@@ -99,10 +113,13 @@ function AssetLoader:on_asset_loaded_error(key,asset)
 	if self._load_curr >= self._load_count then
 		self.lua_obj.is_loading = nil
 		self.lua_obj:send_message("on_assets_load",self.assets)
-		self.lua_obj:send_message("on_showed")
-		self.lua_obj:call_event("on_showed")
-		if StateManager and StateManager:get_current_state():is_all_loaded() then 
-			-- StateManager:check_hide_transform(self.lua_obj._transform)
+		
+		if not self.is_on_blur then 
+			self.lua_obj:send_message("on_showed")
+			self.lua_obj:call_event("on_showed")
+		end
+
+		if StateManager:is_in_current_state(self.lua_obj) and StateManager:get_current_state():is_all_loaded() then 
 			StateManager:call_all_item_method()
 		end 
 	end
@@ -208,7 +225,7 @@ function AssetLoader:load(asts,onall_complete,on_progress)
 			for k1,v1 in ipairs(v.children) do table.insert(all_assets,v1)  end
 		end
 	end
-	if self.lua_obj.is_loading then print("warring something is loading ") end
+	if self.lua_obj.is_loading then print("warring something is loading lua_obj="..tostring(self.lua_obj)) end
 	self._load_curr = 0
 	self._load_count = #all_assets
 	self._on_progress = on_progress

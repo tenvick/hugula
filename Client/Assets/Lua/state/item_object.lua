@@ -100,13 +100,13 @@ function ItemObject:check_assets_loaded() --检测资源是否加载完成
 end
 
 function ItemObject:on_focus(...)
+    self.is_on_blur = false
     if self.is_loading then return end
     if self:check_assets_loaded() then 
         self:show()  
         self:send_message("on_showed")
         self:call_event("on_showed")
     else
-        -- StateManager:check_show_transform(self._transform)
         self.asset_loader:load(self.assets)  
     end
 end
@@ -125,6 +125,7 @@ end
 
 function ItemObject:on_blur( state )
     self:send_message("on_hide",state) --开始隐藏
+    self.is_on_blur = true --处于失去焦点状态
     self:hide()
     -- print(self.name,"on_blur",self._auto_mark_dispose)
     if self._auto_mark_dispose then 
@@ -186,5 +187,5 @@ function ItemObject:remove_from_state(state)
 end
 
 function ItemObject:__tostring()
-    return string.format("ItemObject(%s) ", self.name)
+    return string.format("ItemObject(%s) ", self._key)
 end

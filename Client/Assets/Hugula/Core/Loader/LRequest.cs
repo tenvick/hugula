@@ -60,6 +60,31 @@ namespace Hugula.Loader
             onCompleteFn = null;
             onEndFn = null;
         }
+
+        #region ObjectPool 
+        static ObjectPool<LRequest> objectPool = new ObjectPool<LRequest>(m_ActionOnGet, m_ActionOnRelease);
+        private static void m_ActionOnGet(LRequest req)
+        {
+            req.pool = true;
+            req.BindAction();
+        }
+
+        private static void m_ActionOnRelease(LRequest req)
+        {
+            req.Dispose();
+        }
+
+        public static LRequest Get()
+        {
+            return objectPool.Get();
+        }
+
+        public static void Release(CRequest toRelease)
+        {
+            if(toRelease is LRequest)
+                objectPool.Release((LRequest)toRelease);
+        }
+        #endregion
     }
 
 }

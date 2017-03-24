@@ -1,5 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.3.24
+1 ab延时释放策略。
+2 新的版本号规则。
+3 模拟assetbundle模式 (AssetBundles/Simulation Mode) 直接运行。
+4 lua 发布流程优化，首保luaytes放Resources目录。
+5 CResloader 代码整理。
+
 2017.3.10
 1 CRequest 默认urigroup规则更改。
 2 FirstPackage copy assetbundle crc错误校验日志 Assets/Tmp 下面。

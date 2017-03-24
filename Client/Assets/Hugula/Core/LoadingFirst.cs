@@ -25,7 +25,7 @@ public class LoadFirstHelper
 		sceneAssetBundleName = sceneAbName;
 		sceneName = scenename;
 		var  url = CUtils.GetPlatformFolderForAssetBundles();
-		var req = LRequestPool.Get();
+		var req = LRequest.Get();
 		req.relativeUrl = CUtils.GetRightFileName(url);
 		req.assetType = typeof(AssetBundleManifest);
 		req.assetName = "assetbundlemanifest";
@@ -43,7 +43,7 @@ public class LoadFirstHelper
 	public static void BeginLoadScene()
 	{
 		CUtils.DebugCastTime("LoadingFirst");
-		var req = LRequestPool.Get();
+		var req = LRequest.Get();
 		req.relativeUrl = CUtils.GetRightFileName(sceneAssetBundleName);
 		req.assetName = sceneName;
 		req.OnComplete = OnSceneAbLoaded;

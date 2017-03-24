@@ -6,7 +6,7 @@
 local Hugula = Hugula
 Loader={}
 local Request = Hugula.Loader.LRequest
-local LRequestPool = Hugula.Loader.LRequestPool --内存池
+local LRequest = Hugula.Loader.LRequest --内存池
 local CacheManager = Hugula.Loader.CacheManager
 local LResLoader = Hugula.Loader.LResLoader
 local CUtils = Hugula.Utils.CUtils
@@ -30,7 +30,7 @@ end
 
 local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
 	if assetName == nil then assetName = CUtils.GetAssetName(url) end
-	local req = LRequestPool.Get() -- Request(url,assetName,assetType)
+	local req = LRequest.Get() -- Request(url,assetName,assetType)
 	if string.match(url,u3d_pattern) and  string.match(url,u3d_is_md5_patter) == nil then --以u3d结尾
 		-- req.isLoadFromCacheOrDownload = true --从缓存加载
 	  	url = CUtils.GetRightFileName(url)  --md5编码
@@ -56,8 +56,15 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 	end
 	if string.lower(string.sub(uri,1,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
 
-	if async ~= nil then req.async = async end
-	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"isNormal=",req.isNormal)
+	if Application.platform == RuntimePlatform.IPhonePlayer then
+		req.async = false
+	elseif  async ~= nil then
+	 	req.async = async
+	else
+		req.async = true
+	end
+
+	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"abname=",req.assetBundleName,"isNormal=",req.isNormal,"req.uris=",req.uris)
 	return req
 end
 
@@ -194,15 +201,22 @@ function Loader:refresh_assetbundle_manifest(onReady)
 
     local url = CUtils.GetPlatformFolderForAssetBundles()
 	url = CUtils.GetRightFileName(url)
-    local  function onCompleteFn (req1)
+    local  function on_complete_fn (req1)
         local data=req1.data
         LResLoader.assetBundleManifest=data
+		print("manifest is done"..req1.url)
         if onReady then onReady() end
 		CacheManager.UnloadCacheFalse(url) --清理缓存
     end
+
+	local function on_erro_fn(req1)
+		print("manifest is error"..req1.url)
+		if onReady then onReady() end
+	end
+
 	self:clear(url) --清理旧的缓存
 	
-    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,onCompleteFn,nil,nil,LResLoader.uriList)
+    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,on_complete_fn,on_erro_fn,nil,LResLoader.uriList)
 end
 
 

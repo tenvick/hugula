@@ -21,19 +21,19 @@ namespace Hugula.Pool
 
         void Awake()
         {
-            if(string.IsNullOrEmpty(assetbundle)) assetbundle = CUtils.GetRightFileName(this.name.Replace("(Clone)","")+".u3d");
+            if (string.IsNullOrEmpty(assetbundle)) assetbundle = CUtils.GetRightFileName(this.name.Replace("(Clone)", "") + ".u3d");
 
             assetHashCode = LuaHelper.StringToHash(assetbundle);
             int addre = CountMananger.Add(this.assetHashCode);
 #if UNITY_EDITOR || HUGULA_CACHE_DEBUG
-                if (addre == -1)
-                {
-                    Debug.LogWarningFormat("ReferenceCount: name({0}) abName({1}) refer add error ", this.name.Replace("(Clone)",""),assetbundle);
-                }
+            if (addre == -1)
+            {
+                Debug.LogWarningFormat("ReferenceCount: name({0}) abName({1}) assetHashCode({2})refer add error ", this.name.Replace("(Clone)", ""), assetbundle,assetHashCode);
+            }
 #endif
 #if HUGULA_CACHE_DEBUG                
                 else{
-                    Debug.LogFormat("<color=green>ReferenceCount: name({0}) abName({1}) referCount={2} </color> ", this.name.Replace("(Clone)",""),assetbundle,addre);
+                    Debug.LogFormat("<color=green>ReferenceCount: name({0}) abName({1}) assetHashCode({2}) referCount={3} </color> ", this.name.Replace("(Clone)",""),assetbundle,assetHashCode,addre);
                 }
 #endif
 
@@ -41,11 +41,14 @@ namespace Hugula.Pool
 
         void OnDestroy()
         {
-            bool subre = CountMananger.Subtract(this.assetHashCode);
- #if UNITY_EDITOR || HUGULA_CACHE_DEBUG
-            if (!subre)
+#if HUGULA_CACHE_DEBUG
+            Debug.LogWarning(string.Format(" OnDestroy() ReferenceCount -- : name({0}) abName({1}) assetHashCode({2}) refer ", this.name,assetbundle,assetHashCode));
+#endif
+            var subre = CountMananger.Subtract(this.assetHashCode);
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+            if (subre == -1)
             {
-                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) refer delete error ", this.name,assetbundle));
+                Debug.LogWarning(string.Format("ReferenceCount: name({0}) abName({1}) assetHashCode({2}) refer delete error ", this.name, assetbundle,assetHashCode));
             }
 #endif
         }

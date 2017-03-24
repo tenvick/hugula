@@ -2,8 +2,6 @@
 // direct https://github.com/tenvick/hugula
 //
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
 using System;
 using Hugula.Utils;
 
@@ -65,8 +63,12 @@ namespace Hugula.Loader
             _assetBundleName = string.Empty;
             _assetName = string.Empty;
             assetType = null;//string.Empty;
-
+#if UNITY_IPHONE
             async = false;
+#else
+            async = true;
+#endif
+
             pool = false;
             isAdditive = false;
             isShared = false;
@@ -316,7 +318,11 @@ namespace Hugula.Loader
         /// <summary>
         /// 是否异步加载
         /// </summary>
-        public bool async = false;
+#if UNITY_IPHONE
+        public bool  async = false;
+#else
+        public bool async = true;
+#endif
 
         /// <summary>
         ///  优先等级
@@ -440,9 +446,11 @@ namespace Hugula.Loader
         /// </summary>
         public static bool CheckNeedUriGroup(string url)
         {
-            if (url.StartsWith("http") || url.IndexOf("://") != -1 ||
-                url.StartsWith(Application.persistentDataPath) ||
-                url.StartsWith(Application.streamingAssetsPath))
+            if(string.IsNullOrEmpty(url)) return false;
+            
+            if (url.ToLower().StartsWith("http") || url.ToLower().IndexOf("://") != -1 ||
+                url.ToLower().StartsWith(Application.persistentDataPath.ToLower()) ||
+                url.ToLower().StartsWith(Application.streamingAssetsPath.ToLower()))
             {
                 return false;
             }

@@ -34,7 +34,7 @@ namespace Hugula.Loader
 
             if (groupCompleteFn != null)
             {
-                re = GroupRequestRecordPool.Get();
+                re = GroupRequestRecord.Get();
                 re.onGroupComplate = groupCompleteFn;
 				re.onGroupProgress = groupProgressFn;
             }

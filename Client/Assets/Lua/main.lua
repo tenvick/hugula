@@ -28,7 +28,7 @@ local RuntimePlatform= UnityEngine.RuntimePlatform
 local Application= UnityEngine.Application
 local WWW = UnityEngine.WWW
 local GameObject = UnityEngine.GameObject
-local LRequestPool = Hugula.Loader.LRequestPool --内存池
+local LRequest = Hugula.Loader.LRequest --内存池
 local LResLoader = Hugula.Loader.LResLoader
 
 local CODE_VERSION = Hugula.CodeVersion.CODE_VERSION
@@ -81,7 +81,7 @@ function CRC_FILELIST.get_item(key)
 	return val
 end
 
-local function print_time(times)
+function print_time(times)
 	print(os.date("%c",times))
 end
 
@@ -367,7 +367,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 		local assetbundle_name = CUtils.GetRightFileName(asset_name)
 		local file_name = assetbundle_name.."_"..crc..".u3d"
 		print("load web server crc "..file_name)
-		local req = LRequestPool.Get()
+		local req = LRequest.Get()
 		req.relativeUrl = file_name
 		req.onCompleteFn = on_server_comp
 		req.onEndFn = on_server_err
@@ -496,7 +496,7 @@ main_update.compare_local_version = function () --对比本地版本号
 		print_time(ver_json.time)
 		step.persistent_version = ver_json
 		CrcCheck.Add(update_list_crc_key,tonumber(ver_json.crc32))--本地验证列表的crc验证
-		-- print("persistent ver crc",update_list_crc_key,"=",ver_json.crc32)
+		print("persistent ver crc",update_list_crc_key,"=",ver_json.crc32)
 		step.compare()
 	end
 
@@ -572,8 +572,8 @@ end
 
 local function init_step1()
 
-	print(Hugula.Utils.CUtils.GetRealPersistentDataPath())
-	print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
+	-- print(Hugula.Utils.CUtils.GetRealPersistentDataPath())
+	-- print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
 	-- print(UnityEngine.Application.version,Application.bundleIdentifier)
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
 	_progressbar_txt = ui_logo:GetComponentInChildren(UnityEngine.UI.Text,true)

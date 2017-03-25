@@ -567,6 +567,7 @@ namespace SLua
             "AnimatorControllerParameter.name",
             "Input.IsJoystickPreconfigured",
             "Resources.LoadAssetAtPath",
+			"Light.lightmappingMode",
 #if UNITY_4_6
 			"Motion.ValidateIfRetargetable",
 			"Motion.averageDuration",

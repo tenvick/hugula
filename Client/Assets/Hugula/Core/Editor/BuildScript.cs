@@ -238,15 +238,16 @@ namespace Hugula.Editor
             SplitPackage.DeleteStreamingFiles(del);//删除选中对象的ab
         }
 
-        public static void SetAssetBundlesName()
+        public static void SetAssetBundlesName(bool replace = false)
         {
             Object[] selection = Selection.objects;
 
             foreach (Object s in selection)
             {
-                SetAssetBundlesName(s);
+                SetAssetBundleName(s,replace);
             }
         }
+
 
         /// <summary>
         /// 设置变体
@@ -285,12 +286,19 @@ namespace Hugula.Editor
         /// 设置assetbundleName
         /// </summary>
         /// <param name="s"></param>
-        public static void SetAssetBundlesName(Object s)
+        public static void SetAssetBundleName(Object s,bool replace = false)
         {
             string abPath = AssetDatabase.GetAssetPath(s);
             AssetImporter import = AssetImporter.GetAtPath(abPath);
             string folder = GetLabelsByPath(abPath);
-            string name = CUtils.GetRightFileName(s.name.ToLower());
+            string objName = s.name.ToLower();
+            if(replace)
+            {
+                objName = HugulaEditorSetting.instance.GetAssetBundleNameByReplaceIgnore(objName);
+                Debug.LogFormat("{0} replace {1}",s.name,objName); 
+            }
+
+            string name = CUtils.GetRightFileName(objName);
 
             if (string.IsNullOrEmpty(folder))
                 import.assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
@@ -449,10 +457,10 @@ namespace Hugula.Editor
                     import.userData = HugulaFolder;
                     AssetDatabase.SetLabels(s, new string[] { HugulaFolder });
                     import.SaveAndReimport();
-                    if (!HugulaSettingEditor.ContainsExtendsPath(apath))
+                    if (!HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
                     {
                         Debug.LogFormat("add extends path = {0}", s.name);
-                        HugulaSettingEditor.AddExtendsPath(apath);
+                        HugulaExtensionFolderEditor.AddExtendsPath(apath);
                     }
                     AssetDatabase.Refresh();
                 }
@@ -478,10 +486,10 @@ namespace Hugula.Editor
                     AssetDatabase.SetLabels(s, null);
                     import.SaveAndReimport();
                     //apath = apath.Replace("\\","/");
-                    if (HugulaSettingEditor.ContainsExtendsPath(apath))
+                    if (HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
                     {
                         Debug.LogFormat("{0},Clear AssetLabels,path ={1}", s.name, apath);
-                        HugulaSettingEditor.RemoveExtendsPath(apath);
+                        HugulaExtensionFolderEditor.RemoveExtendsPath(apath);
                         AssetDatabase.Refresh();
                     }
                 }
@@ -645,7 +653,7 @@ namespace Hugula.Editor
 
         static public string GetLabelsByPath(string abPath)
         {
-            return HugulaSettingEditor.GetLabelsByPath(abPath);
+            return HugulaExtensionFolderEditor.GetLabelsByPath(abPath);
         }
 
         #endregion

@@ -250,23 +250,25 @@ namespace Hugula.Editor
         public static void exportConfig()
         {
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
-             p.StartsWith("Assets/Config")
+             p.StartsWith("Assets/Config") || !p.StartsWith("Assets/Config/Lan")
              && p.EndsWith(".csv")
              ).ToArray();
 
             BuildScript.CheckstreamingAssetsPath();
-            string cname = CUtils.GetRightFileName(Common.CONFIG_CSV_NAME);
-            BuildScript.BuildABs(files.ToArray(), null, cname, BuildAssetBundleOptions.DeterministicAssetBundle);
-            Debug.Log(" Config export " + cname);
+
+            if(files.Length>0)
+            {
+                string cname = CUtils.GetRightFileName(Common.CONFIG_CSV_NAME);
+                BuildScript.BuildABs(files.ToArray(), null, cname, BuildAssetBundleOptions.DeterministicAssetBundle);
+                Debug.Log(" Config export " + cname);
+            }
 
         }
 
         public static void exportLanguage()
         {
-            string assetPath = "Assets/Lan/";
-
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
-                p.StartsWith(assetPath)
+                p.StartsWith("Assets/Config/Lan")
                 && p.EndsWith(".csv")
             ).ToArray();
 
@@ -275,7 +277,7 @@ namespace Hugula.Editor
             foreach (string abPath in files)
             {
                 string name = CUtils.GetAssetName(abPath);
-                string abName = CUtils.GetRightFileName(name + "." + Common.LANGUAGE_SUFFIX);
+                string abName = CUtils.GetRightFileName(name + Common.CHECK_ASSETBUNDLE_SUFFIX);
                 BuildScript.BuildABs(new string[] { abPath }, null, abName, BuildAssetBundleOptions.None);
                 Debug.Log(name + " " + abName + " export");
             }
@@ -285,6 +287,7 @@ namespace Hugula.Editor
         {
             exportLua();
             CUtils.DebugCastTime("Time exportLua End");
+            exportLanguage();
             //exportConfig();
             BuildScript.BuildAssetBundles(); //导出资源
             //CleanAssetbundle.Clean();        //清理多余的资源

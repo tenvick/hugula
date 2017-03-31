@@ -10,6 +10,7 @@ public class LoadingFirst : MonoBehaviour {
 	void Start () {
 		//load manifest
 		CUtils.DebugCastTime("LoadingFirst");
+		Hugula.Localization.language = PlayerPrefs.GetString ("Language", Application.systemLanguage.ToString());
 		LoadFirstHelper.LoadManifest(sceneAssetBundleName,sceneName);
 	}
 

@@ -30,7 +30,7 @@ namespace Hugula.Loader {
                 if (cached.count == 0) //所有引用被清理。
                 {
 
-                    CacheManager.ClearCache (hashcode);
+                    CacheManager.ClearDelay (hashcode);
                     int[] alldep = cached.allDependencies;
                     CacheData cachetmp = null;
                     if (alldep != null) {

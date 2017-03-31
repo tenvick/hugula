@@ -9,8 +9,12 @@ namespace Hugula.Editor
         /// <summary>
         /// 版本文件扩展文件.
         /// </summary>
-        public const string SettingFile = "SettingHugula.txt";
+        public const string ExtensionFolder = "ExtensionFolder.txt";
 
+        /// <summary>
+        /// 设置文件夹
+        /// </summary>
+        public const string SettingFile = "EditorSetting.txt";
         /// <summary>
         /// 版本文件扩展文件.
         /// </summary>

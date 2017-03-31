@@ -42,9 +42,9 @@ namespace Hugula.Loader {
         /// 清理缓存释放资源
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void ClearCache (string assetBundleName) {
+        public static void ClearDelay (string assetBundleName) {
             int hash = LuaHelper.StringToHash (assetBundleName);
-            ClearCache (hash);
+            ClearDelay (hash);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Hugula.Loader {
         /// 清理缓存释放资源
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void ClearCache (int assethashcode) {
+        public static void ClearDelay (int assethashcode) {
             CacheData cache = TryGetCache (assethashcode);
 
             if (cache != null) {
@@ -299,8 +299,30 @@ namespace Hugula.Loader {
                         return false;
                     }
 
-                    UnityEngine.Object target = UnityEditor.AssetDatabase.LoadAssetAtPath (assetPaths[0], assetType);
-                    req.data = target;
+                    bool loadAll = Typeof_ABAllAssets.Equals (assetType);
+                    object data = null;
+                    List<UnityEngine.Object> datas = null;
+                    foreach (var p in assetPaths) {
+                        if (loadAll) {
+                            // data
+                            UnityEngine.Object[] target = UnityEditor.AssetDatabase.LoadAllAssetsAtPath (p);
+                            if (datas == null) {
+                                datas = new List<UnityEngine.Object> ();
+                                datas.AddRange (target);
+                            } else {
+                                datas.AddRange (target);
+                            }
+                            data = datas.ToArray ();
+                        } else {
+                            UnityEngine.Object target = UnityEditor.AssetDatabase.LoadAssetAtPath (p, assetType);
+                            if (target) {
+                                data = target;
+                                break;
+                            }
+                        }
+                    }
+
+                    req.data = data;
 
                 }
 
@@ -332,15 +354,23 @@ namespace Hugula.Loader {
 #endif
                     re = true;
                 } else {
+                    bool loadAll = Typeof_ABAllAssets.Equals (assetType);
                     if (abundle == null) {
 #if UNITY_EDITOR
                         Debug.LogWarningFormat ("SetRequestDataFromCache Assetbundle is null request(url={0},assetName={1},assetType={2})  ", req.url, req.assetName, req.assetType);
 #endif
                     } else if (req.async)
-                        req.assetBundleRequest = abundle.LoadAssetAsync (req.assetName, assetType);
+                        if (loadAll)
+                            req.assetBundleRequest = abundle.LoadAllAssetsAsync ();
+                        else
+                            req.assetBundleRequest = abundle.LoadAssetAsync (req.assetName, assetType);
                     else {
-                        req.data = abundle.LoadAsset (req.assetName, assetType);
+                        if (loadAll)
+                            req.data = abundle.LoadAllAssets ();
+                        else
+                            req.data = abundle.LoadAsset (req.assetName, assetType);
                     }
+                    // Debug.LogFormat ("load all {0} {1} ", loadAll, req.assetBundleRequest);
                     re = true;
                 }
             }
@@ -376,7 +406,20 @@ namespace Hugula.Loader {
             return true;
         }
 
-        internal static bool Unload (int hashcode) {
+        /// <summary>
+        /// 立即卸载资源
+        /// </summary>
+        /// <returns></returns>
+        public static bool Unload (string key) {
+            int keyhash = LuaHelper.StringToHash (key);
+            return Unload (keyhash);
+        }
+
+        /// <summary>
+        /// 立即卸载资源
+        /// </summary>
+        /// <returns></returns>
+        public static bool Unload (int hashcode) {
             CacheData cache = TryGetCache (hashcode);
             if (cache != null && cache.count == 0) {
                 caches.Remove (cache.assetHashCode); //删除
@@ -430,6 +473,7 @@ namespace Hugula.Loader {
         public static readonly Type Typeof_Bytes = typeof (System.Byte[]);
         public static readonly Type Typeof_AssetBundle = typeof (AssetBundle);
         public static readonly Type Typeof_ABScene = typeof (AssetBundleScene);
+        public static readonly Type Typeof_ABAllAssets = typeof (UnityEngine.Object[]);
         public static readonly Type Typeof_AudioClip = typeof (AudioClip);
         public static readonly Type Typeof_Texture2D = typeof (Texture2D);
         public static readonly Type Typeof_Object = typeof (UnityEngine.Object);

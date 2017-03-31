@@ -64,7 +64,7 @@ local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,as
 		req.async = true
 	end
 
-	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"abname=",req.assetBundleName,"isNormal=",req.isNormal,"req.uris=",req.uris)
+	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"isNormal=",req.isNormal,"req.uris=",req.uris)
 	return req
 end
 
@@ -120,7 +120,7 @@ end
 function Loader:clear(key)
 	-- local t = type(key)
 	--if t == "string" then 
-	CacheManager.ClearCache(key)
+	CacheManager.Unload(key)
 	--end 
 --    unload_unused_assets()
 end

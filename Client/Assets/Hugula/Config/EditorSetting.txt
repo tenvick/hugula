@@ -1,0 +1,2 @@
+//设置assetbundle name忽略的后缀
+abNameIgnoreSuffix:_alpha,_atlas

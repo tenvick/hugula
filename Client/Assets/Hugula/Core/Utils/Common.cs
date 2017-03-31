@@ -56,16 +56,10 @@ namespace Hugula.Utils
         public const string CONFIG_CSV_NAME = "config.u3d";
 
         /// <summary>
-        /// 语言包目录
+        /// 语言包特殊前缀
         /// </summary>
         [SLua.DoNotToLua]
-        public const string LANGUAGE_FLODER = "Lan";
-
-        /// <summary>
-        /// 语言包后缀
-        /// </summary>
-        [SLua.DoNotToLua]
-        public const string LANGUAGE_SUFFIX = "lan";
+        public const string LANGUAGE_PREFIX= "lan+";
 
         /// <summary>
         /// The Http STAR.

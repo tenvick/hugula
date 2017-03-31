@@ -12,7 +12,7 @@ Asset = class(function(self,url,names)
     self.asset_name = CUtils.GetAssetName(url) --asset name
     self.assetbundle_url = CUtils.GetRightFileName(url) --real use url
     self.key = CUtils.GetAssetBundleName(self.assetbundle_url) --以assetbundle name为key
-   print("Asset url=",url,"assetbundle_url=",self.assetbundle_url,"asset_name=",self.asset_name)
+   -- print("Asset url=",url,"assetbundle_url=",self.assetbundle_url,"asset_name=",self.asset_name)
     self.names = names
     if names then 
     	local len =#names local name

@@ -26,6 +26,7 @@ namespace Hugula.Utils
         {
             string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),fileName);
 			FileInfo finfo = new FileInfo(path);
+            // if(finfo.Exists)finfo.Delete();
 			if(!finfo.Directory.Exists)finfo.Directory.Create();
 
             using (StreamWriter sw = new StreamWriter(path, false))

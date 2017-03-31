@@ -57,7 +57,7 @@ public class AssetbundlesMenuItems
     [MenuItem("Assets/AssetBundles/Set AssetBundle Name", false, 1)]
     static public void SetAssetBundlesName()
     {
-        BuildScript.SetAssetBundlesName();
+        BuildScript.SetAssetBundlesName(true);
     }
 
     [MenuItem("Assets/AssetBundles/Set AssetBundle Variants And Name", false, 2)]
@@ -193,28 +193,23 @@ public class AssetbundlesMenuItems
     }
     
 
-    [MenuItem("Hugula/Export Lua [Assets\\Lua] %l", false, 12)]
+    [MenuItem("Hugula/Export Lua [Assets\\Lua *.lua] %l", false, 12)]
     public static void exportLua()
     {
         ExportResources.exportLua();
     }
 
-    [MenuItem("Hugula/Export Config [Assets\\Config]", false, 13)]
+    [MenuItem("Hugula/Export Config [Assets\\Config *.csv]", false, 13)]
     public static void exportConfig()
     {
         ExportResources.exportConfig();
     }
 
-    //    [MenuItem("Hugula/Export Language [Assets\\Lan]", false, 14)]
+    [MenuItem("Hugula/Export Language [Assets\\Config\\Lan *.csv]", false, 14)]
     public static void exportLanguage()
     {
         ExportResources.exportLanguage();
     }
-
-    // [MenuItem("Hugula/Test ", false, 15)]
-    // public static void Breaker1() {
-    //     ExportResources.buildAssetBundlesUpdateAB();
-    //  }
 
     [MenuItem("Hugula/Build For Publish ", false, 16)]
     public static void exportPublish()

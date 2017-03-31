@@ -1,7 +1,7 @@
 echo off
 echo buildText
 
-set TEXTOUTDIR=%CD%\..\..\Assets\Lan\
+set TEXTOUTDIR=%CD%\..\..\Assets\Config\Lan\
 set STRINGTOOLS=%CD%\..\..\tools\site-packages\stringLanguage.py
 set STRINGSOURCE="Language.xls"
 

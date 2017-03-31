@@ -250,9 +250,13 @@ namespace Hugula.Loader {
 #if HUGULA_LOADER_DEBUG
                     Debug.LogFormat (" 3.2.0 <color=#A9C115>set Req(assetname={0},url={1}).data asnyc Count{2} frameCount{3} </color>", item.assetName, item.url, loadingAssetQueue.Count, Time.frameCount);
 #endif
-                    if (item.assetBundleRequest is AssetBundleRequest)
-                        item.data = ((AssetBundleRequest) item.assetBundleRequest).asset; //赋值
-                    else
+                    if (item.assetBundleRequest is AssetBundleRequest) {
+                        if (CacheManager.Typeof_ABAllAssets.Equals (item.assetType))
+                            item.data = ((AssetBundleRequest) item.assetBundleRequest).allAssets; //赋值
+                        else
+                            item.data = ((AssetBundleRequest) item.assetBundleRequest).asset; //赋值
+
+                    } else
                         item.data = item.assetBundleRequest;
 #if HUGULA_LOADER_DEBUG
                     Debug.LogFormat (" 3.2.1 <color=#A9C115>set Req(assetname={0},url={1} abr{2}).data end </color>", item.assetName, item.url, item.assetBundleRequest);
@@ -353,7 +357,7 @@ namespace Hugula.Loader {
             {
                 list.Add (req);
             } else {
-                list = ListPool<CRequest> .Get ();
+                list = ListPool<CRequest>.Get ();
                 assetCallBackList.Add (key, list);
                 loadingAssetBundleQueue.Add (req);
             }
@@ -378,12 +382,12 @@ namespace Hugula.Loader {
             if (CheckLoadAssetAsync (req)) //已经下载
             {
                 return false;
-            #if UNITY_EDITOR
-            }else if(SimulateAssetBundleInEditor && req.isAssetBundle) //
+#if UNITY_EDITOR
+            } else if (SimulateAssetBundleInEditor && req.isAssetBundle) //
             {
                 CallbackError (req);
                 return false;
-            #endif
+#endif
             } else if (!UriGroup.CheckRequestCurrentIndexCrc (req)) //如果校验失败
             {
 #if HUGULA_LOADER_DEBUG
@@ -402,7 +406,7 @@ namespace Hugula.Loader {
                 list.Add (req);
                 return true;
             } else {
-                var listreqs = ListPool<CRequest> .Get ();
+                var listreqs = ListPool<CRequest>.Get ();
                 requestCallBackList.Add (key, listreqs);
                 listreqs.Add (req);
 
@@ -537,7 +541,7 @@ namespace Hugula.Loader {
 #endif
                     }
                 }
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
 
             } else {
                 if (!creq.isAssetBundle) //r如果不是assetbundle不需要load asset
@@ -578,7 +582,7 @@ namespace Hugula.Loader {
                     // Debug.LogFormat("DispatchReqComplete cout={3},data={0} assetName={1} url={2}", req.data, req.assetName, req.url, count);
                     DispatchReqComplete (reqitem);
                 }
-                ListPool<CRequest> .Release (list);
+                ListPool<CRequest>.Release (list);
             }
 
             DispatchReqComplete (req);
@@ -652,7 +656,7 @@ namespace Hugula.Loader {
                     reqitem.DispatchEnd ();
                     PopGroup (reqitem);
                 }
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
             } else {
                 creq.DispatchEnd ();
                 PopGroup (creq);
@@ -951,7 +955,7 @@ namespace Hugula.Loader {
             string udAssetKey = reqUrl.udAssetKey;
 
             //step 1 remove request list
-            List<CRequest> removeReqs = ListPool<CRequest> .Get ();
+            List<CRequest> removeReqs = ListPool<CRequest>.Get ();
             CRequest req;
             for (int i = 0; i < queue.Count;) {
                 req = queue[i];
@@ -1000,12 +1004,12 @@ namespace Hugula.Loader {
             List<CRequest> callbacklist = null;
             if (requestCallBackList.TryGetValue (udKey, out callbacklist)) {
                 requestCallBackList.Remove (udKey);
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
             }
 
             if (assetCallBackList.TryGetValue (udAssetKey, out callbacklist)) {
                 assetCallBackList.Remove (udAssetKey);
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
             }
 
             for (int i = 0; i < removeReqs.Count; i++) {
@@ -1013,7 +1017,7 @@ namespace Hugula.Loader {
                 PopGroup (req);
             }
 
-            ListPool<CRequest> .Release (removeReqs);
+            ListPool<CRequest>.Release (removeReqs);
         }
 
         /// <summary>
@@ -1030,7 +1034,7 @@ namespace Hugula.Loader {
 
         public void StopAll () {
 
-            List<CRequest> removeReqs = ListPool<CRequest> .Get ();
+            List<CRequest> removeReqs = ListPool<CRequest>.Get ();
             CRequest req = null;
             for (int i = 0; i < queue.Count;) {
                 req = queue[i];
@@ -1071,12 +1075,12 @@ namespace Hugula.Loader {
             List<CRequest> callbacklist = null;
             foreach (var kv in requestCallBackList) {
                 callbacklist = kv.Value;
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
             }
 
             foreach (var kv in assetCallBackList) {
                 callbacklist = kv.Value;
-                ListPool<CRequest> .Release (callbacklist);
+                ListPool<CRequest>.Release (callbacklist);
             }
 
             for (int i = 0; i < removeReqs.Count; i++) {
@@ -1084,7 +1088,7 @@ namespace Hugula.Loader {
                 PopGroup (req);
             }
 
-            ListPool<CRequest> .Release (removeReqs);
+            ListPool<CRequest>.Release (removeReqs);
 
         }
 

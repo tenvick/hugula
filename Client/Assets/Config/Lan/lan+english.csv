@@ -1,0 +1,16 @@
+first_tap_tips=Tap the screen to start the game
+main_init=initialization...
+main_compare_local_ver=Compare local version information.
+main_clear_cache=Clean up the old cache.
+main_local_check=Read the local check file.
+main_web_server_ver=Load the server version information.
+main_download_new_app=Please update app version!
+main_download_from_webserver=Start loading new resources from the web server.
+main_compare_crc_list=Check list comparison.
+main_web_server_crc_list=Load the server checklist.
+main_download_complete=Update finished, enter the game!
+main_download_fail=File download failed Please restart the game.
+main_downloading_tips=Network resource loading (consumption flow) %d kb/ %d kb。
+main_refresh_script=Refresh the script.
+main_enter_game=enter the game......
+main_http_ver_cdn=["http://warxcdn.tapenjoy.com/","http://192.168.103.200:8055/"]

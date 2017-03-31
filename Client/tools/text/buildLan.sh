@@ -3,7 +3,7 @@ echo 开始导出文本资源
 pwd
 
 STRINGTOOLS="../site-packages/stringLanguage.py" #"site-packages/stringconv.py
-TEXTOUTDIR="../../Assets/Lan"
+TEXTOUTDIR="../../Assets/Config/Lan"
 STRINGSOURCE="Language.xls"
 
 python $STRINGTOOLS $STRINGSOURCE $TEXTOUTDIR

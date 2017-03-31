@@ -1,0 +1,16 @@
+first_tap_tips=点击屏幕开始游戏
+main_init=初始化...
+main_compare_local_ver=对比本地版本信息。
+main_clear_cache=清理旧的缓存。
+main_local_check=读取本地校验文件。
+main_web_server_ver=加载服务器版本信息。
+main_download_new_app=请更新app版本！
+main_download_from_webserver=开始从服务器加载新的资源。
+main_compare_crc_list=校验列表对比中。
+main_web_server_crc_list=加载服务器校验列表。
+main_download_complete=更新完毕，进入游戏！
+main_download_fail=文件下载失败请重启游戏。
+main_downloading_tips=网络资源加载中(消耗流量) %d kb/ %d kb。
+main_refresh_script=刷新脚本。
+main_enter_game=进入游戏......
+main_http_ver_cdn=["http://warxcdn.tapenjoy.com/","http://192.168.103.200:8055/"]

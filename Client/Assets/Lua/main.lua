@@ -44,6 +44,7 @@ local Loader = Loader
 local require_bytes = require_bytes
 local delay = PLua.Delay
 local stop_delay = PLua.StopDelay
+local Localization = Hugula.Localization --
 
 ResVersion = {code=1,crc32=0,time=1}
 
@@ -68,6 +69,14 @@ local MAX_STEP = 6
 CRC_FILELIST = {}
 BACKGROUND_DOWNLOAD = {} --
 cdn_hosts = {}
+
+function lua_localization(key,...)--本地化
+	local val = Localization.Get(key)
+	if ... then 
+		val = string.format(val,... )
+	end
+	return  val
+end
 
 
 function CRC_FILELIST.get_item(key)
@@ -96,6 +105,17 @@ local function set_resversion(ver)
 		end
 	end
 end
+
+local function set_http_ver_hosts()
+	local http = lua_localization("main_http_ver_cdn")
+	if http ~= "main_http_ver_cdn" then
+		local d = json:decode(http)
+		print(http)
+		print(d)
+	end	
+end
+
+set_http_ver_hosts()
 
 local function get_ver_uri_group() --ver 列表
 	local group = UriGroup()
@@ -140,11 +160,13 @@ local function add_file(crc_tb ) --所有文件列表
 end
 
 local function add_crc(crc_tb) --加入了crc值的assetbundle会进行校验
+	-- local str = ""
 	for k,v in pairs(crc_tb) do
 		for k1,v1 in pairs(v) do
 			CrcCheck.Add(k1,v1[1]) --str = str..string.format("%s=%s,",k1,v1[1])
 		end
 	end
+	-- print(str)
 end
 
 --检测扩展文件夹
@@ -170,7 +192,7 @@ local function enterGame(manifest)
 	end
 
 	local function load_manifest( ... )
-		set_progress_txt("进入游戏......",5,1)
+		set_progress_txt(lua_localization("main_enter_game"),5,1) --)进入游戏......"
 		print(manifest)
 		if manifest then --如果有更新需要刷新
 			print("刷新manifest")
@@ -180,7 +202,7 @@ local function enterGame(manifest)
 		end
 	end
 
-	set_progress_txt("刷新脚本。",5,0.2)
+	set_progress_txt(lua_localization("main_refresh_script"),5,0.2) --刷新脚本。"
 
 	cdn_hosts = ResVersion.cdn_host or {}
 	delay(load_manifest,0.1)
@@ -195,14 +217,14 @@ local function one_file_down(BACKGROUND_DOWNLOAD,url,bol,arg)
 		local m = BACKGROUND_DOWNLOAD.m
 		local loaded_s = math.ceil( BACKGROUND_DOWNLOAD.loaded_size/m)
 		local loaded_t = math.floor( BACKGROUND_DOWNLOAD.total_size/m)
-		set_progress_txt(string.format("网络资源加载中(消耗流量) %d kb/ %d kb。",loaded_s,loaded_t),4,loaded_s/loaded_t)
+		set_progress_txt(lua_localization("main_downloading_tips",loaded_s,loaded_t),4,loaded_s/loaded_t)  --string.format("网络资源加载中(消耗流量) %d kb/ %d kb。",loaded_s,loaded_t),4,loaded_s/loaded_t)
 	end
 end
 
 local function all_file_down(BACKGROUND_DOWNLOAD)
 	-- print("all file is down")
 	if BACKGROUND_DOWNLOAD.loaded_err then
-		set_progress_txt("文件下载失败请重启游戏。")
+		set_progress_txt(lua_localization("main_download_fail")) --"文件下载失败请重启游戏。")
 	else
 		set_resversion(server_ver)
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME)) --删除旧文件
@@ -212,7 +234,7 @@ local function all_file_down(BACKGROUND_DOWNLOAD)
 		print("更新版本号！")
 		FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME),CUtils.GetRightFileName(VERSION_FILE_NAME))
 		-- FileHelper.DeletePersistentFile(DOWANLOAD_TEMP_FILE)--删除零时文件
-		set_progress_txt("更新完毕，进入游戏！",4,1)
+		set_progress_txt(lua_localization("main_download_complete"),4,1) --"更新完毕，进入游戏！"
 		local loader_key = "core.loader"
 		package.loaded[loader_key] = nil 
 		package.preload[loader_key] = nil
@@ -323,7 +345,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 	end
 
 	local function on_server_comp(req)
-		set_progress_txt("校验列表对比中。")
+		set_progress_txt(lua_localization("main_compare_crc_list")) --校验列表对比中。")
 		local text_asset = req.data
 		server_file = require_bytes(text_asset.bytes)
 		print(text_asset)
@@ -348,7 +370,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 		add_file(server_file)
 
 		if change then
-			set_progress_txt("开始从服务器加载新的资源。",4,0.01)
+			set_progress_txt(lua_localization("main_download_from_webserver"),4,0.01)--开始从服务器加载新的资源。
 			BACKGROUND_DOWNLOAD.load_files(urls,server_ver.cdn_host,one_file_down,all_file_down)
 		else
 			enterGame()
@@ -361,7 +383,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 	end
 
 	local function load_server( ... )
-		set_progress_txt("加载服务器校验列表。")
+		set_progress_txt(lua_localization("main_web_server_crc_list")) --加载服务器校验列表。")
 		local crc = tostring(server_ver.crc32)
 		local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
 		local assetbundle_name = CUtils.GetRightFileName(asset_name)
@@ -396,12 +418,13 @@ main_update.load_server_verion = function () --加载服务器版本号
 
 	 	FileHelper.SavePersistentFile(ver_str,CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME)) --临时文件
 
-	 	if server_ver.time <=  local_version.time then --如果发布时间不对。
-  			set_progress_txt("你的版本不需要更新！")
-	 		enterGame()
-	 	elseif CODE_VERSION ~= server_ver.code then --如果本地代码版本号不一致
-  			set_progress_txt("请更新app版本！")
-			 Application.OpenURL(server_ver.update_url)
+	 	-- if server_ver.time <=  local_version.time then --如果发布时间不对。
+  		-- 	set_progress_txt("你的版本不需要更新！")
+	 	-- 	enterGame()
+	 	-- else
+		if CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
+  			set_progress_txt(lua_localization("main_download_new_app")) --"请更新app版本！")
+			Application.OpenURL(server_ver.update_url)
 	 	elseif server_ver.crc32 ~= local_version.crc32 then
 	 		main_update.load_server_file_list()
 	 	else
@@ -409,7 +432,7 @@ main_update.load_server_verion = function () --加载服务器版本号
 	 	end
 	 end
 
-	set_progress_txt("加载服务器信息。",3,0.5)
+	set_progress_txt(lua_localization("main_web_server_ver"),3,0.5) --"加载服务器版本信息。"
     Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_ver_uri_group())--get_update_uri_group(ver_host))
 end
 
@@ -447,7 +470,7 @@ main_update.load_local_file_list = function () --加载本地列表
 
 	step.load_persistent_file=function ( ... )
 		if CrcCheck.ContainsKey(update_list_crc_key) then
-			set_progress_txt("读取本地校验文件。")
+			set_progress_txt(lua_localization("main_local_check")) --"读取本地校验文件。")
 			local crc = CrcCheck.GetCrc(update_list_crc_key)
 			print("persistent update file list"..tostring(crc))
 		
@@ -519,7 +542,7 @@ main_update.compare_local_version = function () --对比本地版本号
 				set_resversion(local_version)
 				main_update.load_local_file_list()			
 			else
-				set_progress_txt("清理旧的缓存。")
+				set_progress_txt(lua_localization("main_clear_cache")) --清理旧的缓存。")
 				print("清理旧的缓存。"..CUtils.GetRealPersistentDataPath())
 				FileHelper.DeletePersistentDirectory(nil)
 				CrcCheck.Clear() --清除校验列表
@@ -564,7 +587,7 @@ main_update.compare_local_version = function () --对比本地版本号
     	Loader:get_resource(url,nil,String,step.on_streaming_comp,step.on_streaming_error,nil)
 	end
 
-  	set_progress_txt("对比本地版本信息。",2,0.2)
+  	set_progress_txt(lua_localization("main_compare_local_ver"),2,0.2) --"对比本地版本信息。"
 	step.load_streaming()
 	step.load_persistent()
 
@@ -578,8 +601,8 @@ local function init_step1()
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
 	_progressbar_txt = ui_logo:GetComponentInChildren(UnityEngine.UI.Text,true)
 	_progressbar_slider = ui_logo:GetComponentInChildren(UnityEngine.UI.Slider,true)
-	set_progress_txt("初始化...",1,1)
-	
+	set_progress_txt(lua_localization("main_init"),1,1)
+
 	main_update.compare_local_version()
 
 end

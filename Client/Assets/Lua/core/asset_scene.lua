@@ -30,7 +30,7 @@ function AssetScene:is_loaded()
 end
 --消耗
 function AssetScene:dispose()
-	CacheManager.ClearCache(self.key) --清理缓存
+	CacheManager.Unload(self.key) --清理缓存
 	self.root = nil
 	GAMEOBJECT_ATLAS[self.key]=nil
 end

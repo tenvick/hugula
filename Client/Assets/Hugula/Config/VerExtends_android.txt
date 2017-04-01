@@ -1,2 +1,2 @@
-"cdn_host":["http:192.168.103.200/android/res"]
+"cdn_host":["http://192.168.103.200:8055/webres/android/res"]
 "update_url":"http://192.168.100.30/hugula/android"

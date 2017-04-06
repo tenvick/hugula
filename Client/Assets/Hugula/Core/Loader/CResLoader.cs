@@ -259,7 +259,7 @@ namespace Hugula.Loader {
                     } else
                         item.data = item.assetBundleRequest;
 #if HUGULA_LOADER_DEBUG
-                    Debug.LogFormat (" 3.2.1 <color=#A9C115>set Req(assetname={0},url={1} abr{2}).data end </color>", item.assetName, item.url, item.assetBundleRequest);
+                    Debug.LogFormat (" 3.2.1 <color=#A9C115>set Req(assetname={0},url={1} data{2}) end </color>", item.assetName, item.url, item.data);
 #endif
                     loadedAssetQueue.Enqueue (item);
                     loadingAssetQueue.RemoveAt (i);

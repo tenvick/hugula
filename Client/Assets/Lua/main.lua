@@ -79,7 +79,7 @@ function lua_localization(key,...)--本地化
 end
 
 
-function CRC_FILELIST.get_item(key)
+function CRC_FILELIST.get_item(key) ----获取所有
 	local val = nil
 	for k,v in pairs(CRC_FILELIST) do
 		if type(v) == "table" then
@@ -88,6 +88,13 @@ function CRC_FILELIST.get_item(key)
 		end
 	end
 	return val
+end
+
+function CRC_FILELIST.get_manual(key) --获取手动更新
+	local item = CRC_FILELIST["manual"]
+	if item then
+		return item[key]
+	end
 end
 
 function print_time(times)
@@ -170,10 +177,10 @@ local function add_crc(crc_tb) --加入了crc值的assetbundle会进行校验
 end
 
 --检测扩展文件夹
-local function check_extends_folder(path,v1)
-	local i = string.find(path,"/")
-	if i ~= nil then
-		local crc_path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),path)
+local function check_extends_folder(key,v1)
+	local manual =CRC_FILELIST.get_manual(key)
+	if manual ~= nil then
+		local crc_path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),key)
 		local v = FileHelper.ComputeCrc32(crc_path)
 		return v ~= v1 
 	end	

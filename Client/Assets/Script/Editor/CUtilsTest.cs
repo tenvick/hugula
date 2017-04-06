@@ -174,4 +174,44 @@ public class CUtilsEditorTest
         Debug.Log(input);
         Assert.AreEqual(re, false);
     }
+
+    [Test]
+    public void GetSuffixTest()
+    {
+                string url, name;
+        url = "extends/ex_ui_bottom.u3d?adsdf=sdfdfa&dafsd"; //lastFileIndex23,lastDotIndex20,lastQueIndex0
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, ".u3d");
+
+        url = CUtils.GetRealStreamingAssetsPath() + "/extends/ex_ui_bottom?as=1d2%dfd3";
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, "");
+
+        url = "ex_ui_bottom.u3d?as=1d2%dfd3";
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreNotEqual(name, "u3d");
+
+        url = "ex_ui_bottom";
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, "");
+
+        url = CUtils.GetRealStreamingAssetsPath() + "/ex_ui_bottom.u3d";
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, ".u3d");
+
+        url = CUtils.platform;
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, "");
+
+        url = CUtils.GetRealStreamingAssetsPath() + "/"+CUtils.platform;
+        name = CUtils.GetSuffix(url);
+        Debug.Log("..............=" + name);
+        Assert.AreEqual(name, "");
+    }
 }

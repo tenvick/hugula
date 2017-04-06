@@ -82,7 +82,7 @@ end
 ------------------------------------------quadtree------------------------------------
 --矩形min.xy max.xy
 local function get_rect_rang(topx,topy,width,height)
-	return topx , topy - height,topx + width,topy 
+	return topx , topy - height+1,topx + width-1,topy 
 	-- return cx - half_width,cy - half_height,cx + half_width,cy + half_height
 end
 
@@ -129,6 +129,7 @@ function QuadTree.new(w,h,lv,off_x,off_y)
 	if off_y == nil then off_y = 0 end
 
 	local o = {width = w,height = h,data = {},level = lv,offset_y=off_y,offset_x = off_x}
+	o.half_width,o.half_height = math.floor(w/2),math.floor(h/2)
 	setmetatable(o,QuadTree)
 	return o
 end
@@ -199,14 +200,17 @@ function QuadTree:offset(off_x,off_y) --相对于中心点偏移
 	self.offset_y = off_y
 end
 
-function QuadTree:center(x,y) --屏幕中心
-	local level = self.level
-	self.top_x = math.floor(x/level)+self.offset_x
-	self.top_y = math.floor(y/level)+self.offset_y
-	-- print(math.floor(x/level),math.floor(y/level),self.top_x,self.top_y,self.offset_x,self.offset_y)
+function QuadTree:_move_rect(x,y) --目标矩形
 	-- 求矩形的坐标min.xy max.xy
-	self.bottom_left_x,self.bottom_left_y,self.top_right_x,self.top_right_y = get_rect_rang(self.top_x,self.top_y,self.width,self.height)
-	-- print(self.bottom_left_x,self.bottom_left_y,self.top_right_x,self.top_right_y)
+	self.bottom_left_x,self.bottom_left_y,self.top_right_x,self.top_right_y = get_rect_rang(x,y,self.width,self.height)
+end
+
+function QuadTree:__tostring()
+	if self.bottom_left_x and self.bottom_left_y and self.top_right_x and self.top_right_y then
+		return string.format("quadTree(%s)x[%d:%d],y[%d:%d];",tostring(self.data),self.bottom_left_x,self.top_right_x,self.bottom_left_y,self.top_right_y)
+	else
+		return  string.format("quadTree(%s)",tostring(self.data))
+	end
 end
 
 function QuadTree:check_in_visible(x,y)
@@ -223,38 +227,46 @@ end
 
 function QuadTree:get_change(x1,y1,x2,y2) --return {remove,add}
 	local remove,add = {},{}
-	if x1 == nil then x1 = -x2-100 end --如果没有
-	if y1 == nil then y1 = -y2-100 end
-	local level = self.level
+	if x1 == nil then x1 = self._last_x or -x2-100 end --如果没有
+	if y1 == nil then y1 = self._last_y or -y2-100 end
 
-	local c_x1,c_y1 = math.floor(x1/level)+self.offset_x,math.floor(y1/level)+self.offset_y --第一个中心点
-	local c_x2,c_y2 = math.floor(x2/level)+self.offset_x,math.floor(y2/level)+self.offset_y--第二个中心点
-	self:center(x2,y2) --设置中心点
+	local level = self.level
+	local hf_width,hf_height = self.half_width,self.half_height
+	local c_x1,c_y1 = math.floor((x1+self.offset_x)/level)-hf_width,math.floor((y1+self.offset_y)/level)+hf_height --第一个top点
+	local c_x2,c_y2 = math.floor((x2+self.offset_x)/level)-hf_width,math.floor((y2+self.offset_y)/level)+hf_height--第二个top点
+	self:_move_rect(c_x2,c_y2) --移动区域中心点
 
 	-- 求矩形的坐标min.xy max.xy
 	local bottom_left_x,bottom_left_y,top_right_x,top_right_y = get_rect_rang(c_x1,c_y1,self.width,self.height)
 	local cross = get_cross_rect(bottom_left_x,bottom_left_y,top_right_x,top_right_y,self.bottom_left_x,self.bottom_left_y,self.top_right_x,self.top_right_y)
 	
+	self._last_x = x2
+	self._last_y = y2
+
 	--remove
 	local bx,ex,by,ey = bottom_left_x,top_right_x,bottom_left_y,top_right_y
 	local leaf
 	local data = self.data
+	-- print(string.format("source sizex(%d,%d),sizey(%d,%d)",bx,ex,by,ey))
 	for x = bx,ex do
 		for y = by,ey do
 			local key = string.format("%d_%d",x,y)
 			-- re[key] = true
 			leaf = data[key]
 			if not cross[key] and leaf then --
+				-- print("remove "..key)
 				for k,v in pairs(leaf) do
 					table.insert(remove,v)
 				end
+			else
+				-- print("keep "..key)
 			end
 		end
 	end
 
 	--add
 	bx,ex,by,ey = self.bottom_left_x,self.top_right_x,self.bottom_left_y,self.top_right_y
-	local leaf
+	-- print(string.format("target sizex(%d,%d),sizey(%d,%d)",bx,ex,by,ey))
 	for x = bx,ex do
 		for y = by,ey do
 			local key = string.format("%d_%d",x,y)
@@ -270,4 +282,6 @@ function QuadTree:get_change(x1,y1,x2,y2) --return {remove,add}
 
 	return remove,add
 end
+
+
 ------------------------------------------end quadtree------------------------------------

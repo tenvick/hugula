@@ -60,7 +60,7 @@ public class AssetbundlesMenuItems
         BuildScript.SetAssetBundlesName(true);
     }
 
-    [MenuItem("Assets/AssetBundles/Set AssetBundle Variants And Name", false, 2)]
+    [MenuItem("Assets/AssetBundles/Set AssetBundle Variants And Name【parent folder name is varint name】", false, 2)]
     static public void SetAssetBundlesVariantsAndName()
     {
         BuildScript.SetAssetBundlesVariantsAndName();
@@ -70,6 +70,18 @@ public class AssetbundlesMenuItems
     static public void SetExtendsFloder()
     {
         BuildScript.SetAsExtendsFloder();
+    }
+
+    [MenuItem("Assets/AssetBundles/Add Extension Files", false, 3)]
+    static public void AddExtensionFiles()
+    {
+        BuildScript.ExtensionFiles(false);
+    }
+
+       [MenuItem("Assets/AssetBundles/Remove Extension Files", false, 3)]
+    static public void RemoveExtensionFiles()
+    {
+        BuildScript.ExtensionFiles(true);
     }
 
     [MenuItem("Assets/AssetBundles/Clear Extends Floder", false, 5)]

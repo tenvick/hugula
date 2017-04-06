@@ -12,6 +12,9 @@ namespace Hugula.Editor {
         //设置assetbundle name忽略的后缀
         public string[] abNameIgnoreSuffix;
 
+        //备份资源到当前版本res目录
+        public bool backupRes = false;
+
         //获取替换后的ab名字
         public string GetAssetBundleNameByReplaceIgnore (string abName) {
             if (abNameIgnoreSuffix != null) {
@@ -53,10 +56,13 @@ namespace Hugula.Editor {
                                 key = sp[0].Trim ();
                                 val = sp[1].Trim ();
 
-                                if (key == "spliteExtensionFolder") {
-                                    // _instance.spliteExtensionFolder = bool.Parse (val);
-                                } else if (key == "abNameIgnoreSuffix") {
+                                if (key == "abNameIgnoreSuffix") {
                                     _instance.abNameIgnoreSuffix = val.Split (',');
+                                }else if(key == "backupRes")
+                                {
+                                    bool re = false;
+                                    bool.TryParse(val,out re);
+                                    _instance.backupRes = re;
                                 }
                             }
                         }

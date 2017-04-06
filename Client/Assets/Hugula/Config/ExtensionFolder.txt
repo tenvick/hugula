@@ -1,1 +1,5 @@
-Assets/TapEnjoy/WarX/Battle
+version: 0
+assetLabels:
+- Assets/CustomerResource/Extends
+extensionFiles:
+- extends/ef3490812c6227324f2f5eb0344a2446.u3d

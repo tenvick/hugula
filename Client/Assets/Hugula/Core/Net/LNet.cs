@@ -13,7 +13,7 @@ namespace Hugula.Net
 {
 
     /// <summary>
-    /// ÍøÂçÁ¬½ÓÀà
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     [SLua.CustomLuaClass]
     public class LNet : MonoBehaviour, IDisposable
@@ -174,67 +174,97 @@ namespace Hugula.Net
                 sendQueue.Add(msg);
         }
 
-        public void Receive()
-        {
-            ushort len = 0;
-            byte[] buffer = null;
-            ushort readLen = 0;
-            while (client.Connected)
-            {
-                if (len == 0)
-                {
-                    byte[] header = new byte[2];
-                    stream.Read(header, 0, 2);
-                    Array.Reverse(header);
-                    len = BitConverter.ToUInt16(header, 0);
-                    buffer = new byte[len];
-                    readLen = 0;
-                    //if (len > client.ReceiveBufferSize)//Èç¹û³¤¶È´óÓÚÁË»º³åÇø
-                    //{
-                    //    buffer = new byte[len];
-                    //}
-                    //else
-                    //{
-                    //    buffer = null;
-                    //}
-                }
+    public void Receive()
+   {
+       int len = 0;
+       byte[] header = new byte[2];
+       byte[] buffer = new byte[102400];
+       int readLen = 0;
 
-                if (len > 0 && readLen < len)
-                {
-                    int offset = readLen;//¿ªÊ¼µã
-                    int msgLen = client.Available;//¿É¶Á³¤¶È
-                    int size = offset + msgLen;
-                    if (size > len)//Èç¹û¿É¶Á³¤¶È´óÓÚlen
-                    {
-                        msgLen = len - offset;
-                    }
+       while (client.Connected)
+       {
+           if (len == 0 && client.Available >= 2) //ï¿½ï¿½È¡ï¿½ï¿½Í·
+           {
+               stream.Read(header, 0, 2);
+               Array.Reverse(header);
+               len = BitConverter.ToUInt16(header, 0);
+               readLen = 0;
+#if NETWORK_DEBUG
+				Debug.Log(string.Format("<color=#8abacb>begin read len {0} </color>", len));
+#endif
+           }
 
-                    stream.Read(buffer, offset, msgLen);
-                    readLen = Convert.ToUInt16(offset + msgLen);
-                    if (readLen >= len)//¶ÁÈ¡Íê±Ï
-                    {
-                        Msg msg = new Msg(buffer);
-                        queue.Add(msg);
-                        len = 0;
-                    }
-                }
-                //if (len > 0 && buffer==null && len <= client.Available) //Èç¹ûÃ»ÓÐ·ÖÒ³
-                //{
-                //    byte[] message = new byte[len];
-                //    stream.Read(message, 0, message.Length);
-                //    Msg msg = new Msg(message);
-                //    queue.Add(msg);
-                //    len = 0;
-                //}
-                //else if (len > 0 && buffer != null)
-                //{
+           if (len > 0 && readLen < len)
+           {
+               int offset = readLen;//ï¿½ï¿½Ê¼ï¿½ï¿½
+               int msgLen = client.Available;//ï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½
+               int size = offset + msgLen;
+               if (size > len)//ï¿½ï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½len
+               {
+                   msgLen = len - offset;
+#if NETWORK_DEBUG
+				    Debug.Log(string.Format("<color=#8abacb>msgLen msgLen{0} len{1} offset{2} </color>", msgLen,len,offset));
+#endif
+               }
 
-                //}
+               msgLen = stream.Read(buffer, offset, msgLen);
+               readLen = offset + msgLen;
+               if (readLen >= len)//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
+               {
+                   Msg msg = new Msg(buffer);
+                   queue.Add(msg);
+#if NETWORK_DEBUG
+						Debug.Log(string.Format("<color=#8abacb>read all byte len {0} type{1} </color>", len,packet.Type));
+#endif
+                   len = 0;
+               }
+           }
 
-                Thread.Sleep(16);
-            }
+           //Thread.Sleep(16);
+       }
 
-        }
+   }
+        // public void Receive()
+        // {
+        //     ushort len = 0;
+        //     byte[] buffer = null;
+        //     ushort readLen = 0;
+        //     while (client.Connected)
+        //     {
+        //         if (len == 0 && client.Available>=2)
+        //         {
+        //             byte[] header = new byte[2];
+        //             stream.Read(header, 0, 2);
+        //             Array.Reverse(header);
+        //             len = BitConverter.ToUInt16(header, 0);
+        //             buffer = new byte[len];
+        //             readLen = 0;
+        //         }
+
+        //         if (len > 0 && readLen < len)
+        //         {
+        //             int offset = readLen;//ï¿½ï¿½Ê¼ï¿½ï¿½
+        //             int msgLen = client.Available;//ï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½
+        //             int size = offset + msgLen;
+        //             if (size > len)//ï¿½ï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½len
+        //             {
+        //                 msgLen = len - offset;
+        //             }
+
+        //             stream.Read(buffer, offset, msgLen);
+        //             readLen = Convert.ToUInt16(offset + msgLen);
+        //             if (readLen >= len)//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
+        //             {
+        //                 Msg msg = new Msg(buffer);
+        //                 queue.Add(msg);
+        //                 len = 0;
+        //             }
+        //         }
+
+        //         // Thread.Sleep(16);
+        //     }
+
+        // }
 
         #region protected
 

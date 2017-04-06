@@ -1,2 +1,4 @@
 //设置assetbundle name忽略的后缀
 abNameIgnoreSuffix:_alpha,_atlas
+//是否备份资源到当前版本res目录
+backupRes:true

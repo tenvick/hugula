@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 9869639b34820b840ab1fe68410c68c5
-timeCreated: 1472544934
+guid: ddaab1282e3d3e34cb84d22964263d62
+timeCreated: 1472544921
 licenseType: Pro
 TextureImporter:
   fileIDToRecycleName: {}
@@ -37,7 +37,6 @@ TextureImporter:
   lightmap: 0
   rGBM: 0
   compressionQuality: 50
-  allowsAlphaSplitting: 0
   spriteMode: 0
   spriteExtrude: 1
   spriteMeshType: 1
@@ -46,12 +45,14 @@ TextureImporter:
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spritePixelsToUnits: 100
   alphaIsTransparency: 0
+  spriteTessellationDetail: -1
   textureType: -1
   buildTargetSettings: []
   spriteSheet:
+    serializedVersion: 2
     sprites: []
     outline: []
   spritePackingTag: 
   userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  assetBundleName: f00a9a8f494ff11829f9168ee0a02a78
+  assetBundleVariant: hd

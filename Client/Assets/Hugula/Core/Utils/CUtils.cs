@@ -56,6 +56,22 @@ namespace Hugula.Utils {
         }
 
         /// <summary>
+        /// assetbundle suffix
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>       
+        public static string GetSuffix(string url)
+        {
+            if (string.IsNullOrEmpty (url)) return string.Empty;
+            string fname = "";
+            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            AnalysePathName (url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}",lastFileIndex,fileLen,lastDotIndex,suffixLen,url.Length);
+            fname = url.Substring (lastDotIndex, suffixLen);
+            return fname;
+        }
+
+        /// <summary>
         /// check www url
         /// </summary>
         /// <param name="url"></param>

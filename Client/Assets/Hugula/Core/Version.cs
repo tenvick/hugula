@@ -10,7 +10,7 @@ namespace Hugula
     public class Version
     {
 
-        public const uint VERSION = 0x000189;
+        public const uint VERSION = 0x000201;
 
     }
 }
@@ -18,7 +18,7 @@ namespace Hugula
  * 
  * 预编译命名说明
  * HUGULA_COMMON_ASSETBUNDLE -- 使用未加密的名字构建 assetbundle
- * HUGULA_WEB_MODE 启用页游模式
+ --* HUGULA_WEB_MODE  页游模式取消
  * 
  * HUGULA_LOADER_DEBUG 加载模块打印调试
  * HUGULA_PROFILE_DEBUG profile debug 信息

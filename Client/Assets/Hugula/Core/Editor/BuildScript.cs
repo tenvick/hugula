@@ -1,19 +1,18 @@
 ﻿// Copyright (c) 2014 hugula
 // direct https://github.com/tenvick/hugula
 //
-
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Hugula;
+using Hugula.Cryptograph;
+using Hugula.Pool;
+using Hugula.Update;
+using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
 
-using Hugula;
-using Hugula.Utils;
-using Hugula.Update;
-using Hugula.Cryptograph;
-using Hugula.Pool;
 
 namespace Hugula.Editor
 {
@@ -21,14 +20,14 @@ namespace Hugula.Editor
     {
 
         #region 配置变量
-        public const string streamingPath = "Assets/StreamingAssets";//打包assetbundle输出目录。
+        public const string streamingPath = "Assets/StreamingAssets"; //打包assetbundle输出目录。
         public const string TmpPath = "Tmp/";
         public const string HugulaFolder = "HugulaFolder";
 #if UNITY_STANDALONE_WIN
-        public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression  ; //
+        public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression; //
 #else
         public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
-  #endif      
+#endif      
 
 #if UNITY_IPHONE
     public const BuildTarget target = BuildTarget.iOS;
@@ -41,11 +40,11 @@ namespace Hugula.Editor
 #elif UNITY_STANDALONE_OSX
      public const BuildTarget target = BuildTarget.StandaloneOSXIntel;
 #else
-    public const BuildTarget target=BuildTarget.StandaloneWindows;
+        public const BuildTarget target = BuildTarget.StandaloneWindows;
 #endif
 
 #if HUGULA_COMMON_ASSETBUNDLE
-    public const bool isMd5 = false;
+        public const bool isMd5 = false;
 #else
         public const bool isMd5 = true;
 #endif
@@ -58,23 +57,23 @@ namespace Hugula.Editor
             string info = "Compute crc32";
             EditorUtility.DisplayProgressBar(title, info, 0.1f);
             Dictionary<string, object[]> firstCrcDict = new Dictionary<string, object[]>();
-            HashSet<string> whiteFileList = new HashSet<string>();
-            HashSet<string> blackFileList = new HashSet<string>();
+            HashSet<string> manualFileList = new HashSet<string>();
             Dictionary<string, object[]> currCrcDict = new Dictionary<string, object[]>();
             Dictionary<string, object[]> diffCrcDict = new Dictionary<string, object[]>();
+
             #region 读取首包
-            bool firstExists = SplitPackage.ReadFirst(firstCrcDict, whiteFileList, blackFileList);
+            bool firstExists = SplitPackage.ReadFirst(firstCrcDict, manualFileList);
             #endregion
-            // return ;
+
             SplitPackage.DeleteSplitPackageResFolder();
 
             #region 生成校验列表
             SplitPackage.UpdateOutPath = null;
             AssetDatabase.Refresh();
-            StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, whiteFileList, blackFileList);
+            StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
             uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
             // System.Threading.Thread.Sleep(1000);
-            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, SplitPackage.UpdateOutPath);//增量列表
+            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, SplitPackage.UpdateOutPath); //增量列表
             // System.Threading.Thread.Sleep(1000);
             CUtils.DebugCastTime("Time CreateStreamingCrcList End");
             #endregion
@@ -89,35 +88,19 @@ namespace Hugula.Editor
 
             SplitPackage.CopyVersionToSplitFolder(diff_crc);
 
-            SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, currCrcDict, diffCrcDict, whiteFileList, blackFileList);
+            SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
 
             CUtils.DebugCastTime("Time CopyChangeFileToSplitFolder End");
 
             Debug.LogFormat("streaming_crc={0},diff_crc{1}", streaming_crc, diff_crc);
 
-            Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},whiteFileList={3},blackFileList={4}", firstCrcDict.Count, currCrcDict.Count, diffCrcDict.Count, whiteFileList.Count, blackFileList.Count);
+            Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},manualFileList={3}", firstCrcDict.Count, currCrcDict.Count, diffCrcDict.Count, manualFileList.Count);
 
             #endregion
 
-            #region 删除扩展文件
+            #region 删除手动加载文件
 #if (UNITY_ANDROID || UNITY_IOS) //&& !UNITY_EDITOR
-
-            if (whiteFileList.Count > 0)
-            {
-                List<string> del = new List<string>();
-                foreach (var kv in currCrcDict)
-                {
-                    if (!whiteFileList.Contains(kv.Key))
-                    {
-                        del.Add(kv.Key);
-                    }
-                }
-                SplitPackage.DeleteStreamingFiles(del);//保留白名单
-            }
-            else
-            {
-                SplitPackage.DeleteStreamingFiles(blackFileList);
-            }
+            SplitPackage.DeleteStreamingFiles (manualFileList);
 #endif
             #endregion
 
@@ -129,7 +112,8 @@ namespace Hugula.Editor
         {
             string info = "Generate AssetBundles Md5Mapping ";
             EditorUtility.DisplayProgressBar("GenerateAssetBundlesMd5Mapping", info, 0);
-            AssetImporter import = null;
+            AssetImporter
+            import = null;
             float i = 0;
             float allLen = allAssets.Length;
             string name = "";
@@ -139,16 +123,22 @@ namespace Hugula.Editor
             foreach (string path in allAssets)
             {
                 import = AssetImporter.GetAtPath(path);
-                if (import != null && string.IsNullOrEmpty(import.assetBundleName) == false)
+                if (
+                    import != null && string.IsNullOrEmpty(
+                        import.assetBundleName) == false)
                 {
                     Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
                     name = s.name.ToLower();
 
                     string line = string.Empty;
-                    if (string.IsNullOrEmpty(import.assetBundleVariant))
-                        line = "[\"" + import.assetBundleName + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                    if (string.IsNullOrEmpty(
+                            import.assetBundleVariant))
+                        line = "[\"" +
+                        import.assetBundleName + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
                     else
-                        line = "[\"" + import.assetBundleName + "." + import.assetBundleVariant + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                        line = "[\"" +
+                        import.assetBundleName + "." +
+                        import.assetBundleVariant + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
 
                     sb.AppendLine(line);
                     if (name.Contains(" ")) Debug.LogWarning(name + " contains space");
@@ -196,7 +186,8 @@ namespace Hugula.Editor
         {
             Object[] selection = Selection.objects;
 
-            AssetImporter import = null;
+            AssetImporter
+            import = null;
             foreach (Object s in selection)
             {
                 import = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(s));
@@ -205,14 +196,14 @@ namespace Hugula.Editor
                 {
                     GameObject tar = s as GameObject;
                     ReferenceCount refe = tar.GetComponent<ReferenceCount>(); //LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                    Object.DestroyImmediate(refe,true);
+                    Object.DestroyImmediate(refe, true);
                     EditorUtility.SetDirty(s);
                 }
                 Debug.Log(s.name + " clear");
             }
         }
 
-         public static void DeleteAssetBundlesName()
+        public static void DeleteAssetBundlesName()
         {
             Object[] selection = Selection.objects;
 
@@ -231,11 +222,11 @@ namespace Hugula.Editor
                     assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
 
                 if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-                Debug.Log("delete : "+s.name+" md5 = "+assetBundleName);
+                Debug.Log("delete : " + s.name + " md5 = " + assetBundleName);
                 del.Add(assetBundleName);
             }
 
-            SplitPackage.DeleteStreamingFiles(del);//删除选中对象的ab
+            SplitPackage.DeleteStreamingFiles(del); //删除选中对象的ab
         }
 
         public static void SetAssetBundlesName(bool replace = false)
@@ -244,10 +235,9 @@ namespace Hugula.Editor
 
             foreach (Object s in selection)
             {
-                SetAssetBundleName(s,replace);
+                SetAssetBundleName(s, replace);
             }
         }
-
 
         /// <summary>
         /// 设置变体
@@ -259,26 +249,35 @@ namespace Hugula.Editor
             foreach (Object s in selection)
             {
                 apath = AssetDatabase.GetAssetPath(s);
-                string[] myFolderNames;
-                AssetImporter import = AssetImporter.GetAtPath(apath);
-                myFolderNames = s.name.ToLower().Split('-');
-                if (myFolderNames.Length == 2)
+                if (Directory.Exists(apath))
                 {
-                    string folder = GetLabelsByPath(apath);
-                    string name = CUtils.GetRightFileName(myFolderNames[0]);
+                    string[] myFolderNames;
+                    AssetImporter
+                    import = AssetImporter.GetAtPath(apath);
+                    myFolderNames = s.name.ToLower().Split('-');
+                    if (myFolderNames.Length == 2)
+                    {
+                        string folder = GetLabelsByPath(apath);
+                        string name = CUtils.GetRightFileName(myFolderNames[0]);
 
-                    if (string.IsNullOrEmpty(folder))
-                        import.assetBundleName = name;
+                        if (string.IsNullOrEmpty(folder))
+                            import.assetBundleName = name;
+                        else
+                            import.assetBundleName = string.Format("{0}/{1}", folder, name);
+
+                        import.assetBundleVariant = myFolderNames[1];
+                        EditorUtility.SetDirty(s);
+                    }
                     else
-                        import.assetBundleName = string.Format("{0}/{1}", folder, name);
-
-                    import.assetBundleVariant = myFolderNames[1];
-                    EditorUtility.SetDirty(s);
+                    {
+                        Debug.LogErrorFormat("{0} folder name must like floderName-xx (xx is variant name)", apath);
+                    }
                 }
                 else
                 {
-                    Debug.LogWarningFormat("{0} file name not like floderName-xx", apath);
+                    SetAssetBundleName(s, true, true);
                 }
+
             }
         }
 
@@ -286,29 +285,48 @@ namespace Hugula.Editor
         /// 设置assetbundleName
         /// </summary>
         /// <param name="s"></param>
-        public static void SetAssetBundleName(Object s,bool replace = false)
+        public static void SetAssetBundleName(Object s, bool replace = false, bool variant = false)
         {
             string abPath = AssetDatabase.GetAssetPath(s);
-            AssetImporter import = AssetImporter.GetAtPath(abPath);
+            AssetImporter
+            import = AssetImporter.GetAtPath(abPath);
             string folder = GetLabelsByPath(abPath);
             string objName = s.name.ToLower();
-            if(replace)
+            if (replace)
             {
                 objName = HugulaEditorSetting.instance.GetAssetBundleNameByReplaceIgnore(objName);
-                Debug.LogFormat("{0} replace {1}",s.name,objName); 
+                // Debug.LogFormat ("{0} replace {1}", s.name, objName);
             }
 
+            bool isScene = abPath.EndsWith(".unity");
             string name = CUtils.GetRightFileName(objName);
 
+            var suffix = Common.CHECK_ASSETBUNDLE_SUFFIX;
+            if (variant) // variant
+            {
+                suffix = "";
+            }
+
             if (string.IsNullOrEmpty(folder))
-                import.assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
+                import.assetBundleName = name + suffix;
             else
-                import.assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
+                import.assetBundleName = string.Format("{0}/{1}{2}", folder, name, suffix);
+
+            if (variant)
+            {
+                DirectoryInfo filePath = new DirectoryInfo(abPath);
+                var m_variant = filePath.Parent.Name.ToLower();
+                import.assetBundleVariant = m_variant;
+                HugulaSetting.instance.AddVariant(m_variant);
+                if (m_variant.Equals(Common.ASSETBUNDLE_SUFFIX))
+                    Debug.LogWarningFormat("{0} variant folder name Equals {1}", abPath, Common.ASSETBUNDLE_SUFFIX);
+                if (m_variant == Common.DOT_BYTES.Replace(".", ""))
+                    Debug.LogWarningFormat("{0} variant folder name Equals {1}", abPath, Common.DOT_BYTES);
+            }
 
             if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
-            Debug.Log(import.assetBundleName);
 
-            bool isScene = abPath.EndsWith(".unity");
+            Debug.Log(import.assetBundleName + ",variant=" + import.assetBundleVariant);
 
             if (s is GameObject)
             {
@@ -318,15 +336,15 @@ namespace Hugula.Editor
                     ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
                     if (refe != null)
                     {
-                        // refe.assetHashCode = LuaHelper.StringToHash(import.assetBundleName);
-                        refe.assetbundle = import.assetBundleName;
+                        refe.assetbundle =
+                            import.assetBundleName;
                         EditorUtility.SetDirty(s);
                     }
                 }
             }
             else if (isScene) //如果是场景需要添加引用计数脚本
-            {//UnityEngine.SceneAsset
-                var sce = s;// as SceneAsset;
+            { //UnityEngine.SceneAsset
+                var sce = s; // as SceneAsset;
                 Debug.Log(sce);
                 AssetDatabase.OpenAsset(sce);
                 GameObject gobj = GameObject.Find(sce.name);
@@ -335,7 +353,6 @@ namespace Hugula.Editor
                 if (refe != null)
                 {
                     refe.assetbundle = import.assetBundleName;
-                    // refe.assetHashCode = LuaHelper.StringToHash(import.assetBundleName);
                     EditorUtility.SetDirty(sce);
                 }
 
@@ -353,12 +370,12 @@ namespace Hugula.Editor
 
         public static void ChangeAssetsToBytesAsset(string[] allAssets)
         {
-            foreach(var p in allAssets)
+            foreach (var p in allAssets)
             {
                 byte[] luabytes = File.ReadAllBytes(p);
                 var bytesAsset = ScriptableObject.CreateInstance<BytesAsset>();
                 bytesAsset.bytes = luabytes;
-                string assetPath = p.Replace(".bytes" , ".asset").Replace(".txt" , ".asset");
+                string assetPath = p.Replace(".bytes", ".asset").Replace(".txt", ".asset");
                 AssetDatabase.CreateAsset(bytesAsset, assetPath);
             }
         }
@@ -371,7 +388,8 @@ namespace Hugula.Editor
         {
             string info = string.Format("Update AssetBundles Name To {0}", isMd5 == true ? "Md5" : " Prefab.Name");
             EditorUtility.DisplayProgressBar("UpdateAssetBundlesName", info, 0);
-            AssetImporter import = null;
+            AssetImporter
+            import = null;
             float i = 0;
             float allLen = allAssets.Length;
             string name = "";
@@ -380,12 +398,15 @@ namespace Hugula.Editor
             foreach (string path in allAssets)
             {
                 import = AssetImporter.GetAtPath(path);
-                if (import != null && string.IsNullOrEmpty(import.assetBundleName) == false)
+                if (
+                    import != null && string.IsNullOrEmpty(
+                        import.assetBundleName) == false)
                 {
                     string folder = GetLabelsByPath(path);
                     Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
                     name = s.name.ToLower();
-                    if (string.IsNullOrEmpty(import.assetBundleVariant))
+                    if (string.IsNullOrEmpty(
+                            import.assetBundleVariant))
                     {
                         name = CUtils.GetRightFileName(name);
 
@@ -394,7 +415,8 @@ namespace Hugula.Editor
                         else
                             import.assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
 
-                        cacheAbName = import.assetBundleName;
+                        cacheAbName =
+                            import.assetBundleName;
                     }
                     else
                     {
@@ -407,7 +429,9 @@ namespace Hugula.Editor
 
                         import.assetBundleVariant = names[1];
 
-                        cacheAbName = import.assetBundleName + "." + import.assetBundleVariant;
+                        cacheAbName =
+                            import.assetBundleName + "." +
+                            import.assetBundleVariant;
                     }
 
                     tipsInfo.AppendLine(cacheAbName + " path = " + path);
@@ -451,7 +475,8 @@ namespace Hugula.Editor
                 if (s is DefaultAsset)
                 {
                     apath = AssetDatabase.GetAssetPath(s);
-                    AssetImporter import = AssetImporter.GetAtPath(apath);
+                    AssetImporter
+                    import = AssetImporter.GetAtPath(apath);
                     import.assetBundleName = null;
                     //import.assetBundleVariant = null;
                     import.userData = HugulaFolder;
@@ -468,6 +493,43 @@ namespace Hugula.Editor
         }
 
         /// <summary>
+        /// 添加为扩展文件
+        /// </summary>
+        public static void ExtensionFiles(bool delete = false)
+        {
+            Object[] selection = Selection.objects;
+            string apath = null;
+            string suffix = "";
+            string abName = "";
+            foreach (Object s in selection)
+            {
+                apath = AssetDatabase.GetAssetPath(s);
+                AssetImporter
+                import = AssetImporter.GetAtPath(apath);
+                if (!string.IsNullOrEmpty(import.assetBundleVariant))
+                    suffix = import.assetBundleVariant;
+                else
+                    suffix = "";
+
+                if (string.IsNullOrEmpty(suffix))
+                {
+                    abName = import.assetBundleName;
+                }
+                else
+                {
+                    abName = import.assetBundleName = "." + suffix;
+                }
+
+                if (delete)
+                    HugulaExtensionFolderEditor.RemoveExtendsFile(abName);
+                else
+                    HugulaExtensionFolderEditor.AddExtendsFile(abName);
+
+            }
+        }
+
+
+        /// <summary>
         /// 清理扩展文件夹
         /// </summary>
         public static void ClearExtendsFloder()
@@ -479,7 +541,8 @@ namespace Hugula.Editor
                 if (s is DefaultAsset)
                 {
                     apath = AssetDatabase.GetAssetPath(s);
-                    AssetImporter import = AssetImporter.GetAtPath(apath);
+                    AssetImporter
+                    import = AssetImporter.GetAtPath(apath);
                     import.userData = null;
                     import.assetBundleName = null;
                     //import.assetBundleVariant = null;
@@ -497,7 +560,6 @@ namespace Hugula.Editor
         }
 
         #endregion
-
 
         #endregion
 
@@ -521,7 +583,7 @@ namespace Hugula.Editor
         static public void BuildABs(string[] assets, string outPath, string abName, BuildAssetBundleOptions bbo)
         {
             AssetBundleBuild[] bab = new AssetBundleBuild[1];
-            bab[0].assetBundleName = abName;//打包的资源包名称 随便命名
+            bab[0].assetBundleName = abName; //打包的资源包名称 随便命名
             bab[0].assetNames = assets;
             if (string.IsNullOrEmpty(outPath))
                 outPath = GetOutPutPath();
@@ -555,7 +617,7 @@ namespace Hugula.Editor
 
             BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
 
-            foreach(AssetBundleBuild abb in  bab)
+            foreach (AssetBundleBuild abb in bab)
             {
                 string abName = abb.assetBundleName;
                 string tmpFileName = Path.Combine(tmpPath, abName);
@@ -567,7 +629,7 @@ namespace Hugula.Editor
             }
 
         }
-     
+
         #region
 
         /// <summary>
@@ -592,9 +654,9 @@ namespace Hugula.Editor
 
         public static string GetLuaBytesResourcesPath()
         {
-            string luapath = Path.Combine(Application.dataPath,Common.LUACFOLDER);
-            luapath = Path.Combine(luapath,"Resources");
-            return luapath; 
+            string luapath = Path.Combine(Application.dataPath, Common.LUACFOLDER);
+            luapath = Path.Combine(luapath, "Resources");
+            return luapath;
         }
 
         public static string GetOutPutPath()
@@ -604,7 +666,7 @@ namespace Hugula.Editor
 
         public static string GetProjectTempPath()
         {
-            return Path.Combine(Application.dataPath.Replace("Assets",""), "Temp/hugula");
+            return Path.Combine(Application.dataPath.Replace("Assets", ""), "Temp/hugula");
         }
 
         public static string GetAssetTmpPath()
@@ -622,7 +684,7 @@ namespace Hugula.Editor
             if (obj.parent == null)
             {
                 if (string.IsNullOrEmpty(path)) path = obj.name;
-                return path;//  +/+path
+                return path; //  +/+path
             }
             else
             {
@@ -633,21 +695,23 @@ namespace Hugula.Editor
 
         static public string GetAssetBundleName(string url)
         {
-             if (string.IsNullOrEmpty (url)) return string.Empty;
-            int idxEnd = url.IndexOf ('?');
-            int idxBegin = url.IndexOf (CUtils.platformFloder); // 
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            int idxEnd = url.IndexOf('?');
+            int idxBegin = url.IndexOf(CUtils.platformFloder); // 
 
-            if (idxBegin == -1) {
-                idxBegin = url.LastIndexOf ("/")+1;
-                int idx1 = url.LastIndexOf ("\\")+1;
+            if (idxBegin == -1)
+            {
+                idxBegin = url.LastIndexOf("/") + 1;
+                int idx1 = url.LastIndexOf("\\") + 1;
                 if (idx1 > idxBegin) idxBegin = idx1;
-            } else
+            }
+            else
                 idxBegin = idxBegin + CUtils.platformFloder.Length + 1;
 
             if (idxBegin >= url.Length) idxBegin = 0;
             if (idxEnd == -1) idxEnd = url.Length;
 
-            string re = url.Substring (idxBegin, idxEnd - idxBegin);
+            string re = url.Substring(idxBegin, idxEnd - idxBegin);
             return re;
         }
 

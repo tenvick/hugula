@@ -12,24 +12,14 @@ rd /s /q %slua_path%
 echo "del slua sccuess "
 
 echo "cd to Unity Editor path"
-D:
-cd D:\Program Files\Unity\Editor\
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua
+C:
+cd C:\Program Files\Unity\Editor\
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout
 echo "slua make sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.DeleteStreamingOutPath
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.DeleteStreamingOutPath -logFile $stdout
 echo "Delete StreamingPath  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes -logFile $stdout
 echo "ExportRes  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForAndroid
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForAndroid -logFile $stdout
 echo "android apk build sccuess"
-echo "begin move apk to release"
-echo CURRENT_ROOT
-%PAN%
-cd %CURRENT_ROOT%
-cd ..\..\Assets
-set m=%date:~5,2%
-set d=%date:~8,2%
-move warx.apk ..\..\..\release\warx%m%%d%.apk
-echo "build warx"%m%%d%".apk sccuess"
-
 pause

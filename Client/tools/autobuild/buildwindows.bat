@@ -12,15 +12,15 @@ rd /s /q %slua_path%
 echo "del slua sccuess "
 
 echo "cd to Unity Editor path"
-D:
-cd D:\Program Files\Unity\Editor\
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua
+C:
+cd C:\Program Files\Unity\Editor\
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout
 echo "slua make sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.DeleteStreamingOutPath
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.DeleteStreamingOutPath -logFile $stdout
 echo "Delete StreamingPath  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes -logFile $stdout
 echo "ExportRes  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForWindows
+Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForWindows -logFile $stdout
 echo "windows build sccuess"
 
 pause

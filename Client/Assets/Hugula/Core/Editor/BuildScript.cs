@@ -73,7 +73,7 @@ namespace Hugula.Editor
             StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
             uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
             // System.Threading.Thread.Sleep(1000);
-            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, SplitPackage.UpdateOutPath); //增量列表
+            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists,true); //增量列表
             // System.Threading.Thread.Sleep(1000);
             CUtils.DebugCastTime("Time CreateStreamingCrcList End");
             #endregion

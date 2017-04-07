@@ -3,8 +3,9 @@
 UNITY_PATH=/Applications/Unity/Unity.app/Contents/MacOS/Unity
 
 #
-PROJECT_ROOT=/Users/puwenbin/Documents/tapEnjoy/slgioswindows/client
-RELEASE_ROOT=/Users/puwenbin/Documents/tapEnjoy/slgioswindows/pc
+#change to you project root
+PROJECT_ROOT=/Users/hugula/Documents/hugula/client
+RELEASE_ROOT=/Users/hugula/Documents/hugula/windows/pc
 
 
 rm -fr $PROJECT_ROOT/Assets/Lua
@@ -19,7 +20,7 @@ chmod 777 $PROJECT_ROOT/tools/luaTools/luajit2.04
 
 #导出
 
-$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.BuildSlua
-$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.DeleteStreamingOutPath
-$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.ExportRes
-$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.BuildForWindows
+$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.BuildSlua -logFile $stdout
+$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.DeleteStreamingOutPath -logFile $stdout
+$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.ExportRes -logFile $stdout
+$UNITY_PATH -quit -batchmode -projectPath $PROJECT_ROOT -executeMethod ProjectBuild.BuildForWindows -logFile $stdout

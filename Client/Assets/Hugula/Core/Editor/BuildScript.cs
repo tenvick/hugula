@@ -68,7 +68,7 @@ namespace Hugula.Editor
             SplitPackage.DeleteSplitPackageResFolder();
 
             #region 生成校验列表
-            SplitPackage.UpdateOutPath = null;
+            SplitPackage.UpdateOutPath = null;SplitPackage.UpdateOutDevelopPath = null;
             AssetDatabase.Refresh();
             StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
             uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
@@ -81,6 +81,7 @@ namespace Hugula.Editor
             #region 生成版本号
             //生成版本号码
             SplitPackage.CreateVersionAssetBundle(diff_crc);
+            SplitPackage.CreateDevelopVersionAssetBundle(diff_crc);
             CUtils.DebugCastTime("Time CreateVersionAssetBundle End");
             #endregion
 

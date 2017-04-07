@@ -1,10 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace Hugula.Editor
-{
-    public class EditorCommon
-    {
+﻿
+namespace Hugula.Editor {
+    public class EditorCommon {
 
         /// <summary>
         /// 版本文件扩展文件.
@@ -15,10 +11,11 @@ namespace Hugula.Editor
         /// 设置文件夹
         /// </summary>
         public const string SettingFile = "EditorSetting.txt";
+
         /// <summary>
         /// 版本文件扩展文件.
         /// </summary>
-        public const string VerExtends = "VerExtends.txt";
+        public const string VerExtends = "Ver.txt";
 
         /// <summary>
         /// hugula配置文件路径.

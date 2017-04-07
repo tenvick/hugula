@@ -4,7 +4,6 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-using Hugula;
 using Hugula.Utils;
 using Hugula.Update;
 
@@ -21,6 +20,109 @@ namespace Hugula.Editor
         public const string VerExtendsPath = EditorCommon.ConfigPath;// "Assets/Hugula/Config/";
 
         public const string ResFolderName = EditorCommon.ResFolderName;//"res";
+
+        /// <summary>
+        /// 更新文件输出根目录 release
+        /// </summary>
+        public static string UpdateOutPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_updateOutPath))
+                {
+                    _updateOutPath = Path.Combine(FirstOutReleasePath, CUtils.platform);
+                    DirectoryInfo dinfo = new DirectoryInfo(_updateOutPath);
+                    if (!dinfo.Exists) dinfo.Create();
+                }
+                return _updateOutPath;
+            }
+
+            set
+            {
+                _updateOutPath = value;
+            }
+        }
+
+        /// <summary>
+        /// 更新文件输出根目录 develop
+        /// </summary>
+        public static string UpdateOutDevelopPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_updateOutDevelopPath))
+                {
+                    _updateOutDevelopPath = Path.Combine(FirstOutDevelopPath, CUtils.platform);
+                    DirectoryInfo dinfo = new DirectoryInfo(_updateOutPath);
+                    if (!dinfo.Exists) dinfo.Create();
+                }
+                return _updateOutDevelopPath;
+            }
+            set
+            {
+                _updateOutDevelopPath = value;
+            }
+        }
+
+        /// <summary>
+        /// 版本输出develop目录
+        /// </summary>
+        public static string UpdateOutVersionDevelopPath
+        {
+            get
+            {
+                string updateOutPath = string.Format("{0}/v{1}", UpdateOutDevelopPath, CodeVersion.CODE_VERSION);
+                return updateOutPath;
+            }
+        }
+
+
+        /// <summary>
+        /// 版本输出relase目录
+        /// </summary>
+        public static string UpdateOutVersionPath
+        {
+            get
+            {
+                string updateOutPath = string.Format("{0}/v{1}", UpdateOutPath, CodeVersion.CODE_VERSION);
+                return updateOutPath;
+            }
+        }
+
+
+        private static string _updateOutPath, _updateOutDevelopPath;
+        public delegate StringBuilder filterSB(string key, StringBuilder manual, StringBuilder normal, HashSet<string> manualList);
+        private static string FirstOutPath
+        {
+            get
+            {
+
+                DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
+                string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, Common.FirstOutPath);
+                return firstPath;
+            }
+
+        }
+
+        private static string FirstOutReleasePath
+        {
+            get
+            {
+                string releasePath = Path.Combine(FirstOutPath, "release");
+                return releasePath;
+            }
+        }
+
+        private static string FirstOutDevelopPath
+        {
+            get
+            {
+                string releasePath = Path.Combine(FirstOutPath, "dev");
+                return releasePath;
+            }
+        }
+
+
         #region public
 
 
@@ -34,7 +136,7 @@ namespace Hugula.Editor
             CrcCheck.Clear();
             bool firstExists = false;
 
-            string readPath = Path.Combine(GetFirstOutPath(), CUtils.platform);
+            string readPath = Path.Combine(FirstOutReleasePath, CUtils.platform);
             string firstFileName = CUtils.InsertAssetBundleName(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), "_v" + CodeVersion.CODE_VERSION.ToString());
             readPath = Path.Combine(readPath, firstFileName);
             Debug.Log(readPath);
@@ -306,7 +408,7 @@ namespace Hugula.Editor
                     finfo.CopyTo(newName);
                 }
 
-                if (resType == CopyResType.OnlyNewest  || resType == CopyResType.ResVerFolder)
+                if (resType == CopyResType.OnlyNewest || resType == CopyResType.ResVerFolder)
                 {
                     string updateOutPath = Path.Combine(UpdateOutPath, ResFolderName);//总的资源目录
                     string newName = Path.Combine(updateOutPath, CUtils.InsertAssetBundleName(crc32outfilename, "_" + fileCrc.ToString()));
@@ -385,6 +487,81 @@ namespace Hugula.Editor
         }
 
         /// <summary>
+        /// Creates the develop version asset bundle.
+        /// </summary>
+        /// <param name="fileCrc">File crc.</param>
+        public static void CreateDevelopVersionAssetBundle(uint fileCrc)
+        {
+            //读取develop 扩展文件
+            string ver_file_name = VerExtends;
+            ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(ver_file_name, "_" + CUtils.platform + "_dev").Replace("//", "/"));
+
+            StringBuilder verExtSB = new StringBuilder();
+            if (File.Exists(ver_file_name))
+            {
+                using (StreamReader sr = new StreamReader(ver_file_name))
+                {
+                    string item;
+                    while ((item = sr.ReadLine()) != null)
+                    {
+                        verExtSB.AppendFormat(",{0}", item);
+                    }
+                }
+            }
+
+            //生成内容
+            //json 化version{ code,crc32,version}
+            CodeVersion.CODE_VERSION = 0;
+            CodeVersion.APP_NUMBER = 0;
+            CodeVersion.RES_VERSION = 0;
+            StringBuilder verJson = new StringBuilder();
+            verJson.Append("{");
+            verJson.Append(@"""code"":" + CodeVersion.CODE_VERSION + ",");
+            verJson.Append(@"""crc32"":" + fileCrc.ToString() + ",");
+            verJson.Append(@"""time"":" + CUtils.ConvertDateTimeInt(System.DateTime.Now) + ",");
+            verJson.Append(@"""version"":""" + CodeVersion.APP_VERSION + @"""");
+            verJson.Append(verExtSB.ToString());
+            verJson.Append("}");
+
+            //check develop folder
+            DirectoryInfo dicInfo = new DirectoryInfo(UpdateOutVersionDevelopPath);
+            if (!dicInfo.Exists) dicInfo.Create();
+
+            //输出文件
+            Debug.LogFormat("read develop extends:{0},content={1}", ver_file_name, verExtSB.ToString());
+            string path = "";
+            var resType = HugulaEditorSetting.instance.backupResType;
+            if (resType == CopyResType.ResVerFolder || resType == CopyResType.VerResFolder)
+            {
+                path = UpdateOutVersionDevelopPath;
+            }
+            if (resType == CopyResType.OnlyNewest)
+            {
+                path = UpdateOutDevelopPath;
+                //ver.txt
+                string outfilePath = Path.Combine(UpdateOutDevelopPath, "ver.txt"); //输出ver.txt
+                if (File.Exists(outfilePath)) File.Delete(outfilePath);
+
+                using (StreamWriter sr = new StreamWriter(outfilePath, false))
+                {
+                    sr.Write(verJson.ToString());
+                }
+            }
+
+            string outPath = Path.Combine(path, CUtils.GetRightFileName(Common.CRC32_VER_FILENAME));
+            Debug.Log("ver.txt to path=" + outPath);
+            EditorUtility.DisplayProgressBar("Create Version AssetBundle File", "write file to " + outPath, 0.99f);
+            // platform
+            using (StreamWriter sr = new StreamWriter(outPath, false))
+            {
+                sr.Write(verJson.ToString());
+            }
+            Debug.Log(verJson.ToString());
+            Debug.Log("Build Develop Version Complete = " + fileCrc.ToString() + " path " + outPath);
+            EditorUtility.ClearProgressBar();
+        }
+
+        /// <summary>
         ///   delete res folder
         /// </summary>
         public static void DeleteSplitPackageResFolder()
@@ -430,7 +607,7 @@ namespace Hugula.Editor
                 File.Copy(sourcePath, outfilePath);
                 Debug.LogFormat("Copy {0} to {1} sccuess!", sourcePath, outfilePath);
 
-                 outfilePath = Path.Combine(UpdateOutPath, verName);
+                outfilePath = Path.Combine(UpdateOutPath, verName);
                 if (File.Exists(outfilePath)) File.Delete(outfilePath);
                 File.Copy(sourcePath, outfilePath);
                 Debug.LogFormat("Copy {0} to {1} sccuess!", sourcePath, outfilePath);
@@ -474,7 +651,6 @@ namespace Hugula.Editor
             AssetDatabase.Refresh();
         }
 
-
         public static void DeleteStreamingFiles(ICollection<string> abNames)
         {
             EditorUtility.DisplayProgressBar("Delete Streaming AssetBundle File", "", 0.09f);
@@ -496,53 +672,10 @@ namespace Hugula.Editor
             AssetDatabase.Refresh();
         }
 
-        /// <summary>
-        /// split file copy to path
-        /// </summary>
-        public static string UpdateOutPath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_updateOutPath))
-                {
-                    // _updateOutPath = Path.Combine(GetFirstOutPath(), CUtils.GetAssetPath("") + System.DateTime.Now.ToString("_yyyy-MM-dd_HH-mm"));
-                    _updateOutPath = Path.Combine(GetFirstOutPath(), CUtils.platform);
-                    DirectoryInfo dinfo = new DirectoryInfo(_updateOutPath);
-                    if (!dinfo.Exists) dinfo.Create();
-                }
-                return _updateOutPath;
-            }
-
-            set
-            {
-                _updateOutPath = value;
-            }
-        }
-
-        /// <summary>
-        /// 版本输出目录
-        /// </summary>
-        public static string UpdateOutVersionPath
-        {
-            get
-            {
-                string updateOutPath = string.Format("{0}/v{1}", UpdateOutPath, CodeVersion.CODE_VERSION);
-                return updateOutPath;
-            }
-        }
-
         #endregion
 
 
         #region private
-        private static string _updateOutPath;
-        public delegate StringBuilder filterSB(string key, StringBuilder manual, StringBuilder normal, HashSet<string> manualList);
-        private static string GetFirstOutPath()
-        {
-            DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
-            string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, Common.FirstOutPath);
-            return firstPath;
-        }
 
         private static void CopyFileToSplitFolder(Dictionary<string, object[]> updateList)
         {

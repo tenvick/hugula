@@ -102,7 +102,7 @@ namespace Hugula.Utils
         /// <summary>
         /// Delete the persistent Directory
         /// </summary>
-		public static void DeletePersistentDirectory(string relative=null)
+		public static void DeletePersistentDirectoryFiles(string relative=null)
         {
             string path = CUtils.GetRealPersistentDataPath();
 			if (!string.IsNullOrEmpty (relative))
@@ -117,7 +117,7 @@ namespace Hugula.Utils
                     fino = allFiles[i];
                     fino.Delete();
                 };
-                dinfo.Delete(true);
+                // dinfo.Delete(true);
             }
         }
 
@@ -176,13 +176,22 @@ namespace Hugula.Utils
         }
 
         /// <summary>
-        /// 检测文件路径文件夹是否存在
+        /// 检测创建文件路径
         /// </summary>
         /// <param name="filePath"></param>
         public static void CheckCreateFilePathDirectory(string filePath)
         {
             FileInfo finfo = new FileInfo(filePath);
             if (!finfo.Directory.Exists) finfo.Directory.Create();
+        }
+
+        /// <summary>
+        /// 检测文件路径文件夹是否存在
+        /// </summary>
+        /// <param name="filePath"></param>
+        public static bool FileExists(string filePath)
+        {
+            return File.Exists(filePath);
         }
     }
 }

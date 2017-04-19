@@ -427,7 +427,7 @@ namespace Hugula.Loader {
                 return true;
             } else if (cache != null) {
 #if UNITY_EDITOR
-                Debug.LogWarningFormat ("<color=#ff00ff> can't unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
+                Debug.LogWarningFormat ("<color=#ffff00> can't unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
 #endif
             }
             return false;

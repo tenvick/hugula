@@ -2,7 +2,7 @@
 --  Copyright © 2015-2016   Hugula: Arpg game Engine
 --  热更新
 --  author pu
---	从VerExtends_android or VerExtends_ios 中的cdn_host下载资源包。
+--	从Ver_android or Ver_ios 中的cdn_host下载资源包。
 -- 	1热更新流程
 --	.1 对比本地版本号 streaming 和 persistent 的版本文件。
 --	.2 加载文件列表 分别加载streaming 和 persistent的文件列表
@@ -15,7 +15,7 @@
 --	2注意事项
 --	.1 关于文件crc校验 只有add_crc的assetbundle才会进行，并且只有当从persistent目录读取的时候才校验，可以使用UriGroup自己定义校验逻辑
 --	.2 CRC_FILELIST 当前版本所有文件的crc信息。CRC_FILELIST.get_item可以获取到某个assetbundle的crc信息
---	.3 BACKGROUND_DOWNLOAD 是网络加载模块，用于从网络加载URL并保存到persistent目录。
+--	.3 BackGroundDownload 是网络加载模块，用于从网络加载URL并保存到persistent目录。
 --	.4 ResVersion 版本信息，除了基本版本信息外，还可读取VerExtends_android or VerExtends_ios里面的配置字段，可以用于一些配置。
 --	.5 cdn_hosts 用于从网络加载资源的url列表
 ------------------------------------------------
@@ -32,6 +32,7 @@ local LRequest = Hugula.Loader.LRequest --内存池
 local LResLoader = Hugula.Loader.LResLoader
 
 local CODE_VERSION = Hugula.CodeVersion.CODE_VERSION
+local APP_VERSION = Hugula.CodeVersion.APP_VERSION
 local CUtils= Hugula.Utils.CUtils
 local LuaHelper=Hugula.Utils.LuaHelper
 local FileHelper=Hugula.Utils.FileHelper
@@ -45,6 +46,7 @@ local require_bytes = require_bytes
 local delay = PLua.Delay
 local stop_delay = PLua.StopDelay
 local Localization = Hugula.Localization --
+local HugulaSetting = Hugula.HugulaSetting.instance
 
 ResVersion = {code=1,crc32=0,time=1}
 
@@ -56,19 +58,143 @@ local UPDATED_LIST_NAME = Common.CRC32_FILELIST_NAME
 local UPDATED_TEMP_LIST_NAME =  CUtils.GetAssetName(UPDATED_LIST_NAME)..".tmp"
 local DOWANLOAD_TEMP_FILE = "downloaded.tmp"
 local update_list_crc_key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
-local http_ver_hosts = {"http://192.168.103.200:8055/"} --版本文件加载URL
+local http_ver_hosts = "http://192.168.100.101/api/ver/get?ver=%s&udid=%s&os=%s&time=%s" --自己构建web服务器通过本地版本判断返回ver.txt /dev|/release|/reivew|...
+http_ver_hosts = "http://192.168.100.101/"..CUtils.platform.."/v"..CODE_VERSION.."/"..VERSION_FILE_NAME --直接读取版本文件
 
 --local fristView
 local local_file,server_file = {},{}
-local loaded_file
+local backgroud_loader
 local local_version,server_ver
-local loaded_err = false
 local main_update = {} 
 local MAX_STEP = 6
+local DEBUG_UPDATE = true
+
 --- global
 CRC_FILELIST = {}
-BACKGROUND_DOWNLOAD = {} --
+BackGroundDownload = {} --
 cdn_hosts = {}
+
+---------------------------local function ----------------
+local function insert_assetBundle_name(assetbundleName,insert)
+	local append = HugulaSetting.appendCrcToFile;
+	if append then
+		return CUtils.InsertAssetBundleName(assetbundleName,insert)
+	else
+		return assetbundleName
+	end
+end
+--------------------------the mode of download-----------------
+BackGroundDownload.m = 1024
+BackGroundDownload.folder = CUtils.GetAssetPath("")
+BackGroundDownload.__index = BackGroundDownload
+
+function BackGroundDownload.new()
+	local o = {m = BackGroundDownload.m,is_loading = false,folder =BackGroundDownload.folder}
+	setmetatable(o,BackGroundDownload)
+	return o
+end
+
+local BackGroundDownload_mt = {}
+BackGroundDownload_mt.__call = function(tb)
+	return BackGroundDownload.new()
+end
+
+setmetatable(BackGroundDownload,BackGroundDownload_mt)
+
+function BackGroundDownload:get_old_list()
+	local temp_file = self.temp_file or DOWANLOAD_TEMP_FILE
+	local old_list_context = FileHelper.ReadPersistentFile(temp_file) --读取上次加载未完成列表
+	local old_list = {}
+	if old_list_context ~= nil then
+		-- print("get_old_list="..old_list_context)
+		old_list = json:decode(old_list_context)
+	end
+	self.old_list = old_list
+	return  old_list
+end
+
+function BackGroundDownload:on_file_down(url,bol,arg)
+	-- print(url," is down ",bol)
+	if bol == false then
+		self.loaded_err = true
+		print(url," download error ",arg[1])
+	else
+		self.loaded_size = self.loaded_size + math.ceil(arg[2])
+		-- save loaded file 
+		local key = CUtils.GetAssetBundleName(url)
+		self.loaded_file[key] = arg
+		local context = json:encode(self.loaded_file) 
+		local temp_file = self.temp_file or DOWANLOAD_TEMP_FILE
+		FileHelper.SavePersistentFile(context,temp_file) --保存加载列表
+	end
+
+	if self.one_file_down then self.one_file_down(self,url,bol,arg) end
+
+end
+
+function BackGroundDownload:on_all_file_down(isdown)
+	if self.loaded_err then
+
+	else
+		local temp_file = self.temp_file or DOWANLOAD_TEMP_FILE
+		FileHelper.DeletePersistentFile(temp_file)--删除零时文件
+	end
+	Download.Dispose()
+	self.is_loading = false
+	if self.all_file_down then self.all_file_down(self) end
+
+end
+
+function BackGroundDownload:find_change_files(file_list,filter)
+	local has_change = false
+	local old_list = self:get_old_list()
+	-- print(json.encode(old_list))
+	
+	local urls = {}
+	local old_key
+	for k,v in pairs(file_list) do 
+		for k1,v1 in pairs(v) do
+			if filter(k,k1,v1) then
+				old_key = insert_assetBundle_name(k1,"_"..v1[1])
+				if old_list[old_key] == nil or old_list[old_key][1] ~= v1[1] then
+					urls[k1] = v1
+					has_change = true
+				end
+			end
+		end
+	end
+	return urls,has_change
+end
+
+function BackGroundDownload:load_files(urls,cdns,one_file_down,all_file_down)
+	local download = Download.instance
+	self.one_file_down = one_file_down
+	self.all_file_down = all_file_down
+	local bg_loader = self
+	local function on_file_down(...) bg_loader:on_file_down(...)  end
+	local function on_all_file_down(...) bg_loader:on_all_file_down(...)  end
+	download:Init(cdns,self.max_loading or 2,on_file_down,on_all_file_down)
+	self.total_size = 0
+	self.loaded_err = false
+	self.is_loading = true
+	self.loaded_size = 0
+	self.loaded_file = {} --加载完成记录
+	local file,suffix,crc,file_name
+	for k,v in pairs(urls) do
+		crc = v[1]
+		self.total_size = self.total_size + math.ceil(v[2])
+		file_name =  k
+		suffix = CUtils.GetSuffix(k)
+		if suffix == "" then --如果是目录
+			file_name = k..Common.CHECK_ASSETBUNDLE_SUFFIX
+		end
+		file = insert_assetBundle_name(file_name,"_"..crc) --拼接
+		-- print("begin load "..file.." save name "..savefile)
+		download:Load(file,k,v)
+	end
+end
+
+--------------------------end mode of download-----------------
 
 function lua_localization(key,...)--本地化
 	local val = Localization.Get(key)
@@ -113,25 +239,19 @@ local function set_resversion(ver)
 	end
 end
 
-local function set_http_ver_hosts()
-	local http = lua_localization("main_http_ver_cdn")
-	if http ~= "main_http_ver_cdn" then
-		local d = json:decode(http)
-		print(http)
-		print(d)
-	end	
+local function decode_ver_str(str)
+	local ver = json:decode(str)
+	return ver
 end
 
-set_http_ver_hosts()
-
-local function get_ver_uri_group() --ver 列表
-	local group = UriGroup()
-	local ver_str = CUtils.platform.."/v"..CODE_VERSION.."/"
-	for k,v in ipairs(http_ver_hosts) do
-		group:Add(v..ver_str)
-	end
-	return group
-end
+-- local function get_ver_uri_group() --ver 列表
+-- 	local group = UriGroup()
+-- 	local ver_str = CUtils.platform.."/v"..CODE_VERSION.."/"
+-- 	for k,v in ipairs(http_ver_hosts) do
+-- 		group:Add(v..ver_str)
+-- 	end
+-- 	return group
+-- end
 
 local function get_update_uri_group(hosts, on_www_comp,on_crc_check)
 	local group = UriGroup()
@@ -166,25 +286,26 @@ local function add_file(crc_tb ) --所有文件列表
 	end
 end
 
-local function add_crc(crc_tb) --加入了crc值的assetbundle会进行校验
+local function add_crc(crc_tb,manual) --加入了crc值的assetbundle会进行校验
 	-- local str = ""
 	for k,v in pairs(crc_tb) do
-		for k1,v1 in pairs(v) do
-			CrcCheck.Add(k1,v1[1]) --str = str..string.format("%s=%s,",k1,v1[1])
+		if manual == nil or (manual and k == "manual") then 
+			for k1,v1 in pairs(v) do
+				CrcCheck.Add(k1,v1[1]) --str = str..string.format("%s=%s,",k1,v1[1])
+			end
 		end
 	end
-	-- print(str)
+	-- print("add_crc:"..str)
 end
 
---检测扩展文件夹
-local function check_extends_folder(key,v1)
+--检测扩展文件
+local function check_extends_file(key,v1)
 	local manual =CRC_FILELIST.get_manual(key)
 	if manual ~= nil then
-		local crc_path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),key)
-		local v = FileHelper.ComputeCrc32(crc_path)
-		return v ~= v1 
+		local e = FileHelper.PersistentFileExists(key)
+		return e
 	end	
-	return true
+	return true --
 end 
 
 local function enterGame(manifest)
@@ -200,7 +321,7 @@ local function enterGame(manifest)
 
 	local function load_manifest( ... )
 		set_progress_txt(lua_localization("main_enter_game"),5,1) --)进入游戏......"
-		print(manifest)
+		-- print(manifest)
 		if manifest then --如果有更新需要刷新
 			print("刷新manifest")
 	 		Loader:refresh_assetbundle_manifest(to_begin)
@@ -216,133 +337,39 @@ local function enterGame(manifest)
 	
 end
 
-local function one_file_down(BACKGROUND_DOWNLOAD,url,bol,arg)
+local function one_file_down(bg_loader,url,bol,arg)
 	-- print(url," is down ",bol)
 	if bol == false then
 		print(url," download error ",arg[1])
 	else
-		local m = BACKGROUND_DOWNLOAD.m
-		local loaded_s = math.ceil( BACKGROUND_DOWNLOAD.loaded_size/m)
-		local loaded_t = math.floor( BACKGROUND_DOWNLOAD.total_size/m)
+		local m = bg_loader.m
+		local loaded_s = math.ceil( bg_loader.loaded_size/m)
+		local loaded_t = math.floor( bg_loader.total_size/m)
 		set_progress_txt(lua_localization("main_downloading_tips",loaded_s,loaded_t),4,loaded_s/loaded_t)  --string.format("网络资源加载中(消耗流量) %d kb/ %d kb。",loaded_s,loaded_t),4,loaded_s/loaded_t)
 	end
 end
 
-local function all_file_down(BACKGROUND_DOWNLOAD)
+local function all_file_down(bg_loader)
 	-- print("all file is down")
-	if BACKGROUND_DOWNLOAD.loaded_err then
+	if bg_loader.loaded_err then
 		set_progress_txt(lua_localization("main_download_fail")) --"文件下载失败请重启游戏。")
 	else
-		set_resversion(server_ver)
+		-- set_resversion(server_ver)
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME)) --删除旧文件
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME)) --删除旧文件
-		print("更新文件列表！")
+		-- print("更新文件列表！")
 		FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME),CUtils.GetRightFileName(UPDATED_LIST_NAME))
-		print("更新版本号！")
+		-- print("更新版本号！")
 		FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME),CUtils.GetRightFileName(VERSION_FILE_NAME))
-		-- FileHelper.DeletePersistentFile(DOWANLOAD_TEMP_FILE)--删除零时文件
 		set_progress_txt(lua_localization("main_download_complete"),4,1) --"更新完毕，进入游戏！"
 		local loader_key = "core.loader"
 		package.loaded[loader_key] = nil 
 		package.preload[loader_key] = nil
 		enterGame(true)
-		print("all_file_down")
+		print("all_file_update_down")
 	end
 
 end 
-
---------------------------the mode of download-----------------
-BACKGROUND_DOWNLOAD.m = 1024
-BACKGROUND_DOWNLOAD.is_loading = false
-BACKGROUND_DOWNLOAD.folder = CUtils.GetAssetPath("")
-
-BACKGROUND_DOWNLOAD.get_old_list = function()
-	local temp_file = BACKGROUND_DOWNLOAD.temp_file or DOWANLOAD_TEMP_FILE
-	local old_list_context = FileHelper.ReadPersistentFile(temp_file) --读取上次加载未完成列表
-	local old_list = {}
-	if old_list_context ~= nil then
-		old_list = json:decode(old_list_context)
-	end
-	BACKGROUND_DOWNLOAD.old_list = old_list
-	return  old_list
-end
-
-BACKGROUND_DOWNLOAD.on_file_down=function(url,bol,arg)
-	-- print(url," is down ",bol)
-	if bol == false then
-		BACKGROUND_DOWNLOAD.loaded_err = true
-		print(url," download error ",arg[1])
-	else
-		BACKGROUND_DOWNLOAD.loaded_size = BACKGROUND_DOWNLOAD.loaded_size + math.ceil(arg[2])
-		-- save loaded file 
-		local key = CUtils.GetAssetBundleName(url)
-		BACKGROUND_DOWNLOAD.loaded_file[key] = arg
-		local context = json:encode(BACKGROUND_DOWNLOAD.loaded_file) 
-		local temp_file = BACKGROUND_DOWNLOAD.temp_file or DOWANLOAD_TEMP_FILE
-		FileHelper.SavePersistentFile(context,temp_file) --保存加载列表
-	end
-
-	if BACKGROUND_DOWNLOAD.one_file_down then BACKGROUND_DOWNLOAD.one_file_down(BACKGROUND_DOWNLOAD,url,bol,arg) end
-
-end
-
-BACKGROUND_DOWNLOAD.on_all_file_down=function(isdown)
-	if BACKGROUND_DOWNLOAD.loaded_err then
-
-	else
-		local temp_file = BACKGROUND_DOWNLOAD.temp_file or DOWANLOAD_TEMP_FILE
-		FileHelper.DeletePersistentFile(temp_file)--删除零时文件
-	end
-	Download.Dispose()
-	BACKGROUND_DOWNLOAD.is_loading = false
-	if BACKGROUND_DOWNLOAD.all_file_down then BACKGROUND_DOWNLOAD.all_file_down(BACKGROUND_DOWNLOAD) end
-
-end
-
-BACKGROUND_DOWNLOAD.find_change_files=function(file_list,filter)
-	local has_change = false
-	local old_list = BACKGROUND_DOWNLOAD.get_old_list()
-	local urls = {}
-	for k,v in pairs(file_list) do 
-		for k1,v1 in pairs(v) do
-			if filter(k,k1,v1) then
-				if old_list[k1] == nil or (old_list[k1] and old_list[k1][1] ~= v1[1])then
-					urls[k1] = v1
-					has_change = true
-				end
-			end
-		end
-	end
-	return urls,has_change
-end
-
-BACKGROUND_DOWNLOAD.load_files = function(urls,cdns,one_file_down,all_file_down)
-	local download = Download.instance
-	BACKGROUND_DOWNLOAD.one_file_down = one_file_down
-	BACKGROUND_DOWNLOAD.all_file_down = all_file_down
-	download:Init(cdns,BACKGROUND_DOWNLOAD.max_loading or 2,BACKGROUND_DOWNLOAD.on_file_down,BACKGROUND_DOWNLOAD.on_all_file_down)
-	BACKGROUND_DOWNLOAD.total_size = 0
-	BACKGROUND_DOWNLOAD.loaded_err = false
-	BACKGROUND_DOWNLOAD.is_loading = true
-	BACKGROUND_DOWNLOAD.loaded_size = 0
-	BACKGROUND_DOWNLOAD.loaded_file = {} --加载完成记录
-	local file,savefile,crc
-	for k,v in pairs(urls) do
-		crc = v[1]
-		BACKGROUND_DOWNLOAD.total_size = BACKGROUND_DOWNLOAD.total_size + math.ceil(v[2])
-		file = CUtils.InsertAssetBundleName(k,"_"..crc) --拼接
-		savefile =  k
-		if k == BACKGROUND_DOWNLOAD.folder then --如果是目录
-			savefile = BACKGROUND_DOWNLOAD.folder
-			file = k.."_"..crc.."."..Common.ASSETBUNDLE_SUFFIX
-			-- print(" load folder "..file)
-		end
-		-- print("begin load "..file.." save name "..savefile)
-		download:Load(file,savefile,v)
-	end
-end
-
---------------------------end mode of download-----------------
 
 main_update.load_server_file_list = function () --版本差异化对比
 
@@ -355,7 +382,7 @@ main_update.load_server_file_list = function () --版本差异化对比
 		set_progress_txt(lua_localization("main_compare_crc_list")) --校验列表对比中。")
 		local text_asset = req.data
 		server_file = require_bytes(text_asset.bytes)
-		print(text_asset)
+		-- print(text_asset)
 	 	Loader:clear(req.key)
 		add_crc(server_file) --加入验证列表
 
@@ -364,21 +391,17 @@ main_update.load_server_file_list = function () --版本差异化对比
 			local crc = vals[1]
 			local crc_not_equ = true
 			if  fval ~= nil then crc_not_equ = fval[1] ~= crc end
-			if Common.IS_WEB_MODE and pkey == "white" and crc_not_equ then --if web mode
-				return true
-			elseif crc_not_equ and check_extends_folder(key,crc) then
+			if crc_not_equ and check_extends_file(key,crc) then
 				return true
 			end
 			return  false
 		end
-
-		local urls,change = BACKGROUND_DOWNLOAD.find_change_files(server_file,filter_diff)
-				
+		backgroud_loader = BackGroundDownload()
+		local urls,change = backgroud_loader:find_change_files(server_file,filter_diff)
 		add_file(server_file)
-
 		if change then
 			set_progress_txt(lua_localization("main_download_from_webserver"),4,0.01)--开始从服务器加载新的资源。
-			BACKGROUND_DOWNLOAD.load_files(urls,server_ver.cdn_host,one_file_down,all_file_down)
+			backgroud_loader:load_files(urls,server_ver.cdn_host,one_file_down,all_file_down)
 		else
 			enterGame()
 		end
@@ -393,8 +416,8 @@ main_update.load_server_file_list = function () --版本差异化对比
 		set_progress_txt(lua_localization("main_web_server_crc_list")) --加载服务器校验列表。")
 		local crc = tostring(server_ver.crc32)
 		local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
-		local assetbundle_name = CUtils.GetRightFileName(asset_name)
-		local file_name = assetbundle_name.."_"..crc..".u3d"
+		local assetbundle_name = CUtils.GetRightFileName(asset_name..Common.CHECK_ASSETBUNDLE_SUFFIX)
+		local file_name =  insert_assetBundle_name(assetbundle_name,"_"..crc)
 		print("load web server crc "..file_name)
 		local req = LRequest.Get()
 		req.relativeUrl = file_name
@@ -420,15 +443,11 @@ main_update.load_server_verion = function () --加载服务器版本号
 	 	-- print(req.url,"is onComplete",req.data.Length)
 	 	local ver_str = req.data
 		print("server var ",ver_str)
-	 	server_ver = json:decode(ver_str)
+	 	server_ver = decode_ver_str(ver_str)
 	 	print_time(server_ver.time)
-
+		set_resversion(server_ver)
 	 	FileHelper.SavePersistentFile(ver_str,CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME)) --临时文件
 
-	 	-- if server_ver.time <=  local_version.time then --如果发布时间不对。
-  		-- 	set_progress_txt("你的版本不需要更新！")
-	 	-- 	enterGame()
-	 	-- else
 		if CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
   			set_progress_txt(lua_localization("main_download_new_app")) --"请更新app版本！")
 			Application.OpenURL(server_ver.update_url)
@@ -440,16 +459,20 @@ main_update.load_server_verion = function () --加载服务器版本号
 	 end
 
 	set_progress_txt(lua_localization("main_web_server_ver"),3,0.5) --"加载服务器版本信息。"
-    Loader:get_resource(VERSION_FILE_NAME,nil,String,on_comp,on_err,nil,get_ver_uri_group())--get_update_uri_group(ver_host))
+	local udid = UnityEngine.SystemInfo.deviceUniqueIdentifier --
+	local ver_url = string.format(http_ver_hosts,APP_VERSION,udid,CUtils.platform,os.time()) -- ResVersion http://gw-warx.dev.tapenjoy.com/api/ver/get?ver=1.0.1&udid=111111&os=ios&time=1491533172
+    print(ver_url)
+	Loader:get_resource(ver_url,nil,String,on_comp,on_err,nil,nil)--
 end
-
 
 main_update.load_local_file_list = function () --加载本地列表
 
 	local step = {}
 	step.next_step=function( ... )
 
-		if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
+		if DEBUG_UPDATE then --测试
+			main_update.load_server_verion()
+		elseif Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
 			if LResLoader.assetBundleManifest == nil then
 				enterGame(true)
 			else
@@ -479,13 +502,12 @@ main_update.load_local_file_list = function () --加载本地列表
 		if CrcCheck.ContainsKey(update_list_crc_key) then
 			set_progress_txt(lua_localization("main_local_check")) --"读取本地校验文件。")
 			local crc = CrcCheck.GetCrc(update_list_crc_key)
-			print("persistent update file list"..tostring(crc))
-		
+			-- print("persistent update file list"..tostring(crc))
 			local group = UriGroup()
 			group:Add(CUtils.GetRealPersistentDataPath(),true)
 			Loader:get_resource(UPDATED_LIST_NAME,nil,nil,step.on_persistent_comp,step.on_persistent_error,nil,group)
 		else
-			print("本地没有校验文件")
+			-- print("本地没有校验文件")
 			step.next_step()
 		end
 	end
@@ -497,7 +519,7 @@ main_update.load_local_file_list = function () --加载本地列表
     	print("on_streaming_filelist",text_asset)
 		local s_crc32_file = require_bytes(text_asset.bytes)
 		add_file(s_crc32_file)
-		if Common.IS_WEB_MODE then  add_crc(s_crc32_file) end
+		add_crc(s_crc32_file,true) --add manual
 		Loader:clear(req.key)
 		step.load_persistent_file()
     end
@@ -521,12 +543,12 @@ main_update.compare_local_version = function () --对比本地版本号
 	step.key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
 	step.on_persistent_comp=function ( req )
 		local ver_str = req.data
-		print("local persistent ver ",ver_str)
-		local ver_json = json:decode(ver_str)
+		-- print("local persistent ver ",ver_str)
+		local ver_json = decode_ver_str(ver_str) 
 		print_time(ver_json.time)
 		step.persistent_version = ver_json
 		CrcCheck.Add(update_list_crc_key,tonumber(ver_json.crc32))--本地验证列表的crc验证
-		print("persistent ver crc",update_list_crc_key,"=",ver_json.crc32)
+		-- print("persistent ver crc",update_list_crc_key,"=",ver_json.crc32)
 		step.compare()
 	end
 
@@ -538,24 +560,24 @@ main_update.compare_local_version = function () --对比本地版本号
 
 	step.compare=function(  )
 		if step.persistent_error == true and  step.streaming_version ~= nil then
-			print("没有缓存版本文件！")
+			-- print("没有缓存版本文件！")
 			local_version = step.streaming_version
 			set_resversion(local_version)
 			main_update.load_local_file_list()
 		elseif step.persistent_version ~= nil and step.streaming_version ~= nil then
-			if step.persistent_version.time >= step.streaming_version.time then
-				print("直接进入。")
+			if step.persistent_version.version >= step.streaming_version.version then
+				print("直接进入。%s > %s",step.persistent_version.version,step.streaming_version.version)
 				local_version = step.persistent_version
 				set_resversion(local_version)
 				main_update.load_local_file_list()			
 			else
 				set_progress_txt(lua_localization("main_clear_cache")) --清理旧的缓存。")
-				print("清理旧的缓存。"..CUtils.GetRealPersistentDataPath())
-				FileHelper.DeletePersistentDirectory(nil)
+				print("清理缓存。"..CUtils.GetRealPersistentDataPath())
+				FileHelper.DeletePersistentDirectoryFiles(nil)
 				CrcCheck.Clear() --清除校验列表
-				package.loaded[step.key] = nil 
-				package.preload[step.key] = nil
-				print("delete lua"..step.key)
+				package.loaded["core.loader"] = nil 
+				package.preload["core.loader"] = nil
+				print("delete lua core.loader")
 				local_version = step.streaming_version --当前版本
 				set_resversion(local_version)
 				main_update.load_local_file_list()
@@ -565,8 +587,8 @@ main_update.compare_local_version = function () --对比本地版本号
 
 	step.on_streaming_comp=function ( req )
 		local ver_str = req.data 
-		print("local streaming ver ",ver_str)
-		local ver_json = json:decode(ver_str)
+		-- print("local streaming ver ",ver_str)
+		local ver_json = decode_ver_str(ver_str)
 		print_time(ver_json.time)
 		step.streaming_version = ver_json
 		step.compare()
@@ -597,11 +619,9 @@ main_update.compare_local_version = function () --对比本地版本号
   	set_progress_txt(lua_localization("main_compare_local_ver"),2,0.2) --"对比本地版本信息。"
 	step.load_streaming()
 	step.load_persistent()
-
 end
 
 local function init_step1()
-
 	-- print(Hugula.Utils.CUtils.GetRealPersistentDataPath())
 	-- print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
 	-- print(UnityEngine.Application.version,Application.bundleIdentifier)

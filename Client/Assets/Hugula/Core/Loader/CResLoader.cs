@@ -1095,7 +1095,7 @@ namespace Hugula.Loader {
         /// <summary>
         /// Removes all actions.
         /// </summary>
-        public void RemoveAllEvents () {
+        public virtual void RemoveAllEvents () {
             StopAll ();
             OnAllComplete = null;
             OnProgress = null;

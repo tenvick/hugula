@@ -7,9 +7,11 @@ using Hugula.Cryptograph;
 using UnityEngine;
 
 
-namespace Hugula.Utils {
+namespace Hugula.Utils
+{
     [SLua.CustomLuaClass]
-    public static class CUtils {
+    public static class CUtils
+    {
 
         /// <summary>
         /// Gets the assetname of the URL file.
@@ -20,13 +22,14 @@ namespace Hugula.Utils {
         /// <param name='url'>
         /// URL.
         /// </param>
-        public static string GetAssetName (string url) {
-            if (string.IsNullOrEmpty (url)) return string.Empty;
+        public static string GetAssetName(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return string.Empty;
             string fname = "";
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
-            AnalysePathName (url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
-            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}",lastFileIndex,fileLen,lastDotIndex,suffixLen,url.Length);
-            fname = url.Substring (lastFileIndex + 1, fileLen);
+            AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
+            fname = url.Substring(lastFileIndex, fileLen);
             return fname;
         }
 
@@ -35,23 +38,26 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static string GetAssetBundleName (string url) {
-            if (string.IsNullOrEmpty (url)) return string.Empty;
-            int idxEnd = url.IndexOf ('?');
-            int idxBegin = url.IndexOf (platformFloder); // 
+        public static string GetAssetBundleName(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            int idxEnd = url.IndexOf('?');
+            int idxBegin = url.IndexOf(platformFloder); // 
 
-            if (idxBegin == -1) {
+            if (idxBegin == -1)
+            {
                 // idxBegin = url.LastIndexOf ("/")+1;
                 // int idx1 = url.LastIndexOf ("\\")+1;
                 // if (idx1 > idxBegin) idxBegin = idx1;
                 idxBegin = 0;
-            } else
+            }
+            else
                 idxBegin = idxBegin + platformFloder.Length + 1;
 
             if (idxBegin >= url.Length) idxBegin = 0;
             if (idxEnd == -1) idxEnd = url.Length;
 
-            string re = url.Substring (idxBegin, idxEnd - idxBegin);
+            string re = url.Substring(idxBegin, idxEnd - idxBegin);
             return re;
         }
 
@@ -62,12 +68,16 @@ namespace Hugula.Utils {
         /// <returns></returns>       
         public static string GetSuffix(string url)
         {
-            if (string.IsNullOrEmpty (url)) return string.Empty;
-            string fname = "";
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            string fname = string.Empty;
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
-            AnalysePathName (url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
-            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}",lastFileIndex,fileLen,lastDotIndex,suffixLen,url.Length);
-            fname = url.Substring (lastDotIndex, suffixLen);
+            AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
+            if (suffixLen > 1)
+            {
+                suffixLen = suffixLen - 1;
+                fname = url.Substring(lastDotIndex + 1, suffixLen);
+            }
             return fname;
         }
 
@@ -76,8 +86,9 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static string CheckWWWUrl (string url) {
-            if (url.IndexOf ("://") == -1) url = string.Format ("file://{0}", url);
+        public static string CheckWWWUrl(string url)
+        {
+            if (url.IndexOf("://") == -1) url = string.Format("file:///{0}", url);
             return url;
         }
 
@@ -91,16 +102,18 @@ namespace Hugula.Utils {
         /// <param name='absolutePath'>
         /// Absolute path.
         /// </param>
-        [System.Obsolete ("please use UriGroup")]
-        public static string GetFileFullPath (string absolutePath) {
+        [System.Obsolete("please use UriGroup")]
+        public static string GetFileFullPath(string absolutePath)
+        {
             string path = "";
 
             path = Application.persistentDataPath + "/" + absolutePath;
-            currPersistentExist = File.Exists (path);
+            currPersistentExist = File.Exists(path);
             if (!currPersistentExist)
                 path = Application.streamingAssetsPath + "/" + absolutePath;
 
-            if (path.IndexOf ("://") == -1) {
+            if (path.IndexOf("://") == -1)
+            {
                 path = "file://" + path;
             }
 
@@ -112,10 +125,11 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
-        [System.Obsolete ("please use UriGroup")]
-        public static string GetAssetFullPath (string assetPath) {
-            string name = GetRightFileName (assetPath);
-            string path = GetFileFullPath (GetAssetPath (name));
+        [System.Obsolete("please use UriGroup")]
+        public static string GetAssetFullPath(string assetPath)
+        {
+            string name = GetRightFileName(assetPath);
+            string path = GetFileFullPath(GetAssetPath(name));
             return path;
         }
 
@@ -124,9 +138,10 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="assetPath"></param>
         /// <returns></returns>
-        [System.Obsolete ("please use UriGroup")]
-        public static string GetAssetOriginalFullPath (string assetPath) {
-            string path = GetFileFullPath (GetAssetPath (assetPath));
+        [System.Obsolete("please use UriGroup")]
+        public static string GetAssetOriginalFullPath(string assetPath)
+        {
+            string path = GetFileFullPath(GetAssetPath(assetPath));
             return path;
         }
 
@@ -136,19 +151,20 @@ namespace Hugula.Utils {
         /// <param name="assetbundleName"></param>
         /// <param name="insert"></param>
         /// <returns></returns>
-        public static string InsertAssetBundleName (string assetbundleName, string insert) {
+        public static string InsertAssetBundleName(string assetbundleName, string insert)
+        {
             int fileIndex, fileLen, dotIndex, suffixLen;
-            AnalysePathName (assetbundleName, out fileIndex, out fileLen, out dotIndex, out suffixLen);
+            AnalysePathName(assetbundleName, out fileIndex, out fileLen, out dotIndex, out suffixLen);
             // Debug.LogFormat("fileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}",fileIndex,fileLen,dotIndex,suffixLen,assetbundleName.Length);
             string fname = string.Empty;
             _textSB.Length = 0;
-            _textSB.Append (assetbundleName);
+            _textSB.Append(assetbundleName);
             if (dotIndex > 0)
-                _textSB.Insert (dotIndex, insert);
+                _textSB.Insert(dotIndex, insert);
             else
-                _textSB.Insert (assetbundleName.Length, insert);
+                _textSB.Insert(assetbundleName.Length, insert);
 
-            fname = _textSB.ToString ();
+            fname = _textSB.ToString();
 
             return fname;
         }
@@ -157,16 +173,19 @@ namespace Hugula.Utils {
         /// </summary>
         /// <returns>The UD key.</returns>
         /// <param name="url">url.</param>
-        public static string GetUDKey (string url) {
-            string udKey = CryptographHelper.CrypfString (url);
+        public static string GetUDKey(string url)
+        {
+            string udKey = CryptographHelper.CrypfString(url);
             return udKey;
         }
 
-        public static string GetRealStreamingAssetsPath () {
+        public static string GetRealStreamingAssetsPath()
+        {
             return realStreamingAssetsPath;
         }
 
-        public static string GetRealPersistentDataPath () {
+        public static string GetRealPersistentDataPath()
+        {
             return realPersistentDataPath;
         }
 
@@ -175,10 +194,11 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static string GetAssetPath (string name) {
+        public static string GetAssetPath(string name)
+        {
             string path = platformFloder;
-            if (!string.IsNullOrEmpty (name))
-                path = PathCombine (platformFloder, name);
+            if (!string.IsNullOrEmpty(name))
+                path = PathCombine(platformFloder, name);
             return path;
         }
 
@@ -186,7 +206,8 @@ namespace Hugula.Utils {
         /// the name manifest
         /// </summary>
         /// <returns></returns>
-        public static string GetPlatformFolderForAssetBundles () {
+        public static string GetPlatformFolderForAssetBundles()
+        {
             return platform;
         }
 
@@ -195,20 +216,21 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static string GetRightFileName (string fileName) {
-            if (string.IsNullOrEmpty (fileName)) return string.Empty;
+        public static string GetRightFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return string.Empty;
 
 #if !HUGULA_COMMON_ASSETBUNDLE
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
-            AnalysePathName (fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
 
-            string fname = fileName.Substring (lastFileIndex + 1, fileLen);
+            string fname = fileName.Substring(lastFileIndex, fileLen);
             string md5 = string.Empty;
-            md5 = CryptographHelper.Md5String (fname);
+            md5 = CryptographHelper.Md5String(fname);
             _textSB.Length = 0;
-            _textSB.Append (fileName);
-            if (fileLen > 0) _textSB.Replace (fname, md5, lastFileIndex + 1, fileLen);
-            fname = _textSB.ToString ();
+            _textSB.Append(fileName);
+            if (fileLen > 0) _textSB.Replace(fname, md5, lastFileIndex, fileLen);
+            fname = _textSB.ToString();
             return fname;
 #else
             return fileName;
@@ -223,9 +245,10 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static int ConvertDateTimeInt (System.DateTime time) {
-            System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime (new System.DateTime (1970, 1, 1));
-            return (int) (time - startTime).TotalSeconds;
+        public static int ConvertDateTimeInt(System.DateTime time)
+        {
+            System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));
+            return (int)(time - startTime).TotalSeconds;
         }
 
         /// <summary>
@@ -234,8 +257,28 @@ namespace Hugula.Utils {
         /// <param name="path1"></param>
         /// <param name="path2"></param>
         /// <returns></returns>
-        public static string PathCombine (string path1, string path2) {
-            return Path.Combine (path1, path2);
+        public static string PathCombine(string path1, string path2)
+        {
+            if (path2.Length == 0)
+            {
+                return path1;
+            }
+            if (path1.Length == 0)
+            {
+                return path2;
+            }
+            char c2 = path2[0];
+            if (c2 == '\\' && c2 == '/' && c2 == ':')
+            {
+                path2 = path2.Substring(1);
+            }
+            char c = path1[path1.Length - 1];
+            if (c != '\\' && c != '/' && c != ':')
+            {
+                return path1 + "/" + path2;
+            }
+            return path1 + path2;
+            // return Path.Combine(path1, path2);
         }
 
         #region private
@@ -248,22 +291,41 @@ namespace Hugula.Utils {
         /// <param name="fileLen"></param>
         /// <param name="dotIndex"></param>
         /// <param name="suffixLen"></param>
-        internal static void AnalysePathName (string pathName, out int fileIndex, out int fileLen, out int dotIndex, out int suffixLen) {
-            int len = pathName.Length - 1;
-            fileIndex = -1; //the last / or \ position
-            dotIndex = -1; //the last dot position
-            int questIndex = -1; //the ? position
+        internal static void AnalysePathName(string pathName, out int fileIndex, out int fileLen, out int dotIndex, out int suffixLen)
+        {
+            int len = pathName.Length;
+            fileIndex = 0; //the last / or \ position
+            dotIndex = len; //the last dot position
+            int questIndex = len; //the ? position
 
-            fileIndex = pathName.LastIndexOf ('/');
-            int end_fileIndex = pathName.LastIndexOf ('\\');
-            if (fileIndex < end_fileIndex) fileIndex = end_fileIndex;
-            dotIndex = pathName.LastIndexOf ('.');
-            questIndex = pathName.LastIndexOf ('?');
+            var arr = pathName.ToCharArray();
+            int i = len - 1;
+            char cha;
+            while (i >= 0)
+            {
+                cha = arr[i];
+                if (cha == '/' || cha == '\\')
+                {
+                    fileIndex = i + 1;
+                    break;
+                }
 
-            if (questIndex == -1) questIndex = len + 1;
-            if (dotIndex == -1 || dotIndex < fileIndex) dotIndex = questIndex;
+                if (cha == '?')
+                    questIndex = i;
+
+                if (cha == '.')
+                {
+                    dotIndex = i;
+                }
+
+                i--;
+            }
+
+            if (dotIndex > questIndex) dotIndex = questIndex;
+
             suffixLen = questIndex - dotIndex;
-            fileLen = dotIndex - fileIndex - 1;
+            fileLen = dotIndex - fileIndex;
+            // Debug.LogFormat("fileInde={0},questIndex={1},dotIndex={2},len={3},suffixLen={4},fileLen={5}", fileIndex, questIndex, dotIndex, len, suffixLen, fileLen);
         }
         #endregion
 
@@ -284,7 +346,7 @@ namespace Hugula.Utils {
 
 #if HUGULA_COMMON_ASSETBUNDLE
         /// <summary>
-        /// ??����???t?D
+        /// platform
         /// </summary>
         public const string platformFloder = platform;
 #else
@@ -292,10 +354,12 @@ namespace Hugula.Utils {
         /// <summary>
         /// platform Floder name
         /// </summary>
-        public static string platformFloder {
-            get {
-                if (string.IsNullOrEmpty (_platformFloder))
-                    _platformFloder = CryptographHelper.Md5String (platform);
+        public static string platformFloder
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_platformFloder))
+                    _platformFloder = CryptographHelper.Md5String(platform);
 
                 return _platformFloder;
             }
@@ -306,10 +370,12 @@ namespace Hugula.Utils {
         /// <summary>
         /// real persistentData Path
         /// </summary>
-        public static string realPersistentDataPath {
-            get {
-                if (string.IsNullOrEmpty (_realPersistentDataPath))
-                    _realPersistentDataPath = PathCombine (Application.persistentDataPath, platformFloder);
+        public static string realPersistentDataPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_realPersistentDataPath))
+                    _realPersistentDataPath = PathCombine(Application.persistentDataPath, platformFloder);
                 return _realPersistentDataPath;
             }
         }
@@ -318,10 +384,12 @@ namespace Hugula.Utils {
         /// <summary>
         /// real streamingAssets path
         /// </summary>
-        public static string realStreamingAssetsPath {
-            get {
-                if (string.IsNullOrEmpty (_realStreamingAssetsPath))
-                    _realStreamingAssetsPath = PathCombine (Application.streamingAssetsPath, platformFloder);
+        public static string realStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_realStreamingAssetsPath))
+                    _realStreamingAssetsPath = PathCombine(Application.streamingAssetsPath, platformFloder);
                 return _realStreamingAssetsPath;
             }
         }
@@ -330,25 +398,28 @@ namespace Hugula.Utils {
         /// <summary>
         /// android streamingAssets path
         /// </summary>
-        public static string androidFileStreamingAssetsPath {
-            get {
-                if (string.IsNullOrEmpty (_androidFileStreamingAssetsPath))
-                    _androidFileStreamingAssetsPath = PathCombine (Application.dataPath + "!assets", platformFloder);
+        public static string androidFileStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_androidFileStreamingAssetsPath))
+                    _androidFileStreamingAssetsPath = PathCombine(Application.dataPath + "!assets", platformFloder);
                 return _androidFileStreamingAssetsPath;
             }
         }
 
         #endregion
-        private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder (2048);
+        private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder(2048);
         private static System.DateTime _last_time = System.DateTime.Now;
         private static System.DateTime _begin_time = System.DateTime.Now;
-        public static double DebugCastTime (string tips) {
+        public static double DebugCastTime(string tips)
+        {
             var ds = System.DateTime.Now - _last_time;
             var all_ds = System.DateTime.Now - _begin_time;
             double cast = ds.TotalSeconds;
             _last_time = System.DateTime.Now;
-            if (!string.IsNullOrEmpty (tips))
-                Debug.LogFormat (tips + " Cast({0})s runtime({1})s  ", cast, all_ds.TotalSeconds);
+            if (!string.IsNullOrEmpty(tips))
+                Debug.LogFormat(tips + " Cast({0})s runtime({1})s  ", cast, all_ds.TotalSeconds);
             return cast;
         }
     }

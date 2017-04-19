@@ -87,7 +87,7 @@ namespace Hugula.Loader
 
         #endregion
 
-		public void RemoveAllEvents()
+		public override void RemoveAllEvents()
 		{
 			onAllCompleteFn = null;
 			onProgressFn = null;

@@ -63,6 +63,7 @@ namespace Hugula.Editor
 
             #region 读取首包
             bool firstExists = SplitPackage.ReadFirst(firstCrcDict, manualFileList);
+            Debug.Log("manualFileList.Count ="+manualFileList.Count);
             #endregion
 
             SplitPackage.DeleteSplitPackageResFolder();
@@ -101,7 +102,11 @@ namespace Hugula.Editor
 
             #region 删除手动加载文件
 #if (UNITY_ANDROID || UNITY_IOS) //&& !UNITY_EDITOR
+            bool spExtFolder = HugulaSetting.instance.spliteExtensionFolder;
+            if (spExtFolder)
+            {
             SplitPackage.DeleteStreamingFiles (manualFileList);
+            }
 #endif
             #endregion
 

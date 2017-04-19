@@ -13,4 +13,3 @@ main_download_fail=文件下载失败请重启游戏。
 main_downloading_tips=网络资源加载中(消耗流量) %d kb/ %d kb。
 main_refresh_script=刷新脚本。
 main_enter_game=进入游戏......
-main_http_ver_cdn=["http://warxcdn.tapenjoy.com/","http://192.168.103.200:8055/"]

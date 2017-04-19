@@ -102,6 +102,7 @@ namespace Hugula.Update
             bool ck = false;
             uint sourceCrc = 0;
             bool fromcache = false;
+            // Debug.LogFormat("CheckLocalFileCrc:trygetvalue{0},crcKey={1},sourcecrc={2},path={3}",crc32Dic.TryGetValue(crcKey, out sourceCrc),crcKey,sourceCrc,path);
             if (crc32Dic.TryGetValue(crcKey, out sourceCrc)) //存在校验值
             {
                 if (sourceCrc == 0)//原始为0表示不校验
@@ -135,17 +136,17 @@ namespace Hugula.Update
                     Debug.LogFormat(" 0.0. crc <color=#ffff00>sourceCrc({0}!=filecrc{1}),return {2},path{3},crcKey{4}from cache={5}</color>", sourceCrc, fileCrc, ck, path, crcKey,fromcache);
 #endif
             }
-            else if (!beginCheck)
+            else// if (!beginCheck)
             {
                 if (path.StartsWith(Application.persistentDataPath) && !File.Exists(path))
                     ck = false;
                 else
                     ck = true;
             }
-            else
-            {
-                ck = false;
-            }
+            // else
+            // {
+            //     ck = false;
+            // }
             return ck;
         }
 

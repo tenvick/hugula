@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+20174.4.19
+1 优化FirstPackage组织方式（OneResFolder,VerResFolder）。
+2 更新文件是否带crc后缀 开关功能。appendCrcToFile(Hugula/Setting)。
+3 修复删除旧文件路径报错问题。
+
 2017.4.7
 1 更新包目录组织方式， EditorSetting里面设置。
 2 自动发布脚本补全。

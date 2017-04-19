@@ -22,4 +22,14 @@ Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild
 echo "ExportRes  sccuess"
 Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForAndroid -logFile $stdout
 echo "android apk build sccuess"
+echo "begin move apk to release"
+echo CURRENT_ROOT
+%PAN%
+cd %CURRENT_ROOT%
+cd ..\..\Assets
+set m=%date:~5,2%
+set d=%date:~8,2%
+move warx.apk ..\..\..\release\warx%m%%d%.apk
+echo "build warx"%m%%d%".apk sccuess"
+
 pause

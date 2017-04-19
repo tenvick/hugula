@@ -171,6 +171,9 @@ function ItemObject:add_to_state(state)
   end
 end
 
+function ItemObject:remove_from_current()
+    self:remove_from_state(StateManager._current_game_state)
+end
 function ItemObject:remove_from_state(state)
     local current_state = StateManager:get_current_state()
     if state == nil or state == current_state then    

@@ -126,9 +126,13 @@ namespace Hugula.Loader
             {
                 www = new WWW(url, (WWWForm)req.head);
             }
-            else if (req.head is byte[])
+            else if (req.head is System.Array)
             {
                 www = new WWW(url, (byte[])req.head);
+            }
+            else if(req.head is string)
+            {
+                www = new WWW(url, LuaHelper.GetBytes(req.head.ToString()));
             }
             else
             {

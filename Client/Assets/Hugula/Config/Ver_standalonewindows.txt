@@ -1,0 +1,2 @@
+"cdn_host":["http://127.0.0.1/standalonewindows/%s/res"]
+"update_url":"http://127.0.0.1/hugula/ios"

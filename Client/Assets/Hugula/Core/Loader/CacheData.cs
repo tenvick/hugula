@@ -99,10 +99,9 @@ namespace Hugula.Loader
         }
         public void Dispose()
         {
-            // #if HUGULA_CACHE_DEBUG
-            if (assetBundleKey == "ab67987bbc2dfd2eef15a0ed6ca237a1.u3d")
+            #if HUGULA_CACHE_DEBUG
                 Debug.LogFormat("Dispose  CacheData({0},assetHashCode({1}))  ", assetBundleKey, assetHashCode);
-            // #endif
+            #endif
             if (assetBundle) assetBundle.Unload(true);
             // www = null;
             assetBundle = null;
@@ -120,9 +119,9 @@ namespace Hugula.Loader
         {
             if (assetBundle) assetBundle.Unload(false);
             isUnloaded = true;
-            // #if HUGULA_CACHE_DEBUG
-            if (assetBundleKey == "ab67987bbc2dfd2eef15a0ed6ca237a1.u3d") Debug.LogFormat("Unload  CacheData({0}assetHashCode({1})  ", assetBundleKey, assetHashCode);
-            // #endif
+            #if HUGULA_CACHE_DEBUG
+                Debug.LogFormat("Unload  CacheData({0}assetHashCode({1})  ", assetBundleKey, assetHashCode);
+            #endif
         }
 
         #region ObjectPool

@@ -177,7 +177,7 @@ namespace Hugula.Loader {
         public static bool CheckRequestUrlIsAssetbundle (CRequest req) {
             string suffix = CUtils.GetSuffix (req.url);
             if ((suffix == Common.ASSETBUNDLE_SUFFIX ||
-                    HugulaSetting.instance.ContainsVariant (suffix)) &&
+                   (HugulaSetting.instance != null &&  HugulaSetting.instance.ContainsVariant (suffix))) &&
                 !typeof (string).Equals (req.assetType)
             )
                 req.isAssetBundle = true;
@@ -193,7 +193,7 @@ namespace Hugula.Loader {
         public static string OverrideRequestUrlByCrc (CRequest req) {
             string url = req.url;
             uint crc = Hugula.Update.CrcCheck.GetCrc (req.assetBundleName);
-            bool appCrc = HugulaSetting.instance.appendCrcToFile;
+            bool appCrc = HugulaSetting.instance != null?HugulaSetting.instance.appendCrcToFile:false;
             if (crc > 0 && appCrc) {
                 url = CUtils.InsertAssetBundleName (url, "_" + crc.ToString ());
             }

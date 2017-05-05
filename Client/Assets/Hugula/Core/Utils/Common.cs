@@ -18,7 +18,7 @@ namespace Hugula.Utils
         /// </summary>
         public const string ASSETBUNDLE_SUFFIX = "u3d";
 
-        public const string CHECK_ASSETBUNDLE_SUFFIX = "."+ASSETBUNDLE_SUFFIX;
+        public const string CHECK_ASSETBUNDLE_SUFFIX = "." + ASSETBUNDLE_SUFFIX;
 
         public const string DOT_BYTES = ".bytes";
 
@@ -59,14 +59,14 @@ namespace Hugula.Utils
         /// 语言包特殊前缀
         /// </summary>
         [SLua.DoNotToLua]
-        public const string LANGUAGE_PREFIX= "lan+";
+        public const string LANGUAGE_PREFIX = "lan+";
 
         /// <summary>
         /// The Http STAR.
         /// </summary>
         public const string HTTP_STRING = "http://";
 
-         /// <summary>
+        /// <summary>
         /// The Https STAR.
         /// </summary>
         public const string HTTPS_STRING = "https://";
@@ -77,7 +77,7 @@ namespace Hugula.Utils
         [SLua.DoNotToLua]
         public const string FirstOutPath = "FirstPackage";
 
-       /// <summary>
+        /// <summary>
         /// jar前坠
         /// </summary>
         public const string JAR_FILE = "jar:file://";
@@ -85,11 +85,11 @@ namespace Hugula.Utils
         /// <summary>
         /// is web mode
         /// </summary>
-        #if HUGULA_WEB_MODE 
+#if HUGULA_WEB_MODE
             public const bool IS_WEB_MODE = true;
-        #else
-            public const bool IS_WEB_MODE = false;
-        #endif
+#else
+        public const bool IS_WEB_MODE = false;
+#endif
     }
 
 }

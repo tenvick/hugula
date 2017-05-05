@@ -128,7 +128,7 @@ namespace Hugula.Loader {
 
             if (cache != null) {
 #if HUGULA_CACHE_DEBUG
-                Debug.LogFormat (" <color=#8cacbc>ClearCache (assetBundle={0}) frameCount{1}</color>", cache.assetBundleKey, Time.frameCount);
+                Debug.LogFormat (" <color=#8cacbc>ClearDelay Cache (assetBundle={0}) frameCount{1}</color>", cache.assetBundleKey, Time.frameCount);
 #endif
                 ABDelayUnloadManager.Add (assethashcode);
             } else {
@@ -266,15 +266,13 @@ namespace Hugula.Loader {
             return req.isAssetBundle;
         }
 
-        /// <summary>
-        /// 从缓存设置数据
-        /// </summary>
-        /// <param name="req"></param>
-        internal static bool SetRequestDataFromCache (CRequest req) {
-            bool re = false;
 #if UNITY_EDITOR
-            if (CResLoader.SimulateAssetBundleInEditor) {
+        internal static bool SetRequestDataFromPrefab(CRequest req) {
+            // if (CResLoader.SimulateAssetBundleInEditor) {
+
                 if (!req.isAssetBundle) return false;
+                // Debug.Log("SetRequestDataFromPrefab \"" + req.assetName + "\" in " + req.assetBundleName);
+
                 System.Type assetType = req.assetType;
                 if (assetType == null) assetType = Typeof_Object;
 
@@ -323,13 +321,19 @@ namespace Hugula.Loader {
                     }
 
                     req.data = data;
-
                 }
 
                 return true;
-            }
+            // }
+        }
 #endif
 
+        /// <summary>
+        /// 从缓存设置数据
+        /// </summary>
+        /// <param name="req"></param>
+        internal static bool SetRequestDataFromCache (CRequest req) {
+            bool re = false;
             int keyhash = req.keyHashCode;
             CacheData cachedata = GetCache (keyhash);
             if (cachedata != null) {
@@ -422,6 +426,9 @@ namespace Hugula.Loader {
         public static bool Unload (int hashcode) {
             CacheData cache = TryGetCache (hashcode);
             if (cache != null && cache.count == 0) {
+#if UNITY_EDITOR
+                // Debug.LogWarningFormat ("<color=#ffff00> unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
+#endif
                 caches.Remove (cache.assetHashCode); //删除
                 CacheData.Release (cache);
                 return true;

@@ -774,6 +774,11 @@ end
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 		internal static int print(IntPtr L)
 		{
+#if HUGULA_RELEASE
+			int n = LuaDLL.lua_gettop(L);
+			LuaDLL.lua_settop(L, n);
+			return 0;
+#else
 			int n = LuaDLL.lua_gettop(L);
 			string s = "";
 
@@ -800,6 +805,7 @@ end
 				logDelegate(s);
 			}
 			return 0;
+#endif
 		}
 
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]

@@ -25,6 +25,16 @@ public class LoadFirstHelper
 	{
 		sceneAssetBundleName = sceneAbName;
 		sceneName = scenename;
+        
+
+		#if UNITY_EDITOR
+		Debug.LogFormat("<color=green>SimulateAssetBundleInEditor {0} mode </color> <color=#8cacbc> change( menu AssetBundles/Simulation Mode)</color>", CResLoader.SimulateAssetBundleInEditor ? "simulate" : "assetbundle");
+		if(CResLoader.SimulateAssetBundleInEditor)
+		{
+			BeginLoadScene();
+			return;
+		}
+		#endif
 		var  url = CUtils.GetPlatformFolderForAssetBundles();
 		var req = LRequest.Get();
 		req.relativeUrl = CUtils.GetRightFileName(url);
@@ -33,6 +43,9 @@ public class LoadFirstHelper
 		req.OnComplete = (CRequest req1)=>
 		{
 			LResLoader.assetBundleManifest=req1.data as AssetBundleManifest;
+			#if HUGULA_LOADER_DEBUG 
+			Debug.LogFormat("assetbundlemanifest {0} is done !",req1.url);
+			#endif
 			BeginLoadScene();
 		};
 		req.OnEnd = (CRequest req1)=>{BeginLoadScene();};
@@ -63,12 +76,18 @@ public class LoadFirstHelper
 	static void OnSceneAbLoaded(CRequest req)
 	{
 		LResLoader.instance.OnSharedComplete-=OnSharedComplete;
+		#if HUGULA_LOADER_DEBUG 
+		Debug.LogFormat("OnSceneAbLoaded {0} is done !",req.url);
+		#endif
 		CUtils.DebugCastTime("On "+ sceneName +"Loaded");
 	}
 
 	static void OnSceneAbError(CRequest req)
 	{
-		BeginLoadScene();
+		#if UNITY_EDITOR 
+		Debug.LogFormat("OnSceneAbLoaded {0} is Fail !",req.url);
+		#endif
+		// BeginLoadScene();
 	}
 
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -32,13 +33,11 @@ namespace Hugula
         private bool appendCrcToFileTips = false;
 
         //备份资源方式
-        /// 0  OneResFolder  /res ver.txt
-        /// 1 VerResFolder  /v{d}/res /v{d} md5.u
         [TooltipAttribute("资源目录组织方式 \r\n 0 OneResFolder [/res /v{d}/ver.u /ver.txt]  \r\n 1 VerResFolder[/v{d}/res /v{d}/ver.txt]")]
         public CopyResType backupResType = CopyResType.OneResFolder;
 
         //打包包涵的变体       
-        [TooltipAttribute("默认包涵的变体")]
+        [TooltipAttribute("默认包含的变体")]
         public List<string> inclusionVariants = new List<string>();
 
         //所有变体
@@ -104,5 +103,67 @@ namespace Hugula
         /// v{d}/res 放资源 和版本文件
         /// </summary>
         VerResFolder
+    }
+
+
+    /// <summary>
+    /// zip out put platform
+    /// </summary>
+    [Flags]
+    public enum ZipPlatform
+    {
+        None = 1,
+        Android = 2,
+        iOS = 4,
+        Standalonewindows = 8
+    }
+
+
+    /// <summary>
+    /// zip file list config
+    /// </summary>
+    public class ZipConfigs : ScriptableObject
+    {
+        public List<string> zipFiles = new List<string>();
+
+        public static List<string> GetZipFiles()
+        {
+            if(instance!=null)
+                return instance.zipFiles;
+            else
+                return null;
+        }
+
+        private static ZipConfigs _instance = null;
+        public static ZipConfigs instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = Resources.Load<ZipConfigs>("zip_file_list");
+                }
+                return _instance;
+            }
+        }
+
+#if UNITY_EDITOR
+        public static ZipConfigs CreateInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = HugulaSetting.CreateInstance<ZipConfigs>();
+                AssetDatabase.CreateAsset(_instance, "Assets/Hugula/Config/Resources/zip_file_list.asset");
+            }
+            return _instance;
+        }
+
+        public static void Delete()
+        {
+            System.IO.File.Delete("Assets/Hugula/Config/Resources/zip_file_list.asset");
+            _instance = null;
+        }
+#endif
+
     }
 }

@@ -35,7 +35,7 @@ namespace Hugula.Loader
                 bool re = removeDic.Remove(keyhashcode);
                 CacheData cache = CacheManager.TryGetCache(keyhashcode);
 #if HUGULA_CACHE_DEBUG
-                Debug.LogFormat("<color=#ffff00> -1 remove  abName({0}) for ABDelayUnloadManager ,ref count =  {1} </color>",cache.assetBundleKey,cache.count);
+                Debug.LogFormat("<color=#ffff00> -1 remove  abName({0}) for ABDelayUnloadManager ,ref count =  {1},removed={2} </color>",cache.assetBundleKey,cache.count,re);
 #endif
                 if (cache != null && cache.allDependencies != null)
                 {

@@ -7,6 +7,51 @@ local LuaItemManager = LuaItemManager
 local Resources = UnityEngine.Resources
 -------------------------------private function------------------------------------
 --状态与日志对比查找出不同项目
+local function check_need_log(curr_state,curr_log)  
+
+    if not curr_state.log_enable then return false end 
+
+    local change = false
+    local items = curr_state:get_all_items() --当前的所有项目
+    local check_dup = {}
+    local count = 0
+    for k,v in ipairs(items) do
+        if v.log_enable then  
+            change = true
+            if not curr_state:is_original_item(v) then --不是原始项目需要对比
+                check_dup[v] = true
+                count = count + 1
+            end
+        end
+    end
+
+    if change == false and count == 0 then return false end --如果没有需要记录的项目直接返回
+
+    if curr_log == nil or curr_log == false  then --如果没有记录
+        return true
+    end
+
+    local log_count = #curr_log - 1
+
+    for ke,va in ipairs(curr_log) do
+        if ke > 1 then --第一个是状态不需要判断
+            if check_dup[va] == nil then --如果没有
+                change = true
+                break
+            end
+        end
+    end
+
+    if chage then
+        return true 
+    elseif log_count ~= count then
+        return true
+    else
+        local log_state = curr_log[1]
+        return log_state~=curr_state --如果不相同可以记录
+    end
+end
+
 --返回值 {change bool,add table，remove table}
 local function get_diff_log(curr_state,curr_log) 
     local change = false
@@ -119,14 +164,14 @@ function StateManager:hide_transform()
 end
 
 --检测显示切换效果
-function StateManager:check_show_transform( state,on_changed,is_back)
-    if not is_back and state and state:show_transform(on_changed) then
+function StateManager:check_show_transform( state,is_back)
+    if not is_back and state and state:show_transform(self) then
         -- do nothing
     elseif self._auto_show_loading and state and state:is_all_loaded() == false then
         self:show_transform()
-        on_changed()
+        self:real_change_to_state()
     else
-        on_changed()
+       self:real_change_to_state()
     end
 end
 
@@ -192,26 +237,40 @@ function StateManager:auto_dispose_items() -- dispose marked item_object
     end
 end
 
---真正开始改变
-function StateManager:real_change_to_state(is_back) --real change state
-     local new_state = self._new_state
-     self._new_state = nil
 
-    if(self._current_game_state ~= nil) then
+function StateManager:_state_on_blur()
+     local new_state = self._new_state
+
+    if self._current_game_state ~= nil and new_state then
         self._current_game_state:on_blur(new_state)
         unload_unused_assets()
     end
 
-    local previous_state = self._current_game_state
-    self._current_game_state = new_state
-    new_state._on_state_showed_flag = {true,previous_state}
-    new_state:on_focus(previous_state)
-    if is_back then new_state:on_back(previous_state) end
-    if new_state:is_all_loaded() then self:call_all_item_method() end
+    self._last_game_state = self._current_game_state
+end
 
-    if not is_back then self:record_state() end--记录状态用于返回   
-    self:call_on_state_change(new_state) --state change event
+function StateManager:_state_on_focus()
+    local new_state = self._new_state
+    local is_back = self.is_back
+    self._new_state = nil
+    if new_state then 
+        local previous_state = self._last_game_state
+        self._current_game_state = new_state
+        new_state._on_state_showed_flag = {true,previous_state}
+        new_state:on_focus(previous_state)
+        if is_back then new_state:on_back(previous_state) end
+        if new_state:is_all_loaded() then self:call_all_item_method() end
 
+        if not is_back then self:record_state() end--记录状态用于返回   
+        self:call_on_state_change(new_state) --state change event
+        self.is_back = false
+    end
+end
+
+-- --真正开始改变
+function StateManager:real_change_to_state() --real change state
+    self:_state_on_blur()
+    self:_state_on_focus()
 end
 
 function StateManager:is_in_current_state(state)
@@ -244,9 +303,7 @@ function StateManager:set_current_state(new_state,method,...)
     self:input_disable() --lock input
     self._new_state = new_state
 
-    local function do_change() StateManager:real_change_to_state()  end
-    
-    self:check_show_transform(new_state,do_change,go_transform)
+    self:check_show_transform(new_state,go_transform)
 end
 
 --删除日志记录
@@ -273,7 +330,7 @@ function StateManager:record_state()
         curr_log = self._log_state:get(-1) --返回新的栈顶
     end
 
-    local need_record = get_diff_log(curr_state,curr_log) --是否需要记录
+    local need_record = check_need_log(curr_state,curr_log) --是否需要记录
 
     if need_record  then --可以记录
         local items = curr_state:get_all_items() --得到所有item
@@ -340,8 +397,9 @@ function StateManager:go_back(index) --返回
         end
 
         self._new_state = new_state
-        local function do_change() StateManager:real_change_to_state(true)  end
-        self:check_show_transform(new_state,do_change,true)
+        -- local function do_change() StateManager:real_change_to_state(true)  end
+        self.is_back = true
+        self:check_show_transform(new_state,true)
 
     end
     return true 

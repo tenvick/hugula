@@ -232,8 +232,9 @@ namespace Hugula.Editor
             var extensionFiles = HugulaExtensionFolderEditor.instance.ExtensionFiles;
             foreach (var s in extensionFiles)
             {
-                manualFileList.Add(s);
-                Debug.Log("extensionFile: " + s);
+                var extName = CUtils.GetRightFileName(s);
+                manualFileList.Add(extName);
+                Debug.LogFormat("extensionFile:{0},md5={1}.", s, extName);
             }
 
             //从网络读取扩展加载列表 todo
@@ -542,11 +543,11 @@ namespace Hugula.Editor
         public static void DeleteSplitPackageResFolder()
         {
             string updateOutPath = Path.Combine(UpdateOutPath, ResFolderName);
-            Debug.Log("Delete directory "+ updateOutPath);
+            Debug.Log("Delete directory " + updateOutPath);
             ExportResources.DirectoryDelete(updateOutPath);
 
             string updateOutVersionPath = Path.Combine(UpdateOutVersionPath, ResFolderName);
-            Debug.Log("Delete directory "+ updateOutVersionPath);
+            Debug.Log("Delete directory " + updateOutVersionPath);
             ExportResources.DirectoryDelete(updateOutVersionPath);
 
         }
@@ -639,6 +640,48 @@ namespace Hugula.Editor
             AssetDatabase.Refresh();
         }
 
+        //压缩extendsFoler.txt zipFiles
+        public static void ZipAssetbundles()
+        {
+            HugulaExtensionFolderEditor.instance = null;
+            var zipFiles = HugulaExtensionFolderEditor.instance.ZipFiles;
+            List<string> outZips = new List<string>();
+            string zipGroupName = "zip_group_{0}.zip";
+            string zipedName = "";
+            string zipedPath = "";
+            List<string> fileToZip = null;
+            List<string> fileToZipFullPath = new List<string>();
+            List<string> deleteAbList = new List<string>();
+            EditorUtility.DisplayProgressBar("Zip Some Streaming AssetBundle File", "", 0.09f);
+
+            for (int i = 0; i < zipFiles.Count; i++)
+            {
+                fileToZip = zipFiles[i];
+                zipedName = string.Format(zipGroupName, i);
+                zipedPath = Path.Combine(CUtils.realStreamingAssetsPath,zipedName);
+                fileToZipFullPath.Clear();
+                foreach (var p in fileToZip)
+                {
+                    string ab = CUtils.GetRightFileName(p);
+                    deleteAbList.Add(ab);
+                    fileToZipFullPath.Add(Path.Combine(CUtils.realStreamingAssetsPath, ab));
+                }
+
+                EditorUtility.DisplayProgressBar("Zip AssetBundle File ", zipedName, (float)i / (float)zipFiles.Count);
+
+                if (ZipHelper.CreateZip(zipedPath, fileToZipFullPath))
+                    outZips.Add(zipedName);
+
+                //delete source assetbundle 
+                DeleteStreamingFiles(deleteAbList);
+            }
+
+            var zipins = ZipConfigs.CreateInstance();
+            zipins.zipFiles = outZips;
+            EditorUtility.ClearProgressBar();
+
+        }
+
         #endregion
 
 
@@ -678,7 +721,7 @@ namespace Hugula.Editor
                 {
                     if (string.IsNullOrEmpty(extension))
                     {
-                        key = InsertAssetBundleName(key+ Common.CHECK_ASSETBUNDLE_SUFFIX, "_" + crc.ToString() );
+                        key = InsertAssetBundleName(key + Common.CHECK_ASSETBUNDLE_SUFFIX, "_" + crc.ToString());
                     }
                     else if (extension == Common.DOT_BYTES)
                     {
@@ -742,11 +785,12 @@ namespace Hugula.Editor
         private static string InsertAssetBundleName(string assetbundleName, string insert)
         {
             var append = HugulaSetting.instance.appendCrcToFile;
-            if(append)
+            if (append)
             {
-                var str =  CUtils.InsertAssetBundleName(assetbundleName,insert);
+                var str = CUtils.InsertAssetBundleName(assetbundleName, insert);
                 return str;
-            }else
+            }
+            else
             {
                 return assetbundleName;
             }

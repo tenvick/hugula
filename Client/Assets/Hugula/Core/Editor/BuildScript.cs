@@ -27,12 +27,12 @@ namespace Hugula.Editor
         public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression; //
 #else
         public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
-#endif      
+#endif
 
 #if UNITY_IPHONE
     public const BuildTarget target = BuildTarget.iOS;
 #elif UNITY_ANDROID
-    public const BuildTarget target = BuildTarget.Android;
+        public const BuildTarget target = BuildTarget.Android;
 #elif UNITY_WP8
 	public const BuildTarget target=BuildTarget.WP8Player;
 #elif UNITY_METRO
@@ -63,18 +63,18 @@ namespace Hugula.Editor
 
             #region 读取首包
             bool firstExists = SplitPackage.ReadFirst(firstCrcDict, manualFileList);
-            Debug.Log("manualFileList.Count ="+manualFileList.Count);
+            Debug.Log("manualFileList.Count =" + manualFileList.Count);
             #endregion
 
             SplitPackage.DeleteSplitPackageResFolder();
 
             #region 生成校验列表
-            SplitPackage.UpdateOutPath = null;SplitPackage.UpdateOutDevelopPath = null;
+            SplitPackage.UpdateOutPath = null; SplitPackage.UpdateOutDevelopPath = null;
             AssetDatabase.Refresh();
             StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
             uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
             // System.Threading.Thread.Sleep(1000);
-            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists,true); //增量列表
+            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, true); //增量列表
             // System.Threading.Thread.Sleep(1000);
             CUtils.DebugCastTime("Time CreateStreamingCrcList End");
             #endregion
@@ -98,6 +98,12 @@ namespace Hugula.Editor
 
             Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},manualFileList={3}", firstCrcDict.Count, currCrcDict.Count, diffCrcDict.Count, manualFileList.Count);
 
+            if (CheckZipPlatform())
+                SplitPackage.ZipAssetbundles();
+            else
+            {
+                ZipConfigs.Delete();
+            }
             #endregion
 
             #region 删除手动加载文件
@@ -105,7 +111,7 @@ namespace Hugula.Editor
             bool spExtFolder = HugulaSetting.instance.spliteExtensionFolder;
             if (spExtFolder)
             {
-            SplitPackage.DeleteStreamingFiles (manualFileList);
+                SplitPackage.DeleteStreamingFiles(manualFileList);
             }
 #endif
             #endregion
@@ -398,70 +404,22 @@ namespace Hugula.Editor
             import = null;
             float i = 0;
             float allLen = allAssets.Length;
-            string name = "";
-            string cacheAbName = "";
             StringBuilder tipsInfo = new StringBuilder();
             foreach (string path in allAssets)
             {
                 import = AssetImporter.GetAtPath(path);
-                if (
-                    import != null && string.IsNullOrEmpty(
-                        import.assetBundleName) == false)
+                if (import != null && string.IsNullOrEmpty(import.assetBundleName) == false)
                 {
                     string folder = GetLabelsByPath(path);
                     Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
-                    name = s.name.ToLower();
-                    if (string.IsNullOrEmpty(
-                            import.assetBundleVariant))
-                    {
-                        name = CUtils.GetRightFileName(name);
-
-                        if (string.IsNullOrEmpty(folder))
-                            import.assetBundleName = name + "." + Common.ASSETBUNDLE_SUFFIX;
-                        else
-                            import.assetBundleName = string.Format("{0}/{1}.{2}", folder, name, Common.ASSETBUNDLE_SUFFIX);
-
-                        cacheAbName =
-                            import.assetBundleName;
-                    }
-                    else
-                    {
-                        string[] names = name.Split('-');
-                        name = names[0];
-                        if (string.IsNullOrEmpty(folder))
-                            import.assetBundleName = CUtils.GetRightFileName(name);
-                        else
-                            import.assetBundleName = string.Format("{0}/{1}", folder, CUtils.GetRightFileName(name));
-
-                        import.assetBundleVariant = names[1];
-
-                        cacheAbName =
-                            import.assetBundleName + "." +
-                            import.assetBundleVariant;
-                    }
-
-                    tipsInfo.AppendLine(cacheAbName + " path = " + path);
-
-                    if (s is GameObject)
-                    {
-                        GameObject tar = s as GameObject;
-                        ReferenceCount refe = LuaHelper.AddComponent(tar, typeof(ReferenceCount)) as ReferenceCount;
-                        if (refe != null)
-                        {
-                            refe.assetbundle = cacheAbName;
-                            // refe.assetHashCode = LuaHelper.StringToHash(cacheAbName);
-                            EditorUtility.SetDirty(s);
-                        }
-                    }
-
-                    if (name.Contains(" ")) Debug.LogWarning(name + " contains space");
+                    SetAssetBundleName(s,true);
+                    tipsInfo.AppendLine(s.name + " path = " + path);
                 }
                 else
                 {
                     //Debug.LogWarning(path + " import not exist");
                 }
                 EditorUtility.DisplayProgressBar("UpdateAssetBundlesName", info + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
-
                 i++;
             }
 
@@ -471,6 +429,7 @@ namespace Hugula.Editor
 
         /// <summary>
         /// 设置为扩展包路径文件夹
+        /// 
         /// </summary>
         public static void SetAsExtendsFloder()
         {
@@ -493,6 +452,10 @@ namespace Hugula.Editor
                         Debug.LogFormat("add extends path = {0}", s.name);
                         HugulaExtensionFolderEditor.AddExtendsPath(apath);
                     }
+                    else
+                    {
+                        Debug.LogFormat("extends path = {0} is already exists", s.name);
+                    }
                     AssetDatabase.Refresh();
                 }
             }
@@ -504,34 +467,64 @@ namespace Hugula.Editor
         public static void ExtensionFiles(bool delete = false)
         {
             Object[] selection = Selection.objects;
-            string apath = null;
-            string suffix = "";
             string abName = "";
+            string apath = "";
             foreach (Object s in selection)
             {
-                apath = AssetDatabase.GetAssetPath(s);
-                AssetImporter
-                import = AssetImporter.GetAtPath(apath);
-                if (!string.IsNullOrEmpty(import.assetBundleVariant))
-                    suffix = import.assetBundleVariant;
-                else
-                    suffix = "";
-
-                if (string.IsNullOrEmpty(suffix))
-                {
-                    abName = import.assetBundleName;
-                }
-                else
-                {
-                    abName = import.assetBundleName = "." + suffix;
-                }
-
+                abName = GetOriginalAssetBundleName(s, out apath);
+                // Debug.LogFormat("ExtensionFiles name={0},path={1}",abName,apath);
                 if (delete)
                     HugulaExtensionFolderEditor.RemoveExtendsFile(abName);
-                else
+                else if (!HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
                     HugulaExtensionFolderEditor.AddExtendsFile(abName);
+                else
+                    Debug.LogFormat("assetPath({0}) can't add to extends file list  ", abName);
+            }
+        }
+
+        public static void ZipFiles(bool delete = false)
+        {
+            Object[] selection = Selection.objects;
+            string abName = "";
+            string apath = "";
+
+            List<string> abNames = new List<string>();
+            foreach (Object s in selection)
+            {
+                abName = GetOriginalAssetBundleName(s, out apath);
+                if (!HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
+                    abNames.Add(abName);
+                else
+                    Debug.LogFormat("assetPath({0}) can't add to zip file list ", abName);
 
             }
+
+            if (abNames.Count > 0 && delete)
+            {
+                HugulaExtensionFolderEditor.RemoveZipFile(abNames);
+            }
+            else if (abNames.Count > 0)
+            {
+                HugulaExtensionFolderEditor.AddZipFile(abNames);
+            }
+
+        }
+
+        //获取明文的assetbundle name用于editor显示
+        private static string GetOriginalAssetBundleName(Object s, out string apath)
+        {
+            string suffix = Common.CHECK_ASSETBUNDLE_SUFFIX;
+            apath = AssetDatabase.GetAssetPath(s);
+            string abName = "";
+            AssetImporter
+            import = AssetImporter.GetAtPath(apath);
+            if (!string.IsNullOrEmpty(import.assetBundleVariant))
+                suffix = "." + import.assetBundleVariant;
+
+            string repName = HugulaEditorSetting.instance.GetAssetBundleNameByReplaceIgnore(s.name.ToLower());
+            abName = repName + suffix;
+
+            return abName;
         }
 
 
@@ -685,6 +678,25 @@ namespace Hugula.Editor
             return target;
         }
 
+        public static bool CheckZipPlatform()
+        {
+            string p = CUtils.platform;
+            var names = System.Enum.GetNames(typeof(ZipPlatform));
+            bool c = false;
+            foreach (var s in names)
+            {
+                if (s.ToLower() == p.ToLower())
+                    c = true;
+            }
+            if (c)
+            {
+                ZipPlatform curr = (ZipPlatform)System.Enum.Parse(typeof(ZipPlatform), p, true);
+                Debug.Log(curr);
+                if ((curr & HugulaEditorSetting.instance.zipPlatform) != 0)
+                    return true;
+            }
+            return false;
+        }
         static public string GetGameObjectPathInScene(Transform obj, string path)
         {
             if (obj.parent == null)

@@ -14,13 +14,13 @@ namespace Hugula.UGUIExtend
 
         public void OnPointerDown(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onPressHandle(g, eventData);
         }
 
         public void OnPointerUp(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onPressHandle(g, eventData);
         }
 
@@ -32,33 +32,33 @@ namespace Hugula.UGUIExtend
 
         public void OnDrag(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             PointerEventData ped = eventData as PointerEventData;
             UGUIEvent.onDragHandle(g, ped.delta);
         }
 
         public void OnDrop(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onDropHandle(g, eventData);
         }
 
         public void OnPointerClick(BaseEventData eventData)
         {
             //PointerEventData ped = eventData as PointerEventData;
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onClickHandle(g, eventData);
         }
 
         public void OnSelect(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onSelectHandle(g, eventData);
         }
 
         public void OnCancel(BaseEventData eventData)
         {
-            var g = EventSystem.current.currentSelectedGameObject;
+            var g = eventData.selectedObject;
             UGUIEvent.onCancelHandle(g, eventData);
         }
 

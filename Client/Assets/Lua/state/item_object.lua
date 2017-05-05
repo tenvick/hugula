@@ -127,7 +127,7 @@ function ItemObject:on_blur( state )
     self:send_message("on_hide",state) --开始隐藏
     self.is_on_blur = true --处于失去焦点状态
     self:hide()
-    -- print(self.name,"on_blur",self._auto_mark_dispose)
+    -- print(self.name,"ItemObject:on_blur",self.is_on_blur)
     if self._auto_mark_dispose then 
         StateManager:mark_dispose_flag(self) --标记销毁
     end
@@ -160,33 +160,45 @@ end
 
 function ItemObject:add_to_state(state)
     local current_state = StateManager:get_current_state()
-  if state == nil or state == current_state then
-    current_state:add_item(self)
-    if self.on_focusing then self:on_focusing(current_state) end
-    self:on_focus(current_state)
-    if self.on_focused then self:on_focused(current_state) end
-    if self.log_enable then StateManager:record_state() end
-  else
-    state:add_item(self)
-  end
+    if state == nil or state == current_state then
+        current_state:add_item(self)
+        if self.on_focusing then self:on_focusing(current_state) end
+        self:on_focus(current_state)
+        if self.on_focused then self:on_focused(current_state) end
+        if self.log_enable then StateManager:record_state() end
+    else
+        state:add_item(self)
+    end
+    
+    local added_state = state or current_state 
+    if self._current_state and self._current_state ~= added_state then self._current_state:remove_item(self) end
+    self._current_state = added_state --record state
+    -- print("add to state",tostring(added_state),tostring(self))
 end
 
 function ItemObject:remove_from_current()
     self:remove_from_state(StateManager._current_game_state)
 end
+
 function ItemObject:remove_from_state(state)
     local current_state = StateManager:get_current_state()
-    if state == nil or state == current_state then    
-    local removed = current_state:remove_item(self)
+
+    if state == nil or state == current_state then 
+
+        local removed = current_state:remove_item(self)
+        if not removed and self._current_state then removed = self._current_state:remove_item(self) end
+        
         if removed then --如果从当前状态移除成功        
             if self.on_bluring then self:on_bluring(new_state) end
             self:on_blur(current_state) 
             if self.on_blured then self:on_blured(new_state) end
             if self.log_enable then StateManager:record_state() end
         end
-    else     
+    else
         state:remove_item(self)
+        if self._current_state then self._current_state:remove_item(self) end
     end
+    self._current_state = nil
 end
 
 function ItemObject:__tostring()

@@ -106,7 +106,7 @@ namespace Hugula.Pool
             while (count > 0)
             {
                 referRemove = willGcList.Dequeue();
-                //Debug.Log("Dispose " + referRemove.name);
+                // Debug.Log("Dispose " + referRemove.name);
                 if (referRemove) GameObject.Destroy(referRemove.gameObject);
                 count--;
             }
@@ -184,6 +184,11 @@ namespace Hugula.Pool
         private static Dictionary<int, GameObject> originalPrefabs = new Dictionary<int, GameObject>();
 
         /// <summary>
+        /// 原始资源标记缓存
+        /// </summary>
+        private static Dictionary<GameObject, bool> assetsFlag = new Dictionary<GameObject, bool>();
+
+        /// <summary>
         /// 类型用于做回收策略
         /// </summary>
         private static Dictionary<int, byte> prefabsType = new Dictionary<int, byte>();
@@ -216,7 +221,7 @@ namespace Hugula.Pool
             while (values.MoveNext())
             {
                 var item = values.Current;
-                GameObject.Destroy(item);
+                DestroyOriginalPrefabs(item);
             }
 
             originalPrefabs.Clear();
@@ -233,19 +238,42 @@ namespace Hugula.Pool
             return Add(hashkey, value, type);
         }
 
+         /// <summary>
+        /// 添加原始缓存
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public static bool Add(string key, GameObject value, byte type,bool isAsset)
+        {
+            int hashkey = LuaHelper.StringToHash(key);
+            return Add(hashkey, value, type,isAsset);
+        }
+
+        internal static void DestroyOriginalPrefabs(GameObject obj)
+        {
+            if(assetsFlag.ContainsKey(obj))
+            {
+                assetsFlag.Remove(obj);
+            }else
+            {
+                GameObject.Destroy(obj);
+            }
+        }
+
         /// <summary>
         /// 添加原始项目
         /// </summary>
         /// <param name="hash"></param>
         /// <param name="value"></param>
-        internal static bool Add(int hash, GameObject value, byte type)
+        internal static bool Add(int hash, GameObject value, byte type,bool isAsset=false)
         {
             bool contains = originalPrefabs.ContainsKey(hash);
+            originalPrefabs[hash] = value;
+            if(isAsset) assetsFlag[value] = isAsset;
             if (!contains) //不能重复添加
-            {
+            { 
                 if (type > SegmentSize) type = SegmentSize;
-                LuaHelper.AddComponent(value,typeof(ReferGameObjects));
-                originalPrefabs[hash] = value;
+                // LuaHelper.AddComponent(value,typeof(ReferGameObjects));
                 prefabFreeQueue[hash] = new Queue<ReferGameObjects>(); //空闲队列
                 prefabsType[hash] = type;
                 prefabRefCaches[hash] = new HashSet<ReferGameObjects>();//引用列表
@@ -436,8 +464,7 @@ namespace Hugula.Pool
             GameObject obj = null;
             if (originalPrefabs.TryGetValue(key, out obj))
             {
-                Object.Destroy(obj);
-                //Object.DestroyImmediate(obj, true);
+                DestroyOriginalPrefabs(obj);
             }
 
             originalPrefabs.Remove(key);
@@ -445,11 +472,6 @@ namespace Hugula.Pool
             prefabFreeQueue.Remove(key);
             prefabRefCaches.Remove(key);
 
-            //if (obj != null)
-            //{
-            //    //Debug.Log(string.Format(" ClearChache original key {0} ", obj.name));
-            //    GameObject.Destroy(obj);
-            //}
         }
 
         /// <summary>

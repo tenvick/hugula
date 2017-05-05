@@ -1,5 +1,15 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.5.5
+1 zip file EDITOR 功能
+2 HUGULA_RELEASE 编译命令增加。
+3 热更新流程优化，优先读取服务器信息ver.txt。
+4 PrefabPool.Add 支持原始asset
+5 OBB 模式资源读取路径错误修改。
+6 unity Editor 下面Simulation模式资源依赖加载问题修复。
+7 lua  StateManager 快速切换可能界面卡死bug修复。
+8 lua  StateManager:record() 日志记录bug修复。
+
 20174.4.19
 1 优化FirstPackage组织方式（OneResFolder,VerResFolder）。
 2 更新文件是否带crc后缀 开关功能。appendCrcToFile(Hugula/Setting)。

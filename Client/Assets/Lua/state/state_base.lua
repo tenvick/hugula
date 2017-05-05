@@ -62,9 +62,9 @@ function StateBase:check_initialize( ... ) --初始化
 end
 
 --显示切换UI
-function StateBase:show_transform(on_act)
+function StateBase:show_transform(state_manager)
     if self._transform then
-        self._transform._once_act = on_act
+        self._transform._state_manager = state_manager
         self._transform:on_focus()
         return true
     else

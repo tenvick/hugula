@@ -21,6 +21,9 @@
 ------------------------------------------------
 require("core.loader")
 require_bytes = SluaCMD.require_bytes
+
+collectgarbage("setpause", 110)
+collectgarbage("setstepmul", 300)
 json = require "lib.json"
 
 local Hugula = Hugula
@@ -59,7 +62,7 @@ local UPDATED_TEMP_LIST_NAME =  CUtils.GetAssetName(UPDATED_LIST_NAME)..".tmp"
 local DOWANLOAD_TEMP_FILE = "downloaded.tmp"
 local update_list_crc_key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
 local http_ver_hosts = "http://192.168.100.101/api/ver/get?ver=%s&udid=%s&os=%s&time=%s" --自己构建web服务器通过本地版本判断返回ver.txt /dev|/release|/reivew|...
-http_ver_hosts = "http://192.168.100.101/"..CUtils.platform.."/v"..CODE_VERSION.."/"..VERSION_FILE_NAME --直接读取版本文件
+http_ver_hosts = "http://192.168.100.101/release/"..CUtils.platform.."/v"..CODE_VERSION.."/"..VERSION_FILE_NAME --直接读取版本文件
 
 --local fristView
 local local_file,server_file = {},{}
@@ -67,7 +70,7 @@ local backgroud_loader
 local local_version,server_ver
 local main_update = {} 
 local MAX_STEP = 6
-local DEBUG_UPDATE = true
+local DEBUG_UPDATE = false
 
 --- global
 CRC_FILELIST = {}
@@ -75,6 +78,16 @@ BackGroundDownload = {} --
 cdn_hosts = {}
 
 ---------------------------local function ----------------
+local function check_dev()
+	if (Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer) then --for test
+		-- http_ver_hosts = "http://192.168.100.101/api/ver/get?ver=%s&udid=%s&os=%s&time=%s&force=dev"
+		http_ver_hosts = "http://192.168.100.101/dev/"..CUtils.platform.."/v"..CODE_VERSION.."/"..VERSION_FILE_NAME
+	end
+	print("[LOGIN] http url: " .. http_ver_hosts)
+end
+
+check_dev()
+
 local function insert_assetBundle_name(assetbundleName,insert)
 	local append = HugulaSetting.appendCrcToFile;
 	if append then
@@ -231,10 +244,20 @@ function run_times(arg)
 	CUtils.DebugCastTime(arg or debug.traceback())
 end
 
-local function set_resversion(ver)
+local function set_resversion(ver) 
 	if ver then
 		for k,v in pairs(ver) do
 			ResVersion[k] = v
+		end
+	end
+end
+
+local function set_resversion_var(ver)
+	if ver then
+		for k,v in pairs(ver) do
+			if not ( k == "code" or k == "crc32" or	k == "version") then
+				ResVersion[k] = v
+			end
 		end
 	end
 end
@@ -354,7 +377,7 @@ local function all_file_down(bg_loader)
 	if bg_loader.loaded_err then
 		set_progress_txt(lua_localization("main_download_fail")) --"文件下载失败请重启游戏。")
 	else
-		-- set_resversion(server_ver)
+		set_resversion(server_ver)
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME)) --删除旧文件
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME)) --删除旧文件
 		-- print("更新文件列表！")
@@ -433,10 +456,12 @@ end
 
 
 main_update.load_server_verion = function () --加载服务器版本号
-
+	local begin_fun
 	 local function on_err( req )
 	 	print("load_server_ver on erro"..req.key,req.udKey,req.url,req.assetName,req.assetBundleName)
 	 	enterGame()
+		set_progress_txt(lua_localization("main_web_server_error"),3,0.0) --"加载服务器版本信息。"
+		-- delay(begin_fun,2)
 	 end
 
 	 local function on_comp( req )
@@ -445,42 +470,48 @@ main_update.load_server_verion = function () --加载服务器版本号
 		print("server var ",ver_str)
 	 	server_ver = decode_ver_str(ver_str)
 	 	print_time(server_ver.time)
-		set_resversion(server_ver)
-	 	FileHelper.SavePersistentFile(ver_str,CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME)) --临时文件
+		if server_ver.version and server_ver.version >= local_version.version then --如果服务器版本号>=本地
+			set_resversion_var(server_ver)
+		end
+
+		 if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
+			if LResLoader.assetBundleManifest == nil then
+				enterGame(true)
+			else
+				enterGame()
+			end
+			print("进入测试模式:"..http_ver_hosts)
+			return
+		end
+
+		FileHelper.SavePersistentFile(ver_str,CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME)) --临时文件
 
 		if CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
   			set_progress_txt(lua_localization("main_download_new_app")) --"请更新app版本！")
 			Application.OpenURL(server_ver.update_url)
-	 	elseif server_ver.crc32 ~= local_version.crc32 then
+	 	elseif server_ver.version > local_version.version then --服务器版本号大于等于当前版本号 --&& server_ver.crc32 ~= local_version.crc32
 	 		main_update.load_server_file_list()
 	 	else
 	 		enterGame()
 	 	end
 	 end
 
-	set_progress_txt(lua_localization("main_web_server_ver"),3,0.5) --"加载服务器版本信息。"
-	local udid = UnityEngine.SystemInfo.deviceUniqueIdentifier --
-	local ver_url = string.format(http_ver_hosts,APP_VERSION,udid,CUtils.platform,os.time()) -- ResVersion http://gw-warx.dev.tapenjoy.com/api/ver/get?ver=1.0.1&udid=111111&os=ios&time=1491533172
-    print(ver_url)
-	Loader:get_resource(ver_url,nil,String,on_comp,on_err,nil,nil)--
+	begin_fun = function()
+		set_progress_txt(lua_localization("main_web_server_ver"),3,0.5) --"加载服务器版本信息。"
+		local udid = UnityEngine.SystemInfo.deviceUniqueIdentifier --
+		local ver_url = string.format(http_ver_hosts,APP_VERSION,udid,CUtils.platform,os.time()) -- ResVersion http://gw-warx.dev.tapenjoy.com/api/ver/get?ver=1.0.1&udid=111111&os=ios&time=1491533172
+		print(ver_url)
+		Loader:get_resource(ver_url,nil,String,on_comp,on_err,nil,nil)--
+	end
+
+	begin_fun()
 end
 
 main_update.load_local_file_list = function () --加载本地列表
 
 	local step = {}
 	step.next_step=function( ... )
-
-		if DEBUG_UPDATE then --测试
-			main_update.load_server_verion()
-		elseif Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
-			if LResLoader.assetBundleManifest == nil then
-				enterGame(true)
-			else
-				enterGame()
-			end
-		else
-			main_update.load_server_verion()
-		end
+		main_update.load_server_verion()
 	end
 
 	step.on_persistent_comp=function( req )
@@ -524,7 +555,7 @@ main_update.load_local_file_list = function () --加载本地列表
 		step.load_persistent_file()
     end
     step1.on_streaming_error = function( req )
-    	print("never happen!!! load error "..req.url)
+		print("<color=#ffff00>streaming crc32_filelist does't exist use (Hugula/BUild For Bublish) build</color>")
     	step.load_persistent_file()
     end
     step1.load_streaming_file = function( ... )
@@ -595,9 +626,9 @@ main_update.compare_local_version = function () --对比本地版本号
 	end
 
 	step.on_streaming_error=function ( req ) --never happen
-		print("local streaming ver err never happen!!! ")
-		--temp
-		enterGame(true)
+		print("<color=#ffff00>streaming ver.txt does't exist use (Hugula/BUild For Bublish) build</color>")
+		step.streaming_version = {code=0,crc32=0,time=os.time(),version=APP_VERSION}
+		step.compare()
 	end
 
 	step.load_persistent=function(  )

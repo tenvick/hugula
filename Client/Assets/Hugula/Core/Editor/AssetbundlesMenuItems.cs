@@ -50,6 +50,13 @@ public class AssetbundlesMenuItems
         ExportResources.buildAssetBundlesUpdateAB();
     }
 
+    [MenuItem("AssetBundles/PlayerPrefs DeleteAll ", false, 7)]
+    static public void PlayerPrefsDeleteAll()
+    {
+        PlayerPrefs.DeleteAll();
+        Debug.Log("PlayerPrefs.DeleteAll()");
+    }
+
     // [MenuItem("AssetBundles/--------", false, 11)]
     // static void Breaker_AssetBundles() { }
 
@@ -66,25 +73,37 @@ public class AssetbundlesMenuItems
         BuildScript.SetAssetBundlesVariantsAndName();
     }
 
-    [MenuItem("Assets/AssetBundles/Set Extends Floder", false, 3)]
+    [MenuItem("Assets/HugulaExtends/Set Extends Floder", false, 3)]
     static public void SetExtendsFloder()
     {
         BuildScript.SetAsExtendsFloder();
     }
 
-    [MenuItem("Assets/AssetBundles/Add Extension Files", false, 3)]
+    [MenuItem("Assets/HugulaExtends/Add Extension Files", false, 3)]
     static public void AddExtensionFiles()
     {
         BuildScript.ExtensionFiles(false);
     }
 
-       [MenuItem("Assets/AssetBundles/Remove Extension Files", false, 3)]
+       [MenuItem("Assets/HugulaExtends/Remove Extension Files", false, 3)]
     static public void RemoveExtensionFiles()
     {
         BuildScript.ExtensionFiles(true);
     }
 
-    [MenuItem("Assets/AssetBundles/Clear Extends Floder", false, 5)]
+   [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
+    static public void AddZipFiles()
+    {
+        BuildScript.ZipFiles(false);
+    }
+
+       [MenuItem("Assets/HugulaExtends/Remove Zip Files", false, 3)]
+    static public void RemoveZipFiles()
+    {
+        BuildScript.ZipFiles(true);
+    }
+
+    [MenuItem("Assets/HugulaExtends/Clear Extends Floder", false, 5)]
     static public void ClearExtendsFloder()
     {
         BuildScript.ClearExtendsFloder();

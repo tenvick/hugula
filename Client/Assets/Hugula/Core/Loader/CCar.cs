@@ -90,6 +90,7 @@ namespace Hugula.Loader
             if (req.isAssetBundle) url = req.uris.OnOverrideUrl(req);
 #endif
             url = CUtils.CheckWWWUrl(url);
+
 #if HUGULA_LOADER_DEBUG
 			Debug.LogFormat(" 1.0 <color=#15C1B2> begin load : url({0}),key:({1}) assetName({2}) abName({3}) isNativeFile({4}) isAssetBundle({5}) frame{6} )</color>", url, req.key, req.assetName,req.assetBundleName,req.isNativeFile,req.isAssetBundle,Time.frameCount);
 #endif
@@ -104,8 +105,9 @@ namespace Hugula.Loader
                 */
                 #if UNITY_ANDROID && !UNITY_EDITOR
                     string android_url = req.url;
-                    android_url = android_url.Replace(Common.JAR_FILE,"").Replace("apk!/assets","apk!assets");
+                    android_url = android_url.Replace(Common.JAR_FILE,"").Replace("!/assets","!assets");
                     abRequest = AssetBundle.LoadFromFileAsync(android_url);
+                    // Debug.LogFormat("android_url={0},url={1}",android_url,req.url);
                 #else
                     abRequest = AssetBundle.LoadFromFileAsync(req.url);
                 #endif
@@ -207,6 +209,7 @@ namespace Hugula.Loader
             {
                 if (OnProcess != null)
                     OnProcess(this, 1);
+                               
 #if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 1.1 <color=#15C1B2> will complete : url({0}),key:({1}) assetName({2})  len({3} frame{4})</color>", req.url, req.key, req.assetName, www.bytes.Length,Time.frameCount);
 #endif
@@ -250,6 +253,7 @@ namespace Hugula.Loader
             {
                 if (OnProcess != null)
                     OnProcess(this, 1);
+                 
 #if HUGULA_LOADER_DEBUG
 				Debug.LogFormat(" 1.2 <color=#15C1B2> will complete : url({0}),key:({1}) assetName({2}) frame{3})</color>", req.url, req.key, req.assetName, Time.frameCount);
 #endif

@@ -222,8 +222,7 @@ namespace Hugula.Loader {
                         Debug.LogFormat ("<color=red> 2.2 SetRequestDataFromCache false Req(assetname={0},url={1}) frame={2}loadingAssetBundleQueue.Count={3} </color>", item.assetName, item.url, Time.frameCount, loadingAssetBundleQueue.Count);
 #endif
                     }
-                    // if (item.assetBundleRequest != null)
-                    // 	CacheManager.AddLock (item.keyHashCode);//异步需要锁定
+
                     loadingAssetBundleQueue.RemoveAt (i);
 #if HUGULA_LOADER_DEBUG
                     Debug.LogFormat (" 2.3 <color=#15C132>DependenciesComplete Req(assetname={0},url={1},async={2}) frameCount{3},loadingAssetBundleQueue.Count={4}</color>", item.assetName, item.url, item.async, Time.frameCount, loadingAssetBundleQueue.Count);
@@ -258,6 +257,7 @@ namespace Hugula.Loader {
 
                     } else
                         item.data = item.assetBundleRequest;
+
 #if HUGULA_LOADER_DEBUG
                     Debug.LogFormat (" 3.2.1 <color=#A9C115>set Req(assetname={0},url={1} data{2}) end </color>", item.assetName, item.url, item.data);
 #endif
@@ -267,6 +267,7 @@ namespace Hugula.Loader {
                 {
                     loadedAssetQueue.Enqueue (item);
                     loadingAssetQueue.RemoveAt (i);
+
 #if HUGULA_LOADER_DEBUG
                     Debug.LogFormat (" 3.2 <color=#A9C115>set Req(assetname={0},url={1}).data Async  Count{2} frameCount{3}</color>", item.assetName, item.url, loadingAssetQueue.Count, Time.frameCount);
 #endif
@@ -438,19 +439,18 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="req"></param>
         static bool CheckLoadAssetAsync (CRequest req) {
+
+#if UNITY_EDITOR
+            if(SimulateAssetBundleInEditor && CacheManager.SetRequestDataFromPrefab(req))
+            {
+                loadingAssetQueue.Add(req);
+                return true;
+            }
+#endif
+
             ABDelayUnloadManager.CheckRemove (req.keyHashCode);
-            if (CacheManager.SetRequestDataFromCache (req)) {
-                if (req.assetBundleRequest != null) {
-                    AddReqToAssetCallBackList (req);
-#if HUGULA_LOADER_DEBUG
-                    Debug.LogFormat ("<color=#15C1B2> 1.1 from cache CheckLoadAssetAsync=true Req(assetname={0},url={1})  </color>", req.assetName, req.url);
-#endif
-                } else {
-#if HUGULA_LOADER_DEBUG
-                    Debug.LogFormat ("<color=#15C1B2> 1.2 from cache CheckLoadAssetAsync=false Req(assetname={0},url={1})  </color>", req.assetName, req.url);
-#endif
-                    LoadAssetComplate (req);
-                }
+            if (CacheManager.Contains(req.keyHashCode)) {
+                AddReqToAssetCallBackList(req);    
                 return true;
             }
             return false;

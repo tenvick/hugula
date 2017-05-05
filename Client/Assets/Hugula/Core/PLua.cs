@@ -46,7 +46,9 @@ namespace Hugula
         }
 #endif
 
-        public Lua lua;
+        public static Lua lua;
+
+        private static bool isLuaInitFinished = false;
         private string luaMain = "";
         private LuaFunction _updateFn;
 
@@ -64,18 +66,17 @@ namespace Hugula
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
-            lua = new Lua();
+            // lua = new Lua();
+            if (lua == null) PreInitLua();
             LoadScript();
         }
 
-        void Start()
+        IEnumerator Start()
         {
-            CUtils.DebugCastTime("Plua Start");
-            lua.init(null, () =>
-            { 
-                CUtils.DebugCastTime("Slua binded");
-                DoMain();
-            });
+            while (isLuaInitFinished == false)
+                yield return null;
+
+            DoMain();
         }
 
 	    void Update()
@@ -89,6 +90,7 @@ namespace Hugula
             if (onDestroyFn != null) onDestroyFn.call();
             updateFn = null;
             lua = null;
+            isLuaInitFinished = false;
             if (_instance == this) _instance = null;
         }
 
@@ -136,8 +138,9 @@ namespace Hugula
             lua.luaState.Close();
             yield return new WaitForSeconds(seconds);
             GameObject.Destroy(this.gameObject);
-   
-            LoadFirstHelper.BeginLoadScene();
+
+            Application.LoadLevel(0);
+            //LoadFirstHelper.BeginLoadScene();
         }
 
         /// <summary>
@@ -145,12 +148,29 @@ namespace Hugula
         /// </summary>
         private void DoMain()
         {
+            CUtils.DebugCastTime("");
             lua.luaState.doString(this.luaMain);
         }
 
         #endregion
 
         #region public method
+
+        /// <summary>
+        /// Pre Init Lua.
+        /// </summary>
+        /// <param name="sconds">Sconds.</param>
+        public static void PreInitLua()
+        {
+            if (lua == null) lua = new Lua();
+            CUtils.DebugCastTime("");
+            lua.init(null, () =>
+            {
+                CUtils.DebugCastTime("Slua binded");
+                // DoMain();
+                isLuaInitFinished = true;
+            }, LuaSvrFlag.LSF_3RDDLL);
+        }
 
         /// <summary>
         /// ReStart.

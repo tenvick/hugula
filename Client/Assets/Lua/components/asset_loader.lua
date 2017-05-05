@@ -85,13 +85,14 @@ function AssetLoader:on_asset_loaded(key,asset)
     asset:show()
 	self.lua_obj:send_message("on_asset_load",key,asset)
 	send_message(asset,"on_asset_load",key,asset)
-	-- print(string.format("AssetLoader.name=%s  _load_count %s _load_curr %s ,key %s",self.lua_obj.name,self._load_count,self._load_curr,key))
+	local is_on_blur = self.lua_obj.is_on_blur
+	-- print(string.format("AssetLoader.name=%s,_load_count=%s,_load_curr=%s,key=%s,self.is_on_blur=%s",self.lua_obj.name,self._load_count,self._load_curr,key,tostring(is_on_blur)))
 	if self._load_curr >= self._load_count then
 		self.lua_obj.is_loading = nil
 		self.lua_obj.is_call_assets_loaded = true
 		self.lua_obj:send_message("on_assets_load",self.assets)
 
-		if not self.is_on_blur then 
+		if not is_on_blur then 
 			self.lua_obj:send_message("on_showed")
 			self.lua_obj:call_event("on_showed")
 		end
@@ -102,8 +103,9 @@ function AssetLoader:on_asset_loaded(key,asset)
 		end 
 	end
 
-	if self.is_on_blur then 
+	if is_on_blur then 
 		asset:hide()
+		-- print(string.format("%s on_blur  asset:hide() ",asset.url))
 	end
 end
 

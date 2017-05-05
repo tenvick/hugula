@@ -621,6 +621,15 @@ namespace Hugula.Utils
         {
             if (fn != null) fn.Dispose();
         }
+
+        /// <summary>
+        /// check Object is Null
+        /// </summary>
+        /// <param name="scenename"></param>
+        public static bool IsNull(Object obj)
+        {
+            return obj == null;
+        }
     }
 
 }

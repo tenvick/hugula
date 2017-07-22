@@ -18,8 +18,6 @@ if Hugula ~= nil then
   FileHelper = Hugula.Utils.FileHelper
   Version = Hugula.Utils.Version
 
-  LResLoader = Hugula.Loader.LResLoader
-  LRequest = Hugula.Loader.LRequest
   CacheManager = Hugula.Loader.CacheManager
   PrefabPool = Hugula.Pool.PrefabPool
 
@@ -52,6 +50,7 @@ PrefabCacheType =
 
 local gprint=print
 function print(...)
+    if CUtils.printLog==false then return end
   local arg={...}
   table.insert(arg,"\r\n\r\n"..debug.traceback().."\r\n\r\n")
   gprint(unpack(arg))
@@ -87,7 +86,7 @@ function tojson(tbl,indent)
 end
 
 function print_table(tbl)	  
-   print("<color=#00ff00>"..tojson(tbl).."</color>")  
+   print(tojson(tbl))
 end
 
 function math.randomseed1(i)
@@ -111,34 +110,13 @@ end
 
 --释放没有使用的资源 (mesh,texture)
 function unload_unused_assets()
-  lua_gc()
-  Resources.UnloadUnusedAssets()
-  -- LuaHelper.GCCollect()
+    Resources.UnloadUnusedAssets()
 end
 
 function send_message(obj,method,...)
     local fn = obj[method]
     if type(fn) == "function" then fn(obj,...) end
 end
---用timer实现delay 函数
--- function delay(fun,delay_time,...)
---     local arg = {...}
---     local function temp_delay(id)
---       fun(unpack(arg))
---     end
---     local id = LuaTimer.Add(delay_time*1000,temp_delay)
---     return id
--- end
-
--- function stop_delay(id)
---   if type(id) == "number" then LuaTimer.Delete(id) end
--- end
-
-delay = PLua.Delay
-stop_delay = PLua.StopDelay
-
-
----class
 
 function class(base, _ctor)
     local c = {}    -- a new class instance
@@ -182,3 +160,21 @@ function class(base, _ctor)
     setmetatable(c, mt)
     return c
 end
+
+--用timer实现delay 函数
+-- function delay(fun,delay_time,...)
+--     local arg = {...}
+--     local function temp_delay(id)
+--       fun(unpack(arg))
+--     end
+--     local id = LuaTimer.Add(delay_time*1000,temp_delay)
+--     return id
+-- end
+
+-- function stop_delay(id)
+--   if type(id) == "number" then LuaTimer.Delete(id) end
+-- end
+
+delay = PLua.Delay
+stop_delay = PLua.StopDelay
+multiple_requires = PLua.MultipleRequires --(string[] requires,luafunc ) //eof is the group split sign

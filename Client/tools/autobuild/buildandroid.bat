@@ -3,24 +3,26 @@ set PAN=%~d0
 %PAN%
 cd %CURRENT_ROOT%
 cd ..\..\
-set UNITY_ROOT=%cd%
-echo %UNITY_ROOT%
+set PROJECT_ROOT=%cd%
+echo %PROJECT_ROOT%
+set UNITY_PATH="C:\Program Files\Unity\Editor\Unity.exe"
 
-set slua_path=%UNITY_ROOT%\Assets\Slua\LuaObject
+set slua_path=%PROJECT_ROOT%\Assets\Slua\LuaObject
 echo %slua_path%
 rd /s /q %slua_path%
 echo "del slua sccuess "
 
-echo "cd to Unity Editor path"
-C:
-cd C:\Program Files\Unity\Editor\
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout
+set StreamingPath=%PROJECT_ROOT%\Assets\StreamingAssets
+rd /s /q %slua_path%
+echo "del StreamingPath sccuess "
+
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_NO_LOG  -logFile $stdout
+echo "scriptingDefineSymbols  sccuess"
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout
 echo "slua make sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.DeleteStreamingOutPath -logFile $stdout
-echo "Delete StreamingPath  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes -logFile $stdout
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ExportRes -logFile $stdout
 echo "ExportRes  sccuess"
-Unity.exe -projectPath %UNITY_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForAndroid -logFile $stdout
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildForAndroid -logFile $stdout
 echo "android apk build sccuess"
 echo "begin move apk to release"
 echo CURRENT_ROOT

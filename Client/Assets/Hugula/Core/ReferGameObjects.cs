@@ -41,7 +41,7 @@ namespace Hugula
             int index = names.IndexOf(n);
             if (index == -1)
             {
-                Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + n + "]");
+                //Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + n + "]");
                 return null;
             }
             else
@@ -57,7 +57,7 @@ namespace Hugula
             }
             else
             {
-                Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + index + "]");
+                //Debug.LogWarning(gameObject.name + "ReferGameObjects : not found the key [" + index + "]");
                 return null;
             }
         }

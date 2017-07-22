@@ -70,4 +70,9 @@ namespace Hugula.Utils
             s_ListPool.Release(toRelease);
         }
     }
+
+    public interface IReleaseToPool
+    {
+        void ReleaseToPool();
+    }
 }

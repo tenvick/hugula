@@ -38,43 +38,12 @@ local NetAPIList = NetAPIList
 
 -- require("netGame")
 
-local function add_black_crc( ... )
-	local black = CRC_FILELIST.black
-	if black then
-		for k1,v1 in pairs(black) do
-			CrcCheck.Add(k1,v1[1])
-		end
-	end
-end
-local function check_mode()
-	if Common.IS_WEB_MODE then
-		local uris = UriGroup()
-		uris:Add(CUtils.GetRealPersistentDataPath(),true);
-		for k,v in pairs(cdn_hosts) do
-			uris:Add(v,false,true,true)
-		end
-		Loader:set_uris(uris)
-	elseif cdn_hosts then
-		-- local uris = Hugula.Loader.LResLoader.uriList
-		-- for k,v in pairs(cdn_hosts) do
-		-- 	uris:Add(v,false,true,true)
-		-- end
-	end
-
-	if Application.platform == RuntimePlatform.WindowsPlayer then --如果是windows平台删除缓存记录
-		Hugula.Utils.FileHelper.DeletePersistentDirectory(nil)
-	end
-end
-
 local function on_state_change(state) --资源回收
 	if state == StateManager.welcome then --当切换到welcome状态时候
 		StateManager:auto_dispose_items() --回收标记的item_object
 		unload_unused_assets()
 	end
 end
-
-add_black_crc()
-check_mode()
 
 local function update()
     local cmp
@@ -97,7 +66,7 @@ StateManager:register_state_change(on_state_change,true)
 -- require("common.load_csv")
 
 delay(function( ... )
-	-- print(get_value("level_name_001")) --language key
+	-- print(lua_localization("level_name_001")) --language key
 	-- print_table(Model.getUnit(200001)) --read config
 	-- Loader:clearSharedAB() 
 end,0.5)

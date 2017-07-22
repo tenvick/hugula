@@ -7,7 +7,8 @@ using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
 
-namespace Hugula {
+namespace Hugula
+{
 
     /// <summary>
     /// Localization manager is able to parse localization information from text assets.
@@ -30,7 +31,8 @@ namespace Hugula {
     /// Info,"Localization Example","Par exemple la localisation"
     /// </summary>
     [SLua.CustomLuaClass]
-    public static class Localization {
+    public static class Localization
+    {
         /// <summary>
         /// Whether the localization dictionary has been loaded.
         /// </summary>
@@ -41,10 +43,10 @@ namespace Hugula {
         static string[] mLanguages = null;
 
         // Key = Value dictionary (mulit language)
-        static Dictionary<string, string[]> mOldDictionary = new Dictionary<string, string[]> ();
+        static Dictionary<string, string[]> mOldDictionary = new Dictionary<string, string[]>();
 
         // Key = Values dictionary (single languages)
-        static Dictionary<string, string> mDictionary = new Dictionary<string, string> ();
+        static Dictionary<string, string> mDictionary = new Dictionary<string, string>();
 
         // Index of the selected language within the multi-language dictionary
         static int mLanguageIndex = -1;
@@ -57,17 +59,21 @@ namespace Hugula {
         /// Be very careful editing this via code, and be sure to set the "KEY" to the list of languages.
         /// </summary>
         [SLua.DoNotToLuaAttribute]
-        static public Dictionary<string, string> dictionary {
-            get {
+        static public Dictionary<string, string> dictionary
+        {
+            get
+            {
 
-                if (!localizationHasBeenSet) {
+                if (!localizationHasBeenSet)
+                {
 #if UNITY_EDITOR
-                    LoadDictionaryInEditor(PlayerPrefs.GetString ("Language", Application.systemLanguage.ToString()));
+                    LoadDictionaryInEditor(PlayerPrefs.GetString("Language", Application.systemLanguage.ToString()));
 #endif
                 }
                 return mDictionary;
             }
-            set {
+            set
+            {
                 localizationHasBeenSet = (value != null);
                 // mDictionary = value;
             }
@@ -88,18 +94,23 @@ namespace Hugula {
         /// Name of the currently active language.
         /// </summary>
 
-        static public string language {
-            get {
-                if (string.IsNullOrEmpty (mLanguage)) {
-                    mLanguage = PlayerPrefs.GetString ("Language", SystemLanguage.English.ToString());
-                    LoadAndSelect (mLanguage);
+        static public string language
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(mLanguage))
+                {
+                    mLanguage = PlayerPrefs.GetString("Language", SystemLanguage.English.ToString());
+                    LoadAndSelect(mLanguage);
                 }
                 return mLanguage;
             }
-            set {
-                if (mLanguage != value) {
+            set
+            {
+                if (mLanguage != value)
+                {
                     mLanguage = value;
-                    LoadAndSelect (value);
+                    LoadAndSelect(value);
                 }
             }
         }
@@ -107,41 +118,48 @@ namespace Hugula {
         /// <summary>
         /// set  currently language.
         /// </summary>
-        static public void SetLanguage (SystemLanguage lan) {
-            language = lan.ToString ();
+        static public void SetLanguage(SystemLanguage lan)
+        {
+            language = lan.ToString();
         }
 
         /// <summary>
         /// Load the specified localization dictionary.
         /// </summary>
+        static bool LoadDictionary(string value)
+        {
+            if (value.Equals(SystemLanguage.ChineseSimplified.ToString()))
+                value = SystemLanguage.Chinese.ToString();
 
-        static bool LoadDictionary (string value) {
-            if (value.Equals (SystemLanguage.ChineseSimplified.ToString ()))
-                value = SystemLanguage.Chinese.ToString ();
+            string assetName = Common.LANGUAGE_PREFIX + value.ToLower();
+            string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
 
-            var loader = LResLoader.instance;
-            string assetName = Common.LANGUAGE_PREFIX + value.ToLower ();
-            string abName = CUtils.GetRightFileName (assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
+            CRequest req = CRequest.Get();
+            req.relativeUrl = abName;
+            req.assetName = assetName;
+            req.assetType = typeof(BytesAsset);
+            req.async = false;
 
-            CRequest req = new CRequest (abName, assetName, typeof (TextAsset));
-            req.OnComplete += delegate (CRequest req1) {
-                TextAsset main = req1.data as TextAsset; //www.assetBundle.mainAsset as TextAsset;
+            req.OnComplete += delegate (CRequest req1)
+            {
+                BytesAsset main = req1.data as BytesAsset; //www.assetBundle.mainAsset as TextAsset;
                 byte[] txt = main.bytes;
 #if UNITY_EDITOR
-                Debug.Log (mLanguage + " is loaded " + txt.Length);
+                Debug.Log(mLanguage + " is loaded " + txt.Length+" "+Time.frameCount);
 #endif
-                if (txt != null) Load (txt);
-                SelectLanguage (mLanguage);
-                CacheManager.Unload (req1.keyHashCode);
+                if (txt != null) Load(txt);
+                SelectLanguage(mLanguage);
+                CacheManager.Unload(req1.keyHashCode);
                 localizationHasBeenSet = true;
             };
 
-            req.OnEnd += delegate (CRequest req1) {
-                if(!value.ToLower().Equals(SystemLanguage.English.ToString().ToLower()))
+            req.OnEnd += delegate (CRequest req1)
+            {
+                if (!value.ToLower().Equals(SystemLanguage.English.ToString().ToLower()))
                     language = SystemLanguage.English.ToString();
             };
 
-            loader.LoadReq (req);
+            ResourcesLoader.LoadAsset(req);
             return false;
         }
 
@@ -151,19 +169,21 @@ namespace Hugula {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        static void LoadDictionaryInEditor (string value) {
-            string url = "Assets/Config/Lan/" + Common.LANGUAGE_PREFIX + value.ToLower () + ".csv";
-            Debug.Log (url);
-            Object m = UnityEditor.AssetDatabase.LoadAssetAtPath (url, typeof (TextAsset));
+        static void LoadDictionaryInEditor(string value)
+        {
+            string url = "Assets/Config/Lan/" + Common.LANGUAGE_PREFIX + value.ToLower() + ".csv";
+            Debug.Log(url);
+            Object m = UnityEditor.AssetDatabase.LoadAssetAtPath(url, typeof(BytesAsset));
 
-            TextAsset main = m as TextAsset;
-            if (main) {
+            BytesAsset main = m as BytesAsset;
+            if (main)
+            {
                 byte[] txt = main.bytes;
                 // mLanguage = value;
                 // Debug.Log(mLanguage + "   Editor is loaded " + txt.Length);
                 //Debug.Log(System.Text.Encoding.UTF8.GetString(txt));
-                if (txt != null) Load (txt);
-                SelectLanguage (mLanguage);
+                if (txt != null) Load(txt);
+                SelectLanguage(mLanguage);
             }
             localizationHasBeenSet = true;
         }
@@ -173,29 +193,40 @@ namespace Hugula {
         /// Load the specified language.
         /// </summary>
 
-        static bool LoadAndSelect (string value) {
-            if (!string.IsNullOrEmpty (value)) {
+        static bool LoadAndSelect(string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+#if UNITY_EDITOR
+                if (ManifestManager.SimulateAssetBundleInEditor)
+                    LoadDictionaryInEditor(value);
+                else
+                    LoadDictionary(value);
+#else
                 LoadDictionary (value);
+#endif
                 return true;
             }
             return false;
         }
 
-        static public void Load (byte[] asset) {
-            mDictionary.Clear ();
-            ByteReader reader = new ByteReader (asset);
-            mDictionary = reader.ReadDictionary ();
+        static public void Load(byte[] asset)
+        {
+            mDictionary.Clear();
+            ByteReader reader = new ByteReader(asset);
+            mDictionary = reader.ReadDictionary();
         }
 
         /// <summary>
         /// Select the specified language from the previously loaded CSV file.
         /// </summary>
 
-        static bool SelectLanguage (string language) {
+        static bool SelectLanguage(string language)
+        {
             if (mDictionary.Count == 0) return false;
 
             mLanguage = language;
-            PlayerPrefs.SetString ("Language", mLanguage);
+            PlayerPrefs.SetString("Language", mLanguage);
             return true;
         }
 
@@ -203,17 +234,18 @@ namespace Hugula {
         /// Localize the specified value.
         /// </summary>
 
-        static public string Get (string key) {
+        static public string Get(string key)
+        {
             // Ensure we have a language to work with
             string val;
 #if UNITY_IPHONE || UNITY_ANDROID
             //key + " Mobile"
-            if (mDictionary.TryGetValue (key, out val)) return val;
+            if (mDictionary.TryGetValue(key, out val)) return val;
 #endif
 
 #if UNITY_EDITOR
-            if (mDictionary.TryGetValue (key, out val)) return val;
-            Debug.LogWarning ("Localization key not found: '" + key + "'");
+            if (mDictionary.TryGetValue(key, out val)) return val;
+            Debug.LogWarning("Localization key not found: '" + key + "'");
             return key;
 #else
             return (mDictionary.TryGetValue (key, out val)) ? val : key;
@@ -225,8 +257,9 @@ namespace Hugula {
         /// Returns whether the specified key is present in the localization dictionary.
         /// </summary>
 
-        static public bool Exists (string key) {
-            return mDictionary.ContainsKey (key);
+        static public bool Exists(string key)
+        {
+            return mDictionary.ContainsKey(key);
         }
     }
 }

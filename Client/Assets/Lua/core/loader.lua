@@ -5,16 +5,18 @@
 ------------------------------------------------
 local Hugula = Hugula
 Loader={}
-local Request = Hugula.Loader.LRequest
-local LRequest = Hugula.Loader.LRequest --内存池
+local CRequest = Hugula.Loader.CRequest
 local CacheManager = Hugula.Loader.CacheManager
-local LResLoader = Hugula.Loader.LResLoader
+local ResourcesLoader = Hugula.Loader.ResourcesLoader
+local ManifestManager = Hugula.Loader.ManifestManager
 local CUtils = Hugula.Utils.CUtils
 local Common = Hugula.Utils.Common
 local LuaHelper = Hugula.Utils.LuaHelper
+local Object = UnityEngine.Object
 
 local RuntimePlatform= UnityEngine.RuntimePlatform
 local Application= UnityEngine.Application
+local Shader = UnityEngine.Shader
 
 local Loader = Loader 
 local u3d_pattern = ".+%."..Common.ASSETBUNDLE_SUFFIX.."$"
@@ -22,59 +24,39 @@ local u_pattern = ".+%.u$"
 local u3d_is_md5_patter = "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u3d$"
 local u_is_md5_patter =  "[%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l][%d%l]_?%d*%.u$"
 --warnning assetBundle 原始名字最好以  aa_bb 命名并且长度<=30
-Loader.multipleLoader= LResLoader.instance
+Loader.default_async = Application.platform ~= RuntimePlatform.IPhonePlayer
 
-local function dispatch_complete(req)
-	if req.onCompleteFn then req.onCompleteFn(req) end
-end
-
-local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
-	if assetName == nil then assetName = CUtils.GetAssetName(url) end
-	local req = LRequest.Get() -- Request(url,assetName,assetType)
+local function check_md5(url)
 	if string.match(url,u3d_pattern) and  string.match(url,u3d_is_md5_patter) == nil then --以u3d结尾
-		-- req.isLoadFromCacheOrDownload = true --从缓存加载
 	  	url = CUtils.GetRightFileName(url)  --md5编码
 	elseif string.match(url,u_pattern) and  string.match(url,u_is_md5_patter) == nil then
 	  	url = CUtils.GetRightFileName(url)  --md5编码
 	end--判断加密
-	req.relativeUrl = url
-	req.assetName = assetName
+	return url
+end
+
+local function create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+	if assetName == nil then assetName = CUtils.GetAssetName(url) end
+	url = check_md5(url)
 	if type(assetType)=="string" then 
 		assetType = LuaHelper.GetClassType(assetType) 
 	end
-	
-	if assetType ~= nil then req.assetType = assetType end
-	
-	if compFn then req.onCompleteFn=compFn end
-	if endFn then req.onEndFn=endFn end
-	if head ~= nil then req.head=head end 
-	if isLoadFromCacheOrDownload ~= nil then req.isLoadFromCacheOrDownload = isLoadFromCacheOrDownload end
-	local uri = url
-	if uris then 
-		req.uris = uris 
-		uri = uris:GetUri(0)
-	end
-	if string.lower(string.sub(uri,1,4))=="http" then req.isNormal = false end --默认检测第一个uri如果是 http开头 非普通方式加载
-
-	if Application.platform == RuntimePlatform.IPhonePlayer then
-		req.async = false
-	elseif  async ~= nil then
-	 	req.async = async
-	else
-		req.async = true
-	end
-
-	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"isNormal=",req.isNormal,"req.uris=",req.uris)
+	if async == nil then async = Loader.default_async end
+	if assetType == nil then assetType = Object end
+	-- print("create_req_url6 url=",req.url,"assetName=",assetName,"req.type=",assetType)
+	local req = CRequest.Create(url,assetName,assetType,compFn,endFn,head,async)
 	return req
 end
 
-local function load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
-	local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
-	Loader.multipleLoader:LoadReq(req)
+local function load_by_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+	local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
+	-- Loader.multipleLoader:LoadReq(req)
+	ResourcesLoader.LoadAsset(req,false)
 end
 
 local function load_by_req( req )
-	Loader.multipleLoader:LoadReq(req)
+	-- Loader.multipleLoader:LoadReq(req)
+	ResourcesLoader.LoadAsset(req,false)
 end
 
 local function load_by_table(tb,group_fn,progress_fn)
@@ -87,50 +69,50 @@ local function load_by_table(tb,group_fn,progress_fn)
 		if typen=="table" then
 			local l1=#v
 			local req 
-			local url,assetName,assetType,compFn,endFn,uris,head,async,isLoadFromCacheOrDownload
+			local url,assetName,assetType,compFn,endFn,uris,head,async
 			if l1>0 then url = v[1]  end
 			if l1>1 then assetName=v[2] end
-			if l1>2 then assetType=v[3] end
-			if l1>3 then compFn=v[4] end
-			if l1>4 then endFn=v[5] end
-			if l1>5 then head=v[6] end
-			if l1>6 then uris=v[7] end
-			if l1>7 then async=v[8] end
-			if l1>8 then isLoadFromCacheOrDownload = v[9] end
+			if v[3] then assetType=v[3] end
+			if v[4] then compFn=v[4] end
+			if v[5] then endFn=v[5] end
+			if v[6]~=nil then head=v[6] end
+			if v[7] then uris=v[7] end
+			if v[8]~=nil then async=v[8] end
 
 			if v.url then url = v.url end
 			if v.assetName then assetName = v.assetName end
 			if v.assetType then assetType = v.assetType end
-			if v.onCompleteFn then compFn = v.onCompleteFn end
-			if v.onEndFn then endFn = v.onEndFn end
+			if v.OnComplete then compFn = v.OnComplete end
+			if v.OnEnd then endFn = v.OnEnd end
 			if v.uris then uris = v.uris end
 			if v.head ~= nil then head = v.head end
 			if v.async ~= nil then async = v.async end
-			if v.isLoadFromCacheOrDownload ~= nil then isLoadFromCacheOrDownload = v.isLoadFromCacheOrDownload end
 
-			local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
+			local req = create_req_url6(url,assetName,assetType,compFn,endFn,head,uris,async)
 			table.insert(arrList,req)
 		elseif typen=="userdata" then
 			table.insert(arrList,v)
 		end
 	end
-	Loader.multipleLoader:LoadLuaTable(arrList,group_fn,progress_fn) 
+	-- Loader.multipleLoader:LoadLuaTable(arrList,group_fn,progress_fn) 
+	ResourcesLoader.LoadLuaTable(arrList,group_fn,progress_fn,0)
 end
 
 function Loader:clear(key)
-	-- local t = type(key)
-	--if t == "string" then 
 	CacheManager.Unload(key)
-	--end 
---    unload_unused_assets()
+end
+
+function Loader:check_ab_is_done(ab_name) --判断存在 1 存在
+	local md5 = CUtils.GetRightFileName(ab_name)
+	return ManifestManager.CheckABIsDone(md5)
 end
 
 function Loader:stop_url(url)
-	self.multipleLoader:StopURL(url)
+	-- self.multipleLoader:StopURL(url)
 end
 
 function Loader:stop_req(req)
-	self.multipleLoader:StopReq(req)
+	-- self.multipleLoader:StopReq(req)
 end
 
 function Loader:unload(url)
@@ -149,9 +131,9 @@ function Loader:unload_dependencies_cache_false(assetbundle_name)
 	CacheManager.UnloadDependenciesCacheFalse(assetbundle_name)
 end
 
--- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
--- load_by_url4(assetBundleName,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload)
---load_by_table( {assetBundleName,assetName,assetType,compFn,endFn,head,uris,async,isLoadFromCacheOrDownload},group_fn,progress_fn)
+-- load_by_url6(assetBundleName,assetName,assetType,compFn,endFn,head,uris,async)
+-- load_by_url4(assetBundleName,compFn,endFn,head,uris,async)
+--load_by_table( {assetBundleName,assetName,assetType,compFn,endFn,head,uris,async},group_fn,progress_fn)
 function Loader:get_resource(...)	
 	local a,b,c,d,e,f,g,h,i = ...	
 	--url,onComplete
@@ -165,76 +147,73 @@ function Loader:get_resource(...)
 	elseif t_a == "table" then
 		load_by_table(a,b,c)
 	else
-		error(" loader.lua line 116  this is no overloaded function for args")
+		error(" loader.lua line 163  this is no overloaded function for args")
+	end
+end
+
+--string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd
+function Loader:get_http_data(...)
+	local a,b,c,d,e = ...
+	local t_a = type(a)
+	if t_a=="userdata" then
+		ResourcesLoader.WWWRequest(a,false)
+	else
+		ResourcesLoader.WWWRequest(a,b,c,d,e)
+	end
+end
+
+--string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd
+function Loader:get_www_data(...)
+	local a,b,c,d,e,f = ...
+	local t_a = type(a)
+	if t_a=="userdata" then
+		ResourcesLoader.WWWRequest(a,false)
+	else
+		ResourcesLoader.WWWRequest(a,b,c,d,e)
 	end
 end
 
 function Loader:set_onall_complete_fn(fn)
-	self.multipleLoader.onAllCompleteFn = fn
+	ResourcesLoader.OnAllComplete = fn
 end
 
 function Loader:set_onprogress_fn(fn)
-	self.multipleLoader.onProgressFn = fn
+	ResourcesLoader.OnProgress = fn
 end
 
 function Loader:set_on_assetbundle_comp_fn(fn)
-	self.multipleLoader.onAssetBundleCompleteFn = fn
+	ResourcesLoader.OnAssetBundleComplete = fn
 end
 
 function Loader:set_on_assetbundle_err_fn(fn)
-	self.multipleLoader.onAssetBundleErrFn = fn
+	ResourcesLoader.OnAssetBundleErr = fn
 end
 
 function Loader:set_active_variants(vars)
-	LResLoader.ActiveVariants = vars --{"sd"}
+	ManifestManager.ActiveVariants = vars
 end
 
 function Loader:set_maxloading(max)
-	LResLoader.maxLoading = max --{"sd"}
+	ResourcesLoader.maxLoading = max
 end
 
 function Loader:set_uris(uris)
-	LResLoader.uriList = uris
+
 end
 
-function Loader:refresh_assetbundle_manifest(onReady)
-
-    local url = CUtils.GetPlatformFolderForAssetBundles()
-	url = CUtils.GetRightFileName(url)
-    local  function on_complete_fn (req1)
-        local data=req1.data
-        LResLoader.assetBundleManifest=data
-		print("manifest is done"..req1.url)
-        if onReady then onReady() end
-		CacheManager.UnloadCacheFalse(url) --清理缓存
-    end
-
-	local function on_erro_fn(req1)
-		print("manifest is error"..req1.url)
-		if onReady then onReady() end
-	end
-
-	self:clear(url) --清理旧的缓存
-	
-    self:get_resource(url,"assetbundlemanifest",UnityEngine.AssetBundleManifest,on_complete_fn,on_erro_fn,nil,LResLoader.uriList)
+function Loader:refresh_assetbundle_manifest(on_ready)
+	ManifestManager.LoadFileManifest(on_ready)
 end
 
+local function on_ab_complete(req,ab)
 
-local function on_shared_complete(req)
-	-- local deps = LResLoader.assetBundleManifest:GetAllDependencies(req.assetBundleName)
-	-- print("<color=red>on_shared_complete "..req.assetBundleName.." "..req.assetName.."</color>")
-	-- if deps.Length == 0 then
-	local ab = req.data
-	if Application.platform == RuntimePlatform.OSXEditor or Application.platform == RuntimePlatform.WindowsEditor or Application.platform == RuntimePlatform.WindowsPlayer then --for test
-		
-	elseif ab then
-		-- LuaHelper.RefreshShader(ab)
+	if req.isShared and not LuaHelper.IsNull(ab) and Application.platform == RuntimePlatform.IPhonePlayer then --and Application.platform == RuntimePlatform.IPhonePlayer
 		ab:LoadAllAssets()
 	else
-		print("on_shared_complete data is nil req(",req.assetBundleName,req.assetName)
+		-- print("on_shared_complete data is nil req(",req.assetBundleName,req.assetName)
 	end
 end
 
-Loader.multipleLoader.onSharedCompleteFn = on_shared_complete
+Loader:set_on_assetbundle_comp_fn(on_ab_complete)
 
 -- print("require loader:"..os.time())

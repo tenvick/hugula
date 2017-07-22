@@ -11,6 +11,6 @@ namespace Hugula.Pool
     /// </summary>
     public class ReferenceCountInfo : MonoBehaviour
     {
-
+        public string info;
     }
 }

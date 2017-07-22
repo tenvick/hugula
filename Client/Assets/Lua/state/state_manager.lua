@@ -110,8 +110,7 @@ local function get_diff_log(curr_state,curr_log)
 end
 
 local function unload_unused_assets()
-  collectgarbage("collect")
---   Resources.UnloadUnusedAssets()
+    collectgarbage("collect")
 end
 -------------------------------------------------------------------
 StateManager =
@@ -239,14 +238,14 @@ end
 
 
 function StateManager:_state_on_blur()
-     local new_state = self._new_state
+    local new_state = self._new_state
+    self._last_game_state = self._current_game_state
 
     if self._current_game_state ~= nil and new_state then
         self._current_game_state:on_blur(new_state)
         unload_unused_assets()
     end
 
-    self._last_game_state = self._current_game_state
 end
 
 function StateManager:_state_on_focus()
@@ -273,9 +272,9 @@ function StateManager:real_change_to_state() --real change state
     self:_state_on_focus()
 end
 
-function StateManager:is_in_current_state(state)
+function StateManager:is_in_current_state(item)
     local curr = self:get_current_state()
-    return curr:contains_item(state)
+    return curr:contains_item(item)
 end
 
 --设置新的状态
@@ -297,6 +296,8 @@ function StateManager:set_current_state(new_state,method,...)
     end
 
     local previous_state = self._current_game_state
+    self._last_game_state = self._current_game_state
+
     if previous_state then previous_state:on_bluring(new_state) end
     new_state:on_focusing(previous_state)
 
@@ -366,16 +367,18 @@ function StateManager:go_back(index) --返回
     local change,add,remove = get_diff_log(self._current_game_state,back_log)
     if new_state == self._current_game_state then --如果是当前状态
         local curr = self._current_game_state
-        for k,v in ipairs(add) do 
-            curr:add_item(v)
-            v:on_focus(curr)
-            if v.onback then v:on_back() end
-        end
+        local last = self._last_game_state
 
         for k,v in ipairs(remove) do 
             curr:remove_item(v)
             v:on_blur(curr)
-            -- v:on_back()
+        end
+
+        for k,v in ipairs(add) do 
+            curr:add_item(v)
+            v:on_focus(last)
+            if v.on_focused then v:on_focused(last) end
+            if v.onback then v:on_back() end
         end
            
         self:call_on_state_change(new_state)

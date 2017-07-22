@@ -3,6 +3,7 @@
 
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Hugula.Utils;
 
 namespace Hugula.Loader
@@ -16,7 +17,7 @@ namespace Hugula.Loader
         public CacheData()
         {
             isUnloaded = false;
-            isAssetLoaded = false;
+            assets = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -27,7 +28,6 @@ namespace Hugula.Loader
             this.assetBundle = assetBundle;
             this.assetBundleKey = assetBundleName;
             this.isUnloaded = false;
-            this.isAssetLoaded = false;
             if (this.assetHashCode == 0 && !string.IsNullOrEmpty(assetBundleName))
             {
                 int hash = LuaHelper.StringToHash(assetBundleKey);
@@ -68,15 +68,16 @@ namespace Hugula.Loader
         /// <summary>
         /// 所有依赖项目
         /// </summary>
-        public int[] allDependencies { get; internal set; }
+        public int[] dependencies { get; internal set; }
 
-        public int[] directDependencies { get; internal set; }
+        public Dictionary<string, object> assets;
 
         /// <summary>
-        /// is asset loaded
+        /// is loaded done 
         /// </summary>
-        /// <value><c>true</c> if is asset loaded; otherwise, <c>false</c>.</value>
-        public bool isAssetLoaded { get; internal set; }
+        /// <value><c>true</c> if is assetbundle loaded; otherwise, <c>false</c>.</value>
+
+        public bool isDone { get; internal set; }
 
         /// <summary>
         /// is loaded Error 
@@ -99,17 +100,17 @@ namespace Hugula.Loader
         }
         public void Dispose()
         {
-            #if HUGULA_CACHE_DEBUG
-                Debug.LogFormat("Dispose  CacheData({0},assetHashCode({1}))  ", assetBundleKey, assetHashCode);
-            #endif
+#if HUGULA_CACHE_DEBUG
+                 HugulaDebug.FilterLogFormat (assetBundleKey,"Dispose  CacheData({0},assetHashCode({1}))  ", assetBundleKey, assetHashCode);
+#endif
             if (assetBundle) assetBundle.Unload(true);
-            // www = null;
+            assets.Clear();
             assetBundle = null;
-            allDependencies = null;
-            directDependencies = null;
+            dependencies = null;
             isUnloaded = false;
-            isAssetLoaded = false;
+            // isAssetLoaded = false;
             isError = false;
+            isDone = false;
 
             assetBundleKey = string.Empty;
             assetHashCode = 0;
@@ -119,9 +120,21 @@ namespace Hugula.Loader
         {
             if (assetBundle) assetBundle.Unload(false);
             isUnloaded = true;
-            #if HUGULA_CACHE_DEBUG
-                Debug.LogFormat("Unload  CacheData({0}assetHashCode({1})  ", assetBundleKey, assetHashCode);
-            #endif
+#if HUGULA_CACHE_DEBUG
+               HugulaDebug.FilterLogFormat (assetBundleKey,"Unload  CacheData({0}assetHashCode({1})  ", assetBundleKey, assetHashCode);
+#endif
+        }
+
+        public void SetAsset(string name, object asset)
+        {
+            assets[name] = asset;
+        }
+
+        public object GetAsset(string name)
+        {
+            object asset = null;
+            assets.TryGetValue(name, out asset);
+            return asset;
         }
 
         #region ObjectPool

@@ -26,6 +26,8 @@ namespace Hugula.Pool
         private static int removeCount = 1;
         private static float lastGcTime = 0;//上传检测GC时间
         private static float gcDeltaTime = 0;//上传检测GC时间
+        //标记回收
+        private static Dictionary<int, float> removeMark = new Dictionary<int, float>();
 
         void Awake()
         {
@@ -39,7 +41,7 @@ namespace Hugula.Pool
         {
             if (willGcList.Count == 0) //如果正在gc不需要判断
             {
-                gcDeltaTime = Time.time - lastGcTime;
+                gcDeltaTime = Time.unscaledTime - lastGcTime;
                 if (gcDeltaTime >= gcDeltaTimeConfig)//20s检测一次
                 {
                     float totalMemory = HugulaProfiler.GetTotalAllocatedMemory();
@@ -56,36 +58,28 @@ namespace Hugula.Pool
                     {
                         AutoGC(gcSegment1);
                     }
-                    else
-                    {
-                        gcSegmentQueue.Clear(); //不需要回收了
-                    }
-                }
 
-                if (gcSegmentQueue.Count > 0) //队列有需要回收的片段
-                {
-                    byte segmentIndex = gcSegmentQueue.Dequeue();
-                    GC(segmentIndex, false);
-                }
+                    lastGcTime = Time.unscaledTime;
+                }// 
             }
-
 
 
             if (willGcList.Count > 0) //如果有需要回收的gameobject
             {
-                if (Time.deltaTime >= deltaTime30)
+                var fps = Time.time / (float)Time.frameCount;
+                if (fps >= deltaTime30)
                 {
-                    removeCount = 5;
+                    removeCount = 4;
                 }
-                else if (Time.deltaTime >= deltaTime25)
+                else if (fps >= deltaTime25)
                 {
                     removeCount = 3;
                 }
-                else if (Time.deltaTime >= deltaTime20)
+                else if (fps >= deltaTime20)
                 {
                     removeCount = 2;
                 }
-                else if (Time.deltaTime >= deltaTime15)
+                else //if (fps >= deltaTime15)
                 {
                     removeCount = 1;
                 }
@@ -102,25 +96,31 @@ namespace Hugula.Pool
         void DisposeRefer(int count)
         {
             if (count > willGcList.Count) count = willGcList.Count;
-            ReferGameObjects referRemove;//要删除的项目
+            int referKey;//要删除的项目
+            var begin=System.DateTime.Now;
             while (count > 0)
             {
-                referRemove = willGcList.Dequeue();
+                referKey = willGcList.Dequeue();
+                if (removeMark.ContainsKey(referKey))
+                {
+                    ClearKey(referKey);
+                    removeMark.Remove(referKey);
+                }
+                var ts = System.DateTime.Now - begin;
+                if(ts.TotalSeconds > deltaTime25) break;
                 // Debug.Log("Dispose " + referRemove.name);
-                if (referRemove) GameObject.Destroy(referRemove.gameObject);
                 count--;
             }
-            referRemove = null;
 
         }
 
-		void OnDestroy()
-		{
-			if (_gameObject == this.gameObject)
-				_gameObject = null;
-			ClearAllCache ();
-			Clear();
-		}
+        void OnDestroy()
+        {
+            if (_gameObject == this.gameObject)
+                _gameObject = null;
+            ClearAllCache();
+            Clear();
+        }
 
 
         #endregion
@@ -163,20 +163,11 @@ namespace Hugula.Pool
         /// 总共分0-8
         /// </summary>
         private const byte SegmentSize = 8;
-        /// <summary>
-        /// 自动回收的类别
-        /// </summary>
-        private const byte SegmentGC = 6;
-
-        /// <summary>
-        /// 片段回收顺序队列
-        /// </summary>
-        private static Queue<byte> gcSegmentQueue = new Queue<byte>();
 
         /// <summary>
         /// 回收列表
         /// </summary>
-        private static Queue<ReferGameObjects> willGcList = new Queue<ReferGameObjects>();
+        private static Queue<int> willGcList = new Queue<int>();
 
         /// <summary>
         /// 原始缓存
@@ -192,11 +183,6 @@ namespace Hugula.Pool
         /// 类型用于做回收策略
         /// </summary>
         private static Dictionary<int, byte> prefabsType = new Dictionary<int, byte>();
-
-        /// <summary>
-        /// 按照类型回收
-        /// </summary>
-        private static List<List<int>> segment = new List<List<int>>();
 
         /// <summary>
         /// 被引用
@@ -238,26 +224,37 @@ namespace Hugula.Pool
             return Add(hashkey, value, type);
         }
 
-         /// <summary>
+        /// <summary>
         /// 添加原始缓存
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static bool Add(string key, GameObject value, byte type,bool isAsset)
+        public static bool Add(string key, GameObject value, byte type, bool isAsset)
         {
             int hashkey = LuaHelper.StringToHash(key);
-            return Add(hashkey, value, type,isAsset);
+            return Add(hashkey, value, type, isAsset);
         }
 
         internal static void DestroyOriginalPrefabs(GameObject obj)
         {
-            if(assetsFlag.ContainsKey(obj))
+            if (assetsFlag.ContainsKey(obj))
             {
                 assetsFlag.Remove(obj);
-            }else
+            }
+            else
             {
                 GameObject.Destroy(obj);
             }
+        }
+
+        private static void AddRemoveMark(int hash)
+        {
+            removeMark[hash] = Time.unscaledTime + 0.5f;
+        }
+
+        private static void DeleteRemveMark(int hash)
+        {
+            removeMark.Remove(hash);
         }
 
         /// <summary>
@@ -265,26 +262,17 @@ namespace Hugula.Pool
         /// </summary>
         /// <param name="hash"></param>
         /// <param name="value"></param>
-        internal static bool Add(int hash, GameObject value, byte type,bool isAsset=false)
+        internal static bool Add(int hash, GameObject value, byte type, bool isAsset = false)
         {
             bool contains = originalPrefabs.ContainsKey(hash);
             originalPrefabs[hash] = value;
-            if(isAsset) assetsFlag[value] = isAsset;
+            if (isAsset) assetsFlag[value] = isAsset;
             if (!contains) //不能重复添加
-            { 
+            {
                 if (type > SegmentSize) type = SegmentSize;
-                // LuaHelper.AddComponent(value,typeof(ReferGameObjects));
                 prefabFreeQueue[hash] = new Queue<ReferGameObjects>(); //空闲队列
                 prefabsType[hash] = type;
                 prefabRefCaches[hash] = new HashSet<ReferGameObjects>();//引用列表
-
-                if (type <= SegmentSize)
-                {
-                    for (int i = segment.Count; i <= type; i++)
-                        segment.Add(new List<int>());
-
-                    segment[type].Add(hash);
-                }
 
 #if UNITY_EDITOR
                 LuaHelper.RefreshShader(value);
@@ -356,6 +344,9 @@ namespace Hugula.Pool
             HashSet<ReferGameObjects> prefabCachesMe = null;
             if (!prefabRefCaches.TryGetValue(key, out prefabCachesMe)) return null;
 
+            //移除回收引用
+            DeleteRemveMark(key);
+
             if (prefabQueueMe.Count > 0)
             {
                 refer = prefabQueueMe.Dequeue();//出列
@@ -391,15 +382,18 @@ namespace Hugula.Pool
         public static bool StoreCache(ReferGameObjects refer)
         {
             HashSet<ReferGameObjects> prefabCachesMe = null;
-            if (prefabRefCaches.TryGetValue(refer.cacheHash, out prefabCachesMe))
+            int keyHash = refer.cacheHash;
+            if (prefabRefCaches.TryGetValue(keyHash, out prefabCachesMe))
             {//从引用列表寻找
                 bool isremove = prefabCachesMe.Remove(refer);
                 if (isremove)
                 {
                     Queue<ReferGameObjects> prefabQueueMe = null;
-                    if (prefabFreeQueue.TryGetValue(refer.cacheHash, out prefabQueueMe))
+                    if (prefabFreeQueue.TryGetValue(keyHash, out prefabQueueMe))
                     {
                         prefabQueueMe.Enqueue(refer);//入列
+                        
+                        if (prefabCachesMe.Count == 0 && prefabsType[keyHash] < SegmentSize) AddRemoveMark(keyHash);//如果引用为0标记回收
                         return true;
                     }
                 }
@@ -420,50 +414,56 @@ namespace Hugula.Pool
             return false;
         }
 
-        public static void Remove(string key)
+        /// <summary>
+        /// Clears all cache.
+        /// </summary>
+        public static void ClearAllCache()
         {
-            int hash = LuaHelper.StringToHash(key);
-            Remove(hash);
+            prefabsType.Clear();
+            willGcList.Clear();
+            removeMark.Clear();
+            var freeValues = prefabFreeQueue.Values.GetEnumerator();
+            while (freeValues.MoveNext())
+            {
+                var queue = freeValues.Current;
+                while (queue.Count > 0)
+                {
+                    var refer = queue.Dequeue();
+                    if (refer) GameObject.Destroy(refer.gameObject);
+                }
+            }
+            prefabFreeQueue.Clear();
+
+            var refValues = prefabRefCaches.Values.GetEnumerator();
+
+            ReferGameObjects item;
+            while (refValues.MoveNext())
+            {
+                var items = refValues.Current.GetEnumerator();
+                while (items.MoveNext())
+                {
+                    item = items.Current;
+                    if (item) GameObject.Destroy(item.gameObject);
+                }
+                items.Dispose();
+            }
+            prefabRefCaches.Clear();
         }
 
-		/// <summary>
-		/// Clears all cache.
-		/// </summary>
-		public static void ClearAllCache()
-		{
-			prefabsType.Clear();
-			willGcList.Clear ();
-			var freeValues = prefabFreeQueue.Values.GetEnumerator();
-			while (freeValues.MoveNext ()) {
-				var queue = freeValues.Current;
-				while (queue.Count > 0)
-				{
-					var refer = queue.Dequeue();
-					if(refer)GameObject.Destroy(refer.gameObject);
-				}
-			}
-			prefabFreeQueue.Clear ();
-
-			var refValues = prefabRefCaches.Values.GetEnumerator ();
-            //HashSet<ReferGameObjects> reflist;
-			ReferGameObjects item;
-			while (refValues.MoveNext ()) {
-				var items = refValues.Current.GetEnumerator ();
-				while (items.MoveNext())
-				{
-					item = items.Current;
-					if(item)GameObject.Destroy(item.gameObject);
-				}
-				items.Dispose ();
-			}
-			prefabRefCaches.Clear ();
-		}
+        // public static void Remove(string key)
+        // {
+        //     int hash = LuaHelper.StringToHash(key);
+        //     Remove(hash);
+        // }
 
         internal static void Remove(int key)
         {
             GameObject obj = null;
             if (originalPrefabs.TryGetValue(key, out obj))
             {
+#if UNITY_EDITOR
+                // Debug.LogFormat("Remove={0},hash={1}",obj.name,key);
+#endif
                 DestroyOriginalPrefabs(obj);
             }
 
@@ -471,33 +471,23 @@ namespace Hugula.Pool
             prefabsType.Remove(key);
             prefabFreeQueue.Remove(key);
             prefabRefCaches.Remove(key);
-
         }
 
         /// <summary>
-        /// 清理当前key的缓存实例
+        /// 标记删除 如果有引用不会被删除
         /// </summary>
-        /// <param name="key"></param>
-        internal static bool ClearCache(int key, bool force)
-        {
-            if (CanGC(key, force))
-            {
-                ClearKey(key);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 安全回收
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="force"></param>
-        /// <returns></returns>
-        public static bool ClearCache(string key)
+        public static int MarkRemove(string key)
         {
             int hash = LuaHelper.StringToHash(key);
-            return ClearCache(hash, true);
+            int referCount = 0;
+            HashSet<ReferGameObjects> refers = null;
+            if (prefabRefCaches.TryGetValue(hash, out refers))
+            {
+                referCount = refers.Count;
+            }
+            AddRemoveMark(hash);
+            willGcList.Enqueue(hash);
+            return referCount;
         }
 
         /// <summary>
@@ -509,6 +499,22 @@ namespace Hugula.Pool
         public static bool ClearCacheImmediate(string key)
         {
             int hash = LuaHelper.StringToHash(key);
+            // 
+            HashSet<ReferGameObjects> refers = null;
+
+            if (prefabRefCaches.TryGetValue(hash, out refers))
+            {
+                Queue<ReferGameObjects> freequeue;
+                var referItem = refers.GetEnumerator();
+                if (prefabFreeQueue.TryGetValue(hash, out freequeue))
+                {
+                    while (referItem.MoveNext())
+                    {
+                        freequeue.Enqueue(referItem.Current);
+                    }
+                }
+                refers.Clear();
+            }
             ClearKey(hash);
             return true;
         }
@@ -520,129 +526,83 @@ namespace Hugula.Pool
         /// <returns></returns>
         internal static void ClearKey(int key)
         {
-            Queue<ReferGameObjects> freequeue;
-            ReferGameObjects refer = null;
-            if (prefabFreeQueue.TryGetValue(key, out freequeue))
+            HashSet<ReferGameObjects> refers = null;
+            if (prefabRefCaches.TryGetValue(key, out refers) && refers.Count == 0)
             {
-                while (freequeue.Count > 0)
+                Queue<ReferGameObjects> freequeue;
+                ReferGameObjects refer = null;
+                if (prefabFreeQueue.TryGetValue(key, out freequeue))
                 {
-                    refer = freequeue.Dequeue();
-                    willGcList.Enqueue(refer);//入队
+                    while (freequeue.Count > 0)
+                    {
+                        refer = freequeue.Dequeue();
+                        if (refer) GameObject.Destroy(refer.gameObject);
+                    }
                 }
+
+                Remove(key); //移除原始项目
             }
 #if UNITY_EDITOR
-            //Debug.LogFormat("<color=yellow>ClearCache {0} key{1}</color>", refer == null ? "" : refer.name, refer.GetComponent<ReferenceCount>().assetBundleName);
+            else
+                Debug.LogFormat("<color=yellow>the object(name={1},hash={0}) has refers</color>", key, Get(key) != null ? Get(key).name : "null");
 #endif
-            Remove(key); //移除原始项目
 
-        }
 
-        /// <summary>
-        /// 能否回收
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="force"></param>
-        /// <returns></returns>
-         internal static bool CanGC(int key, bool force)
-        {
-            HashSet<ReferGameObjects> reflist;
-            prefabRefCaches.TryGetValue(key, out reflist);
-
-            Queue<ReferGameObjects> prefabQueueMe = null;
-            prefabFreeQueue.TryGetValue(key, out prefabQueueMe);
-
-            if (prefabQueueMe == null || reflist == null) return true; //不合法需要回收
-
-            if (force && reflist.Count == 0) return true; //如果是强行回收 没有引用就可以回收
-
-            if (reflist.Count <= 0 && prefabQueueMe.Count > 0) return true;//非强行回收，没有引用且使用过
-
-            return false;
         }
 
         /// <summary>
         /// 自动回收对象当前segmentindex和之前的所有片段
         /// </summary>
-        internal static void AutoGC(byte segmentIndex)
+        internal static void AutoGC(byte segmentIndex,bool compareTime = true)
         {
-            if (segmentIndex > SegmentGC) segmentIndex = SegmentGC;//不能超过最大值
-            if (segmentIndex > (byte)segment.Count) segmentIndex = (byte)segment.Count;//不能超过现有的最大值
-            gcSegmentQueue.Clear();//清理以前的队列
-            for (byte i = 0; i <= segmentIndex; i++) //
+            var items = removeMark.GetEnumerator();
+            int key = 0;
+            byte keyType = 0;
+            while (items.MoveNext())
             {
-                gcSegmentQueue.Enqueue(i);
-            }
-            //Debug.Log(string.Format("AutoGC segmentSize = {0} count = {1} ", segmentSize, gcSegmentQueue.Count));
-        }
-
-        /// <summary>
-        /// 回收当前片段所有可回收对象
-        /// </summary>
-        /// <param name="segmentIndex">片段索引</param>
-        /// <param name="force"> 表示强行回收 </param>
-        internal static bool GC(byte segmentIndex, bool force)
-        {
-            List<int> checkGcList = null;
-            bool checkhas = false;
-
-            if (segmentIndex < segment.Count)
-            {
-                checkGcList = segment[segmentIndex];
-                _removedList.Clear();
-                for (int j = 0; j < checkGcList.Count; j++)
+                var kv = items.Current;
+                key = kv.Key;
+                keyType = 0;
+                prefabsType.TryGetValue(key, out keyType);
+                if (keyType <= segmentIndex && compareTime?Time.unscaledTime >= kv.Value:true)
                 {
-                    int hash = checkGcList[j];
-                    if (ClearCache(hash, force))
-                    {
-                        _removedList.Add(hash);
-                    }
-                }
-
-                for (int j = 0; j < _removedList.Count; j++)
-                {
-                    checkGcList.Remove(_removedList[j]);
-                    checkhas = true;//有对象可回收
+                    willGcList.Enqueue(key);
                 }
             }
-            lastGcTime = Time.time;
-            //Debug.Log(string.Format("GC {0} segmentIndex {1} checkhas{2} ", segmentIndex, checkGcList == null ? 0 : checkGcList.Count, checkhas));
-            return checkhas;
         }
+
 
         /// <summary>
         /// 手动回收 可以释放的对象
         /// </summary>
         /// <param name="segmentIndex"></param>
         /// <returns></returns>
-        public static bool GCCollect(byte segmentIndex)
+        public static void GCCollect(byte segmentIndex)
         {
-            return GC(segmentIndex, true);
+            AutoGC(segmentIndex,false);
         }
 
-        #region tmp var
-        private static List<int> _removedList = new List<int>();
-
         #endregion
 
         #endregion
 
+        #region gameobject
+        private static GameObject _gameObject;
+
+        public static GameObject instance
+        {
+            get
+            {
+                if (_gameObject == null)
+                {
+                    _gameObject = new GameObject("PrefabPool");
+                    _gameObject.AddComponent<PrefabPool>();
+                }
+
+                return _gameObject;
+            }
+        }
         #endregion
-
-		#region gameobject
-		private static GameObject _gameObject;
-
-		public static GameObject instance
-		{
-			get {
-				if (_gameObject == null) {
-					_gameObject = new GameObject ("PrefabPool");
-					_gameObject.AddComponent<PrefabPool> ();
-				}
-
-				return _gameObject;
-			}
-		}
-		#endregion
     }
 
 

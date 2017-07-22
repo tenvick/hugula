@@ -23,11 +23,7 @@ namespace Hugula.Editor
         public const string streamingPath = "Assets/StreamingAssets"; //打包assetbundle输出目录。
         public const string TmpPath = "Tmp/";
         public const string HugulaFolder = "HugulaFolder";
-#if UNITY_STANDALONE_WIN
-        public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression; //
-#else
-        public const BuildAssetBundleOptions optionsDefault = BuildAssetBundleOptions.DeterministicAssetBundle; //
-#endif
+
 
 #if UNITY_IPHONE
     public const BuildTarget target = BuildTarget.iOS;
@@ -56,13 +52,11 @@ namespace Hugula.Editor
             string title = "Generate Update File ";
             string info = "Compute crc32";
             EditorUtility.DisplayProgressBar(title, info, 0.1f);
-            Dictionary<string, object[]> firstCrcDict = new Dictionary<string, object[]>();
-            HashSet<string> manualFileList = new HashSet<string>();
-            Dictionary<string, object[]> currCrcDict = new Dictionary<string, object[]>();
-            Dictionary<string, object[]> diffCrcDict = new Dictionary<string, object[]>();
-
+            FileManifest firstCrcDict = null;//首包
+            FileManifest streamingManifest = null;//streamingAsset
+            FileManifest manualFileList = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;//后置下载
             #region 读取首包
-            bool firstExists = SplitPackage.ReadFirst(firstCrcDict, manualFileList);
+            bool firstExists = SplitPackage.ReadFirst(out firstCrcDict, out streamingManifest, manualFileList);
             Debug.Log("manualFileList.Count =" + manualFileList.Count);
             #endregion
 
@@ -70,33 +64,42 @@ namespace Hugula.Editor
 
             #region 生成校验列表
             SplitPackage.UpdateOutPath = null; SplitPackage.UpdateOutDevelopPath = null;
-            AssetDatabase.Refresh();
-            StringBuilder[] sbs = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
-            uint streaming_crc = SplitPackage.CreateStreamingCrcList(sbs[0]); //本地列表
-            // System.Threading.Thread.Sleep(1000);
-            uint diff_crc = SplitPackage.CreateStreamingCrcList(sbs[1], firstExists, true); //增量列表
-            // System.Threading.Thread.Sleep(1000);
+            // 生成差异内容
+            var abInfoArray = SplitPackage.CreateCrcListContent(allBundles, firstCrcDict, streamingManifest, manualFileList);
+            // local streamingManifest
+            var streamingManifestClone = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;
+            streamingManifestClone.allAbInfo = streamingManifest.allAbInfo;
+            streamingManifestClone.allAssetBundlesWithVariant = streamingManifest.allAssetBundlesWithVariant;
+            streamingManifestClone.OnAfterDeserialize();
+            uint streaming_crc = SplitPackage.CreateStreamingCrcList(streamingManifestClone, Common.CRC32_FILELIST_NAME, firstExists); //本地列表
+            //diff
+            var diffstreamingManifest = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;
+            diffstreamingManifest.allAbInfo = abInfoArray[0];
+            diffstreamingManifest.allAssetBundlesWithVariant = streamingManifest.allAssetBundlesWithVariant;
+            diffstreamingManifest.OnAfterDeserialize();
+            uint diff_crc = SplitPackage.CreateStreamingCrcList(diffstreamingManifest, Common.CRC32_FILELIST_NAME, true, true); //增量列表
+
             CUtils.DebugCastTime("Time CreateStreamingCrcList End");
             #endregion
 
             #region 生成版本号
             //生成版本号码
-            SplitPackage.CreateVersionAssetBundle(diff_crc);
-            SplitPackage.CreateDevelopVersionAssetBundle(diff_crc);
+            SplitPackage.CreateVersionAssetBundle(diff_crc, true, !CUtils.isRelease);
+            SplitPackage.CreateVersionAssetBundle(diff_crc, false, true);
             CUtils.DebugCastTime("Time CreateVersionAssetBundle End");
             #endregion
 
             #region copy更新文件导出
 
-            SplitPackage.CopyVersionToSplitFolder(diff_crc);
-
-            SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, currCrcDict, diffCrcDict, manualFileList);
+            Debug.Log(firstCrcDict);
+            streamingManifestClone.WriteToFile("Assets/" + TmpPath + "streamingManifest.txt");
+            diffstreamingManifest.WriteToFile("Assets/" + TmpPath + "diffstreamingManifest.txt");
+            manualFileList.WriteToFile("Assets/" + TmpPath + "manualFileList.txt");
+            SplitPackage.CopyChangeFileToSplitFolder(firstExists, firstCrcDict, streamingManifest, diffstreamingManifest, manualFileList);
 
             CUtils.DebugCastTime("Time CopyChangeFileToSplitFolder End");
 
-            Debug.LogFormat("streaming_crc={0},diff_crc{1}", streaming_crc, diff_crc);
-
-            Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},manualFileList={3}", firstCrcDict.Count, currCrcDict.Count, diffCrcDict.Count, manualFileList.Count);
+            // Debug.LogFormat(" firstCrcDict={0},currCrcDict={1},diffCrcDict={2},manualFileList={3}", firstCrcDict.Count, streamingManifest.Count, diffstreamingManifest.Count, manualFileList.Count);
 
             if (CheckZipPlatform())
                 SplitPackage.ZipAssetbundles();
@@ -107,11 +110,11 @@ namespace Hugula.Editor
             #endregion
 
             #region 删除手动加载文件
-#if (UNITY_ANDROID || UNITY_IOS) //&& !UNITY_EDITOR
+#if (UNITY_ANDROID || UNITY_IOS) && HUGULA_RELEASE 
             bool spExtFolder = HugulaSetting.instance.spliteExtensionFolder;
             if (spExtFolder)
             {
-                SplitPackage.DeleteStreamingFiles(manualFileList);
+                SplitPackage.DeleteStreamingFiles(manualFileList.allAbInfo);
             }
 #endif
             #endregion
@@ -220,7 +223,7 @@ namespace Hugula.Editor
             Object[] selection = Selection.objects;
 
             string assetBundleName = "";
-            List<string> del = new List<string>();
+            List<ABInfo> del = new List<ABInfo>();
 
             foreach (Object s in selection)
             {
@@ -235,7 +238,7 @@ namespace Hugula.Editor
 
                 if (s.name.Contains(" ")) Debug.LogWarning(s.name + " contains space");
                 Debug.Log("delete : " + s.name + " md5 = " + assetBundleName);
-                del.Add(assetBundleName);
+                del.Add(new ABInfo(assetBundleName, 0, 0, 0));
             }
 
             SplitPackage.DeleteStreamingFiles(del); //删除选中对象的ab
@@ -412,7 +415,7 @@ namespace Hugula.Editor
                 {
                     string folder = GetLabelsByPath(path);
                     Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
-                    SetAssetBundleName(s,true);
+                    SetAssetBundleName(s, true);
                     tipsInfo.AppendLine(s.name + " path = " + path);
                 }
                 else
@@ -479,6 +482,31 @@ namespace Hugula.Editor
                     HugulaExtensionFolderEditor.AddExtendsFile(abName);
                 else
                     Debug.LogFormat("assetPath({0}) can't add to extends file list  ", abName);
+            }
+        }
+
+        /// <summary>
+        /// 从选中的txt排除extension Files
+        /// </summary>
+        public static void ExcludeExtensionFiles()
+        {
+            Object[] selection = Selection.objects;
+            List<string> excludes = new List<string>();
+            foreach (Object s in selection)
+            {
+                if (s is TextAsset)
+                {
+                    excludes.Clear();
+                    string txt = ((TextAsset)s).text;
+                    string[] sps = txt.Split('\n');
+                    Debug.Log(s);
+                    foreach (var str in sps)
+                    {
+                        excludes.Add(str.Trim());
+                    }
+                    HugulaExtensionFolderEditor.RemoveExtendsFiles(excludes);
+                    Debug.LogFormat("delete: {0}\r\n {1}", s.name, txt);
+                }
             }
         }
 
@@ -565,10 +593,10 @@ namespace Hugula.Editor
         public static void BuildAssetBundles()
         {
             CUtils.DebugCastTime("Time HandleUpdateMaterail End");
-
             CheckstreamingAssetsPath();
             CUtils.DebugCastTime("Time CheckstreamingAssetsPath End");
-            BuildPipeline.BuildAssetBundles(GetOutPutPath(), optionsDefault, target);
+            var ab = BuildPipeline.BuildAssetBundles(GetOutPutPath(), SplitPackage.DefaultBuildAssetBundleOptions, target);
+            SplitPackage.CreateStreamingFileManifest(ab);
             CUtils.DebugCastTime("Time BuildPipeline.BuildAssetBundles End");
         }
 

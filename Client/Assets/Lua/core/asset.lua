@@ -60,12 +60,10 @@ function Asset:dispose()
 
 	if self.root then
 		LuaHelper.Destroy(self.root)
-		print("Asset.dispose",self.key,self.asset_name)
+		-- print("Asset.dispose",self.key,self.asset_name)
 	end
 	self.ui_parent_joint = nil
 	self.ui_joint = nil
-	-- self.parent = nil
-	-- self.children = nil
 	self.root = nil
 	self.refer = nil
 	if self.is_clone ~= true then GAMEOBJECT_ATLAS[self.key] = nil	end

@@ -48,7 +48,7 @@ namespace Hugula.Editor
             if (!instance.AssetLabels.Contains(path))
             {
                 instance.AssetLabels.Add(path);
-                Debug.LogFormat(" add extends path ({0}) success",path);
+                Debug.LogFormat(" add extends path ({0}) success", path);
                 SaveSettingData(instance);
             }
         }
@@ -59,7 +59,7 @@ namespace Hugula.Editor
             if (index >= 0)
             {
                 instance.AssetLabels.RemoveAt(index);
-                Debug.LogFormat(" remove extends path ({0}) success",path);
+                Debug.LogFormat(" remove extends path ({0}) success", path);
                 SaveSettingData(instance);
             }
         }
@@ -70,7 +70,7 @@ namespace Hugula.Editor
             if (!instance.ExtensionFiles.Contains(name))
             {
                 instance.ExtensionFiles.Add(name);
-                Debug.LogFormat(" add extension file ({0}) success",name);
+                Debug.LogFormat(" add extension file ({0}) success", name);
                 SaveSettingData(instance);
             }
         }
@@ -81,9 +81,25 @@ namespace Hugula.Editor
             if (index >= 0)
             {
                 instance.ExtensionFiles.RemoveAt(index);
-                Debug.LogFormat(" remove extension file ({0}) success",name);
+                Debug.LogFormat(" remove extension file ({0}) success", name);
                 SaveSettingData(instance);
             }
+        }
+
+        public static void RemoveExtendsFiles(List<string> names)
+        {
+            foreach (var str in names)
+            {
+                instance.ExtensionFiles.Remove(str);
+            }
+            SaveSettingData(instance);
+            // int index = instance.ExtensionFiles.IndexOf(name);
+            // if (index >= 0)
+            // {
+            //     instance.ExtensionFiles.RemoveAt(index);
+            //     Debug.LogFormat(" remove extension file ({0}) success",name);
+            //     SaveSettingData(instance);
+            // }
         }
 
         public static void AddZipFile(List<string> names)

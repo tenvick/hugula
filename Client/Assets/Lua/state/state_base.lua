@@ -3,7 +3,7 @@
 --   
 --  author pu
 ------------------------------------------------
-
+local StateManager = StateManager
 local function sortFn(a,b) 
     return tonumber(a.priority) > tonumber(b.priority) 
 end
@@ -230,7 +230,7 @@ function StateBase:on_filter_event(prev_state,fun_name,...)
     local item = self._item_list
     local len = #item 
     for k,v in ipairs(item) do
-        if k <= len and (prev_state == nil or not prev_state:is_original_item(v)) then --确保新加入的item不会被执行
+        if k <= len and (prev_state == nil or not prev_state:is_original_item(v)) and StateManager:is_in_current_state(v)  then --确保新加入的item不会被执行
             fn = v[fun_name]
             if v.active and fn then 
                 if fn(v,...) then break end

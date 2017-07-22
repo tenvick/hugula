@@ -1,14 +1,15 @@
 // Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-using UnityEngine;
+using System;
 using System.Collections;
 using System.IO;
-using System;
-
 using SLua;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using Lua = SLua.LuaSvr;
 using Hugula.Utils;
+using Hugula.Loader;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -66,7 +67,6 @@ namespace Hugula
         void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
-            // lua = new Lua();
             if (lua == null) PreInitLua();
             LoadScript();
         }
@@ -84,14 +84,21 @@ namespace Hugula
 	        if (_updateFn != null) _updateFn.call();
 	    }
 
+        public static void DestoryLua()
+        {
+            if (lua != null && lua.luaState != null) lua.luaState.Close();
+            lua = null;
+        }
+
         void OnDestroy()
         {
-            RemoveAllEvents();
+            Debug.Log("OnDestroy = " + name);
             if (onDestroyFn != null) onDestroyFn.call();
-            updateFn = null;
-            lua = null;
+            RemoveAllEvents();
             isLuaInitFinished = false;
             if (_instance == this) _instance = null;
+            // if (ManifestManager.assetBundleManifest != null) UnityEngine.Object.Destroy(ManifestManager.assetBundleManifest);
+
         }
 
         void OnApplicationFocus(bool focusStatus)
@@ -128,22 +135,6 @@ namespace Hugula
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="main"></param>
-        private IEnumerator ReOpen(float seconds)
-        {
-            RemoveAllEvents();
-            yield return new WaitForSeconds(seconds);
-            lua.luaState.Close();
-            yield return new WaitForSeconds(seconds);
-            GameObject.Destroy(this.gameObject);
-
-            Application.LoadLevel(0);
-            //LoadFirstHelper.BeginLoadScene();
-        }
-
-        /// <summary>
         /// lua begin
         /// </summary>
         private void DoMain()
@@ -167,7 +158,6 @@ namespace Hugula
             lua.init(null, () =>
             {
                 CUtils.DebugCastTime("Slua binded");
-                // DoMain();
                 isLuaInitFinished = true;
             }, LuaSvrFlag.LSF_3RDDLL);
         }
@@ -178,7 +168,9 @@ namespace Hugula
         /// <param name="sconds">Sconds.</param>
         public void ReStart(float sconds)
         {
-            StartCoroutine(ReOpen(sconds));
+            GameObject.Destroy(this.gameObject);
+            LoadFirstHelper.ReOpen(sconds);
+            //StartCoroutine(ReOpen(sconds));
         }
 
         /// <summary>
@@ -204,10 +196,10 @@ namespace Hugula
         {
             byte[] ret = null;
 #if UNITY_EDITOR_WIN
-            string cryName = CUtils.GetRightFileName (string.Format ("{0}.{1}", name, Common.LUA_LC_SUFFIX));
-            string path = CUtils.PathCombine (Application.dataPath, Common.LUACFOLDER + "/win");
-            path = CUtils.PathCombine (path, cryName);
-            ret = File.ReadAllBytes (path);
+            string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}", name, Common.LUA_LC_SUFFIX));
+            string path = CUtils.PathCombine(Application.dataPath, Common.LUACFOLDER + "/win");
+            path = CUtils.PathCombine(path, cryName);
+            ret = File.ReadAllBytes(path);
 #elif UNITY_EDITOR_OSX
             string cryName = CUtils.GetRightFileName (string.Format ("{0}.{1}", name, Common.LUA_LC_SUFFIX));
             string path = CUtils.PathCombine (Application.dataPath, Common.LUACFOLDER + "/osx");
@@ -224,7 +216,8 @@ namespace Hugula
             if (File.Exists (path)) {
                 ret = File.ReadAllBytes (path);
             } else {
-                ret = ((TextAsset)Resources.Load (cryName)).bytes; // --Resources.Load
+                var textAsset = (TextAsset)Resources.Load (cryName);
+                ret = textAsset.bytes; // --Resources.Load
             }
 #else //android
             string cryName = CUtils.GetRightFileName (name);
@@ -232,7 +225,8 @@ namespace Hugula
             if (File.Exists (path)) {
                 ret = File.ReadAllBytes (path);
             } else {
-                ret = ((TextAsset)Resources.Load (cryName)).bytes; // --Resources.Load
+                var textAsset = (TextAsset)Resources.Load (cryName);
+                ret = textAsset.bytes; // --Resources.Load
             }
 #endif
             return ret;
@@ -266,6 +260,7 @@ namespace Hugula
                 }
                 else
                 {
+                    Debug.LogWarningFormat("lua({0}) path={1} not exists.", name, path);
                     name = name.Replace('.', '+').Replace('/', '+');
                     str = LoadLuaBytes(name);
                 }
@@ -297,6 +292,16 @@ namespace Hugula
             return str;
         }
 
+        public static Coroutine MultipleRequires(string[] requires)
+        {
+            return instance.StartCoroutine(MultipleRequiresDo(requires, null));
+        }
+
+        public static Coroutine MultipleRequires(string[] requires, LuaFunction luafn)
+        {
+            return instance.StartCoroutine(MultipleRequiresDo(requires, luafn));
+        }
+
         public static Coroutine Delay(LuaFunction luafun, float time, params object[] args)
         {
             return instance.StartCoroutine(DelayDo(luafun, time, args));
@@ -311,6 +316,35 @@ namespace Hugula
         public static void StopAllDelay()
         {
             instance.StopAllCoroutines();
+        }
+
+        private static IEnumerator MultipleRequiresDo(string[] requires, LuaFunction onCompFn)
+        {
+            var item = requires.GetEnumerator();
+            string luastr = string.Empty;
+            while (item.MoveNext())
+            {
+                luastr = item.Current.ToString();
+                if ("eof".Equals(luastr))
+                    yield return null;
+                else if (luastr.Contains("("))
+                {
+#if UNITY_EDITOR
+                    // Debug.LogFormat("{0},framcount={1}", luastr, Time.frameCount);
+#endif
+                    lua.luaState.doString(luastr);
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    // Debug.LogFormat("{0},framcount={1}", luastr, Time.frameCount);
+#endif    
+                    lua.luaState.doFile(luastr);
+                }
+            }
+            yield return new WaitForEndOfFrame();
+            // Debug.LogFormat("call function {0} ;", onCompFn != null);
+            if (onCompFn != null) onCompFn.call();
         }
 
         private static IEnumerator DelayDo(LuaFunction luafun, float time, params object[] args)

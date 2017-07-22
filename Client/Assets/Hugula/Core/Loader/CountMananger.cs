@@ -20,7 +20,7 @@ namespace Hugula.Loader
         public static int Subtract(int hashcode)
         {
 #if UNITY_EDITOR
-            if (CResLoader.SimulateAssetBundleInEditor)
+            if (ManifestManager.SimulateAssetBundleInEditor)
             {
                 return 1;
             }
@@ -30,13 +30,12 @@ namespace Hugula.Loader
             {
                 cached.count--; // = cached.count - 1;
 #if HUGULA_CACHE_DEBUG
-                UnityEngine.Debug.LogFormat (" <color=#8cacbc>Subtract (assetBundle={0},count={1}) frameCount{2}</color>", cached.assetBundleKey, cached.count, UnityEngine.Time.frameCount);
+                HugulaDebug.FilterLogFormat(cached.assetBundleKey, " <color=#8cacbc>Subtract (assetBundle={0},hashcode={1},count={2}) frameCount{3}</color>", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
 #endif
                 if (cached.count == 0) //所有引用被清理。
                 {
-
                     CacheManager.ClearDelay(hashcode);
-                    int[] alldep = cached.allDependencies;
+                    int[] alldep = cached.dependencies;
                     CacheData cachetmp = null;
                     if (alldep != null)
                     {
@@ -55,7 +54,7 @@ namespace Hugula.Loader
 #if UNITY_EDITOR
             else if (cached != null && cached.count <= 0)
             {
-                UnityEngine.Debug.LogFormat(" <color=#ffff00>Subtract (assetBundle={0},count={1}) frameCount{2}</color>", cached.assetBundleKey, cached.count, UnityEngine.Time.frameCount);
+                UnityEngine.Debug.LogWarningFormat("Subtract (assetBundle={0},hashcode={1},count={2}) frameCount{3}", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
             }
 #endif
 
@@ -81,7 +80,7 @@ namespace Hugula.Loader
         public static int Add(int hashcode)
         {
 #if UNITY_EDITOR
-            if (CResLoader.SimulateAssetBundleInEditor)
+            if (ManifestManager.SimulateAssetBundleInEditor)
             {
                 return 1;
             }
@@ -89,10 +88,10 @@ namespace Hugula.Loader
             CacheData cached = CacheManager.TryGetCache(hashcode);
             if (cached != null)
             {
-                ABDelayUnloadManager.CheckRemove(hashcode);
+                // ABDelayUnloadManager.CheckRemove(hashcode);
                 cached.count++; //= cached.count + 1;
 #if HUGULA_CACHE_DEBUG 
-                UnityEngine.Debug.LogFormat (" <color=#0cbcbc>add  (assetBundle={0},count={1})  frameCount{2}</color>", cached.assetBundleKey, cached.count, UnityEngine.Time.frameCount);
+                HugulaDebug.FilterLogFormat(cached.assetBundleKey, " <color=#0cbcbc>add  (assetBundle={0},hashcode={1},count={2})  frameCount{3}</color>", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
 #endif
                 return cached.count;
             }
@@ -110,10 +109,10 @@ namespace Hugula.Loader
             return Add(hashcode);
         }
 
-        public static int WillAdd(int hashcode)
+        internal static int WillAdd(int hashcode)
         {
 #if UNITY_EDITOR
-            if (CResLoader.SimulateAssetBundleInEditor)
+            if (ManifestManager.SimulateAssetBundleInEditor)
             {
                 return 1;
             }
@@ -121,20 +120,14 @@ namespace Hugula.Loader
             CacheData cached = null;
             CacheManager.CreateOrGetCache(hashcode, out cached);
             cached.count++;
-#if HUGULA_CACHE_DEBUG
-            UnityEngine.Debug.LogFormat (" <color=#fcfcfc> will add  (assetBundle={0},,hash={1},count={2}) frameCount{3}</color>", cached.assetBundleKey, cached.assetHashCode, cached.count, UnityEngine.Time.frameCount);
-#endif
             return cached.count;
         }
 
-        public static int WillAdd(string key)
+        internal static int WillAdd(string key)
         {
             CacheData cached = null;
             CacheManager.CreateOrGetCache(key, out cached);
             cached.count++;
-#if HUGULA_CACHE_DEBUG
-            UnityEngine.Debug.LogFormat (" <color=#fcfcfc> will add  (assetBundle={0},hash={1},count={2}) frameCount{3}</color>", cached.assetBundleKey, cached.assetHashCode, cached.count, UnityEngine.Time.frameCount);
-#endif
             return cached.count;
 
         }

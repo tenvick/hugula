@@ -1,5 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.7.22
+1 加载模块重构，代码更清醒扩展更方便，减少加载时gcalloc，支持协程和回调两种方式加载。
+2 丢弃assetbundleManifest,使用自己的FileManifest,通过ManifestManager来访问依赖项目。
+3 BackGroundDownload 热更后台加载模块引入。
+4 HUGULA_PROFILER_DEBUG 编译命令增加用于profile调试。
+5 MessageBox 系统提示框功能。
+6 PrefabPool 回收优化。　
+
 2017.5.5
 1 zip file EDITOR 功能
 2 HUGULA_RELEASE 编译命令增加。

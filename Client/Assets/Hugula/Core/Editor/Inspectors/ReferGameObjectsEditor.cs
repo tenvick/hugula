@@ -7,6 +7,9 @@ using Hugula;
 [CustomEditor(typeof(ReferGameObjects), true)]
 public class ReferGameObjectsEditor : Editor
 {
+    static List<string> names;//= new List<string>();
+    static GameObject[] refers;//=new List<GameObject>();
+    static UnityEngine.Object[] monos;// = new List<Behaviour>();
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -90,6 +93,22 @@ public class ReferGameObjectsEditor : Editor
         }
         EditorGUILayout.Space();
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("Copy Refer"))
+            {
+                names = new List<string>(temp.names);
+                monos = (UnityEngine.Object[])temp.monos.Clone();
+            }
+            if (GUILayout.Button("Paste Refer"))
+            {
+                temp.names = new List<string>(names);
+                temp.monos = (UnityEngine.Object[])monos.Clone();
+            }
+        }
+        EditorGUILayout.EndHorizontal();
         EditorUtility.SetDirty(target);
     }
 
@@ -135,7 +154,11 @@ public class ReferGameObjectsEditor : Editor
     {
         while (refer.names.Count <= i)
             refer.names.Add(null);
-        refer.names[i] = GUILayout.TextField(refer.names[i], GUILayout.Width(60));
+        Rect rect = GUILayoutUtility.GetLastRect();
+        rect.xMin = 30;
+        rect.width = 70;
+        refer.names[i] = EditorGUI.TextField(rect,refer.names[i]);       
+        GUILayout.Space(70);
     }
     public static string[] ConvertTypeArrayToStringArray(List<Type> tps)
     {

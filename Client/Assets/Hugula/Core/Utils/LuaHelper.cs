@@ -5,6 +5,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
 using SLua;
+using System.IO;
+using System.Text;
+using Hugula.Cryptograph;
 
 namespace Hugula.Utils
 {
@@ -14,6 +17,8 @@ namespace Hugula.Utils
     [SLua.CustomLuaClass]
     public static class LuaHelper
     {
+        private static byte[] key = new byte[] { 0x32, 0x0f, 0x8d, 0xe9, 0x3b, 0x24, 0xa5, 0xd3, 0xf2, 0xd3, 0x64, 0x58, 0xb7, 0xae, 0x3f, 0x28 };
+        private static byte[] iv = new byte[] { 0x08, 0xf3, 0xd3, 0x23, 0x8b, 0xc2, 0x90, 0x7d, 0xe9, 0x73, 0x4f, 0x80, 0x84, 0xcc, 0x25, 0x6e };
 
         /// <summary>
         /// Destroy object
@@ -44,14 +49,11 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="original"></param>
         /// <returns></returns>
-        public static Object Instantiate(Object original)
+        public static GameObject Instantiate(GameObject original)
         {
-            Object clone = GameObject.Instantiate(original);
+            GameObject clone = GameObject.Instantiate(original);
 #if UNITY_EDITOR
-            if (clone is GameObject)
-            {
-                LuaHelper.RefreshShader(clone as GameObject);
-            }
+            LuaHelper.RefreshShader(clone as GameObject);
 #endif
             return clone;
         }
@@ -315,6 +317,12 @@ namespace Hugula.Utils
             return null;
         }
 
+        public static void SetBehaviourEnabled(Behaviour behaviour, bool enabled)
+        {
+            if (behaviour == null) return;
+            behaviour.enabled = enabled;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -381,7 +389,7 @@ namespace Hugula.Utils
         {
 
 #if UNITY_5
-        UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
+            UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
 #else
         UnityEngine.Object[] materials = assetBundle.LoadAll(typeof(Material));  //LoadAll<Material>();
 #endif
@@ -520,8 +528,8 @@ namespace Hugula.Utils
             {
                 float speed = state.speed;
                 if (dir == AnimationDirection.Toggle)
-                {    
-                    if (speed > 0 && state.time == 0 )
+                {
+                    if (speed > 0 && state.time == 0)
                         dir = AnimationDirection.Reverse;
                     else
                         dir = AnimationDirection.Forward;
@@ -544,49 +552,60 @@ namespace Hugula.Utils
             return state;
         }
 
+        public static Vector2 GetCanvasPos(Transform tr, Vector3 screenPos)
+        {
+            Vector2 pos = Vector2.zero;
+            Canvas canvas = tr.root.GetComponentInChildren<Canvas>();
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, screenPos, canvas.worldCamera, out pos))
+            {
 
-		/// <summary>
-		/// 播放动画片段
-		/// </summary>
-		/// <param name="anim"></param>
-		/// <param name="name"></param>
-		/// <param name="dir"></param>
-		/// <returns></returns>
-		public static AnimatorStateInfo PlayAnimator(Animator anim, string name, AnimationDirection dir)
-		{
-			
-			var state = anim.GetCurrentAnimatorStateInfo (0);
-			float speed = anim.GetFloat("speed");
-			float normalizedTime = 1;
-			if (dir == AnimationDirection.Toggle)
-			{
-				if (speed > 0)
-					dir = AnimationDirection.Reverse;
-				else
-					dir = AnimationDirection.Forward;
-			}
+            }
 
-			if (dir == AnimationDirection.Reverse)
-			{
-				anim.SetFloat("speed", -1 * Mathf.Abs(speed));
-				normalizedTime = 1;
-			}
-			else if (dir == AnimationDirection.Forward )
-			{
-				anim.SetFloat("speed", Mathf.Abs(speed));
-				normalizedTime = 0;
-			}
+            return pos;
+        }
 
-			if (!string.IsNullOrEmpty(name))
-				anim.Play(name,0,normalizedTime);
-			else
-				anim.Play (state.fullPathHash,0,normalizedTime);
-			
-			return state;
-		}
+        /// <summary>
+        /// 播放动画片段
+        /// </summary>
+        /// <param name="anim"></param>
+        /// <param name="name"></param>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static AnimatorStateInfo PlayAnimator(Animator anim, string name, AnimationDirection dir)
+        {
+
+            var state = anim.GetCurrentAnimatorStateInfo(0);
+            float speed = anim.GetFloat("speed");
+            float normalizedTime = 1;
+            if (dir == AnimationDirection.Toggle)
+            {
+                if (speed > 0)
+                    dir = AnimationDirection.Reverse;
+                else
+                    dir = AnimationDirection.Forward;
+            }
+
+            if (dir == AnimationDirection.Reverse)
+            {
+                anim.SetFloat("speed", -1 * Mathf.Abs(speed));
+                normalizedTime = 1;
+            }
+            else if (dir == AnimationDirection.Forward)
+            {
+                anim.SetFloat("speed", Mathf.Abs(speed));
+                normalizedTime = 0;
+            }
+
+            if (!string.IsNullOrEmpty(name))
+                anim.Play(name, 0, normalizedTime);
+            else
+                anim.Play(state.fullPathHash, 0, normalizedTime);
+
+            return state;
+        }
 
 
-		/// <summary>
+        /// <summary>
         /// 卸载场景
         /// </summary>
         /// <param name="scenename"></param>
@@ -599,24 +618,24 @@ namespace Hugula.Utils
 #endif
         }
 
-		/// <summary>
-		/// Loads the scene.
-		/// </summary>
-		/// <param name="sceneName">Scene name.</param>
-		/// <param name="isAdditive">If set to <c>true</c> is additive.</param>
-		public static void LoadScene(string sceneName,bool isAdditive)
-		{
-			#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+        /// <summary>
+        /// Loads the scene.
+        /// </summary>
+        /// <param name="sceneName">Scene name.</param>
+        /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
+        public static void LoadScene(string sceneName, bool isAdditive)
+        {
+#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
 			if (isAdditive)
 				Application.LoadLevelAdditive(sceneName);
 			else
 				Application.LoadLevel(sceneName);
-			#else
-			UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
-			#endif
-		}
-		
-		
+#else
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+#endif
+        }
+
+
         public static void ReleaseLuaFn(LuaFunction fn)
         {
             if (fn != null) fn.Dispose();
@@ -628,7 +647,43 @@ namespace Hugula.Utils
         /// <param name="scenename"></param>
         public static bool IsNull(Object obj)
         {
-            return obj == null;
+            return obj == null || !obj;
+        }
+
+        /// <summary>
+        /// 本地存储
+        /// </summary>
+        public static bool SaveLocalData(string fileName, string saveData)
+        {
+            string fullPath = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), fileName);
+            FileStream fs = new FileStream(fullPath, FileMode.Create);
+            if (fs != null)
+            {
+                byte[] bytes = CryptographHelper.Encrypt(Encoding.UTF8.GetBytes(saveData), key, iv);
+                fs.Write(bytes, 0, bytes.Length);
+                fs.Flush();
+                fs.Close();
+                return true;
+            }
+            return false;
+        }
+
+        public static string LoadLocalData(string fileName)
+        {
+            string fullPath = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), fileName);
+            if (System.IO.File.Exists(fullPath))
+            {
+                FileStream fs = new FileStream(fullPath, FileMode.Open);
+                if (fs != null)
+                {
+                    byte[] bytes = new byte[fs.Length];
+                    fs.Read(bytes, 0, bytes.Length);
+                    fs.Close();
+                    string loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
+                    return loadData;
+                }
+            }
+            return "";
         }
     }
 

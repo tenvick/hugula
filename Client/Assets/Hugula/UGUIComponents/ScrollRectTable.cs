@@ -173,6 +173,11 @@ namespace Hugula.UGUIExtend
                 repositionTileIndexList[i] = -1;
         }
 
+        public void ItemsDispose()
+        {
+            OnItemsDispose();
+        }
+
         public void ScrollTo(int index)
         {
             Vector3 currPos = moveContainer.localPosition;
@@ -293,6 +298,7 @@ namespace Hugula.UGUIExtend
                 }
                 else
                 {
+                    delt.x = columns * (itemRect.width + this.padding.x) + this.padding.x;
                     int y = (int)Mathf.Ceil((float)itemCount / (float)columns);
                     if (this.direction == Direction.Down)
                         delt.y = (itemRect.height+this.padding.y) * y + this.padding.y;
@@ -542,8 +548,8 @@ namespace Hugula.UGUIExtend
                 }
                 else if (columns > 0)
                 {
-                    int cloumnIndex = (int)(dtmove.y / (itemRect.height+this.padding.y));
-                    headIndex = (int)Mathf.Ceil((float)(cloumnIndex * this.columns) / (float)this.columns) * columns;//
+                    int cloumnIndex = (int)(dtmove.y / (itemRect.height + this.padding.y));
+                    headIndex = Mathf.CeilToInt((float)(cloumnIndex * this.columns) / (float)this.columns) * columns;//
                     if (headIndex != lastHeadIndex && headIndex <= 0)
                     {
                         Scroll(Mathf.Abs(headIndex), false);

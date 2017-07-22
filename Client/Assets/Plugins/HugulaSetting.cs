@@ -17,6 +17,21 @@ namespace Hugula
         [TooltipAttribute("打包时候是否移除扩展文件夹")]
         public bool spliteExtensionFolder = false;
 
+        public string httpVerHostRelease = string.Empty;
+        public string httpVerHostDev = string.Empty;
+
+        public string httpVerHost
+        {
+            get
+            {
+#if HUGULA_RELEASE
+                return httpVerHostRelease;
+#else
+                return httpVerHostDev;
+#endif
+            }
+        }
+
         ///<summary >
         /// 增量文件名是否带crc编码,注意发布后就不要更改
         ///</summary >
@@ -24,13 +39,13 @@ namespace Hugula
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
         [TooltipAttribute("增量文件名是否带crc编码,次属性只做提示用修改无效。 \r\n 如果要修改请手动修改appendCrcToFile的值， \r\n注意发布后就不要更改此属性。")]
         [SerializeField]
-        private bool appendCrcToFileTips = false;
+        private bool appendCrcToFileTips = true;
 
         //备份资源方式
         [TooltipAttribute("资源目录组织方式 \r\n 0 OneResFolder [/res /v{d}/ver.u /ver.txt]  \r\n 1 VerResFolder[/v{d}/res /v{d}/ver.txt]")]
@@ -59,6 +74,7 @@ namespace Hugula
             else
                 return false;
         }
+
 
         private static HugulaSetting _instance = null;
         public static HugulaSetting instance
@@ -128,7 +144,7 @@ namespace Hugula
 
         public static List<string> GetZipFiles()
         {
-            if(instance!=null)
+            if (instance != null)
                 return instance.zipFiles;
             else
                 return null;

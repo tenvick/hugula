@@ -125,7 +125,7 @@ namespace Hugula.Utils
 		/// the Persistents  file is Exists.
 		/// </summary>
 		/// <returns><c>true</c>, if file was persistented, <c>false</c> otherwise.</returns>
-		/// <param name="abpath">Abpath.</param>
+		/// <param name="abpath">Abpath.</param> n  
 		public static bool PersistentFileExists(string abpath)
 		{
 			string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),abpath);
@@ -147,6 +147,25 @@ namespace Hugula.Utils
             }
             else
                 return 0;
+        }
+
+        /// <summary>
+        /// read file text
+        /// </summary>
+        /// <returns>The string.</returns>
+        /// <param name="path">Path.</param>
+        public static string ReadText(string path)
+        {
+            string re = string.Empty;
+            if (File.Exists(path))
+            {
+                using (StreamReader sr = new StreamReader(path))
+                {
+                    re = sr.ReadToEnd();
+                }
+            }
+            
+            return re;
         }
 
         private static LuaFunction callBackFn;

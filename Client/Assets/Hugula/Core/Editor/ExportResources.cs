@@ -43,8 +43,11 @@ namespace Hugula.Editor
 #endif
 
 #if UNITY_EDITOR_WIN //win
-        public static string luaWorkingPath = CurrentRootFolder + "tools/luaTools/win";
-        public static string luacPath = CurrentRootFolder + "tools/luaTools/win/204/luajit.exe";
+    public static string luaWorkingPath = CurrentRootFolder + "tools/luaTools/win";
+    public static string luacPath = CurrentRootFolder + "tools/luaTools/win/204/luajit.exe";
+#elif UNITY_EDITOR_OSX && UNITY_IPHONE //iOS on mac
+    public static string luaWorkingPath = CurrentRootFolder+"tools/luaTools";
+    public static string luacPath = "";
 #elif UNITY_STANDALONE_WIN && UNITY_EDITOR_OSX //win on mac
     public static string luaWorkingPath = CurrentRootFolder+"tools/luaTools";
     public static string luacPath = CurrentRootFolder+"tools/luaTools/luajit2.04";
@@ -259,7 +262,7 @@ namespace Hugula.Editor
             if(files.Length>0)
             {
                 string cname = CUtils.GetRightFileName(Common.CONFIG_CSV_NAME);
-                BuildScript.BuildABs(files.ToArray(), null, cname, BuildAssetBundleOptions.DeterministicAssetBundle);
+                BuildScript.BuildABs(files.ToArray(), null, cname, SplitPackage.DefaultBuildAssetBundleOptions);
                 Debug.Log(" Config export " + cname);
             }
 
@@ -273,12 +276,16 @@ namespace Hugula.Editor
             ).ToArray();
 
             BuildScript.CheckstreamingAssetsPath();
-
+            // BuildScript.ch
             foreach (string abPath in files)
             {
                 string name = CUtils.GetAssetName(abPath);
                 string abName = CUtils.GetRightFileName(name + Common.CHECK_ASSETBUNDLE_SUFFIX);
-                BuildScript.BuildABs(new string[] { abPath }, null, abName, BuildAssetBundleOptions.None);
+                Hugula.BytesAsset bytes = (Hugula.BytesAsset)ScriptableObject.CreateInstance(typeof(Hugula.BytesAsset));
+                bytes.bytes = File.ReadAllBytes(abPath);
+                string bytesPath =  string.Format("Assets/Tmp/{0}.asset",name);
+                AssetDatabase.CreateAsset(bytes,bytesPath);
+                BuildScript.BuildABs(new string[] { bytesPath }, null, abName, SplitPackage.DefaultBuildAssetBundleOptions);
                 Debug.Log(name + " " + abName + " export");
             }
         }
@@ -288,9 +295,9 @@ namespace Hugula.Editor
             exportLua();
             CUtils.DebugCastTime("Time exportLua End");
             exportLanguage();
-            //exportConfig();
+            exportConfig();
             BuildScript.BuildAssetBundles(); //导出资源
-            //CleanAssetbundle.Clean();        //清理多余的资源
+            // CleanAssetbundle.Clean();        //清理多余的资源
             CUtils.DebugCastTime("Time BuildAssetBundles End");
             buildAssetBundlesUpdateAB();//更新列表和版本号码
             CUtils.DebugCastTime("Time buildAssetBundlesUpdateAB End");

@@ -85,7 +85,13 @@ public class AssetbundlesMenuItems
         BuildScript.ExtensionFiles(false);
     }
 
-       [MenuItem("Assets/HugulaExtends/Remove Extension Files", false, 3)]
+    [MenuItem("Assets/HugulaExtends/Exclude Extension Form Selected Text Files", false, 3)]
+    static public void ExcludeExtensionFiles()
+    {
+        BuildScript.ExcludeExtensionFiles();
+    }
+
+    [MenuItem("Assets/HugulaExtends/Remove Extension Files", false, 3)]
     static public void RemoveExtensionFiles()
     {
         BuildScript.ExtensionFiles(true);
@@ -158,13 +164,13 @@ public class AssetbundlesMenuItems
     [MenuItem(kSimulationMode)]
     public static void ToggleSimulationMode()
     {
-        CResLoader.SimulateAssetBundleInEditor = !CResLoader.SimulateAssetBundleInEditor;
+        ManifestManager.SimulateAssetBundleInEditor = !ManifestManager.SimulateAssetBundleInEditor;
     }
 
     [MenuItem(kSimulationMode, true)]
     public static bool ToggleSimulationModeValidate()
     {
-        Menu.SetChecked(kSimulationMode, CResLoader.SimulateAssetBundleInEditor);
+        Menu.SetChecked(kSimulationMode, ManifestManager.SimulateAssetBundleInEditor);
         return true;
     }
 

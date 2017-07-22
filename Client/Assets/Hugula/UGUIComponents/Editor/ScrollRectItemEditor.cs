@@ -134,7 +134,11 @@ public class ScrollRectItemEditor : UnityEditor.Editor
     {
         while (refer.names.Count <= i)
             refer.names.Add(null);
-        refer.names[i] = GUILayout.TextField(refer.names[i], GUILayout.Width(60));
+        Rect rect = GUILayoutUtility.GetLastRect();
+        rect.xMin = 30;
+        rect.width = 70;
+        refer.names[i] = EditorGUI.TextField(rect, refer.names[i]);
+        GUILayout.Space(70);
     }
 public static  string[] ConvertTypeArrayToStringArray(List<Type> tps)
     {

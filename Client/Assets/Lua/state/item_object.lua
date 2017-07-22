@@ -163,8 +163,9 @@ function ItemObject:add_to_state(state)
     if state == nil or state == current_state then
         current_state:add_item(self)
         if self.on_focusing then self:on_focusing(current_state) end
-        self:on_focus(current_state)
-        if self.on_focused then self:on_focused(current_state) end
+        local previous_state = self._current_state
+        self:on_focus(previous_state)
+        if self.on_focused then self:on_focused(previous_state) end
         if self.log_enable then StateManager:record_state() end
     else
         state:add_item(self)

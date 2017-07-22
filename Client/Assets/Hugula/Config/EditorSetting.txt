@@ -1,4 +1,4 @@
 //设置assetbundle name忽略的后缀
 abNameIgnoreSuffix:_alpha,_atlas
-//更新包组织方式 OneResFolder,VerResFolder
-backupResType:VerResFolder
+//打包zip平台设置 支持多平台,None,Android,iOS,Standalonewindows
+zipPlatform:None

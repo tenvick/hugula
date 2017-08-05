@@ -24,6 +24,10 @@ namespace Hugula.Update
 
         public int appNumVersion;
 
+        public uint crc32 = 0;
+
+        public bool hasFirstLoad = false;
+
         public int Count
         {
             get
@@ -59,7 +63,7 @@ namespace Hugula.Update
             {
                 if (abInfo.state == ABInfoState.Success) return true;
                 if (abInfo.state == ABInfoState.Fail) return false;
-                if (abInfo.priority > FileManifestOptions.StreamingAssetsPriority)
+                if (abInfo.priority >= FileManifestOptions.FirstLoadPriority)
                 {
                     return ManifestManager.CheckPersistentCrc(abInfo);
                 }
@@ -158,7 +162,7 @@ namespace Hugula.Update
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendFormat("FileManifest AppNumber={0},count={1},", appNumVersion, Count);
+            stringBuilder.AppendFormat("FileManifest AppNumber={0},count={1},crc32={2},hasFirstLoad={3}", appNumVersion, Count,crc32,hasFirstLoad);
             stringBuilder.AppendLine(" ABInfos:");
             foreach (var info in allAbInfo)
             {
@@ -207,13 +211,30 @@ namespace Hugula.Update
 
     [SLua.CustomLuaClass]
     public static class FileManifestOptions
-    {   //本地目录
-        public const int StreamingAssetsPriority = 1000;
-        //自动下载级别
-        public const int AutoHotPriority = 1000000;
-        //用户使用频率优先级别
-        public const int UserPriority = AutoHotPriority + 1;
-        //手动下载目录
-        public const int ManualPriority = int.MaxValue;
+    {   
+        /// <summary>
+        /// 本地
+        /// </summary>
+        public const int StreamingAssetsPriority = 0;
+
+        /// <summary>
+        /// 首包下载的资源
+        /// </summary>
+        public const int FirstLoadPriority = 256;//2^8
+
+        /// <summary>
+        /// 自动后台下载级别
+        /// </summary>
+        public const int AutoHotPriority = 262144; //2^18
+
+        /// <summary>
+        /// 用户使用频率优先级别
+        /// </summary>
+        public const int UserPriority = 524288; //2^19
+        
+        /// <summary>
+        /// 手动下载目录
+        /// </summary>
+        public const int ManualPriority = 1048576;//2^20
     }
 }

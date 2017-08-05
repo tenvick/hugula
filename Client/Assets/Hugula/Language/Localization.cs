@@ -3,6 +3,7 @@
 // Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
 using System.Collections.Generic;
+using System.Collections;
 using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace Hugula
     /// Info,"Localization Example","Par exemple la localisation"
     /// </summary>
     [SLua.CustomLuaClass]
-    public static class Localization
+    public static class Localization 
     {
         /// <summary>
         /// Whether the localization dictionary has been loaded.
@@ -139,6 +140,10 @@ namespace Hugula
             req.assetName = assetName;
             req.assetType = typeof(BytesAsset);
             req.async = false;
+            var uri = new UriGroup();
+            uri.Add(CUtils.GetRealPersistentDataPath(),true);
+            uri.Add(CUtils.GetRealStreamingAssetsPath());
+            req.uris = uri;
 
             req.OnComplete += delegate (CRequest req1)
             {
@@ -261,5 +266,36 @@ namespace Hugula
         {
             return mDictionary.ContainsKey(key);
         }
+    }
+
+    public class WaitForLanguageHasBeenSet:IEnumerator
+    {
+        private float timeOut=0.1f;
+        private System.DateTime begin;
+        public WaitForLanguageHasBeenSet()
+        {
+            begin = System.DateTime.Now;
+        }
+
+        public object Current
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public bool MoveNext()
+        {
+            var dt = System.DateTime.Now - begin;
+            if (dt.TotalMinutes>=timeOut) return false;
+            return !Localization.localizationHasBeenSet;
+        }
+
+        public void Reset()
+        {
+           
+        }
+
     }
 }

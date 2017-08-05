@@ -85,6 +85,13 @@ public class AssetbundlesMenuItems
         BuildScript.ExtensionFiles(false);
     }
 
+    [MenuItem("Assets/HugulaExtends/Add First Load Files", false, 3)]
+    static public void AddFirstLoadFiles()
+    {
+        BuildScript.FirstLoadFiles(false);
+    }
+
+
     [MenuItem("Assets/HugulaExtends/Exclude Extension Form Selected Text Files", false, 3)]
     static public void ExcludeExtensionFiles()
     {
@@ -97,13 +104,13 @@ public class AssetbundlesMenuItems
         BuildScript.ExtensionFiles(true);
     }
 
-   [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
+//    [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
     static public void AddZipFiles()
     {
         BuildScript.ZipFiles(false);
     }
 
-       [MenuItem("Assets/HugulaExtends/Remove Zip Files", false, 3)]
+    //    [MenuItem("Assets/HugulaExtends/Remove Zip Files", false, 3)]
     static public void RemoveZipFiles()
     {
         BuildScript.ZipFiles(true);

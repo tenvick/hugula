@@ -218,6 +218,7 @@ namespace Hugula
             } else {
                 var textAsset = (TextAsset)Resources.Load (cryName);
                 ret = textAsset.bytes; // --Resources.Load
+                Resources.UnloadAsset(textAsset);
             }
 #else //android
             string cryName = CUtils.GetRightFileName (name);
@@ -227,6 +228,7 @@ namespace Hugula
             } else {
                 var textAsset = (TextAsset)Resources.Load (cryName);
                 ret = textAsset.bytes; // --Resources.Load
+                Resources.UnloadAsset(textAsset);
             }
 #endif
             return ret;

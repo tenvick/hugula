@@ -45,22 +45,22 @@ namespace Hugula.Editor
 
         public static void AddExtendsPath(string path)
         {
-            if (!instance.AssetLabels.Contains(path))
+            if (!instance.ExtensionPath.Contains(path))
             {
-                instance.AssetLabels.Add(path);
+                instance.ExtensionPath.Add(path);
                 Debug.LogFormat(" add extends path ({0}) success", path);
-                SaveSettingData(instance);
+                // SaveSettingData(instance);
             }
         }
 
         public static void RemoveExtendsPath(string path)
         {
-            int index = instance.AssetLabels.IndexOf(path);
+            int index = instance.ExtensionPath.IndexOf(path);
             if (index >= 0)
             {
-                instance.AssetLabels.RemoveAt(index);
+                instance.ExtensionPath.RemoveAt(index);
                 Debug.LogFormat(" remove extends path ({0}) success", path);
-                SaveSettingData(instance);
+                // SaveSettingData(instance);
             }
         }
 
@@ -69,21 +69,27 @@ namespace Hugula.Editor
         {
             if (!instance.ExtensionFiles.Contains(name))
             {
+                instance.FirstLoadFiles.Remove(name);
                 instance.ExtensionFiles.Add(name);
                 Debug.LogFormat(" add extension file ({0}) success", name);
-                SaveSettingData(instance);
+            }
+        }
+
+        public static void AddFirstLoadFile(string name)
+        {
+            if (!instance.FirstLoadFiles.Contains(name))
+            {
+                instance.ExtensionFiles.Remove(name);
+                instance.FirstLoadFiles.Add(name);
+                Debug.LogFormat(" add first load file ({0}) success", name);
             }
         }
 
         public static void RemoveExtendsFile(string name)
         {
-            int index = instance.ExtensionFiles.IndexOf(name);
-            if (index >= 0)
-            {
-                instance.ExtensionFiles.RemoveAt(index);
-                Debug.LogFormat(" remove extension file ({0}) success", name);
-                SaveSettingData(instance);
-            }
+            instance.ExtensionFiles.Remove(name);
+            instance.FirstLoadFiles.Remove(name);
+            Debug.LogFormat(" remove extension file ({0}) success", name);
         }
 
         public static void RemoveExtendsFiles(List<string> names)
@@ -91,15 +97,8 @@ namespace Hugula.Editor
             foreach (var str in names)
             {
                 instance.ExtensionFiles.Remove(str);
+                instance.FirstLoadFiles.Remove(str);
             }
-            SaveSettingData(instance);
-            // int index = instance.ExtensionFiles.IndexOf(name);
-            // if (index >= 0)
-            // {
-            //     instance.ExtensionFiles.RemoveAt(index);
-            //     Debug.LogFormat(" remove extension file ({0}) success",name);
-            //     SaveSettingData(instance);
-            // }
         }
 
         public static void AddZipFile(List<string> names)
@@ -178,7 +177,7 @@ namespace Hugula.Editor
 
         public static bool ContainsExtendsPath(string path)
         {
-            var allLabels = instance.AssetLabels;
+            var allLabels = instance.ExtensionPath;
 
             foreach (var labelPath in allLabels)
             {
@@ -194,7 +193,7 @@ namespace Hugula.Editor
         public static string GetLabelsByPath(string abPath)
         {
             string folder = null;
-            var allLabels = instance.AssetLabels;
+            var allLabels = instance.ExtensionPath;
 
             foreach (var labelPath in allLabels)
             {
@@ -209,15 +208,18 @@ namespace Hugula.Editor
         /// <summary>
         /// 保存数据
         /// </summary>
-        private static void SaveSettingData(ExtensionFolder _instance)
+        public static void SaveSettingData(ExtensionFolder _instance = null)
         {
             if (SettingPath != null)
             {
+                if (_instance == null) _instance = instance;
                 Debug.Log("Saving database " + SettingPath);
                 StreamWriter file = new StreamWriter(SettingPath.Replace("//", "/"));
                 file.WriteLine(string.Format("version: {0}", _instance.version));
-                file.WriteLine("assetLabels:");
-                writeStringList(file, _instance.AssetLabels);
+                file.WriteLine("extensionPath:");
+                writeStringList(file, _instance.ExtensionPath);
+                file.WriteLine("firstLoadFiles:");
+                writeStringList(file, _instance.FirstLoadFiles);
                 file.WriteLine("extensionFiles:");
                 writeStringList(file, _instance.ExtensionFiles);
                 file.WriteLine("zipFiles:");
@@ -238,9 +240,10 @@ namespace Hugula.Editor
             using (StreamReader file = new StreamReader(SettingPath.Replace("//", "/")))
             {
                 string str;
+                char[] separator = new char[] { ':' };
+
                 while ((str = file.ReadLine()) != null)
                 {
-                    char[] separator = new char[] { ':' };
                     string[] strArray = str.Split(separator);
                     string str2 = strArray[0].Trim();
                     string s = strArray[1].Trim();
@@ -250,9 +253,14 @@ namespace Hugula.Editor
                     }
                     else
                     {
-                        if (str2 == "assetLabels")
+                        if (str2 == "extensionPath")
                         {
-                            _instance.AssetLabels = readStringList(file);
+                            _instance.ExtensionPath = readStringList(file);
+                            continue;
+                        }
+                        if (str2 == "firstLoadFiles")
+                        {
+                            _instance.FirstLoadFiles = readStringList(file);
                             continue;
                         }
                         if (str2 == "extensionFiles")
@@ -338,21 +346,26 @@ namespace Hugula.Editor
     public class ExtensionFolder
     {
         /// <summary>
-        /// 外部加载文件夹列表
+        /// 手动加载文件夹列表
         /// </summary>
-        public List<string> AssetLabels = new List<string>();
+        public List<string> ExtensionPath = new List<string>();
 
         /// <summary>
-        /// 外部加载文件列表
+        /// 热更新资源
         /// </summary>
         public List<string> ExtensionFiles = new List<string>();
+
+        /// <summary>
+        /// 首次加载列表
+        /// </summary>
+        public List<string> FirstLoadFiles = new List<string>();
 
         /// <summary>
         ///  zip 文件列表
         /// </summary>
         public List<List<string>> ZipFiles = new List<List<string>>();
 
-        public int version = 1;
+        public int version = 2;
 
     }
 }

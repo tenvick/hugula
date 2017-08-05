@@ -2,7 +2,10 @@
 using Hugula.Loader;
 using Hugula.Utils;
 using Hugula.Update;
+using System.Collections;
 using System.IO;
+using System.Text;
+using Hugula;
 
 public class LoadingFirst : MonoBehaviour
 {
@@ -11,13 +14,45 @@ public class LoadingFirst : MonoBehaviour
     public string sceneAssetBundleName = "begin.u3d";
 
     // Use this for initialization
-    void Start()
+    IEnumerator Start()
     {
         CUtils.DebugCastTime("LoadingFirst.Start");
         //load manifest
         ResourcesLoader.Initialize();
+        CUtils.DebugCastTime("LoadingFirst.Initialize");
+        LogSys();
+        LoadFirstHelper.LoadFileManifest();
+        yield return new WaitForSeconds(0.16f);
         Hugula.Localization.language = PlayerPrefs.GetString("Language", Application.systemLanguage.ToString());
-        LoadFirstHelper.LoadManifest(sceneAssetBundleName, sceneName);
+        yield return new WaitForLanguageHasBeenSet();
+        LoadFirstHelper.SetScene(sceneAssetBundleName, sceneName);
+        if (ManifestManager.CheckNeedUncompressStreamingAssets())
+        {
+            // todo
+        }
+        
+        LoadFirstHelper.BeginLoadScene();
+
+    }
+
+    void LogSys()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("platform:{0}\r\n udid:", Application.platform.ToString());
+        sb.Append(SystemInfo.deviceUniqueIdentifier);
+        sb.AppendFormat("\r\n deviceName={0};\r\n date:", SystemInfo.deviceName);
+        sb.Append(System.DateTime.Now.ToString());
+        sb.AppendFormat("\r\n systemMemorySize={0};\r\n bundleIdentifier:", SystemInfo.systemMemorySize);
+        sb.Append(Application.bundleIdentifier);
+        sb.AppendFormat("\r\n internetReachability={0};\r\n deviceModel:", Application.internetReachability);
+        sb.Append(SystemInfo.deviceModel);
+        // TLogger.LogSys(sb.ToString());
+    }
+
+    void OnDecomper()
+    {
+        ManifestManager.CompleteUncompressStreamingAssets();
+        LoadFirstHelper.BeginLoadScene();
     }
 
 }
@@ -28,29 +63,29 @@ public static class LoadFirstHelper
     public static string sceneAssetBundleName;
     public static string sceneName;
 
-    public static void LoadManifest(string sceneAbName, string scenename)
+    public static void SetScene(string sceneAbName, string scenename)
     {
         Hugula.PLua.DestoryLua();
         // Hugula.PLua.PreInitLua();//初始化slua
         sceneAssetBundleName = sceneAbName;
         sceneName = scenename;
-#if UNITY_EDITOR
-        Debug.LogFormat("<color=green>SimulateAssetBundleInEditor {0} mode </color> <color=#8cacbc> change( menu AssetBundles/Simulation Mode)</color>", ManifestManager.SimulateAssetBundleInEditor ? "simulate" : "assetbundle");
-        if (ManifestManager.SimulateAssetBundleInEditor)
-        {
-            BeginLoadScene();
-            return;
-        }
-#endif
-        LoadFileManifest();
     }
 
     public static void LoadFileManifest()
     {
+#if UNITY_EDITOR
+        Debug.LogFormat("<color=green>SimulateAssetBundleInEditor {0} mode </color> <color=#8cacbc> change( menu AssetBundles/Simulation Mode)</color>", ManifestManager.SimulateAssetBundleInEditor ? "simulate" : "assetbundle");
+        if (ManifestManager.SimulateAssetBundleInEditor)
+        {
+            return;
+        }
+#endif
         ManifestManager.LoadFileManifest(null);
-        ManifestManager.LoadUpdateFileManifest(BeginLoadScene);
+        ManifestManager.LoadUpdateFileManifest(null);
+        CUtils.DebugCastTime("LoadingFirst.LoadFileManifest");
     }
 
+    //开始加载场景
     public static void BeginLoadScene()
     {
         ResourcesLoader.OnAssetBundleComplete = OnSharedComplete;
@@ -65,9 +100,9 @@ public static class LoadFirstHelper
         ResourcesLoader.LoadAsset(req);
     }
 
-    static void OnSharedComplete(CRequest req,AssetBundle ab) // repaire IOS crash bug when scene assetbundle denpendency sprite atlas assetbundle
+    static void OnSharedComplete(CRequest req, AssetBundle ab) // repaire IOS crash bug when scene assetbundle denpendency sprite atlas assetbundle
     {
-        if (ab && req.isShared) ab.LoadAllAssets();
+        if (ab && req.isShared && Application.platform == RuntimePlatform.IPhonePlayer) ab.LoadAllAssets();
     }
 
     static void OnSceneAbLoaded(CRequest req)
@@ -87,6 +122,7 @@ public static class LoadFirstHelper
         // BeginLoadScene();
     }
 
+    //重启动游戏
     public static void ReOpen(float sconds)
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);

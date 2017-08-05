@@ -7,6 +7,7 @@ using Hugula.Update;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.IO;
 
 namespace Hugula.Loader
 {
@@ -231,7 +232,7 @@ namespace Hugula.Loader
             return url;
         }
 
-        
+
         static UriGroup _uriList;
         /// <summary>
         /// The URI list.
@@ -244,7 +245,11 @@ namespace Hugula.Loader
                 {
                     _uriList = new UriGroup();
                     _uriList.Add(CUtils.GetRealPersistentDataPath(), true);
+#if !UNITY_EDITOR && (SEVENZIP || HUGULA_COMPRESS_STREAMINGASSETS)
+                    _uriList.Add(CUtils.realUncompressStreamingAssetsPath);
+#else
                     _uriList.Add(CUtils.GetRealStreamingAssetsPath());
+#endif
                 }
                 return _uriList;
             }

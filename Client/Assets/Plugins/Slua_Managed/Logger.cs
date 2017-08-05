@@ -13,7 +13,7 @@ namespace SLua
         public static void Log(string msg)
         {
 #if !SLUA_STANDALONE
-            UnityEngine.Debug.Log(msg);
+            UnityEngine.Debug.Log("[LUA]"+msg);
 #else
             Console.WriteLine(msg);
 #endif 
@@ -21,7 +21,7 @@ namespace SLua
         public static void LogError(string msg)
         {
 #if !SLUA_STANDALONE
-            UnityEngine.Debug.LogError(msg);
+            UnityEngine.Debug.LogError("[LUA]" + msg);
 #else
             Console.WriteLine(msg);
 #endif
@@ -30,7 +30,7 @@ namespace SLua
 		public static void LogWarning(string msg)
 		{
 #if !SLUA_STANDALONE
-			UnityEngine.Debug.LogWarning(msg);
+            UnityEngine.Debug.LogWarning("[LUA]" + msg);
 #else
             Console.WriteLine(msg);
 #endif

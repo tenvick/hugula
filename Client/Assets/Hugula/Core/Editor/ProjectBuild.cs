@@ -121,12 +121,12 @@ public class ProjectBuild : Editor
 
         List<string> names = new List<string>();
 #if HUGULA_RELEASE
-        names.Add("Assets/Scene/s_begin.unity");
+        names.Add("Assets/Scene/s_first.unity");
 #else
         if (setting.Contains("dev_scene"))
-            names.Add("Assets/Scene/s_begin.unity");
+            names.Add("Assets/Scene/s_first.unity");
         else
-            names.Add("Assets/Scene/s_begin.unity");
+            names.Add("Assets/Scene/s_first.unity");
 #endif
         return names.ToArray();
     }
@@ -298,7 +298,7 @@ public class ProjectBuild : Editor
 
     #endregion
 
-    [MenuItem("Hugula/Android publish ", false, 16)]
+    // [MenuItem("Hugula/Android publish ", false, 16)]
     static void BuildForAndroid()
     {
         string path = "hugula.apk";
@@ -373,7 +373,7 @@ public class ProjectBuild : Editor
 
     }
 
-    [MenuItem("Hugula/IOS Publish  ", false, 16)]
+    // [MenuItem("Hugula/IOS Publish  ", false, 16)]
     static void BuildForIOS()
     {
         CUtils.DebugCastTime("Time BuildForIOS Begin");
@@ -397,7 +397,7 @@ public class ProjectBuild : Editor
         ExportResources.DirectoryDelete(path);
         ExportResources.CheckDirectory(path);
         WriteAppVerion();
-        path = path + "hugula.exe";// string.Format("/warx{0}.exe", dataformt);
+        path = path + "hugula.exe";
         BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.None);
     }
 

@@ -14,8 +14,31 @@ namespace Hugula
     {
 
         //分离扩展文件夹
-        [TooltipAttribute("打包时候是否移除扩展文件夹")]
-        public bool spliteExtensionFolder = false;
+        //"打包时候是否移除扩展文件夹"
+        public bool spliteExtensionFolder
+        {
+            get
+            {
+#if HUGULA_SPLITE_ASSETBUNDLE
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
+        //"是否压缩streamingAssts下面的所有assetbundle 启动时候自动解压"
+        public bool compressStreamingAssets
+        {
+            get
+            {
+#if SEVENZIP || HUGULA_COMPRESS_STREAMINGASSETS
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
 
         public string httpVerHostRelease = string.Empty;
         public string httpVerHostDev = string.Empty;
@@ -39,17 +62,23 @@ namespace Hugula
         {
             get
             {
+#if HUGULA_APPEND_CRC
                 return true;
+#else
+                return false;
+#endif               
             }
         }
 
-        [TooltipAttribute("增量文件名是否带crc编码,次属性只做提示用修改无效。 \r\n 如果要修改请手动修改appendCrcToFile的值， \r\n注意发布后就不要更改此属性。")]
-        [SerializeField]
-        private bool appendCrcToFileTips = true;
-
         //备份资源方式
-        [TooltipAttribute("资源目录组织方式 \r\n 0 OneResFolder [/res /v{d}/ver.u /ver.txt]  \r\n 1 VerResFolder[/v{d}/res /v{d}/ver.txt]")]
-        public CopyResType backupResType = CopyResType.OneResFolder;
+        //[TooltipAttribute("资源目录组织方式 \r\n 0 OneResFolder [/res /v{d}/ver.u /ver.txt]  \r\n 1 VerResFolder[/v{d}/res /v{d}/ver.txt]")]
+        public CopyResType backupResType
+        {
+            get
+            {
+                return CopyResType.OneResFolder;
+            }
+        }
 
         //打包包涵的变体       
         [TooltipAttribute("默认包含的变体")]

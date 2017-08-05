@@ -18,3 +18,6 @@ main_quit_game=确认离开游戏?
 main_check_sure=确认
 main_check_cancel=取消
 main_code_error=请等待服务器开启！
+first_archive_tips=正在导出归档包
+first_decompressing_tips=正在解压文件...(不耗费流量)
+first_decompressing_complete=解压完成,总共耗时:{0}秒

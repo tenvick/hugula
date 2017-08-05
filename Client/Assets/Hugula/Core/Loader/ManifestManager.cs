@@ -3,6 +3,7 @@
 //
 using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using Hugula.Update;
 using Hugula.Utils;
@@ -104,63 +105,48 @@ namespace Hugula.Loader
             return abInfo;
         }
 
-        public static bool CheckExtendsFolderIsDown(string folderName)
-        {
-#if UNITY_EDITOR
-            if (SimulateAssetBundleInEditor)
-            {
-                return true;
-            }
-#endif
-            if (!HugulaSetting.instance.spliteExtensionFolder) return true;
+        //         public static bool CheckExtendsFolderIsDown(string folderName)
+        //         {
+        // #if UNITY_EDITOR
+        //             if (SimulateAssetBundleInEditor)
+        //             {
+        //                 return true;
+        //             }
+        // #endif
+        //             if (!HugulaSetting.instance.spliteExtensionFolder) return true;
 
-            if (fileManifest != null)
-            {
-                var allABInfo = fileManifest.allAbInfo;
-                ABInfo abInfo = null;
-                for (int i = 0; i < allABInfo.Count; i++)
-                {
-                    abInfo = allABInfo[i];
-                    if (abInfo.abName.StartsWith(folderName) && !CheckPersistentCrc(abInfo)) //!FileHelper.PersistentFileExists(abInfo.abName))
-                    {
-                        return false;
-                    }
-                }
+        //             if (fileManifest != null)
+        //             {
+        //                 var allABInfo = fileManifest.allAbInfo;
+        //                 ABInfo abInfo = null;
+        //                 for (int i = 0; i < allABInfo.Count; i++)
+        //                 {
+        //                     abInfo = allABInfo[i];
+        //                     if (abInfo.abName.StartsWith(folderName) && !CheckPersistentCrc(abInfo)) //!FileHelper.PersistentFileExists(abInfo.abName))
+        //                     {
+        //                         return false;
+        //                     }
+        //                 }
 
-                return true;
-            }
-            else
-                return false;
-        }
+        //                 return true;
+        //             }
+        //             else
+        //                 return false;
+        //         }
 
         public static bool CheckABIsDone(string abName)
         {
             if (!HugulaSetting.instance.spliteExtensionFolder) return true;
-
+#if UNITY_EDITOR
+            return true;
+#else
             if (fileManifest != null)
             {
-                var isDone = true;
-                string[] allDeps = fileManifest.GetAllDependencies(abName); //判断依赖项目
-                if (allDeps.Length > 0)
-                {
-                    var depABName = string.Empty;
-                    for (int i = 0; i < allDeps.Length; i++)
-                    {
-                        depABName = allDeps[i];
-                        if (!fileManifest.CheckABIsDone(depABName))
-                        {
-#if HUGULA_RELEASE && (UNITY_IOS || UNITY_ANDROID)
-                                BackGroundDownload.instance.AddTask(fileManifest.GetABInfo(depABName), FileManifestOptions.UserPriority, null, null);
-#endif
-                            isDone = false;
-                        }
-                    }
-                }
-
+                var isDone = CheckAllDependenciesABIsDone(abName);
                 if (!fileManifest.CheckABIsDone(abName))
                 {
 #if HUGULA_RELEASE && (UNITY_IOS || UNITY_ANDROID)
-                        BackGroundDownload.instance.AddTask(fileManifest.GetABInfo(abName), FileManifestOptions.UserPriority, null, null);
+                BackGroundDownload.instance.AddTask(fileManifest.GetABInfo(abName), FileManifestOptions.UserPriority, null, null);
 #endif
                     isDone = false;
                 }
@@ -169,6 +155,33 @@ namespace Hugula.Loader
             }
             else
                 return false;
+#endif
+        }
+
+        private static bool CheckAllDependenciesABIsDone(string abName)
+        {
+            var isDone = true;
+
+            string[] allDeps = fileManifest.GetDirectDependencies(abName); //判断依赖项目
+            if (allDeps.Length > 0)
+            {
+                var depABName = string.Empty;
+                for (int i = 0; i < allDeps.Length; i++)
+                {
+                    depABName = allDeps[i];
+                    var tmp = CheckAllDependenciesABIsDone(depABName);
+                    if (!tmp) isDone = false;
+                    if (!fileManifest.CheckABIsDone(depABName))
+                    {
+#if HUGULA_RELEASE && (UNITY_IOS || UNITY_ANDROID)
+                        BackGroundDownload.instance.AddTask(fileManifest.GetABInfo(depABName), FileManifestOptions.UserPriority, null, null);
+#endif
+                        isDone = false;
+                    }
+                }
+            }
+
+            return isDone;
         }
 
         public static bool CheckIsInFileManifest(string abName)
@@ -219,8 +232,8 @@ namespace Hugula.Loader
         public static void LoadFileManifest(System.Action onComplete)
         {
             var fileListName = Common.CRC32_FILELIST_NAME;
-
             var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(fileListName));
+
             url = CUtils.GetAndroidABLoadPath(url);
             AssetBundle ab = AssetBundle.LoadFromFile(url);
             if (ab != null)
@@ -241,6 +254,51 @@ namespace Hugula.Loader
             {
                 onComplete();
             }
+        }
+
+        /// <summary>
+        /// Check clear local cached files.
+        /// </summary>
+        /// <value>The instance.</value>
+        static public void CheckClearCacheFiles(System.Action<LoadingEventArg> onProgress, System.Action onComplete)
+        {
+            if (updateFileManifest == null)
+            {
+                if (onComplete != null) onComplete();
+                return;
+            }
+
+            if (updateFileManifest.appNumVersion < fileManifest.appNumVersion)
+            {
+                ResourcesLoader.instance.StartCoroutine(StartClearOldFiles(onProgress, onComplete));
+            }
+        }
+
+        private static IEnumerator StartClearOldFiles(System.Action<LoadingEventArg> onProgress, System.Action onComplete)
+        {
+            var allStreamAbs = fileManifest.allAbInfo;
+            var oldAbs = updateFileManifest.allAbInfo;
+            ABInfo abinfo;
+            var loadingEventArg = new LoadingEventArg();
+            loadingEventArg.total = oldAbs.Count;
+            for (int i = 0; i < oldAbs.Count; i++)
+            {
+                abinfo = oldAbs[i];
+                loadingEventArg.current++;
+
+                if (!fileManifest.CheckABCrc(abinfo))
+                {
+                    FileHelper.DeletePersistentFile(abinfo.abName);
+#if UNITY_EDITOR
+                    Debug.LogFormat("Delete old file ({0})", abinfo.abName);
+#endif
+                    loadingEventArg.progress = (float)loadingEventArg.current / (float)loadingEventArg.total;
+                    if (onProgress != null) onProgress(loadingEventArg);
+                    yield return null;
+                }
+            }
+            if (onProgress != null) onProgress(loadingEventArg);
+            if (onComplete != null) onComplete();
         }
 
         static string[] _activeVariants = { };
@@ -301,5 +359,148 @@ namespace Hugula.Loader
             }
         }
 
+        #region 首包和解压相关
+
+        private static string m_uncompressPath;
+        private static string m_firstPath;
+
+        private static string m_backgroundPath;
+
+        //解压路径
+        static string uncompressPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_uncompressPath))
+                {
+                    m_uncompressPath = CUtils.PathCombine(CUtils.uncompressStreamingAssetsPath, string.Format("v_{0}_{1}", CodeVersion.APP_VERSION, ManifestManager.fileManifest.crc32));
+                }
+                return m_uncompressPath;
+            }
+        }
+
+        //首包下载路径
+        static string firstPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_firstPath))
+                {
+                    m_firstPath = CUtils.PathCombine(CUtils.realPersistentDataPath, string.Format("f_{0}_{1}", CodeVersion.APP_VERSION, ManifestManager.fileManifest.crc32));
+                }
+                return m_firstPath;
+            }
+        }
+
+        static string backgroundPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_backgroundPath))
+                {
+                    m_backgroundPath = CUtils.PathCombine(CUtils.realPersistentDataPath, string.Format("b_{0}_{1}", CodeVersion.APP_VERSION, ManifestManager.fileManifest.crc32));
+                }
+                return m_backgroundPath;
+            }
+        }
+
+        internal static string GetExtensionsPath(string folder)
+        {
+            string path = CUtils.PathCombine(CUtils.realPersistentDataPath, folder);
+            path = CUtils.PathCombine(path, string.Format("f_{1}_{2}", folder, CodeVersion.APP_VERSION, ManifestManager.fileManifest.crc32));
+            return path;
+        }
+
+        //是否需要解压StreamingAssets
+        public static bool CheckNeedUncompressStreamingAssets()
+        {
+#if !UNITY_EDITOR
+            if (Hugula.HugulaSetting.instance.compressStreamingAssets)
+            {
+                var exists = File.Exists(uncompressPath);
+                return !exists;
+            }
+#endif
+            return false;
+        }
+
+        //解压完成
+        public static void CompleteUncompressStreamingAssets()
+        {
+            if (Directory.Exists(CUtils.uncompressStreamingAssetsPath))
+                Directory.CreateDirectory(CUtils.uncompressStreamingAssetsPath);
+
+            if (!File.Exists(uncompressPath)) File.Create(uncompressPath);
+        }
+
+
+        //判断首次加载包
+        public static bool CheckFirstLoad()
+        {
+            if (fileManifest != null && fileManifest.hasFirstLoad)
+            {
+                var exists = File.Exists(firstPath);
+                return !exists;
+            }
+
+            return false;
+        }
+
+        //完成首次加载包
+        public static void FinishFirstLoad()
+        {
+            if (Directory.Exists(CUtils.realPersistentDataPath))
+                Directory.CreateDirectory(CUtils.realPersistentDataPath);
+
+            if (!File.Exists(firstPath)) File.Create(firstPath);
+        }
+
+        public static bool CheckNeedBackgroundLoad()
+        {
+#if !UNITY_EDITOR
+            if (Hugula.HugulaSetting.instance.spliteExtensionFolder)
+            {
+                var exists = File.Exists(backgroundPath);
+                return !exists;
+            }
+#endif
+            return false;
+        }
+
+
+        //后台下载完成
+        public static void FinishBackgroundLoad()
+        {
+            if (Directory.Exists(CUtils.realPersistentDataPath))
+                Directory.CreateDirectory(CUtils.realPersistentDataPath);
+
+            if (!File.Exists(backgroundPath)) File.Create(backgroundPath);
+        }
+
+        //手动下载文件夹
+        public static bool CheckNeedExtensionsFolder(string folder)
+        {
+#if !UNITY_EDITOR
+            if (Hugula.HugulaSetting.instance.spliteExtensionFolder)
+            {
+                string folderPath = GetExtensionsPath(folder);
+                var exists = File.Exists(folderPath);
+                return !exists;
+            }
+#endif
+            return false;
+        }
+
+        //完成手动下载文件
+        public static void FinishExtensionsFolder(string folder)
+        {
+            string path = CUtils.PathCombine(CUtils.realPersistentDataPath, folder);
+            if (Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            string folderPath = GetExtensionsPath(folder);
+            if (!File.Exists(folderPath)) File.Create(folderPath);
+        }
+        #endregion
     }
 }

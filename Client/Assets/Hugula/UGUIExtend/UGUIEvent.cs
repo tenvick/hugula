@@ -36,11 +36,11 @@ namespace Hugula.UGUIExtend
 
             if (onPressFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onPressHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onPressHandle");
 #endif
                 onPressFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -51,11 +51,11 @@ namespace Hugula.UGUIExtend
 
             if (onPressFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onPressHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onPressHandle");
 #endif
                 onPressFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -67,11 +67,11 @@ namespace Hugula.UGUIExtend
 
             if (onClickFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onClickHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onClickHandle");
 #endif
                 onClickFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -82,11 +82,11 @@ namespace Hugula.UGUIExtend
 
             if (onClickFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onClickHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onClickHandle");
 #endif
                 onClickFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -98,11 +98,11 @@ namespace Hugula.UGUIExtend
 
             if (onDragFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onDragHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onDragHandle");
 #endif
                 onDragFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -114,11 +114,11 @@ namespace Hugula.UGUIExtend
 
             if (onDropFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onDropHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onDropHandle");
 #endif
                 onDropFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -130,11 +130,11 @@ namespace Hugula.UGUIExtend
 
             if (onDropFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onDropHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onDropHandle");
 #endif
                 onDropFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }
@@ -146,11 +146,11 @@ namespace Hugula.UGUIExtend
 
             if (onDropFn != null && sender != null)
             {
-#if HUGULA_PROFILE_DEBUG
-                Profiler.BeginSample(sender.name + "_onDropHandle");
+#if HUGULA_PROFILER_DEBUG
+                Profiler.BeginSample(sender.name + ")onDropHandle");
 #endif
                 onDropFn.call(sender, arg);
-#if HUGULA_PROFILE_DEBUG
+#if HUGULA_PROFILER_DEBUG
                 Profiler.EndSample();
 #endif
             }

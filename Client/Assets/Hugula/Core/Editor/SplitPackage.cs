@@ -16,10 +16,10 @@ namespace Hugula.Editor
     /// </summary>
     public class SplitPackage
     {
-#if UNITY_STANDALONE_WIN || UNITY_IPHONE// || UNITY_ANDROID
+#if false && UNITY_STANDALONE_WIN //|| UNITY_IPHONE// || UNITY_ANDROID
         public const BuildAssetBundleOptions DefaultBuildAssetBundleOptions = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression; //
 #else
-        public const BuildAssetBundleOptions DefaultBuildAssetBundleOptions = BuildAssetBundleOptions.DeterministicAssetBundle;// | BuildAssetBundleOptions.ChunkBasedCompression;
+        public const BuildAssetBundleOptions DefaultBuildAssetBundleOptions = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression;// | BuildAssetBundleOptions.ChunkBasedCompression;
 #endif
 
         public const string VerExtends = EditorCommon.VerExtends;//"VerExtends.txt";
@@ -141,11 +141,15 @@ namespace Hugula.Editor
             // string title = "read first crc file list";
             bool firstExists = false;
             firstCrcDict = null;
-            // extensionFileManifest = null;
+            HugulaExtensionFolderEditor.instance = null;
+
             string readPath = Path.Combine(FirstOutReleasePath, CUtils.platform);
             string firstFileName = CUtils.InsertAssetBundleName(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), "_v" + CodeVersion.CODE_VERSION.ToString());
             readPath = Path.Combine(readPath, firstFileName);
             Debug.Log(readPath);
+
+            //check tmp directory
+            if (!Directory.Exists("Assets/Tmp")) Directory.CreateDirectory("Assets/Tmp");
 
             // extensionFileManifest.Clear();
             //读取首包
@@ -160,6 +164,7 @@ namespace Hugula.Editor
                     {
                         firstCrcDict = o as FileManifest;
                         firstExists = true;
+                        firstCrcDict.WriteToFile("Assets/Tmp/firstManifest.txt");
                         Debug.Log(firstCrcDict.Count);
                     }
                 }
@@ -175,33 +180,68 @@ namespace Hugula.Editor
             var fileListName = Common.CRC32_FILELIST_NAME;
             var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(fileListName));
             Debug.Log(url);
-            url = CUtils.GetAndroidABLoadPath(url);
+            // url = CUtils.GetAndroidABLoadPath(url);
             AssetBundle assetbundle = AssetBundle.LoadFromFile(url);
             var assets1 = assetbundle.LoadAllAssets<FileManifest>();
-
-            Debug.Log(assets1.Length);
+            uint len = 0 ;
+            var crc32 = CrcCheck.GetLocalFileCrc(url,out len);
+            
             var streamingManifest1 = assets1[0];
             assetbundle.Unload(false);
             streamingManifest = streamingManifest1;
+            streamingManifest1.crc32 = crc32;
             Debug.Log(streamingManifest1.appNumVersion);
+            Debug.Log(streamingManifest1.crc32);
 
             //读取忽略扩展包
-
             System.Action<string, int> AddExtensionFileManifest = (string ab, int priority1) =>
              {
                  var abinfo = streamingManifest1.GetABInfo(ab);
                  if (abinfo == null)
+                 {
                      abinfo = new ABInfo(ab, 0, 0, priority1);
+                     streamingManifest1.Add(abinfo);
+                 }
 
                  abinfo.priority = priority1;
                  extensionFileManifest.Add(abinfo);
              };
 
+
+            //读取忽略别名后缀
+            // priority = FileManifestOptions.StreamingAssetsPriority;
+            // var inclusionVariants = HugulaSetting.instance.inclusionVariants;
+            // var allVariants = HugulaSetting.instance.allVariants;
+            // string pattern = "";
+            // string sp = "";
+            // foreach (var s in allVariants)
+            // {
+            //     if (!inclusionVariants.Contains(s))
+            //     {
+            //         pattern += sp + @"\." + s + "$";
+            //         sp = "|";
+            //     }
+            // }
+
+            // if (!string.IsNullOrEmpty(pattern))
+            // {
+            //     // Debug.Log(pattern);
+            //     var u3dList = ExportResources.getAllChildFiles(dinfo.FullName, pattern, null, true);
+            //     foreach (var s in u3dList)
+            //     {
+            //         priority++;
+            //         string ab = CUtils.GetAssetBundleName(s);
+            //         ab = ab.Replace("\\", "/");
+            //         AddExtensionFileManifest(ab, priority);
+            //     }
+            // }
+
+            //读取手动加载排除资源
             string firstStreamingPath = CUtils.realStreamingAssetsPath;
-            //读取忽略扩展文件夹
             DirectoryInfo dinfo = new DirectoryInfo(firstStreamingPath);
             var dircs = dinfo.GetDirectories();
-            var priority = FileManifestOptions.AutoHotPriority;
+            var priority = FileManifestOptions.ManualPriority;
+            Debug.LogFormat("ManualPriority.priority={0}", priority);
             foreach (var dir in dircs)
             {
                 var u3dList = ExportResources.getAllChildFiles(dir.FullName, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
@@ -214,36 +254,28 @@ namespace Hugula.Editor
                 }
             }
 
-            //读取忽略别名后缀
-            priority = FileManifestOptions.StreamingAssetsPriority;
-            var inclusionVariants = HugulaSetting.instance.inclusionVariants;
-            var allVariants = HugulaSetting.instance.allVariants;
-            string pattern = "";
-            string sp = "";
-            foreach (var s in allVariants)
+            //读取首包排除资源
+            var firstLoadFiles = HugulaExtensionFolderEditor.instance.FirstLoadFiles;
+            priority = FileManifestOptions.FirstLoadPriority;
+            Debug.LogFormat("FirstLoadPriority.priority={0}", priority);
+            var needLoadFirst = false;
+            foreach (var s in firstLoadFiles)
             {
-                if (!inclusionVariants.Contains(s))
-                {
-                    pattern += sp + @"\." + s + "$";
-                    sp = "|";
-                }
+                var ab = CUtils.GetRightFileName(s);
+                priority++;
+                AddExtensionFileManifest(ab, priority);
+                needLoadFirst = true;
             }
 
-            if (!string.IsNullOrEmpty(pattern))
-            {
-                // Debug.Log(pattern);
-                var u3dList = ExportResources.getAllChildFiles(dinfo.FullName, pattern, null, true);
-                foreach (var s in u3dList)
-                {
-                    priority++;
-                    string ab = CUtils.GetAssetBundleName(s);
-                    ab = ab.Replace("\\", "/");
-                    AddExtensionFileManifest(ab, priority);
-                }
-            }
+            if (!HugulaSetting.instance.spliteExtensionFolder) needLoadFirst = false;
+                streamingManifest.hasFirstLoad = needLoadFirst;
+            // AssetDatabase.SaveAssets();
 
-            //读取手动排除后缀
+            //读取自动下载资源
             var extensionFiles = HugulaExtensionFolderEditor.instance.ExtensionFiles;
+            priority = FileManifestOptions.AutoHotPriority;
+            Debug.LogFormat("AutoHotPriority.priority={0}", priority);
+
             foreach (var s in extensionFiles)
             {
                 var ab = CUtils.GetRightFileName(s);
@@ -251,10 +283,8 @@ namespace Hugula.Editor
                 AddExtensionFileManifest(ab, priority);
             }
 
-            // Debug.LogFormat("extensionFileManifest.Count:{0}.", extensionFileManifest.Count);
-
-            //从网络读取扩展加载列表 todo
-
+            streamingManifest.WriteToFile("Assets/Tmp/streamingManifest0.txt");
+            extensionFileManifest.WriteToFile("Assets/Tmp/manualFileList0.txt");
             EditorUtility.ClearProgressBar();
             return firstExists;
         }
@@ -279,7 +309,7 @@ namespace Hugula.Editor
             Dictionary<string, bool> ignore = new Dictionary<string, bool>();
             ignore.Add(CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME), true);
             ignore.Add(CUtils.GetRightFileName(Common.CRC32_VER_FILENAME), true);
-            ignore.Add(CUtils.GetRightFileName(CUtils.platform),true);
+            ignore.Add(CUtils.GetRightFileName(CUtils.platform), true);
 
             string extension;
             foreach (var str in allBundles)
@@ -312,20 +342,21 @@ namespace Hugula.Editor
 
                     extendsABinfo.crc32 = outCrc;
                     extendsABinfo.size = fileLen;
+                    extendsABinfo.assetPath = str;
 
-                    ABInfo localFirstInfo;
-                    if (firstCrcDict != null && (localFirstInfo = firstCrcDict.GetABInfo(extendsABinfo.abName)) != null)
+                    if (firstCrcDict != null)
                     {
+                        ABInfo localFirstInfo = null;
                         if (!firstCrcDict.CheckABCrc(extendsABinfo))
                         {
                             var newAbinfo = extendsABinfo.Clone();
                             newAbinfo.assetPath = str;
                             diffManifest.Add(newAbinfo);
                         }
-                        else if (!extendsABinfo.EqualsDependencies(localFirstInfo)) //dependencies change
+                        else if ((localFirstInfo = firstCrcDict.GetABInfo(extendsABinfo.abName)) != null && !extendsABinfo.EqualsDependencies(localFirstInfo)) //dependencies change
                         {
                             var newAbinfo = extendsABinfo.Clone();
-                            // newAbinfo.assetPath = str;
+                            newAbinfo.assetPath = str;
                             diffManifest.Add(newAbinfo);
                         }
                     }
@@ -367,6 +398,8 @@ namespace Hugula.Editor
             streamingManifest.allAbInfo = allABInfos;
             streamingManifest.allAssetBundlesWithVariant = bundlesWithVariant;
             streamingManifest.appNumVersion = CodeVersion.APP_NUMBER;
+            // streamingManifest.crc32 = assetBundleManifest.GetHashCode();
+
             //create asset
             string tmpPath = BuildScript.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
             ExportResources.CheckDirectory(tmpPath);
@@ -475,7 +508,9 @@ namespace Hugula.Editor
                         if (kvs[0] == @"""cdn_host""")
                         {
                             //APP_NUMBER CODE_VERSION
-                            if (HugulaSetting.instance.appendCrcToFile)
+                            if(HugulaSetting.instance.backupResType == CopyResType.OneResFolder)
+                                item = item.Replace("%s/", "");
+                            else if (HugulaSetting.instance.appendCrcToFile)
                                 item = item.Replace("%s", "v" + CodeVersion.CODE_VERSION.ToString());
                             else
                                 item = item.Replace("%s", "v" + CodeVersion.APP_NUMBER.ToString()); //文件crc 不变路径需要改变
@@ -633,6 +668,7 @@ namespace Hugula.Editor
             foreach (var ab in abNames)
             {
                 i = i + 1;
+                Debug.Log(ab.abName);
                 string delPath = Path.Combine(path, ab.abName);
                 File.Delete(delPath);
                 File.Delete(delPath + ".meta");
@@ -712,6 +748,7 @@ namespace Hugula.Editor
             foreach (var k in updateList)
             {
                 key = k.Key;//CUtils.GetAssetBundleName(k.Key);
+                Debug.LogFormat(" update file = {0},{1},{2};", k.Key, k.Value.abName, k.Value.assetPath);
                 sourcePath = Path.Combine(Application.dataPath, k.Value.assetPath);
                 if (string.IsNullOrEmpty(k.Value.assetPath)) continue;
                 if (!File.Exists(sourcePath)) //

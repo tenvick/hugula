@@ -12,7 +12,7 @@ using Hugula.Update;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
-
+using Hugula.Editor.Task;
 
 namespace Hugula.Editor
 {
@@ -52,6 +52,27 @@ namespace Hugula.Editor
             string title = "Generate Update File ";
             string info = "Compute crc32";
             EditorUtility.DisplayProgressBar(title, info, 0.1f);
+            var hotResGenSharedData = new HotResGenSharedData();
+            //流程封装方便自己定义流程
+            TaskManager<HotResGenSharedData>.AddTask(new ReadFirst());
+            TaskManager<HotResGenSharedData>.AddTask(new CreateCrcListContent(allBundles));
+            TaskManager<HotResGenSharedData>.AddTask(new CreateLocalFileManifest());
+            TaskManager<HotResGenSharedData>.AddTask(new CreateDiffFileManifest());
+            TaskManager<HotResGenSharedData>.AddTask(new CreateVersionAssetBundle());
+            TaskManager<HotResGenSharedData>.AddTask(new CopyChangeFiles());
+            TaskManager<HotResGenSharedData>.AddTask(new ClearAssetBundle());
+            TaskManager<HotResGenSharedData>.AddTask(new ZipBundles());
+
+            System.Action<float,string> act = (float p,string name)=>{
+                EditorUtility.DisplayProgressBar(title, name, p);
+                Debug.Log(" process =" +name);
+            };
+
+            TaskManager<HotResGenSharedData>.Run(hotResGenSharedData,act);
+
+            hotResGenSharedData.manualFileList.WriteToFile("Assets/" + TmpPath + "manualFileList.txt");
+
+            /* 
             FileManifest firstCrcDict = null;//首包
             FileManifest streamingManifest = null;//streamingAsset
             FileManifest manualFileList = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;//后置下载
@@ -118,7 +139,7 @@ namespace Hugula.Editor
             }
 #endif
             #endregion
-
+*/
             EditorUtility.ClearProgressBar();
 
         }
@@ -462,6 +483,8 @@ namespace Hugula.Editor
                     AssetDatabase.Refresh();
                 }
             }
+
+            HugulaExtensionFolderEditor.SaveSettingData();
         }
 
         /// <summary>
@@ -475,14 +498,39 @@ namespace Hugula.Editor
             foreach (Object s in selection)
             {
                 abName = GetOriginalAssetBundleName(s, out apath);
-                // Debug.LogFormat("ExtensionFiles name={0},path={1}",abName,apath);
+
                 if (delete)
                     HugulaExtensionFolderEditor.RemoveExtendsFile(abName);
-                else if (!HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
+                else if (!string.IsNullOrEmpty(abName) && !HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
                     HugulaExtensionFolderEditor.AddExtendsFile(abName);
                 else
                     Debug.LogFormat("assetPath({0}) can't add to extends file list  ", abName);
             }
+
+            HugulaExtensionFolderEditor.SaveSettingData();
+        }
+
+        /// <summary>
+        /// 添加为首包下载文档
+        /// </summary>
+        public static void FirstLoadFiles(bool delete = false)
+        {
+            Object[] selection = Selection.objects;
+            string abName = "";
+            string apath = "";
+            foreach (Object s in selection)
+            {
+                abName = GetOriginalAssetBundleName(s, out apath);
+
+                if (delete)
+                    HugulaExtensionFolderEditor.RemoveExtendsFile(abName);
+                else if (!string.IsNullOrEmpty(abName) && !HugulaExtensionFolderEditor.ContainsExtendsPath(apath))
+                    HugulaExtensionFolderEditor.AddFirstLoadFile(abName);
+                else
+                    Debug.LogFormat("assetPath({0}) can't add to extends file list  ", apath);
+            }
+
+            HugulaExtensionFolderEditor.SaveSettingData();
         }
 
         /// <summary>
@@ -508,6 +556,9 @@ namespace Hugula.Editor
                     Debug.LogFormat("delete: {0}\r\n {1}", s.name, txt);
                 }
             }
+
+            HugulaExtensionFolderEditor.SaveSettingData();
+
         }
 
         public static void ZipFiles(bool delete = false)
@@ -544,8 +595,10 @@ namespace Hugula.Editor
             string suffix = Common.CHECK_ASSETBUNDLE_SUFFIX;
             apath = AssetDatabase.GetAssetPath(s);
             string abName = "";
-            AssetImporter
-            import = AssetImporter.GetAtPath(apath);
+            AssetImporter import = AssetImporter.GetAtPath(apath);
+
+            if (string.IsNullOrEmpty(import.assetBundleName)) return string.Empty;
+
             if (!string.IsNullOrEmpty(import.assetBundleVariant))
                 suffix = "." + import.assetBundleVariant;
 
@@ -584,6 +637,8 @@ namespace Hugula.Editor
                     }
                 }
             }
+
+            HugulaExtensionFolderEditor.SaveSettingData();
         }
 
         #endregion

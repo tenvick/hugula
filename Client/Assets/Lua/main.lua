@@ -18,7 +18,6 @@
 --	.5 cdn_hosts 用于从网络加载资源的url列表
 ------------------------------------------------
 require("core.loader")
-
 collectgarbage("setpause", 110)
 collectgarbage("setstepmul", 300)
 
@@ -211,13 +210,21 @@ end
 local function all_file_down(is_error)
 	print("all files have been download and the error is ", is_error)
 	if is_error then
-		set_progress_txt(lua_localization("main_download_fail")) --"文件下载失败请重启游戏。")
+		local tips = lua_localization("main_download_fail")
+		set_progress_txt(tips) --"文件下载失败请重启游戏。")
+		local function close()
+			MessageBox.Destroy()
+		end
+		MessageBox.Show(tips,"",close)
 	else
 		set_resversion(server_ver)
 		if server_manifest then
 			ManifestManager.updateFileManifest = server_manifest
 			ManifestManager.fileManifest.AppendFileManifest(ManifestManager.updateFileManifest);
 		end
+
+		if ManifestManager.CheckFirstLoad() then ManifestManager.FinishFirstLoad()  end
+		
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME)) --删除旧文件
 		FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME)) --删除旧文件
 		-- print("更新文件列表！")
@@ -234,7 +241,7 @@ local function all_file_down(is_error)
 	
 end
 
-main_update.load_server_file_list = function() --版本差异化对比
+main_update.load_server_file_list = function(load_first) --版本差异化对比
 	
 	local function on_www_comp(req, bytes)
 		-- print("on www comp " .. req.assetName)
@@ -248,8 +255,14 @@ main_update.load_server_file_list = function() --版本差异化对比
 		ab:Unload(false)
 		-- print(server_manifest)
 		Loader:unload_cache_false(req.key)
-		-- print(ManifestManager.fileManifest)
-		local change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, all_file_down)
+		local change = 0
+
+		if load_first then
+			change = BackGroundDownload.instance:AddFirstManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, all_file_down)
+		else
+			change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, all_file_down)
+		end
+		-- print(change)
 		if change > 0 then
 			local function begin_load()
 				BackGroundDownload.instance.alwaysDownLoad = true
@@ -257,7 +270,6 @@ main_update.load_server_file_list = function() --版本差异化对比
 				BackGroundDownload.instance:Begin()
 				MessageBox.Destroy()
 			end
-
 			local tips = lua_localization("main_download_from_webserver",math.floor(change/1048576))
 			set_progress_txt(tips, 4, 0.01)--开始从服务器加载新的资源。
 			MessageBox.Show(tips,"","",begin_load) --版本提示
@@ -287,7 +299,7 @@ main_update.load_server_file_list = function() --版本差异化对比
 end
 
 
-main_update.load_server_verion = function() --加载服务器版本号
+main_update.load_server_verion = function(load_first) --加载服务器版本号
 	local begin_fun
 	local max_try_times, curr_time = 2, 0
 
@@ -319,6 +331,8 @@ main_update.load_server_verion = function() --加载服务器版本号
 			set_resversion_var(server_ver)
 		end
 		BackGroundDownload.instance.host = ResVersion.cdn_host[1]
+		local host1 =  ResVersion.cdn_host[2]
+		if host1 then BackGroundDownload.instance.host1 = host1 end
 		-- print("cdn host is " .. BackGroundDownload.instance.host)
 		if check_platform() then --for test
 			print("editor mode, just enter game directly")
@@ -329,13 +343,16 @@ main_update.load_server_verion = function() --加载服务器版本号
 			end
 			return
 		end
+
 		FileHelper.SavePersistentFile(ver_str, CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME)) --临时文件
 
-		if server_ver.code == -1 or (server_ver.code <= 13003 and server_ver.code > 13000) then
+		if server_ver.code == -1 or (server_ver.code <= 13003 and server_ver.code > 13000) then --错误码判断
 			local function on_sure_click()
 				Application.Quit()
 			end
 			MessageBox.Show(lua_localization("main_code_error"),"","",on_sure_click) --版本提示
+		elseif load_first then --need update first
+			main_update.load_server_file_list(load_first)
 		elseif CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
 			local new_app_tips = lua_localization("main_download_new_app")
 			set_progress_txt(new_app_tips) --"请更新app版本！")
@@ -378,30 +395,42 @@ main_update.compare_local_version = function() --对比本地版本号
 	end
 	
 	step.compare = function()
+		local need_first_load = ManifestManager.CheckFirstLoad()
+		print("need_first_load",need_first_load)
 		if step.persistent_error == true and step.streaming_version ~= nil then
 			print("there is no persistent_version info,just use streaming_version:" ,step.streaming_version.version)
 			local_version = step.streaming_version
 			set_resversion(local_version)
-			main_update.load_server_verion()
+			main_update.load_server_verion(need_first_load)
 		elseif step.persistent_version ~= nil and step.streaming_version ~= nil then
-			if CodeVersion.Subtract(step.persistent_version.version, step.streaming_version.version) > 0 then
+			if CodeVersion.Subtract(step.persistent_version.version, step.streaming_version.version) >= 0 then
 				-- print("直接进入。%s > %s", step.persistent_version.version, step.streaming_version.version)
 				local_version = step.persistent_version
 				set_resversion(local_version)
-				main_update.load_server_verion()			
+				main_update.load_server_verion(need_first_load)			
 			else
 				print("persistent_version is older than streming_version ,use streaming_version:" .. os.date("%c", step.streaming_version.time) .. ",clear all caches")
+				local tips = lua_localization("main_clear_cache")
 				set_progress_txt(lua_localization("main_clear_cache")) --清理旧的缓存。")
 				-- print("清理缓存。" .. CUtils.GetRealPersistentDataPath())
-				FileHelper.DeletePersistentDirectoryFiles(nil)
 				
 				package.loaded["core.loader"] = nil
 				package.preload["core.loader"] = nil
 				local_version = step.streaming_version --当前版本
 				set_resversion(local_version)
-				main_update.load_server_verion()
+
+				FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME)) --删除旧文件
+				FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME)) --删除旧文件
+				print("delete "..UPDATED_LIST_NAME)
+				print("delete "..VERSION_FILE_NAME)
+
+				local function load_server_ver() main_update.load_server_verion(need_first_load) end
+
+				ManifestManager.CheckClearCacheFiles(nil,load_server_ver)
 			end
+
 		end
+
 	end
 	
 	step.on_streaming_comp = function(req)
@@ -469,25 +498,13 @@ local function init_step1()
 	-- print(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
 	-- print(UnityEngine.Application.version,Application.bundleIdentifier)
 	local ui_logo = LuaHelper.Find(FRIST_VIEW)
-	local refer = ui_logo:GetComponent(Hugula.ReferGameObjects)
-	-- print(refer)
-	if refer then
-		_progressbar_txt = refer:Get("Text") --ui_logo:GetComponentInChildren(UnityEngine.UI.Text, true)
-		_progressbar_slider = refer:Get("Progress")--ui_logo:GetComponentInChildren(UnityEngine.UI.Slider, true)
+	if ui_logo then
+		_progressbar_txt = ui_logo:GetComponentInChildren(UnityEngine.UI.Text, true)
+		_progressbar_slider = ui_logo:GetComponentInChildren(UnityEngine.UI.Slider, true)
 		set_progress_txt(lua_localization("main_init"), 1, 1)
 		if _progressbar_slider then
 			_progressbar_slider.gameObject:SetActive(true)
 		end
-		refer:Get("Logo").depth = 10
-
-		local music_login = refer:Get("login_music")
-		local _sound_status = UnityEngine.PlayerPrefs.GetInt("playerPrefsMusic", 1) 
-		dbg_xk(_sound_status)   
-	    if _sound_status == 1 then
-	    	music_login.enabled = true
-	    else
-	    	music_login.enabled = false
-	    end
 	end
 	main_update.compare_local_version()
 	

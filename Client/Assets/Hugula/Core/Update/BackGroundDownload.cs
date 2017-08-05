@@ -5,6 +5,7 @@ using Hugula.Loader;
 using Hugula.Utils;
 using System;
 using System.IO;
+using Hugula.Collections;
 
 namespace Hugula.Update
 {
@@ -14,6 +15,9 @@ namespace Hugula.Update
     {
         private const string _keyCarrierDataNetwork = "_keyCarrierDataNetwork";
         public string host;
+
+        public string host1 = string.Empty;
+
         public int loadingCount = 0;
         //开启下载
         public bool alwaysDownLoad
@@ -55,7 +59,7 @@ namespace Hugula.Update
         private NetworkReachability netState;
         private Dictionary<int, BackGroundQueue> loadQueueDic = new Dictionary<int, BackGroundQueue>();
         private LinkedList<BackGroundQueue> loadQueue = new LinkedList<BackGroundQueue>();
-        private Dictionary<ABInfo, WebDownload> loadingTasks = new Dictionary<ABInfo, WebDownload>();
+        private SafeDictionary<ABInfo, WebDownload> loadingTasks = new SafeDictionary<ABInfo, WebDownload>();
 
         private ABInfoComparer abInfoCompare = new ABInfoComparer();
 
@@ -93,9 +97,13 @@ namespace Hugula.Update
                 var arr = (object[])download.userData;
                 webClients.RemoveAt(0);
                 bool isError = download.isError;
+                bool needReload = download.needReload;
                 WebDownload.Release(download);
                 // Debug.LogFormat("{1}={0}",isError,(ABInfo)arr[0]);
-                RemoveTask((ABInfo)arr[0], (BackGroundQueue)arr[1], isError);
+                if (needReload)
+                    RunningTask((ABInfo)arr[0], (BackGroundQueue)arr[1], true);
+                else
+                    RemoveTask((ABInfo)arr[0], (BackGroundQueue)arr[1], isError);
             }
             LoadingQueue();
 
@@ -225,11 +233,42 @@ namespace Hugula.Update
 
             bQueue.Enqueue(abInfos);
 
-            foreach(var abInfo in abInfos)
+            foreach (var abInfo in abInfos)
                 size += abInfo.size;
             // Debug.LogFormat("bQueue.Count = {0},priority={1}", bQueue.Count, priority);
             return size;
         }
+
+        public uint AddFirstManifestTask(FileManifest mainifest1, FileManifest mainifest2, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
+        {
+            if (mainifest1 == null) return 0;
+
+            List<ABInfo> re = new List<ABInfo>();
+
+            var localABInfos = mainifest1.allAbInfo;
+            var diffABInfos = mainifest1.CompareFileManifest(mainifest2); //mainifest2.appNumVersion - mainifest1.appNumVersion >= 0;
+            ABInfo abInfo;
+            for (int i = 0; i < localABInfos.Count; i++)
+            {
+                abInfo = localABInfos[i];
+                if (abInfo.priority >= FileManifestOptions.FirstLoadPriority
+               && abInfo.priority < FileManifestOptions.AutoHotPriority) //首包下载内容
+                {
+                    re.Add(abInfo);
+                }
+            }
+
+            for (int i = 0; i < diffABInfos.Count; i++)
+            {
+                abInfo = diffABInfos[i];
+                re.Add(abInfo);
+            }
+
+            re.Sort(abInfoCompare);
+
+            return AddTask(re, FileManifestOptions.ManualPriority, onProgress, onComplete);
+        }
+
 
         public uint AddDiffManifestTask(FileManifest mainifest1, FileManifest mainifest2, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
         {
@@ -239,11 +278,11 @@ namespace Hugula.Update
             List<ABInfo> re = new List<ABInfo>();
             foreach (var abInfo in loadInfos)
             {
-                if (abInfo.priority <= FileManifestOptions.StreamingAssetsPriority)  //StreamingAssetsPath 
+                if (abInfo.priority <= FileManifestOptions.AutoHotPriority) //非自动下载级别 
                 {
                     re.Add(abInfo);
                 }
-                else if (FileHelper.PersistentFileExists(abInfo.abName))//Persistent Path
+                else if (FileHelper.PersistentFileExists(abInfo.abName))//存在表示已经下载过但是版本不对
                 {
                     re.Add(abInfo);
                 }
@@ -254,7 +293,7 @@ namespace Hugula.Update
             return AddTask(re, FileManifestOptions.ManualPriority, onProgress, onComplete);
         }
 
-        public uint AddBackManifestTask(FileManifest mainifest1, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
+        public uint AddBackgroundManifestTask(FileManifest mainifest1, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
         {
             if (mainifest1 == null) return 0;
 
@@ -264,8 +303,8 @@ namespace Hugula.Update
             for (int i = 0; i < allAbInfos.Count; i++)
             {
                 abInfo = allAbInfos[i];
-                if (abInfo.priority < FileManifestOptions.AutoHotPriority
-                && abInfo.priority > FileManifestOptions.StreamingAssetsPriority
+                if (abInfo.priority < FileManifestOptions.ManualPriority
+                && abInfo.priority >= FileManifestOptions.AutoHotPriority
                 && !FileHelper.PersistentFileExists(abInfo.abName))
                 {
                     loadInfos.Add(abInfo);
@@ -275,7 +314,7 @@ namespace Hugula.Update
             return AddTask(loadInfos, FileManifestOptions.StreamingAssetsPriority, onProgress, onComplete);
         }
 
-        public uint AddManualManifestTask(FileManifest mainifest1, string floder, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
+        public uint AddManualManifestTask(FileManifest mainifest1, string folder, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
         {
             if (mainifest1 == null) return 0;
 
@@ -285,7 +324,7 @@ namespace Hugula.Update
             for (int i = 0; i < allAbInfos.Count; i++)
             {
                 abInfo = allAbInfos[i];
-                if (abInfo.abName.Contains(floder) && !FileHelper.PersistentFileExists(abInfo.abName))// && abInfo.priority > FileManifestOptions.AutoHotPriority)
+                if (abInfo.abName.Contains(folder) && !FileHelper.PersistentFileExists(abInfo.abName))// && abInfo.priority > FileManifestOptions.AutoHotPriority)
                 {
                     loadInfos.Add(abInfo);
                 }
@@ -310,10 +349,10 @@ namespace Hugula.Update
             bQueue.Complete(abInfo, isError);
         }
 
-        internal void RunningTask(ABInfo abInfo, BackGroundQueue bQueue)
+        internal void RunningTask(ABInfo abInfo, BackGroundQueue bQueue, bool useHost1 = false)
         {
             var download = WebDownload.Get();
-            download.userData = new object[] { abInfo, bQueue };
+            download.userData = new object[] { abInfo, bQueue, useHost1 ? "host1" : "host" };
             download.DownloadFileCompleted -= OnDownloadFileCompleted;
             download.DownloadProgressChanged -= OnDownloadProgressChanged;
             download.DownloadFileCompleted += OnDownloadFileCompleted;
@@ -335,7 +374,9 @@ namespace Hugula.Update
                 {
                     abName = CUtils.InsertAssetBundleName(abName, "_" + abInfo.crc32.ToString());
                 }
-                Uri url = new Uri(CUtils.PathCombine(host, abName));
+
+                string h = useHost1 ? host1 : host;
+                Uri url = new Uri(CUtils.PathCombine(h, abName));
 
                 string path = CUtils.PathCombine(outputPath, abInfo.abName);
                 FileHelper.CheckCreateFilePathDirectory(path);
@@ -350,7 +391,6 @@ namespace Hugula.Update
         {
             WebDownload webd = (WebDownload)sender;
             webd.isError = (e.Error != null);
-            webClients.Add(webd);
 
             if (webd.isError)
             {
@@ -358,14 +398,25 @@ namespace Hugula.Update
                 if (arr != null)
                 {
                     ABInfo abInfo = ((ABInfo)arr[0]);
+                    BackGroundQueue bQueue = (BackGroundQueue)arr[1];
+                    bool useHost1 = arr[2].ToString().Equals("host1");
                     FileHelper.DeletePersistentFile(abInfo.abName);
-                    Debug.Log(string.Format("web download url:{0}\r\n error:{1}", host + "/" + abInfo.abName, e.Error));
+                    if (!useHost1 && !string.IsNullOrEmpty(host1))
+                    {
+                        Debug.LogWarning(string.Format("web download url:{0}\r\n error:{1}\r\n reload={2}", host + "/" + abInfo.abName, host1, e.Error));
+                        webd.needReload = true;
+                    }
+                    else
+                        Debug.LogWarning(string.Format("web download url:{0}\r\n error:{1}", (useHost1 ? host1 : host) + "/" + abInfo.abName, e.Error));
                 }
                 else
                 {
-                     Debug.Log(string.Format("web download url:{0}\r\n error:{1}", host, e.Error));
+                    Debug.LogWarning(string.Format("download url:{0}\r\n error:{1}", host, e.Error));
                 }
+
             }
+
+            webClients.Add(webd);
 
             // #if UNITY_EDITOR
             // Debug.LogFormat("url:{0}\r\n is done", host);

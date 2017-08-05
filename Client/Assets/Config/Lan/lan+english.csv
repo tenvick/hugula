@@ -18,3 +18,6 @@ main_quit_game=Are you sure quit the game?
 main_check_sure=Sure
 main_check_cancel=Cancel
 main_code_error=Please wait for the server to open!
+first_archive_tips=Exporting archive package
+first_decompressing_tips=Decompressing file ... (no expense)
+first_decompressing_complete=Decompression is completed, a total time: {0} seconds

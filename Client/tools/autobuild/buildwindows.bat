@@ -17,7 +17,7 @@ rd /s /q %StreamingPath%
 echo "del StreamingPath sccuess "
 echo %UNITY_PATH%
 
-%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_NO_LOG  -logFile $stdout
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_NO_LOG,HUGULA_SPLITE_ASSETBUNDLE,HUGULA_APPEND_CRC,HUGULA_RELEASE  -logFile $stdout
 echo "scriptingDefineSymbols  sccuess"
 
 %UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout

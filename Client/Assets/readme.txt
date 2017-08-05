@@ -1,5 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.8.5
+1 二次下载功能(启动时候自动下载[HugulaExtends/Add First Load Files]添加的文件)
+2 使用预编译命令控制和打开功能，详细Version.cs。
+3 BackGroundDownload 备用域名支持 ver_xxx.txt cdn_host字段配置。
+4 自动构建脚本。
+5 新增文件不打入FirstPakcage BUG修复,启动界面语言包读取bug修复。
+
 2017.7.22
 1 加载模块重构，代码更清醒扩展更方便，减少加载时gcalloc，支持协程和回调两种方式加载。
 2 丢弃assetbundleManifest,使用自己的FileManifest,通过ManifestManager来访问依赖项目。

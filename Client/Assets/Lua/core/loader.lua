@@ -156,9 +156,9 @@ function Loader:get_http_data(...)
 	local a,b,c,d,e = ...
 	local t_a = type(a)
 	if t_a=="userdata" then
-		ResourcesLoader.WWWRequest(a,false)
+		ResourcesLoader.HttpRequest(a,false)
 	else
-		ResourcesLoader.WWWRequest(a,b,c,d,e)
+		ResourcesLoader.HttpRequest(a,b,c,d,e)
 	end
 end
 

@@ -481,6 +481,39 @@ namespace Hugula.Utils
             }
         }
 
+        private static string _uncompressStreamingAssetsPath;
+        /// <summary>
+        /// uncompress streamingAssets path
+        /// </summary>
+        public static string uncompressStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_uncompressStreamingAssetsPath))
+                {
+                    _uncompressStreamingAssetsPath = PathCombine(Application.persistentDataPath, "local");
+                }
+                return _uncompressStreamingAssetsPath;
+            }
+        }
+
+        private static string _realUncompressStreamingAssetsPath;
+
+        /// <summary>
+        /// real uncompress streamingAssets path
+        /// </summary>
+        public static string realUncompressStreamingAssetsPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_realUncompressStreamingAssetsPath))
+                {
+                    _realUncompressStreamingAssetsPath = PathCombine(uncompressStreamingAssetsPath, platformFloder);
+                }
+                return _realUncompressStreamingAssetsPath;
+            }
+        }
+
         #endregion
         private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder(2048);
         private static System.DateTime _last_time = System.DateTime.Now;

@@ -16,7 +16,7 @@ set StreamingPath=%PROJECT_ROOT%\Assets\StreamingAssets
 rd /s /q %slua_path%
 echo "del StreamingPath sccuess "
 
-%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_NO_LOG  -logFile $stdout
+%UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_SPLITE_ASSETBUNDLE,HUGULA_APPEND_CRC,HUGULA_RELEASE -logFile $stdout
 echo "scriptingDefineSymbols  sccuess"
 %UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.BuildSlua -logFile $stdout
 echo "slua make sccuess"
@@ -28,10 +28,10 @@ echo "begin move apk to release"
 echo CURRENT_ROOT
 %PAN%
 cd %CURRENT_ROOT%
-cd ..\..\Assets
+cd ..\..\
 set m=%date:~5,2%
 set d=%date:~8,2%
-move warx.apk ..\..\..\release\warx%m%%d%.apk
-echo "build warx"%m%%d%".apk sccuess"
+move hugula.apk ..\FirstPackage\hugula%m%%d%.apk
+echo "build HUGULA"%m%%d%".apk sccuess"
 
 pause

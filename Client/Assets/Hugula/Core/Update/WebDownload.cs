@@ -22,6 +22,8 @@ namespace Hugula.Update
 
         public bool isError;
 
+        public bool needReload;
+
         public int Timeout { get; set; }
 
         public WebDownload() : this(8000) { }
@@ -48,11 +50,12 @@ namespace Hugula.Update
         private static void m_ActionOnGet(WebDownload item)
         {
             item.isError = false;
+            item.needReload = false;
         }
 
         private static void m_ActionOnRelease(WebDownload item)
         {
-
+            item.userData = null;
         }
 
         public static WebDownload Get()

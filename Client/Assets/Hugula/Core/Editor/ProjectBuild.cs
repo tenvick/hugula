@@ -393,7 +393,7 @@ public class ProjectBuild : Editor
     //[MenuItem("Hugula/project  StandaloneWindows ", false, 16)]
     static void BuildForWindows()
     {
-        string path = Application.dataPath + "/../../../release/pc/";
+        string path = "../../release/pc/";
         ExportResources.DirectoryDelete(path);
         ExportResources.CheckDirectory(path);
         WriteAppVerion();

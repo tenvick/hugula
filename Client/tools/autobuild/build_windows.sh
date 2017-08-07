@@ -1,20 +1,19 @@
 #!/bin/sh
 #UNITY path
 UNITY_PATH=/Applications/Unity/Unity.app/Contents/MacOS/Unity
-
 #
 #change to you project root
-PROJECT_ROOT=/Users/hugula/Documents/hugula/client
-RELEASE_ROOT=/Users/hugula/Documents/hugula/windows/pc
+CURRENT_ROOT=$(cd `dirname $0`; pwd)
+echo "root"$CURRENT_ROOT
+PROJECT_ROOT=$CURRENT_ROOT/../../
+cd $PROJECT_ROOT
+PROJECT_ROOT=$(pwd)
+echo $PROJECT_ROOT
 
-
-rm -fr $PROJECT_ROOT/Assets/Lua
 rm -fr $PROJECT_ROOT/Assets/Slua/LuaObject
-
-svn cleanup $PROJECT_ROOT/Assets
-svn cleanup $PROJECT_ROOT/Assets --remove-unversioned
-svn revert $PROJECT_ROOT --depth=infinity
-svn up $PROJECT_ROOT
+rm -fr $PROJECT_ROOT/Assets/LuaBytes
+rm -fr $PROJECT_ROOT/Assets/StreamingAssets
+rm -fr $PROJECT_ROOT/release/*
 
 chmod 777 $PROJECT_ROOT/tools/luaTools/luajit2.04
 

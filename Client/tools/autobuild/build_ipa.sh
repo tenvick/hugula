@@ -2,12 +2,17 @@
 #UNITY path
 UNITY_PATH=/Applications/Unity/Unity.app/Contents/MacOS/Unity
 #change to you project root
-PROJECT_ROOT=/Users/hugula/Documents/hugula/client
+CURRENT_ROOT=$(cd `dirname $0`; pwd)
+echo "root"$CURRENT_ROOT
+PROJECT_ROOT=$CURRENT_ROOT/../../
+cd $PROJECT_ROOT
+PROJECT_ROOT=$(pwd)
+echo $PROJECT_ROOT
 
-svn cleanup $PROJECT_ROOT
-svn cleanup $PROJECT_ROOT/Assets --remove-unversioned
-svn revert $PROJECT_ROOT --depth=infinity
-svn up $PROJECT_ROOT
+rm -fr $PROJECT_ROOT/Assets/Slua/LuaObject
+rm -fr $PROJECT_ROOT/Assets/LuaBytes
+rm -fr $PROJECT_ROOT/Assets/StreamingAssets
+rm -fr $PROJECT_ROOT/release/*
 
 rm -fr $PROJECT_ROOT/../../release/ios
 

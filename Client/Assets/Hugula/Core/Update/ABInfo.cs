@@ -42,7 +42,9 @@ namespace Hugula.Update
             stringBuilder.AppendFormat("crc32={0},", this.crc32);
             stringBuilder.AppendFormat("size={0},", this.size);
             stringBuilder.AppendFormat("priority={0},", this.priority);
-            if (dependencies != null && dependencies.Length > 0)
+            if (dependencies == null)
+                stringBuilder.Append("dependencies:null");
+            else
             {
                 stringBuilder.Append("dependencies:");
                 foreach (var s in dependencies)
@@ -63,9 +65,13 @@ namespace Hugula.Update
             {
                 return true;
             }
-            else if (dependencies == null || abinfo.dependencies == null) //不相同
+            else if (dependencies == null && (abinfo.dependencies != null && abinfo.dependencies.Length==0)) //不相同
             {
-                return false;
+                return true;
+            }
+            else if (dependencies.Length == 0 && abinfo.dependencies == null ) //相同
+            {
+                return true;
             }
             else if (dependencies.Length != abinfo.dependencies.Length) //不相同
             {

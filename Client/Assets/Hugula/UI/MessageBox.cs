@@ -22,6 +22,8 @@ namespace Hugula.UI
         void Start()
         {
             m_messageBox = this;
+            m_isloading = false; 
+            DontDestroyOnLoad(this.gameObject);
             if (buttonClose) buttonClose.onClick.AddListener(Close);
         }
 

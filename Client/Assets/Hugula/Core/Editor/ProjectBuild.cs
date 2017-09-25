@@ -186,7 +186,7 @@ public class ProjectBuild : Editor
             throw new Exception("BuildPlayer failure: " + res);
         }
     }
-    static void WriteAppVerion(string folder = "apk",string appExtension="il2cpp")
+    static void WriteAppVerion(string folder = "apk", string appExtension = "il2cpp")
     {
         System.Environment.SetEnvironmentVariable("APP_VERSION", Hugula.CodeVersion.APP_VERSION); //app version
         environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);
@@ -195,7 +195,7 @@ public class ProjectBuild : Editor
 
         var fileName = Hugula.CodeVersion.APP_VERSION;
 #if HUGULA_RELEASE
-        environmentVariable.AppendFormat("APP_STATE={0}\n","release");
+        environmentVariable.AppendFormat("APP_STATE={0}\n", "release");
         fileName += "_release_";
 #else
         environmentVariable.AppendFormat("APP_STATE={0}\n", "dev");
@@ -260,13 +260,19 @@ public class ProjectBuild : Editor
         Debug.Log("Create shell success " + environmentPath);
     }
 
-    static void AndroidSettings(string appExtension="il2cpp")
+    static void AndroidSettings(string appExtension = "il2cpp")
     {
         if (!string.IsNullOrEmpty(productName))
             PlayerSettings.productName = productName;
 
+#if UNITY_2017
         if (!string.IsNullOrEmpty(bundleId))
             PlayerSettings.applicationIdentifier = bundleId;
+#else
+        if (!string.IsNullOrEmpty(bundleId))
+            PlayerSettings.bundleIdentifier = bundleId;
+#endif
+
         PlayerSettings.Android.bundleVersionCode = Hugula.CodeVersion.APP_NUMBER;
         var ve = setting;//发布release或者dev版本
         if (ve.ToLower().Contains("obb") || ve.ToLower().Contains("apkexpansionfiles"))
@@ -279,7 +285,7 @@ public class ProjectBuild : Editor
         }
 
         //write app version
-        WriteAppVerion("apk",appExtension);
+        WriteAppVerion("apk", appExtension);
 
     }
 
@@ -407,7 +413,7 @@ public class ProjectBuild : Editor
     [PostProcessBuild(1000)]
     public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
     {
-        Debug.LogFormat("BuildTarget = {0} , path = {1}",target,pathToBuiltProject);
+        Debug.LogFormat("BuildTarget = {0} , path = {1}", target, pathToBuiltProject);
     }
 
 

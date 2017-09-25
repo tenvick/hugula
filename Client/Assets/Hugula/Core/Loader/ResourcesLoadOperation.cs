@@ -329,8 +329,11 @@ namespace Hugula.Loader
                 error = string.Format("webrequest is null ,key={0},url={1} ", cRequest.key, cRequest.url);
                 return;
             }
-
+#if UNITY_2017
             if (m_webrequest.isNetworkError)
+#else
+            if (m_webrequest.isError)
+#endif
             {
                 error = string.Format("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
                 Debug.LogErrorFormat(error);

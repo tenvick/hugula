@@ -110,7 +110,7 @@ local function get_diff_log(curr_state,curr_log)
 end
 
 local function unload_unused_assets()
-    collectgarbage("collect")
+    -- collectgarbage("collect")
 end
 -------------------------------------------------------------------
 StateManager =
@@ -141,6 +141,10 @@ function StateManager:get_current_state()
     return self._new_state or self._current_game_state
 end
 
+function StateManager:get_last_state()
+    return self._last_game_state
+end
+
 --设置统一场景切换效果
 function StateManager:set_state_transform(transform)
     self._transform = transform
@@ -164,24 +168,23 @@ end
 
 --检测显示切换效果
 function StateManager:check_show_transform( state,is_back)
-    if not is_back and state and state:show_transform(self) then
+    local need_load =  state ~= nil and state:is_all_loaded() == false
+
+    if not is_back and need_load and state:show_transform(self) then
         -- do nothing
-    elseif self._auto_show_loading and state and state:is_all_loaded() == false then
+    elseif self._auto_show_loading and need_load then
         self:show_transform()
         self:real_change_to_state()
     else
-       self:real_change_to_state()
+        self:real_change_to_state()
     end
 end
 
 --检测隐藏切换效果
 function StateManager:check_hide_transform(curr_state)
     curr_state = curr_state or self._current_game_state
-    if curr_state and curr_state:hide_transform() then
-        --do nothing        
-    elseif self._auto_show_loading and curr_state then
-        self:hide_transform()
-    end
+    if curr_state then curr_state:hide_transform() end
+    if self._auto_show_loading then self:hide_transform() end
 end
 
 --调用设置的itemobject方法
@@ -197,11 +200,14 @@ function StateManager:call_all_item_method( )
          curr_state._on_state_showed_flag = nil
     end--当前状态所有item显示完毕
 
-    if curr_state.method then
+    local ty = type(curr_state.method)
+    if ty == "string" then
         curr_state:on_event(curr_state.method,unpack(curr_state.args))
-        curr_state.method = nil
-        curr_state.args = nil
+    elseif ty == "function" then
+        curr_state.method(unpack(curr_state.args))
     end
+    curr_state.method = nil
+    curr_state.args = nil
 
     self:check_hide_transform(curr_state)
 end
@@ -212,26 +218,45 @@ function StateManager:register_state_change(on_state_change,flag)
     self._on_state_change[on_state_change] = flag
 end
 
-function StateManager:call_on_state_change(new_state) --call when sate chage
-    if self._on_state_change then
-        for k,v in pairs(self._on_state_change) do
+function StateManager:register_state_changing(on_state_changing,flag)
+    if self._on_state_changing == nil then self._on_state_changing = {} end
+    self._on_state_changing[on_state_changing] = flag
+end
+
+function StateManager:call_on_state_changing(curr_state,new_state) --call when sate changing
+    local _on_state_changing = self._on_state_changing
+    if _on_state_changing then
+        for k,v in pairs(_on_state_changing) do
+            k(curr_state,new_state) 
+        end
+    end
+end
+
+function StateManager:call_on_state_change(new_state) --call when sate change
+    local _on_state_change = self._on_state_change
+    if _on_state_change then
+        for k,v in pairs(_on_state_change) do
             k(new_state) 
         end
     end
 end
 
 --标记回收
-function StateManager:mark_dispose_flag(item_obj)
+function StateManager:mark_dispose_flag(item_obj,item_gc_type)
     if self.mark_dispose_items == nil then self.mark_dispose_items = {} end
-    self.mark_dispose_items[item_obj] = true
+    self.mark_dispose_items[item_obj] = item_gc_type
 end
 
 --回收标记的item_object
-function StateManager:auto_dispose_items() -- dispose marked item_object 
+function StateManager:auto_dispose_items(item_gc_type) -- dispose marked item_object 
     if self.mark_dispose_items ~= nil then 
         for k,v in pairs(self.mark_dispose_items) do
-            if k.dispose and self._current_game_state:contains_item(k) == false then k:dispose() end
-            self.mark_dispose_items[k] = nil
+            if item_gc_type == nil or v >= item_gc_type or v == 0 then
+                if k.dispose and self._current_game_state:contains_item(k) == false then
+                    k:dispose() 
+                end
+                self.mark_dispose_items[k] = nil
+            end
         end
     end
 end
@@ -269,6 +294,7 @@ end
 -- --真正开始改变
 function StateManager:real_change_to_state() --real change state
     self:_state_on_blur()
+    self:call_on_state_changing(self._last_game_state,self._new_state)
     self:_state_on_focus()
 end
 
@@ -296,7 +322,7 @@ function StateManager:set_current_state(new_state,method,...)
     end
 
     local previous_state = self._current_game_state
-    self._last_game_state = self._current_game_state
+    self._last_game_state = previous_state --self._current_game_state
 
     if previous_state then previous_state:on_bluring(new_state) end
     new_state:on_focusing(previous_state)

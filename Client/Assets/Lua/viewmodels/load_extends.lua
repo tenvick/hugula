@@ -7,7 +7,7 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local load_extends = LuaItemManager:get_item_obejct("load_extends")
+local load_extends = LuaItemManager:get_item_object("load_extends")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper

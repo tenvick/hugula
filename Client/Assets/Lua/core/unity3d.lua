@@ -47,6 +47,15 @@ PrefabCacheType =
   segment7 = 7, --手动调用回收PrefabPool.GCCollect(PrefabCacheType.segment7)
   segment8 = 8  --永远不回收 TODO:自动收缩 
 }
+--item_object的 gc type类型
+ItemGCType =
+    {
+        segment0 = 0, --标记回收                    关闭立即回收
+        segment1 = 1, --一代 用于标记自己做回收策略      二级UI
+        segment2 = 2, --二代 用于标记自己做回收策略      一级UI
+        segment3 = 3, --三代  用于标记自己做回收策略      大的资源场景模型
+        segment4 = 4
+    }
 
 local gprint=print
 function print(...)

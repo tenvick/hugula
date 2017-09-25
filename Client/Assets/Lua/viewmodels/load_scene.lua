@@ -7,7 +7,7 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local load_scene = LuaItemManager:get_item_obejct("load_scene")
+local load_scene = LuaItemManager:get_item_object("load_scene")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper

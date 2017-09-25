@@ -148,7 +148,7 @@ namespace Hugula.Loader
                 m_webrequest = new WWW(url, bytes);
             }
             else if (head is System.Array)
-                m_webrequest = new WWW(url, (byte[])head);
+                m_webrequest = new WWW(url, (byte[])head, cRequest.headers);
             else
                 m_webrequest = new WWW(url);
 
@@ -166,14 +166,18 @@ namespace Hugula.Loader
 
             if (!string.IsNullOrEmpty(error))
             {
-                Debug.LogError(error);
+                Debug.LogErrorFormat("url:{0},erro:{1}", cRequest.url, error);
                 return;
             }
 
             var type = cRequest.assetType;
             if (CacheManager.Typeof_AudioClip.Equals(type))
             {
+#if UNITY_2017
+                m_Data = WWWAudioExtensions.GetAudioClip(m_webrequest);
+#else
                 m_Data = m_webrequest.audioClip;
+#endif
             }
             else if (CacheManager.Typeof_Texture2D.Equals(type))
             {
@@ -182,7 +186,7 @@ namespace Hugula.Loader
                 else
                     m_Data = m_webrequest.texture;
             }
-            else if(CacheManager.Typeof_AssetBundle.Equals(type))
+            else if (CacheManager.Typeof_AssetBundle.Equals(type))
             {
                 m_Data = m_webrequest.assetBundle;
             }
@@ -273,14 +277,25 @@ namespace Hugula.Loader
             {
                 AudioType au = AudioType.MOD;
                 if (cRequest.head is AudioType) au = (AudioType)cRequest.head;
+#if UNITY_2017
+                m_webrequest = UnityWebRequestMultimedia.GetAudioClip(cRequest.url, au);
+#else
                 m_webrequest = UnityWebRequest.GetAudioClip(cRequest.url, au);
+#endif
             }
             else if (CacheManager.Typeof_Texture2D.Equals(type))
             {
+#if UNITY_2017
+                if (cRequest.head is bool)
+                    m_webrequest = UnityWebRequestTexture.GetTexture(cRequest.url, (bool)cRequest.head);
+                else
+                    m_webrequest = UnityWebRequestTexture.GetTexture(cRequest.url);
+#else
                 if (cRequest.head is bool)
                     m_webrequest = UnityWebRequest.GetTexture(cRequest.url, (bool)cRequest.head);
                 else
                     m_webrequest = UnityWebRequest.GetTexture(cRequest.url);
+#endif
             }
             else if (head is WWWForm)
             {
@@ -296,6 +311,14 @@ namespace Hugula.Loader
             else
                 m_webrequest = UnityWebRequest.Get(cRequest.url);
 
+
+            if (cRequest.headers != null)
+            {
+                var headers = cRequest.headers;
+                foreach (var kv in headers)
+                    m_webrequest.SetRequestHeader(kv.Key, kv.Value);
+            }
+
             m_asyncOperation = m_webrequest.Send();
         }
 
@@ -303,20 +326,20 @@ namespace Hugula.Loader
         {
             if (m_webrequest == null)
             {
-                error = string.Format("webrequest is null , {0} ", cRequest.key); ;
+                error = string.Format("webrequest is null ,key={0},url={1} ", cRequest.key, cRequest.url);
                 return;
             }
 
-            if (m_webrequest.isError)
+            if (m_webrequest.isNetworkError)
             {
-                error = m_webrequest.error;
-                Debug.LogError(error);
+                error = string.Format("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
+                Debug.LogErrorFormat(error);
                 return;
             }
 
             if (m_webrequest.responseCode != 200)
             {
-                error = string.Format("response error code = {0}", m_webrequest.responseCode); // m_webrequest.error;
+                error = string.Format("response error code = {0},url={1}", m_webrequest.responseCode, cRequest.url); // m_webrequest.error;
                 Debug.LogError(error);
                 return;
             }
@@ -338,7 +361,7 @@ namespace Hugula.Loader
                 m_Data = DownloadHandlerBuffer.GetContent(m_webrequest);
 
             UriGroup.CheckWWWComplete(cRequest, m_webrequest);
-                
+
             cRequest.data = m_Data;
             m_webrequest.Dispose();
             m_webrequest = null;
@@ -434,7 +457,7 @@ namespace Hugula.Loader
             {
                 if (bundle.isError || !bundle.canUse)
                 {
-                    error = string.Format("load asset({0}) from {1}  error", cRequest.assetName, cRequest.key);
+                    error = string.Format("load asset({0}) from bundle({1})  error", cRequest.assetName, cRequest.key);
                     return false;
                 }
                 else
@@ -463,7 +486,7 @@ namespace Hugula.Loader
                         if (m_Data == null) error = string.Format("load asset({0}) from {1}  error", cRequest.assetName, cRequest.key);
 
                     }
-                    
+
                     return !_IsDone();
 
                 }// check bundle
@@ -480,7 +503,7 @@ namespace Hugula.Loader
             // error 
             if (error != null)
             {
-                Debug.LogError(error);
+                Debug.LogWarning(error);
                 return true;
             }
 
@@ -501,6 +524,8 @@ namespace Hugula.Loader
                     m_Data = m_Request.allAssets;
                 else
                     m_Data = m_Request.asset;
+
+                if (m_Data == null) error = string.Format("load asset({0}) from {1}  error", cRequest.assetName, cRequest.key);
 
                 SetRequestData(cRequest, m_Data);
 

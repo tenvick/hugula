@@ -39,15 +39,7 @@ namespace Hugula.Utils
             AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
             // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
             if (fileLen == 0) return string.Empty;
-#if HUGULA_GSTRING
-            using (GString.Block())
-            {
-                GString gurl = url;
-                fname = gurl.Substring(lastFileIndex, fileLen).Intern();
-            }
-#else
             fname = url.Substring(lastFileIndex, fileLen);
-#endif
             return fname;
         }
 
@@ -75,15 +67,8 @@ namespace Hugula.Utils
 
             string re = string.Empty;
             if (m_len == 0) return re;
-#if HUGULA_GSTRING
-            using (GString.Block())
-            {
-                GString gurl = url;
-                re = gurl.Substring(idxBegin, m_len).Intern();
-            }
-#else
+
             re = url.Substring(idxBegin, idxEnd - idxBegin);
-#endif
             return re;
         }
 
@@ -98,13 +83,42 @@ namespace Hugula.Utils
             string fname = string.Empty;
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
             AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
-            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
+
             if (suffixLen > 1)
             {
                 suffixLen = suffixLen - 1;
                 fname = url.Substring(lastDotIndex + 1, suffixLen);
             }
             return fname;
+        }
+
+        /// <summary>
+        /// assetbundle Variants base name
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>  
+        public static string GetBaseName(string assetbundleVariants)
+        {
+            if (string.IsNullOrEmpty(assetbundleVariants)) return string.Empty;
+            string baseName = assetbundleVariants;
+            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            AnalysePathName(assetbundleVariants, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+
+            if (suffixLen > 1)
+            {
+                suffixLen = suffixLen - 1;
+                string suffix = assetbundleVariants.Substring(lastDotIndex + 1, suffixLen);
+
+                if (suffix.Equals(Common.ASSETBUNDLE_SUFFIX))
+                {
+                    baseName = assetbundleVariants.Substring(0, lastFileIndex + fileLen + 4);
+                }
+                else
+                {
+                    baseName = assetbundleVariants.Substring(0, lastFileIndex + lastDotIndex - lastFileIndex);
+                }
+            }
+            return baseName;
         }
 
         /// <summary>
@@ -116,14 +130,7 @@ namespace Hugula.Utils
         {
             if (url.IndexOf("://") == -1)
             {
-#if HUGULA_GSTRING
-                using (GString.Block())
-                {
-                    url = GString.Format("file:///{0}", url).Intern();
-                }
-#else
                 url = string.Format("file:///{0}", url);
-#endif
             }
             return url;
         }
@@ -195,8 +202,9 @@ namespace Hugula.Utils
             string fname = string.Empty;
             _textSB.Length = 0;
             _textSB.Append(assetbundleName);
-            if (dotIndex > 0)
-                _textSB.Insert(dotIndex, insert);
+            int firstDont = fileIndex + fileLen;
+            if (firstDont > 0)
+                _textSB.Insert(firstDont, insert);
             else
                 _textSB.Insert(assetbundleName.Length, insert);
 
@@ -254,8 +262,8 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetRightFileName(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName)) return string.Empty;
 #if !HUGULA_COMMON_ASSETBUNDLE
+            if (string.IsNullOrEmpty(fileName)) return string.Empty;
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
             AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
 
@@ -307,26 +315,6 @@ namespace Hugula.Utils
             char c2 = path2[0];
             char c = path1[path1.Length - 1];
 
-#if HUGULA_GSTRING
-
-            using (GString.Block())
-            {
-                if (c2 == '\\' && c2 == '/' && c2 == ':')
-                {
-                    GString gpath2 = path2;
-                    path2 = gpath2.Substring(1).Intern();//path2.Substring(1);
-                }
-
-                if (c != '\\' && c != '/' && c != ':')
-                {
-                    GString sp = GString.Concat(path1, "/");
-                    path = GString.Concat(sp, path2).Intern(); // return path1 + "/" + path2;
-                }
-                else
-                    path = GString.Concat(path1, path2).Intern();
-
-            }
-#else
             if (c2 == '\\' && c2 == '/' && c2 == ':')
             {
                 path2 = path2.Substring(1);
@@ -339,7 +327,6 @@ namespace Hugula.Utils
             else
                 path = path1 + path2;
 
-#endif
             return path;
         }
 
@@ -357,6 +344,19 @@ namespace Hugula.Utils
             return path;
         }
 
+        public static string bundleIdentifier
+        {
+            get
+            {
+#if UNITY_2017
+                return Application.identifier;
+#else
+                return Application.bundleIdentifier;
+#endif
+            }
+
+        }
+
         #region private
 
         /// <summary>
@@ -371,7 +371,8 @@ namespace Hugula.Utils
         {
             int len = pathName.Length;
             fileIndex = 0; //the last / or \ position
-            dotIndex = len; //the last dot position
+            int firstDotIndex = len; //the first dot position
+            int lastDotIndex = len;//the last dot
             int questIndex = len; //the ? position
 
             int i = len - 1;
@@ -390,16 +391,17 @@ namespace Hugula.Utils
 
                 if (cha == '.')
                 {
-                    dotIndex = i;
+                    firstDotIndex = i;
+                    if (lastDotIndex == len) lastDotIndex = i;
                 }
 
                 i--;
             }
 
-            if (dotIndex > questIndex) dotIndex = questIndex;
-
-            suffixLen = questIndex - dotIndex;
-            fileLen = dotIndex - fileIndex;
+            if (firstDotIndex > questIndex) firstDotIndex = questIndex;
+            dotIndex = lastDotIndex;
+            suffixLen = questIndex - lastDotIndex;
+            fileLen = firstDotIndex - fileIndex;
             // Debug.LogFormat("fileInde={0},questIndex={1},dotIndex={2},len={3},suffixLen={4},fileLen={5}", fileIndex, questIndex, dotIndex, len, suffixLen, fileLen);
         }
         #endregion
@@ -451,6 +453,10 @@ namespace Hugula.Utils
                     _realPersistentDataPath = PathCombine(Application.persistentDataPath, platformFloder);
                 return _realPersistentDataPath;
             }
+            set
+            {
+                _realPersistentDataPath = null;
+            }
         }
 
         private static string _realStreamingAssetsPath;
@@ -464,6 +470,10 @@ namespace Hugula.Utils
                 if (string.IsNullOrEmpty(_realStreamingAssetsPath))
                     _realStreamingAssetsPath = PathCombine(Application.streamingAssetsPath, platformFloder);
                 return _realStreamingAssetsPath;
+            }
+            set
+            {
+                _realStreamingAssetsPath = null;
             }
         }
 
@@ -529,7 +539,7 @@ namespace Hugula.Utils
             return all_ds;
 #else
             if (!string.IsNullOrEmpty(tips))
-                Debug.LogFormat(tips + " Cast({0}s) runtime({1}ms),frame={2}", cast, all_ds,Time.frameCount);
+                Debug.LogFormat("Cast Time \"{0}\" Cast({1}s) runtime({2}ms),frame={3}", tips,cast, all_ds, Time.frameCount);
             return all_ds;
 #endif
 

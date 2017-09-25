@@ -209,8 +209,8 @@ public class ProjectBuild : Editor
     static void WriteShell()
     {
         string path = Path.GetFullPath("shell");
-        ExportResources.DirectoryDelete(path);
-        ExportResources.CheckDirectory(path);
+        EditorUtils.DirectoryDelete(path);
+        EditorUtils.CheckDirectory(path);
         string shellPath = Path.Combine(path, "ftp_release_shell.sh");
         StringBuilder ftpTampleta = new StringBuilder();
         ftpTampleta.Append("function foo()\n{\nlocal r\nlocal a\nr=\"$@\"\nwhile [[ \"$r\" != \"$a\" ]] ; do\na=${r%%/*}\necho \"mkdir $a\"\necho \"cd $a\"\nr=${r#*/}\ndone\n}");
@@ -266,7 +266,7 @@ public class ProjectBuild : Editor
             PlayerSettings.productName = productName;
 
         if (!string.IsNullOrEmpty(bundleId))
-            PlayerSettings.bundleIdentifier = bundleId;
+            PlayerSettings.applicationIdentifier = bundleId;
         PlayerSettings.Android.bundleVersionCode = Hugula.CodeVersion.APP_NUMBER;
         var ve = setting;//发布release或者dev版本
         if (ve.ToLower().Contains("obb") || ve.ToLower().Contains("apkexpansionfiles"))
@@ -342,8 +342,8 @@ public class ProjectBuild : Editor
         path = Path.GetFullPath(path);
         exportingAndroidProject = true;
         AndroidSettings("mono");
-        ExportResources.DirectoryDelete(path);
-        ExportResources.CheckDirectory(path);
+        EditorUtils.DirectoryDelete(path);
+        EditorUtils.CheckDirectory(path);
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development | BuildOptions.AcceptExternalModificationsToPlayer);
         else
@@ -360,8 +360,8 @@ public class ProjectBuild : Editor
         path = Path.GetFullPath(path);
         exportingAndroidProject = true;
         AndroidSettings();
-        ExportResources.DirectoryDelete(path);
-        ExportResources.CheckDirectory(path);
+        EditorUtils.DirectoryDelete(path);
+        EditorUtils.CheckDirectory(path);
         PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.Android);
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development | BuildOptions.AcceptExternalModificationsToPlayer);
@@ -381,8 +381,8 @@ public class ProjectBuild : Editor
         string path = "../../release/ios";
         path = Path.GetFullPath(path);
         IOSSettings();
-        ExportResources.DirectoryDelete(path);
-        ExportResources.CheckDirectory(path);
+        EditorUtils.DirectoryDelete(path);
+        EditorUtils.CheckDirectory(path);
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.iOS, BuildOptions.Development);
         else
@@ -394,8 +394,8 @@ public class ProjectBuild : Editor
     static void BuildForWindows()
     {
         string path = "../../release/pc/";
-        ExportResources.DirectoryDelete(path);
-        ExportResources.CheckDirectory(path);
+        EditorUtils.DirectoryDelete(path);
+        EditorUtils.CheckDirectory(path);
         WriteAppVerion();
         path = path + "hugula.exe";
         BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.None);

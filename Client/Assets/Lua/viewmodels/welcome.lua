@@ -7,7 +7,7 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local welcome = LuaItemManager:get_item_obejct("welcome")
+local welcome = LuaItemManager:get_item_object("welcome")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper

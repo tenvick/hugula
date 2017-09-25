@@ -1,9 +1,6 @@
-version: 0
+version: 3
 extensionPath:
 - Assets/CustomerResource/Extends
 firstLoadFiles:
-- blockroot.u3d
-- loadscene.u3d
 extensionFiles:
-- extends/ef3490812c6227324f2f5eb0344a2446.u3d
 zipFiles:

@@ -3,7 +3,7 @@
 --   
 --  author pu
 ------------------------------------------------
-local transform = LuaItemManager:get_item_obejct("transform")
+local transform = LuaItemManager:get_item_object("transform")
 transform.priority = 100
 transform.log_enable = false
 transform.assets=

@@ -117,15 +117,6 @@ namespace Hugula.Cryptograph
         /// <returns></returns>
         public static string Md5String(string source)
         {
-            // byte[] result = Md5Instance.ComputeHash(Encoding.UTF8.GetBytes(source));
-            // string re = string.Empty;
-            // using(gstring.Block())
-            // {
-            //     gstring md5gstring = StringKeySection.BytesToHexString(result,0);
-            //     re = md5gstring.ToLower().Intern();
-            // }
-            // re = System.BitConverter.ToString(result).Replace("-",string.Empty).ToLower();
-            // return re;
             return Md5Bytes(Encoding.UTF8.GetBytes(source));
         }
 

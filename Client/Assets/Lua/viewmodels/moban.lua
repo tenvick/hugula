@@ -7,7 +7,7 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local your_name = LuaItemManager:get_item_obejct("your_name")
+local your_name = LuaItemManager:get_item_object("your_name")
 ---------global lua to local------------------
 local StateManager = StateManager
 local delay = delay

@@ -262,7 +262,7 @@ namespace SLua
                 "UnityEngine.LightmapSettings",
                 "UnityEngine.LightmapsMode",
                 "UnityEngine.LightmapData",
-                "UnityEngine.Light",
+                // "UnityEngine.Light",
                 "UnityEngine.LayerMask",
                 "UnityEngine.KeyCode",
                 "UnityEngine.Input",
@@ -322,6 +322,9 @@ namespace SLua
                 "UnityEngine.AnimationEvent",
                 "UnityEngine.AnimationPlayMode",
                 "UnityEngine.AnimationState",
+                "UnityEngine.NetworkReachability",
+                "UnityEngine.WaitForEndOfFrame",
+                "UnityEngine.WaitForSeconds",
             };
         }
 

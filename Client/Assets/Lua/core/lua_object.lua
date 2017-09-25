@@ -105,7 +105,7 @@ function LuaObject:call_event(event) --触发注册的事件方法，调用之�
         for k,v in pairs(event_call) do
             t = type(k) 
             if t == "string" then
-                fn = self[k]
+                local fn = self[k]
                 if fn then fn(self,unpack(v)) end
             elseif t == "function" then
                 k(self,unpack(v))

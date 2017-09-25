@@ -1,4 +1,4 @@
-local alert_tips = LuaItemManager:get_item_obejct("alert_tips")
+local alert_tips = LuaItemManager:get_item_object("alert_tips")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper

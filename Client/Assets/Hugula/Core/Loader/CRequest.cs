@@ -3,6 +3,7 @@
 //
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Hugula.Utils;
 
 namespace Hugula.Loader
@@ -36,6 +37,7 @@ namespace Hugula.Loader
             this._uris = null;
             this.data = null;
             this.head = null;
+            this.headers = null;
             this.userData = null;
             this.group = null;
             this.isDisposed = true;
@@ -137,9 +139,14 @@ namespace Hugula.Loader
         }
 
         /// <summary>
-        /// 加载的头信息
+        /// 设置加载的数据
         /// </summary>
         public object head;
+
+        /// <summary>
+        /// 加载的头信息
+        /// </summary>
+        public Dictionary<string,string> headers;
 
         /// <summary>
         /// 加载的数据
@@ -292,14 +299,7 @@ namespace Hugula.Loader
                     _udAssetKey = null;
                 else
                 {
-#if HUGULA_GSTRING
-                    using (GString.Block())
-                    {
-                        _udAssetKey = GString.Format("{0}+{1}", key, assetName).Intern();
-                    }
-#else
                     _udAssetKey = string.Format("{0}+{1}", key, assetName);
-#endif
                 }
             }
         }

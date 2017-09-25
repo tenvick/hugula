@@ -70,3 +70,5 @@ local a = delay(function( ... )
 end,3)
 
 stop_delay(a)
+
+print("new")

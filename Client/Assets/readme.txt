@@ -1,5 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.9.25
+1 unity 2017 支持。
+2 启动流程简化，只保留frist场景。
+3 assetbundle variant 支持。
+4 onlyInclude 仅包含特定资源[HugulaExtends/Add OnlyInclusion Files]添加的文件,其余文件放入后台加载
+5 网络备用多域名功能支持。
+
 2017.8.5
 1 二次下载功能(启动时候自动下载[HugulaExtends/Add First Load Files]添加的文件)
 2 使用预编译命令控制和打开功能，详细Version.cs。

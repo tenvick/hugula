@@ -45,6 +45,10 @@ local function on_state_change(state) --资源回收
 	end
 end
 
+local function on_state_changing(state)
+    -- gc
+end
+
 local function update()
     local cmp
     local len
@@ -61,6 +65,7 @@ pLua.updateFn=update
 StateManager:input_disable() --锁定输入
 StateManager:set_current_state(StateManager.welcome)
 StateManager:register_state_change(on_state_change,true)
+StateManager:register_state_changing(on_state_changing,true)
 
 --load config
 -- require("common.load_csv")
@@ -69,4 +74,5 @@ delay(function( ... )
 	-- print(lua_localization("level_name_001")) --language key
 	-- print_table(Model.getUnit(200001)) --read config
 	-- Loader:clearSharedAB() 
+    print("new")
 end,0.5)

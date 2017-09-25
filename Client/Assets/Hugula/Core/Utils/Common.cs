@@ -28,6 +28,8 @@ namespace Hugula.Utils
         [SLua.DoNotToLua]
         public const string LUACFOLDER = "LuaBytes";
 
+        public const string LUA_BUNDLE_NAME="luabytesbundle"+CHECK_ASSETBUNDLE_SUFFIX;
+
         /// <summary>
         /// the lua suffix
         /// </summary>

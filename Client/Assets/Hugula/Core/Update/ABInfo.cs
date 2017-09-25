@@ -61,7 +61,11 @@ namespace Hugula.Update
 
         public bool EqualsDependencies(ABInfo abinfo)
         {
-            if (dependencies == null && abinfo.dependencies == null) //相同
+            if(abinfo==null)
+            {
+                 return false;   
+            }
+            else if (dependencies == null && abinfo.dependencies == null) //相同
             {
                 return true;
             }

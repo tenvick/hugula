@@ -45,7 +45,7 @@ function StateBase:check_initialize( ... ) --初始化
         local item_obj = nil
         for k,v in pairs(original) do
             if v == true then
-                item_obj = LuaItemManager:get_item_obejct(k)
+                item_obj = LuaItemManager:get_item_object(k)
                 if item_obj then 
                     original[k] = item_obj 
                     table.insert(self._item_list,item_obj)
@@ -55,7 +55,7 @@ function StateBase:check_initialize( ... ) --初始化
         table.sort(self._item_list,sortFn)
 
         if self._transform_original then
-            self._transform = LuaItemManager:get_item_obejct(self._transform_original)
+            self._transform = LuaItemManager:get_item_object(self._transform_original)
         end
         self.initialize = true
     end
@@ -63,9 +63,10 @@ end
 
 --显示切换UI
 function StateBase:show_transform(state_manager)
-    if self._transform then
-        self._transform._state_manager = state_manager
-        self._transform:on_focus()
+    local transform = self._transform
+    if transform then
+        transform._state_manager = state_manager
+        transform:on_focus()
         return true
     else
         return  false
@@ -156,7 +157,7 @@ function StateBase:on_focusing(previous_state) --获取焦点之前
      local item_list = self._item_list
     local _len = #item_list --print(_len)
     for k,v in ipairs(self._item_list) do
-        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) then --确保新加入的不会被执行,前一个状态的item不需要 focus
+        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) or v.forcecall then --确保新加入的不会被执行,前一个状态的item不需要 focus
             if v.on_focusing then v:on_focusing(previous_state) end
         end
     end
@@ -167,7 +168,7 @@ function StateBase:on_focus(previous_state)
     local item_list = self._item_list
     local _len = #item_list --print(_len)
     for k,v in ipairs(self._item_list) do
-        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) then --确保新加入的不会被执行,前一个状态的item不需要 focus
+        if k <= _len and (previous_state == nil or not previous_state:is_original_item(v)) or v.forcecall then --确保新加入的不会被执行,前一个状态的item不需要 focus
             v:on_focus(previous_state)
             if v.on_focused then v:on_focused(previous_state) end
         end
@@ -191,7 +192,7 @@ function StateBase:on_bluring(new_state) --失去焦点之前
     local on_blured = {}
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
-        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj)) then --如果新状态包涵当前item不需要失去焦点
+        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj))  or itemobj.forcecall then --如果新状态包涵当前item不需要失去焦点
             on_blured[itemobj] = true 
             if itemobj.on_bluring then itemobj:on_bluring(new_state) end
         end
@@ -204,7 +205,7 @@ function StateBase:on_blur(new_state)
     local on_blured = {}
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
-        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj)) then --如果新状态包涵当前item不需要失去焦点
+        if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj))  or itemobj.forcecall then --如果新状态包涵当前item不需要失去焦点
             on_blured[itemobj] = true 
             -- if itemobj.on_bluring then itemobj:on_bluring(new_state) end
             itemobj:on_blur(new_state) 
@@ -230,7 +231,7 @@ function StateBase:on_filter_event(prev_state,fun_name,...)
     local item = self._item_list
     local len = #item 
     for k,v in ipairs(item) do
-        if k <= len and (prev_state == nil or not prev_state:is_original_item(v)) and StateManager:is_in_current_state(v)  then --确保新加入的item不会被执行
+        if k <= len and (prev_state == nil or not prev_state:is_original_item(v)) and StateManager:is_in_current_state(v)  or v.forcecall then --确保新加入的item不会被执行
             fn = v[fun_name]
             if v.active and fn then 
                 if fn(v,...) then break end

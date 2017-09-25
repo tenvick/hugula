@@ -136,7 +136,7 @@ namespace Hugula.Editor
         /// 1 读取首包，找出忽略文件
         /// </summary>
         /// <param name="ignoreFiles">Ignore files.</param>
-        public static bool ReadFirst(out FileManifest firstCrcDict, out FileManifest streamingManifest, FileManifest extensionFileManifest)
+        public static bool ReadFirst(string[] allBundles, out FileManifest firstCrcDict, out FileManifest streamingManifest, FileManifest extensionFileManifest)
         {
             // string title = "read first crc file list";
             bool firstExists = false;
@@ -179,19 +179,29 @@ namespace Hugula.Editor
             //读取本地AB包AssetBundleManifest
             var fileListName = Common.CRC32_FILELIST_NAME;
             var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), CUtils.GetRightFileName(fileListName));
-            Debug.Log(url);
-            // url = CUtils.GetAndroidABLoadPath(url);
             AssetBundle assetbundle = AssetBundle.LoadFromFile(url);
             var assets1 = assetbundle.LoadAllAssets<FileManifest>();
-            uint len = 0 ;
-            var crc32 = CrcCheck.GetLocalFileCrc(url,out len);
-            
+            uint len = 0;
+            var crc32 = CrcCheck.GetLocalFileCrc(url, out len);
+
             var streamingManifest1 = assets1[0];
             assetbundle.Unload(false);
-            streamingManifest = streamingManifest1;
+            // streamingManifest = streamingManifest1;
             streamingManifest1.crc32 = crc32;
             Debug.Log(streamingManifest1.appNumVersion);
             Debug.Log(streamingManifest1.crc32);
+
+            //读取assetbundle的crc和size
+            ReadAssetToABInfos(allBundles, streamingManifest1);
+
+            if (!HugulaSetting.instance.spliteExtensionFolder)//如果不分离文件
+            {
+                streamingManifest = streamingManifest1;
+                streamingManifest.hasFirstLoad = false;
+                streamingManifest.WriteToFile("Assets/Tmp/allAssetbundleManifest.txt");
+                extensionFileManifest.WriteToFile("Assets/Tmp/HotResAssetbundleManifest.txt");
+                return firstExists;
+            }
 
             //读取忽略扩展包
             System.Action<string, int> AddExtensionFileManifest = (string ab, int priority1) =>
@@ -199,8 +209,10 @@ namespace Hugula.Editor
                  var abinfo = streamingManifest1.GetABInfo(ab);
                  if (abinfo == null)
                  {
-                     abinfo = new ABInfo(ab, 0, 0, priority1);
-                     streamingManifest1.Add(abinfo);
+                     Debug.LogWarningFormat("the file {0} is not exists. please check ExtenionFolder.txt", ab);
+                     //  abinfo = new ABInfo(ab, 0, 0, priority1);
+                     //  streamingManifest1.Add(abinfo);
+                     return;
                  }
 
                  abinfo.priority = priority1;
@@ -208,100 +220,98 @@ namespace Hugula.Editor
              };
 
 
-            //读取忽略别名后缀
-            // priority = FileManifestOptions.StreamingAssetsPriority;
-            // var inclusionVariants = HugulaSetting.instance.inclusionVariants;
-            // var allVariants = HugulaSetting.instance.allVariants;
-            // string pattern = "";
-            // string sp = "";
-            // foreach (var s in allVariants)
-            // {
-            //     if (!inclusionVariants.Contains(s))
-            //     {
-            //         pattern += sp + @"\." + s + "$";
-            //         sp = "|";
-            //     }
-            // }
-
-            // if (!string.IsNullOrEmpty(pattern))
-            // {
-            //     // Debug.Log(pattern);
-            //     var u3dList = ExportResources.getAllChildFiles(dinfo.FullName, pattern, null, true);
-            //     foreach (var s in u3dList)
-            //     {
-            //         priority++;
-            //         string ab = CUtils.GetAssetBundleName(s);
-            //         ab = ab.Replace("\\", "/");
-            //         AddExtensionFileManifest(ab, priority);
-            //     }
-            // }
-
-            //读取手动加载排除资源
             string firstStreamingPath = CUtils.realStreamingAssetsPath;
+            var needLoadFirst = false;
+
+            var onlyInclusionFiles = HugulaExtensionFolderEditor.instance.OnlyInclusionFiles;//只包涵
+            var onlyInclusionRightFiles = new List<string>();
+            foreach (var f in onlyInclusionFiles)
+                onlyInclusionRightFiles.Add(CUtils.GetRightFileName(f));
+
+            var firstPriority = FileManifestOptions.FirstLoadPriority;
+            var firstLoadFiles = HugulaExtensionFolderEditor.instance.FirstLoadFiles;//读取首包资源  
+            var firstLoadRightFiles = new List<string>();
+            foreach (var f in firstLoadFiles)
+                firstLoadRightFiles.Add(CUtils.GetRightFileName(f));
+
+
+            var manualPriority = FileManifestOptions.ManualPriority;
+            var extensionFiles = HugulaExtensionFolderEditor.instance.ExtensionFiles;//读取扩展文件资源
+            var extensionRightFiles = new List<string>();
+            foreach (var f in extensionFiles)
+                extensionRightFiles.Add(CUtils.GetRightFileName(f));
+
+            var autoPriority = FileManifestOptions.AutoHotPriority;
+            Dictionary<int, int> priorityDic = new Dictionary<int, int>();
+            priorityDic[firstPriority] = firstPriority;
+            priorityDic[manualPriority] = manualPriority;
+            priorityDic[autoPriority] = autoPriority;
+            priorityDic[FileManifestOptions.StreamingAssetsPriority] = FileManifestOptions.StreamingAssetsPriority;
+
+            //streamingAssets目录下的文件夹默认为手动加载
             DirectoryInfo dinfo = new DirectoryInfo(firstStreamingPath);
             var dircs = dinfo.GetDirectories();
-            var priority = FileManifestOptions.ManualPriority;
-            Debug.LogFormat("ManualPriority.priority={0}", priority);
             foreach (var dir in dircs)
             {
-                var u3dList = ExportResources.getAllChildFiles(dir.FullName, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
+                var u3dList = EditorUtils.getAllChildFiles(dir.FullName, @"\.meta$|\.manifest$|\.DS_Store$", null, false);
                 foreach (var s in u3dList)
                 {
-                    priority++;
                     string ab = CUtils.GetAssetBundleName(s);
                     ab = ab.Replace("\\", "/");
-                    AddExtensionFileManifest(ab, priority);
+                    extensionRightFiles.Add(ab);
                 }
             }
 
-            //读取首包排除资源
-            var firstLoadFiles = HugulaExtensionFolderEditor.instance.FirstLoadFiles;
-            priority = FileManifestOptions.FirstLoadPriority;
-            Debug.LogFormat("FirstLoadPriority.priority={0}", priority);
-            var needLoadFirst = false;
-            foreach (var s in firstLoadFiles)
+            var allAbInfos = streamingManifest1.allAbInfo;
+
+            bool shouldInclude = false;
+            bool elseShouldInAutoHot = onlyInclusionRightFiles.Count > 0 && false;
+            bool elseShouldInFirst = onlyInclusionRightFiles.Count > 0;
+            foreach (var abInfo in allAbInfos)
             {
-                var ab = CUtils.GetRightFileName(s);
-                priority++;
-                AddExtensionFileManifest(ab, priority);
-                needLoadFirst = true;
+                shouldInclude = onlyInclusionRightFiles.Contains(abInfo.abName);
+
+                if (!shouldInclude && firstLoadRightFiles.Contains(abInfo.abName))//首次启动加载包
+                {
+                    priorityDic[firstPriority]++;
+                    AddExtensionFileManifest(abInfo.abName, priorityDic[firstPriority]);
+                    needLoadFirst = true;
+                }
+                else if (!shouldInclude && extensionRightFiles.Contains(abInfo.abName)) //手动加载
+                {
+                    priorityDic[manualPriority]++;
+                    AddExtensionFileManifest(abInfo.abName, priorityDic[manualPriority]);
+                }
+                else if (!shouldInclude && elseShouldInAutoHot) //放入自动热更新包
+                {
+                    priorityDic[autoPriority]++;
+                    AddExtensionFileManifest(abInfo.abName, priorityDic[autoPriority]);
+                }
+                else if (!shouldInclude && elseShouldInFirst)
+                {
+                    priorityDic[firstPriority]++;
+                    AddExtensionFileManifest(abInfo.abName, priorityDic[firstPriority]);
+                    needLoadFirst = true;
+                }
+
             }
 
             if (!HugulaSetting.instance.spliteExtensionFolder) needLoadFirst = false;
-                streamingManifest.hasFirstLoad = needLoadFirst;
-            // AssetDatabase.SaveAssets();
 
-            //读取自动下载资源
-            var extensionFiles = HugulaExtensionFolderEditor.instance.ExtensionFiles;
-            priority = FileManifestOptions.AutoHotPriority;
-            Debug.LogFormat("AutoHotPriority.priority={0}", priority);
-
-            foreach (var s in extensionFiles)
-            {
-                var ab = CUtils.GetRightFileName(s);
-                priority++;
-                AddExtensionFileManifest(ab, priority);
-            }
-
-            streamingManifest.WriteToFile("Assets/Tmp/streamingManifest0.txt");
-            extensionFileManifest.WriteToFile("Assets/Tmp/manualFileList0.txt");
+            streamingManifest = streamingManifest1;
+            streamingManifest.hasFirstLoad = needLoadFirst;
+            streamingManifest.WriteToFile("Assets/Tmp/allAssetbundleManifest.txt");
+            extensionFileManifest.WriteToFile("Assets/Tmp/HotResAssetbundleManifest.txt");
             EditorUtility.ClearProgressBar();
             return firstExists;
         }
 
-        /// <summary>
-        /// 2 Creates the content of the crc list.
-        /// </summary>
-        /// <returns>The crc list content.</returns>
-        /// <param name="allBundles">All bundles.</param>
-        /// <param name="manualFileList">manual file list.</param>
-        public static List<ABInfo>[] CreateCrcListContent(string[] allBundles, FileManifest firstCrcDict, FileManifest streamingManifest, FileManifest manualFileList)
+        //读取streamingAssets path里面的abinfo
+        private static void ReadAssetToABInfos(string[] allBundles, FileManifest streamingManifest)
         {
             string title = "create crc list content ";
-            List<ABInfo>[] abInfoArray = new List<ABInfo>[2];
-            var diffManifest = new List<ABInfo>();
-            abInfoArray[0] = diffManifest;
 
+            var allABInfos = new List<ABInfo>();
             float i = 0;
             float allLen = allBundles.Length;
 
@@ -318,14 +328,10 @@ namespace Hugula.Editor
                 uint outCrc = 0;
                 uint fileLen = 0;
                 string abName = str.Replace("\\", "/");
-                string key = BuildScript.GetAssetBundleName(abName);
+                string key = EditorUtils.GetAssetBundleName(abName);
                 //后缀替换
                 extension = System.IO.Path.GetExtension(key);
-                if (string.IsNullOrEmpty(extension))
-                {
-                    key = key + Common.CHECK_ASSETBUNDLE_SUFFIX;
-                }
-                else if (extension.Equals(Common.DOT_BYTES))
+                if (extension.Equals(Common.DOT_BYTES))//lua
                 {
                     key = key.Replace(extension, Common.CHECK_ASSETBUNDLE_SUFFIX);
                 }
@@ -339,33 +345,59 @@ namespace Hugula.Editor
                         extendsABinfo = new ABInfo(key, outCrc, fileLen, 0);
                         streamingManifest.Add(extendsABinfo);
                     }
-
+                    extendsABinfo.priority = 0;
                     extendsABinfo.crc32 = outCrc;
                     extendsABinfo.size = fileLen;
                     extendsABinfo.assetPath = str;
+                    allABInfos.Add(extendsABinfo);
+                }
+                EditorUtility.DisplayProgressBar(title, title + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
+                i++;
+            }
 
-                    if (firstCrcDict != null)
+            EditorUtility.ClearProgressBar();
+
+        }
+
+        /// <summary>
+        /// 2 Creates the content of the crc list.
+        /// </summary>
+        /// <returns>The crc list content.</returns>
+        /// <param name="allBundles">All bundles.</param>
+        /// <param name="manualFileList">manual file list.</param>
+        public static List<ABInfo>[] CreateCrcListContent(FileManifest firstCrcDict, FileManifest streamingManifest, FileManifest manualFileList)
+        {
+            string title = "create crc list content ";
+            List<ABInfo>[] abInfoArray = new List<ABInfo>[2];
+            var diffManifest = new List<ABInfo>();
+            abInfoArray[0] = diffManifest;
+
+            var allBundles = streamingManifest.allAbInfo;
+            float i = 0;
+            float allLen = allBundles.Count;
+
+            foreach (var extendsABinfo in allBundles)
+            {
+                if (firstCrcDict != null)
+                {
+                    ABInfo localFirstInfo = null;
+                    if (!firstCrcDict.CheckABCrc(extendsABinfo))
                     {
-                        ABInfo localFirstInfo = null;
-                        if (!firstCrcDict.CheckABCrc(extendsABinfo))
-                        {
-                            var newAbinfo = extendsABinfo.Clone();
-                            newAbinfo.assetPath = str;
-                            diffManifest.Add(newAbinfo);
-                        }
-                        else if ((localFirstInfo = firstCrcDict.GetABInfo(extendsABinfo.abName)) != null && !extendsABinfo.EqualsDependencies(localFirstInfo)) //dependencies change
-                        {
-                            var newAbinfo = extendsABinfo.Clone();
-                            newAbinfo.assetPath = str;
-                            diffManifest.Add(newAbinfo);
-                        }
+                        var newAbinfo = extendsABinfo.Clone();
+                        newAbinfo.assetPath = extendsABinfo.assetPath;
+                        diffManifest.Add(newAbinfo);
+                    }
+                    else if ((localFirstInfo = firstCrcDict.GetABInfo(extendsABinfo.abName)) != null && !extendsABinfo.EqualsDependencies(localFirstInfo)) //dependencies change
+                    {
+                        var newAbinfo = extendsABinfo.Clone();
+                        newAbinfo.assetPath = extendsABinfo.assetPath;
+                        diffManifest.Add(newAbinfo);
                     }
                 }
                 EditorUtility.DisplayProgressBar(title, title + "=>" + i.ToString() + "/" + allLen.ToString(), i / allLen);
                 i++;
             }
 
-            // CrcCheck.Clear();
             EditorUtility.ClearProgressBar();
             return abInfoArray;
         }
@@ -398,19 +430,18 @@ namespace Hugula.Editor
             streamingManifest.allAbInfo = allABInfos;
             streamingManifest.allAssetBundlesWithVariant = bundlesWithVariant;
             streamingManifest.appNumVersion = CodeVersion.APP_NUMBER;
-            // streamingManifest.crc32 = assetBundleManifest.GetHashCode();
 
             //create asset
-            string tmpPath = BuildScript.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
-            ExportResources.CheckDirectory(tmpPath);
+            string tmpPath = EditorUtils.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
+            EditorUtils.CheckDirectory(tmpPath);
             var crc32filename = CUtils.GetAssetName(Common.CRC32_FILELIST_NAME);
-            string assetPath = "Assets/" + BuildScript.TmpPath + crc32filename + ".asset";
+            string assetPath = "Assets/" + EditorUtils.TmpPath + crc32filename + ".asset";
             AssetDatabase.CreateAsset(streamingManifest, assetPath);
             //build assetbundle
             string crc32outfilename = CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME);
             BuildScript.BuildABs(new string[] { assetPath }, null, crc32outfilename, DefaultBuildAssetBundleOptions);
 
-            streamingManifest.WriteToFile("Assets/" + BuildScript.TmpPath + "local_streamingManifest.txt");
+            streamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "streamingAssetsManifest.txt");
             Debug.LogFormat("FileManifest  Path = {0}/{1};", CUtils.realStreamingAssetsPath, crc32outfilename);
             return 0;
         }
@@ -423,10 +454,10 @@ namespace Hugula.Editor
         {
             sb.appNumVersion = CodeVersion.APP_NUMBER;
             var crc32filename = CUtils.GetAssetName(fileListName);
-            string tmpPath = BuildScript.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
-            ExportResources.CheckDirectory(tmpPath);
+            string tmpPath = EditorUtils.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
+            EditorUtils.CheckDirectory(tmpPath);
 
-            string assetPath = "Assets/" + BuildScript.TmpPath + crc32filename + ".asset";
+            string assetPath = "Assets/" + EditorUtils.TmpPath + crc32filename + ".asset";
             EditorUtility.DisplayProgressBar("Generate streaming crc file list", "write file to " + assetPath, 0.99f);
             AssetDatabase.CreateAsset(sb, assetPath);
 
@@ -451,7 +482,7 @@ namespace Hugula.Editor
                 if (resType == CopyResType.VerResFolder)
                 {
                     string verPath = Path.Combine(UpdateOutVersionPath, ResFolderName);//特定版本资源目录用于资源备份
-                    string newName = Path.Combine(verPath, InsertAssetBundleName(crc32outfilename, "_" + fileCrc.ToString()));
+                    string newName = Path.Combine(verPath, EditorUtils.InsertAssetBundleName(crc32outfilename, "_" + fileCrc.ToString()));
                     FileHelper.CheckCreateFilePathDirectory(newName);
                     if (File.Exists(newName)) File.Delete(newName);
                     finfo.CopyTo(newName);
@@ -460,7 +491,7 @@ namespace Hugula.Editor
                 if (resType == CopyResType.OneResFolder)
                 {
                     string updateOutPath = Path.Combine(UpdateOutPath, ResFolderName);//总的资源目录
-                    string newName = Path.Combine(updateOutPath, InsertAssetBundleName(crc32outfilename, "_" + fileCrc.ToString()));
+                    string newName = Path.Combine(updateOutPath, EditorUtils.InsertAssetBundleName(crc32outfilename, "_" + fileCrc.ToString()));
                     FileHelper.CheckCreateFilePathDirectory(newName);
                     if (File.Exists(newName)) File.Delete(newName);
                     finfo.CopyTo(newName);
@@ -508,7 +539,7 @@ namespace Hugula.Editor
                         if (kvs[0] == @"""cdn_host""")
                         {
                             //APP_NUMBER CODE_VERSION
-                            if(HugulaSetting.instance.backupResType == CopyResType.OneResFolder)
+                            if (HugulaSetting.instance.backupResType == CopyResType.OneResFolder)
                                 item = item.Replace("%s/", "");
                             else if (HugulaSetting.instance.appendCrcToFile)
                                 item = item.Replace("%s", "v" + CodeVersion.CODE_VERSION.ToString());
@@ -528,19 +559,33 @@ namespace Hugula.Editor
         /// Creates the version asset bundle.
         /// </summary>
         /// <param name="fileCrc">File crc.</param>
-        public static void CreateVersionAssetBundle(uint fileCrc, bool toRelease, bool is_dev_Context = false)
+        public static void CreateVersionAssetBundle(uint fileCrc, bool toRelease, string channels, bool is_dev_Context = false)
         {
             CodeVersion.CODE_VERSION = 0;
             CodeVersion.APP_NUMBER = 0;
             //read ver extends
-            string ver_file_name = VerExtends;
+            string ver_file_name = "";//VerExtends;
             string path = string.Empty;
             string verCopyToPath = string.Empty;
-
+            if (channels == null) channels = string.Empty;
+            Debug.LogFormat("CreateVersionAssetBundle channels:{0}", channels);
+            //读取配置
             if (is_dev_Context)
-                ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(ver_file_name, "_" + CUtils.platform + "_dev").Replace("//", "/"));
+            {
+                ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(VerExtends, "_" + CUtils.platform + "_" + channels + "_dev").Replace("//", "/"));
+                if (!File.Exists(ver_file_name)) ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(VerExtends, "_" + CUtils.platform + "_dev").Replace("//", "/"));
+            }
             else
-                ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(ver_file_name, "_" + CUtils.platform).Replace("//", "/"));
+            {
+                ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(VerExtends, "_" + CUtils.platform + "_" + channels).Replace("//", "/"));
+                if (!File.Exists(ver_file_name)) ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(VerExtends, "_" + CUtils.platform).Replace("//", "/"));
+            }
+
+            Debug.Log(ver_file_name);
+            // if (is_dev_Context)
+            //     ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(ver_file_name, "_" + CUtils.platform + "_dev").Replace("//", "/"));
+            // else
+            //     ver_file_name = Path.Combine(VerExtendsPath, CUtils.InsertAssetBundleName(ver_file_name, "_" + CUtils.platform).Replace("//", "/"));
 
             if (toRelease)
             {
@@ -611,11 +656,11 @@ namespace Hugula.Editor
         {
             string updateOutPath = Path.Combine(UpdateOutPath, ResFolderName);
             Debug.Log("Delete directory " + updateOutPath);
-            ExportResources.DirectoryDelete(updateOutPath);
+            EditorUtils.DirectoryDelete(updateOutPath);
 
             string updateOutVersionPath = Path.Combine(UpdateOutVersionPath, ResFolderName);
             Debug.Log("Delete directory " + updateOutVersionPath);
-            ExportResources.DirectoryDelete(updateOutVersionPath);
+            EditorUtils.DirectoryDelete(updateOutVersionPath);
 
         }
 
@@ -668,7 +713,6 @@ namespace Hugula.Editor
             foreach (var ab in abNames)
             {
                 i = i + 1;
-                Debug.Log(ab.abName);
                 string delPath = Path.Combine(path, ab.abName);
                 File.Delete(delPath);
                 File.Delete(delPath + ".meta");
@@ -723,10 +767,23 @@ namespace Hugula.Editor
 
         }
 
+        public static List<string> GetChangeAssetBundlesWithVariant(string[] variant1, string[] variant2)
+        {
+            List<string> change = new List<string>();
+            foreach (var v1 in variant2)
+            {
+                if (System.Array.IndexOf(variant1, v1) >= 0)
+                    change.Add(v1);
+            }
+
+            return change;
+        }
+
         #endregion
 
 
         #region private
+
 
         private static void CopyFileToSplitFolder(Dictionary<string, ABInfo> updateList)
         {
@@ -748,9 +805,9 @@ namespace Hugula.Editor
             foreach (var k in updateList)
             {
                 key = k.Key;//CUtils.GetAssetBundleName(k.Key);
-                Debug.LogFormat(" update file = {0},{1},{2};", k.Key, k.Value.abName, k.Value.assetPath);
-                sourcePath = Path.Combine(Application.dataPath, k.Value.assetPath);
+                // Debug.LogFormat(" update file = {0},{1},{2};", k.Key, k.Value.abName, k.Value.assetPath);
                 if (string.IsNullOrEmpty(k.Value.assetPath)) continue;
+                sourcePath = Path.Combine(Application.dataPath, k.Value.assetPath);
                 if (!File.Exists(sourcePath)) //
                 {
                     string e = string.Format("copy file ({0}) not Exists ", sourcePath);
@@ -764,15 +821,15 @@ namespace Hugula.Editor
                 {
                     if (string.IsNullOrEmpty(extension))
                     {
-                        key = InsertAssetBundleName(key + Common.CHECK_ASSETBUNDLE_SUFFIX, "_" + crc.ToString());
+                        key = EditorUtils.InsertAssetBundleName(key + Common.CHECK_ASSETBUNDLE_SUFFIX, "_" + crc.ToString());
                     }
                     else if (extension == Common.DOT_BYTES)
                     {
                         key = key.Replace(extension, Common.CHECK_ASSETBUNDLE_SUFFIX);
-                        key = InsertAssetBundleName(key, "_" + crc.ToString());// 
+                        key = EditorUtils.InsertAssetBundleName(key, "_" + crc.ToString());// 
                     }
                     else
-                        key = InsertAssetBundleName(key, "_" + crc.ToString());// 
+                        key = EditorUtils.InsertAssetBundleName(key, "_" + crc.ToString());// 
                 }
                 outfilePath = Path.Combine(updateOutPath, key);
                 outfileVerionPath = Path.Combine(verPath, key);
@@ -811,8 +868,8 @@ namespace Hugula.Editor
             string errContent = erro.ToString();
             if (!string.IsNullOrEmpty(errContent))
             {
-                string tmpPath = BuildScript.GetAssetTmpPath();
-                ExportResources.CheckDirectory(tmpPath);
+                string tmpPath = EditorUtils.GetAssetTmpPath();
+                EditorUtils.CheckDirectory(tmpPath);
                 string outPath = Path.Combine(tmpPath, "error.txt");
                 Debug.Log("write to path=" + outPath);
                 using (StreamWriter sr = new StreamWriter(outPath, true))
@@ -825,19 +882,5 @@ namespace Hugula.Editor
 
         #endregion
 
-        private static string InsertAssetBundleName(string assetbundleName, string insert)
-        {
-            var append = HugulaSetting.instance.appendCrcToFile;
-            if (append)
-            {
-                var str = CUtils.InsertAssetBundleName(assetbundleName, insert);
-                return str;
-            }
-            else
-            {
-                return assetbundleName;
-            }
-
-        }
     }
 }

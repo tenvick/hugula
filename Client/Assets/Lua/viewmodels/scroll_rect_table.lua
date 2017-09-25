@@ -7,7 +7,7 @@
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
 
-local scroll_rect_table = LuaItemManager:get_item_obejct("scroll_rect_table")
+local scroll_rect_table = LuaItemManager:get_item_object("scroll_rect_table")
 local StateManager = StateManager
 local delay = delay
 local LuaHelper=LuaHelper

@@ -23,16 +23,20 @@ namespace Hugula.Loader
         /// <summary>
         /// Set Cache Data 
         /// </summary>
-        public void SetCacheData(AssetBundle assetBundle, string assetBundleName)
+        public void SetCacheData(AssetBundle assetBundle, string assetBundleName,int bundleNameHashCode=0)
         {
             this.assetBundle = assetBundle;
             this.assetBundleKey = assetBundleName;
             this.isUnloaded = false;
-            if (this.assetHashCode == 0 && !string.IsNullOrEmpty(assetBundleName))
+            if (bundleNameHashCode == 0 && !string.IsNullOrEmpty(assetBundleName))
             {
                 int hash = LuaHelper.StringToHash(assetBundleKey);
                 this.assetHashCode = hash;
-            }// Debug.LogWarningFormat("CacheData assetBundleName({0})'s hashcode is worng", assetBundleName);
+            }else
+            {
+                this.assetHashCode = bundleNameHashCode;
+            }
+            // Debug.LogWarningFormat("CacheData assetBundleName({0})'s hashcode is worng", assetBundleName);
         }
 
 
@@ -101,7 +105,7 @@ namespace Hugula.Loader
         public void Dispose()
         {
 #if HUGULA_CACHE_DEBUG
-                 HugulaDebug.FilterLogFormat (assetBundleKey,"Dispose  CacheData({0},assetHashCode({1}))  ", assetBundleKey, assetHashCode);
+                 HugulaDebug.FilterLogFormat (assetBundleKey,"Dispose  CacheData({0},assetHashCode({1})),frame={2}  ", assetBundleKey, assetHashCode,Time.frameCount);
 #endif
             if (assetBundle) assetBundle.Unload(true);
             assets.Clear();

@@ -26,8 +26,8 @@ namespace Hugula.Utils
 
             LightmapData newLightData = newLightDatas[index];
 
-            if (far != null) newLightData.lightmapFar = far;
-            if (near != null) newLightData.lightmapNear = near;
+            if (far != null) newLightData.lightmapColor = far;
+            if (near != null) newLightData.lightmapDir = near;
 
             LightmapSettings.lightmaps = newLightDatas.ToArray();
             LightmapSettings.lightmapsMode = LightmapsMode.NonDirectional;

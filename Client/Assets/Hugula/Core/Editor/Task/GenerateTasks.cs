@@ -26,6 +26,12 @@ namespace Hugula.Editor.Task
         {
             return "ReadFirst";
         }
+        private string[] m_allBundles;
+        public ReadFirst(string[] allBundles)
+        {
+            m_allBundles = allBundles;
+        }
+
 
         public void Run(HotResGenSharedData sharedata)
         {
@@ -33,7 +39,7 @@ namespace Hugula.Editor.Task
             FileManifest streamingManifest = null;//streamingAsset
             FileManifest manualFileList = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;//后置下载
 
-            bool firstExists = SplitPackage.ReadFirst(out firstCrcDict, out streamingManifest, manualFileList);
+            bool firstExists = SplitPackage.ReadFirst(m_allBundles,out firstCrcDict, out streamingManifest, manualFileList);
             sharedata.firstExists = firstExists;
             sharedata.firstCrcDict = firstCrcDict;
             sharedata.streamingManifest = streamingManifest;
@@ -49,17 +55,15 @@ namespace Hugula.Editor.Task
         {
             return "CreateCrcListContent";
         }
-        private string[] m_allBundles;
-        public CreateCrcListContent(string[] allBundles)
+        public CreateCrcListContent()
         {
-            m_allBundles = allBundles;
         }
 
         public void Run(HotResGenSharedData sharedata)
         {
             SplitPackage.UpdateOutPath = null;
             SplitPackage.UpdateOutDevelopPath = null;
-            sharedata.abInfoArray = SplitPackage.CreateCrcListContent(m_allBundles, sharedata.firstCrcDict, sharedata.streamingManifest, sharedata.manualFileList);
+            sharedata.abInfoArray = SplitPackage.CreateCrcListContent( sharedata.firstCrcDict, sharedata.streamingManifest, sharedata.manualFileList);
         }
     }
 
@@ -85,7 +89,7 @@ namespace Hugula.Editor.Task
             streamingManifestClone.crc32 = streamingManifest.crc32;
             streamingManifestClone.hasFirstLoad = streamingManifest.hasFirstLoad;
             sharedata.diff_crc = SplitPackage.CreateStreamingCrcList(streamingManifestClone, Common.CRC32_FILELIST_NAME, sharedata.firstExists); //本地列表
-            streamingManifestClone.WriteToFile("Assets/" + BuildScript.TmpPath + "streamingManifest0(Clone).txt");
+            streamingManifestClone.WriteToFile("Assets/" + EditorUtils.TmpPath + "streamingManifest0(Clone).txt");
         }
 
     }
@@ -99,29 +103,47 @@ namespace Hugula.Editor.Task
 
         public void Run(HotResGenSharedData sharedata)
         {
+            var firstManifest = sharedata.firstCrcDict;
             var streamingManifest = sharedata.streamingManifest;
             var diffstreamingManifest = ScriptableObject.CreateInstance(typeof(FileManifest)) as FileManifest;
             diffstreamingManifest.allAbInfo = sharedata.abInfoArray[0];
-            diffstreamingManifest.allAssetBundlesWithVariant = streamingManifest.allAssetBundlesWithVariant;
+
+            string[] allVariant = new string[0];
+            if(firstManifest)
+            {
+                var change = SplitPackage.GetChangeAssetBundlesWithVariant(firstManifest.allAssetBundlesWithVariant ,streamingManifest.allAssetBundlesWithVariant);
+                allVariant = change.ToArray();
+            }else
+            {
+
+            }
+
+            diffstreamingManifest.allAssetBundlesWithVariant = allVariant;
             diffstreamingManifest.OnAfterDeserialize();
             sharedata.diff_crc = SplitPackage.CreateStreamingCrcList(diffstreamingManifest, Common.CRC32_FILELIST_NAME, true, true); //增量列表
             sharedata.diffstreamingManifest = diffstreamingManifest;
-            diffstreamingManifest.WriteToFile("Assets/" + BuildScript.TmpPath + "diffstreamingManifest.txt");
+            diffstreamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "diffstreamingManifest.txt");
         }
     }
 
     public class CreateVersionAssetBundle : ITask<HotResGenSharedData>
     {
+        private string m_Channels;
+
         public string GetName()
         {
             return "Create Version AssetBundle";
+        }
+        public CreateVersionAssetBundle(string channels)
+        {
+            m_Channels = channels;
         }
 
         public void Run(HotResGenSharedData sharedata)
         {
             var diff_crc = sharedata.diff_crc;
-            SplitPackage.CreateVersionAssetBundle(diff_crc, true, !CUtils.isRelease);
-            SplitPackage.CreateVersionAssetBundle(diff_crc, false, true);
+            SplitPackage.CreateVersionAssetBundle(diff_crc, true,m_Channels,!CUtils.isRelease);
+            SplitPackage.CreateVersionAssetBundle(diff_crc, false,m_Channels, true);
         }
     }
 
@@ -148,10 +170,12 @@ namespace Hugula.Editor.Task
         public void Run(HotResGenSharedData sharedata)
         {
 #if HUGULA_RELEASE
-    
+            // DelStreamingAssetsPathManifest();
 #endif
             // if (HugulaSetting.instance.compressStreamingAssets)
-           //     SplitPackage.ZipAssetbundles();
+
+            // if (BuildScript.CheckZipPlatform())
+            //     SplitPackage.ZipAssetbundles();
             // else
             // {
             //     ZipConfigs.Delete();
@@ -168,14 +192,14 @@ namespace Hugula.Editor.Task
 
         public void Run(HotResGenSharedData sharedata)
         {
-#if (UNITY_ANDROID || UNITY_IOS) && HUGULA_RELEASE
+            // #if (UNITY_ANDROID || UNITY_IOS) // && HUGULA_RELEASE
             bool spExtFolder = HugulaSetting.instance.spliteExtensionFolder;
             if (spExtFolder)
             {
                 var manualFileList = sharedata.manualFileList;
                 SplitPackage.DeleteStreamingFiles(manualFileList.allAbInfo);
             }
-#endif
+            // #endif
 
         }
     }

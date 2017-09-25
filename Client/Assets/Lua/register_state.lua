@@ -6,7 +6,7 @@
 local StateManager = StateManager
 local LuaItemManager = LuaItemManager
 local StateBase = StateBase
-StateManager:set_state_transform(LuaItemManager:get_item_obejct("transform"))
+StateManager:set_state_transform(LuaItemManager:get_item_object("transform"))
 
 -- StateManager.hall = StateBase({"hall")})
 StateManager.welcome = StateBase({"welcome"})

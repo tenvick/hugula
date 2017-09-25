@@ -10,7 +10,7 @@ namespace Hugula.Update
     /// Manifest.
     /// </summary>
     [SLua.CustomLuaClass]
-    public class FileManifest : ScriptableObject,ISerializationCallbackReceiver
+    public class FileManifest : ScriptableObject, ISerializationCallbackReceiver
     {
         private static readonly string[] EmptyStringArray = new string[0];
         private static readonly int[] EmptyIntArray = new int[0];
@@ -21,6 +21,8 @@ namespace Hugula.Update
 
         [SLua.DoNotToLuaAttribute]
         public string[] allAssetBundlesWithVariant;
+
+        internal Dictionary<string, List<VariantsInfo>> variantDict = new Dictionary<string, List<VariantsInfo>>(System.StringComparer.OrdinalIgnoreCase);
 
         public int appNumVersion;
 
@@ -47,11 +49,16 @@ namespace Hugula.Update
         {
             if (abInfoDict == null) abInfoDict = new Dictionary<string, ABInfo>(allAbInfo.Count + 32);
 
-             ABInfo abinfo;
+            ABInfo abinfo;
             for (int i = 0; i < allAbInfo.Count; i++)
             {
                 abinfo = allAbInfo[i];
                 abInfoDict[abinfo.abName] = abinfo;
+            }
+
+            for (int i = 0; i < allAssetBundlesWithVariant.Length; i++)
+            {
+                AddVariant(allAssetBundlesWithVariant[i]);
             }
 
         }
@@ -77,7 +84,11 @@ namespace Hugula.Update
         {
             if (appNumVersion <= newFileManifest.appNumVersion)
             {
-                this.allAssetBundlesWithVariant = newFileManifest.allAssetBundlesWithVariant;
+                var variants = newFileManifest.allAssetBundlesWithVariant;
+                for (int i = 0; i < variants.Length; i++)
+                {
+                    AddVariant(variants[i]);
+                }
 
                 var list = newFileManifest.allAbInfo;
                 for (int i = 0; i < list.Count; i++)
@@ -85,6 +96,14 @@ namespace Hugula.Update
                     Add(list[i]);
                 }
             }
+        }
+
+
+        public List<VariantsInfo> GetVariants(string baseName)
+        {
+            List<VariantsInfo> re = null;
+            variantDict.TryGetValue(baseName, out re);
+            return re;
         }
 
         public string[] GetAllDependencies(string assetBundleName)
@@ -110,6 +129,23 @@ namespace Hugula.Update
             allAbInfo.Clear();
         }
 
+        private void AddVariant(string assetBundlesWithVariant)
+        {
+            var varInfo = new VariantsInfo(assetBundlesWithVariant);
+
+            if (variantDict.ContainsKey(varInfo.baseName))
+            {
+                var variantList = variantDict[varInfo.baseName];
+                if (!variantList.Contains(varInfo))
+                    variantList.Add(varInfo);
+            }
+            else
+            {
+                List<VariantsInfo> variantList = new List<VariantsInfo>();
+                variantList.Add(varInfo);
+                variantDict[varInfo.baseName] = variantList;
+            }
+        }
         private void GetAllDependenciesFromDirect(List<string> allDependencies, string assetBundleName)
         {
             string[] dependencies = GetDirectDependencies(assetBundleName);
@@ -162,7 +198,7 @@ namespace Hugula.Update
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendFormat("FileManifest AppNumber={0},count={1},crc32={2},hasFirstLoad={3}", appNumVersion, Count,crc32,hasFirstLoad);
+            stringBuilder.AppendFormat("FileManifest AppNumber={0},count={1},crc32={2},hasFirstLoad={3}", appNumVersion, Count, crc32, hasFirstLoad);
             stringBuilder.AppendLine(" ABInfos:");
             foreach (var info in allAbInfo)
             {
@@ -211,7 +247,7 @@ namespace Hugula.Update
 
     [SLua.CustomLuaClass]
     public static class FileManifestOptions
-    {   
+    {
         /// <summary>
         /// 本地
         /// </summary>
@@ -231,10 +267,56 @@ namespace Hugula.Update
         /// 用户使用频率优先级别
         /// </summary>
         public const int UserPriority = 524288; //2^19
-        
+
         /// <summary>
         /// 手动下载目录
         /// </summary>
         public const int ManualPriority = 1048576;//2^20
+    }
+
+    public class VariantsInfo
+    {
+        public string variants;
+        public string baseName;
+
+        public string fullName = string.Empty;
+
+        public VariantsInfo(string bundleVariant)
+        {
+            int index = bundleVariant.LastIndexOf('.');
+            this.baseName = bundleVariant.Substring(0, index);
+            this.variants = bundleVariant.Substring(index + 1, bundleVariant.Length - index - 1);
+            this.fullName = bundleVariant;
+        }
+
+        public override int GetHashCode()
+        {
+            return fullName.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else if (obj is string)
+                return fullName == obj.ToString();
+            else if (obj is VariantsInfo)
+                return this.fullName == ((VariantsInfo)obj).fullName;
+            else
+                return false;
+
+        }
+
+        public static bool operator ==(VariantsInfo left, VariantsInfo right)
+        {
+            if (left == null || right == null) return false;
+            return left.fullName == right.fullName;
+        }
+
+        public static bool operator !=(VariantsInfo left, VariantsInfo right)
+        {
+            if (left == null || right == null) return true;
+            return left.fullName != right.fullName;
+        }
     }
 }

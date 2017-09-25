@@ -15,6 +15,7 @@ local AssetBundleScene = AssetBundleScene
 local CRequest = Hugula.Loader.CRequest --内存池
 local UIJoint = UIJoint
 local UIParentJoint = UIParentJoint
+local ManifestManager = Hugula.Loader.ManifestManager
 
 local Loader = Loader
 local Asset = Asset
@@ -182,6 +183,7 @@ function AssetLoader:load_assets(assets)
 	
 	for k, v in ipairs(assets) do
 		key = v.key
+		if v.variant then v:set_url(ManifestManager.GetVariantName(v.url)) print("variant",v.url) end
 		local asst = GAMEOBJECT_ATLAS[key] --print(key,asst)
 		if asst then
 			asst:copy_to(v)

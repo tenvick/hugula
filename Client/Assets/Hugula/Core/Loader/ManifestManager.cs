@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Hugula.Update;
 using Hugula.Utils;
+using Hugula.Cryptograph;
 using UnityEngine;
 
 namespace Hugula.Loader
@@ -105,35 +106,6 @@ namespace Hugula.Loader
             return abInfo;
         }
 
-        //         public static bool CheckExtendsFolderIsDown(string folderName)
-        //         {
-        // #if UNITY_EDITOR
-        //             if (SimulateAssetBundleInEditor)
-        //             {
-        //                 return true;
-        //             }
-        // #endif
-        //             if (!HugulaSetting.instance.spliteExtensionFolder) return true;
-
-        //             if (fileManifest != null)
-        //             {
-        //                 var allABInfo = fileManifest.allAbInfo;
-        //                 ABInfo abInfo = null;
-        //                 for (int i = 0; i < allABInfo.Count; i++)
-        //                 {
-        //                     abInfo = allABInfo[i];
-        //                     if (abInfo.abName.StartsWith(folderName) && !CheckPersistentCrc(abInfo)) //!FileHelper.PersistentFileExists(abInfo.abName))
-        //                     {
-        //                         return false;
-        //                     }
-        //                 }
-
-        //                 return true;
-        //             }
-        //             else
-        //                 return false;
-        //         }
-
         public static bool CheckABIsDone(string abName)
         {
             if (!HugulaSetting.instance.spliteExtensionFolder) return true;
@@ -142,8 +114,10 @@ namespace Hugula.Loader
 #else
             if (fileManifest != null)
             {
-                var isDone = CheckAllDependenciesABIsDone(abName);
-                if (!fileManifest.CheckABIsDone(abName))
+                string baseName =  RemapVariantName(abName);
+                var isDone = CheckAllDependenciesABIsDone(baseName);
+
+                if (!fileManifest.CheckABIsDone(baseName))
                 {
 #if HUGULA_RELEASE && (UNITY_IOS || UNITY_ANDROID)
                 BackGroundDownload.instance.AddTask(fileManifest.GetABInfo(abName), FileManifestOptions.UserPriority, null, null);
@@ -214,10 +188,10 @@ namespace Hugula.Loader
                 }
                 ab.Unload(false);
 
-                if (ManifestManager.fileManifest == null)
-                    LoadFileManifest(null);
-
-                if (ManifestManager.fileManifest != null) ManifestManager.fileManifest.AppendFileManifest(ManifestManager.updateFileManifest);
+                if (ManifestManager.fileManifest != null && ManifestManager.updateFileManifest != null)
+                    ManifestManager.fileManifest.AppendFileManifest(ManifestManager.updateFileManifest);
+                else
+                    Debug.LogError(" updateFile Manifest asset is null url:"+url);
 
 #if HUGULA_LOADER_DEBUG || UNITY_EDITOR
                 Debug.LogFormat("LoadUpdateFileManifest 2 {0} is done ! {1}", url, fileListName, ManifestManager.updateFileManifest);
@@ -242,13 +216,17 @@ namespace Hugula.Loader
                 if (assets.Length > 0)
                     ManifestManager.fileManifest = assets[0];
                 else
-                    Debug.LogWarning("there is no fileManifest in StreamingAssetsPath use (Hugula/BUild For Bublish) build ");
+                   Debug.LogError("there is no fileManifest in StreamingAssetsPath "+url);
 
 #if HUGULA_LOADER_DEBUG || UNITY_EDITOR
                 Debug.LogFormat("LoadFileManifest 1 {0} is done !\r\n ManifestManager.fileManifest.count = {1}", url, ManifestManager.fileManifest.Count);
 #endif
                 ab.Unload(false);
             }
+#if UNITY_EDITOR
+            else
+                Debug.LogWarning("there is no fileManifest in StreamingAssetsPath use (Hugula/BUild For Bublish) build ");
+#endif
 
             if (onComplete != null)
             {
@@ -312,24 +290,67 @@ namespace Hugula.Loader
             set { _activeVariants = value; }
         }
 
+        /// <summary>
+        /// get the best fit variant name
+        /// </summary>
+        public static string GetVariantName(string assetBundleName)
+        {
+#if UNITY_EDITOR
+            if (ManifestManager.fileManifest == null) return assetBundleName;
+#endif
+            string md5name = CUtils.GetRightFileName(assetBundleName);//CryptographHelper.Md5String(baseName);
+
+            var bundlesVariants = ManifestManager.fileManifest.GetVariants(md5name);
+            if (bundlesVariants == null) return assetBundleName;
+
+            int bestFit = int.MaxValue;
+            string bestFitVariant = string.Empty;
+            VariantsInfo variInfo;
+            for (int i = 0; i < bundlesVariants.Count; i++)
+            {
+                variInfo = bundlesVariants[i];
+
+                int found = System.Array.IndexOf(_activeVariants, variInfo.variants);
+                if (found == -1)
+                    found = int.MaxValue - 1;
+
+                if (found < bestFit)
+                {
+                    bestFit = found;
+                    bestFitVariant = variInfo.variants;
+                }
+
+            }
+
+            if (!string.IsNullOrEmpty(bestFitVariant))
+            {
+                return assetBundleName + "." + bestFitVariant;
+            }
+            else
+            {
+                return assetBundleName;
+            }
+        }
+
         // Remaps the asset bundle name to the best fitting asset bundle variant.
         internal static string RemapVariantName(string assetBundleName)
         {
-            string baseName = assetBundleName.Split('.')[0];
+            string baseName = assetBundleName;
+#if UNITY_EDITOR
+            if (ManifestManager.fileManifest == null) return assetBundleName;
+#endif
+
+            var bundlesVariants = ManifestManager.fileManifest.GetVariants(baseName);
+            if (bundlesVariants == null) return assetBundleName;
+
             int bestFit = int.MaxValue;
             int bestFitIndex = -1;
-            // Loop all the assetBundles with variant to find the best fit variant assetBundle.
-            bundlesWithVariant = ManifestManager.fileManifest.allAssetBundlesWithVariant;
-            for (int i = 0; i < bundlesWithVariant.Length; i++)
+            VariantsInfo variInfo;
+            for (int i = 0; i < bundlesVariants.Count; i++)
             {
-                string[] curSplit = bundlesWithVariant[i].Split('.');
-                string curBaseName = curSplit[0];
-                string curVariant = curSplit[1];
+                variInfo = bundlesVariants[i];
 
-                if (curBaseName != baseName)
-                    continue;
-
-                int found = System.Array.IndexOf(_activeVariants, curVariant);
+                int found = System.Array.IndexOf(_activeVariants, variInfo.variants);
 
                 // If there is no active variant found. We still want to use the first
                 if (found == -1)
@@ -345,13 +366,13 @@ namespace Hugula.Loader
             if (bestFit == int.MaxValue - 1)
             {
 #if UNITY_EDITOR
-                Debug.LogWarning("Ambigious asset bundle variant chosen because there was no matching active variant: " + bundlesWithVariant[bestFitIndex]);
+                // Debug.LogWarning("Ambigious asset bundle variant chosen because there was no matching active variant: " + bundlesVariants[bestFitIndex].variants);
 #endif
             }
 
             if (bestFitIndex != -1)
             {
-                return bundlesWithVariant[bestFitIndex];
+                return bundlesVariants[bestFitIndex].fullName;
             }
             else
             {

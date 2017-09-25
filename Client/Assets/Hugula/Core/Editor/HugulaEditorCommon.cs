@@ -2,6 +2,7 @@
 namespace Hugula.Editor {
     public class EditorCommon {
 
+        public const string KeyVerChannels = "hugula_ver_Channels";
         /// <summary>
         /// 版本文件扩展文件.
         /// </summary>

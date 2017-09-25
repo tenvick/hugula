@@ -151,25 +151,23 @@ function Loader:get_resource(...)
 	end
 end
 
---string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd
 function Loader:get_http_data(...)
-	local a,b,c,d,e = ...
-	local t_a = type(a)
+	local a,head,typ,on_comp,on_end,uri_group = ...
+	local t_a = type(a) 
 	if t_a=="userdata" then
 		ResourcesLoader.HttpRequest(a,false)
 	else
-		ResourcesLoader.HttpRequest(a,b,c,d,e)
+		ResourcesLoader.HttpRequest(a,head,typ,on_comp,on_end,uri_group)
 	end
 end
 
---string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd
 function Loader:get_www_data(...)
-	local a,b,c,d,e,f = ...
+	local a,head,typ,on_comp,on_end,uri_group = ...
 	local t_a = type(a)
 	if t_a=="userdata" then
 		ResourcesLoader.WWWRequest(a,false)
 	else
-		ResourcesLoader.WWWRequest(a,b,c,d,e)
+		ResourcesLoader.WWWRequest(a,head,typ,on_comp,on_end,uri_group)
 	end
 end
 
@@ -205,15 +203,20 @@ function Loader:refresh_assetbundle_manifest(on_ready)
 	ManifestManager.LoadFileManifest(on_ready)
 end
 
-local function on_ab_complete(req,ab)
+function Loader:set_background_loading_priority(thread_priority)
+	Application.backgroundLoadingPriority = thread_priority
+end
 
+local function on_ab_complete(req,ab)
+	if not HUGULA_RELEASE then
+	--	TLogger.AddUpLogInfo(string.format("%s	%s	%d" ,req.key,os.date("%c",os.time()),UnityEngine.Time.frameCount))
+	end
 	if req.isShared and not LuaHelper.IsNull(ab) and Application.platform == RuntimePlatform.IPhonePlayer then --and Application.platform == RuntimePlatform.IPhonePlayer
 		ab:LoadAllAssets()
-	else
-		-- print("on_shared_complete data is nil req(",req.assetBundleName,req.assetName)
 	end
 end
 
-Loader:set_on_assetbundle_comp_fn(on_ab_complete)
+--
+-- Loader:set_on_assetbundle_comp_fn(on_ab_complete)
 
 -- print("require loader:"..os.time())

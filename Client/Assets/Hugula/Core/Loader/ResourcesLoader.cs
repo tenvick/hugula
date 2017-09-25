@@ -58,12 +58,12 @@ namespace Hugula.Loader
         static Dictionary<string, AssetBundleDownloadOperation> downloadingBundles = new Dictionary<string, AssetBundleDownloadOperation>();
         #endregion
 
-        #region public 
+        #region public
         /// <summary>
         /// for lua加载ab资源
         /// </summary>
         /// <param name="reqs"></param>
-		static public void LoadLuaTable(LuaTable reqs, System.Action<bool> groupCompleteFn, System.Action<LoadingEventArg> groupProgressFn, int priority = 0)
+        static public void LoadLuaTable(LuaTable reqs, System.Action<bool> groupCompleteFn, System.Action<LoadingEventArg> groupProgressFn, int priority = 0)
         {
             var groupQueue = BundleGroundQueue.Get();
             groupQueue.priority = priority;
@@ -216,7 +216,7 @@ namespace Hugula.Loader
         /// <param name="type"></param>
         /// <param name="onComplete"></param>
         /// <param name="onEnd"></param>
-        static public void HttpRequest(string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd)
+        static public void HttpRequest(string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd, UriGroup uris)
         {
             var req = CRequest.Get();
             req.relativeUrl = url;
@@ -224,6 +224,7 @@ namespace Hugula.Loader
             req.assetType = type;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
+            req.uris = uris;
             HttpRequest(req);
         }
 
@@ -257,7 +258,7 @@ namespace Hugula.Loader
         /// <param name="type"></param>
         /// <param name="onComplete"></param>
         /// <param name="onEnd"></param>
-        static public void WWWRequest(string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd)
+        static public void WWWRequest(string url, object head, System.Type type, System.Action<CRequest> onComplete, System.Action<CRequest> onEnd, UriGroup uris)
         {
             var req = CRequest.Get();
             req.relativeUrl = url;
@@ -265,6 +266,7 @@ namespace Hugula.Loader
             req.assetType = type;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
+            req.uris = uris;
             WWWRequest(req);
         }
 
@@ -371,6 +373,9 @@ namespace Hugula.Loader
         /// <param name="req"></param>
         static protected void LoadAssetBundle(CRequest req)
         {
+            //Variants
+            string relativeUrl = ManifestManager.RemapVariantName(req.relativeUrl);
+            req.relativeUrl = relativeUrl;
 #if UNITY_EDITOR
             if (ManifestManager.SimulateAssetBundleInEditor)
             {
@@ -408,6 +413,7 @@ namespace Hugula.Loader
                 return;
             }
 #endif
+
             //remove delay unload assetbundle 
             ABDelayUnloadManager.CheckRemove(req.keyHashCode);
 
@@ -432,7 +438,7 @@ namespace Hugula.Loader
             {
                 //load dependencies and refrenece count
                 if (ManifestManager.fileManifest != null)
-                    req.dependencies = LoadDependencies(req); //load dependencies assetbundle
+                    req.dependencies = LoadDependencies(req,null); //load dependencies assetbundle
                 //load assetbundle
                 abDownloadOperation = LoadAssetBundleInternal(req);
             }
@@ -491,10 +497,13 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        static protected int[] LoadDependencies(CRequest req)
+        static protected int[] LoadDependencies(CRequest req,CRequest parent)
         {
             string[] deps = ManifestManager.fileManifest.GetDirectDependencies(req.assetBundleName);
             if (deps.Length == 0) return null;
+            string abName = string.Empty;
+            if(parent!=null) abName = CUtils.GetBaseName(parent.assetBundleName);
+
 #if HUGULA_PROFILER_DEBUG
             Profiler.BeginSample(string.Format("LoadDependencies ({0},{1},{2}) new int[deps.Length]", req.assetName, req.key,req.isShared));
 #endif
@@ -508,18 +517,20 @@ namespace Hugula.Loader
 #endif
             for (int i = 0; i < deps.Length; i++)
             {
-                depAbName = deps[i];
-                if (string.IsNullOrEmpty(depAbName)) // Dependency assetbundle name is empty  unity bug?
+                depAbName = CUtils.GetBaseName(deps[i]);
+                if(abName==depAbName)
                 {
 #if UNITY_EDITOR
-                    Debug.LogWarningFormat("the request({0},{1}) Dependencies {2} is empty ", req.assetName, req.url, i);
+                    Debug.LogErrorFormat("Dependencies({1}) Contains the parent({0}) ! ",req.assetBundleName,abName);
+#else
+                    Debug.LogWarningFormat("Dependencies({1}) Contains the parent({0}) ! ",req.assetBundleName,abName);
 #endif
                     hashs[i] = 0;
                     continue;
                 }
 
                 dep_url = ManifestManager.RemapVariantName(depAbName);//string gc alloc
-                dep_url = depAbName;
+
                 keyhash = LuaHelper.StringToHash(dep_url);
                 hashs[i] = keyhash;
 
@@ -537,7 +548,7 @@ namespace Hugula.Loader
                     if (dependenciesRefer)
                         ABDelayUnloadManager.AddDependenciesReferCount(sharedCD, dependenciesRefer);
 #if HUGULA_LOADER_DEBUG
-                    HugulaDebug.FilterLogFormat(req.key, " <color=#15A0A1> 1.1 Shared  AssetBundle is Done Request(assetName={0})  Parent Req(assetName={1},key={2},isShared={3}) </color>",sharedCD.assetBundleKey, req.assetName, req.key, req.isShared);
+                    HugulaDebug.FilterLogFormat(req.key, " <color=#15A0A1> 1.1 Shared  AssetBundle is Done Request(assetName={0})  Parent Req(assetName={1},key={2},isShared={3}) </color>", sharedCD.assetBundleKey, req.assetName, req.key, req.isShared);
 #endif
                 }
                 else
@@ -554,7 +565,7 @@ namespace Hugula.Loader
                     item.isShared = true;
                     item.async = req.async;
                     item.priority = req.priority;
-                    item.dependencies = LoadDependencies(item);
+                    item.dependencies = LoadDependencies(item,req);
                     item.uris = req.uris;
 #if HUGULA_LOADER_DEBUG
                     HugulaDebug.FilterLogFormat(req.key, "<color=#15A0A1>1.1  Load Dependencies Req({1},keyHashCode{2})  AssetBundleInternal  Parent Request(assetname={0}), dependencies.count={3},frameCount{4}</color>", req.assetName, item.assetName, item.keyHashCode, item.dependencies == null ? 0 : item.dependencies.Length, Time.frameCount);
@@ -599,7 +610,7 @@ namespace Hugula.Loader
                 bundleQueue.Enqueue(abDownloadOp);
                 downloadingBundles.Add(req.key, abDownloadOp);
 #if HUGULA_LOADER_DEBUG
-                HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.2 LoadAssetBundleInternal Request(key={0},isShared={1},assetname={2},dependencies.count={4})keyHashCode{3}, frameCount{5}</color>", req.key,req.isShared, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, Time.frameCount);
+                HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.2 LoadAssetBundleInternal Request(key={0},isShared={1},assetname={2},dependencies.count={4})keyHashCode{3}, frameCount{5}</color>", req.key, req.isShared, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, Time.frameCount);
 #endif
 
 #if HUGULA_PROFILER_DEBUG
@@ -722,8 +733,8 @@ namespace Hugula.Loader
 
                     OnProcess();
 #if HUGULA_LOADER_DEBUG
-                    HugulaDebug.FilterLogFormat(req.key,"DispatchReqComplete Request(data={0},assetName={1},url={2})isError={3},count={4},frameCount={5}", data, reqitem.assetName, reqitem.url, isError, count,Time.frameCount);
-#endif              
+                    HugulaDebug.FilterLogFormat(req.key, "DispatchReqComplete Request(data={0},assetName={1},url={2})isError={3},count={4},frameCount={5}", data, reqitem.assetName, reqitem.url, isError, count, Time.frameCount);
+#endif
                     DispatchReqAssetOperation(reqitem, isError);
 
                 }
@@ -833,33 +844,48 @@ namespace Hugula.Loader
             bool isError = operation.assetBundle == null;
             var ab = operation.assetBundle;
             AssetBundleDownloadOperation download = operation;
-            if (!isError)
+
+            if (isError && UriGroup.CheckAndSetNextUriGroup(req))
             {
-                CacheManager.AddSourceCacheDataFromWWW(ab, req);
-            }
-            else
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning(operation.error);
-#endif
-                CacheManager.AddErrorSourceCacheDataFromReq(req);
-            }
 #if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.9  ProcessFinishedBundleOperation AssetBundle Loaded Request(url={0},assetname={1},dependencies.count={3},keyHashCode{2}),isError={4} frameCount{5}</color>", req.url, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length,isError,Time.frameCount);
+                HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.9  ProcessFinishedBundleOperation AssetBundle re Loaded Request(url={0},assetname={1},dependencies.count={3},keyHashCode{2}),isError={4} frameCount{5}</color>", req.url, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, isError, Time.frameCount);
+#endif
+                //loop load a assetbundle maybe cause a crash :  signal 6 (SIGABRT), code -6 (?), fault addr --------
+                inProgressBundleOperations.Add(download);
+                download.Reset();
+                download.SetRequest(req);
+                download.BeginDownload(); //retry
+            }
+            else
+            {
+                if (!isError)
+                {
+                    CacheManager.AddSourceCacheDataFromWWW(ab, req);
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    Debug.LogWarning(operation.error);
+#endif
+                    CacheManager.AddErrorSourceCacheDataFromReq(req);
+                }
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.9  ProcessFinishedBundleOperation AssetBundle Loaded Request(url={0},assetname={1},dependencies.count={3},keyHashCode{2}),isError={4} frameCount{5}</color>", req.url, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, isError, Time.frameCount);
 #endif
 
-            //begin load asset
-            InsertAssetBundleLoadAssetOperation(download);
+                //begin load asset
+                InsertAssetBundleLoadAssetOperation(download);
 
-            downloadingBundles.Remove(req.key);
-            download.ReleaseToPool();
+                downloadingBundles.Remove(req.key);
+                download.ReleaseToPool();
 
-            if (isError)
-                CallOnAssetBundleErr(req);
-            else
-                CallOnAssetBundleComplete(req, ab);
+                if (isError)
+                    CallOnAssetBundleErr(req);
+                else
+                    CallOnAssetBundleComplete(req, ab);
 
-            if (req.isShared) req.ReleaseToPool();
+                if (req.isShared) req.ReleaseToPool();
+            }
 #if HUGULA_PROFILER_DEBUG
             Profiler.EndSample();
 #endif
@@ -883,20 +909,38 @@ namespace Hugula.Loader
                 SetCacheAsset(req);// set asset cache
                 DispatchAssetBundleLoadAssetOperation(req, isError);
 
-                CheckAllComplete();//check all complete 
+                //等两帧再CheckAllComplete
+                allCompleteCheckCount = 0.5f;
+                //CheckAllComplete();//check all complete 
             }
             else if ((httpLoad = operation as HttpLoadOperation) != null)
             {
-                isError = httpLoad.error != null;
-                operation.ReleaseToPool();
-                if (isError)
-                    req.DispatchEnd();
+                isError = !string.IsNullOrEmpty(httpLoad.error);
+
+                if (isError && UriGroup.CheckAndSetNextUriGroup(req)) //
+                {
+#if HUGULA_LOADER_DEBUG
+                    HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.9  ProcessFinishedOperation re Loaded Request(url={0},assetname={1},dependencies.count={3},keyHashCode{2}),isError={4} frameCount{5}</color>", req.url, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, isError, Time.frameCount);
+#endif
+                    // Debug.LogFormat(" re try {0};",req.url);
+                    inProgressOperations.Add(httpLoad);
+                    httpLoad.Reset();
+                    httpLoad.SetRequest(req);
+                    httpLoad.BeginDownload(); //retry
+                }
                 else
-                    req.DispatchComplete();
+                {
+                    operation.ReleaseToPool();
 
-                if (req.group != null) req.group.Complete(req, isError);
+                    if (isError)
+                        req.DispatchEnd();
+                    else
+                        req.DispatchComplete();
 
-                req.ReleaseToPool();
+                    if (req.group != null) req.group.Complete(req, isError);
+
+                    req.ReleaseToPool();
+                }
             }
 
         }
@@ -911,8 +955,8 @@ namespace Hugula.Loader
 
         [SLua.DoNotToLua]
         public string DebugInfo;
-        
-        private System.Text.StringBuilder DebugSB = new  System.Text.StringBuilder();   
+
+        private System.Text.StringBuilder DebugSB = new System.Text.StringBuilder();
 #endif
 
         /// <summary>
@@ -989,7 +1033,7 @@ namespace Hugula.Loader
                 {
                     inProgressBundleOperations.RemoveAt(i);
                     ProcessFinishedBundleOperation(operation);
-                    
+
                     //check frame time
                     var ts = (System.DateTime.Now - frameBegin).TotalMilliseconds;
                     if (ts >= BundleLoadBreakMilliSeconds * 3f)
@@ -1033,12 +1077,31 @@ namespace Hugula.Loader
 #endif
 
 #if UNITY_EDITOR && HUGULA_LOADER_DEBUG
-            LoadCountInfo = string.Format("wait={0},bundleLoad={1},assetLoad={2}", bundleQueue.Count, inProgressBundleOperations.Count, inProgressOperations.Count);
+            LoadCountInfo = string.Format("wait={0},bundleLoading={1},assetLoad={2}", bundleQueue.Count, inProgressBundleOperations.Count, inProgressOperations.Count);
             DebugSB.Length = 0;
-             for (int i = 0; i < inProgressBundleOperations.Count;i++)
+            for (int i = 0; i < inProgressBundleOperations.Count; i++)
             {
                 var operation = inProgressBundleOperations[i].cRequest;
-                DebugSB.AppendFormat("Bundle CRequest({0},{1})",operation.key,operation.assetName);
+                DebugSB.AppendFormat("CRequest({0},{1}) is loading.\r\n", operation.key, operation.assetName);
+                var denps = operation.dependencies;
+                if (denps != null)
+                {
+                    CacheData cache = null;
+                    int hash = 0;
+                    for (int j = 0; j < denps.Length; j++)
+                    {
+                        hash = denps[j];
+                        if ((cache = CacheManager.TryGetCache(hash)) != null)
+                        {
+                            if (!cache.isDone) // if (!cache.isAssetLoaded || !cache.canUse)
+                                DebugSB.AppendFormat("\tdenpens({0},{1}) is not done!\r\n", cache.assetBundleKey, cache.assetHashCode);
+                        }
+                        else
+                        {
+                            DebugSB.AppendFormat("\tdenpens({0},{1}) is not exists!\r\n", cache.assetBundleKey, cache.assetHashCode);
+                        }
+                    }
+                }
             }
             DebugInfo = DebugSB.ToString();
 #endif
@@ -1050,6 +1113,12 @@ namespace Hugula.Loader
         void LateUpdate()
         {
             ABDelayUnloadManager.Update();
+            if (allCompleteCheckCount > 0)
+            {
+                allCompleteCheckCount -= Time.deltaTime;
+                if (allCompleteCheckCount <= 0)
+                    CheckAllComplete();//check all complete 
+            }
         }
 
         /// <summary>
@@ -1076,6 +1145,7 @@ namespace Hugula.Loader
 
         #region event
 
+        static float allCompleteCheckCount = 0;
         public static System.Action OnAllComplete;
         public static System.Action<LoadingEventArg> OnProgress;
 

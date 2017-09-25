@@ -28,6 +28,7 @@ namespace Hugula.Update
 
         public override void Enqueue(ABInfo abInfo)
         {
+            abInfo.state =  ABInfoState.None;
             groupRes.Enqueue(abInfo);
             totalCount++;
             totalSize += abInfo.size;

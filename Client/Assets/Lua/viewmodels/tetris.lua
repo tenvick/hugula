@@ -1,4 +1,4 @@
-local tetris = LuaItemManager:get_item_obejct("tetris")
+local tetris = LuaItemManager:get_item_object("tetris")
 
 local isover=false
 

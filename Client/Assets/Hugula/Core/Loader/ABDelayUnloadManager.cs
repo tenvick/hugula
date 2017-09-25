@@ -13,7 +13,7 @@ namespace Hugula.Loader
     {
 
         //delay unload time
-        public static float delaySecondTime = 1f;
+        public static float delaySecondTime = 0.1f;
         private static Dictionary<int, float> removeDic = new Dictionary<int, float>();
 
         private static List<int> deleteList = new List<int>();
@@ -23,7 +23,9 @@ namespace Hugula.Loader
 
             if (removeDic.ContainsKey(keyhashcode))
                 removeDic.Remove(keyhashcode);
-            // Debug.LogFormat("<color=#00ff00> -1 add  keyhashcode({0}) </color>",keyhashcode);
+#if HUGULA_CACHE_DEBUG                
+            Debug.LogFormat("<color=#00ff00> ABDelayUnloadManager.add  keyhashcode({0}),frame={1} </color>",keyhashcode,Time.frameCount);
+#endif
             removeDic.Add(keyhashcode, Time.unscaledTime + delaySecondTime);
         }
 
@@ -71,6 +73,9 @@ namespace Hugula.Loader
                 removeDic.Remove(keyhashcode);
                 CacheData cache = CacheManager.TryGetCache(keyhashcode);
                 AddDependenciesReferCount(cache, true);
+ #if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat(cache.assetBundleKey, "CheckRemove AssetBundle(key={0},hash={1}),frameCount{5}</color>", cache.assetBundleKey, cache.assetHashCode, Time.frameCount);
+#endif
                 // #if HUGULA_CACHE_DEBUG
                 //                 HugulaDebug.FilterLogFormat(cache.assetBundleKey, "<color=#ffff00> -1 remove  abName({0}) for ABDelayUnloadManager ,ref count =  {1},removed={2} </color>", cache.assetBundleKey, cache.count, re);
                 // #endif

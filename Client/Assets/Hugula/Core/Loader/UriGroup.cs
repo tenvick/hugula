@@ -169,7 +169,7 @@ namespace Hugula.Loader
 
             int count = req.uris.count;
             int index = req.index + 1;
-            if (index >= count) index = 0;
+            // if (index >= count) index = 0;
             if (count > index && index >= 0)
             {
                 req.index = index;

@@ -17,7 +17,7 @@ local StateManager = StateManager
 local ItemObject = LuaItemManager.ItemObject
 LuaItemManager.items = {}
 
-function LuaItemManager:get_item_obejct(objectName)
+function LuaItemManager:get_item_object(objectName)
     local obj=self.items[objectName]
     if obj == nil then
          print(objectName .. " is not registered ")
@@ -32,7 +32,7 @@ function LuaItemManager:get_item_obejct(objectName)
 end
 
 --小心调用这个只用于subview关联
-function LuaItemManager:get_item_clone_obejct(objectName)
+function LuaItemManager:get_item_clone_object(objectName)
     local obj=self.items[objectName]
     if obj == nil then
          print(objectName .. " is not registered ")
@@ -80,7 +80,9 @@ end
 
 function ItemObject:dispose( ... )
     local assets = self.assets
-    if self.on_dispose then self:on_dispose() end
+    if self.on_dispose then
+        self:on_dispose() 
+    end
     if assets then
         for k,v in ipairs(assets) do  v:dispose()   end
     end
@@ -129,7 +131,7 @@ function ItemObject:on_blur( state )
     self:hide()
     -- print(self.name,"ItemObject:on_blur",self.is_on_blur)
     if self._auto_mark_dispose then 
-        StateManager:mark_dispose_flag(self) --标记销毁
+        StateManager:mark_dispose_flag(self,self._auto_mark_dispose) --标记销毁
     end
     -- self:send_message("on_hided",state) --隐藏完成
 end

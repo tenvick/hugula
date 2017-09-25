@@ -14,9 +14,9 @@ namespace Hugula.Update
     public class BackGroundDownload : MonoBehaviour
     {
         private const string _keyCarrierDataNetwork = "_keyCarrierDataNetwork";
-        public string host;
+        public string[] hosts;
 
-        public string host1 = string.Empty;
+        // public string host1 = string.Empty;
 
         public int loadingCount = 0;
         //开启下载
@@ -96,15 +96,11 @@ namespace Hugula.Update
                 var download = (WebDownload)webClients[0];
                 var arr = (object[])download.userData;
                 webClients.RemoveAt(0);
-                bool isError = download.isError;
-                bool needReload = download.needReload;
+                bool isError = !string.IsNullOrEmpty(download.error);
                 WebDownload.Release(download);
-                // Debug.LogFormat("{1}={0}",isError,(ABInfo)arr[0]);
-                if (needReload)
-                    RunningTask((ABInfo)arr[0], (BackGroundQueue)arr[1], true);
-                else
-                    RemoveTask((ABInfo)arr[0], (BackGroundQueue)arr[1], isError);
+                RemoveTask((ABInfo)arr[0], (BackGroundQueue)arr[1], isError);
             }
+
             LoadingQueue();
 
 #if UNITY_EDITOR
@@ -212,7 +208,9 @@ namespace Hugula.Update
             bQueue.onProgress = onProgress;
             bQueue.onComplete = onComplete;
             bQueue.Enqueue(abinfo);
+#if UNITY_EDITOR
             Debug.LogFormat("bQueue.Count = {0},priority={1}", bQueue.Count, priority);
+#endif
             return abinfo.size;
         }
 
@@ -273,12 +271,16 @@ namespace Hugula.Update
         public uint AddDiffManifestTask(FileManifest mainifest1, FileManifest mainifest2, System.Action<LoadingEventArg> onProgress, System.Action<bool> onComplete)
         {
             if (mainifest1 == null) return 0;
-
+            var splite = Hugula.HugulaSetting.instance.spliteExtensionFolder;
             var loadInfos = mainifest1.CompareFileManifest(mainifest2);
             List<ABInfo> re = new List<ABInfo>();
             foreach (var abInfo in loadInfos)
             {
-                if (abInfo.priority <= FileManifestOptions.AutoHotPriority) //非自动下载级别 
+                if (!splite)
+                {
+                    re.Add(abInfo);
+                }
+                else if (abInfo.priority <= FileManifestOptions.AutoHotPriority) //非自动下载级别 
                 {
                     re.Add(abInfo);
                 }
@@ -349,18 +351,16 @@ namespace Hugula.Update
             bQueue.Complete(abInfo, isError);
         }
 
-        internal void RunningTask(ABInfo abInfo, BackGroundQueue bQueue, bool useHost1 = false)
+        internal void RunningTask(ABInfo abInfo, BackGroundQueue bQueue)
         {
             var download = WebDownload.Get();
-            download.userData = new object[] { abInfo, bQueue, useHost1 ? "host1" : "host" };
+            download.userData = new object[] { abInfo, bQueue, };
             download.DownloadFileCompleted -= OnDownloadFileCompleted;
             download.DownloadProgressChanged -= OnDownloadProgressChanged;
             download.DownloadFileCompleted += OnDownloadFileCompleted;
             download.DownloadProgressChanged += OnDownloadProgressChanged;
             loadingTasks[abInfo] = download;
 
-            // download.CancelAsync()
-            // Debug.LogFormat("RunningTask abName={0},state={1}", abInfo.abName, abInfo.state);
             if (ManifestManager.CheckPersistentCrc(abInfo)) //验证crc
             {
                 webClients.Add(download);
@@ -368,59 +368,93 @@ namespace Hugula.Update
             }
             else
             {
-                string abName = abInfo.abName;
-                bool appCrc = HugulaSetting.instance != null ? HugulaSetting.instance.appendCrcToFile : false;
-                if (abInfo.crc32 > 0 && appCrc)
-                {
-                    abName = CUtils.InsertAssetBundleName(abName, "_" + abInfo.crc32.ToString());
-                }
-
-                string h = useHost1 ? host1 : host;
-                Uri url = new Uri(CUtils.PathCombine(h, abName));
-
-                string path = CUtils.PathCombine(outputPath, abInfo.abName);
-                FileHelper.CheckCreateFilePathDirectory(path);
-                download.DownloadFileAsync(url, path);
-                // #if UNITY_EDITOR
-                // Debug.LogFormat(" begin load {0} ,save path ={1},abInfo.state={2} ,webClient({3})", url.AbsoluteUri, path, abInfo.state, download);
-                // #endif
+                string urlHost = hosts[0];
+                RealLoad(download, abInfo, bQueue, urlHost);
             }
+        }
+
+        internal void RealLoad(WebDownload download, ABInfo abInfo, BackGroundQueue bQueue, string urlHost = "")
+        {
+            string abName = abInfo.abName;
+            bool appCrc = HugulaSetting.instance != null ? HugulaSetting.instance.appendCrcToFile : false;
+            if (abInfo.crc32 > 0 && appCrc)
+            {
+                abName = CUtils.InsertAssetBundleName(abName, "_" + abInfo.crc32.ToString());
+            }
+
+            Uri url = new Uri(CUtils.PathCombine(urlHost, abName));
+            string path = GetTmpFilePath(abInfo);
+            FileHelper.CheckCreateFilePathDirectory(path);
+            download.DownloadFileAsync(url, path);
+#if !HUGULA_RELEASE
+            Debug.LogFormat(" background load {0} ,save path ={1},abInfo.state={2} ,webClient({3})", url.AbsoluteUri, path, abInfo.state, download);
+#endif
+        }
+
+        string GetTmpFilePath(ABInfo abInfo)
+        {
+            string path = CUtils.PathCombine(outputPath, abInfo.abName + ".tmp");
+            return path;
         }
 
         void OnDownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             WebDownload webd = (WebDownload)sender;
-            webd.isError = (e.Error != null);
+            object[] arr = (object[])webd.userData;
+            ABInfo abInfo = null;
+            BackGroundQueue bQueue = null;
+            webd.tryTimes++;
+            int tryTimes = webd.tryTimes;
 
-            if (webd.isError)
+            if (arr != null && arr.Length >= 2)
             {
-                object[] arr = (object[])webd.userData;
-                if (arr != null)
+                abInfo = ((ABInfo)arr[0]);
+                bQueue = (BackGroundQueue)arr[1];
+            }
+
+            webd.error = e.Error == null ? string.Empty : e.Error.Message;
+            if (!string.IsNullOrEmpty(webd.error))
+            {
+                FileHelper.DeletePersistentFile(abInfo.abName + ".tmp");
+                if (tryTimes < hosts.Length)
                 {
-                    ABInfo abInfo = ((ABInfo)arr[0]);
-                    BackGroundQueue bQueue = (BackGroundQueue)arr[1];
-                    bool useHost1 = arr[2].ToString().Equals("host1");
-                    FileHelper.DeletePersistentFile(abInfo.abName);
-                    if (!useHost1 && !string.IsNullOrEmpty(host1))
-                    {
-                        Debug.LogWarning(string.Format("web download url:{0}\r\n error:{1}\r\n reload={2}", host + "/" + abInfo.abName, host1, e.Error));
-                        webd.needReload = true;
-                    }
-                    else
-                        Debug.LogWarning(string.Format("web download url:{0}\r\n error:{1}", (useHost1 ? host1 : host) + "/" + abInfo.abName, e.Error));
+                    Debug.Log(string.Format("web download url:{0}\r\n times={1},error:{2}\r\n", hosts[tryTimes] + "/" + abInfo.abName, webd.tryTimes, e.Error));
+                    RealLoad(webd, abInfo, bQueue, hosts[tryTimes]);
+                    return;
+                    //
+                }
+                else
+                    Debug.Log(string.Format("web download url:{0}\r\n error:{1}", hosts[hosts.Length - 1] + "/" + abInfo.abName, e.Error));
+            }
+            else
+            {
+                string path = GetTmpFilePath(abInfo);
+                FileInfo tmpFile = new FileInfo(path);
+                if (tmpFile.Length == abInfo.size) //check size
+                {
+                    abInfo.state = ABInfoState.Success;
+                    string realPath = CUtils.PathCombine(outputPath, abInfo.abName);
+                    if (File.Exists(realPath)) File.Delete(realPath);
+                    tmpFile.MoveTo(realPath);//rename
+                }
+                else if (tryTimes < hosts.Length)
+                {
+                    FileHelper.DeletePersistentFile(abInfo.abName + ".tmp");
+                    RealLoad(webd, abInfo, bQueue, hosts[tryTimes]);
+                    return;
                 }
                 else
                 {
-                    Debug.LogWarning(string.Format("download url:{0}\r\n error:{1}", host, e.Error));
+                    webd.error = string.Format("background ab:{0} crc check is wrong", hosts[hosts.Length - 1] + "/" + abInfo.abName);
+                    Debug.Log(webd.error);
                 }
-
             }
 
+#if !HUGULA_RELEASE
+            Debug.LogFormat("background ab:{0}\r\n is done", ((ABInfo)((object[])webd.userData)[0]).abName);
+#endif
             webClients.Add(webd);
 
-            // #if UNITY_EDITOR
-            // Debug.LogFormat("url:{0}\r\n is done", host);
-            // #endif
         }
 
         void OnDownloadProgressChanged(object sender, System.Net.DownloadProgressChangedEventArgs e)

@@ -20,17 +20,17 @@ namespace Hugula.Update
     {
         public object userData;
 
-        public bool isError;
+        public string error;
 
-        public bool needReload;
+        public int timeout { get; set; }
 
-        public int Timeout { get; set; }
+        public int tryTimes;
 
         public WebDownload() : this(8000) { }
 
         public WebDownload(int timeout)
         {
-            this.Timeout = timeout;
+            this.timeout = timeout;
         }
 
         protected override WebRequest GetWebRequest(Uri address)
@@ -38,8 +38,9 @@ namespace Hugula.Update
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(address);
             if (request != null)
             {
-                request.Timeout = Timeout;
-                request.ReadWriteTimeout = Timeout;
+                request.Timeout = timeout;
+                request.ReadWriteTimeout = timeout;
+                // request.AddRange()
                 // Debug.LogFormat("request.Timeout={0}",request.Timeout);
             }
             return request;
@@ -49,8 +50,8 @@ namespace Hugula.Update
         static ObjectPool<WebDownload> objectPool = new ObjectPool<WebDownload>(m_ActionOnGet, m_ActionOnRelease);
         private static void m_ActionOnGet(WebDownload item)
         {
-            item.isError = false;
-            item.needReload = false;
+            item.error = null;
+            item.tryTimes = 0;
         }
 
         private static void m_ActionOnRelease(WebDownload item)
@@ -69,4 +70,6 @@ namespace Hugula.Update
         }
         #endregion
     }
+
+    
 }

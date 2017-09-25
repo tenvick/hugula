@@ -13,7 +13,7 @@ rd /s /q %slua_path%
 echo "del slua sccuess "
 
 set StreamingPath=%PROJECT_ROOT%\Assets\StreamingAssets
-rd /s /q %slua_path%
+rd /s /q %StreamingPath%
 echo "del StreamingPath sccuess "
 
 %UNITY_PATH% -projectPath %PROJECT_ROOT% -quit -batchmode -executeMethod ProjectBuild.ScriptingDefineSymbols defineSymbols:HUGULA_SPLITE_ASSETBUNDLE,HUGULA_APPEND_CRC,HUGULA_RELEASE -logFile $stdout

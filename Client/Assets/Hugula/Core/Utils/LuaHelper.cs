@@ -128,6 +128,14 @@ namespace Hugula.Utils
         }
 
         /// <summary>
+        /// 创建一个新的GameObject
+        /// </summary>
+        public static GameObject CreateNewGameObject(string rName)
+        {
+            return new GameObject(rName);
+        }
+
+        /// <summary>
         /// 设置父对象
         /// </summary>
         /// <param name="child"></param>
@@ -387,13 +395,7 @@ namespace Hugula.Utils
         /// <param name="assetBundle"></param>
         public static void RefreshShader(AssetBundle assetBundle)
         {
-
-#if UNITY_5
             UnityEngine.Material[] materials = assetBundle.LoadAllAssets<Material>();
-#else
-        UnityEngine.Object[] materials = assetBundle.LoadAll(typeof(Material));  //LoadAll<Material>();
-#endif
-
             //foreach (UnityEngine.Object m in materials)
             for (int i = 0; i < materials.Length; i++)
             {

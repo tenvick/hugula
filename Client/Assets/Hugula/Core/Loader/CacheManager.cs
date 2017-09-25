@@ -30,6 +30,7 @@ namespace Hugula.Loader
         /// <param name="assetBundleName"></param>
         public static void ClearDelay(string assetBundleName)
         {
+            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
             int hash = LuaHelper.StringToHash(assetBundleName);
             ClearDelay(hash);
         }
@@ -40,6 +41,7 @@ namespace Hugula.Loader
         /// <param name="assetBundleName"></param>
         public static bool UnloadCacheFalse(string assetBundleName)
         {
+            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
             int hash = LuaHelper.StringToHash(assetBundleName);
             if (!UnloadCacheFalse(hash))
             {
@@ -75,6 +77,7 @@ namespace Hugula.Loader
         /// <param name="assetBundleName"></param>
         public static bool UnloadDependenciesCacheFalse(string assetBundleName)
         {
+            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
             int hash = LuaHelper.StringToHash(assetBundleName);
             if (!UnloadDependenciesCacheFalse(hash))
             {
@@ -132,7 +135,7 @@ namespace Hugula.Loader
             if (cache != null)
             {
 #if HUGULA_CACHE_DEBUG
-                HugulaDebug.FilterLogWarningFormat(cache.assetBundleKey," <color=#8cacbc>ClearDelay Cache (assetBundle={0}) frameCount{1}</color>", cache.assetBundleKey, Time.frameCount);
+                HugulaDebug.FilterLogWarningFormat(cache.assetBundleKey," <color=#8cacbc>ClearDelay Cache (assetBundle={0},hash={1}),frameCount{2}</color>", cache.assetBundleKey,assethashcode, Time.frameCount);
 #endif
                 ABDelayUnloadManager.Add(assethashcode);
             }
@@ -215,7 +218,7 @@ namespace Hugula.Loader
             else
             {
                 cache = CacheData.Get();
-                cache.SetCacheData(null, key);
+                cache.SetCacheData(null, key,keyhashcode);
                 caches.Add(cache.assetHashCode, cache);
             }
 
@@ -226,7 +229,7 @@ namespace Hugula.Loader
         {
             CacheData cacheData = null;
             CreateOrGetCache(req.keyHashCode, out cacheData);
-            cacheData.SetCacheData(ab, req.key); //缓存
+            cacheData.SetCacheData(ab, req.key,req.keyHashCode); //缓存
             cacheData.dependencies = req.dependencies;
             cacheData.isDone = true;
 #if HUGULA_CACHE_DEBUG
@@ -240,7 +243,7 @@ namespace Hugula.Loader
         {
             CacheData cacheData = null;
             CreateOrGetCache(req.keyHashCode, out cacheData);
-            cacheData.SetCacheData(null, req.key); //缓存
+            cacheData.SetCacheData(null, req.key,req.keyHashCode); //缓存
             cacheData.dependencies = req.dependencies;
             cacheData.isError = true;
             cacheData.isDone = true;
@@ -262,7 +265,11 @@ namespace Hugula.Loader
             for (int i = 0; i < denps.Length; i++)
             {
                 hash = denps[i];
-                if (caches.TryGetValue(hash, out cache))
+                if(hash == 0)
+                {
+                   continue;     
+                }
+                else if (caches.TryGetValue(hash, out cache))
                 {
                     if (!cache.isDone) // if (!cache.isAssetLoaded || !cache.canUse)
                         return false;

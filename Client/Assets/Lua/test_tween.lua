@@ -33,4 +33,5 @@ print(#paths)
 --moveSpline
 LeanTween.moveSpline(camera,paths, 6):setOrientToPath(true):setEase(LeanTweenType.easeInQuart):setDelay(1):setOnComplete(oncomplete):setOnCompleteParam(paths) --setOrientToPath(true):
 
+print("new")
  -- LeanTween.drawBezierPath(paths[0],paths[1],paths[2],paths[3])

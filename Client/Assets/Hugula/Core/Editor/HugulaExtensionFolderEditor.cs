@@ -69,28 +69,47 @@ namespace Hugula.Editor
         {
             if (!instance.ExtensionFiles.Contains(name))
             {
-                instance.FirstLoadFiles.Remove(name);
+                RemoveExtendsFile(name);
                 instance.ExtensionFiles.Add(name);
                 Debug.LogFormat(" add extension file ({0}) success", name);
             }
+            else
+                Debug.LogWarningFormat("  extension  Contains ({0})", name);
         }
 
         public static void AddFirstLoadFile(string name)
         {
             if (!instance.FirstLoadFiles.Contains(name))
             {
-                instance.ExtensionFiles.Remove(name);
+                RemoveExtendsFile(name);
                 instance.FirstLoadFiles.Add(name);
                 Debug.LogFormat(" add first load file ({0}) success", name);
             }
+            else
+                Debug.LogWarningFormat("  first load file Contains ({0})", name);
+        }
+
+        public static void AddOnlyInclusionFiles(string path)
+        {
+            if (!instance.OnlyInclusionFiles.Contains(path))
+            {
+                RemoveExtendsFile(path);
+                instance.OnlyInclusionFiles.Add(path);
+                Debug.LogFormat(" add Only Inclusion Files  ({0}) success", path);
+            }
+            else
+                Debug.LogWarningFormat("  Only Inclusion  Contains ({0})", path);
+
         }
 
         public static void RemoveExtendsFile(string name)
         {
             instance.ExtensionFiles.Remove(name);
             instance.FirstLoadFiles.Remove(name);
-            Debug.LogFormat(" remove extension file ({0}) success", name);
+            instance.OnlyInclusionFiles.Remove(name);
+            // Debug.LogFormat(" remove extension file ({0}) success", name);
         }
+
 
         public static void RemoveExtendsFiles(List<string> names)
         {
@@ -98,82 +117,83 @@ namespace Hugula.Editor
             {
                 instance.ExtensionFiles.Remove(str);
                 instance.FirstLoadFiles.Remove(str);
+                instance.OnlyInclusionFiles.Remove(str);
             }
         }
 
-        public static void AddZipFile(List<string> names)
-        {
-            CheckDeleteZipFile(names);
-            if (names.Count > 0)
-            {
-                instance.ZipFiles.Add(names);
-                SaveSettingData(instance);
-            }
+        // public static void AddZipFile(List<string> names)
+        // {
+        //     CheckDeleteZipFile(names);
+        //     if (names.Count > 0)
+        //     {
+        //         instance.ZipFiles.Add(names);
+        //         SaveSettingData(instance);
+        //     }
 
-        }
+        // }
 
-        public static void RemoveZipFile(List<string> names)
-        {
-            if (CheckDeleteZipFile(names))
-                SaveSettingData(instance);
-        }
+        // public static void RemoveZipFile(List<string> names)
+        // {
+        //     if (CheckDeleteZipFile(names))
+        //         SaveSettingData(instance);
+        // }
 
-        public static bool CheckDeleteZipFile(List<string> names)
-        {
-            var zfs = instance.ZipFiles;
-            int dindex;
-            bool needSave = false;
-            List<string> item;
-            string n = "";
-            for (int j = 0; j < names.Count;)
-            {
-                n = names[j];
-                if (instance.ExtensionFiles.Contains(n))
-                {
-                    Debug.LogWarningFormat(" {0} has added to Extension Files", n);
-                    names.RemoveAt(j);
-                    continue;
-                }
-                else
-                {
-                    j++;
-                }
+        // public static bool CheckDeleteZipFile(List<string> names)
+        // {
+        //     var zfs = instance.ZipFiles;
+        //     int dindex;
+        //     bool needSave = false;
+        //     List<string> item;
+        //     string n = "";
+        //     for (int j = 0; j < names.Count;)
+        //     {
+        //         n = names[j];
+        //         if (instance.ExtensionFiles.Contains(n))
+        //         {
+        //             Debug.LogWarningFormat(" {0} has added to Extension Files", n);
+        //             names.RemoveAt(j);
+        //             continue;
+        //         }
+        //         else
+        //         {
+        //             j++;
+        //         }
 
-                for (int i = 0; i < zfs.Count;)
-                {
-                    item = zfs[i];
-                    dindex = item.IndexOf(n);
-                    if (dindex >= 0)
-                    {
-                        item.RemoveAt(dindex);
-                        needSave = true;
-                    }
+        //         for (int i = 0; i < zfs.Count;)
+        //         {
+        //             item = zfs[i];
+        //             dindex = item.IndexOf(n);
+        //             if (dindex >= 0)
+        //             {
+        //                 item.RemoveAt(dindex);
+        //                 needSave = true;
+        //             }
 
-                    if (item.Count == 0)
-                    {
-                        zfs.RemoveAt(i);
-                        needSave = true;
-                    }
-                    else
-                    {
-                        i++;
-                    }
-                }
-            }
+        //             if (item.Count == 0)
+        //             {
+        //                 zfs.RemoveAt(i);
+        //                 needSave = true;
+        //             }
+        //             else
+        //             {
+        //                 i++;
+        //             }
+        //         }
+        //     }
 
-            return needSave;
-        }
+        //     return needSave;
+        // }
 
-        public static bool ContainsZipFile(string name)
-        {
-            var zfs = instance.ZipFiles;
-            foreach (var li in zfs)
-            {
-                if (li.Contains(name))
-                    return true;
-            }
-            return false;
-        }
+        // public static bool ContainsZipFile(string name)
+        // {
+        //     var zfs = instance.ZipFiles;
+        //     foreach (var li in zfs)
+        //     {
+        //         if (li.Contains(name))
+        //             return true;
+        //     }
+        //     return false;
+        // }
 
         public static bool ContainsExtendsPath(string path)
         {
@@ -218,6 +238,8 @@ namespace Hugula.Editor
                 file.WriteLine(string.Format("version: {0}", _instance.version));
                 file.WriteLine("extensionPath:");
                 writeStringList(file, _instance.ExtensionPath);
+                file.WriteLine("onlyInclusionFiles:");
+                writeStringList(file, _instance.OnlyInclusionFiles);
                 file.WriteLine("firstLoadFiles:");
                 writeStringList(file, _instance.FirstLoadFiles);
                 file.WriteLine("extensionFiles:");
@@ -244,6 +266,7 @@ namespace Hugula.Editor
 
                 while ((str = file.ReadLine()) != null)
                 {
+                    // Debug.Log(str);
                     string[] strArray = str.Split(separator);
                     string str2 = strArray[0].Trim();
                     string s = strArray[1].Trim();
@@ -256,6 +279,11 @@ namespace Hugula.Editor
                         if (str2 == "extensionPath")
                         {
                             _instance.ExtensionPath = readStringList(file);
+                            continue;
+                        }
+                        if (str2 == "onlyInclusionFiles")
+                        {
+                            _instance.OnlyInclusionFiles = readStringList(file);
                             continue;
                         }
                         if (str2 == "firstLoadFiles")
@@ -346,26 +374,31 @@ namespace Hugula.Editor
     public class ExtensionFolder
     {
         /// <summary>
-        /// 手动加载文件夹列表
+        /// 手动加载文件夹列表，资源不随包，需要手动调用下载
         /// </summary>
         public List<string> ExtensionPath = new List<string>();
 
         /// <summary>
-        /// 热更新资源
+        /// 边玩边下资源，资源不随包，开启后自动下载。
         /// </summary>
         public List<string> ExtensionFiles = new List<string>();
 
         /// <summary>
-        /// 首次加载列表
+        /// 首次加载列表，资源不会随包，在第一启动的时候下载，与第一次热更新合并。
         /// </summary>
         public List<string> FirstLoadFiles = new List<string>();
+
+        /// <summary>
+        /// 只包涵的资源列表，其余资源放入ExtensionFiles中
+        /// </summary>
+        public List<string> OnlyInclusionFiles = new List<string>();
 
         /// <summary>
         ///  zip 文件列表
         /// </summary>
         public List<List<string>> ZipFiles = new List<List<string>>();
 
-        public int version = 2;
+        public int version = 3;
 
     }
 }

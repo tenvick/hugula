@@ -48,7 +48,7 @@ Net.onConnectionCloseFn=function(net)
 	print("onConnectionClose")
 	--showTips("你的网络已断开！点击确定重新连接。",onReConnect)
 	-- Net:ReConnect()
-	local hall = LuaItemManager:get_item_obejct("hall")
+	local hall = LuaItemManager:get_item_object("hall")
 	hall:toHall()
 end
 

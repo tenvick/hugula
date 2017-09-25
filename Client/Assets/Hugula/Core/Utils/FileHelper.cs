@@ -178,11 +178,7 @@ namespace Hugula.Utils
         public static void UnpackConfigAssetBundleFn(AssetBundle ab, LuaFunction luaFn)
         {
             callBackFn = luaFn;
-#if UNITY_5
             UnityEngine.Object[] all = ab.LoadAllAssets();
-#else
-        UnityEngine.Object[] all = ab.LoadAll();
-#endif
             foreach (UnityEngine.Object i in all)
             {
                 if (i is TextAsset)

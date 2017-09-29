@@ -1,17 +1,18 @@
 fileFormatVersion: 2
 guid: b221d9b9f382ddb49badd47a49e6a7f8
 TrueTypeFontImporter:
-  serializedVersion: 2
+  serializedVersion: 4
   fontSize: 32
   forceTextureCase: -2
-  characterSpacing: 1
-  characterPadding: 0
+  characterSpacing: 0
+  characterPadding: 1
   includeFontData: 1
-  use2xBehaviour: 0
-  fontNames: []
+  fontNames:
+  - DFPHaiBaoW12-GB
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
+  ascentCalculationMode: 1
   userData: 
-  assetBundleName: 4d08c534634e9633c956bc57fe5d6ad2.u3d
+  assetBundleName: dfphaibaow12gbfont.u3d
   assetBundleVariant: 

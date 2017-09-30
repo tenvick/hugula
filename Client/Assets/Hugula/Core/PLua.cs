@@ -68,7 +68,6 @@ namespace Hugula
         {
             DontDestroyOnLoad(this.gameObject);
             if (lua == null) PreInitLua();
-            LoadScript();
         }
 
         IEnumerator Start()
@@ -76,6 +75,11 @@ namespace Hugula
             while (isLuaInitFinished == false)
                 yield return null;
 
+            LoadScript();
+#if !HUGULA_RELEASE
+            // Debug.Log(luaBytesAsset);
+            Debug.LogFormat("domain frame {0}", Time.frameCount);
+#endif
             DoMain();
         }
 
@@ -196,12 +200,12 @@ namespace Hugula
         {
             byte[] ret = null;
 #if UNITY_EDITOR_WIN
-            string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}", name, Common.LUA_LC_SUFFIX));
+            string cryName = CUtils.GetRightFileName(string.Format("{0}.{1}", name, Common.ASSETBUNDLE_SUFFIX));
             string path = CUtils.PathCombine(Application.dataPath, Common.LUACFOLDER + "/win");
             path = CUtils.PathCombine(path, cryName);
             ret = File.ReadAllBytes(path);
 #elif UNITY_EDITOR_OSX
-            string cryName = CUtils.GetRightFileName (string.Format ("{0}.{1}", name, Common.LUA_LC_SUFFIX));
+            string cryName = CUtils.GetRightFileName (string.Format ("{0}.{1}", name, Common.ASSETBUNDLE_SUFFIX));
             string path = CUtils.PathCombine (Application.dataPath, Common.LUACFOLDER + "/osx");
             path = CUtils.PathCombine (path, cryName);
             ret = File.ReadAllBytes (path);
@@ -212,21 +216,24 @@ namespace Hugula
             else
                 cryName = CUtils.GetRightFileName (string.Format ("{0}_64", name));
 
-            string path = CUtils.PathCombine (CUtils.realPersistentDataPath, cryName + "." + Common.LUA_LC_SUFFIX);
+            string path = CUtils.PathCombine (CUtils.realPersistentDataPath, cryName + Common.CHECK_ASSETBUNDLE_SUFFIX);
             if (File.Exists (path)) {
                 ret = File.ReadAllBytes (path);
             } else {
-                var textAsset = (TextAsset)Resources.Load (cryName);
+                var textAsset =(TextAsset)Resources.Load ("luac/"+cryName);
                 ret = textAsset.bytes; // --Resources.Load
                 Resources.UnloadAsset(textAsset);
             }
 #else //android
-            string cryName = CUtils.GetRightFileName (name);
-            string path = CUtils.PathCombine (CUtils.realPersistentDataPath, cryName + "." + Common.LUA_LC_SUFFIX);
-            if (File.Exists (path)) {
-                ret = File.ReadAllBytes (path);
-            } else {
-                var textAsset = (TextAsset)Resources.Load (cryName);
+            string cryName = CUtils.GetRightFileName(name);
+            string path = CUtils.PathCombine(CUtils.realPersistentDataPath, cryName + Common.CHECK_ASSETBUNDLE_SUFFIX);
+            if (File.Exists(path))
+            {
+                ret = File.ReadAllBytes(path);
+            }
+            else
+            {
+                var textAsset = (TextAsset)Resources.Load ("luac/"+cryName); //pc luaBundle.LoadAsset<TextAsset>(cryName);
                 ret = textAsset.bytes; // --Resources.Load
                 Resources.UnloadAsset(textAsset);
             }
@@ -344,7 +351,7 @@ namespace Hugula
                     lua.luaState.doFile(luastr);
                 }
             }
-            yield return new WaitForEndOfFrame();
+            yield return null;
             // Debug.LogFormat("call function {0} ;", onCompFn != null);
             if (onCompFn != null) onCompFn.call();
         }

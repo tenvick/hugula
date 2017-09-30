@@ -105,7 +105,7 @@ namespace Hugula.Loader
         public void Dispose()
         {
 #if HUGULA_CACHE_DEBUG
-                 HugulaDebug.FilterLogFormat (assetBundleKey,"Dispose  CacheData({0},assetHashCode({1})),frame={2}  ", assetBundleKey, assetHashCode,Time.frameCount);
+                HugulaDebug.FilterLogFormat (assetBundleKey,"Dispose  CacheData({0},assetHashCode({1})),frame={2}  ", assetBundleKey, assetHashCode,Time.frameCount);
 #endif
             if (assetBundle) assetBundle.Unload(true);
             assets.Clear();
@@ -125,7 +125,7 @@ namespace Hugula.Loader
             if (assetBundle) assetBundle.Unload(false);
             isUnloaded = true;
 #if HUGULA_CACHE_DEBUG
-               HugulaDebug.FilterLogFormat (assetBundleKey,"Unload  CacheData({0}assetHashCode({1})  ", assetBundleKey, assetHashCode);
+             HugulaDebug.FilterLogFormat (assetBundleKey,"Unload  CacheData({0},assetHashCode({1})),frame={2}  ", assetBundleKey, assetHashCode,Time.frameCount);
 #endif
         }
 

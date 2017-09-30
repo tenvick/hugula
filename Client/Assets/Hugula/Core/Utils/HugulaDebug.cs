@@ -9,6 +9,8 @@ namespace Hugula.Utils
 
         public static bool CheckInFilterMd5Name(string md5Name)
         {
+
+#if UNITY_EDITOR
             if (string.IsNullOrEmpty(filterNames)) return true;
             string[] sp = md5Name.Split(',');
             foreach (var s in sp)
@@ -19,6 +21,10 @@ namespace Hugula.Utils
                 }
             }
             return false;
+#else
+                return true;
+#endif
+
         }
 
         public static void FilterLogFormat(string md5, string source, params object[] args)

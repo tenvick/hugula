@@ -3,6 +3,8 @@
 --   
 --  author pu
 ------------------------------------------------
+
+require("core.loader")
 require("core.unity3d")
 require("core.structure")
 require("net.netMsgHelper")

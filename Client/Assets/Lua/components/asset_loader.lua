@@ -16,6 +16,7 @@ local CRequest = Hugula.Loader.CRequest --内存池
 local UIJoint = UIJoint
 local UIParentJoint = UIParentJoint
 local ManifestManager = Hugula.Loader.ManifestManager
+local Time = UnityEngine.Time
 
 local Loader = Loader
 local Asset = Asset
@@ -75,22 +76,26 @@ function AssetLoader:on_asset_loaded(key, asset)
 	self.assets[key] = asset
 	self._load_curr = self._load_curr + 1
 	asset:show()
-	self.lua_obj:send_message("on_asset_load", key, asset)
+	local lua_obj = self.lua_obj
+
+	lua_obj:send_message("on_asset_load", key, asset)
 	send_message(asset, "on_asset_load", key, asset)
-	local is_on_blur = self.lua_obj.is_on_blur
+
+	local is_on_blur = lua_obj.is_on_blur
+	print("on_asset_load (",asset.asset_name,") delta time = ",os.clock()-asset._start_time,Time.frameCount)
 	-- print(string.format("AssetLoader.name=%s,_load_count=%s,_load_curr=%s,key=%s,self.is_on_blur=%s",self.lua_obj.name,self._load_count,self._load_curr,key,tostring(is_on_blur)))
 	if self._load_curr >= self._load_count then
-		self.lua_obj.is_loading = nil
-		self.lua_obj.is_call_assets_loaded = true
-		self.lua_obj:send_message("on_assets_load", self.assets)
-		
+		lua_obj.is_loading = nil
+		lua_obj.is_call_assets_loaded = true
+		lua_obj:send_message("on_assets_load", self.assets)
+		print("on_assets_load (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
 		local call_showed = function()
 			if not is_on_blur then
-				self.lua_obj:send_message("on_showed")
-				self.lua_obj:call_event("on_showed")
+				lua_obj:send_message("on_showed")
+				lua_obj:call_event("on_showed")
 			end
-
-			if StateManager:is_in_current_state(self.lua_obj) and StateManager:get_current_state():is_all_loaded() then
+			print("on_showed (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
+			if StateManager:is_in_current_state(lua_obj) and StateManager:get_current_state():is_all_loaded() then
 			-- print(string.format("call_all_item_method lua_object.name=%s  ",self.lua_obj._key))
 				StateManager:call_all_item_method()
 			end
@@ -185,6 +190,7 @@ function AssetLoader:load_assets(assets)
 		key = v.key
 		if v.variant then v:set_url(ManifestManager.GetVariantName(v.url)) print("variant",v.url) end
 		local asst = GAMEOBJECT_ATLAS[key] --print(key,asst)
+		v._start_time = os.clock()
 		if asst then
 			asst:copy_to(v)
 			add_to_parent_asset(v)
@@ -216,7 +222,7 @@ function AssetLoader:clear()
 end
 
 function AssetLoader:load(asts, onall_complete, on_progress)
-	local dug_str = ""
+	-- local dug_str = ""
 	self.assets = {}
 	local all_assets = {}
 	self._load_count = 0 --#all_assets
@@ -224,7 +230,7 @@ function AssetLoader:load(asts, onall_complete, on_progress)
 	for k, v in ipairs(asts) do
 		table.insert(all_assets, v)
 		self._load_count = self._load_count + 1
-		dug_str = dug_str .. v.asset_name .. ","
+		-- dug_str = dug_str .. v.asset_name .. ","
 		if v.children then
 			for k1, v1 in ipairs(v.children) do
 				table.insert(all_assets, v1)
@@ -233,6 +239,7 @@ function AssetLoader:load(asts, onall_complete, on_progress)
 		end
 	end
 	if self.lua_obj.is_loading then print("warring something is loading lua_obj=" .. tostring(self.lua_obj)) end
+	self.lua_obj._start_time = os.clock()
 	self._load_curr = 0
 	self._on_progress = on_progress
 	self._onall_complete = onall_complete

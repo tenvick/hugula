@@ -12,6 +12,7 @@ StateBase=class(function(self,item_objects,arg1,arg2)
         
         self._item_list={} --所有项
         self._original = {} --原始item
+        self._on_blured ={} --标记移除
 
         if item_objects then 
             for k,v in ipairs(item_objects) do
@@ -189,7 +190,7 @@ function StateBase:on_back(new_state)
 
 function StateBase:on_bluring(new_state) --失去焦点之前
     local itemobj = nil
-    local on_blured = {}
+    local on_blured = self._on_blured
     for i=#self._item_list,1,-1 do
         itemobj=self._item_list[i]
         if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj))  or itemobj.forcecall then --如果新状态包涵当前item不需要失去焦点
@@ -197,23 +198,25 @@ function StateBase:on_bluring(new_state) --失去焦点之前
             if itemobj.on_bluring then itemobj:on_bluring(new_state) end
         end
     end
-    on_blured = nil
+    table.clear(on_blured)
  end
 
 function StateBase:on_blur(new_state)
     local itemobj = nil
-    local on_blured = {}
-    for i=#self._item_list,1,-1 do
-        itemobj=self._item_list[i]
+    local on_blured = self._on_blured
+    local item_list = self._item_list
+
+    for i=#item_list,1,-1 do
+        itemobj=item_list[i]
         if itemobj and on_blured[itemobj] ~= true and (new_state == nil or not new_state:is_original_item(itemobj))  or itemobj.forcecall then --如果新状态包涵当前item不需要失去焦点
             on_blured[itemobj] = true 
-            -- if itemobj.on_bluring then itemobj:on_bluring(new_state) end
             itemobj:on_blur(new_state) 
+            if not itemobj.log_enable and not self:is_original_item(itemobj) then table.remove(self._item_list,i)  end
             if itemobj.on_blured then itemobj:on_blured(new_state) end
         end
     end
     -- self:hide_transform()
-    on_blured = nil
+    table.clear(on_blured)
  end
 
 function StateBase:dispose( ... )

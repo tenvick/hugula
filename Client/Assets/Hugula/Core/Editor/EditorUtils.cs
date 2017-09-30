@@ -81,8 +81,7 @@ namespace Hugula.Editor
 
         public static string GetLuaBytesResourcesPath()
         {
-            string luapath = Path.Combine(Application.dataPath, Common.LUACFOLDER);
-            luapath = Path.Combine(luapath, "Resources");
+            string luapath = "Assets/"+Common.LUACFOLDER+"/Resources/Luac";
             return luapath;
         }
 

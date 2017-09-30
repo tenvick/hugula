@@ -41,7 +41,7 @@ namespace Hugula.Loader
 
         //protected
         static protected LoadingEventArg loadingEvent;
-
+        
         //bundle queue
         static protected Queue<AssetBundleDownloadOperation> bundleQueue = new Queue<AssetBundleDownloadOperation>();
         //BundleGroundQueue
@@ -122,6 +122,7 @@ namespace Hugula.Loader
                 bundleGroundQueue.AddLast(bGroup);
             }
 
+            LoadingQueue();
         }
 
         /// <summary>
@@ -438,7 +439,7 @@ namespace Hugula.Loader
             {
                 //load dependencies and refrenece count
                 if (ManifestManager.fileManifest != null)
-                    req.dependencies = LoadDependencies(req,null); //load dependencies assetbundle
+                    req.dependencies = LoadDependencies(req, null); //load dependencies assetbundle
                 //load assetbundle
                 abDownloadOperation = LoadAssetBundleInternal(req);
             }
@@ -497,15 +498,15 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        static protected int[] LoadDependencies(CRequest req,CRequest parent)
+        static protected int[] LoadDependencies(CRequest req, CRequest parent)
         {
             string[] deps = ManifestManager.fileManifest.GetDirectDependencies(req.assetBundleName);
             if (deps.Length == 0) return null;
             string abName = string.Empty;
-            if(parent!=null) abName = CUtils.GetBaseName(parent.assetBundleName);
+            if (parent != null) abName = CUtils.GetBaseName(parent.assetBundleName);
 
 #if HUGULA_PROFILER_DEBUG
-            Profiler.BeginSample(string.Format("LoadDependencies ({0},{1},{2}) new int[deps.Length]", req.assetName, req.key,req.isShared));
+            Profiler.BeginSample(string.Format("LoadDependencies ({0},{1},{2}) new int[deps.Length]", req.assetName, req.key, req.isShared));
 #endif
             string dep_url;
             string depAbName = "";
@@ -518,10 +519,10 @@ namespace Hugula.Loader
             for (int i = 0; i < deps.Length; i++)
             {
                 depAbName = CUtils.GetBaseName(deps[i]);
-                if(abName==depAbName)
+                if (abName == depAbName)
                 {
 #if UNITY_EDITOR
-                    Debug.LogErrorFormat("Dependencies({1}) Contains the parent({0}) ! ",req.assetBundleName,abName);
+                    Debug.LogErrorFormat("Dependencies({1}) Contains the parent({0}) ! ", req.assetBundleName, abName);
 #else
                     Debug.LogWarningFormat("Dependencies({1}) Contains the parent({0}) ! ",req.assetBundleName,abName);
 #endif
@@ -565,7 +566,7 @@ namespace Hugula.Loader
                     item.isShared = true;
                     item.async = req.async;
                     item.priority = req.priority;
-                    item.dependencies = LoadDependencies(item,req);
+                    item.dependencies = LoadDependencies(item, req);
                     item.uris = req.uris;
 #if HUGULA_LOADER_DEBUG
                     HugulaDebug.FilterLogFormat(req.key, "<color=#15A0A1>1.1  Load Dependencies Req({1},keyHashCode{2})  AssetBundleInternal  Parent Request(assetname={0}), dependencies.count={3},frameCount{4}</color>", req.assetName, item.assetName, item.keyHashCode, item.dependencies == null ? 0 : item.dependencies.Length, Time.frameCount);
@@ -590,7 +591,7 @@ namespace Hugula.Loader
             if (!downloadingBundles.TryGetValue(req.key, out abDownloadOp))
             {
 #if HUGULA_PROFILER_DEBUG
-                Profiler.BeginSample(string.Format("LoadAssetBundleInternal ({0},{1},{2})", req.assetName, req.key,req.isShared));
+                Profiler.BeginSample(string.Format("LoadAssetBundleInternal ({0},{1},{2})", req.assetName, req.key, req.isShared));
 #endif
                 if (!UriGroup.CheckRequestCurrentIndexCrc(req)) //crc 
                 {
@@ -607,8 +608,18 @@ namespace Hugula.Loader
 
                 }
                 abDownloadOp.SetRequest(req);
-                bundleQueue.Enqueue(abDownloadOp);
                 downloadingBundles.Add(req.key, abDownloadOp);
+
+                //load now
+                if(bundleMax - inProgressBundleOperations.Count>0)
+                {
+                    inProgressBundleOperations.Add(abDownloadOp);
+                    abDownloadOp.BeginDownload();
+                }
+                else
+                {
+                    bundleQueue.Enqueue(abDownloadOp);
+                }
 #if HUGULA_LOADER_DEBUG
                 HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.2 LoadAssetBundleInternal Request(key={0},isShared={1},assetname={2},dependencies.count={4})keyHashCode{3}, frameCount{5}</color>", req.key, req.isShared, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, Time.frameCount);
 #endif
@@ -697,7 +708,7 @@ namespace Hugula.Loader
             var now = System.DateTime.Now;
             var dt1 = now - req.beginQueueTime;
             var dt2 = now - req.beginLoadTime;
-            Debug.LogFormat("<color=#0a9a0a>asset complete Request(asset={0},key={1}) alltime={2},loadtime={3};frame={4}</color>", req.assetName, req.key, dt1.TotalSeconds, dt2.TotalSeconds,Time.frameCount);
+            Debug.LogFormat("<color=#0a9a0a>asset complete Request(asset={0},key={1}) alltime={2},loadtime={3};frame={4}</color>", req.assetName, req.key, dt1.TotalSeconds, dt2.TotalSeconds, Time.frameCount);
 #endif
 
             req.ReleaseToPool();
@@ -809,7 +820,7 @@ namespace Hugula.Loader
             {
                 tips = "Shared AssetBundle";
             }
-            Debug.LogFormat("<color=#0a9a0a>{0} Request(asset={1},key={2},size={3}) alltime={4}s,loadtime={5}s,frame={6}</color>", tips, req.assetName, req.key, size, dt1.TotalSeconds, dt2.TotalSeconds,Time.frameCount);
+            Debug.LogFormat("<color=#0a9a0a>{0} Request(asset={1},key={2},size={3}) alltime={4}s,loadtime={5}s,frame={6}</color>", tips, req.assetName, req.key, size, dt1.TotalSeconds, dt2.TotalSeconds, Time.frameCount);
 #endif
         }
 
@@ -838,7 +849,7 @@ namespace Hugula.Loader
         static void ProcessFinishedBundleOperation(AssetBundleDownloadOperation operation)
         {
 #if HUGULA_PROFILER_DEBUG
-            Profiler.BeginSample(string.Format("ResourcesLoader.ProcessFinishedBundleOperation CRequest({0},shared={1})", operation.cRequest.assetName,operation.cRequest.isShared));
+            Profiler.BeginSample(string.Format("ResourcesLoader.ProcessFinishedBundleOperation CRequest({0},shared={1})", operation.cRequest.assetName, operation.cRequest.isShared));
 #endif
             var req = operation.cRequest;
             bool isError = operation.assetBundle == null;
@@ -973,14 +984,7 @@ namespace Hugula.Loader
         /// </summary>
         void Update()
         {
-#if HUGULA_PROFILER_DEBUG
-            Profiler.BeginSample("ResourcesLoader.LoadingQueue");
-#endif
             frameBegin = System.DateTime.Now;
-            LoadingQueue();
-#if HUGULA_PROFILER_DEBUG
-            Profiler.EndSample();
-#endif
 
 #if HUGULA_PROFILER_DEBUG
             Profiler.BeginSample("ResourcesLoader.LoadBundle" + inProgressBundleOperations.Count);
@@ -1020,7 +1024,6 @@ namespace Hugula.Loader
 #if HUGULA_PROFILER_DEBUG
             Profiler.BeginSample("inProgressBundleOperations.Loop count=" + inProgressBundleOperations.Count);
 #endif
-
             //load bundle
             for (int i = 0; i < inProgressBundleOperations.Count;)
             {
@@ -1033,7 +1036,6 @@ namespace Hugula.Loader
                 {
                     inProgressBundleOperations.RemoveAt(i);
                     ProcessFinishedBundleOperation(operation);
-
                     //check frame time
                     var ts = (System.DateTime.Now - frameBegin).TotalMilliseconds;
                     if (ts >= BundleLoadBreakMilliSeconds * 3f)
@@ -1047,6 +1049,7 @@ namespace Hugula.Loader
                         break;
                 }
             }
+
 #if HUGULA_PROFILER_DEBUG
             Profiler.EndSample();
 #endif
@@ -1072,6 +1075,11 @@ namespace Hugula.Loader
                 if (ts.TotalMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
                     break;
             }
+            
+            //begin load bunld
+            if (inProgressBundleOperations.Count == 0)
+                LoadingQueue();
+
 #if HUGULA_PROFILER_DEBUG
             Profiler.EndSample();
 #endif

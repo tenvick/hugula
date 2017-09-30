@@ -57,7 +57,15 @@ ItemGCType =
         segment4 = 4
     }
 
-local gprint=print
+UnityEngine.ThreadPriority =
+{
+    Low = 0,
+    BelowNormal = 1,
+    Normal = 2,
+    High = 4
+}
+
+local gprint = print
 function print(...)
     if CUtils.printLog==false then return end
   local arg={...}

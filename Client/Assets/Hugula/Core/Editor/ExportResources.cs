@@ -51,6 +51,9 @@ namespace Hugula.Editor
 #elif UNITY_STANDALONE_WIN && UNITY_EDITOR_OSX //win on mac
     public static string luaWorkingPath = CurrentRootFolder+"tools/luaTools";
     public static string luacPath = CurrentRootFolder+"tools/luaTools/luajit2.04";
+#elif UNITY_EDITOR_OSX && UNITY_ANDROID //android on mac
+    public static string luaWorkingPath = CurrentRootFolder+"tools/luaTools";
+    public static string luacPath = "";
 #else // mac 
     public static string luaWorkingPath = CurrentRootFolder+"tools/luaTools";
     public static string luacPath = CurrentRootFolder+"tools/luaTools/luac";

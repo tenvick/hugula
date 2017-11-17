@@ -122,5 +122,5 @@ function Asset:copy_to(asse)
 end
 
 function Asset:__tostring()
-    return string.format("asset.key = %s ,url =%s ", self.key,self.url)
+    return string.format("asset.key = %s ,url =%s ", self.key or "",self.url or "")
 end

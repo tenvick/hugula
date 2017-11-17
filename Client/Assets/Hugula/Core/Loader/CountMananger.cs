@@ -11,7 +11,7 @@ namespace Hugula.Loader
     [SLua.CustomLuaClass]
     public static class CountMananger
     {
-
+ 
         /// <summary>
         /// 目标引用减一
         /// </summary>
@@ -34,27 +34,27 @@ namespace Hugula.Loader
 #endif
                 if (cached.count == 0) //所有引用被清理。
                 {
-                    CacheManager.ClearDelay(hashcode);
                     int[] alldep = cached.dependencies;
-                    CacheData cachetmp = null;
+                    CacheManager.ClearDelay(hashcode);
+                    int tmpDenHash = 0;
                     if (alldep != null)
                     {
                         for (int i = 0; i < alldep.Length; i++)
                         {
-                            cachetmp = CacheManager.TryGetCache(alldep[i]);
-                            if (cachetmp != null && cachetmp.assetHashCode != hashcode)
+                            tmpDenHash = alldep[i];
+                            if (tmpDenHash != hashcode)
                             {
-                                Subtract(cachetmp.assetHashCode);
+                                Subtract(tmpDenHash);
                             }
                         }
                     }
                 }
                 return cached.count;
             }
-#if UNITY_EDITOR
+#if UNITY_EDITOR || !HUGULA_RELEASE
             else if (cached != null && cached.count <= 0)
             {
-                UnityEngine.Debug.LogWarningFormat("Subtract (assetBundle={0},hashcode={1},count={2}) frameCount{3}", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
+                UnityEngine.Debug.LogWarningFormat("CountManager.Subtract (assetBundle={0},hashcode={1},count={2}) frameCount{3}", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
             }
 #endif
 
@@ -88,7 +88,6 @@ namespace Hugula.Loader
             CacheData cached = CacheManager.TryGetCache(hashcode);
             if (cached != null)
             {
-                // ABDelayUnloadManager.CheckRemove(hashcode);
                 cached.count++; //= cached.count + 1;
 #if HUGULA_CACHE_DEBUG 
                 HugulaDebug.FilterLogFormat(cached.assetBundleKey, " <color=#0cbcbc>add  (assetBundle={0},hashcode={1},count={2})  frameCount{3}</color>", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
@@ -123,27 +122,27 @@ namespace Hugula.Loader
             return cached.count;
         }
 
-        internal static int WillAdd(string key)
-        {
-            CacheData cached = null;
-            CacheManager.CreateOrGetCache(key, out cached);
-            cached.count++;
-            return cached.count;
+        // internal static int WillAdd(string key)
+        // {
+        //     CacheData cached = null;
+        //     CacheManager.CreateOrGetCache(key, out cached);
+        //     cached.count++;
+        //     return cached.count;
 
-        }
+        // }
 
-        /// <summary>
-        /// Adds the dependencies.
-        /// </summary>
-        /// <param name="hashcode">Hashcode.</param>
-        internal static void WillAddDependencies(int[] allDependencies)
-        {
-            if (allDependencies != null)
-            {
-                foreach (int hash in allDependencies)
-                    WillAdd(hash);
-            }
+        // /// <summary>
+        // /// Adds the dependencies.
+        // /// </summary>
+        // /// <param name="hashcode">Hashcode.</param>
+        // internal static void WillAddDependencies(int[] allDependencies)
+        // {
+        //     if (allDependencies != null)
+        //     {
+        //         foreach (int hash in allDependencies)
+        //             WillAdd(hash);
+        //     }
 
-        }
+        // }
     }
 }

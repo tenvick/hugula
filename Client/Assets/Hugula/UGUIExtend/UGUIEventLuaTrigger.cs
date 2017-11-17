@@ -32,5 +32,11 @@ namespace Hugula.UGUIExtend
             }
         }
 
+        void OnDestroy()
+        {
+            if (luaFn != null)
+                luaFn.Dispose();
+            luaFn = null;
+        }
     }
 }

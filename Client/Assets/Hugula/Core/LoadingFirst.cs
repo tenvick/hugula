@@ -12,6 +12,8 @@ public class LoadingFirst : MonoBehaviour
 {
 
     public string enterLua = "main";
+    public string sceneName = "s_begin";
+	public string sceneAssetBundleName = "s_begin.u3d";
 
     public Text tips;
     // Use this for initialization
@@ -22,9 +24,9 @@ public class LoadingFirst : MonoBehaviour
         ResourcesLoader.Initialize();
         CUtils.DebugCastTime("LoadingFirst.Initialize");
         LogSys();
-        LoadFirstHelper.LoadFileManifest();
+        LoadFirstHelper.LoadFileManifest(sceneAssetBundleName,sceneName);
         yield return null;
-        #if  UNITY_ANDROID //&& !UNITY_EDITOR
+#if  UNITY_ANDROID //&& !UNITY_EDITOR
         if (ManifestManager.fileManifest == null)
         {
             //obb丢失
@@ -66,13 +68,18 @@ public class LoadingFirst : MonoBehaviour
 
 }
 
-
+[SLua.CustomLuaClass]
 public static class LoadFirstHelper
 {
+    static string sceneAssetBundleName;
+	static string sceneName;
+
     public static List<string> specialAssetbundles = new List<string>();
 
-    public static void LoadFileManifest()
+    internal static void LoadFileManifest(string sceneAbName,string scenename)
     {
+        sceneAssetBundleName = sceneAbName;
+		sceneName = scenename;
 #if UNITY_EDITOR
         Debug.LogFormat("<color=green>SimulateAssetBundleInEditor {0} mode </color> <color=#8cacbc> change( menu AssetBundles/Simulation Mode)</color>", ManifestManager.SimulateAssetBundleInEditor ? "simulate" : "assetbundle");
         // if (ManifestManager.SimulateAssetBundleInEditor)
@@ -86,22 +93,43 @@ public static class LoadFirstHelper
     }
 
     //开始加载场景
-    public static void BeginLoadScene(string enterLua)
+    internal static void BeginLoadScene(string beginLua)
     {
+        if(!string.IsNullOrEmpty(beginLua))PLua.enterLua = beginLua;
+        PLua.DestoryLua();
+        CUtils.DebugCastTime("LoadingFirst");
+		var req = CRequest.Get();
+		req.relativeUrl = CUtils.GetRightFileName(sceneAssetBundleName);
+		req.assetName = sceneName;
+		req.OnComplete = OnSceneAbLoaded;
+		req.OnEnd = OnSceneAbError;
+		req.assetType = CacheManager.Typeof_ABScene;
+		req.async = true;
+		ResourcesLoader.LoadAsset(req);
         ResourcesLoader.OnAssetBundleComplete = OnSharedComplete;
-         PLua.enterLua = enterLua;
-        if (PLua.instance != null)
-        {
-            Debug.Log("lua begin dofile :" + enterLua + ".lua");
-        }
     }
+
+    static void OnSceneAbLoaded(CRequest req)
+	{
+		#if HUGULA_LOADER_DEBUG 
+		Debug.LogFormat("OnSceneAbLoaded {0} is done !",req.url);
+		#endif
+		CUtils.DebugCastTime("On "+ sceneName +"Loaded");
+	}
+
+	static void OnSceneAbError(CRequest req)
+	{
+		#if UNITY_EDITOR 
+		Debug.LogFormat("OnSceneAbLoaded {0} is Fail !",req.url);
+		#endif
+	}
 
     static void OnSharedComplete(CRequest req, AssetBundle ab) // repaire IOS crash bug when scene assetbundle denpendency sprite atlas assetbundle
     {
 #if HUGULA_ASSETBUNDLE_LOG || UNITY_EDITOR
         //AddUpLogInfo(string.Format("{0}\t{1}\t{2}", req.key, System.DateTime.Now.ToString(), Time.frameCount));
 #endif
-        if (ab && req.isShared && !specialAssetbundles.Contains(req.key))
+        if (req.isShared && ab && !specialAssetbundles.Contains(req.key))
         {
             ab.LoadAllAssets();
         }   

@@ -21,6 +21,13 @@ namespace Hugula.Pool
         public const float deltaTime15 = 0.067f;
 
         #endregion
+        #region debug
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+        private static string cacheKey = string.Empty;
+        private static string cacheKey1 = string.Empty;
+
+#endif
+        #endregion
 
         #region instance
         private static int removeCount = 1;
@@ -37,7 +44,7 @@ namespace Hugula.Pool
         /// <summary>
         /// 内存阈值检测和自动对象回收
         /// </summary>
-        void Update() //每帧删除
+        void LateUpdate() //每帧删除
         {
             if (willGcList.Count == 0) //如果正在gc不需要判断
             {
@@ -262,7 +269,7 @@ namespace Hugula.Pool
         {
             removeMark.Remove(hash);
 #if HUGULA_CACHE_DEBUG
-            Debug.LogFormat("DeleteRemveMark={0},hash={1},frame={1}", GetStringKey(hash), hash, Time.frameCount);
+            Debug.LogFormat("DeleteRemveMark={0},hash={1},frame={2}", GetStringKey(hash), hash, Time.frameCount);
 #endif
         }
 
@@ -273,11 +280,12 @@ namespace Hugula.Pool
         /// <param name="value"></param>
         internal static bool Add(int hash, GameObject value, byte type, bool isAsset = false)
         {
-            bool contains = originalPrefabs.ContainsKey(hash);
-            originalPrefabs[hash] = value;
-            if (isAsset) assetsFlag[value] = isAsset;
+            bool contains = ContainsKey(hash);
+
             if (!contains) //不能重复添加
             {
+                if (isAsset) assetsFlag[value] = isAsset;
+                originalPrefabs[hash] = value;
                 if (type > SegmentSize) type = SegmentSize;
                 prefabFreeQueue[hash] = new Queue<ReferGameObjects>(); //空闲队列
                 prefabsType[hash] = type;
@@ -291,6 +299,10 @@ namespace Hugula.Pool
 #endif
                 return true;
             }
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+            else
+                Debug.LogWarningFormat("PrefabPool.Add has contains({0}) key={1},frame={2} ", value.name, GetStringKey(hash), Time.frameCount);
+#endif
             return false;
         }
 
@@ -320,13 +332,26 @@ namespace Hugula.Pool
         /// <returns></returns>
         public static bool ContainsKey(string key)
         {
+#if HUGULA_CACHE_DEBUG
+            cacheKey1 = key;
+#endif
             int hash = LuaHelper.StringToHash(key);
             return ContainsKey(hash);
         }
 
         internal static bool ContainsKey(int hash)
         {
-            return originalPrefabs.ContainsKey(hash);
+            GameObject obj = null;
+            originalPrefabs.TryGetValue(hash, out obj);
+            bool re = false;
+            if (obj)
+                re = true;
+            else
+                re = false;
+#if HUGULA_CACHE_DEBUG
+                Debug.LogFormat("PrefabPool.ContainsKey is {0} key = {1}({2}),frame={3}",re,hash,cacheKey1, Time.frameCount);
+#endif
+            return re;
         }
 
         /// <summary>
@@ -336,6 +361,9 @@ namespace Hugula.Pool
         /// <returns></returns>
         public static ReferGameObjects GetCache(string key)
         {
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+            cacheKey = key;
+#endif
             int hash = LuaHelper.StringToHash(key);
             return GetCache(hash);
         }
@@ -347,7 +375,6 @@ namespace Hugula.Pool
         /// <returns></returns>
         internal static ReferGameObjects GetCache(int key)
         {
-            ReferGameObjects refer = null;
             //空闲队列
             Queue<ReferGameObjects> prefabQueueMe = null;
             if (!prefabFreeQueue.TryGetValue(key, out prefabQueueMe))
@@ -369,21 +396,21 @@ namespace Hugula.Pool
             //移除回收引用
             DeleteRemveMark(key);
 
-            if (prefabQueueMe.Count > 0)
-            {
-                refer = prefabQueueMe.Dequeue();//出列
-                refer.cacheHash = key;
-                if (!refer)
-                {
-                    var keyString = GetStringKey(key);
-                    Debug.LogErrorFormat("prefabQueueMe.Dequeue() is null key = {0},keystr={1},freeQueue.Count={2},reference.count={3},frame={4}", key, keyString, prefabQueueMe.Count, prefabCachesMe.Count, Time.frameCount);
-                }
+            ReferGameObjects refer = null;
+            int i = 0;
 
-                //保持引用
-                prefabCachesMe.Add(refer);
-                return refer;
+            while (prefabQueueMe.Count > 0)//出列
+            {
+                refer = prefabQueueMe.Dequeue();
+                if (refer)
+                {
+                    refer.cacheHash = key;
+                    break;
+                }
+                i++;
             }
-            else
+
+            if (refer == null)
             {
                 GameObject prefab = Get(key);
                 if (!prefab) //如果没有 返回NUll
@@ -401,16 +428,22 @@ namespace Hugula.Pool
                 }
                 refer = comp;
                 refer.cacheHash = key;
-                //保持引用
-                prefabCachesMe.Add(refer); //放入引用列表
             }
 
             if (!refer)
             {
                 var keyString = GetStringKey(key);
-                Debug.LogErrorFormat("FATAL EXCEPTION :reference is null, key is {0},keystring={1},reference.count is {2},frame={3}", key, keyString, prefabCachesMe.Count, Time.frameCount);
+                Debug.LogErrorFormat("prefabQueueMe.Dequeue() is null key = {0},keystr={1},freeQueue.Count={2},reference.count={3},frame={4}", key, keyString, prefabQueueMe.Count, prefabCachesMe.Count, Time.frameCount);
+            }
+            else
+            {
+                prefabCachesMe.Add(refer); //保持引用
             }
 
+#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+            if (i > 0)
+                Debug.LogErrorFormat("prefabQueueMe.Dequeue() contains null key={0}, keyint = {1},find count={2},freeQueue.Count={3},reference.count={4},frame={5}", cacheKey, key, i, prefabQueueMe.Count, prefabCachesMe.Count, Time.frameCount);
+#endif
             return refer;
         }
 
@@ -441,6 +474,12 @@ namespace Hugula.Pool
                         Debug.LogWarningFormat("StoreCache refer(name={0},hash={1}) prefabFreeQueue is null ", refer.name, GetStringKey(refer.cacheHash));
                 }
             }
+#if HUGULA_CACHE_DEBUG || UNITY_EDITOR
+            else
+            {
+                Debug.LogWarningFormat("StoreCache prefabRefCaches dont contains(refer(name={0},hash={1}) ) ", refer.name, GetStringKey(refer.cacheHash));
+            }
+#endif
             return false;
         }
 
@@ -541,6 +580,8 @@ namespace Hugula.Pool
             return referCount;
         }
 
+
+
         /// <summary>
         /// 强行回收
         /// </summary>
@@ -556,9 +597,9 @@ namespace Hugula.Pool
             if (prefabRefCaches.TryGetValue(hash, out refers))
             {
                 Queue<ReferGameObjects> freequeue;
-                var referItem = refers.GetEnumerator();
                 if (prefabFreeQueue.TryGetValue(hash, out freequeue))
                 {
+                    var referItem = refers.GetEnumerator();
                     while (referItem.MoveNext())
                     {
                         freequeue.Enqueue(referItem.Current);
@@ -591,17 +632,27 @@ namespace Hugula.Pool
                 {
 #if HUGULA_CACHE_DEBUG
                     Debug.LogFormat("ClearKey destroy freequeue  keystr={0},free.Count={1},frame={2}",GetStringKey(key),freequeue.Count,Time.frameCount);
-#endif        
+#endif
                     while (freequeue.Count > 0)
                     {
                         refer = freequeue.Dequeue();
-                        GameObject.Destroy(refer.gameObject);
+                        if (refer)
+                        {
+#if HUGULA_CACHE_DEBUG
+                            Debug.LogFormat("ClearKey destroy gameobject  keystr={0},name={1},free.Count={2},frame={3}", GetStringKey(key), refer.name, freequeue.Count, Time.frameCount);
+#endif
+                            GameObject.Destroy(refer.gameObject);
+                        }
+#if HUGULA_CACHE_DEBUG || UNITY_EDITOR
+                        else
+                            Debug.LogWarningFormat("ClearKey freequeue item has been destory keystr={0},free.Count={1},frame={2}", GetStringKey(key), freequeue.Count, Time.frameCount);
+#endif
                     }
                 }
             }
 #if UNITY_EDITOR
             else
-                Debug.LogWarningFormat("ClearKey fail ,the object(name={1},hash={0}) has refers", GetStringKey(key), Get(key) != null ? Get(key).name : "null");
+                Debug.LogWarningFormat("ClearKey fail ,the object(name={1},hash={0}) has refers.count = {2},frame={3}", GetStringKey(key), Get(key) != null ? Get(key).name : "null", refers == null ? -1 : refers.Count, Time.frameCount);
 #endif
 
 

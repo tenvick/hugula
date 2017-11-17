@@ -141,7 +141,7 @@ namespace Hugula.Loader
             }
             else
             {
-#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
+#if UNITY_EDITOR || !HUGULA_RELEASE
                 Debug.LogWarningFormat("ClearCache {0} fail ", assethashcode);
 #endif
             }
@@ -233,7 +233,7 @@ namespace Hugula.Loader
             cacheData.dependencies = req.dependencies;
             cacheData.isDone = true;
 #if HUGULA_CACHE_DEBUG
-            HugulaDebug.FilterLogFormat(req.key," <color=#ffffff>LoadDone add  (assetBundle={0},hash={1},count={2})  frameCount{3}</color>", cacheData.assetBundleKey, req.keyHashCode, cacheData.count, UnityEngine.Time.frameCount);
+            HugulaDebug.FilterLogFormat(req.key," <color=#ffffff>LoadDone (assetBundle={0},hash={1},count={2})  frameCount{3}</color>", cacheData.assetBundleKey, req.keyHashCode, cacheData.count, UnityEngine.Time.frameCount);
 #endif
             return true;
 
@@ -309,12 +309,12 @@ namespace Hugula.Loader
                 CacheData.Release(cache);
                 return true;
             }
+#if UNITY_EDITOR
             else if (cache != null)
             {
-#if UNITY_EDITOR
                 Debug.LogFormat("<color=#cccccc> can't unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
-#endif
             }
+#endif
             return false;
         }
 

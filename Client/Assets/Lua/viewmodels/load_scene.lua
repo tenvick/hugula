@@ -14,14 +14,28 @@ local LuaHelper=LuaHelper
 local CUtils = CUtils
 local get_value = get_value --多国语言
 
---UI资源
+local PrefabPool = Hugula.Pool.PrefabPool
+local BackGroundDownload = Hugula.Update.BackGroundDownload
+local UGUIEvent = Hugula.UGUIExtend.UGUIEvent
+local ResourcesLoader = Hugula.Loader.ResourcesLoader
+local PLua = Hugula.PLua--UI资源
+
 load_scene.assets=
 {
     View("loadscene_view",load_scene) 
 }
 
 ------------------private-----------------
-
+local function re_start_game()
+	local svp = LuaHelper.Find("LuaSvrProxy")
+    LuaHelper.Destroy(svp)
+    LuaHelper.Destroy(PrefabPool.instance)
+    UGUIEvent.RemoveAllEvents()
+    LuaHelper.Destroy(ResourcesLoader.instance.gameObject)
+	BackGroundDownload.Dispose()
+	--重启之前清理资源
+	PLua.instance:ReStart(0.5)
+end
 
 ------------------public------------------
 
@@ -31,6 +45,8 @@ function load_scene:on_click(obj,arg)
 	print(cmd)
 	if cmd == "Btn_back" then
 		StateManager:go_back()
+	elseif cmd == "Btn_restart" then
+		re_start_game()
 	end
 end
 

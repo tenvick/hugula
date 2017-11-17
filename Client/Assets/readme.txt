@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.11.17
+1 启动流程恢复为frist场景加载开始场景，方便开始场景制作。
+2 极端情况下ab计数bug修复。
+3 PrefabPool池里对象被清理处理。
+4 重启功能，场景demo里。
+
 2017.9.25
 1 unity 2017 支持。
 2 启动流程简化，只保留frist场景。

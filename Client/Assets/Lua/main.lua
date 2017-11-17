@@ -363,7 +363,7 @@ main_update.load_server_verion = function(load_first)--加载服务器版本号
                 Application.OpenURL(server_ver.update_url)
             end
             MessageBox.Show(new_app_tips, "", "", open_url)--版本提示
-        elseif CodeVersion.Subtract(server_ver.version, local_version.version) >= 0 then -- and server_ver.crc32 ~= local_version.crc32 then --服务器版本号大于等于当前版本号 --&& server_ver.crc32 ~= local_version.crc32
+        elseif CodeVersion.Subtract(server_ver.version, local_version.version) > 0 and server_ver.crc32 ~= local_version.crc32 then --服务器版本号大于等于当前版本号 --&& server_ver.crc32 ~= local_version.crc32
             dprint("server version is newer than client,begin load server file list")
             main_update.load_server_file_list()
         else
@@ -520,7 +520,7 @@ end
 local function init_step1()
     dprint(Hugula.Utils.CUtils.GetRealPersistentDataPath())
     dprint(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
-    dprint(UnityEngine.Application.version) --Application.bundleIdentifier)
+    dprint(UnityEngine.Application.version, Application.bundleIdentifier)
     local ui_logo = LuaHelper.Find(FRIST_VIEW)
     local refer = ui_logo:GetComponent(Hugula.ReferGameObjects)
     
@@ -531,15 +531,8 @@ local function init_step1()
         if _progressbar_slider then
             _progressbar_slider.gameObject:SetActive(true)
         end
-        refer:Get("Logo").depth = 10
-        
-        local music_login = refer:Get("login_music")
-        local _sound_status = UnityEngine.PlayerPrefs.GetInt("playerPrefsMusic", 1)
-        if _sound_status == 1 then
-            music_login.enabled = true
-        else
-            music_login.enabled = false
-        end
+
+      
     end
     main_update.compare_local_version()
 

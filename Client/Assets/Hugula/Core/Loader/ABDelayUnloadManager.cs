@@ -13,7 +13,7 @@ namespace Hugula.Loader
     {
 
         //delay unload time
-        public static float delaySecondTime = 0.1f;
+        public static float delaySecondTime = 0;//0.1f;
         private static Dictionary<int, float> removeDic = new Dictionary<int, float>();
 
         private static List<int> deleteList = new List<int>();
@@ -29,7 +29,7 @@ namespace Hugula.Loader
             removeDic.Add(keyhashcode, Time.unscaledTime + delaySecondTime);
         }
 
-        internal static void AddDependenciesReferCount(CacheData cache, bool needAdd)
+        internal static void AddDependenciesReferCount(CacheData cache)
         {
             if (cache != null)
             {
@@ -47,17 +47,18 @@ namespace Hugula.Loader
                         pCache = CacheManager.TryGetCache(keyhash);
                         if (pCache != null)
                         {
-                            if (removeDic.ContainsKey(keyhash)) //
-                                removeDic.Remove(keyhash);
-                            // pCache.
-                            if (needAdd)
+                            pCache.count++;
+#if HUGULA_CACHE_DEBUG
+                            HugulaDebug.FilterLogFormat(pCache.assetBundleKey, " <color=#fcfcfc>check add  (assetBundle={0},parent={1},hash={2},count={3}) frameCount={4}</color>", pCache.assetBundleKey,cache.assetBundleKey ,keyhash, pCache.count, UnityEngine.Time.frameCount);
+#endif
+                            if (removeDic.ContainsKey(keyhash)) //如果在回收列表
                             {
-
-                                pCache.count++;
-
-                                if (pCache.count == 1)
-                                    AddDependenciesReferCount(pCache, true);
+                                removeDic.Remove(keyhash);
+                                // if (pCache.count == 1) //相加后为1，在回收列表，需要对所有依赖项目引用+1
+                                AddDependenciesReferCount(pCache);
                             }
+
+                           
                         }
                     }//end for
                 }// end if
@@ -72,27 +73,10 @@ namespace Hugula.Loader
             {
                 removeDic.Remove(keyhashcode);
                 CacheData cache = CacheManager.TryGetCache(keyhashcode);
-                AddDependenciesReferCount(cache, true);
+                AddDependenciesReferCount(cache);
  #if HUGULA_LOADER_DEBUG
                 HugulaDebug.FilterLogFormat(cache.assetBundleKey, "CheckRemove AssetBundle(key={0},hash={1}),frameCount{5}</color>", cache.assetBundleKey, cache.assetHashCode, Time.frameCount);
 #endif
-                // #if HUGULA_CACHE_DEBUG
-                //                 HugulaDebug.FilterLogFormat(cache.assetBundleKey, "<color=#ffff00> -1 remove  abName({0}) for ABDelayUnloadManager ,ref count =  {1},removed={2} </color>", cache.assetBundleKey, cache.count, re);
-                // #endif
-                //                 if (cache != null && cache.dependencies != null)
-                //                 {
-                //                     int keyhash = 0;
-                //                     int[] alldep = cache.dependencies;
-                // #if HUGULA_CACHE_DEBUG
-                //                     HugulaDebug.FilterLogFormat(cache.assetBundleKey, "<color=#ffff00> -1 remove  abName({0})'s allDependencies from ABDelayUnloadManager , Dependencies.count = {1}  </color>", cache.assetBundleKey, alldep == null ? 0 : alldep.Length);
-                // #endif
-                //                     for (int i = 0; i < alldep.Length; i++)
-                //                     {
-                //                         keyhash = alldep[i];
-                //                         CountMananger.WillAdd(keyhash); //引用数量加1
-                //                         CheckRemove(keyhash);
-                //                     }
-                //                 }
                 return true;
             }
             else

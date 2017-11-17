@@ -41,7 +41,7 @@ namespace Hugula.Loader
 
         //protected
         static protected LoadingEventArg loadingEvent;
-        
+
         //bundle queue
         static protected Queue<AssetBundleDownloadOperation> bundleQueue = new Queue<AssetBundleDownloadOperation>();
         //BundleGroundQueue
@@ -360,7 +360,7 @@ namespace Hugula.Loader
                 if (asset != null)
                 {
                     req.data = asset;
-                    // Debug.LogFormat("LoadAssetFromCache Req(assetBundleName={0},assetName={1},data={2}); url={3}", req.assetBundleName, req.assetName, asset, req.url);
+                    // Debug.LogFormat("LoadAssetFromCache Req(assetBundleName={0},assetName={1},data={2}); frame={3}", req.assetBundleName, req.assetName, asset, Time.frameCount);
                     return true;
                 }
             }
@@ -515,7 +515,8 @@ namespace Hugula.Loader
             int keyhash;
 #if HUGULA_PROFILER_DEBUG
             Profiler.EndSample();
-#endif
+#endif          
+
             for (int i = 0; i < deps.Length; i++)
             {
                 depAbName = CUtils.GetBaseName(deps[i]);
@@ -538,16 +539,13 @@ namespace Hugula.Loader
                 CacheData sharedCD = CacheManager.TryGetCache(keyhash);
                 if (sharedCD != null)
                 {
-                    int count = 0;
+                    sharedCD.count++;
+                    int count = sharedCD.count;//CountMananger.WillAdd(keyhash); //引用数量加1;
 #if HUGULA_CACHE_DEBUG
-                    count = CountMananger.WillAdd(keyhash); //引用数量加1
-                    HugulaDebug.FilterLogFormat(req.key + "," + dep_url, " <color=#fcfcfc> will add  (assetBundle={0},hash={1},count={2}) frameCount{3}</color>", dep_url, keyhash, count, UnityEngine.Time.frameCount);
-#else
-                    count = CountMananger.WillAdd(keyhash); //引用数量加1
+                    HugulaDebug.FilterLogFormat(dep_url, " <color=#fcfcfc> add  (assetBundle={0},parent={1},hash={2},count={3}) frameCount={4}</color>", dep_url,req.key ,keyhash, count, UnityEngine.Time.frameCount);
 #endif
-                    bool dependenciesRefer = count == 1;//the cache count == 0 
-                    if (dependenciesRefer)
-                        ABDelayUnloadManager.AddDependenciesReferCount(sharedCD, dependenciesRefer);
+                    if (count == 1)//相加后为1，可能在回收列表，需要对所有依赖项目引用+1
+                        ABDelayUnloadManager.CheckRemove(keyhash);
 #if HUGULA_LOADER_DEBUG
                     HugulaDebug.FilterLogFormat(req.key, " <color=#15A0A1> 1.1 Shared  AssetBundle is Done Request(assetName={0})  Parent Req(assetName={1},key={2},isShared={3}) </color>", sharedCD.assetBundleKey, req.assetName, req.key, req.isShared);
 #endif
@@ -556,7 +554,7 @@ namespace Hugula.Loader
                 {
 #if HUGULA_CACHE_DEBUG
                     int count = CountMananger.WillAdd(keyhash); //引用数量加1
-                    HugulaDebug.FilterLogFormat(req.key + "," + dep_url, " <color=#fcfcfc> will add  (assetBundle={0},hash={1},count={2}) frameCount{3}</color>", dep_url, keyhash, count, UnityEngine.Time.frameCount);
+                    HugulaDebug.FilterLogFormat(dep_url, " <color=#fcfcfc> will add  (assetBundle={0},parent={1},hash={2},count={3}) frameCount={4}</color>", dep_url, req.key,keyhash, count, UnityEngine.Time.frameCount);
 #else
 
                     CountMananger.WillAdd(keyhash); //引用数量加1
@@ -609,9 +607,10 @@ namespace Hugula.Loader
                 }
                 abDownloadOp.SetRequest(req);
                 downloadingBundles.Add(req.key, abDownloadOp);
-
+                CacheData cached = null;
+                CacheManager.CreateOrGetCache(req.keyHashCode, out cached);//cache data
                 //load now
-                if(bundleMax - inProgressBundleOperations.Count>0)
+                if (bundleMax - inProgressBundleOperations.Count > 0)
                 {
                     inProgressBundleOperations.Add(abDownloadOp);
                     abDownloadOp.BeginDownload();
@@ -1075,7 +1074,7 @@ namespace Hugula.Loader
                 if (ts.TotalMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
                     break;
             }
-            
+
             //begin load bunld
             if (inProgressBundleOperations.Count == 0)
                 LoadingQueue();

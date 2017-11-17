@@ -98,9 +98,10 @@ function LuaObject:register_event(event,method,...) --在某个事件后调用�
 end
 
 function LuaObject:call_event(event) --触发注册的事件方法，调用之后此event会被remove
-    if self.event_fun == nil then return end
+    if self.event_fun == nil then return end 
+    if self.is_disposed then  log_warning(self," has disposed but you still call_event ",event,"\r\n" .. debug.traceback())  end
     local event_call = self.event_fun[event]
-    if event_call and not self.is_disposed then
+    if event_call then
         local t
         for k,v in pairs(event_call) do
             t = type(k) 
@@ -116,6 +117,7 @@ function LuaObject:call_event(event) --触发注册的事件方法，调用之�
 end
 
  function LuaObject:send_message(method,...)
+    if self.is_disposed then log_warning(self," has disposed but you still call send_message ",method,"\r\n" .. debug.traceback()) end
     local cmps=self.components
     local fn
     

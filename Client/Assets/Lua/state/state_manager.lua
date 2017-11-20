@@ -167,10 +167,10 @@ function StateManager:hide_transform()
 end
 
 --检测显示切换效果
-function StateManager:check_show_transform( state,is_back)
+function StateManager:check_show_transform( state)
     local need_load =  state ~= nil and state:is_all_loaded() == false
 
-    if not is_back and need_load and state:show_transform(self) then
+    if need_load and state:show_transform(self) then
         -- do nothing
     elseif self._auto_show_loading and need_load then
         self:show_transform()
@@ -252,7 +252,7 @@ function StateManager:auto_dispose_items(item_gc_type) -- dispose marked item_ob
     if self.mark_dispose_items ~= nil then 
         for k,v in pairs(self.mark_dispose_items) do
             if item_gc_type == nil or v >= item_gc_type or v == 0 then
-                if k.dispose and self._current_game_state:contains_item(k) == false then
+                if k.dispose and  self:is_in_current_state(k) == false then --self._current_game_state:contains_item(k) == false then
                     k:dispose() 
                 end
                 self.mark_dispose_items[k] = nil
@@ -331,6 +331,8 @@ function StateManager:set_current_state(new_state,method,...)
     self._new_state = new_state
 
     self:check_show_transform(new_state,go_transform)
+
+    
 end
 
 --删除日志记录
@@ -426,7 +428,7 @@ function StateManager:go_back(index) --返回
         end
 
         self._new_state = new_state
-        -- local function do_change() StateManager:real_change_to_state(true)  end
+
         self.is_back = true
         self:check_show_transform(new_state,true)
 

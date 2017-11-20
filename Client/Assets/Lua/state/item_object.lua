@@ -87,6 +87,7 @@ function ItemObject:dispose( ... )
         for k,v in ipairs(assets) do  v:dispose()   end
     end
     self.is_call_assets_loaded = nil
+    self.is_disposed = true --标记销毁
     -- self.property_changed = nil
 end
 
@@ -103,6 +104,7 @@ end
 
 function ItemObject:on_focus(...)
     self.is_on_blur = false
+    self.is_disposed = false
     if self.is_loading then return end
     if self:check_assets_loaded() then 
         self:show()  
@@ -125,14 +127,20 @@ function ItemObject:on_hide()
   
 end
 
-function ItemObject:on_blur( state )
-    self:send_message("on_hide",state) --开始隐藏
-    self.is_on_blur = true --处于失去焦点状态
-    self:hide()
-    -- print(self.name,"ItemObject:on_blur",self.is_on_blur)
+function ItemObject:auto_mark_dispose()
     if self._auto_mark_dispose then 
         StateManager:mark_dispose_flag(self,self._auto_mark_dispose) --标记销毁
     end
+end
+
+function ItemObject:on_blur( state )
+    if self:check_assets_loaded() then
+        self:send_message("on_hide",state) --开始隐藏
+        self:auto_mark_dispose()
+    end
+    self.is_on_blur = true --处于失去焦点状态
+    self:hide()
+    -- print(self.name,"ItemObject:on_blur",self.is_on_blur)
     -- self:send_message("on_hided",state) --隐藏完成
 end
 

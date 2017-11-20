@@ -81,22 +81,22 @@ function AssetLoader:on_asset_loaded(key, asset)
 	lua_obj:send_message("on_asset_load", key, asset)
 	send_message(asset, "on_asset_load", key, asset)
 
-	local is_on_blur = lua_obj.is_on_blur
-	print("on_asset_load (",asset.asset_name,") delta time = ",os.clock()-asset._start_time,Time.frameCount)
+	-- print("on_asset_load (",asset.asset_name,") delta time = ",os.clock()-asset._start_time,Time.frameCount)
 	-- print(string.format("AssetLoader.name=%s,_load_count=%s,_load_curr=%s,key=%s,self.is_on_blur=%s",self.lua_obj.name,self._load_count,self._load_curr,key,tostring(is_on_blur)))
 	if self._load_curr >= self._load_count then
 		lua_obj.is_loading = nil
 		lua_obj.is_call_assets_loaded = true
 		lua_obj:send_message("on_assets_load", self.assets)
-		print("on_assets_load (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
+		-- print("on_assets_load (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
 		local call_showed = function()
-			if not is_on_blur then
+			if not lua_obj.is_on_blur then
 				lua_obj:send_message("on_showed")
 				lua_obj:call_event("on_showed")
+			else
+				lua_obj:auto_mark_dispose() --标记回收
 			end
-			print("on_showed (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
+			-- print("on_showed (",lua_obj,") delta time = ",os.clock()-lua_obj._start_time,Time.frameCount)
 			if StateManager:is_in_current_state(lua_obj) and StateManager:get_current_state():is_all_loaded() then
-			-- print(string.format("call_all_item_method lua_object.name=%s  ",self.lua_obj._key))
 				StateManager:call_all_item_method()
 			end
 		end
@@ -105,7 +105,7 @@ function AssetLoader:on_asset_loaded(key, asset)
 		
 	end
 	
-	if is_on_blur then
+	if lua_obj.is_on_blur then
 		asset:hide()
 		-- print(string.format("%s on_blur  asset:hide() ",asset.url))
 	end
@@ -238,7 +238,7 @@ function AssetLoader:load(asts, onall_complete, on_progress)
 			end
 		end
 	end
-	if self.lua_obj.is_loading then print("warring something is loading lua_obj=" .. tostring(self.lua_obj)) end
+	if self.lua_obj.is_loading then print("warring something is loading lua_obj=",self.lua_obj) end
 	self.lua_obj._start_time = os.clock()
 	self._load_curr = 0
 	self._on_progress = on_progress

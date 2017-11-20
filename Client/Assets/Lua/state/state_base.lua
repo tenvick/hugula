@@ -13,8 +13,10 @@ StateBase=class(function(self,item_objects,arg1,arg2)
         self._item_list={} --所有项
         self._original = {} --原始item
         self._on_blured ={} --标记移除
+        self.name = ""
 
-        if item_objects then 
+        if item_objects and #item_objects > 0 then 
+            self.name = item_objects[1]
             for k,v in ipairs(item_objects) do
                 self._original[v] = true
             end

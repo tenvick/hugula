@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2017.11.20 
+1 lua状态切换与异步加载导致的一些bug修复。
+
 2017.11.17
 1 启动流程恢复为frist场景加载开始场景，方便开始场景制作。
 2 极端情况下ab计数bug修复。

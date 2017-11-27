@@ -520,7 +520,7 @@ end
 local function init_step1()
     dprint(Hugula.Utils.CUtils.GetRealPersistentDataPath())
     dprint(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
-    dprint(UnityEngine.Application.version, Application.bundleIdentifier)
+    -- dprint(UnityEngine.Application.version, Application.bundleIdentifier)
     local ui_logo = LuaHelper.Find(FRIST_VIEW)
     local refer = ui_logo:GetComponent(Hugula.ReferGameObjects)
     

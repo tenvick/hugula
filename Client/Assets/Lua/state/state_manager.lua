@@ -5,6 +5,7 @@
 ------------------------------------------------
 local LuaItemManager = LuaItemManager
 local Resources = UnityEngine.Resources
+local HugulaProfiler = Hugula.Pool.HugulaProfiler
 -------------------------------private function------------------------------------
 --状态与日志对比查找出不同项目
 local function check_need_log(curr_state,curr_log)  
@@ -250,8 +251,10 @@ end
 --回收标记的item_object
 function StateManager:auto_dispose_items(item_gc_type) -- dispose marked item_object 
     if self.mark_dispose_items ~= nil then 
+       local mem_warning = HugulaProfiler.IsMemoryWarning
+    --    print("mem_warning=",mem_warning)
         for k,v in pairs(self.mark_dispose_items) do
-            if item_gc_type == nil or v >= item_gc_type or v == 0 then
+            if item_gc_type == nil or ( v >= item_gc_type or mem_warning) or v == 0 then
                 if k.dispose and  self:is_in_current_state(k) == false then --self._current_game_state:contains_item(k) == false then
                     k:dispose() 
                 end

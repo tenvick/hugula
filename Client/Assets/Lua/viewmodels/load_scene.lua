@@ -34,7 +34,7 @@ local function re_start_game()
     LuaHelper.Destroy(ResourcesLoader.instance.gameObject)
 	BackGroundDownload.Dispose()
 	--重启之前清理资源
-	PLua.instance:ReStart(0.5)
+	PLua.ReStart(0.5)
 end
 
 ------------------public------------------

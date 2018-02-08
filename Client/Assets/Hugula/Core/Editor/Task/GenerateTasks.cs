@@ -142,8 +142,9 @@ namespace Hugula.Editor.Task
         public void Run(HotResGenSharedData sharedata)
         {
             var diff_crc = sharedata.diff_crc;
-            SplitPackage.CreateVersionAssetBundle(diff_crc, true,m_Channels,!CUtils.isRelease);
-            SplitPackage.CreateVersionAssetBundle(diff_crc, false,m_Channels, true);
+            SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Release,m_Channels,CUtils.isRelease==true?"":"_dev");
+            SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Dev,m_Channels, "_dev");
+            SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Review,m_Channels, "_review");
         }
     }
 

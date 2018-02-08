@@ -11,6 +11,11 @@ namespace Hugula.Cryptograph
     [SLua.CustomLuaClass]
     public class CryptographHelper
     {
+        private static SHA1CryptoServiceProvider KeepClass()
+        {
+            SHA1CryptoServiceProvider p = new SHA1CryptoServiceProvider();
+            return p;
+        }
 
         /// <summary>
         /// Md5s  base64 string.

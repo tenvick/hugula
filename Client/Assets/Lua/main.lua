@@ -83,7 +83,7 @@ function lua_localization(key, ...)--本地化
 end
 
 local function dprint(...)
-    if not CUtils.isRelease then
+    if CUtils.printLog then
         print(...)
     end
 end
@@ -123,6 +123,9 @@ end
 local function set_resversion(ver)
     if ver then
         for k, v in pairs(ver) do
+            if (k == "code" or k == "crc32" or k == "version") then
+                ResVersion["svr_"..k] = v
+            end
             ResVersion[k] = v
         end
     end
@@ -131,7 +134,9 @@ end
 local function set_resversion_var(ver)
     if ver then
         for k, v in pairs(ver) do
-            if not (k == "code" or k == "crc32" or k == "version") then
+            if (k == "code" or k == "crc32" or k == "version") then
+                ResVersion["svr_"..k] = v
+            else
                 ResVersion[k] = v
             end
         end
@@ -166,9 +171,9 @@ local function get_ver_url()
     local group = {}
     for k, v in pairs(hosts) do
         if string.match(v, "%?") then
-            ver_url = string.format(v, APP_VERSION, udid, CUtils.platform, os.time())--
+            ver_url = string.format(v, APP_VERSION, udid, CUtils.platform, os.time())--http server
         else
-            ver_url = string.format(v, CUtils.platform, "v" .. CODE_VERSION, CUtils.GetRightFileName(VERSION_FILE_NAME))
+            ver_url = string.format(v, CUtils.platform,"ver.txt")
         end
         table.insert(group,ver_url)
         dprint(ver_url)
@@ -212,10 +217,12 @@ local function one_file_down(loading_event_arg)
     local m = 1024 * 1024
     local loaded_s = string.format("%.2f", loading_event_arg.current / m)
     local loaded_t = string.format("%.2f", loading_event_arg.total / m)
-    set_progress_txt(lua_localization("main_downloading_tips", loaded_s, loaded_t), 4, loading_event_arg.current / loading_event_arg.total)
+    local kbs = string.format("%.2f kb/s",BackGroundDownload.BytesReceivedPerSecond/1024)
+    -- print("bytes = kb/s",BackGroundDownload.BytesReceivedPerSecond/1024)
+    set_progress_txt(lua_localization("main_downloading_tips", loaded_s, loaded_t,kbs), 4, loading_event_arg.current / loading_event_arg.total)
 end
 
-local function all_file_down(is_error)
+main_update.all_file_down=function(is_error)
     print("all files have been download and the error is ", is_error)
     if is_error then
         local tips = lua_localization("main_download_fail")
@@ -234,9 +241,11 @@ local function all_file_down(is_error)
         if ManifestManager.CheckFirstLoad() then ManifestManager.FinishFirstLoad() end
         
         FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME))--删除旧文件
-        FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME))--删除旧文件
         FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME), CUtils.GetRightFileName(UPDATED_LIST_NAME))
-        FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME), CUtils.GetRightFileName(VERSION_FILE_NAME))
+        if not main_update.need_server_filelist then 
+            FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME))--删除旧文件
+            FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME), CUtils.GetRightFileName(VERSION_FILE_NAME))
+        end
         set_progress_txt(lua_localization("main_download_complete"), 4, 1)--"更新完毕，进入游戏！"
         local loader_key = "core.loader"
         package.loaded[loader_key] = nil
@@ -247,30 +256,15 @@ local function all_file_down(is_error)
 
 end
 
-main_update.load_server_file_list = function(load_first)--版本差异化对比
-        
-        local function on_www_comp(req, bytes)
-            dprint("on www comp " .. req.assetName)
-            FileHelper.SavePersistentFile(bytes, CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME))--保存server端临时文件
-        end
-        
-        local function on_server_comp(req)
-            set_progress_txt(lua_localization("main_compare_crc_list"))--校验列表对比中。")
-            local ab = req.data
-            server_manifest = ab:LoadAllAssets()[1]
-            ab:Unload(false)
-            if not CUtils.isRelease then
-                print(server_manifest)
-                print(ManifestManager.fileManifest)
-            end
-            dprint("load first", load_first)
-            Loader:unload_cache_false(req.key)
+main_update.load_server_file_list = function()--版本差异化对比
+    
+        local function load_update_filelist(server_manifest) --开始加载更新文件
             local change = 0
-            
-            if load_first then
-                change = BackGroundDownload.instance:AddFirstManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, all_file_down)
+            local need_first = ManifestManager.CheckFirstLoad()
+            if need_first then
+                change = BackGroundDownload.instance:AddFirstManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, main_update.all_file_down)
             else
-                change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, all_file_down)
+                change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, main_update.all_file_down)
             end
             dprint("need load file size:", change)
             if change > 0 then
@@ -280,43 +274,82 @@ main_update.load_server_file_list = function(load_first)--版本差异化对比
                     BackGroundDownload.instance:Begin()
                     MessageBox.Destroy()
                 end
+
                 local tips = lua_localization("main_download_from_webserver", string.format("%.2f", change / 1048576))
                 set_progress_txt(tips, 4, 0.01)--开始从服务器加载新的资源。
-                MessageBox.Show(tips, "", "", begin_load)--版本提示
+                local is_wifi = Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork
+                log_sys("is_wifi=",is_wifi)
+                dprint(Application.internetReachability)
+                if  need_first and is_wifi  then
+                    begin_load()
+                else
+                    MessageBox.Show(tips, "", "", begin_load)--版本提示
+                end
             else
-                all_file_down()
+                main_update.all_file_down()
             end
         end
+
+        local function on_www_comp(req, bytes) --缓存服务器文件列表
+            dprint("on www comp " .. req.assetName)
+            FileHelper.SavePersistentFile(bytes, CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME))--保存server端临时文件
+        end
         
+        local function on_server_comp(req) --服务端文件列表加载完毕
+            set_progress_new_txt(lua_localization("main_compare_crc_list"))--校验列表对比中。")
+            local ab = req.data
+            server_manifest = ab:LoadAllAssets()[1]
+            ab:Unload(false)
+            if not CUtils.isRelease then
+                log_sys(server_manifest)
+                log_sys(ManifestManager.fileManifest)
+            end
+            Loader:unload_cache_false(req.key)
+            load_update_filelist(server_manifest)
+        end
+        
+        local load_server
+
         local function on_server_err(req)
             print("load_server_file_list error :", req.url)
+            local tips=lua_localization("main_web_server_error").." error code 1"
+            MessageBox.Show(tips, "", "", function()
+                load_server()
+            end)--版本提示
             enter_game()
         end
         
-        local function load_server(...)
-            set_progress_txt(lua_localization("main_web_server_crc_list"))--加载服务器校验列表。")
-            local crc = tostring(server_ver.crc32)
-            local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
-            local assetbundle_name = CUtils.GetRightFileName(asset_name .. Common.CHECK_ASSETBUNDLE_SUFFIX)
-            local file_name = insert_assetBundle_name(assetbundle_name, "_" .. crc)
-            print("load web server crc " .. server_ver.cdn_host[1] .. "/" .. file_name)
-            local req = CRequest.Create(file_name, asset_name, AssetBundle, on_server_comp, on_server_err, nil, true)
-            req.uris = get_update_uri_group(server_ver.cdn_host, on_www_comp, nil)
-            Loader:get_www_data(req)
+        load_server=function(...)
+            if main_update.need_server_filelist then
+                set_progress_new_txt(lua_localization("main_web_server_crc_list"))--加载服务器校验列表。")
+                local crc = tostring(server_ver.crc32)
+                local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
+                local assetbundle_name = CUtils.GetRightFileName(asset_name .. Common.CHECK_ASSETBUNDLE_SUFFIX)
+                local file_name = insert_assetBundle_name(assetbundle_name, "_" .. crc)
+                print("begin load server ver " .. server_ver.cdn_host[1] .. "/" .. file_name)
+                local req = CRequest.Create(file_name, asset_name, AssetBundle, on_server_comp, on_server_err, nil, true)
+                req.uris = get_update_uri_group(server_ver.cdn_host, on_www_comp, nil)
+                Loader:get_www_data(req)
+                -- req.uris = get_update_uri_group(server_ver.cdn_host)
+                -- Loader:get_http_data(req)
+            else
+                print("begin load update file list files !")
+                load_update_filelist()
+            end
         end
         
         load_server()
 end
 
 
-main_update.load_server_verion = function(load_first)--加载服务器版本号
+main_update.load_server_verion = function()--加载服务器版本号
     main_update.on_first_complete = false
     local begin_fun
     local max_try_times, curr_time = 2, 0
     
     local function on_msg_click()
         MessageBox.Destroy()
-        enter_game()
+        enter_game() --or main_update.load_server_verion()
     end
     
     local function on_err(req)
@@ -330,11 +363,16 @@ main_update.load_server_verion = function(load_first)--加载服务器版本号
     
     local function on_comp(ver_str)
         server_ver = decode_ver_str(ver_str)
-        print(string.format("load server comp,the server version is %s", server_ver.version))
+        print(string.format("load server ver.txt compelete,the server version is %s", server_ver.version))
+        local sub_version = CodeVersion.Subtract(server_ver.version, local_version.version)
         dprint(ver_str)
-        if server_ver.version and CodeVersion.Subtract(server_ver.version, local_version.version) >= 0 then -- server_ver.version >= local_version.version then --如果服务器版本号>=本地
+        dprint(sub_version)
+        main_update.need_server_filelist = sub_version >= 0 --是否需要加载服务器效验列表
+
+        if  sub_version >= 0 then -- server_ver.version >= local_version.version then
             set_resversion_var(server_ver)
         end
+
         BackGroundDownload.instance.hosts = ResVersion.cdn_host
         
         if check_platform() then --for test
@@ -354,8 +392,6 @@ main_update.load_server_verion = function(load_first)--加载服务器版本号
                 Application.Quit()
             end
             MessageBox.Show(lua_localization("main_code_error"), "", "", on_sure_click)--版本提示
-        elseif load_first then --need update first
-            main_update.load_server_file_list(load_first)
         elseif CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
             local new_app_tips = lua_localization("main_download_new_app")
             set_progress_txt(new_app_tips)--"请更新app版本！")
@@ -363,7 +399,7 @@ main_update.load_server_verion = function(load_first)--加载服务器版本号
                 Application.OpenURL(server_ver.update_url)
             end
             MessageBox.Show(new_app_tips, "", "", open_url)--版本提示
-        elseif CodeVersion.Subtract(server_ver.version, local_version.version) > 0 and server_ver.crc32 ~= local_version.crc32 then --服务器版本号大于等于当前版本号 --&& server_ver.crc32 ~= local_version.crc32
+        elseif sub_version > 0 or ManifestManager.CheckFirstLoad() then --server_ver.version > local_version.version 或者需要做首包加载
             dprint("server version is newer than client,begin load server file list")
             main_update.load_server_file_list()
         else
@@ -416,18 +452,18 @@ main_update.compare_local_version = function()--对比本地版本号
         end
         
         step.compare = function()
-            local need_first_load = ManifestManager.CheckFirstLoad()
             if step.persistent_error == true and step.streaming_version ~= nil then
                 dprint("there is no persistent_version info,just use streaming_version:", step.streaming_version.version)
                 local_version = step.streaming_version
                 set_resversion(local_version)
-                main_update.load_server_verion(need_first_load)
+                main_update.load_server_verion()
             elseif step.persistent_version ~= nil and step.streaming_version ~= nil then
                 if CodeVersion.Subtract(step.persistent_version.version, step.streaming_version.version) >= 0 then
                     dprint("直接进入。%s > %s", step.persistent_version.version, step.streaming_version.version)
                     local_version = step.persistent_version
+                    set_resversion(step.streaming_version)
                     set_resversion(local_version)
-                    main_update.load_server_verion(need_first_load)
+                    main_update.load_server_verion()
                 else
                     dprint("persistent_version is older than streming_version ,use streaming_version:" .. os.date("%c", step.streaming_version.time) .. ",clear all caches")
                     local tips = lua_localization("main_clear_cache")
@@ -445,7 +481,7 @@ main_update.compare_local_version = function()--对比本地版本号
                     print("delete " .. UPDATED_LIST_NAME)
                     print("delete " .. VERSION_FILE_NAME)
                     
-                    local function load_server_ver()main_update.load_server_verion(need_first_load) end
+                    local function load_server_ver()main_update.load_server_verion() end
                     
                     ManifestManager.CheckClearCacheFiles(nil, load_server_ver)
                 end
@@ -498,7 +534,8 @@ main_update.compare_local_version = function()--对比本地版本号
                 local uri = CUtils.GetRealPersistentDataPath()
                 local url = CUtils.PathCombine(uri, ver_file_name)
                 dprint(url)
-                Loader:get_www_data(url, nil, String, step.on_persistent_comp, step.on_persistent_error, nil)
+                -- Loader:get_www_data(url, nil, String, step.on_persistent_comp, step.on_persistent_error, nil)
+                Loader:get_http_data(url, nil, String, step.on_persistent_comp, step.on_persistent_error, nil)
             else
                 step.on_persistent_error({key = ver_file_name})
             end
@@ -509,6 +546,7 @@ main_update.compare_local_version = function()--对比本地版本号
             local url = CUtils.PathCombine(uri, ver_file_name)
             dprint(url)
             Loader:get_www_data(url, nil, String, step.on_streaming_comp, step.on_streaming_error, nil)
+            -- Loader:get_http_data(url, nil, String, step.on_streaming_comp, step.on_streaming_error, nil)
         end
         
         set_progress_txt(lua_localization("main_compare_local_ver"), 2, 0.2)--"对比本地版本信息。"
@@ -522,7 +560,7 @@ local function init_step1()
     dprint(Hugula.Utils.CUtils.GetRealStreamingAssetsPath())
     -- dprint(UnityEngine.Application.version, Application.bundleIdentifier)
     local ui_logo = LuaHelper.Find(FRIST_VIEW)
-    local refer = ui_logo:GetComponent(Hugula.ReferGameObjects)
+    refer = ui_logo:GetComponent(Hugula.ReferGameObjects)
     
     if refer then
         _progressbar_txt = refer:Get("Text")--ui_logo:GetComponentInChildren(UnityEngine.UI.Text, true)

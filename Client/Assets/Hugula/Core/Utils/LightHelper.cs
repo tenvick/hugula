@@ -26,7 +26,7 @@ namespace Hugula.Utils
 
             LightmapData newLightData = newLightDatas[index];
 
-#if UNITY_2017
+#if UNITY_2017  || UNITY_5_6_OR_NEWER
             if (far != null) newLightData.lightmapColor = far;
             if (near != null) newLightData.lightmapDir = near;
 #else

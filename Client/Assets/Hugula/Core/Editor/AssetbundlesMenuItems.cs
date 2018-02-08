@@ -111,16 +111,18 @@ public class AssetbundlesMenuItems
     }
 
 
-    [MenuItem("Assets/HugulaExtends/Set Extends Floder", false, 51)]
+    // [MenuItem("Assets/HugulaExtends/Set Extends Floder", false, 51)]
     static public void SetExtendsFloder()
     {
-        BuildScript.SetAsExtendsFloder();
+        //取消扩展文件夹功能。
+        // BuildScript.SetAsExtendsFloder();
     }
 
-     [MenuItem("Assets/HugulaExtends/Clear Extends Floder", false, 52)]
+    //  [MenuItem("Assets/HugulaExtends/Clear Extends Floder", false, 52)]
     static public void ClearExtendsFloder()
     {
-        BuildScript.ClearExtendsFloder();
+        //取消扩展文件夹功能。
+        // BuildScript.ClearExtendsFloder();
     }
 
 
@@ -167,10 +169,23 @@ public class AssetbundlesMenuItems
         BuildScript.ExcludeExtensionFiles();
     }
   
-    [MenuItem("Assets/HugulaExtends/Check include assetbundle size", false, 150)]
+
+    [MenuItem("Assets/HugulaExtends/Check Selected (files or folder) assetbundle size [must Build AssetBundles]", false, 150)]
+    static public void CheckSelectedAssetbundleSize()
+    {
+        BuildScript.CheckSelectedAssetbundleSize();
+    }
+
+     [MenuItem("Assets/HugulaExtends/Check OnlyInclusionFiles assetbundle size  [must Build AssetBundles]", false, 151)]
     static public void CheckInCludeAssetbundleSize()
     {
         BuildScript.CheckInCludeAssetbundleSize();
+    }
+
+     [MenuItem("Assets/HugulaExtends/Check FirstLoadFiles assetbundle size  [must Build AssetBundles]", false, 152)]
+    static public void CheckFirstAssetbundleSize()
+    {
+        BuildScript.CheckFirstLoaddAssetbundleSize();
     }
 
 //    [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]

@@ -35,6 +35,22 @@ public class ProjectBuild : Editor
         }
     }
 
+
+    public static string buildTarget
+    {
+        get
+        {
+            foreach (string arg in System.Environment.GetCommandLineArgs())
+            {
+                if (arg.StartsWith("buildTarget"))
+                {
+                    return arg.Split(":"[0])[1];
+                }
+            }
+            return string.Empty;
+        }
+    }
+
     ///<summary>
     /// 编译宏
     ///</summary>
@@ -107,6 +123,24 @@ public class ProjectBuild : Editor
         }
     }
 
+       ///<summary>
+    /// appName only android
+    ///</summary>
+    public static string version
+    {
+        get
+        {
+            foreach (string arg in System.Environment.GetCommandLineArgs())
+            {
+                if (arg.StartsWith("version"))
+                {
+                    return arg.Split(":"[0])[1];
+                }
+            }
+            return string.Empty;
+        }
+    }
+
     #endregion
 
     private static StringBuilder environmentVariable = new StringBuilder();
@@ -170,8 +204,7 @@ public class ProjectBuild : Editor
     static void GenericBuild(string[] scenes, string target_dir, BuildTarget build_target, BuildOptions build_options)
     {
         AssetDatabase.Refresh();
-        EditorUserBuildSettings.SwitchActiveBuildTarget(build_target);
-
+        // EditorUserBuildSettings.SwitchActiveBuildTarget(build_target);
         if (EditorUserBuildSettings.development)
             build_options |= BuildOptions.Development;
         if (EditorUserBuildSettings.connectProfiler)
@@ -188,20 +221,26 @@ public class ProjectBuild : Editor
     }
     static void WriteAppVerion(string folder = "apk", string appExtension = "il2cpp")
     {
+        // string path = Path.GetFullPath(folder);
+        // EditorUtils.DirectoryDelete(path);
+        // EditorUtils.CheckDirectory(path);
         System.Environment.SetEnvironmentVariable("APP_VERSION", Hugula.CodeVersion.APP_VERSION); //app version
         environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);
         environmentVariable.AppendFormat("CODE_VERSION={0}\n", Hugula.CodeVersion.CODE_VERSION);
         environmentVariable.AppendFormat("APP_NUMBER={0}\n", Hugula.CodeVersion.APP_NUMBER);
+        environmentVariable.AppendFormat("APP_BUNDLE_ID={0}\n", CUtils.bundleIdentifier);
+        environmentVariable.AppendFormat("IOS_IPA_NAME={0}\n", CUtils.GetSuffix(CUtils.bundleIdentifier));
 
         var fileName = Hugula.CodeVersion.APP_VERSION;
 #if HUGULA_RELEASE
-        environmentVariable.AppendFormat("APP_STATE={0}\n", "release");
+        environmentVariable.AppendFormat("APP_STATE={0}\n","release");
         fileName += "_release_";
 #else
         environmentVariable.AppendFormat("APP_STATE={0}\n", "dev");
         fileName += "_dev_";
 #endif
         fileName += appExtension;
+        // File.Create(Path.Combine(path, fileName));
         environmentVariable.AppendFormat("APP_FILENAME={0}\n", fileName);
         WriteShell();
     }
@@ -260,24 +299,26 @@ public class ProjectBuild : Editor
         Debug.Log("Create shell success " + environmentPath);
     }
 
+    static void WriteObbName()
+    {
+        // string path = Path.GetFullPath("obb");
+        // EditorUtils.DirectoryDelete(path);
+        // EditorUtils.CheckDirectory(path);
+        var obbName = string.Format("main.{0}.{1}.obb", PlayerSettings.Android.bundleVersionCode.ToString(), CUtils.bundleIdentifier);
+        // File.Create(Path.Combine(path, obbName));
+        // Debug.Log(obbName + " create !");
+        // System.Environment.SetEnvironmentVariable("OBB_NAME", obbName);
+        environmentVariable.AppendFormat("OBB_NAME={0}\n", obbName);
+
+    }
     static void AndroidSettings(string appExtension = "il2cpp")
     {
-        if (!string.IsNullOrEmpty(productName))
-            PlayerSettings.productName = productName;
 
-#if UNITY_2017
-        if (!string.IsNullOrEmpty(bundleId))
-            PlayerSettings.applicationIdentifier = bundleId;
-#else
-        if (!string.IsNullOrEmpty(bundleId))
-            PlayerSettings.bundleIdentifier = bundleId;
-#endif
-
-        PlayerSettings.Android.bundleVersionCode = Hugula.CodeVersion.APP_NUMBER;
         var ve = setting;//发布release或者dev版本
         if (ve.ToLower().Contains("obb") || ve.ToLower().Contains("apkexpansionfiles"))
         {
             PlayerSettings.Android.useAPKExpansionFiles = true;
+            WriteObbName();
         }
         else
         {
@@ -289,11 +330,37 @@ public class ProjectBuild : Editor
 
     }
 
-    static void IOSSettings()
+    static void SetApplicationIdentifier(BuildTargetGroup group,string buildId)
+    {
+#if UNITY_5_6_OR_NEWER
+         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleId);
+#else
+        PlayerSettings.bundleIdentifier = bundleId;
+#endif
+    }
+
+    static void Settings()
     {
         if (!string.IsNullOrEmpty(productName))
             PlayerSettings.productName = productName;
+        if(!string.IsNullOrEmpty(version))
+            PlayerSettings.bundleVersion = version;
+#if UNITY_ANDROID        
+        if (!string.IsNullOrEmpty(bundleId))
+            SetApplicationIdentifier(BuildTargetGroup.Android, bundleId);
+
+        PlayerSettings.Android.bundleVersionCode = Hugula.CodeVersion.APP_NUMBER;
+
+#elif UNITY_IOS
+        if (!string.IsNullOrEmpty(bundleId))
+            SetApplicationIdentifier(BuildTargetGroup.iOS, bundleId);
+
         PlayerSettings.iOS.buildNumber = Hugula.CodeVersion.APP_NUMBER.ToString();
+#endif
+    }
+
+    static void IOSSettings()
+    {
         if (!string.IsNullOrEmpty(signingTeamId))
             PlayerSettings.iOS.appleDeveloperTeamID = signingTeamId;
 
@@ -312,7 +379,11 @@ public class ProjectBuild : Editor
         exportingAndroidProject = false;
         //copy android plugins
         AndroidSettings("mono");
+#if UNITY_5_6_OR_NEWER
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.Mono2x);
+#else 
         PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Android);
+#endif
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development);
         else
@@ -330,12 +401,15 @@ public class ProjectBuild : Editor
         exportingAndroidProject = false;
         //copy android plugins
         AndroidSettings();
+#if UNITY_5_6_OR_NEWER
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#else 
         PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.Android);
+#endif
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development);
         else
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.None);
-        PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Android);
         CUtils.DebugCastTime("Time BuildForAndroid iL2CPP End");
 
     }
@@ -368,12 +442,16 @@ public class ProjectBuild : Editor
         AndroidSettings();
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);
+#if UNITY_5_6_OR_NEWER
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#else
         PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.Android);
+#endif
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development | BuildOptions.AcceptExternalModificationsToPlayer);
         else
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.AcceptExternalModificationsToPlayer);
-        PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Android);
+        // PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Android);
         CUtils.DebugCastTime("Time BuildForAndroidProjectIL2CPP End");
 
 
@@ -400,6 +478,7 @@ public class ProjectBuild : Editor
     static void BuildForWindows()
     {
         string path = "../../release/pc/";
+        path = Path.GetFullPath(path);
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);
         WriteAppVerion();

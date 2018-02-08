@@ -262,7 +262,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetRightFileName(string fileName)
         {
-#if !HUGULA_COMMON_ASSETBUNDLE
+// #if !HUGULA_COMMON_ASSETBUNDLE
             if (string.IsNullOrEmpty(fileName)) return string.Empty;
             int lastFileIndex, lastDotIndex, fileLen, suffixLen;
             AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
@@ -275,9 +275,9 @@ namespace Hugula.Utils
             if (fileLen > 0) _textSB.Replace(fname, md5, lastFileIndex, fileLen);
             fname = _textSB.ToString();
             return fname;
-#else
-            return fileName;
-#endif
+// #else
+//             return fileName;
+// #endif
         }
 
         public static bool currPersistentExist = false;
@@ -315,7 +315,7 @@ namespace Hugula.Utils
             char c2 = path2[0];
             char c = path1[path1.Length - 1];
 
-            if (c2 == '\\' && c2 == '/' && c2 == ':')
+            if (c2 == '\\' || c2 == '/' || c2 == ':')
             {
                 path2 = path2.Substring(1);
             }
@@ -348,7 +348,7 @@ namespace Hugula.Utils
         {
             get
             {
-#if UNITY_2017
+#if UNITY_2017 || UNITY_5_6_OR_NEWER
                 return Application.identifier;
 #else
                 return Application.bundleIdentifier;
@@ -411,27 +411,29 @@ namespace Hugula.Utils
         public const string platform = "ios";
 #elif UNITY_ANDROID
         public const string platform = "android";
+#elif UNITY_FACEBOOK || USE_GAMEROOM
+        public const string platform = "gameroom";
 #elif UNITY_METRO
         public const string platform = "metroplayer";
 #elif UNITY_OSX || UNITY_STANDALONE_OSX
         public const string platform = "osx";//standaloneosxintel
 #else
         public const string platform = "win";// standalonewindows
-#endif
+#endif 
 
-#if HUGULA_COMMON_ASSETBUNDLE
-        /// <summary>
-        /// platform
-        /// </summary>
-        public const string platformFloder = platform;
-#else
+// #if HUGULA_COMMON_ASSETBUNDLE
+//         /// <summary>
+//         /// platform
+//         /// </summary>
+//         public const string platformFloder = platform;
+// #else
         private static string _platformFloder;
         /// <summary>
         /// platform Floder name
         /// </summary>
         public static string platformFloder
         {
-            get
+            get 
             {
                 if (string.IsNullOrEmpty(_platformFloder))
                     _platformFloder = CryptographHelper.Md5String(platform);
@@ -439,7 +441,7 @@ namespace Hugula.Utils
                 return _platformFloder;
             }
         }
-#endif
+// #endif
 
         private static string _realPersistentDataPath;
         /// <summary>

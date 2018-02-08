@@ -37,7 +37,7 @@ namespace Hugula.Loader
         //current loaded
         static private int currLoaded = 0;
 
-        static private System.DateTime frameBegin = System.DateTime.Now;
+        static private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
         //protected
         static protected LoadingEventArg loadingEvent;
@@ -339,8 +339,8 @@ namespace Hugula.Loader
                     bundleGroundQueue.Remove(value);
                 }
 
-                var ts = System.DateTime.Now - frameBegin;
-                if (ts.TotalMilliseconds > BundleLoadBreakMilliSeconds) return true;
+                // var ts = System.DateTime.Now - frameBegin;
+                if (watch.ElapsedMilliseconds > BundleLoadBreakMilliSeconds) return true;
             }
 
             return false;
@@ -515,7 +515,7 @@ namespace Hugula.Loader
             int keyhash;
 #if HUGULA_PROFILER_DEBUG
             Profiler.EndSample();
-#endif          
+#endif
 
             for (int i = 0; i < deps.Length; i++)
             {
@@ -920,14 +920,19 @@ namespace Hugula.Loader
                 DispatchAssetBundleLoadAssetOperation(req, isError);
 
                 //等两帧再CheckAllComplete
-                allCompleteCheckCount = 0.5f;
+                allCompleteCheckCount = 0.1f;
                 //CheckAllComplete();//check all complete 
             }
             else if ((httpLoad = operation as HttpLoadOperation) != null)
             {
                 isError = !string.IsNullOrEmpty(httpLoad.error);
+                req.error = httpLoad.error;
 
-                if (isError && UriGroup.CheckAndSetNextUriGroup(req)) //
+                if (isError && UriGroup.CheckResolveHost(req))// http dns
+                {
+                    HttpRequest(req);//retry
+                }
+                else if (isError && UriGroup.CheckAndSetNextUriGroup(req)) //多域名
                 {
 #if HUGULA_LOADER_DEBUG
                     HugulaDebug.FilterLogFormat(req.key, "<color=#10f010>1.9  ProcessFinishedOperation re Loaded Request(url={0},assetname={1},dependencies.count={3},keyHashCode{2}),isError={4} frameCount{5}</color>", req.url, req.assetName, req.keyHashCode, req.dependencies == null ? 0 : req.dependencies.Length, isError, Time.frameCount);
@@ -983,8 +988,10 @@ namespace Hugula.Loader
         /// </summary>
         void Update()
         {
-            frameBegin = System.DateTime.Now;
-
+            // frameBegin = System.DateTime.Now;
+            watch.Reset();
+            watch.Start();
+            //Debug.Log(bundleQueue.Count + "=============");
 #if HUGULA_PROFILER_DEBUG
             Profiler.BeginSample("ResourcesLoader.LoadBundle" + inProgressBundleOperations.Count);
 #endif
@@ -992,15 +999,14 @@ namespace Hugula.Loader
             while (bundleMax - inProgressBundleOperations.Count > 0 && bundleQueue.Count > 0)
             {
                 //check frame time
-                var ts = (System.DateTime.Now - frameBegin).TotalMilliseconds;
-                if (ts >= BundleLoadBreakMilliSeconds * 3f)
+                if (watch.ElapsedMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
                 {
 #if HUGULA_PROFILER_DEBUG
                     Profiler.EndSample();
 #endif
                     return;
                 }
-                else if (ts >= BundleLoadBreakMilliSeconds * 1.5f)
+                else if (watch.ElapsedMilliseconds >= BundleLoadBreakMilliSeconds * 1.5f)
                 {
                     break;
                 }
@@ -1024,7 +1030,7 @@ namespace Hugula.Loader
             Profiler.BeginSample("inProgressBundleOperations.Loop count=" + inProgressBundleOperations.Count);
 #endif
             //load bundle
-            for (int i = 0; i < inProgressBundleOperations.Count;)
+            for (int i = 0; i < inProgressBundleOperations.Count; )
             {
                 var operation = inProgressBundleOperations[i];
                 if (operation.Update())
@@ -1036,15 +1042,14 @@ namespace Hugula.Loader
                     inProgressBundleOperations.RemoveAt(i);
                     ProcessFinishedBundleOperation(operation);
                     //check frame time
-                    var ts = (System.DateTime.Now - frameBegin).TotalMilliseconds;
-                    if (ts >= BundleLoadBreakMilliSeconds * 3f)
+                    if (watch.ElapsedMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
                     {
 #if HUGULA_PROFILER_DEBUG
                         Profiler.EndSample();
 #endif
                         return;
                     }
-                    else if (ts >= BundleLoadBreakMilliSeconds * 2)
+                    else if (watch.ElapsedMilliseconds >= BundleLoadBreakMilliSeconds * 2)
                         break;
                 }
             }
@@ -1057,7 +1062,7 @@ namespace Hugula.Loader
             Profiler.BeginSample("ResourcesLoader.inProgressOperations" + inProgressOperations.Count);
 #endif
             //load  asset or http req
-            for (int i = 0; i < inProgressOperations.Count;)
+            for (int i = 0; i < inProgressOperations.Count; )
             {
                 var operation = inProgressOperations[i];
                 if (operation.Update())
@@ -1070,8 +1075,7 @@ namespace Hugula.Loader
                     ProcessFinishedOperation(operation);
                 }
 
-                var ts = System.DateTime.Now - frameBegin;
-                if (ts.TotalMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
+                if (watch.ElapsedMilliseconds >= BundleLoadBreakMilliSeconds * 3f)
                     break;
             }
 

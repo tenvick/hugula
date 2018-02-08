@@ -24,16 +24,14 @@ namespace Hugula.Pool
             if (string.IsNullOrEmpty(assetbundle)) assetbundle = CUtils.GetRightFileName(this.name.Replace("(Clone)", "") + Common.CHECK_ASSETBUNDLE_SUFFIX);
             assetHashCode = LuaHelper.StringToHash(assetbundle);
             int addre = CountMananger.Add(this.assetHashCode);
-#if UNITY_EDITOR || !HUGULA_RELEASE
             if (addre == -1)
             {
-                Debug.LogWarningFormat("AddReferCount: name({0}) abName({1}) assetHashCode({2},count={3})refer add error ", this.name.Replace("(Clone)", ""), assetbundle, assetHashCode, addre);
+                Debug.LogWarningFormat("AddReferCount: name({0}) abName({1}) assetHashCode({2},count={3})refer add error ", GetPathName(this.transform), assetbundle, assetHashCode, addre);
             }
-#endif
 #if HUGULA_CACHE_DEBUG                
             else
             {
-                HugulaDebug.FilterLogFormat(assetbundle, "<color=green>AddReferCount: name({0}) abName({1}) assetHashCode({2}) referCount={3} </color> ", this.name.Replace("(Clone)", ""), assetbundle, assetHashCode, addre);
+                HugulaDebug.FilterLogFormat(assetbundle, "<color=green>AddReferCount: name({0}) abName({1}) assetHashCode({2}) referCount={3} </color> ", GetPathName(this.transform), assetbundle, assetHashCode, addre);
             }
 #endif
         }
@@ -42,14 +40,20 @@ namespace Hugula.Pool
         {
             var subre = CountMananger.Subtract(this.assetHashCode);
 #if HUGULA_CACHE_DEBUG
-            HugulaDebug.FilterLogFormat(assetbundle," SubtractReferCount: name({0}) abName({1}) assetHashCode({2})  referCount={3} ", this.name, assetbundle, assetHashCode, subre);
+            HugulaDebug.FilterLogFormat(assetbundle," SubtractReferCount: name({0}) abName({1}) assetHashCode({2})  referCount={3} ", GetPathName(this.transform), assetbundle, assetHashCode, subre);
 #endif
-#if UNITY_EDITOR ||!HUGULA_RELEASE
             if (subre == -1)
             {
-                Debug.LogWarningFormat("SubtractReferCount: name({0}) abName({1}) assetHashCode({2},count={3}) refer delete error ", this.name, assetbundle, assetHashCode, subre);
+                Debug.LogWarningFormat("SubtractReferCount: name({0}) abName({1}) assetHashCode({2},count={3}) refer delete error ", GetPathName(this.transform), assetbundle, assetHashCode, subre);
             }
-#endif
+        }
+
+        string GetPathName(Transform trans)
+        {
+            if(trans.parent == null)
+                return trans.name;
+            else
+                return GetPathName(trans.parent)+"/"+trans.name;
         }
 
         void Awake()

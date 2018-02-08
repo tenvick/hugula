@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Hugula;
-using UnityEngine.UI;
+// using UnityEngine.UI;
 public class LoadingFirst : MonoBehaviour
 {
 
@@ -15,13 +15,14 @@ public class LoadingFirst : MonoBehaviour
     public string sceneName = "s_begin";
 	public string sceneAssetBundleName = "s_begin.u3d";
 
-    public Text tips;
+    // public Text tips;
     // Use this for initialization
     IEnumerator Start()
     {
         CUtils.DebugCastTime("LoadingFirst.Start");
         //load manifest
         ResourcesLoader.Initialize();
+        HttpDnsHelper.Initialize();
         CUtils.DebugCastTime("LoadingFirst.Initialize");
         LogSys();
         LoadFirstHelper.LoadFileManifest(sceneAssetBundleName,sceneName);

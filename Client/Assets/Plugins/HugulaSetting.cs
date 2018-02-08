@@ -72,13 +72,13 @@ namespace Hugula
 
         //备份资源方式
         //[TooltipAttribute("资源目录组织方式 \r\n 0 OneResFolder [/res /v{d}/ver.u /ver.txt]  \r\n 1 VerResFolder[/v{d}/res /v{d}/ver.txt]")]
-        public CopyResType backupResType
-        {
-            get
-            {
-                return CopyResType.OneResFolder;
-            }
-        }
+        // public CopyResType backupResType
+        // {
+        //     get
+        //     {
+        //         return CopyResType.OneResFolder;
+        //     }
+        // }
 
         //打包包涵的变体       
         [TooltipAttribute("默认包含的变体")]

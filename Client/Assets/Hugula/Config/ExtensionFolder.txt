@@ -1,6 +1,5 @@
 version: 3
 extensionPath:
-- Assets/CustomerResource/Extends
 firstLoadFiles:
 extensionFiles:
 zipFiles:

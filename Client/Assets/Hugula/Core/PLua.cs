@@ -8,8 +8,8 @@ using SLua;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Lua = SLua.LuaSvr;
-using Hugula.Utils;
 using Hugula.Loader;
+using Hugula.Utils;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -47,12 +47,13 @@ namespace Hugula
         }
 #endif
 
-        public static Lua lua;
+        private static Lua lua;
 
         private static bool isLuaInitFinished = false;
         private string luaMain = "";
         private LuaFunction _updateFn;
 
+        private static bool is_destroy = false;
         #region mono
 
         public LuaFunction updateFn
@@ -64,18 +65,28 @@ namespace Hugula
             }
         }
 
-        void Awake()
-        {
-            DontDestroyOnLoad(this.gameObject);
-            if (lua == null) PreInitLua();
+        void Awake () {
+            DontDestroyOnLoad (this.gameObject);
+            _instance = this;
+#if !HUGULA_NO_LOG
+            Debug.Log (this.name + "Awake");
+#endif
+            if (lua == null) PreInitLua ();
         }
 
-        IEnumerator Start()
-        {
-            while (isLuaInitFinished == false)
+        IEnumerator Start () {
+#if !HUGULA_NO_LOG
+            Debug.Log ("Plua Start");
+#endif
+            while (isLuaInitFinished == false) {
                 yield return null;
+            }
 
-            LoadScript();
+            is_destroy = false;
+#if !HUGULA_NO_LOG
+            Debug.Log ("PLua Start lua init");
+#endif
+            LoadScript ();
 #if !HUGULA_RELEASE
             // Debug.Log(luaBytesAsset);
             Debug.LogFormat("domain frame {0}", Time.frameCount);
@@ -94,12 +105,13 @@ namespace Hugula
             lua = null;
         }
 
-        void OnDestroy()
-        {
-            Debug.Log("OnDestroy = " + name);
-            if (onDestroyFn != null) onDestroyFn.call();
-            RemoveAllEvents();
+        void OnDestroy () {
+            Debug.Log ("OnDestroy = " + name);
+            if (onDestroyFn != null) onDestroyFn.call ();
+            RemoveAllEvents ();
+            StopAllCoroutines ();
             isLuaInitFinished = false;
+            is_destroy = true;
             if (_instance == this) _instance = null;
             // if (ManifestManager.assetBundleManifest != null) UnityEngine.Object.Destroy(ManifestManager.assetBundleManifest);
 
@@ -155,13 +167,15 @@ namespace Hugula
         /// Pre Init Lua.
         /// </summary>
         /// <param name="sconds">Sconds.</param>
-        public static void PreInitLua()
-        {
-            if (lua == null) lua = new Lua();
-            CUtils.DebugCastTime("");
-            lua.init(null, () =>
-            {
-                CUtils.DebugCastTime("Slua binded");
+        public void PreInitLua () {
+#if !HUGULA_RELEASE
+            Debug.LogFormat ("ManagedThreadId = {0},frame={1}", System.Threading.Thread.CurrentThread.ManagedThreadId, Time.frameCount);
+#endif
+            if (lua == null) lua = new Lua ();
+            Debug.LogFormat ("PreInitLua {0}", lua);
+            CUtils.DebugCastTime ("");
+            lua.init (null, () => {
+                CUtils.DebugCastTime ("Slua binded");
                 isLuaInitFinished = true;
             }, LuaSvrFlag.LSF_3RDDLL);
         }
@@ -170,11 +184,14 @@ namespace Hugula
         /// ReStart.
         /// </summary>
         /// <param name="sconds">Sconds.</param>
-        public void ReStart(float sconds)
-        {
-            GameObject.Destroy(this.gameObject);
-            LoadFirstHelper.ReOpen(sconds);
-            //StartCoroutine(ReOpen(sconds));
+        public static void ReStart (float sconds) {
+            StopAllDelay();
+            var ins = _instance;
+            if(ins)
+            {
+                GameObject.Destroy (ins.gameObject);
+            }
+            LoadFirstHelper.ReOpen (sconds);
         }
 
         /// <summary>
@@ -280,9 +297,9 @@ namespace Hugula
                 str = LoadLuaBytes(name);
             }
 
-#elif UNITY_STANDALONE
-        
-            name = name.Replace('.', '/');
+#elif UNITY_STANDALONE && !HUGULA_RELEASE
+
+            name = name.Replace ('.', '/');
             string path = Application.dataPath + "/config_data/" + name + ".lua"; //���ȶ�ȡ�����ļ�
             if (File.Exists(path))
             {
@@ -301,85 +318,98 @@ namespace Hugula
             return str;
         }
 
-        public static Coroutine MultipleRequires(string[] requires)
-        {
-            return instance.StartCoroutine(MultipleRequiresDo(requires, null));
+        public static void MultipleRequires (string[] requires) {
+             coroutine.StartCoroutine (MultipleRequiresDo (requires, null));
         }
 
-        public static Coroutine MultipleRequires(string[] requires, LuaFunction luafn)
-        {
-            return instance.StartCoroutine(MultipleRequiresDo(requires, luafn));
+        public static void MultipleRequires (string[] requires, LuaFunction luafn) {
+            coroutine.StartCoroutine (MultipleRequiresDo (requires, luafn));
         }
 
-        public static Coroutine Delay(LuaFunction luafun, float time, params object[] args)
-        {
-            return instance.StartCoroutine(DelayDo(luafun, time, args));
+        public static object Delay (LuaFunction luafun, float time, params object[] args) {
+            var _corout = DelayDo (luafun, time, args);
+            coroutine.StartCoroutine (_corout);
+            return _corout;
         }
 
-        public static void StopDelay(Coroutine coroutine)
-        {
-            if (coroutine != null)
-                instance.StopCoroutine(coroutine);
+        public static void StopDelay (object arg) {
+            if (arg is IEnumerator)
+                coroutine.StopCoroutine ((IEnumerator)arg);
+            else
+                Debug.LogWarningFormat("StopDelay argument error:{0}",arg);
         }
 
-        public static void StopAllDelay()
-        {
-            instance.StopAllCoroutines();
+        public static void StopAllDelay () {
+            coroutine.StopAllCoroutines ();
         }
 
-        private static IEnumerator MultipleRequiresDo(string[] requires, LuaFunction onCompFn)
-        {
-            var item = requires.GetEnumerator();
+        private static IEnumerator MultipleRequiresDo (string[] requires, LuaFunction onCompFn) {
+            if (_instance == null)
+                yield break;
+
+            var item = requires.GetEnumerator ();
             string luastr = string.Empty;
-            while (item.MoveNext())
-            {
-                luastr = item.Current.ToString();
-                if ("eof".Equals(luastr))
+            // var lua = _instance.lua;
+            while (item.MoveNext ()) {
+                luastr = item.Current.ToString ();
+                if ("eof".Equals (luastr))
                     yield return null;
-                else if (luastr.Contains("("))
-                {
+                else if (luastr.Contains ("(")) {
 #if UNITY_EDITOR
                     // Debug.LogFormat("{0},framcount={1}", luastr, Time.frameCount);
 #endif
-                    lua.luaState.doString(luastr);
-                }
-                else
-                {
+                    lua.luaState.doString (luastr);
+                } else {
 #if UNITY_EDITOR
                     // Debug.LogFormat("{0},framcount={1}", luastr, Time.frameCount);
 #endif    
-                    lua.luaState.doFile(luastr);
+                    lua.luaState.doFile (luastr);
                 }
             }
             yield return null;
             // Debug.LogFormat("call function {0} ;", onCompFn != null);
-            if (onCompFn != null) onCompFn.call();
+            if (onCompFn != null) onCompFn.call ();
         }
 
-        private static IEnumerator DelayDo(LuaFunction luafun, float time, params object[] args)
-        {
-            yield return new WaitForSeconds(time);
-            luafun.call(args);
+        private static IEnumerator DelayDo (LuaFunction luafun, float time, params object[] args) {
+            yield return new WaitForSeconds (time);
+            if (!is_destroy)
+                luafun.call (args);
         }
 
         #endregion
 
         #region static
-        private static PLua _instance;
 
+        private static Coroutines _coroutine;
+        public static Coroutines coroutine {
+            get {
+                if (_coroutine == null) {
+                    Debug.Log ("create coroutine gameObject");
+                    var obj = new GameObject ("coroutine");
+                    _coroutine=obj.AddComponent<Coroutines>();
+                }
+                return _coroutine;
+            }
+        }
+        private static PLua _instance;
         public static PLua instance
         {
             get
             {
-                if (_instance == null)
-                {
-                    var gam = new GameObject("PLua");
-                    _instance = gam.AddComponent<PLua>();
-                }
                 return _instance;
             }
         }
+        // internal static PLua CreateInstance () {
+        //     Debug.Log ("create instance PLua");
+        //     var gam = new GameObject ("PLua");
+        //     _instance = gam.AddComponent<PLua> ();
+        //     return _instance;
+        // }
         #endregion
 
     }
+
+    [CustomLuaClass]
+    public class Coroutines : MonoBehaviour { }
 }

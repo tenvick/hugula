@@ -44,11 +44,11 @@ public class ReferenceCountInfoEditor : Editor
             if (GUILayout.Button("check", GUILayout.Width(50)))
             {
                 string mdstring = input;
-#if HUGULA_COMMON_ASSETBUNDLE
+// #if HUGULA_COMMON_ASSETBUNDLE
 					
-#else
+// #else
                 mdstring = CUtils.GetRightFileName(input);
-#endif
+// #endif
                 findCount = FindeCountByKey(mdstring);
             }
         }

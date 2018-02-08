@@ -11,7 +11,7 @@ local LuaHelper=LuaHelper
 local CSNameSpace = CSNameSpace
 
 local view=class(Asset,function(self,item_obj)
-    Asset._ctor(self, "extends/ex_ui_bottom.u3d")
+    Asset._ctor(self, "ex_ui_bottom.u3d")
     self.item_obj=item_obj
 end)
 

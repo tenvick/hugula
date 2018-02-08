@@ -49,9 +49,9 @@ PrefabCacheType =
 ItemGCType =
     {
         segment0 = 0, --标记回收                    关闭立即回收
-        segment1 = 1, --一代 用于标记自己做回收策略      二级UI
-        segment2 = 2, --二代 用于标记自己做回收策略      一级UI
-        segment3 = 3, --三代  用于标记自己做回收策略      大的资源场景模型
+        segment1 = 1, --一代 用于标记自己做回收策略     低端 lod=1
+        segment2 = 2, --二代 用于标记自己做回收策略      中端 lod=2
+        segment3 = 3, --三代  用于标记自己做回收策略     高端  lod=3
         segment4 = 4
     }
 
@@ -65,10 +65,12 @@ UnityEngine.ThreadPriority =
 
 function string.concat(...)
     local arg = {...}
+    local ctab = {}
     for k,v in pairs(arg) do
-        arg[k] = tostring(v)
+        if v == nil then v = "" end
+        ctab[k] = tostring(v)
     end
-    local s = table.concat(arg, " ")
+    local s = table.concat(ctab, "")
     return s
 end
 

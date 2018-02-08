@@ -28,12 +28,12 @@ public class CUtilsEditorTest
         url = "ex_ui_bottom";
         name = CUtils.GetRightFileName(url);
         Debug.Log(".............." + name);
-        Assert.AreEqual(name, url);
+        Assert.AreNotEqual(name, url);
 
         url = "ex_ui_bottom.u3d";
         name = CUtils.GetRightFileName(url);
         Debug.Log(".............." + name);
-        Assert.AreEqual(name, url);
+        Assert.AreNotEqual(name, url);
     }
 
     [Test]

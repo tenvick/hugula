@@ -171,6 +171,8 @@ namespace Hugula.Update
         public List<ABInfo> CompareFileManifest(FileManifest compare)
         {
             List<ABInfo> re = new List<ABInfo>();
+            if(compare==null) return re;
+            if(appNumVersion > compare.appNumVersion) return re;
             var compareABInfos = compare.allAbInfo;
             ABInfo abInfo;
             for (int i = 0; i < compareABInfos.Count; i++)

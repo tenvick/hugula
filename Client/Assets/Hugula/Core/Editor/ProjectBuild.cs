@@ -194,6 +194,12 @@ public class ProjectBuild : Editor
 
     }
 
+    //copy plugins to unity editor
+    static void CopyPlugins()
+    {
+
+    }
+
     static void ExportRes()
     {
         CUtils.DebugCastTime("Time ExportRes Begin");
@@ -462,7 +468,7 @@ public class ProjectBuild : Editor
     {
         CUtils.DebugCastTime("Time BuildForIOS Begin");
 
-        string path = "../../release/ios";
+        string path = "../release/ios";
         path = Path.GetFullPath(path);
         IOSSettings();
         EditorUtils.DirectoryDelete(path);

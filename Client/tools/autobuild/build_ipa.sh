@@ -23,7 +23,7 @@ XCODE_PROJ_PATH=$PROJECT_ROOT/release
 DEFINE=HUGULA_RELEASE,HUGULA_NO_LOG
 #development
 SETTING=
-#BUNDLEID=com.games37.wm.ios
+BUNDLEID=com.hugula.demo
 VERSION=0.13.3
 #team id
 DEV_TEAM=

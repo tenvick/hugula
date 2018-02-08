@@ -1,5 +1,14 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2018.2.8
+1 httpdns 支持。
+2 热更新文件规范为一种模式。
+3 仅支持md5方式构建assetbundle.
+4 断点续传的webdowload。
+5 热更新优化。
+6 更多unity版本支持5.4-2017.x。
+7 完善的自动构建shell脚本.
+
 2017.11.20 
 1 lua状态切换与异步加载导致的一些bug修复。
 

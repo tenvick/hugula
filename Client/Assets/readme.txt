@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2018.4.13
+ 1 协程加载bug修复（MessageBox.Show）
+ 2 热更新流程优化，断线后提示并加载。
+ 3 热更新后，安装新包读取缓存资源bug修复。
+ 4 assetbundle 释放以framcount来控制。
+
 2018.2.8
 1 httpdns 支持。
 2 热更新文件规范为一种模式。

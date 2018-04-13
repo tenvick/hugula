@@ -25,6 +25,8 @@ namespace Hugula.Update
         internal Dictionary<string, List<VariantsInfo>> variantDict = new Dictionary<string, List<VariantsInfo>>(System.StringComparer.OrdinalIgnoreCase);
 
         public int appNumVersion;
+        public int newAppNumVersion;
+        public string version;
 
         public uint crc32 = 0;
 
@@ -80,10 +82,20 @@ namespace Hugula.Update
             return false;
         }
 
-        public void AppendFileManifest(FileManifest newFileManifest)
+        public bool AppendFileManifest(FileManifest newFileManifest)
         {
-            if (appNumVersion <= newFileManifest.appNumVersion)
+            bool canAppend = appNumVersion <= newFileManifest.appNumVersion;
+            newAppNumVersion = newFileManifest.appNumVersion;
+            Debug.LogFormat("appNumVersion local={0},new={1}",appNumVersion,newFileManifest.appNumVersion);
+            if (canAppend)
             {
+                Debug.LogFormat("version old={0},new={1}",version,newFileManifest.version);
+                var newVersion = newFileManifest.version;
+                if(!string.IsNullOrEmpty(newVersion))
+                    version = newVersion;
+                else
+                    Debug.LogWarningFormat("newFileManifest({0}) version is null",newFileManifest.appNumVersion);
+
                 var variants = newFileManifest.allAssetBundlesWithVariant;
                 for (int i = 0; i < variants.Length; i++)
                 {
@@ -96,6 +108,8 @@ namespace Hugula.Update
                     Add(list[i]);
                 }
             }
+
+            return canAppend;
         }
 
 
@@ -200,7 +214,7 @@ namespace Hugula.Update
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendFormat("FileManifest AppNumber={0},count={1},crc32={2},hasFirstLoad={3}", appNumVersion, Count, crc32, hasFirstLoad);
+            stringBuilder.AppendFormat("FileManifest version={0}, AppNumber={1},count={2},crc32={3},hasFirstLoad={4}",version, appNumVersion, Count, crc32, hasFirstLoad);
             stringBuilder.AppendLine(" ABInfos:");
             foreach (var info in allAbInfo)
             {

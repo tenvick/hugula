@@ -322,6 +322,18 @@ namespace System.Net {
             if (this.responseHeaders != null) {
                 //check etag
                 string svrETag = responseHeaders["ETag"];
+                if(string.IsNullOrEmpty(svrETag))
+                {
+                    Debug.LogWarningFormat("url {0} Etag is Null",fileName);
+                    svrETag =  responseHeaders["Last-Modified"];
+                }
+
+                if(string.IsNullOrEmpty(svrETag))
+                {
+                    Debug.LogWarningFormat("url {0} Last-Modified is Null",fileName);
+                    svrETag = System.DateTime.Now.ToString();
+                } 
+
                 delCache = CheckCacheModified (fileName, svrETag);
                 RecordETag (fileName, svrETag);
 

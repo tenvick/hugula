@@ -28,7 +28,7 @@ namespace Hugula.Update {
         // 超过4M的资源使用断点续传多线程方式下载
         public static int BreakPointLength = 4194304;
 
-        public int loadingCount = 0;
+        public int loadingCount = 2;
 
         //开启下载
         public bool alwaysDownLoad {
@@ -53,7 +53,7 @@ namespace Hugula.Update {
             }
         }
 
-        public System.Action<BackGroundDownload> onNetSateChange;
+        // public System.Action<BackGroundDownload> onNetSateChange;
 #if UNITY_EDITOR
         [SLua.DoNotToLuaAttribute]
         public int currentLoadingCount = 0;
@@ -65,12 +65,13 @@ namespace Hugula.Update {
         private NetworkReachability netState;
         private SafeDictionary<int, BackGroundQueue> loadQueueDic = new SafeDictionary<int, BackGroundQueue> ();
         private LinkedList<BackGroundQueue> loadQueue = new LinkedList<BackGroundQueue> ();
-        private SafeDictionary<ABInfo, WebDownload> loadingTasks = new SafeDictionary<ABInfo, WebDownload> ();
+        private SafeDictionary<ABInfo, object> loadingTasks = new SafeDictionary<ABInfo, object> ();
 
         private ABInfoComparer abInfoCompare = new ABInfoComparer ();
 
         ArrayList webClients = ArrayList.Synchronized (new ArrayList ());
         string outputPath;
+        int completeCount;
         void Awake () {
             outputPath = CUtils.GetRealPersistentDataPath () + "/";
             if (!Directory.Exists (outputPath)) Directory.CreateDirectory (outputPath);
@@ -82,7 +83,7 @@ namespace Hugula.Update {
         /// any of the Update methods is called the first time.
         /// </summary>
         void Start () {
-            CheckLoadingCount ();
+            // CheckLoadingCount ();
             // if (this.loadingCount == 0 ) DispatchNetStateChange();
         }
 
@@ -96,23 +97,26 @@ namespace Hugula.Update {
 
         // Update is called once per frame
         void Update () {
-            if (netState != Application.internetReachability) {
-                netState = Application.internetReachability;
-                CheckLoadingCount ();
-                DispatchNetStateChange ();
-            }
+            // if (netState != Application.internetReachability) {
+            //     netState = Application.internetReachability;
+            //     CheckLoadingCount ();
+            //     DispatchNetStateChange ();
+            // }
 
-            foreach (BackGroundQueue backGroundQueue in loadQueueDic.Values)
-                backGroundQueue.DispatchOnProgress ();
-
+            completeCount = 0;
             while (webClients.Count > 0) {
                 var arr = (object[]) webClients[0];
                 webClients.RemoveAt (0);
                 RemoveTask ((ABInfo) arr[0], (BackGroundQueue) arr[1]);
+                completeCount++;
+                if(completeCount >= loadingCount) break;
             }
 
             CalcReceiveBytes (0);
-            // LoadingQueue();
+
+            foreach (BackGroundQueue backGroundQueue in loadQueueDic.Values)
+                backGroundQueue.DispatchOnProgress ();
+                
 #if UNITY_EDITOR
             currentLoadingCount = loadingTasks.Count;
             var str = string.Empty;
@@ -127,8 +131,9 @@ namespace Hugula.Update {
 
         void OnDestroy () {
             // WebDownload item;
-            foreach (WebDownload item in loadingTasks.Values) {
-                item.Dispose ();
+            foreach (object item in loadingTasks.Values) {
+                if(item is WebDownload)
+                    ((WebDownload)item).Dispose ();
             }
             webClients.Clear ();
             webClients = null;
@@ -142,9 +147,14 @@ namespace Hugula.Update {
             lock (syncRoot) {
 
                 LinkedListNode<BackGroundQueue> fristNode = this.loadQueue.First;
-
+                #if UNITY_EDITOR
+                    Debug.LogFormat("LoadingQueue.count={0},fristNode={1},canload={2},frame={3}",loadQueue.Count,fristNode,this.loadingCount - this.loadingTasks.Count > 0,Time.frameCount);
+                #endif
                 while (fristNode != null && this.loadingCount - this.loadingTasks.Count > 0) {
                     BackGroundQueue value = fristNode.Value;
+                #if UNITY_EDITOR
+                    Debug.LogFormat("BackGroundQueue.Count={0},LoadingQueue.count={1},loading={2},frame={3}",value.Count,loadQueue.Count,this.loadingCount - this.loadingTasks.Count,Time.frameCount);
+                #endif
                     if (value.Count > 0) {
                         var abInfo = value.Dequeue ();
                         if (!loadingTasks.ContainsKey (abInfo)) {
@@ -159,14 +169,14 @@ namespace Hugula.Update {
 
         }
 
-        void DispatchNetStateChange () {
-            //网络改变
-            if (this.enabled && loadingTasks.Count > 0 && this.loadingCount > 0)
-                LoadingQueue ();
+        // void DispatchNetStateChange () {
+        //     //网络改变
+        //     if (this.enabled && loadingTasks.Count > 0 && this.loadingCount > 0)
+        //         LoadingQueue ();
 
-            if (onNetSateChange != null)
-                onNetSateChange (this);
-        }
+        //     if (onNetSateChange != null)
+        //         onNetSateChange (this);
+        // }
 
         private BackGroundQueue GetLoadQueue (int priority) {
             // priority
@@ -336,13 +346,17 @@ namespace Hugula.Update {
         }
 
         internal void RemoveTask (ABInfo abInfo, BackGroundQueue bQueue) {
-
+            loadingTasks.Remove (abInfo);
             bool isError = abInfo.state != ABInfoState.Success;
-
             var mainAbInfo = ManifestManager.GetABInfo (abInfo.abName);
             if (mainAbInfo != null) mainAbInfo.state = abInfo.state;
-            // Debug.LogFormat("task complete abName={0},size={1},loadingTasks.Count={2},bQueue.count={3}", abInfo.abName, abInfo.size, loadingTasks.Count, bQueue.Count);
+#if UNITY_EDITOR
+            Debug.LogFormat("task complete abName={0},size={1},isError={2},loadingTasks.Count={3},bQueue.count={4}", abInfo.abName, abInfo.size, isError,loadingTasks.Count, bQueue.Count);
+#endif
             bQueue.Complete (abInfo, isError);
+
+            if(!bQueue.IsError)
+                LoadingQueue ();
         }
 
         internal void RunningTask (ABInfo abInfo, BackGroundQueue bQueue) {
@@ -351,11 +365,14 @@ namespace Hugula.Update {
             if (ManifestManager.CheckPersistentCrc (abInfo)) //验证crc
             {
                 webClients.Add (userData); // completa
+                loadingTasks[abInfo] = abInfo;
 #if UNITY_EDITOR
-                Debug.LogFormat ("RunningTask abName={0},Persistent is down ", abInfo.abName);
+                Debug.LogFormat ("RunningTask abName={0},Persistent is down frame={1}", abInfo.abName,Time.frameCount);
 #endif               
                 return;
             } else {
+                if(abInfo.state == ABInfoState.Fail)
+                    FileHelper.DeletePersistentFile(abInfo.abName);
                 var download = WebDownload.Get ();
                 download.userData = userData;
                 download.DownloadFileCompleted = OnDownloadFileCompleted;
@@ -368,7 +385,6 @@ namespace Hugula.Update {
 
         void ReleaseWebDonwLoad (WebDownload webd, ABInfo aBInfo) {
             lock (syncRoot) {
-                loadingTasks.Remove (aBInfo);
                 WebDownload.Release (webd);
             }
         }
@@ -454,16 +470,15 @@ namespace Hugula.Update {
                 }
             }
 
-            LoadingQueue ();
         }
 
         void OnDownloadProgressChanged (object sender, DownloadingProgressChangedEventArgs e) {
             CalcReceiveBytes (e.BytesRead);
-            WebDownload webd = (WebDownload) sender;
-            object[] arr = (object[]) webd.userData;
-            ABInfo abInfo = ((ABInfo) arr[0]);;
-            BackGroundQueue bQueue = (BackGroundQueue) arr[1];;
-            bQueue.Progress (abInfo, e.ProgressPercentage);
+            // WebDownload webd = (WebDownload) sender;
+            // object[] arr = (object[]) webd.userData;
+            // ABInfo abInfo = ((ABInfo) arr[0]);;
+            // BackGroundQueue bQueue = (BackGroundQueue) arr[1];;
+            // bQueue.Progress (abInfo, e.ProgressPercentage);
 
             if (progressChangedEventArgs != null)
                 progressChangedEventArgs.received += e.BytesReceived;
@@ -483,9 +498,27 @@ namespace Hugula.Update {
         /// <summary>
         /// begin download
         /// </summary>
+        public void ReloadError()
+        {
+            lock (syncRoot) {
+                LinkedListNode<BackGroundQueue> fristNode = this.loadQueue.First;
+                while (fristNode != null) {
+                    BackGroundQueue value = fristNode.Value;
+                    value.ReLoadError();
+                    #if UNITY_EDITOR
+                    Debug.LogFormat("ReLoadError  BackGroundQueue.Count = {0} ",value.Count);
+                    #endif
+                    fristNode = fristNode.Next;
+                }
+            }
+        }
+
+        /// <summary>
+        /// begin download
+        /// </summary>
         public void Begin () {
             if (!enabled) enabled = true;
-            CheckLoadingCount ();
+            // CheckLoadingCount ();
             ReSetReceiveBytes ();
             LoadingQueue ();
         }
@@ -508,22 +541,22 @@ namespace Hugula.Update {
             }
         }
 
-        private void CheckLoadingCount () {
-            switch (netState) {
-                case NetworkReachability.ReachableViaLocalAreaNetwork:
-                    this.loadingCount = 3;
-                    break;
-                case NetworkReachability.ReachableViaCarrierDataNetwork:
-                    if (carrierDataNetwork || m_alwaysDownLoad)
-                        this.loadingCount = 2;
-                    else
-                        this.loadingCount = 0;
-                    break;
-                case NetworkReachability.NotReachable:
-                    this.loadingCount = 0;
-                    break;
-            }
-        }
+        // private void CheckLoadingCount () {
+        //     switch (netState) {
+        //         case NetworkReachability.ReachableViaLocalAreaNetwork:
+        //             this.loadingCount = 3;
+        //             break;
+        //         case NetworkReachability.ReachableViaCarrierDataNetwork:
+        //             if (carrierDataNetwork || m_alwaysDownLoad)
+        //                 this.loadingCount = 2;
+        //             else
+        //                 this.loadingCount = 0;
+        //             break;
+        //         case NetworkReachability.NotReachable:
+        //             this.loadingCount = 0;
+        //             break;
+        //     }
+        // }
 
         #region static
 

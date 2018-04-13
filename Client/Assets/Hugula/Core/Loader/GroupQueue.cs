@@ -19,12 +19,12 @@ namespace Hugula.Loader {
         protected int totalCount;
         protected Queue<T> groupRes = new Queue<T> ();
         protected SafeDictionary<T, int> loadingGroupRes = new SafeDictionary<T, int> ();
-        protected List<string> errRes = new List<string> ();
+        protected List<T> errRes = new List<T> ();
         protected readonly object syncRoot = new object();
 
-        protected System.Action<T, bool> m_OnComplete;
+        internal bool pool = false;
 
-        protected int loadingPer;
+        // protected int loadingPer;
         //public 
         public int Count {
             get {
@@ -38,9 +38,16 @@ namespace Hugula.Loader {
             }
         }
 
-        public bool IsDown {
+        public virtual bool IsDown {
             get {
-                return (groupRes.Count == 0 && loadedCount >= totalCount); // && loadingGroupRes.Count == 0);
+                return (groupRes.Count == 0 && loadedCount >= totalCount);
+            }
+        }
+
+        public bool IsError{
+            get
+            {
+                return errRes.Count > 0;
             }
         }
         #endregion
@@ -59,34 +66,23 @@ namespace Hugula.Loader {
             return default (T);
         }
 
-        public void Progress (T req, int percent) {
-            AddProgress(req,percent);
-        }
-
-        protected virtual void AddProgress(T req, int percent)
+        public void ReLoadError()
         {
-            int oldVal = 0;
-            if (loadingGroupRes.TryGetValue(req,out oldVal)) {
-                loadingGroupRes[req] = percent;
-                loadingPer += percent-oldVal;
+            foreach (var req in errRes) {
+                groupRes.Enqueue (req);
             }
-        }
 
-        protected virtual void RemoveProgress(T req)
-        {
-            loadingPer -= 100;
+            errRes.Clear();
         }
 
         public bool Complete (T req, bool isError) {
 
             if (loadingGroupRes.ContainsKey (req)) {
                 loadingGroupRes.Remove (req);
-                RemoveProgress(req);
+                 if (isError)
+                    errRes.Add (req);
                 loadedCount++;
-                if (m_OnComplete != null)
-                    m_OnComplete (req, isError);
-                else
-                    OnComplete (req, isError);
+                UpdateProgress(req,isError);
                 DispatchOnProgress ();
             }
             // Debug.LogFormat("i={0},totalCount={1},loadedCount={2},IsDown={3},req={4},isErr={5}",i,totalCount,loadedCount,IsDown,req,isError);
@@ -94,7 +90,6 @@ namespace Hugula.Loader {
                 DispatchOnComplete ();
 
             return true;
-            // return i >= 0;
         }
 
         public GroupQueue () {
@@ -105,11 +100,9 @@ namespace Hugula.Loader {
             this.priority = priority;
         }
 
-        protected void OnComplete (T req, bool isError) {
+        protected virtual void UpdateProgress (T req, bool isError) {
             loadingEventArg.total = totalCount;
             loadingEventArg.current = loadedCount;
-            if (isError)
-                errRes.Add (string.Empty);
         }
 
         internal void Reset () {
@@ -118,25 +111,21 @@ namespace Hugula.Loader {
             groupRes.Clear ();
             loadingGroupRes.Clear ();
             errRes.Clear ();
+            onComplete = null;
+            onProgress = null;
+            pool = false;
         }
 
         public void DispatchOnProgress () {
             if (onProgress != null) {
-                loadingEventArg.progress = loadedCount * 100 + loadingPer / totalCount;
+                // loadingEventArg.progress = (loadedCount * 100 + loadingPer) / totalCount;
                 onProgress (loadingEventArg);
             }
         }
 
-        protected void DispatchOnComplete () {
-            bool isError = errRes.Count > 0;
-            Reset ();
+        protected virtual void DispatchOnComplete () {
             if (onComplete != null)
-                onComplete (isError);
-
-            onComplete = null;
-            onProgress = null;
-
-            ReleaseToPool ();
+                onComplete (IsError);
         }
 
         public virtual void ReleaseToPool () {
@@ -147,13 +136,8 @@ namespace Hugula.Loader {
 
     public sealed class BundleGroundQueue : GroupQueue<CRequest> {
         public override void Enqueue (CRequest req) {
-            if (ResourcesLoader.LoadAssetFromCache (req)) {
-                ABDelayUnloadManager.CheckRemove (req.keyHashCode);
-                ResourcesLoader.DispatchReqAssetOperation (req, false);
-            } else {
                 req.group = this;
                 base.Enqueue (req);
-            }
         }
 
         public void Enqueue (IList<CRequest> reqs) {
@@ -162,20 +146,28 @@ namespace Hugula.Loader {
             }
         }
 
+        protected override void DispatchOnComplete()
+        {
+            base.DispatchOnComplete();
+            ReleaseToPool();
+        }
+
         public override void ReleaseToPool () {
-            Release (this);
+            if(pool)
+                Release (this);
         }
 
         #region objectpool
         static ObjectPool<BundleGroundQueue> objectPool = new ObjectPool<BundleGroundQueue> (null, m_ActionOnRelease);
 
         private static void m_ActionOnRelease (BundleGroundQueue re) {
-            re.onComplete = null;
-            re.onProgress = null;
+            re.Reset();
         }
 
         public static BundleGroundQueue Get () {
-            return objectPool.Get ();
+            var bgroup = objectPool.Get ();
+            bgroup.pool = true;
+            return bgroup;
         }
 
         public static void Release (BundleGroundQueue toRelease) {

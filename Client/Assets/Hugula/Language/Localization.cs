@@ -43,6 +43,8 @@ namespace Hugula
         // Loaded languages, if any
         static string[] mLanguages = null;
 
+        public const string  KEY_LAN = "m_cs_Language";
+
         // Key = Value dictionary (mulit language)
         static Dictionary<string, string[]> mOldDictionary = new Dictionary<string, string[]>();
 
@@ -68,7 +70,7 @@ namespace Hugula
                 if (!localizationHasBeenSet)
                 {
 #if UNITY_EDITOR
-                    LoadDictionaryInEditor(PlayerPrefs.GetString("Language", Application.systemLanguage.ToString()));
+                    LoadDictionaryInEditor(PlayerPrefs.GetString(KEY_LAN, Application.systemLanguage.ToString()));
 #endif
                 }
                 return mDictionary;
@@ -86,7 +88,7 @@ namespace Hugula
 
         // static public string[] knownLanguages {
         //     get {
-        //         if (!localizationHasBeenSet) LoadDictionary (PlayerPrefs.GetString ("Language",SystemLanguage.English.ToString()));
+        //         if (!localizationHasBeenSet) LoadDictionary (PlayerPrefs.GetString (KEY_LAN,SystemLanguage.English.ToString()));
         //         return mLanguages;
         //     }
         // }
@@ -101,7 +103,7 @@ namespace Hugula
             {
                 if (string.IsNullOrEmpty(mLanguage))
                 {
-                    mLanguage = PlayerPrefs.GetString("Language", SystemLanguage.English.ToString());
+                    mLanguage = PlayerPrefs.GetString(KEY_LAN, SystemLanguage.English.ToString());
                     LoadAndSelect(mLanguage);
                 }
                 return mLanguage;
@@ -121,7 +123,11 @@ namespace Hugula
         /// </summary>
         static public void SetLanguage(SystemLanguage lan)
         {
-            language = lan.ToString();
+            // language = lan.ToString();
+            if((int)lan <= 0)
+                PlayerPrefs.DeleteKey(KEY_LAN);
+            else
+                SelectLanguage(lan.ToString());
         }
 
         /// <summary>
@@ -153,7 +159,6 @@ namespace Hugula
                 Debug.Log(mLanguage + " is loaded " + txt.Length+" "+Time.frameCount);
 #endif
                 if (txt != null) Load(txt);
-                SelectLanguage(mLanguage);
                 CacheManager.Unload(req1.keyHashCode);
                 localizationHasBeenSet = true;
             };
@@ -188,7 +193,6 @@ namespace Hugula
                 // Debug.Log(mLanguage + "   Editor is loaded " + txt.Length);
                 //Debug.Log(System.Text.Encoding.UTF8.GetString(txt));
                 if (txt != null) Load(txt);
-                SelectLanguage(mLanguage);
             }
             localizationHasBeenSet = true;
         }
@@ -228,10 +232,10 @@ namespace Hugula
 
         static bool SelectLanguage(string language)
         {
-            if (mDictionary.Count == 0) return false;
-
-            mLanguage = language;
-            PlayerPrefs.SetString("Language", mLanguage);
+#if !HUGULA_RELEASE
+            Debug.Log("SelectLanguage;"+language);
+#endif
+            PlayerPrefs.SetString(KEY_LAN, language);
             return true;
         }
 
@@ -243,10 +247,10 @@ namespace Hugula
         {
             // Ensure we have a language to work with
             string val;
-#if UNITY_IPHONE || UNITY_ANDROID
-            //key + " Mobile"
-            if (mDictionary.TryGetValue(key, out val)) return val;
-#endif
+//#if UNITY_IPHONE || UNITY_ANDROID
+//            //key + " Mobile"
+//            if (mDictionary.TryGetValue(key, out val)) return val;
+//#endif
 
 #if UNITY_EDITOR
             if (mDictionary.TryGetValue(key, out val)) return val;

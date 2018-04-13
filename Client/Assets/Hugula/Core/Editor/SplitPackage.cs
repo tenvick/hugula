@@ -204,7 +204,7 @@ namespace Hugula.Editor
                     {
                         firstCrcDict = o as FileManifest;
                         firstExists = true;
-                        firstCrcDict.WriteToFile("Assets/Tmp/firstManifest.txt");
+                        firstCrcDict.WriteToFile("Assets/Tmp/firstPackageManifest.txt");
                         Debug.Log(firstCrcDict.Count);
                     }
                 }
@@ -238,8 +238,8 @@ namespace Hugula.Editor
             {
                 streamingManifest = streamingManifest1;
                 streamingManifest.hasFirstLoad = false;
-                streamingManifest.WriteToFile("Assets/Tmp/allAssetbundleManifest.txt");
-                extensionFileManifest.WriteToFile("Assets/Tmp/HotResAssetbundleManifest.txt");
+                streamingManifest.WriteToFile("Assets/Tmp/StreamingAssetsManifest.txt");
+                extensionFileManifest.WriteToFile("Assets/Tmp/ExtensionFileManifest.txt");
                 return firstExists;
             }
 
@@ -340,8 +340,8 @@ namespace Hugula.Editor
 
             streamingManifest = streamingManifest1;
             streamingManifest.hasFirstLoad = needLoadFirst;
-            streamingManifest.WriteToFile("Assets/Tmp/allAssetbundleManifest.txt");
-            extensionFileManifest.WriteToFile("Assets/Tmp/HotResAssetbundleManifest.txt");
+            streamingManifest.WriteToFile("Assets/Tmp/StreamingAssetsManifest.txt");
+            extensionFileManifest.WriteToFile("Assets/Tmp/ExtensionFileManifest.txt");
             EditorUtility.ClearProgressBar();
             return firstExists;
         }
@@ -470,6 +470,8 @@ namespace Hugula.Editor
             streamingManifest.allAbInfo = allABInfos;
             streamingManifest.allAssetBundlesWithVariant = bundlesWithVariant;
             streamingManifest.appNumVersion = CodeVersion.APP_NUMBER;
+            streamingManifest.newAppNumVersion = CodeVersion.APP_NUMBER;
+            streamingManifest.version = CodeVersion.APP_VERSION;
 
             //create asset
             string tmpPath = EditorUtils.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
@@ -481,7 +483,7 @@ namespace Hugula.Editor
             string crc32outfilename = CUtils.GetRightFileName(Common.CRC32_FILELIST_NAME);
             BuildScript.BuildABs(new string[] { assetPath }, null, crc32outfilename, DefaultBuildAssetBundleOptions);
 
-            streamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "streamingAssetsManifest.txt");
+            streamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "BuildStreamingAssetsManifest.txt");
             Debug.LogFormat("FileManifest  Path = {0}/{1};", CUtils.realStreamingAssetsPath, crc32outfilename);
             return 0;
         }
@@ -493,6 +495,9 @@ namespace Hugula.Editor
         public static uint CreateStreamingCrcList(FileManifest sb, string fileListName, bool firstExists = false, bool copyToResFolder = false)
         {
             sb.appNumVersion = CodeVersion.APP_NUMBER;
+            sb.newAppNumVersion = CodeVersion.APP_NUMBER;
+            sb.version = CodeVersion.APP_VERSION;
+
             var crc32filename = CUtils.GetAssetName(fileListName);
             string tmpPath = EditorUtils.GetAssetTmpPath();// Path.Combine(Application.dataPath, BuildScript.TmpPath);
             EditorUtils.CheckDirectory(tmpPath);

@@ -65,7 +65,7 @@ namespace Hugula.Editor {
         }
 
         public static string GetLuaBytesResourcesPath () {
-            string luapath = "Assets/" + Common.LUACFOLDER + "/Resources/Luac";
+            string luapath = "Assets/" + Common.LUACFOLDER + "/Resources/luac";
             return luapath;
         }
 

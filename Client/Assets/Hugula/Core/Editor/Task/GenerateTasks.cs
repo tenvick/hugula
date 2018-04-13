@@ -89,7 +89,7 @@ namespace Hugula.Editor.Task
             streamingManifestClone.crc32 = streamingManifest.crc32;
             streamingManifestClone.hasFirstLoad = streamingManifest.hasFirstLoad;
             sharedata.diff_crc = SplitPackage.CreateStreamingCrcList(streamingManifestClone, Common.CRC32_FILELIST_NAME, sharedata.firstExists); //本地列表
-            streamingManifestClone.WriteToFile("Assets/" + EditorUtils.TmpPath + "streamingManifest0(Clone).txt");
+            streamingManifestClone.WriteToFile("Assets/" + EditorUtils.TmpPath + "StreamingAssetsManifest(Clone).txt");
         }
 
     }
@@ -122,7 +122,7 @@ namespace Hugula.Editor.Task
             diffstreamingManifest.OnAfterDeserialize();
             sharedata.diff_crc = SplitPackage.CreateStreamingCrcList(diffstreamingManifest, Common.CRC32_FILELIST_NAME, true, true); //增量列表
             sharedata.diffstreamingManifest = diffstreamingManifest;
-            diffstreamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "diffstreamingManifest.txt");
+            diffstreamingManifest.WriteToFile("Assets/" + EditorUtils.TmpPath + "HotResManifest.txt");
         }
     }
 
@@ -142,7 +142,7 @@ namespace Hugula.Editor.Task
         public void Run(HotResGenSharedData sharedata)
         {
             var diff_crc = sharedata.diff_crc;
-            SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Release,m_Channels,CUtils.isRelease==true?"":"_dev");
+            SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Release,m_Channels,"");
             SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Dev,m_Channels, "_dev");
             SplitPackage.CreateVersionAssetBundle(diff_crc, HugulaVersionType.Review,m_Channels, "_review");
         }

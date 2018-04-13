@@ -89,15 +89,17 @@ public static class LoadFirstHelper
         // }
 #endif
         ManifestManager.LoadFileManifest(null);
-        ManifestManager.LoadUpdateFileManifest(null);
+
         CUtils.DebugCastTime("LoadingFirst.LoadFileManifest");
     }
 
     //开始加载场景
     internal static void BeginLoadScene(string beginLua)
     {
-        if(!string.IsNullOrEmpty(beginLua))PLua.enterLua = beginLua;
+
+		ManifestManager.LoadUpdateFileManifest(null);
         PLua.DestoryLua();
+		PLua.enterLua = beginLua;
         CUtils.DebugCastTime("LoadingFirst");
 		var req = CRequest.Get();
 		req.relativeUrl = CUtils.GetRightFileName(sceneAssetBundleName);

@@ -8,34 +8,25 @@ namespace Hugula.Update {
         private uint totalSize;
         private uint loadedSize;
 
-        public BackGroundQueue (int priority) {
+        public BackGroundQueue(int priority)
+        {
             this.priority = priority;
-            this.m_OnComplete = _OnComplete;
         }
 
-        private void _OnComplete (ABInfo abInfo, bool isError) {
-            loadingEventArg.total = (int) totalSize;
-            loadingEventArg.current = (int) loadedSize;
-            if (isError) {
-                errRes.Add (abInfo.abName);
-            } else
-                loadedSize += abInfo.size;
-        }
-
-         protected override void AddProgress (ABInfo abInfo, int percent) {
-            int oldVal = 0;
-            if (loadingGroupRes.TryGetValue(abInfo,out oldVal)) {
-                loadingGroupRes[abInfo] = percent;
-                uint size = abInfo.size;
-                loadingPer += (int)((percent-oldVal)*size);
+        public override bool IsDown {
+            get {
+                return (groupRes.Count == 0 && loadedCount >= totalCount) || IsError;
             }
         }
+        protected override void UpdateProgress (ABInfo abInfo, bool isError) {
 
-        protected override void RemoveProgress(ABInfo req)
-        {
-            loadingPer -= (int)(req.size*100);
+            if (!isError)
+                loadedSize += abInfo.size;
+
+            loadingEventArg.total = (int) totalSize;
+            loadingEventArg.current = (int) loadedSize;
         }
-
+       
         public override void Enqueue (ABInfo abInfo) {
             abInfo.state = ABInfoState.None;
             groupRes.Enqueue (abInfo);

@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace Hugula.Loader {
     public abstract class ResourcesLoadOperation : IEnumerator, IReleaseToPool {
-        protected bool pool { get; set; }
+        protected bool pool = false;
         private System.Func<bool> m_OnUpdate;
         private System.Func<bool> m_IsDone;
         internal ResourcesLoadOperation next;
@@ -69,7 +69,7 @@ namespace Hugula.Loader {
             return m_Data;
         }
 
-        public string error { get; protected set; }
+        public string error { get; internal set; }
 
         private System.Action m_BeginDownload;
 
@@ -138,14 +138,15 @@ namespace Hugula.Loader {
 
         private void FinishDownload () {
             if (m_webrequest == null) {
-                error = string.Format ("webrequest is null , {0} ", cRequest.key);;
+                error = string.Format ("webrequest is null , {0} ", cRequest.key);
+                Debug.LogErrorFormat ("url:{0},erro:{1}", cRequest.url, error);
                 return;
             }
 
             error = m_webrequest.error;
 
             if (!string.IsNullOrEmpty (error)) {
-                Debug.LogWarningFormat ("url:{0},erro:{1}", cRequest.url, error);
+                Debug.LogErrorFormat ("url:{0},erro:{1}", cRequest.url, error);
                 return;
             }
 
@@ -154,7 +155,7 @@ namespace Hugula.Loader {
 #if UNITY_2017
                 m_Data = WWWAudioExtensions.GetAudioClip (m_webrequest);
 #else
-                m_Data = m_webrequest.GetAudioClip (false);
+                m_Data = m_webrequest.GetAudioClip ();
 #endif
             } else if (CacheManager.Typeof_Texture2D.Equals (type)) {
                 if (!string.IsNullOrEmpty (cRequest.assetName) && cRequest.assetName.Equals ("textureNonReadable"))
@@ -185,6 +186,11 @@ namespace Hugula.Loader {
                 return m_webrequest == null || m_webrequest.isDone;
             }
 
+        }
+
+        public override void ReleaseToPool () {
+            if (pool)
+                Release (this);
         }
 
         #region pool
@@ -291,13 +297,13 @@ namespace Hugula.Loader {
 #endif
             {
                 error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
-                Debug.LogWarning (error);
+                Debug.LogError (error);
                 return;
             }
 
             if (!(m_webrequest.responseCode == 200 || m_webrequest.responseCode == 0)) {
                 error = string.Format ("response error code = {0},url={1}", m_webrequest.responseCode, cRequest.url); // m_webrequest.error;
-                Debug.LogWarning (error);
+                Debug.LogError (error);
                 return;
             }
 
@@ -334,6 +340,11 @@ namespace Hugula.Loader {
 
         }
 
+        public override void ReleaseToPool () {
+            if (pool)
+                Release (this);
+        }
+
         #region pool
         static ObjectPool<WebRequestOperation> webOperationPool = new ObjectPool<WebRequestOperation> (m_ActionOnGet, m_ActionOnRelease);
 
@@ -358,6 +369,93 @@ namespace Hugula.Loader {
 
     #endregion
 
+    #region  http dns operation
+    public sealed class HttpDnsResolve :ResourcesLoadOperation
+    {
+        private ResourcesLoadOperation originalOperation;
+        public HttpDnsResolve () {
+            RegisterEvent (_Update, _IsDone);
+        }
+
+        public void SetOriginalOperation(ResourcesLoadOperation originalOperation)
+        {
+            this.originalOperation = originalOperation;
+        }
+
+         bool _Update () {
+             string url = HttpDns.GetUrl(cRequest.url);// get dsn ip
+             if(string.IsNullOrEmpty(url))
+             {
+                 return true; //wait for ip 
+             }
+
+            if (url != cRequest.url) {
+                cRequest.overrideHost = cRequest.uri.Host;// set host
+                cRequest.overrideUrl = url;
+                // request 
+                Debug.LogFormat("request ip {0}  override host {1} ",url,cRequest.overrideHost);
+                ResourcesLoader.HttpRequest(cRequest);
+            }else if(originalOperation!=null)
+            {
+                Debug.LogFormat(" dns resolve fail request url {0}   ",url);
+                ResourcesLoader.ProcessFinishedOperation(originalOperation);
+            }else
+            {
+                Debug.LogFormat("dns resolve fail , complete request url {0} ",url);
+
+                cRequest.DispatchEnd();
+
+                if (cRequest.group != null) cRequest.group.Complete(cRequest, true);
+
+                cRequest.ReleaseToPool();
+            }
+                
+            return false;
+        }
+
+        bool _IsDone () {
+            string url = HttpDns.GetUrl(cRequest.url);
+            return  !string.IsNullOrEmpty(url);
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            this.originalOperation = null;
+        }
+
+        public override void ReleaseToPool () {
+            if (pool)
+                Release (this);
+        }
+
+        #region pool
+        static ObjectPool<HttpDnsResolve> httpDnsOperationPool = new ObjectPool<HttpDnsResolve> (m_ActionOnGet, m_ActionOnRelease);
+
+        private static void m_ActionOnGet (HttpDnsResolve op) {
+            op.pool = true;
+        }
+
+        private static void m_ActionOnRelease (HttpDnsResolve op) {
+            op.Reset ();
+        }
+
+        public static HttpDnsResolve Get () {
+            return httpDnsOperationPool.Get ();
+        }
+
+        public static void Release (HttpDnsResolve toRelease) {
+            httpDnsOperationPool.Release (toRelease);
+        }
+
+        #endregion
+    }
+
+    #endregion
+
+
+
+
     #region load asset
 
     public abstract class AssetBundleLoadAssetOperation : ResourcesLoadOperation {
@@ -373,42 +471,54 @@ namespace Hugula.Loader {
             m_Data = null;
         }
     }
+    
 
     public sealed class AssetBundleLoadAssetOperationFull : AssetBundleLoadAssetOperation {
 
         private AssetBundleRequest m_Request = null;
+        private bool isLoadAll = false;
+        string url;
 
+#if HUGULA_LOADER_DEBUG
+        string assetName;
+#endif
         public AssetBundleLoadAssetOperationFull () {
             RegisterEvent (_Update, _IsDone);
         }
 
         // Returns true if more Update calls are required.
         private bool _Update () {
-            if (m_Request != null) {
-                if (cRequest.OnComplete != null) return !_IsDone (); // wait asset complete
-                return false;
+            url = cRequest.url;
+
+            if (m_Request != null) { // wait asset complete
+                // if (cRequest.OnComplete != null) return !_IsDone (); // wait asset complete
+                return !_IsDone ();
             }
 
             CacheData bundle = CacheManager.TryGetCache (cRequest.keyHashCode);
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.0 AssetBundleLoadAssetOperationFull.update  loadasset Request(url={0},assetname={1},CheckDependenciesComplete={3})bundle={2},asyn={4},frameCount={5}</color>", cRequest.url, cRequest.assetName, bundle, CacheManager.CheckDependenciesComplete (cRequest), cRequest.async, Time.frameCount);
+#endif
             if (bundle != null && bundle.isDone && CacheManager.CheckDependenciesComplete (cRequest)) {
                 if (bundle.isError || !bundle.canUse) {
                     error = string.Format ("load asset({0}) from bundle({1})  error", cRequest.assetName, cRequest.key);
                     return false;
                 } else {
 #if HUGULA_LOADER_DEBUG
-                    HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1 AssetBundleLoadAssetOperationFull  begin Request(url={0},assetname={1},dependencies.count={3})keyHashCode{2},asyn={4},frameCount{5}</color>", cRequest.url, cRequest.assetName, cRequest.keyHashCode, cRequest.dependencies == null ? 0 : cRequest.dependencies.Length, cRequest.async, Time.frameCount);
+                    assetName=cRequest.assetName;
+                    HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.0.1 AssetBundleLoadAssetOperationFull.update  loadasset Request(url={0},assetname={1},dependencies.count={3})keyHashCode{2},asyn={4},frameCount={5}</color>", cRequest.url, cRequest.assetName, cRequest.keyHashCode, cRequest.dependencies == null ? 0 : cRequest.dependencies.Length, cRequest.async, Time.frameCount);
 #endif
                     var typ = cRequest.assetType;
-                    bool loadAll = CacheManager.Typeof_ABAllAssets.Equals (typ);
+                    isLoadAll = CacheManager.Typeof_ABAllAssets.Equals (typ);
 
                     if (cRequest.async) {
-                        if (loadAll)
+                        if (isLoadAll)
                             m_Request = bundle.assetBundle.LoadAllAssetsAsync ();
                         else
                             m_Request = bundle.assetBundle.LoadAssetAsync (cRequest.assetName, typ);
 
                     } else {
-                        if (loadAll)
+                        if (isLoadAll)
                             m_Data = bundle.assetBundle.LoadAllAssets ();
                         else
                             m_Data = bundle.assetBundle.LoadAsset (cRequest.assetName, typ);
@@ -416,7 +526,9 @@ namespace Hugula.Loader {
                         if (m_Data == null) error = string.Format ("load asset({0}) from {1}  error", cRequest.assetName, cRequest.key);
 
                     }
-
+#if HUGULA_LOADER_DEBUG
+                    HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.0.2 AssetBundleLoadAssetOperationFull.update isdone Request(url={0},assetname={1}),m_Request={2},m_Data={3},error={4},frameCount={5}</color>", cRequest.url, cRequest.assetName, m_Request,m_Data,error, Time.frameCount);
+#endif
                     return !_IsDone ();
 
                 } // check bundle
@@ -427,44 +539,58 @@ namespace Hugula.Loader {
         }
 
         bool _IsDone () {
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.1.1 AssetBundleLoadAssetOperationFull._IsDone Request(url={0},assetName={1}) ,m_Request={2},m_Data={3},error={4},frameCount={5}</color>", url,assetName,m_Request,m_Data,error, Time.frameCount);
+#endif
             // error 
             if (error != null) {
-                Debug.LogWarning (error);
-                return true;
-            }
-
-            //no async load asset
-            if (m_Data != null) {
-                SetRequestData (cRequest, m_Data);
+                Debug.LogError (error);
                 return true;
             }
 
             if (m_Request != null && m_Request.isDone) {
-                bool loadAll = CacheManager.Typeof_ABAllAssets.Equals (cRequest.assetType);
-#if HUGULA_LOADER_DEBUG
-                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1 AssetBundleLoadAssetOperationFull  isDone Request(url={0},assetname={1},dependencies.count={3})keyHashCode{2},asyn={4},loadAll={5},frameCount{6}</color>", cRequest.url, cRequest.assetName, cRequest.keyHashCode, cRequest.dependencies == null ? 0 : cRequest.dependencies.Length, cRequest.async, loadAll, Time.frameCount);
-#endif
-                if (loadAll)
+
+                if (isLoadAll)
                     m_Data = m_Request.allAssets;
                 else
                     m_Data = m_Request.asset;
 
-                if (m_Data == null) error = string.Format ("load asset({0}) from {1}  error", cRequest.assetName, cRequest.key);
+                if (m_Data == null) error = string.Format ("load asset({0}) from {1}  error", m_Request, url);
 
                 SetRequestData (cRequest, m_Data);
-
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.1.2 AssetBundleLoadAssetOperationFull._IsDone async isdone Request(url={0},assetname={1}),m_Request={2},m_Data={3},error={4},loadAll={5},frameCount={6}</color>", url,assetName, m_Request,m_Data,error,isLoadAll, Time.frameCount);
+#endif
                 return true;
-            } else {
-                return false;
+            } 
+            
+            //no async load asset
+            if (m_Data != null) {
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1.1.3 AssetBundleLoadAssetOperationFull._IsDone isdone Request(url={0},assetName={1}) ,m_Request={2},m_Data={3},error={4},frameCount={5}</color>", url,assetName,m_Request,m_Data,error, Time.frameCount);
+#endif
+                SetRequestData (cRequest, m_Data);
+                return true;
             }
+                
+            return false;
         }
 
         public override void Reset () {
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1 AssetBundleLoadAssetOperationFull.Reset Request(url={0},assetName={1}) ,m_Request={2},m_Data={3},error={4},frameCount={5}</color>", url,assetName,m_Request,m_Data,error, Time.frameCount);
+#endif
             base.Reset ();
+            url = null;
             m_Request = null;
+            isLoadAll = false;
+
         }
 
         public override void ReleaseToPool () {
+#if HUGULA_LOADER_DEBUG
+                HugulaDebug.FilterLogFormat (cRequest.key, "<color=#15A0A1>2.1 AssetBundleLoadAssetOperationFull.ReleaseToPool Request(url={0},assetName={1}) ,m_Request={2},m_Data={3},error={4},pool={5},frameCount={6}</color>", url,assetName,m_Request,m_Data,error, pool,Time.frameCount);
+#endif
             if (pool)
                 Release (this);
         }
@@ -640,6 +766,8 @@ namespace Hugula.Loader {
         public override void Reset () {
             base.Reset ();
         }
+
+        
 
     }
 

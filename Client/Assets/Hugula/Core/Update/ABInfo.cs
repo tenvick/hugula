@@ -61,23 +61,18 @@ namespace Hugula.Update
 
         public bool EqualsDependencies(ABInfo abinfo)
         {
+            int myLen = dependencies == null?0:dependencies.Length;
             if(abinfo==null)
             {
                  return false;   
             }
-            else if (dependencies == null && abinfo.dependencies == null) //相同
+            int comLen= abinfo.dependencies == null?0:abinfo.dependencies.Length;
+
+            if (myLen == comLen && myLen == 0) //相同
             {
                 return true;
             }
-            else if (dependencies == null && (abinfo.dependencies != null && abinfo.dependencies.Length==0)) //不相同
-            {
-                return true;
-            }
-            else if (dependencies.Length == 0 && abinfo.dependencies == null ) //相同
-            {
-                return true;
-            }
-            else if (dependencies.Length != abinfo.dependencies.Length) //不相同
+            else if (myLen != comLen) //不相同
             {
                 return false;
             }

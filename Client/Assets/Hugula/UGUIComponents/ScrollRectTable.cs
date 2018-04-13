@@ -73,10 +73,10 @@ namespace Hugula.UGUIExtend
             set
             {
                 _data = value;
-                currFirstIndex = 0;
-                Clear();
-                CalcBounds();
-                CalcPage();
+                // currFirstIndex = 0;
+                Clear ();
+                CalcBounds ();
+                CalcPage ();
             }
         }
         #endregion
@@ -108,7 +108,7 @@ namespace Hugula.UGUIExtend
         bool mStarted = false;
 
         public Rect itemRect { private set; get;}
-        private Vector2 sizeDelta;
+        //private Vector2 sizeDelta;
         #endregion
 
 
@@ -180,7 +180,7 @@ namespace Hugula.UGUIExtend
 
         public void ScrollTo(int index)
         {
-            Vector3 currPos = moveContainer.localPosition;
+            Vector3 currPos = moveContainer.anchoredPosition;
             if (index < 0) index = 0;
             if (columns == 0)
             {
@@ -220,17 +220,22 @@ namespace Hugula.UGUIExtend
                 bg = 0;
                 ed = this.pageSize;
                 if (moveContainer != null)
-                    moveContainer.localPosition = this.beginPosition;
+                    moveContainer.anchoredPosition = this.beginPosition;
 
+                currFirstIndex = 0; //强行设置为0
+                ClearPreRenderList();
                 Scroll(0, true);
             }
             else
             {
 
                 bg = begin;
-                if (end == -1)
-                    end = this.currFirstIndex + this.pageSize;
-
+                if(bg<this.currFirstIndex)bg=this.currFirstIndex;
+                if(bg>this.currFirstIndex+this.pageSize)bg=this.currFirstIndex+this.pageSize;
+                if (end == -1) {
+                    end = bg + this.pageSize;
+                    if (end > this.recordCount) end = this.recordCount;
+                }
                 DoRefresh(bg, end);
             }
 
@@ -272,14 +277,16 @@ namespace Hugula.UGUIExtend
             return item;
         }
 
-        internal void CalcPage()
+        void ClearPreRenderList()
         {
-            if (this._data != null)
-            {
-                recordCount = this._data.length();
-            }
-            else
-            {
+            preRenderList.Clear();
+            preRepositionIntList.Clear();
+        }
+
+        internal void CalcPage () {
+            if (this._data != null) {
+                recordCount = this._data.length ();
+            } else {
                 recordCount = 0;
             }
             SetRangeSymbol(recordCount);
@@ -305,9 +312,10 @@ namespace Hugula.UGUIExtend
                     else
                         delt.y = -((itemRect.height+this.padding.y) * y + this.padding.y);
                 }
-                moveContainer.pivot = new Vector2(0f,1f);
-                moveContainer.sizeDelta = delt;
-                sizeDelta = delt;
+                moveContainer.pivot = new Vector2 (0f, 1f);
+                moveContainer.SetSizeWithCurrentAnchors (RectTransform.Axis.Horizontal, delt.x);
+                moveContainer.SetSizeWithCurrentAnchors (RectTransform.Axis.Vertical, delt.y);
+                //sizeDelta = delt;
             }
 
         }
@@ -320,7 +328,15 @@ namespace Hugula.UGUIExtend
                 RectTransform rectTrans = tileItem.rectTransform;
                 var size = rectTrans.sizeDelta;
 
-                wi = tileSize.x <= 0 ? size.x : tileSize.x;
+                if (tileSize.x <= 1 && tileSize.x > 0) {
+                    Rect rect = ((RectTransform) transform).rect;
+                    wi = rect.size.x * tileSize.x;
+                    size.x = wi;
+                    rectTrans.sizeDelta = size;
+                } else {
+                    wi = tileSize.x <= 0 ? size.x : tileSize.x;
+                }
+
                 he = tileSize.y <= 0 ? size.y : tileSize.y;
 
                 if(columns==0 ) //如果只有一排
@@ -352,7 +368,10 @@ namespace Hugula.UGUIExtend
             {
                 this.ItemDispose(repositionTileList[i],i);
             }
-        
+            repositionTileList.Clear ();
+            preRenderList.Clear ();
+            repositionTileIndexList.Clear ();
+            preRepositionIntList.Clear ();
         }
 
         float renderframs = 0;
@@ -396,12 +415,11 @@ namespace Hugula.UGUIExtend
         {
             if (trans.parent != this.transform) trans.SetParent(this.transform,false);
             var pos = trans.localPosition;
-            if (this.columns == 0)
-            {
-                pos.x = (itemRect.width+this.padding.x) * index + this.padding.x + itemRect.width*.5f ;
-            }
-            else
-            {
+            if (this.columns == 0) 
+			{
+                pos.x = (itemRect.width + this.padding.x) * index + this.padding.x + itemRect.width * .5f;
+                pos.y = -this.padding.y - itemRect.height * 0.5f;
+            } else {
                 int y = index / columns;
                 int x = index % columns;
                 if (this.direction == Direction.Down)
@@ -439,6 +457,10 @@ namespace Hugula.UGUIExtend
             {
                 onItemDispose.call(item, index + 1);
              }
+            if (item) {
+                GameObject.DestroyImmediate (item.gameObject);
+                item = null;
+            }
         }
 
         void PreRefresh(int i,int newHeadIndex,int currIndex,bool force=false)
@@ -518,7 +540,7 @@ namespace Hugula.UGUIExtend
 
             if (moveContainer != null)
             {
-                Vector3 bg = moveContainer.localPosition;
+                Vector3 bg = moveContainer.anchoredPosition;
                 beginPosition = new Vector3(bg.x, bg.y, bg.z);
                 moveContainer.pivot = new Vector2(0f,1f);
                 if(this.tileItem)PreRender(this.tileItem,0);
@@ -535,7 +557,7 @@ namespace Hugula.UGUIExtend
         {
             if (moveContainer != null && data != null)
             {
-                currPosition = moveContainer.localPosition;
+                currPosition = moveContainer.anchoredPosition;
                 if (direction == Direction.Down)
                     dtmove = beginPosition - currPosition;
                 else

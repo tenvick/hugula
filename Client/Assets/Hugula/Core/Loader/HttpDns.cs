@@ -31,22 +31,20 @@ namespace Hugula.Loader {
         }
 
         public static string GetIp (string host) {
-            string ip = string.Empty;
-            bool refresh = false;
+            string ip = null;
             System.DateTime time = System.DateTime.Now;
             if (cacheTime.TryGetValue (host, out time)) {
                 double dt = (System.DateTime.Now - time).TotalSeconds;
                 if (dt >= DnsCacheTimeOutSecond) {// dns cache time out 
-                    refresh = true;
-                } else if (cacheDns.TryGetValue (host, out ip) && string.IsNullOrEmpty (ip) && dt >= DnsRequestTimeOutSecond) {//dns request time out
-                    refresh = true;
+                    cacheDns.Remove (host);
+                } else if (cacheDns.TryGetValue (host, out ip) && string.IsNullOrEmpty(ip) && dt >= DnsRequestTimeOutSecond) {//dns request time out
+                    cacheDns[host] = host;//超时设置为原始值
                 }
-                if (refresh) cacheDns.Remove (host);
             }
 
             if (!cacheDns.TryGetValue (host, out ip)) {
                 cacheDns[host] = string.Empty; //标记为已经开始加载
-                Debug.LogFormat("http dns {0}",host);
+                Debug.LogFormat("request http dns {0}",host);
                 RequestHttpDnsIP (host);
                 cacheTime[host] = System.DateTime.Now;
             }
@@ -61,19 +59,26 @@ namespace Hugula.Loader {
             if (!string.IsNullOrEmpty (ip)) {
                 url = url.Replace (host, ip);
                 Debug.LogFormat ("HttpDns.GetUrl host={0},ip={1},url={2};", host, ip, url);
+                return url;
+            }else
+            {
+                Debug.LogFormat ("HttpDns.GetUrl wait ips  host={0},ip={1},url={2};", host, ip, url);
+                return null;
             }
-            return url;
         }
+
     }
 
-    public static class HttpDnsHelper
-    {
-        public static void Initialize()
-        {
-            HttpDns.GetHttpDsnIp = GetHttpDnsIP;
-        }
 
-        public static void GetHttpDnsIP (string strUrl, System.Action<string, string> onComplete) {
+        public static class HttpDnsHelper
+        {
+            public static void Initialize()
+            {
+                HttpDns.GetHttpDsnIp = GetHttpDnsIP;
+            }
+
+            public static void GetHttpDnsIP (string strUrl, System.Action<string, string> onComplete) 
+            {
                 string url = string.Format ("http://119.29.29.29/d?dn={0}", strUrl); System.Action<CRequest> onEnd = delegate (CRequest req) {
                     string text = req.data.ToString ();
                     string[] strIps = text.Split (';');
@@ -82,6 +87,6 @@ namespace Hugula.Loader {
                 }; 
                 Debug.Log ("ResourcesLoader.HttpRequest:" + url); 
                 ResourcesLoader.HttpRequest (url, null, typeof (string), onEnd, null, null);
+            }
         }
-    }
 }

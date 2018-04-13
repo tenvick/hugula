@@ -26,7 +26,11 @@ namespace Hugula.Pool
             int addre = CountMananger.Add(this.assetHashCode);
             if (addre == -1)
             {
+                #if HUGULA_RELEASE
                 Debug.LogWarningFormat("AddReferCount: name({0}) abName({1}) assetHashCode({2},count={3})refer add error ", GetPathName(this.transform), assetbundle, assetHashCode, addre);
+                #else
+                Debug.LogErrorFormat("AddReferCount: name({0}) abName({1}) assetHashCode({2},count={3})refer add error ", GetPathName(this.transform), assetbundle, assetHashCode, addre);
+                #endif
             }
 #if HUGULA_CACHE_DEBUG                
             else
@@ -44,7 +48,11 @@ namespace Hugula.Pool
 #endif
             if (subre == -1)
             {
+                #if HUGULA_RELEASE
                 Debug.LogWarningFormat("SubtractReferCount: name({0}) abName({1}) assetHashCode({2},count={3}) refer delete error ", GetPathName(this.transform), assetbundle, assetHashCode, subre);
+                #else
+                Debug.LogErrorFormat("SubtractReferCount: name({0}) abName({1}) assetHashCode({2},count={3}) refer delete error ", GetPathName(this.transform), assetbundle, assetHashCode, subre);
+                #endif
             }
         }
 

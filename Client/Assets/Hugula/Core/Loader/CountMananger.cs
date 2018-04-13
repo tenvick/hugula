@@ -89,6 +89,9 @@ namespace Hugula.Loader
             if (cached != null)
             {
                 cached.count++; //= cached.count + 1;
+
+                if(cached.count==1) //last refercount == 0 should check remove list
+                    ABDelayUnloadManager.CheckRemove(hashcode);
 #if HUGULA_CACHE_DEBUG 
                 HugulaDebug.FilterLogFormat(cached.assetBundleKey, " <color=#0cbcbc>add  (assetBundle={0},hashcode={1},count={2})  frameCount{3}</color>", cached.assetBundleKey, hashcode, cached.count, UnityEngine.Time.frameCount);
 #endif

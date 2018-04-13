@@ -5,7 +5,7 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-
+//#MESSAGEBOX_DEBUG
 namespace Hugula.UI {
 
     [SLua.CustomLuaClass]
@@ -17,8 +17,21 @@ namespace Hugula.UI {
 
         public Button buttonClose;
 
+        /// <summary>
+        /// This function is called when the MonoBehaviour will be destroyed.
+        /// </summary>
+        void OnDestroy () {
+            Button btn;
+            for (int i = 0; i < buttons.Length; i++) {
+                btn = buttons[i];
+                btn.onClick.RemoveAllListeners ();
+            }
+        }
+
         public void ShowContent (string text, string caption, MessageBoxButton[] btnContents) {
-            
+#if MESSAGEBOX_DEBUG 
+            Debug.LogFormat ("ShowContent {0}  ", gameObject);
+#endif
             if (!gameObject.activeSelf) gameObject.SetActive (true);
 
             this.text.text = text;
@@ -33,7 +46,13 @@ namespace Hugula.UI {
                     if (i < btnContents.Length) {
                         btn.gameObject.SetActive (true);
                         btn.onClick.RemoveAllListeners ();
-                        if (btnContents[i].onClick != null) btn.onClick.AddListener (btnContents[i].onClick);
+                        var msgBoxBtn = btnContents[i];
+                        if (msgBoxBtn.onClick != null) btn.onClick.AddListener (msgBoxBtn.onClick);
+                        if (!string.IsNullOrEmpty (msgBoxBtn.btnText)) {
+                            var txt = btn.GetComponentInChildren<Text> (true);
+                            if (txt) txt.text = msgBoxBtn.btnText;
+                        }
+
                     } else {
                         btn.gameObject.SetActive (false);
                     }
@@ -57,10 +76,19 @@ namespace Hugula.UI {
             this.gameObject.SetActive (false);
         }
 
-        private static IEnumerator LoadMessageBox () {
+        private static IEnumerator LoadMessageBox (MessageBoxInfo m_messageBoxInfo) {
+#if MESSAGEBOX_DEBUG 
+            Debug.LogFormat ("LoadMessageBox .LoadAssetCoroutine {0} ,frame={1}  ", m_messageBoxInfo,Time.frameCount);
+#endif
             var req = ResourcesLoader.LoadAssetCoroutine (CUtils.GetRightFileName (MESSAGEBOX_ABNAME), CUtils.GetAssetName (MESSAGEBOX_ABNAME), typeof (GameObject), int.MaxValue);
             yield return req;
+#if MESSAGEBOX_DEBUG 
+            Debug.LogFormat ("LoadMessageBox LoadAssetCoroutine is done {0},frame={1}  ", req,Time.frameCount);
+#endif
             var obj = req.GetAsset<GameObject> ();
+#if MESSAGEBOX_DEBUG 
+            Debug.LogFormat ("LoadMessageBox obj req.GetAsset<GameObject> {0} ,frame={1}  ", obj,Time.frameCount);
+#endif
             var ins = GameObject.Instantiate (obj);
             m_messageBox = ins.GetComponent<MessageBox> ();
             m_isloading = false;
@@ -80,16 +108,26 @@ namespace Hugula.UI {
         }
 
         public static void Show (string text, string caption, MessageBoxButton[] btns) {
-
+#if MESSAGEBOX_DEBUG 
+            Debug.LogFormat ("MessageBox.Show {0} frame={1}", text,Time.frameCount);
+#endif
             if (m_messageBox != null) {
                 m_messageBox.gameObject.SetActive (true);
                 m_messageBox.ShowContent (text, caption, btns);
+#if MESSAGEBOX_DEBUG 
+                Debug.LogFormat ("m_messageBox.ShowContent {0} frame={1} ", text,Time.frameCount);
+#endif
             } else if (!m_isloading) {
+#if MESSAGEBOX_DEBUG 
+                Debug.LogFormat ("Show {0} load asset frame={1}", text,Time.frameCount);
+#endif
                 m_isloading = true;
+                var m_messageBoxInfo = new MessageBoxInfo ();
                 m_messageBoxInfo.text = text;
                 m_messageBoxInfo.caption = caption;
                 m_messageBoxInfo.btns = btns;
-                ResourcesLoader.instance.StartCoroutine (LoadMessageBox ());
+                ResourcesLoader.instance.StartCoroutine (LoadMessageBox (m_messageBoxInfo));
+
             }
         }
 
@@ -105,7 +143,7 @@ namespace Hugula.UI {
                 m_messageBox.gameObject.SetActive (false);
         }
 
-        private static MessageBoxInfo m_messageBoxInfo = new MessageBoxInfo ();
+        // private static MessageBoxInfo m_messageBoxInfo = new MessageBoxInfo ();
         private static MessageBox m_messageBox;
 
         private static bool m_isloading;

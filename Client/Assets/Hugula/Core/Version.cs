@@ -10,7 +10,7 @@ namespace Hugula
     public class Version
     {
 
-        public const uint VERSION = 0x000402;
+        public const uint VERSION = 0x000502;
 
     }
 }

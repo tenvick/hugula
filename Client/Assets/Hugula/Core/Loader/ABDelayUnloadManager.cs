@@ -13,8 +13,8 @@ namespace Hugula.Loader
     {
 
         //delay unload time
-        public static float delaySecondTime = 0;//0.1f;
-        private static Dictionary<int, float> removeDic = new Dictionary<int, float>();
+        public static int delayClearFrameCount = 1;//0.1f;
+        private static Dictionary<int, int> removeDic = new Dictionary<int, int>();
 
         private static List<int> deleteList = new List<int>();
 
@@ -26,7 +26,7 @@ namespace Hugula.Loader
 #if HUGULA_CACHE_DEBUG                
             Debug.LogFormat("<color=#00ff00> ABDelayUnloadManager.add  keyhashcode({0}),frame={1} </color>",keyhashcode,Time.frameCount);
 #endif
-            removeDic.Add(keyhashcode, Time.unscaledTime + delaySecondTime);
+            removeDic.Add(keyhashcode, Time.frameCount + delayClearFrameCount);
         }
 
         internal static void AddDependenciesReferCount(CacheData cache)
@@ -36,7 +36,7 @@ namespace Hugula.Loader
                 int keyhash = 0;
                 int[] alldep = cache.dependencies;
 #if HUGULA_CACHE_DEBUG
-                HugulaDebug.FilterLogFormat(cache.assetBundleKey, "<color=#ffff00> CheckRemove  abName({0})'s allDependencies from ABDelayUnloadManager , Dependencies.count = {1}  </color>", cache.assetBundleKey, alldep == null ? 0 : alldep.Length);
+                HugulaDebug.FilterLogFormat(cache.assetBundleKey, "<color=#ffff00> CheckRemove  abName({0})'s allDependencies from ABDelayUnloadManager , Dependencies.count = {1} frameCount={2} </color>", cache.assetBundleKey, alldep == null ? 0 : alldep.Length, UnityEngine.Time.frameCount);
 #endif          
                 if (alldep != null)
                 {
@@ -75,7 +75,7 @@ namespace Hugula.Loader
                 CacheData cache = CacheManager.TryGetCache(keyhashcode);
                 AddDependenciesReferCount(cache);
  #if HUGULA_LOADER_DEBUG
-                HugulaDebug.FilterLogFormat(cache.assetBundleKey, "CheckRemove AssetBundle(key={0},hash={1}),frameCount{5}</color>", cache.assetBundleKey, cache.assetHashCode, Time.frameCount);
+                HugulaDebug.FilterLogFormat(cache.assetBundleKey, "CheckRemove AssetBundle(key={0},hash={1}),frameCount={2}</color>", cache.assetBundleKey, cache.assetHashCode, Time.frameCount);
 #endif
                 return true;
             }
@@ -85,7 +85,7 @@ namespace Hugula.Loader
 
         internal static void Update()
         {
-            // var now = Time.unscaledTime;
+            var frameCount = Time.frameCount;
             deleteList.Clear();
 
             var items = removeDic.GetEnumerator();
@@ -93,7 +93,7 @@ namespace Hugula.Loader
             while (items.MoveNext())
             {
                 var kv = items.Current;
-                if (Time.unscaledTime >= kv.Value)
+                if (frameCount >= kv.Value)
                 {
                     deleteList.Add(kv.Key);
                     CacheManager.Unload(kv.Key);

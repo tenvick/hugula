@@ -136,6 +136,31 @@ namespace Hugula.Utils
         }
 
         /// <summary>
+        /// check Resolve host error
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static bool IsResolveHostError (string error) 
+		{
+            error = error.ToLower ();
+            if ((error.Contains ("resolve") && error.Contains ("host")) ||
+                error.Contains ("nameresolutionfailure")) { //dns error
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// check is https 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static bool IsHttps (string url)
+		{
+            return url.ToLower ().StartsWith ("https");
+        }
+
+        /// <summary>
         /// Gets the file full path for www
         /// form Application.dataPath
         /// </summary>

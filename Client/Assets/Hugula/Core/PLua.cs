@@ -233,8 +233,10 @@ namespace Hugula
             else
                 cryName = CUtils.GetRightFileName (string.Format ("{0}_64", name));
 
-            string path = CUtils.PathCombine (CUtils.realPersistentDataPath, cryName + Common.CHECK_ASSETBUNDLE_SUFFIX);
-            if (File.Exists (path)) {
+            string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
+            bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
+            string path = CUtils.PathCombine (CUtils.realPersistentDataPath,abName );
+            if (isupdate &&  File.Exists (path)) {
                 ret = File.ReadAllBytes (path);
             } else {
                 var textAsset =(TextAsset)Resources.Load ("luac/"+cryName);
@@ -242,17 +244,18 @@ namespace Hugula
                 Resources.UnloadAsset(textAsset);
             }
 #else //android
-            string cryName = CUtils.GetRightFileName(name);
-            string path = CUtils.PathCombine(CUtils.realPersistentDataPath, cryName + Common.CHECK_ASSETBUNDLE_SUFFIX);
-            if (File.Exists(path))
-            {
-                ret = File.ReadAllBytes(path);
-            }
-            else
-            {
-                var textAsset = (TextAsset)Resources.Load ("luac/"+cryName); //pc luaBundle.LoadAsset<TextAsset>(cryName);
+            string cryName = CUtils.GetRightFileName (name);
+            string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
+
+            bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
+            string path = CUtils.PathCombine (CUtils.realPersistentDataPath, abName);
+            if (isupdate && File.Exists (path)) {
+                ret = File.ReadAllBytes (path);
+            } else {
+                var textAsset = (TextAsset) Resources.Load ("luac/" + cryName); //pc luaBundle.LoadAsset<TextAsset>(cryName);
                 ret = textAsset.bytes; // --Resources.Load
-                Resources.UnloadAsset(textAsset);
+                Resources.UnloadAsset (textAsset);
+                // ret = luaBytesAsset.GetBytesByFileName(cryName);
             }
 #endif
             return ret;
@@ -388,6 +391,7 @@ namespace Hugula
                     Debug.Log ("create coroutine gameObject");
                     var obj = new GameObject ("coroutine");
                     _coroutine=obj.AddComponent<Coroutines>();
+                    DontDestroyOnLoad (obj);
                 }
                 return _coroutine;
             }

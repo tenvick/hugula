@@ -154,8 +154,8 @@ namespace Hugula.Loader {
                     //     req.headers = new Dictionary<string, string> ();
                     req.overrideHost = req.uri.Host;// set host
                     req.overrideUrl = url;
+                    return true;
                 }
-                return true;
             }
             return false;
         }

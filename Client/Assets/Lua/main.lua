@@ -101,7 +101,6 @@ local main_update = {}
 local MAX_STEP = 6
 local DEBUG_UPDATE = false
 local server_manifest
-local json_pattern = "^{.*}$"
 --- global-----------------------------------
 cdn_hosts = {}
 ---------------------------local function ----------------
@@ -131,25 +130,12 @@ local function set_resversion(ver)
     end
 end
 
-local function set_resversion_var(ver)
-    if ver then
-        for k, v in pairs(ver) do
-            if (k == "code" or k == "crc32" or k == "version") then
-                ResVersion["svr_"..k] = v
-            else
-                ResVersion[k] = v
-            end
-        end
-    end
-end
-
 local function decode_ver_str(str)
-    if string.match(str, json_pattern) then
-        local ver = json:decode(str)
-        return ver
-    else
+    local ok, t = pcall(json.decode,json, str)
+    if not ok then
         return {code = CODE_VERSION, crc32 = 0, time = os.time(), version = APP_VERSION}
     end
+    return t
 end
 
 local function get_update_uri_group(hosts, on_www_comp, on_crc_check)
@@ -213,7 +199,7 @@ local function enter_game(manifest)
     delay(load_manifest, 0.01)
 end
 
-local function one_file_down(loading_event_arg)
+local function on_progress_event(loading_event_arg)
     local m = 1024 * 1024
     local loaded_s = string.format("%.2f", loading_event_arg.current / m)
     local loaded_t = string.format("%.2f", loading_event_arg.total / m)
@@ -222,26 +208,31 @@ local function one_file_down(loading_event_arg)
     set_progress_txt(lua_localization("main_downloading_tips", loaded_s, loaded_t,kbs), 4, loading_event_arg.current / loading_event_arg.total)
 end
 
-main_update.all_file_down=function(is_error)
+main_update.on_background_complete=function(is_error)
     print("all files have been download and the error is ", is_error)
     if is_error then
         local tips = lua_localization("main_download_fail")
         set_progress_txt(tips)--"文件下载失败请重启游戏。")
-        local function close()
+        local function reload()
+            print("begin reload")
+            BackGroundDownload.instance:ReloadError()    
+            BackGroundDownload.instance:Begin()
             MessageBox.Destroy()
         end
-        MessageBox.Show(tips, "", close)
+        MessageBox.Show(tips, "", "",reload)
+        -- main_update.load_server_file_list()
     else
         set_resversion(server_ver)
         if server_manifest then
-            ManifestManager.updateFileManifest = server_manifest
-            ManifestManager.fileManifest:AppendFileManifest(ManifestManager.updateFileManifest);
+            print("set update file manifest")
+            ManifestManager.SetUpdateFileManifest(server_manifest)
         end
         server_manifest = nil
         if ManifestManager.CheckFirstLoad() then ManifestManager.FinishFirstLoad() end
         
         FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME))--删除旧文件
         FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(UPDATED_TEMP_LIST_NAME), CUtils.GetRightFileName(UPDATED_LIST_NAME))
+        
         if not main_update.need_server_filelist then 
             FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME))--删除旧文件
             FileHelper.ChangePersistentFileName(CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME), CUtils.GetRightFileName(VERSION_FILE_NAME))
@@ -262,11 +253,11 @@ main_update.load_server_file_list = function()--版本差异化对比
             local change = 0
             local need_first = ManifestManager.CheckFirstLoad()
             if need_first then
-                change = BackGroundDownload.instance:AddFirstManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, main_update.all_file_down)
+                change = BackGroundDownload.instance:AddFirstManifestTask(ManifestManager.fileManifest, server_manifest, on_progress_event, main_update.on_background_complete)
             else
-                change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, one_file_down, main_update.all_file_down)
+                change = BackGroundDownload.instance:AddDiffManifestTask(ManifestManager.fileManifest, server_manifest, on_progress_event, main_update.on_background_complete)
             end
-            dprint("need load file size:", change)
+            print("need load file size:", change)
             if change > 0 then
                 local function begin_load()
                     BackGroundDownload.instance.alwaysDownLoad = true
@@ -286,7 +277,7 @@ main_update.load_server_file_list = function()--版本差异化对比
                     MessageBox.Show(tips, "", "", begin_load)--版本提示
                 end
             else
-                main_update.all_file_down()
+                main_update.on_background_complete()
             end
         end
 
@@ -300,6 +291,7 @@ main_update.load_server_file_list = function()--版本差异化对比
             local ab = req.data
             server_manifest = ab:LoadAllAssets()[1]
             ab:Unload(false)
+            print("server file list id down")
             if not CUtils.isRelease then
                 log_sys(server_manifest)
                 log_sys(ManifestManager.fileManifest)
@@ -364,13 +356,16 @@ main_update.load_server_verion = function()--加载服务器版本号
     local function on_comp(ver_str)
         server_ver = decode_ver_str(ver_str)
         print(string.format("load server ver.txt compelete,the server version is %s", server_ver.version))
-        local sub_version = CodeVersion.Subtract(server_ver.version, local_version.version)
-        dprint(ver_str)
-        dprint(sub_version)
-        main_update.need_server_filelist = sub_version >= 0 --是否需要加载服务器效验列表
 
-        if  sub_version >= 0 then -- server_ver.version >= local_version.version then
-            set_resversion_var(server_ver)
+        local version = ManifestManager.localVersion or APP_VERSION
+        print("version=",version,server_ver.version)
+        print(ver_str)
+        print(version)
+        local sub_version = CodeVersion.Subtract(server_ver.version, version)
+        main_update.need_server_filelist = sub_version > 0 --是否需要加载服务器效验列表
+        print("need update server list",main_update.need_server_filelist)
+        if  sub_version >= 0 then
+            set_resversion(server_ver)
         end
 
         BackGroundDownload.instance.hosts = ResVersion.cdn_host
@@ -387,29 +382,24 @@ main_update.load_server_verion = function()--加载服务器版本号
         
         FileHelper.SavePersistentFile(ver_str, CUtils.GetRightFileName(VERSION_TEMP_FILE_NAME))--临时文件
         
-        if server_ver.code == -1 or (server_ver.code <= 13003 and server_ver.code > 13000) then --错误码判断
-            local function on_sure_click()
-                Application.Quit()
-            end
-            MessageBox.Show(lua_localization("main_code_error"), "", "", on_sure_click)--版本提示
-        elseif CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
+       if CODE_VERSION < server_ver.code then --如果本地代码版本号不一致
             local new_app_tips = lua_localization("main_download_new_app")
             set_progress_txt(new_app_tips)--"请更新app版本！")
             local function open_url()
                 Application.OpenURL(server_ver.update_url)
             end
             MessageBox.Show(new_app_tips, "", "", open_url)--版本提示
-        elseif sub_version > 0 or ManifestManager.CheckFirstLoad() then --server_ver.version > local_version.version 或者需要做首包加载
-            dprint("server version is newer than client,begin load server file list")
+        elseif main_update.need_server_filelist or ManifestManager.CheckFirstLoad() then --server_ver.version > local_version.version 或者需要做首包加载
+            print("server version is newer than client,begin load server file list")
             main_update.load_server_file_list()
         else
-            dprint("compare version complete, enter game")
+            print("compare version complete, enter game")
             enter_game()
         end
     end
     
     local function on_req_comp(req)
-		print("ver comp:"..req.url)
+    	print("ver comp:"..req.url)
         if main_update.on_first_complete == false then
             on_comp(req.data)
         end
@@ -432,62 +422,25 @@ main_update.load_server_verion = function()--加载服务器版本号
 end
 
 main_update.compare_local_version = function()--对比本地版本号
-        -- 二次更新前埋点
 
         local step = {}
-        step.key = CUtils.GetRightFileName(UPDATED_LIST_NAME)
-        step.on_persistent_comp = function(req)
-            local ver_str = req.data
-            local ver_json = decode_ver_str(ver_str)
-            print("load persistent version info complete,the version is " .. ver_json.version)
-            dprint(ver_str)
-            step.persistent_version = ver_json
-            step.compare()
-        end
-        
-        step.on_persistent_error = function(req)
-            step.persistent_error = true
-            dprint("local verion persistent error and the req key is " .. req.key)
-            step.compare()
-        end
-        
+             
         step.compare = function()
-            if step.persistent_error == true and step.streaming_version ~= nil then
-                dprint("there is no persistent_version info,just use streaming_version:", step.streaming_version.version)
-                local_version = step.streaming_version
-                set_resversion(local_version)
-                main_update.load_server_verion()
-            elseif step.persistent_version ~= nil and step.streaming_version ~= nil then
-                if CodeVersion.Subtract(step.persistent_version.version, step.streaming_version.version) >= 0 then
-                    dprint("直接进入。%s > %s", step.persistent_version.version, step.streaming_version.version)
-                    local_version = step.persistent_version
-                    set_resversion(step.streaming_version)
-                    set_resversion(local_version)
-                    main_update.load_server_verion()
-                else
-                    dprint("persistent_version is older than streming_version ,use streaming_version:" .. os.date("%c", step.streaming_version.time) .. ",clear all caches")
-                    local tips = lua_localization("main_clear_cache")
-                    set_progress_txt(lua_localization("main_clear_cache"))--清理旧的缓存。")
-                    print(tips)
-                    print(step.persistent_version.version)
-                    print(step.streaming_version.version)
-                    package.loaded["core.loader"] = nil
-                    package.preload["core.loader"] = nil
-                    local_version = step.streaming_version --当前版本
-                    set_resversion(local_version)
-                    
-                    FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME))--删除旧文件
-                    FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME))--删除旧文件
-                    print("delete " .. UPDATED_LIST_NAME)
-                    print("delete " .. VERSION_FILE_NAME)
-                    
-                    local function load_server_ver()main_update.load_server_verion() end
-                    
-                    ManifestManager.CheckClearCacheFiles(nil, load_server_ver)
-                end
-            
+            local_version = step.streaming_version --当前版本
+            set_resversion(local_version)
+
+            if ManifestManager.needClearCache then
+                local tips = lua_localization("main_clear_cache")
+                set_progress_new_txt(lua_localization("main_clear_cache"))--清理旧的缓存。")
+                print(tips)
+                print(step.streaming_version.version) 
+                
+                FileHelper.DeletePersistentFile(CUtils.GetRightFileName(UPDATED_LIST_NAME))--删除旧文件
+                -- FileHelper.DeletePersistentFile(CUtils.GetRightFileName(VERSION_FILE_NAME))--删除旧文件
+                print("delete " .. UPDATED_LIST_NAME)
+                
             end
-        
+            main_update.load_server_verion()
         end
         
         step.on_streaming_comp = function(req)
@@ -529,18 +482,6 @@ main_update.compare_local_version = function()--对比本地版本号
         
         local ver_file_name = CUtils.GetRightFileName(VERSION_FILE_NAME)
         
-        step.load_persistent = function()
-            if FileHelper.PersistentFileExists(ver_file_name) then
-                local uri = CUtils.GetRealPersistentDataPath()
-                local url = CUtils.PathCombine(uri, ver_file_name)
-                dprint(url)
-                -- Loader:get_www_data(url, nil, String, step.on_persistent_comp, step.on_persistent_error, nil)
-                Loader:get_http_data(url, nil, String, step.on_persistent_comp, step.on_persistent_error, nil)
-            else
-                step.on_persistent_error({key = ver_file_name})
-            end
-        end
-        
         step.load_streaming = function()
             local uri = CUtils.GetRealStreamingAssetsPath()
             local url = CUtils.PathCombine(uri, ver_file_name)
@@ -552,7 +493,6 @@ main_update.compare_local_version = function()--对比本地版本号
         set_progress_txt(lua_localization("main_compare_local_ver"), 2, 0.2)--"对比本地版本信息。"
         dprint("start load local version info...")
         step.load_streaming()
-        step.load_persistent()
 end
 
 local function init_step1()

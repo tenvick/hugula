@@ -31,7 +31,8 @@ namespace Hugula.Utils
         {
             if (CheckInFilterMd5Name(md5))
             {
-                Debug.LogFormat(source, args);
+                string trackStr = new System.Diagnostics.StackTrace().ToString();
+                Debug.LogFormat(source+"\r\n"+trackStr, args);
             }
         }
 
@@ -39,15 +40,18 @@ namespace Hugula.Utils
         {
             if (CheckInFilterMd5Name(md5))
             {
-                Debug.LogWarningFormat(source, args);
+                string trackStr = new System.Diagnostics.StackTrace().ToString();
+                Debug.LogWarningFormat(source+"\r\n"+trackStr, args);
             }
         }
 
         public static void FilterLog(string md5, string msg)
         {
+
             if (CheckInFilterMd5Name(md5))
             {
-                Debug.Log(msg);
+                string trackStr = new System.Diagnostics.StackTrace().ToString();
+                Debug.Log(msg+"\r\n"+trackStr);
             }
         }
 
@@ -55,7 +59,8 @@ namespace Hugula.Utils
         {
             if (CheckInFilterMd5Name(md5))
             {
-                Debug.LogWarning(msg);
+                string trackStr = new System.Diagnostics.StackTrace().ToString();
+                Debug.LogWarning(msg+"\r\n"+trackStr);
             }
         }
     }

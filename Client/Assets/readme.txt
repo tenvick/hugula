@@ -1,5 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2018.4.21
+ 1 main.lua函数同步错误处理。
+ 2 热更新加载错误队列不移除。
+ 
 2018.4.13
  1 协程加载bug修复（MessageBox.Show）
  2 热更新流程优化，断线后提示并加载。

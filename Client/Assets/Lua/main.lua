@@ -287,7 +287,7 @@ main_update.load_server_file_list = function()--版本差异化对比
         end
         
         local function on_server_comp(req) --服务端文件列表加载完毕
-            set_progress_new_txt(lua_localization("main_compare_crc_list"))--校验列表对比中。")
+            set_progress_txt(lua_localization("main_compare_crc_list"))--校验列表对比中。")
             local ab = req.data
             server_manifest = ab:LoadAllAssets()[1]
             ab:Unload(false)
@@ -313,7 +313,7 @@ main_update.load_server_file_list = function()--版本差异化对比
         
         load_server=function(...)
             if main_update.need_server_filelist then
-                set_progress_new_txt(lua_localization("main_web_server_crc_list"))--加载服务器校验列表。")
+                set_progress_txt(lua_localization("main_web_server_crc_list"))--加载服务器校验列表。")
                 local crc = tostring(server_ver.crc32)
                 local asset_name = CUtils.GetAssetName(UPDATED_LIST_NAME)
                 local assetbundle_name = CUtils.GetRightFileName(asset_name .. Common.CHECK_ASSETBUNDLE_SUFFIX)
@@ -431,7 +431,7 @@ main_update.compare_local_version = function()--对比本地版本号
 
             if ManifestManager.needClearCache then
                 local tips = lua_localization("main_clear_cache")
-                set_progress_new_txt(lua_localization("main_clear_cache"))--清理旧的缓存。")
+                set_progress_txt(lua_localization("main_clear_cache"))--清理旧的缓存。")
                 print(tips)
                 print(step.streaming_version.version) 
                 

@@ -147,12 +147,12 @@ namespace Hugula.Update {
             lock (syncRoot) {
 
                 LinkedListNode<BackGroundQueue> fristNode = this.loadQueue.First;
-                #if UNITY_EDITOR
+                #if !HUGULA_NO_LOG
                     Debug.LogFormat("LoadingQueue.count={0},fristNode={1},canload={2},frame={3}",loadQueue.Count,fristNode,this.loadingCount - this.loadingTasks.Count > 0,Time.frameCount);
                 #endif
                 while (fristNode != null && this.loadingCount - this.loadingTasks.Count > 0) {
                     BackGroundQueue value = fristNode.Value;
-                #if UNITY_EDITOR
+                #if !HUGULA_NO_LOG
                     Debug.LogFormat("BackGroundQueue.Count={0},LoadingQueue.count={1},loading={2},frame={3}",value.Count,loadQueue.Count,this.loadingCount - this.loadingTasks.Count,Time.frameCount);
                 #endif
                     if (value.Count > 0) {
@@ -162,7 +162,8 @@ namespace Hugula.Update {
                         }
                     } else {
                         fristNode = fristNode.Next;
-                        this.loadQueue.Remove (value);
+                        if(value.IsDown && !value.IsError) 
+                            this.loadQueue.Remove (value); //如果有错误需要保持在队列中
                     }
                 }
             }
@@ -350,7 +351,7 @@ namespace Hugula.Update {
             bool isError = abInfo.state != ABInfoState.Success;
             var mainAbInfo = ManifestManager.GetABInfo (abInfo.abName);
             if (mainAbInfo != null) mainAbInfo.state = abInfo.state;
-#if UNITY_EDITOR
+#if !HUGULA_NO_LOG
             Debug.LogFormat("task complete abName={0},size={1},isError={2},loadingTasks.Count={3},bQueue.count={4}", abInfo.abName, abInfo.size, isError,loadingTasks.Count, bQueue.Count);
 #endif
             bQueue.Complete (abInfo, isError);
@@ -366,7 +367,7 @@ namespace Hugula.Update {
             {
                 webClients.Add (userData); // completa
                 loadingTasks[abInfo] = abInfo;
-#if UNITY_EDITOR
+#if !HUGULA_NO_LOG
                 Debug.LogFormat ("RunningTask abName={0},Persistent is down frame={1}", abInfo.abName,Time.frameCount);
 #endif               
                 return;
@@ -408,7 +409,7 @@ namespace Hugula.Update {
             else
                 download.DownloadFileMultiAsync (url, path);
 
-#if !HUGULA_RELEASE
+#if !HUGULA_NO_LOG
             Debug.LogFormat (" begin load {0} ,save path ={1},abInfo.state={2} ,webClient({3})", url.AbsoluteUri, path, abInfo.state, download);
 #endif
         }
@@ -431,7 +432,7 @@ namespace Hugula.Update {
                 bQueue = (BackGroundQueue) arr[1];
             }
 
-#if !HUGULA_RELEASE
+#if !HUGULA_NO_LOG
             // Debug.LogFormat ("background ab:{0}\r\n is completed,error:{1}", abInfo.abName, e.Error==null? string.Empty : e.Error.Message);
 #endif
             if (e.Error != null) {
@@ -505,7 +506,7 @@ namespace Hugula.Update {
                 while (fristNode != null) {
                     BackGroundQueue value = fristNode.Value;
                     value.ReLoadError();
-                    #if UNITY_EDITOR
+                    #if !HUGULA_NO_LOG
                     Debug.LogFormat("ReLoadError  BackGroundQueue.Count = {0} ",value.Count);
                     #endif
                     fristNode = fristNode.Next;
@@ -540,23 +541,6 @@ namespace Hugula.Update {
                 }
             }
         }
-
-        // private void CheckLoadingCount () {
-        //     switch (netState) {
-        //         case NetworkReachability.ReachableViaLocalAreaNetwork:
-        //             this.loadingCount = 3;
-        //             break;
-        //         case NetworkReachability.ReachableViaCarrierDataNetwork:
-        //             if (carrierDataNetwork || m_alwaysDownLoad)
-        //                 this.loadingCount = 2;
-        //             else
-        //                 this.loadingCount = 0;
-        //             break;
-        //         case NetworkReachability.NotReachable:
-        //             this.loadingCount = 0;
-        //             break;
-        //     }
-        // }
 
         #region static
 

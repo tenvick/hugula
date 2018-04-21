@@ -15,7 +15,7 @@ namespace Hugula.Update {
 
         public override bool IsDown {
             get {
-                return (groupRes.Count == 0 && loadedCount >= totalCount) || IsError;
+                return (groupRes.Count == 0 && LoadingCount == 0 ) || IsError;
             }
         }
         protected override void UpdateProgress (ABInfo abInfo, bool isError) {

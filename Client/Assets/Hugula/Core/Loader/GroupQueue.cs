@@ -40,7 +40,7 @@ namespace Hugula.Loader {
 
         public virtual bool IsDown {
             get {
-                return (groupRes.Count == 0 && loadedCount >= totalCount);
+                return (groupRes.Count == 0 && LoadingCount == 0);
             }
         }
 
@@ -70,6 +70,7 @@ namespace Hugula.Loader {
         {
             foreach (var req in errRes) {
                 groupRes.Enqueue (req);
+                loadedCount--;
             }
 
             errRes.Clear();

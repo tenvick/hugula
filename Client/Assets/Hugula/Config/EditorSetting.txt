@@ -2,3 +2,5 @@
 abNameIgnoreSuffix:_alpha,_atlas
 //打包zip平台设置 支持多平台,None,Android,iOS,Standalonewindows
 zipPlatform:None
+//打包忽略的lua文件
+luaIgnorePattern:^extra.lua,^test/*.lua

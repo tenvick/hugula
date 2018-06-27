@@ -676,12 +676,17 @@ namespace Hugula.Utils
             if (System.IO.File.Exists(fullPath))
             {
                 FileStream fs = new FileStream(fullPath, FileMode.Open);
-                if (fs != null)
+                if (fs != null && fs.Length > 0)
                 {
                     byte[] bytes = new byte[fs.Length];
                     fs.Read(bytes, 0, bytes.Length);
                     fs.Close();
-                    string loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
+                    string loadData = string.Empty;
+                    try{
+                        loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
+                    }catch(System.Exception ex){
+                        Debug.LogError(ex);
+                    }
                     return loadData;
                 }
             }

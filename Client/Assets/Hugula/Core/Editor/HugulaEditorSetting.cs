@@ -3,6 +3,7 @@ using System.IO;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 namespace Hugula.Editor
 {
@@ -11,8 +12,26 @@ namespace Hugula.Editor
         //设置assetbundle name忽略的后缀
         public string[] abNameIgnoreSuffix;
 
+        public string[] luaIgnorePattern;
+
         //指定平台压缩zip
         public ZipPlatform zipPlatform = ZipPlatform.None;
+
+        public bool IsIgnoreLua(string luaPath)
+        {
+            if(luaIgnorePattern==null || luaIgnorePattern.Length==0) return false;
+            
+            foreach(var p in luaIgnorePattern)
+            {
+                if(Regex.IsMatch(luaPath,p))
+                {
+                    Debug.LogWarningFormat("Ignore Lua {0} is match pattern {1}",luaPath,p);
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         //获取替换后的ab名字
         public string GetAssetBundleNameByReplaceIgnore(string abName)
@@ -70,6 +89,10 @@ namespace Hugula.Editor
                                 if (key == "abNameIgnoreSuffix")
                                 {
                                     _instance.abNameIgnoreSuffix = val.Split(',');
+                                }
+                                else if(key == "luaIgnorePattern")
+                                {
+                                    _instance.luaIgnorePattern = val.Split(',');
                                 }
                                 else if (key == "zipPlatform")
                                 {

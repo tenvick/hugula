@@ -11,7 +11,7 @@ namespace Hugula.Loader {
     public static class HttpDns {
 
         public static int DnsCacheTimeOutSecond = 400;
-        public static int DnsRequestTimeOutSecond = 3;
+        public static int DnsRequestTimeOutSecond = 6;
         private static SafeDictionary<string, string> cacheDns = new SafeDictionary<string, string> ();
         private static SafeDictionary<string, DateTime> cacheTime = new SafeDictionary<string, DateTime> ();
         public static Action<string, Action<string, string>> GetHttpDsnIp;

@@ -11,6 +11,10 @@ local HugulaProfiler = Hugula.Pool.HugulaProfiler
 local function check_need_log(curr_state,curr_log)  
 
     if not curr_state.log_enable then return false end 
+    
+    if curr_log == nil or curr_log == false  then --如果没有记录
+        return true
+    end
 
     local change = false
     local items = curr_state:get_all_items() --当前的所有项目
@@ -27,10 +31,6 @@ local function check_need_log(curr_state,curr_log)
     end
 
     if change == false and count == 0 then return false end --如果没有需要记录的项目直接返回
-
-    if curr_log == nil or curr_log == false  then --如果没有记录
-        return true
-    end
 
     local log_count = #curr_log - 1
 
@@ -119,7 +119,7 @@ StateManager =
     _current_game_state = nil,
     _auto_show_loading = true,
     _transform = nil,
-    _log_state = LuaStack(16), --状态日志
+    _log_state = LuaStack(512), --状态日志
     _input_enable = true --输入控制
 }
 
@@ -390,12 +390,18 @@ function StateManager:go_back(index) --返回
         back_log = self._log_state:get(index) --返回的状态
     end
     local pop_len = math.abs(index)-1
-    self._log_state:pop(pop_len) --多余状态
     if back_log == nil then return false end 
     local new_state = back_log[1] --pos 1 is state
     assert(new_state ~= nil,"返回的状态不能为空！")
     --添加状态
     local change,add,remove = get_diff_log(self._current_game_state,back_log)
+
+    if change then
+        self._log_state:pop(pop_len) --多余状态
+    else
+        return false
+    end
+
     if new_state == self._current_game_state then --如果是当前状态
         local curr = self._current_game_state
         local last = self._last_game_state

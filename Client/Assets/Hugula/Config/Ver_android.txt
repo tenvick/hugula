@@ -1,2 +1,2 @@
-"cdn_host":["http://192.168.2.104/release/android/%s/res"]
-"update_url":"http://192.168.2.104/release/android"
+"cdn_host":["http://192.168.99.48/release/android/%s/res"]
+"update_url":"http://192.168.99.48/release/android"

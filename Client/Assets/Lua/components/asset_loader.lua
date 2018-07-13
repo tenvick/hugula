@@ -63,12 +63,13 @@ end
 local function create_request(v, on_req_loaded, on_err)
 	local req
 	if v:is_a(AssetScene) then
-		 req = CRequest.Create(v.assetbundle_url,v.asset_name,AssetBundleScene,on_req_loaded,on_err,v,Loader.default_async)
+		 req = CRequest.Create(v.assetbundle_url,v.asset_name,AssetBundleScene,on_req_loaded,on_err)
 		 if v.is_additive == true then req.isAdditive = true end
 	else
 		-- print("create request..........",v.asset_name)
-		req = CRequest.Create(v.assetbundle_url,v.asset_name,Object,on_req_loaded,on_err,v,Loader.default_async)
+		req = CRequest.Create(v.assetbundle_url,v.asset_name,Object,on_req_loaded,on_err)
 	end
+	req.userData = v
 	return req
 end
 
@@ -137,7 +138,7 @@ function AssetLoader:load_assets(assets)
 	local asset = nil
 	
 	local on_req_loaded = function(req)
-		local ass = req.head
+		local ass = req.userData
 		local key = ass.key
 		
 		if ass:is_a(Asset) then
@@ -181,7 +182,7 @@ function AssetLoader:load_assets(assets)
 	end
 	
 	local on_err = function(req)
-		local ass = req.head
+		local ass = req.userData
 		local key = ass.key
 		self:on_asset_loaded_error(key, ass)
 	end

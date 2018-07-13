@@ -18,20 +18,20 @@ namespace Hugula.Update
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public static bool CheckUriCrc(CRequest req)
-        {
-            bool check = ManifestManager.CheckReqCrc(req); //CheckLocalFileCrc(req.url, out crc);
-            if (!check)
-            {
-                var re = UriGroup.CheckAndSetNextUriGroup(req); //CUtils.SetRequestUri(req, 1);
-#if HUGULA_LOADER_DEBUG
-                HugulaDebug.FilterLogFormat(req.key,"<color=#ffff00>CrcCheck.CheckUriCrc Req(assetname={0},url={1}) CheckFileCrc=false,SetNextUri={2}</color>", req.assetName, req.url, re);
-#endif
-                return re;
-            }
+//         public static bool CheckUriCrc(string req)
+//         {
+//             bool check = ManifestManager.CheckReqCrc(req); //CheckLocalFileCrc(req.url, out crc);
+//             if (!check)
+//             {
+//                 // var re = UriGroup.CheckAndSetNextUriGroup(req); //CUtils.SetRequestUri(req, 1);
+// #if HUGULA_LOADER_DEBUG
+//                 HugulaDebug.FilterLogFormat(req.key,"<color=#ffff00>CrcCheck.CheckUriCrc Req(assetname={0},url={1}) CheckFileCrc=false,SetNextUri={2}</color>", req.assetName, req.url, re);
+// #endif
+//                 return false;
+//             }
 
-            return true;
-        }
+//             return true;
+//         }
 
         /// <summary>
         /// 获取文件crc

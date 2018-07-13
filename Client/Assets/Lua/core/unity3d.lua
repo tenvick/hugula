@@ -84,8 +84,7 @@ end
 
 local gdebug = UnityEngine.Debug
 function log_warning(...)
-    local arg = {...}
-    local str = string.concat(arg, " ")
+    local str = string.concat(...)
     gdebug.LogWarning(str)
 end
 

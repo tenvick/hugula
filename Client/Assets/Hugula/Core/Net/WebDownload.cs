@@ -119,6 +119,7 @@ namespace System.Net {
             async_children_error = ArrayList.Synchronized (new ArrayList ());
             this.BlockDownloadFileCompleted = OnBlockDownloadFileCompletedHandler;
             this.BlockDownloadProgressChanged = OnBlockDownloadingProgressChangedHander;
+            System.Net.ServicePointManager.DefaultConnectionLimit = 512;//同时http请求数量
         }
 
         public WebHeaderCollection ResponseHeaders {

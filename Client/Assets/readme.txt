@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2018.7.13
+ 1 加载模块简化。
+
 2018.4.21
  1 main.lua函数同步错误处理。
  2 热更新加载错误队列不移除。

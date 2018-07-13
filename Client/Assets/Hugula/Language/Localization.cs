@@ -142,14 +142,14 @@ namespace Hugula
             string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
 
             CRequest req = CRequest.Get();
-            req.relativeUrl = abName;
+            req.vUrl = abName;
             req.assetName = assetName;
             req.assetType = typeof(BytesAsset);
             req.async = false;
-            var uri = new UriGroup();
-            uri.Add(CUtils.GetRealPersistentDataPath(),true);
-            uri.Add(CUtils.GetRealStreamingAssetsPath());
-            req.uris = uri;
+            // var uri = new UriGroup();
+            // uri.Add(CUtils.GetRealPersistentDataPath(),true);
+            // uri.Add(CUtils.GetRealStreamingAssetsPath());
+            // req.uris = uri;
 
             req.OnComplete += delegate (CRequest req1)
             {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Hugula.Utils;
 using UnityEngine;
+using System.Net;
 
 namespace Hugula.Loader {
     /// <summary>
@@ -20,28 +21,18 @@ namespace Hugula.Loader {
         }
 
         public virtual void Dispose () {
-            this.overrideUrl = null;
-            this.overrideHost = null;
             this._url = string.Empty;
-            this._relativeUrl = string.Empty;
+            this._vUrl = string.Empty;
             this._key = string.Empty;
-            this._udKey = string.Empty;
             this._udAssetKey = string.Empty;
 
             this.priority = 0;
-            this.index = 0;
             this._keyHashCode = 0;
 
-            this._uriGroup = null;
-            this._uri = null;
             this.data = null;
-            this.head = null;
-            this.headers = null;
-            this.responseHeaders = null;
             this.userData = null;
-            this.group = null;
-            this.isDisposed = true;
-            this.error = null;
+            this.head = null;
+
             _assetName = string.Empty;
             assetType = null; //string.Empty;
 #if UNITY_IPHONE
@@ -53,7 +44,6 @@ namespace Hugula.Loader {
             pool = false;
             isAdditive = false;
             isShared = false;
-            needUriGroup = false;
 
             this.assetOperation = null;
             this.dependencies = null;
@@ -69,10 +59,9 @@ namespace Hugula.Loader {
         public System.DateTime beginLoadTime;
 #endif
 
-        private Uri _uri;
-        private string _relativeUrl;
+        private string _vUrl;
 
-        private string _key, _udKey, _udAssetKey;
+        private string _key, _udAssetKey;
 
         private int _keyHashCode = 0;
 
@@ -80,40 +69,29 @@ namespace Hugula.Loader {
 
         private string _assetName = string.Empty;
 
-        private UriGroup _uriGroup;
 
         /// <summary>
-        /// Gets the relative URL.
+        ///  virtual url 
+        /// the base asset BundleName URL.
+        /// or http request url
         /// </summary>
-        /// <value>The relative URL.</value>
-        public string relativeUrl {
+        /// <value>virtual url</value>
+        public string vUrl {
             set {
-                _uri = null;
-                _url = null;
-                _udKey = null;
                 _key = null;
                 _keyHashCode = 0;
-                _relativeUrl = value;
-                needUriGroup = CheckNeedUriGroup (value);
+                _vUrl = value;
             }
-            get { return _relativeUrl; }
+            get { return _vUrl; }
         }
-
-        /// <summary>
-        /// assetbundleName
-        /// </summary>
-        public string assetBundleName {
-            get {
-                return key;
-            }
-        }
-
+      
         /// <summary>
         /// 要加载的asset 名称
         /// </summary>
         public string assetName {
             get {
-                if (string.IsNullOrEmpty (_assetName)) _assetName = CUtils.GetAssetName (relativeUrl); //Get// key;
+                if (string.IsNullOrEmpty (_assetName))
+                     _assetName = CUtils.GetAssetName (vUrl); //Get// key;
                 return _assetName;
             }
             set { _assetName = value; }
@@ -126,26 +104,11 @@ namespace Hugula.Loader {
         public Type assetType {
             get {
                 if (_assetType == null)
-                    _assetType = CacheManager.Typeof_Object;
+                    _assetType = LoaderType.Typeof_Object;
                 return _assetType;
             }
             set { _assetType = value; }
         }
-
-        /// <summary>
-        /// 设置加载的数据
-        /// </summary>
-        public object head;
-
-        /// <summary>
-        /// 加载的头信息
-        /// </summary>
-        public Dictionary<string, string> headers;
-
-        /// <summary>
-        /// http响应头部信息
-        /// </summary>
-        public Dictionary<string, string> responseHeaders;
 
         /// <summary>
         /// 加载的数据
@@ -156,6 +119,11 @@ namespace Hugula.Loader {
         /// The user data.
         /// </summary>
         public object userData;
+
+        /// <summary>
+        /// The http head.
+        /// </summary>
+        public WebHeaderCollection head;
 
         public System.Action<CRequest> OnEnd;
 
@@ -182,47 +150,18 @@ namespace Hugula.Loader {
 
         public bool isShared { get; internal set; }
 
-        public string overrideUrl { get; internal set; }
-
-        public string overrideHost { get; internal set; }
-
-        public Uri uri {
-            get {
-                if (_uri == null) {
-                    _uri = new Uri (url);
-                }
-                return _uri;
-            }
-        }
         /// <summary>
-        /// 请求地址 网址，绝对路径
+        /// 请求真实url地址，可能被改变.
         /// </summary>
         public string url {
             get {
-                if (!string.IsNullOrEmpty (overrideUrl))
-                    return overrideUrl;
-                if (string.IsNullOrEmpty (_url))
-                    url = string.Empty; //;
+                if(string.IsNullOrEmpty(_url))
+                    _url = vUrl;
                 return _url;
             }
             internal set {
-                if (value == null) {
-                    _url = null;
-                } else {
-                    if (uris == null) {
-                        _url = relativeUrl;
-                    } else {
-                        _url = GetURL (this); //
-                    }
-                }
-                ClearOverride ();
+                _url = value;
             }
-        }
-
-        private void ClearOverride () {
-            _uri = null;
-            overrideUrl = null;
-            overrideHost = null;
         }
 
         /// <summary>
@@ -238,46 +177,26 @@ namespace Hugula.Loader {
             internal set {
                 if (value == null)
                     _key = null;
-                else
-                    _key = CUtils.GetAssetBundleName (relativeUrl);
+                else//vUrl))
+                    _key = CUtils.GetAssetBundleName (vUrl);
             }
         }
 
         /// <summary>
         /// assetBundle key的hashcode 用于计算缓存的资源key
         /// </summary>
-        public int keyHashCode {
+        internal int keyHashCode {
             get {
                 if (_keyHashCode == 0)
                     keyHashCode = 1;
 
                 return _keyHashCode;
             }
-            internal set {
+            set {
                 if (value == 0)
                     _keyHashCode = value;
                 else
                     _keyHashCode = LuaHelper.StringToHash (key);
-            }
-        }
-
-        /// <summary>
-        /// The url unique key.
-        /// </summary>
-        /// <value>
-        /// The url unique key.
-        /// </value>
-        public string udKey {
-            get {
-                if (string.IsNullOrEmpty (_udKey))
-                    udKey = string.Empty;
-                return _udKey;
-            }
-            set {
-                if (value == null)
-                    _udKey = null;
-                else
-                    _udKey = CUtils.GetUDKey (url);
             }
         }
 
@@ -287,7 +206,7 @@ namespace Hugula.Loader {
         /// <value>
         /// The unique key.
         /// </value>
-        public string udAssetKey {
+        internal string udAssetKey {
             get {
                 if (string.IsNullOrEmpty (_udAssetKey))
                     udAssetKey = string.Empty;
@@ -319,36 +238,13 @@ namespace Hugula.Loader {
         public int priority = 0; //优先级
 
         /// <summary>
-        /// 加载uri索引
-        /// </summary>
-        public int index = 0;
-
-        /// <summary>
-        /// uri组策略
-        /// </summary>
-        public UriGroup uris {
-            get {
-                if (_uriGroup == null && needUriGroup) {
-                    _uriGroup = UriGroup.uriList;
-                }
-                return _uriGroup;
-            }
-
-            set {
-                _uriGroup = value;
-            }
-        }
-
-        /// <summary>
         /// 场景加载追加模式
         /// </summary>
         public bool isAdditive = false;
 
         /// <summary>
-        /// 错误信息
+        /// 所属组
         /// </summary>
-        public string error { get; internal set; }
-
         internal GroupQueue<CRequest> group;
 
         /// <summary>
@@ -366,9 +262,6 @@ namespace Hugula.Loader {
         /// </summary>
         internal bool pool = false;
 
-        internal bool isDisposed = false;
-
-        internal bool needUriGroup = false;
         public void ReleaseToPool () {
             if (pool)
                 Release (this);
@@ -376,73 +269,48 @@ namespace Hugula.Loader {
 
         // private void Init
 
-        /// <summary>
-        /// 获取当前 URL
-        /// </summary>
-        private static string GetURL (CRequest req) {
-            string url = string.Empty;
-            var uris = req.uris;
-            int index = req.index;
-            if (uris != null && uris.count > index && index >= 0) {
-                url = CUtils.PathCombine (uris[index], req.relativeUrl);
-            }
-            return url;
-        }
-
-        /// <summary>
-        /// 获取key URL
-        /// </summary>
-        public static string GetUDKeyURL (CRequest req) {
-            string url = string.Empty;
-            var uris = req.uris;
-            int index = 0;
-            if (uris != null && uris.count > index && index >= 0) {
-                url = CUtils.PathCombine (uris[index], req.relativeUrl);
-            } else {
-                url = req.relativeUrl;
-            }
-            return url;
-        }
-
-        /// <summary>
-        /// check need set uri group
-        /// </summary>
-        public static bool CheckNeedUriGroup (string url) {
-            if (string.IsNullOrEmpty (url)) return false;
-
-            if (url.StartsWith ("http") ||
-                url.IndexOf ("://") != -1 ||
-                url.StartsWith (CUtils.realPersistentDataPath) ||
-                url.StartsWith (CUtils.realStreamingAssetsPath)
-            ) {
-                return false;
-            } else {
-                return true;
-            }
-        }
+        // /// <summary>
+        // /// 获取当前 URL
+        // /// </summary>
+        // private static string GetURL (CRequest req) {
+        //     string url = string.Empty;
+        //     var uris = req.uris;
+        //     int index = req.index;
+        //     if (uris != null && uris.count > index && index >= 0) {
+        //         url = CUtils.PathCombine (uris[index], req.relativeUrl);
+        //     }
+        //     return url;
+        // }
 
         //创建一个CRequest
-        public static CRequest Create (string relativeUrl, string assetName, Type assetType, System.Action<CRequest> onComp, System.Action<CRequest> onEnd,
-            object head, bool async) {
+        public static CRequest Create (string assetBundleName, string assetName, Type assetType, System.Action<CRequest> onComp, System.Action<CRequest> onEnd) {
             var req = CRequest.Get ();
-            req.relativeUrl = relativeUrl;
+            req.vUrl = assetBundleName;
             req.assetName = assetName;
             req.assetType = assetType;
 
             req.OnComplete = onComp;
             req.OnEnd = onEnd;
-            req.head = head;
-            req.async = async;
 
             return req;
         }
+
+        //创建一个http CRequest
+        // public static CRequest Create(string url,System.Action<CRequest> onComp, System.Action<CRequest> onEnd)
+        // {
+        //     var req = CRequest.Get ();
+        //     req.vUrl = url;
+
+        //     req.OnComplete = onComp;
+        //     req.OnEnd = onEnd;
+        //     return req;
+        // }
 
         #region ObjectPool 
         static ObjectPool<CRequest> objectPool = new ObjectPool<CRequest> (m_ActionOnGet, m_ActionOnRelease);
         private static void m_ActionOnGet (CRequest req) {
             // Debug.LogFormat("",req.isShared)
             req.pool = true;
-            req.isDisposed = false;
 #if HUGULA_PROFILER_DEBUG
             req.beginQueueTime = System.DateTime.Now;
             req.beginLoadTime = System.DateTime.Now;

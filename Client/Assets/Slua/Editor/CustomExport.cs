@@ -44,6 +44,8 @@ namespace SLua
             add(typeof(Dictionary<int, string>), "DictIntStr");
             add(typeof(string), "String");
 			add(typeof(System.Func<Hugula.Loader.CRequest,bool>),null);
+            add(typeof(System.Net.WebHeaderCollection), "System.Net.WebHeaderCollection");
+
             // add your custom class here
             // add( type, typename)
             // type is what you want to export
@@ -77,6 +79,9 @@ namespace SLua
         {
             list = new List<string>
             {
+                #region system
+                // "System.Net.WebHeaderCollection",
+                #endregion
                 "UnityEngine.GameObject",
                 "UnityEngine.WWW",
                 "UnityEngine.WWWForm",

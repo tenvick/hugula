@@ -22,6 +22,7 @@ public class LoadingFirst : MonoBehaviour
         CUtils.DebugCastTime("LoadingFirst.Start");
         //load manifest
         ResourcesLoader.Initialize();
+        ResourcesLoader.RegisterOverrideBaseAssetbundleURL(LoadFirstHelper.OverrideBaseAssetbundleURL);
         HttpDnsHelper.Initialize();
         CUtils.DebugCastTime("LoadingFirst.Initialize");
         LogSys();
@@ -102,11 +103,11 @@ public static class LoadFirstHelper
 		PLua.enterLua = beginLua;
         CUtils.DebugCastTime("LoadingFirst");
 		var req = CRequest.Get();
-		req.relativeUrl = CUtils.GetRightFileName(sceneAssetBundleName);
+		req.vUrl = CUtils.GetRightFileName(sceneAssetBundleName);
 		req.assetName = sceneName;
 		req.OnComplete = OnSceneAbLoaded;
 		req.OnEnd = OnSceneAbError;
-		req.assetType = CacheManager.Typeof_ABScene;
+		req.assetType = LoaderType.Typeof_ABScene;
 		req.async = true;
 		ResourcesLoader.LoadAsset(req);
         ResourcesLoader.OnAssetBundleComplete = OnSharedComplete;
@@ -143,6 +144,19 @@ public static class LoadFirstHelper
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         Debug.LogFormat("ReOpen !");
+    }
+
+    public static string OverrideBaseAssetbundleURL(string abName)
+    {
+        string path = null;
+        bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
+        if(isupdate)     
+        {
+        //    if(ManifestManager.CheckReqCrc(abName))//crc check
+           path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath (), abName);
+        }
+
+        return path;
     }
 
 }

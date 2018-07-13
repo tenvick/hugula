@@ -86,7 +86,8 @@ namespace Hugula.Loader {
                     onComplete (strUrl, strIp);
                 }; 
                 Debug.Log ("ResourcesLoader.HttpRequest:" + url); 
-                ResourcesLoader.HttpRequest (url, null, typeof (string), onEnd, null, null);
+                // ResourcesLoader.HttpRequest (url, null, typeof (string), onEnd, null);
+                ResourcesLoader.UnityWebRequest(url, null, typeof (string), onEnd, null);
             }
         }
 }

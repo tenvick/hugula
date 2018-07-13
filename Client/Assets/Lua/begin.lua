@@ -76,5 +76,5 @@ delay(function( ... )
 	-- print(lua_localization("level_name_001")) --language key
 	-- print_table(Model.getUnit(200001)) --read config
 	-- Loader:clearSharedAB() 
-    print("new")
+    print("hot res... 7777")
 end,0.5)

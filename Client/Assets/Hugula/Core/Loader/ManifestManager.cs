@@ -66,9 +66,9 @@ namespace Hugula.Loader {
         }
 
         [SLua.DoNotToLuaAttribute]
-        public static bool CheckReqCrc (CRequest req) {
-            if (req.url.StartsWith (Common.HTTP_STRING)) return true;
-            var abName = req.assetBundleName;
+        public static bool CheckReqCrc (string abName) {
+            // if (req.url.StartsWith (Common.HTTP_STRING)) return true;
+            // var abName = req.key;
             ABInfo abInfo = null;
             bool isUpdateFile = CheckIsUpdateFile(abName);
             if(isUpdateFile )
@@ -79,17 +79,6 @@ namespace Hugula.Loader {
                 return CheckPersistentCrc (GetABInfo (abInfo.abName));
             }
                 return false;
-            // ABInfo abInfo = null;
-            // if (updateFileManifest != null &&
-            //     (abInfo = updateFileManifest.GetABInfo (abName)) != null) //update file need crc check
-            // {
-            //     return CheckPersistentCrc (GetABInfo (abInfo.abName));
-            // } else if (fileManifest != null && (abInfo = fileManifest.GetABInfo (abName)) != null &&
-            //     abInfo.priority > FileManifestOptions.StreamingAssetsPriority) // auto update file need crc check
-            // {
-            //     return CheckPersistentCrc (GetABInfo (abInfo.abName));
-            // }
-            // return FileHelper.PersistentFileExists (abName);
         }
 
         [SLua.DoNotToLuaAttribute]

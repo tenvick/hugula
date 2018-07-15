@@ -244,7 +244,7 @@ public class AssetbundlesMenuItems
 
         foreach(var p in allAssetPaths){ Debug.Log(p);}  
 
-        ExportResources.doExportLua(allAssetPaths.ToArray());
+        // ExportResources.doExportLua(allAssetPaths.ToArray());
     }
 
     [MenuItem("Assets/Change To BytesAsset ", false, 13)]

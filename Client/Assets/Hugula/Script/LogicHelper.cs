@@ -2,7 +2,6 @@
 using Hugula.Loader;
 using Hugula.Pool;
 using Hugula.Utils;
-using LuaInterface;
 using SLua;
 using UnityEngine;
 

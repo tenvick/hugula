@@ -112,7 +112,7 @@ namespace Hugula.Loader {
 #if UNITY_2017
                 m_Data = WWWAudioExtensions.GetAudioClip (m_webrequest);
 #else
-                m_Data = m_webrequest.GetAudioClip ();
+				m_Data = m_webrequest.GetAudioClip (false);
 #endif
             } else if (LoaderType.Typeof_Texture2D.Equals (type)) {
                 if (!string.IsNullOrEmpty (cRequest.assetName) && cRequest.assetName.Equals ("textureNonReadable"))
@@ -201,19 +201,19 @@ namespace Hugula.Loader {
                 WebResponse webResponse = m_webrequest.GetResponse (); //this.GetWebResponse (webRequest);
                 Stream responseStream = webResponse.GetResponseStream ();
                 
-                // if(webResponse.Headers!=null)
-                // {
-                //     foreach(var k in webResponse.Headers.AllKeys)
-                //     {
-                //         Debug.LogFormat("k={0},value={1}",k,webResponse.Headers.Get(k));
-                //     }
-                // }
+                if(webResponse.Headers!=null)
+                {
+                    foreach(var k in webResponse.Headers.AllKeys)
+                    {
+                        Debug.LogFormat("k={0},value={1}",k,webResponse.Headers.Get(k));
+                    }
+                }
 
-                if(webResponse.ContentType.ToLower().Equals("text/plain"))
+                if(webResponse.ContentType.ToLower().Equals("text/plain") || LoaderType.Typeof_String.Equals(typ))
                 {
                     StreamReader sr = new StreamReader(responseStream,System.Text.Encoding.UTF8,true);
                     cRequest.data = sr.ReadToEnd();
-                    // Debug.LogFormat(" byte[] read done {0},string={1}",cRequest.url,cRequest.data);
+                    Debug.LogFormat(" byte[] read done {0},string={1}",cRequest.url,cRequest.data);
                 }else
                 {
                     int num = (int) webResponse.ContentLength;

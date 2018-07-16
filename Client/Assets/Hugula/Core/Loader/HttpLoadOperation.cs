@@ -200,29 +200,30 @@ namespace Hugula.Loader {
                 m_webrequest.Method = "GET";
                 WebResponse webResponse = m_webrequest.GetResponse (); //this.GetWebResponse (webRequest);
                 Stream responseStream = webResponse.GetResponseStream ();
-                
+
+                #if !HUGULA_RELEASE
                 if(webResponse.Headers!=null)
                 {
                     foreach(var k in webResponse.Headers.AllKeys)
                     {
-                        Debug.LogFormat("k={0},value={1}",k,webResponse.Headers.Get(k));
+                        Debug.LogFormat("{0}={1}",k,webResponse.Headers.Get(k));
                     }
                 }
+                #endif
 
                 if(webResponse.ContentType.ToLower().Equals("text/plain") || LoaderType.Typeof_String.Equals(typ))
                 {
                     StreamReader sr = new StreamReader(responseStream,System.Text.Encoding.UTF8,true);
-                    cRequest.data = sr.ReadToEnd();
-                    Debug.LogFormat(" byte[] read done {0},string={1}",cRequest.url,cRequest.data);
+                    m_Data = sr.ReadToEnd();
+                    cRequest.data = m_Data;
                 }else
                 {
                     int num = (int) webResponse.ContentLength;
                     byte[] array = new byte[num];
-                    // Debug.LogFormat("webResponse.ContentLength={0}",num);
                     while (responseStream.Read (array, 0, num)!= 0) {
                     }
+                    m_Data = array;
                     cRequest.data = array;
-                    // Debug.LogFormat(" byte[] read done {0},data={1}",cRequest.url,cRequest.data);
                 }
 
                 webResponse.Close ();

@@ -101,7 +101,7 @@ namespace Hugula.Editor
 
             for (int i = 0; i < files.Length; i++)
             {
-                string xfile = files[i].Remove(0, rootPath.Length);
+                string xfile = files[i].Remove(0, rootPath.Length+1);
                 xfile = xfile.Replace("\\", "+").Replace("/","+");
                 string xfile64 = CUtils.InsertAssetBundleName(xfile,"_64");
 
@@ -116,11 +116,11 @@ namespace Hugula.Editor
                 files[i] = file;
                 dests[i] = destName;
                 dests64[i] = destName64;
-                sb.AppendLine("[\"" + file + "\"]");
+                sb.AppendLine("[\"" + xfile + "\"]");
                 sb.Append(" = {path = \"" + CUtils.GetRightFileName(xfile) + "\", ");
                 sb.Append("out path64 = \"" + CUtils.GetRightFileName(xfile64) + "\"},");
 
-                UnityEngine.Debug.Log(file + ":" + destName+" 64="+destName64);
+                UnityEngine.Debug.Log(xfile + ":" + destName+" 64="+destName64);
             }
 
             #if UNITY_ANDROID || UNITY_IPHONE

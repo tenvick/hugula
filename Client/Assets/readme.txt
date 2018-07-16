@@ -1,8 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
 2018.7.16
-1 main.lua 重构（待测试）
+1 main.lua MVVM重构。 
 2 slua 2018.7.16 版本更新。
+3 lua导出bytes修改。
 
 2018.7.13
  1 加载模块简化。

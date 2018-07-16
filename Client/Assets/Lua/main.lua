@@ -203,11 +203,11 @@ function main_view:init()
         if _progressbar_slider then
             _progressbar_slider.gameObject:SetActive(true)
             self:binding(_progressbar_slider,"value","slider_value")
-            self:binding(_progressbar_txt.gameObject,"SetActive","progress_enable")
+            -- self:binding(_progressbar_txt.gameObject,"SetActive","progress_enable")
         end
         if _progressbar_txt then
             self:binding(_progressbar_txt,"text","progress_txt")
-            self:binding(_progressbar_txt.gameObject,"SetActive","progress_enable")
+            -- self:binding(_progressbar_txt.gameObject,"SetActive","progress_enable")
         end
     end
  end
@@ -370,7 +370,7 @@ function main_viewmodel:load_server_file_list()--版本差异化对比
         local kbs = string.format("%.2f kb/s",BackGroundDownload.BytesReceivedPerSecond/1024)
         -- print("bytes = kb/s",BackGroundDownload.BytesReceivedPerSecond/1024)
         local str = lua_localization("main_downloading_tips", loaded_s, loaded_t,kbs)
-        set_slider_propgress(str, 4, loading_event_arg.current / loading_event_arg.total)
+        self:set_slider_propgress(str, 4, loading_event_arg.current / loading_event_arg.total)
     end
     
     local function load_update_filelist(server_manifest) --开始加载更新文件
@@ -494,4 +494,11 @@ end
 
 main_view:init()
 main_viewmodel:register_property_changed(main_view)
-main_viewmodel:load_server_verion()
+
+
+
+function main()
+    main_viewmodel:load_server_verion()
+end
+
+

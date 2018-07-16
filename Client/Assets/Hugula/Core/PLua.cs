@@ -50,7 +50,6 @@ namespace Hugula
         private static Lua lua;
 
         private static bool isLuaInitFinished = false;
-        private string luaMain = "";
         private LuaFunction _updateFn;
 
         private static bool is_destroy = false;
@@ -76,22 +75,23 @@ namespace Hugula
 
         IEnumerator Start () {
 #if !HUGULA_NO_LOG
-            Debug.Log ("Plua Start");
+            Debug.LogFormat("lua start frame {0}", Time.frameCount);
 #endif
             while (isLuaInitFinished == false) {
                 yield return null;
             }
 
             is_destroy = false;
+            Lua.mainState.loaderDelegate = Loader;
+
 #if !HUGULA_NO_LOG
-            Debug.Log ("PLua Start lua init");
+            Debug.LogFormat("lua start end frame {0}", Time.frameCount);
 #endif
-            LoadScript ();
-#if !HUGULA_RELEASE
-            // Debug.Log(luaBytesAsset);
-            Debug.LogFormat("domain frame {0}", Time.frameCount);
+
+#if UNITY_EDITOR
+            Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
 #endif
-            DoMain();
+            lua.start(enterLua);
         }
 
 	    void Update()
@@ -113,7 +113,6 @@ namespace Hugula
             isLuaInitFinished = false;
             is_destroy = true;
             if (_instance == this) _instance = null;
-            // if (ManifestManager.assetBundleManifest != null) UnityEngine.Object.Destroy(ManifestManager.assetBundleManifest);
 
         }
 
@@ -133,33 +132,7 @@ namespace Hugula
         }
         #endregion
 
-        #region private method
 
-        private void SetLuaPath()
-        {
-			this.luaMain = enterLua; //"return require(\"" + enterLua + "\") \n";
-        }
-
-        private void LoadScript()
-        {
-            SetLuaPath();
-
-            RegisterFunc();
-#if UNITY_EDITOR
-            Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
-#endif
-        }
-
-        /// <summary>
-        /// lua begin
-        /// </summary>
-        private void DoMain()
-        {
-            CUtils.DebugCastTime("");
-			lua.start(this.luaMain);
-        }
-
-        #endregion
 
         #region public method
 
@@ -172,10 +145,9 @@ namespace Hugula
             Debug.LogFormat ("ManagedThreadId = {0},frame={1}", System.Threading.Thread.CurrentThread.ManagedThreadId, Time.frameCount);
 #endif
             if (lua == null) lua = new Lua ();
-            Debug.LogFormat ("PreInitLua {0}", lua);
-            CUtils.DebugCastTime ("");
+            CUtils.DebugCastTime("Slua begin lua");
             lua.init (null, () => {
-                CUtils.DebugCastTime ("Slua binded");
+                CUtils.DebugCastTime ("Slua end");
                 isLuaInitFinished = true;
             }, LuaSvrFlag.LSF_3RDDLL);
         }
@@ -261,10 +233,10 @@ namespace Hugula
             return ret;
         }
 
-        private void RegisterFunc()
-        {
-			Lua.mainState.loaderDelegate = Loader;
-        }
+        // private void RegisterFunc()
+        // {
+		// 	Lua.mainState.loaderDelegate = Loader;
+        // }
 
         /// <summary>
         ///  loader
@@ -300,12 +272,22 @@ namespace Hugula
 
             string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
             bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
-            string path = CUtils.PathCombine (CUtils.realPersistentDataPath,abName );
-            if (isupdate &&  File.Exists (path)) {
-                ret = File.ReadAllBytes (path);
+
+            #if !HUGULA_NO_LOG
+            Debug.LogFormat("loader lua {0}={1}",name,cryName);
+            #endif
+
+            string path = null;
+            if (isupdate &&  File.Exists (path=CUtils.PathCombine (CUtils.realPersistentDataPath,abName))) {
+                str = File.ReadAllBytes (path);
             } else {
                 var textAsset =(TextAsset)Resources.Load ("luac/"+cryName);
-                ret = textAsset.bytes; // --Resources.Load
+                if(textAsset==null)
+                {
+                    Debug.LogWarningFormat("lua({0}={1}) bytes error!",name,cryName);
+                }
+                else
+                    str = textAsset.bytes; // --Resources.Load
                 Resources.UnloadAsset(textAsset);
             }
 #endif
@@ -379,7 +361,7 @@ namespace Hugula
         public static Coroutines coroutine {
             get {
                 if (_coroutine == null) {
-                    Debug.Log ("create coroutine gameObject");
+                    // Debug.Log ("create coroutine gameObject");
                     var obj = new GameObject ("coroutine");
                     _coroutine=obj.AddComponent<Coroutines>();
                     DontDestroyOnLoad (obj);

@@ -50,7 +50,7 @@ namespace Hugula.Loader
         ///<summary>
         ///等待请求列表
         ///<summary>
-        static protected PriorityQueue<CRequest> waitRequest = new PriorityQueue<CRequest>();
+        static protected Queue<CRequest> waitRequest = new Queue<CRequest>();
         //loading asset list
         static protected List<CRequest> loadingTasks = new List<CRequest>();
         //load asset or www operations
@@ -83,13 +83,23 @@ namespace Hugula.Loader
                 groupQueue.Enqueue(reqitem);
             }
 
-            foreach (var req in reqs)
-            {
-                reqitem = (CRequest)req.value;
-                LoadAsset(reqitem);
-            }
+            LoadGroupAsset(groupQueue);
 
         }
+
+        /// <summary>
+        /// load group request
+        /// </summary>
+        /// <param name="bGroup"></param>
+        static public void LoadGroupAsset(BundleGroundQueue bGroup)
+        {
+            while (bGroup != null && bGroup.Count > 0)
+            {
+                var req = bGroup.Dequeue();
+                LoadAsset(req);
+            }
+        }
+
 
         static public void LoadAsset(CRequest req)
         {
@@ -109,7 +119,7 @@ namespace Hugula.Loader
             //check loading count
             if(maxLoading - loadingTasks.Count <= 0 )
             {
-                waitRequest.Push(req);//等待
+                waitRequest.Enqueue(req);//等待
             }
             else
             {
@@ -338,7 +348,7 @@ namespace Hugula.Loader
 
             while (waitRequest.Count > 0 && maxLoading - loadingTasks.Count > 0)
             {
-                var req =waitRequest.Pop();
+                var req =waitRequest.Dequeue();
                 LoadAssetBundle(req);
             }
 
@@ -968,7 +978,7 @@ namespace Hugula.Loader
                 LoadingQueue();
 
 #if HUGULA_LOADER_DEBUG
-            LoadCountInfo = string.Format("wait={0},bundleLoading={1},assetLoad={2}\r\n", bundleQueue.Count, inProgressBundleOperations.Count, inProgressOperations.Count);
+            LoadCountInfo = string.Format("wait={0},bundleLoading={1},assetLoad={2}\r\n", waitRequest.Count, inProgressBundleOperations.Count, inProgressOperations.Count);
             DebugSB.Length = 0;
             DebugSB.Append(LoadCountInfo);
             for (int i = 0; i < inProgressBundleOperations.Count; i++)

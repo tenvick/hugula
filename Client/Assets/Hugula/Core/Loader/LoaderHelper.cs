@@ -40,7 +40,7 @@ namespace Hugula.Loader {
             System.Uri uri = new System.Uri (req.url);
             HttpWebRequest webRequest = GetWebRequest (uri, timeout);
             // webRequest.Credentials = this.credentials;
-            var headers = (WebHeaderCollection) req.head;
+            var headers = (WebHeaderCollection) req.webHeader;
             if (headers != null && headers.Count != 0 && webRequest != null) {
                 HttpWebRequest httpWebRequest = (HttpWebRequest) webRequest;
                 string text = headers["Expect"];

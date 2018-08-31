@@ -103,9 +103,22 @@ namespace Hugula.Update
                 }
 
                 var list = newFileManifest.allAbInfo;
+                ABInfo abinfo;
+                ABInfo abinfo1;
+                List<ABInfo> removes = new List<ABInfo>();
                 for (int i = 0; i < list.Count; i++)
                 {
-                    Add(list[i]);
+                    abinfo = list[i];
+                    if(abInfoDict.TryGetValue(abinfo.abName, out abinfo1) && abinfo.crc32 == abinfo1.crc32) //the same abinfo should remove
+                    {
+                        removes.Add(abinfo);
+                    }
+                    Add(abinfo);
+                }
+
+                for(int i = 0;i<removes.Count;i++)
+                {
+                    newFileManifest.Remove(removes[i]);
                 }
             }
 
@@ -239,13 +252,24 @@ namespace Hugula.Update
             if (abInfo != null)
             {
                 i = allAbInfo.IndexOf(abInfo);
-                if (i >= 0) allAbInfo.RemoveAt(i);
             }
             abInfoDict[ab.abName] = ab;
             if (i >= 0)
-                allAbInfo.Insert(i, ab);
+                allAbInfo[i] = ab;//.Insert(i, ab);
             else
                 allAbInfo.Add(ab);
+        }
+
+        [SLua.DoNotToLuaAttribute]
+        public void Remove(ABInfo ab)
+        {
+            ABInfo abInfo = null;
+            if(abInfoDict.TryGetValue(ab.abName, out abInfo))
+            {
+                int i = allAbInfo.IndexOf(abInfo);
+                if (i >= 0) allAbInfo.RemoveAt(i);
+                abInfoDict.Remove(ab.abName);
+            }
         }
 
 

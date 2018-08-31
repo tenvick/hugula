@@ -356,18 +356,6 @@ namespace Hugula.Loader
 
             caches.Clear();
         }
-
-        #region check type
-        public static readonly Type Typeof_String = typeof(System.String);
-        public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
-        public static readonly Type Typeof_AssetBundle = typeof(AssetBundle);
-        public static readonly Type Typeof_ABScene = typeof(AssetBundleScene);
-        public static readonly Type Typeof_ABAllAssets = typeof(UnityEngine.Object[]);
-        public static readonly Type Typeof_AudioClip = typeof(AudioClip);
-        public static readonly Type Typeof_Texture2D = typeof(Texture2D);
-        // public static readonly Type Typeof_Texture = typeof(Texture);
-
-        public static readonly Type Typeof_Object = typeof(UnityEngine.Object);
-        #endregion
+       
     }
 }

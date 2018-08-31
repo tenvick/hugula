@@ -171,6 +171,12 @@ namespace Hugula.Loader {
             if (ManifestManager.fileManifest != null && updateList != null) {
                     canAppend = ManifestManager.fileManifest.AppendFileManifest (updateList);
                     if (canAppend) {
+                        if(ManifestManager.updateFileManifest!=null) //append persistent file 
+                        {
+                            var persistent = ManifestManager.updateFileManifest.allAbInfo;
+                            for(int i=0;i<persistent.Count;i++)
+                                updateList.Add(persistent[i]);
+                        }
                         ManifestManager.updateFileManifest = updateList;
                         Debug.LogFormat ("append updatefilemanifest({0}) to ManifestManager.fileManifest({1})", updateList.appNumVersion,ManifestManager.fileManifest.appNumVersion);
                     } else {

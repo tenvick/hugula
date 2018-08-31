@@ -132,9 +132,9 @@ function Loader:get_http_data(...)
 	local a,head,typ,on_comp,on_end = ...
 	local t_a = type(a) 
 	if t_a=="userdata" then
-		ResourcesLoader.HttpRequest(a)
+		ResourcesLoader.UnityWebRequest(a)
 	else
-		ResourcesLoader.HttpRequest(a,head,typ,on_comp,on_end)
+		ResourcesLoader.UnityWebRequest(a,head,typ,on_comp,on_end)
 	end
 end
 

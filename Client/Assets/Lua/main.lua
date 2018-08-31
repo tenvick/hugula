@@ -271,7 +271,7 @@ function main_viewmodel:compare_local_version()--对比本地版本号
             print("begin load",url)
             local op = ResourcesLoader.UnityWebRequestCoroutine(url, nil, String)
             coroutine.yield(op)
-            local data = op.GetAsset()
+            local data = op.data
             print(data)
             if ManifestManager.needClearCache then
                 local tips = lua_localization("main_clear_cache")
@@ -309,7 +309,7 @@ function main_viewmodel:load_server_verion()--加载服务器版本号
         run_times("start load server version info ... " ,curr_time,url)
         local op = ResourcesLoader.HttpWebRequestCoroutine(url, nil, String)
         coroutine.yield(op)
-        ver_str = op.GetAsset()
+        ver_str = op.data
         if ver_str == nil then
             curr_time = curr_time + 1
             run_times("load_server_ver on erro,retry later ",url)
@@ -445,7 +445,7 @@ function main_viewmodel:load_server_file_list()--版本差异化对比
 
             local req = CRequest.Create(url, asset_name, LoaderType.Typeof_Bytes, on_server_comp, on_server_err)
             run_times("begin load server ver "..url)
-            ResourcesLoader.HttpWebRequest(req)
+            ResourcesLoader.UnityWebRequest(req)
         else
             run_times("begin load update file list files !")
             load_update_filelist()

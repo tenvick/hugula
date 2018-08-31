@@ -85,7 +85,7 @@ namespace Hugula.UI {
 #if MESSAGEBOX_DEBUG 
             Debug.LogFormat ("LoadMessageBox LoadAssetCoroutine is done {0},frame={1}  ", req,Time.frameCount);
 #endif
-            var obj = req.GetAsset<GameObject> ();
+            var obj = (GameObject)req.data;
 #if MESSAGEBOX_DEBUG 
             Debug.LogFormat ("LoadMessageBox obj req.GetAsset<GameObject> {0} ,frame={1}  ", obj,Time.frameCount);
 #endif

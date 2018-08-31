@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Hugula.Utils;
+using System.Collections;
 using UnityEngine;
 using System.Net;
 
@@ -12,7 +13,7 @@ namespace Hugula.Loader {
     /// Request.
     /// </summary>
     [SLua.CustomLuaClass]
-    public class CRequest : IDisposable {
+    public class CRequest : IEnumerator,IDisposable {
         /// <summary>
         /// Request
         /// </summary>
@@ -20,18 +21,40 @@ namespace Hugula.Loader {
 
         }
 
+        #region IEnumerator
+        public object Current {
+            get {
+                return null;
+            }
+        }
+
+        public bool MoveNext () { //false move 
+            bool re = data==null;
+            if (error != null)
+                re = false;
+            // Debug.LogFormat("MoveNext {0},error={1},data={2}",re,error,data);
+            return re;
+        }
+
+        public void Reset () {
+            
+        }
+
+        #endregion
+
         public virtual void Dispose () {
             this._url = string.Empty;
             this._vUrl = string.Empty;
             this._key = string.Empty;
             this._udAssetKey = string.Empty;
+            this.error = null;
 
             this.priority = 0;
             this._keyHashCode = 0;
 
             this.data = null;
-            this.userData = null;
-            this.head = null;
+            this.uploadData = null;
+            this.webHeader = null;
 
             _assetName = string.Empty;
             assetType = null; //string.Empty;
@@ -45,7 +68,6 @@ namespace Hugula.Loader {
             isAdditive = false;
             isShared = false;
 
-            this.assetOperation = null;
             this.dependencies = null;
 
             this.OnComplete = null;
@@ -59,13 +81,11 @@ namespace Hugula.Loader {
         public System.DateTime beginLoadTime;
 #endif
 
-        private string _vUrl;
+        private string _vUrl,_url;
 
         private string _key, _udAssetKey;
 
         private int _keyHashCode = 0;
-
-        private string _url;
 
         private string _assetName = string.Empty;
 
@@ -110,20 +130,24 @@ namespace Hugula.Loader {
             set { _assetType = value; }
         }
 
+        public string error{
+            get;internal set;
+        }
+
         /// <summary>
         /// 加载的数据
         /// </summary>
-        public object data;
+        public object data {get;internal set;}
 
         /// <summary>
-        /// The user data.
+        /// The upload data.
         /// </summary>
-        public object userData;
+        public object uploadData;
 
         /// <summary>
         /// The http head.
         /// </summary>
-        public WebHeaderCollection head;
+        public WebHeaderCollection webHeader;
 
         public System.Action<CRequest> OnEnd;
 
@@ -253,11 +277,6 @@ namespace Hugula.Loader {
         internal int[] dependencies;
 
         /// <summary>
-        /// 协同加载ab
-        /// </summary>
-        internal ResourcesLoadOperation assetOperation;
-
-        /// <summary>
         /// 放入内存池
         /// </summary>
         internal bool pool = false;
@@ -267,22 +286,7 @@ namespace Hugula.Loader {
                 Release (this);
         }
 
-        // private void Init
-
-        // /// <summary>
-        // /// 获取当前 URL
-        // /// </summary>
-        // private static string GetURL (CRequest req) {
-        //     string url = string.Empty;
-        //     var uris = req.uris;
-        //     int index = req.index;
-        //     if (uris != null && uris.count > index && index >= 0) {
-        //         url = CUtils.PathCombine (uris[index], req.relativeUrl);
-        //     }
-        //     return url;
-        // }
-
-        //创建一个CRequest
+          //创建一个CRequest
         public static CRequest Create (string assetBundleName, string assetName, Type assetType, System.Action<CRequest> onComp, System.Action<CRequest> onEnd) {
             var req = CRequest.Get ();
             req.vUrl = assetBundleName;

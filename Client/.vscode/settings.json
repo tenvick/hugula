@@ -44,14 +44,14 @@
 		"**/*.mat":true,
 		"**/*.meta":true,
 		"**/*.prefab":true,
-		"**/*.unity":true,
 		"build/":true,
 		"Build/":true,
 		"Library/":true,
 		"library/":true,
 		"obj/":true,
 		"Obj/":true,
-		"ProjectSettings/":true,		"temp/":true,
+		"ProjectSettings/":true,
+		"temp/":true,
 		"Temp/":true
 	}
 }

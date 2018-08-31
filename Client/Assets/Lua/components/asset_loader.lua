@@ -69,7 +69,7 @@ local function create_request(v, on_req_loaded, on_err)
 		-- print("create request..........",v.asset_name)
 		req = CRequest.Create(v.assetbundle_url,v.asset_name,Object,on_req_loaded,on_err)
 	end
-	req.userData = v
+	req.uploadData = v
 	return req
 end
 
@@ -138,7 +138,7 @@ function AssetLoader:load_assets(assets)
 	local asset = nil
 	
 	local on_req_loaded = function(req)
-		local ass = req.userData
+		local ass =  req.uploadData --req.userData
 		local key = ass.key
 		
 		if ass:is_a(Asset) then
@@ -182,7 +182,7 @@ function AssetLoader:load_assets(assets)
 	end
 	
 	local on_err = function(req)
-		local ass = req.userData
+		local ass =  req.uploadData--req.userData
 		local key = ass.key
 		self:on_asset_loaded_error(key, ass)
 	end

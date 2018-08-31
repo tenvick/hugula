@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2018.8.31
+1 加载模块重构 精简operation
+
 2018.7.16
 1 main.lua MVVM重构。 
 2 slua 2018.7.16 版本更新。

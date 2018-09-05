@@ -75,6 +75,7 @@ namespace Hugula.Loader {
             m_OnDone = m_Done;
         }
 
+        public AssetBundle assetBundle;
         AsyncOperation m_abRequest;
         UnityWebRequest m_UnityWebRequest;
 
@@ -121,7 +122,7 @@ namespace Hugula.Loader {
                 Debug.LogError (cRequest.error);
             }
 
-            AssetBundle assetBundle = null;
+            // AssetBundle assetBundle = null;
 
             if (m_UnityWebRequest != null)
                 assetBundle = DownloadHandlerAssetBundle.GetContent (m_UnityWebRequest);
@@ -144,6 +145,13 @@ namespace Hugula.Loader {
             m_UnityWebRequest = null;
 
         }
+
+        public override void Reset()
+        {
+            base.Reset();
+            assetBundle = null;
+        }
+
         public override void ReleaseToPool () {
             OperationPools<LoadAssetBundleInternalOperation>.Release (this);
         }
@@ -285,6 +293,98 @@ namespace Hugula.Loader {
         public override void ReleaseToPool () {
             // OperationPools<HttpLoadOperation>.Release (this);
         }
+    }
+
+    public sealed class WWWRequestOperation : HttpLoadOperation {
+
+        public WWWRequestOperation () {
+            m_OnStart = m_Start;
+            m_OnUpdate = m_Update;
+            m_OnDone = m_Done;
+        }
+
+        WWW m_webrequest = null;
+        AsyncOperation m_asyncOperation = null;
+
+        void m_Start () {
+
+            var type = cRequest.assetType;
+            var userData = cRequest.uploadData;
+            string url = CUtils.CheckWWWUrl (cRequest.url);
+            Dictionary<string, string> wwwheaders = null;
+            var headers = cRequest.webHeader;
+            if (headers != null) {
+                wwwheaders = new Dictionary<string, string> ();
+                foreach (var k in headers.AllKeys)
+                    wwwheaders[k] = headers.Get (k);
+            }
+
+            if (userData is WWWForm) {
+                var wwwform = (WWWForm) userData;
+                if (wwwheaders != null && wwwheaders.ContainsKey ("host")) {
+                    wwwform.headers["host"] = wwwheaders["host"];
+                    m_webrequest = new WWW (url, wwwform.data, wwwform.headers);
+                } else
+                    m_webrequest = new WWW (url, (WWWForm) userData);
+            } else if (userData is string) {
+                var bytes = LuaHelper.GetBytes (userData.ToString ());
+                if (wwwheaders != null)
+                    m_webrequest = new WWW (url, bytes, wwwheaders);
+                else
+                    m_webrequest = new WWW (url, bytes);
+            } else if (userData is System.Array) {
+                if (wwwheaders != null)
+                    m_webrequest = new WWW (url, (byte[]) userData, wwwheaders);
+                else
+                    m_webrequest = new WWW (url, (byte[]) userData);
+            } else
+                m_webrequest = new WWW (url);
+
+        }
+
+        bool m_Update () {
+            return !m_webrequest.isDone;
+        }
+
+        void m_Done () {
+
+            if (!string.IsNullOrEmpty (m_webrequest.error)) {
+                var error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
+                cRequest.error = error;
+                Debug.LogError (error);
+            } else {
+
+                object m_Data = null;
+                var type = cRequest.assetType;
+
+                if (LoaderType.Typeof_AudioClip.Equals (type)) {
+#if UNITY_2017
+                    m_Data = WWWAudioExtensions.GetAudioClip (m_webrequest);
+#elif UNITY_5_5_OR_NEWER
+                    m_Data = m_webrequest.GetAudioClip ();
+#endif
+                } else if (LoaderType.Typeof_Texture2D.Equals (type)) {
+                    if (!string.IsNullOrEmpty (cRequest.assetName) && cRequest.assetName.Equals ("textureNonReadable"))
+                        m_Data = m_webrequest.textureNonReadable;
+                    else
+                        m_Data = m_webrequest.texture;
+                } else if (LoaderType.Typeof_AssetBundle.Equals (type)) {
+                    m_Data = m_webrequest.assetBundle;
+                } else if (LoaderType.Typeof_Bytes.Equals (type))
+                    m_Data = m_webrequest.bytes;
+                else
+                    m_Data = m_webrequest.text;
+
+                cRequest.data = m_Data;
+                m_webrequest.Dispose ();
+                m_webrequest = null;
+            }
+        }
+
+        public override void ReleaseToPool () {
+            OperationPools<WWWRequestOperation>.Release (this);
+        }
+
     }
 
     public sealed class UnityWebRequestOperation : HttpLoadOperation {

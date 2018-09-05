@@ -6,6 +6,12 @@ using Hugula.Utils;
 using SLua;
 using UnityEngine;
 
+#if UNITY_5_5_OR_NEWER
+    using Profiler = UnityEngine.Profiling.Profiler;
+#else
+    using Profiler = UnityEngine.Profiler;
+#endif
+
 namespace Hugula.Loader {
 
     [SLua.CustomLuaClassAttribute]
@@ -191,6 +197,15 @@ namespace Hugula.Loader {
             LoadUnityHttpInternal (req);
         }
 
+        /// <summary>
+        /// 以 www 方式加载资源
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="coroutine"></param>
+        /// <returns></returns>
+        static public void WWWRequest (CRequest req) {
+            LoadWWWInternal (req);
+        }
         static public CRequest HttpWebRequestCoroutine (string url, object uploadData, System.Type type) {
             var req = new CRequest ();
             req.uploadData = uploadData;
@@ -403,6 +418,13 @@ namespace Hugula.Loader {
 
         static protected void LoadUnityHttpInternal (CRequest req) {
             var op = OperationPools<UnityWebRequestOperation>.Get ();
+            op.SetRequest (req);
+            inProgressOperations.Add (op);
+            op.Start ();
+        }
+
+        static protected void LoadWWWInternal (CRequest req) {
+            var op = OperationPools<WWWRequestOperation>.Get ();
             op.SetRequest (req);
             inProgressOperations.Add (op);
             op.Start ();
@@ -634,9 +656,17 @@ namespace Hugula.Loader {
             operation.Done ();
 
             if (operation is LoadAssetBundleInternalOperation) {
+#if DEBUG
+                Profiler.BeginSample ("ProcessFinishedOperation AssetbundleDone " + req.assetName);
+#endif
+                CallOnAssetBundleComplete(req,((LoadAssetBundleInternalOperation)operation).assetBundle);
                 downloadingBundles.Remove (req.key);
                 if (req.isShared) req.ReleaseToPool ();
-                LoadingBundleQueue();
+                operation.ReleaseToPool();
+                LoadingBundleQueue ();
+#if DEBUG
+                Profiler.EndSample ();
+#endif
             } else if ((httpLoad = operation as HttpLoadOperation) != null) {
                 bool isError = !string.IsNullOrEmpty (httpLoad.error);
                 if (isError && CUtils.IsResolveHostError (httpLoad.error) && !CUtils.IsHttps (req.url)) // http dns 
@@ -650,7 +680,9 @@ namespace Hugula.Loader {
                     inProgressOperations.Add (httpDnsOp);
                     httpDnsOp.Start ();
                 } else {
-                    
+#if DEBUG
+                    Profiler.BeginSample ("ProcessFinishedOperation HttpDone " + req.url);
+#endif
                     operation.ReleaseToPool ();
     
                     if (isError)
@@ -661,15 +693,21 @@ namespace Hugula.Loader {
                     if (req.group != null) req.group.Complete (req, isError);
 
                     req.ReleaseToPool ();
-
+#if DEBUG
+                   Profiler.EndSample ();
+#endif
                 }
             } else {
-
+#if DEBUG
+                Profiler.BeginSample ("ProcessFinishedOperation AssetDone " + req.assetName);
+#endif
                 loadingTasks.Remove (req);
                 operation.ReleaseToPool ();
 
                 DispatchReqAssetOperation (req, req.error != null);
-
+#if DEBUG
+                Profiler.EndSample ();
+#endif
                 CheckAllComplete ();
             }
 

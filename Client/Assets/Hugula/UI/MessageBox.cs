@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿//#define MESSAGEBOX_DEBUG
+using System.Collections;
 using System.Collections.Generic;
 using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-//#MESSAGEBOX_DEBUG
 namespace Hugula.UI {
 
     [SLua.CustomLuaClass]

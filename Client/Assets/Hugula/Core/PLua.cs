@@ -10,6 +10,11 @@ using UnityEngine.SceneManagement;
 using Lua = SLua.LuaSvr;
 using Hugula.Loader;
 using Hugula.Utils;
+#if UNITY_5_5_OR_NEWER
+    using Profiler = UnityEngine.Profiling.Profiler;
+#else
+    using Profiler = UnityEngine.Profiler;
+#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -243,8 +248,10 @@ namespace Hugula
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private byte[] Loader(string name)
-        {
+        private byte[] Loader (string name) {
+#if DEBUG
+			Profiler.BeginSample("PLua Loader "+name);
+#endif
             byte[] str = null;
 #if UNITY_EDITOR
                 string name1 = name.Replace('.', '/');
@@ -290,6 +297,9 @@ namespace Hugula
                     str = textAsset.bytes; // --Resources.Load
                 Resources.UnloadAsset(textAsset);
             }
+#endif
+ #if DEBUG
+			Profiler.EndSample();
 #endif
             return str;
         }

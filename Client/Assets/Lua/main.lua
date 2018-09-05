@@ -168,7 +168,7 @@ local main_viewmodel = {property_changed={},property={}}
 
 local function per_str(step,per)
     local p = (step + per) / MAX_STEP
-    return tostring(p)
+    return p
 end
 
 local function enter_game(manifest)
@@ -223,7 +223,8 @@ function main_view:init()
     local binder_item = self.binder[field_path]
     if binder_item then
         for k,v in ipairs(binder_item) do
-            v[1][v[2]] = value
+            print(v[1],v[2],value)
+            v[1][tostring(v[2])] = value
         end
     end
   end
@@ -314,8 +315,8 @@ function main_viewmodel:load_server_verion()--加载服务器版本号
             curr_time = curr_time + 1
             run_times("load_server_ver on erro,retry later ",url)
             if curr_time >= max_try_times then
-                self:set_slider_propgress(lua_localization("main_web_server_error"), 3, 0)
                 MessageBox.Show(lua_localization("main_web_server_error"), "", "", on_msg_click)
+                self:set_slider_propgress(lua_localization("main_web_server_error"), 3, 0)
             end
             return
         end

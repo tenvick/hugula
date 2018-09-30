@@ -404,11 +404,15 @@ namespace Hugula.Loader {
             currLoaded++;
 
             OnProcess ();
+            try {
+                if (isError)
+                    req.DispatchEnd ();
+                else
+                    req.DispatchComplete ();
 
-            if (isError)
-                req.DispatchEnd ();
-            else
-                req.DispatchComplete ();
+            } catch (System.Exception e) {
+                Debug.LogError (e);
+            }
 
             if (group != null) group.Complete (req, isError);
 
@@ -582,7 +586,7 @@ namespace Hugula.Loader {
                     break;
             }
 
-            if (inProgressOperations.Count == 0)
+            if (waitRequest.Count > 0)
                 LoadingQueue ();
 
 #if HUGULA_LOADER_DEBUG || UNITY_EDITOR
@@ -684,11 +688,16 @@ namespace Hugula.Loader {
                     Profiler.BeginSample ("ProcessFinishedOperation HttpDone " + req.url);
 #endif
                     operation.ReleaseToPool ();
-    
-                    if (isError)
-                        req.DispatchEnd ();
-                    else
-                        req.DispatchComplete ();
+                    try {
+
+                        if (isError)
+                            req.DispatchEnd ();
+                        else
+                            req.DispatchComplete ();
+
+                    } catch (System.Exception e) {
+                        Debug.LogError (e);
+                    }
 
                     if (req.group != null) req.group.Complete (req, isError);
 

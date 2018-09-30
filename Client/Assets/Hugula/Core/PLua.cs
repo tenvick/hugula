@@ -261,7 +261,7 @@ namespace Hugula
 
                 if (File.Exists(path))
                 {
-                    str = File.ReadAllBytes(path);
+                    str = LuaState.CleanUTF8Bom(File.ReadAllBytes (path));
                 }
                 else
                 {

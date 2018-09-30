@@ -100,28 +100,29 @@ namespace Hugula.Editor {
                 string line = string.Empty;
 
                 if (import != null && string.IsNullOrEmpty (import.assetBundleName) == false) {
-                    // Object s = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
+
+                    string abName = import.assetBundleName;
                     name = CUtils.GetAssetName (path).ToLower ();
 
-                    if (string.IsNullOrEmpty (import.assetBundleVariant))
-                        line = "[\"" + import.assetBundleName + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
-                    else
-                        line = "[\"" + import.assetBundleName + "." + import.assetBundleVariant + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                    if (!string.IsNullOrEmpty (import.assetBundleVariant))
+                        abName = import.assetBundleName + "." + import.assetBundleVariant; // line = "{\"" + import.assetBundleName + "\" = { size = \"" + name + "\", path = \"" + path + "\"}},";
 
+                    line = "[\"" + abName + "\"] = { size = " + GetAssetbundleSize (abName) + ", path = \"" + path + "\"},";
                     sb.AppendLine (line);
                     nameSb.AppendFormat ("{0}={1}\r\n", CryptographHelper.Md5String (name), name);
                     if (name.Contains (" ")) Debug.LogWarning (name + " contains space");
                 } else if (import != null && path.Contains (speciallyPath)) {
                     name = CUtils.GetAssetName (path).ToLower ();
                     string md5name = CryptographHelper.Md5String (name) + Common.CHECK_ASSETBUNDLE_SUFFIX;
-                    line = "[\"" + md5name + "\"] = { name = \"" + name + "\", path = \"" + path + "\"},";
+                    line = "[\"" + md5name + "\"] = { size = " + GetAssetbundleSize (md5name) + ", path = \"" + path + "\"},";
                     sb.AppendLine (line);
                     nameSb.AppendFormat ("{0}={1}\r\n", md5name, name);
                 } else if (import != null && path.Contains (luaPath)) {
                     string luaname = path.Replace (luaPath, "").Replace ("\\", ".").Replace ("/", ".");
                     string luacname = luaname.Replace (".lua", "").Replace (".", "+");
                     string luaMd5Name = CryptographHelper.Md5String (luacname);
-                    line = "[\"" + luaMd5Name + "\"] = { name = \"" + luaname + "\", path = \"" + path + "\"},";
+
+                    line = "[\"" + luaMd5Name + "\"] = { size = " + GetAssetbundleSize (luaMd5Name + ".bytes") + ", path = \"" + path + "\"},";
                     sb.AppendLine (line);
                     nameSb.AppendFormat ("{0}={1}\r\n", luaMd5Name, luaname);
                 }
@@ -134,7 +135,7 @@ namespace Hugula.Editor {
             foreach (string p in special) {
                 name = EditorUtils.GetAssetBundleName (p);
                 nameMd5 = CUtils.GetRightFileName (name);
-                string line = "[\"" + nameMd5 + "\"] ={ name = \"" + name + "\", path = \"" + p + "\" },";
+                string line = "[\"" + nameMd5 + "\"] ={ size = 0, path = \"" + p + "\" },";
                 sb.AppendLine (line);
                 nameSb.AppendFormat ("{0}={1}\r\n", CryptographHelper.Md5String (name), name);
             }
@@ -569,15 +570,29 @@ namespace Hugula.Editor {
 
             uint size = 0;
             foreach (var f in onlyInclusionFiles) {
-                FileInfo finfo = new FileInfo (CUtils.PathCombine (CUtils.realStreamingAssetsPath, CUtils.GetRightFileName (f)));
-                if (finfo.Exists)
-                    size += (uint) finfo.Length;
-                else
-                    Debug.LogWarningFormat ("file not exits:{0}", f);
+                size += (uint) GetAssetbundleSize (f);
+                // FileInfo finfo = new FileInfo (CUtils.PathCombine (CUtils.realStreamingAssetsPath, CUtils.GetRightFileName (f)));
+                // if (finfo.Exists)
+                //     size += (uint) finfo.Length;
+                // else
+                //     Debug.LogWarningFormat ("file not exits:{0}", f);
             }
 
             Debug.LogFormat ("OnlyInclusionFiles total:{0} kb", (float) size / 1024.0f);
             // onlyInclusionRightFiles.Add();
+        }
+
+        private static int GetAssetbundleSize (string abName) {
+            FileInfo finfo = new FileInfo (CUtils.PathCombine (CUtils.realStreamingAssetsPath, abName));
+            int abSize = 0;
+            if (finfo.Exists) {
+                abSize = (int) finfo.Length;
+            } else {
+                finfo = new FileInfo (EditorUtils.GetLuaBytesResourcesPath () + "/" + abName);
+                if (finfo.Exists) abSize = (int) finfo.Length;
+            }
+
+            return abSize;
         }
 
         public static void CheckFirstLoaddAssetbundleSize () {

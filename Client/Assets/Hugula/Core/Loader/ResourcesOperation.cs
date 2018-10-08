@@ -444,11 +444,11 @@ namespace Hugula.Loader {
                 if (m_webrequest.isError)
 #endif
             {
-                var error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
+                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
                 cRequest.error = error;
                 Debug.LogError (error);
             } else if (!(m_webrequest.responseCode == 200 || m_webrequest.responseCode == 0)) {
-                var error = string.Format ("response error code = {0},url={1}", m_webrequest.responseCode, cRequest.url); // m_webrequest.error;
+                error = string.Format ("response error code = {0},url={1}", m_webrequest.responseCode, cRequest.url); // m_webrequest.error;
                 cRequest.error = error;
                 Debug.LogError (error);
             } else {

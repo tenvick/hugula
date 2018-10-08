@@ -293,6 +293,11 @@ namespace Hugula.Loader {
         public override void ReleaseToPool () {
             // OperationPools<HttpLoadOperation>.Release (this);
         }
+
+        public override void Reset () {
+           base.Reset();
+           error = null;
+        }
     }
 
     public sealed class WWWRequestOperation : HttpLoadOperation {
@@ -348,8 +353,8 @@ namespace Hugula.Loader {
 
         void m_Done () {
 
-            if (!string.IsNullOrEmpty (m_webrequest.error)) {
-                var error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
+            if (m_webrequest== null || !string.IsNullOrEmpty (m_webrequest.error)) {
+                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest==null?"m_webrequest is null":m_webrequest.error);
                 cRequest.error = error;
                 Debug.LogError (error);
             } else {
@@ -376,7 +381,7 @@ namespace Hugula.Loader {
                     m_Data = m_webrequest.text;
 
                 cRequest.data = m_Data;
-                m_webrequest.Dispose ();
+                if(m_webrequest!=null) m_webrequest.Dispose ();
                 m_webrequest = null;
             }
         }
@@ -439,12 +444,12 @@ namespace Hugula.Loader {
         void m_Done () {
             var type = cRequest.assetType;
 #if UNITY_2017
-            if (m_webrequest.isNetworkError)
+            if (m_webrequest==null || m_webrequest.isNetworkError)
 #else
-                if (m_webrequest.isError)
+            if (m_webrequest==null || m_webrequest.isError)
 #endif
             {
-                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest.error);
+                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest==null?"m_webrequest is null":m_webrequest.error);
                 cRequest.error = error;
                 Debug.LogError (error);
             } else if (!(m_webrequest.responseCode == 200 || m_webrequest.responseCode == 0)) {
@@ -466,7 +471,7 @@ namespace Hugula.Loader {
                 cRequest.data = m_Data;
             }
 
-            m_webrequest.Dispose ();
+            if(m_webrequest!=null)m_webrequest.Dispose ();
             m_webrequest = null;
             m_asyncOperation = null;
         }

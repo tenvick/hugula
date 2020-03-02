@@ -9,15 +9,14 @@ namespace Hugula
     /// </summary>
     public class Version
     {
-
-        public const uint VERSION = 0x000502;
+        
+        public const uint VERSION = 0x005002;
 
     }
 }
 /**
  * 
  * 预编译命名说明
- * //HUGULA_COMMON_ASSETBUNDLE --     使用未加密的名字构建 assetbundle 需运行菜单ssetBundles/Generate/AssetBundle Update File更新ab名字
  * HUGULA_RELEASE                   release模式
  * HUGULA_NO_LOG                    取消log打印
  * HUGULA_SPLITE_ASSETBUNDLE        启用分离assetbundle功能。

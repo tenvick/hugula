@@ -4,7 +4,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
-using SLua;
+using XLua;
 using System.IO;
 using System.Text;
 using Hugula.Cryptograph;
@@ -14,7 +14,7 @@ namespace Hugula.Utils
     /// <summary>
     /// lua helper类
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public static class LuaHelper
     {
         private static byte[] key = new byte[] { 0x32, 0x0f, 0x8d, 0xe9, 0x3b, 0x24, 0xa5, 0xd3, 0xf2, 0xd3, 0x64, 0x58, 0xb7, 0xae, 0x3f, 0x28 };
@@ -353,7 +353,7 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="eachFn"></param>
-        public static void ForeachChild(GameObject parent, LuaFunction eachFn)
+        public static void ForeachChild(GameObject parent, System.Action<int,GameObject> eachFn)
         {
             Transform pr = parent.transform;
             int count = pr.childCount;
@@ -361,7 +361,7 @@ namespace Hugula.Utils
             for (int i = 0; i < count; i++)
             {
                 child = pr.GetChild(i);
-                eachFn.call(i, child.gameObject);
+                eachFn.Invoke(i, child.gameObject);
             }
         }
 
@@ -638,11 +638,6 @@ namespace Hugula.Utils
         }
 
 
-        public static void ReleaseLuaFn(LuaFunction fn)
-        {
-            if (fn != null) fn.Dispose();
-        }
-
         /// <summary>
         /// check Object is Null
         /// </summary>
@@ -697,7 +692,7 @@ namespace Hugula.Utils
 }
 //namespace AnimationOrTween
 //{
-[SLua.CustomLuaClass]
+
 public enum AnimationDirection
 {
     Reverse = -1,
@@ -709,7 +704,7 @@ public enum AnimationDirection
 /// <summary>
 /// 用来加载场景的type类型
 /// </summary>
-[SLua.CustomLuaClass]
+
 public class AssetBundleScene
 {
 

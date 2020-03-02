@@ -9,7 +9,7 @@ namespace Hugula.Utils
     /// <summary>
     /// 一些公用常量
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class Common
     {
 
@@ -25,7 +25,7 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua out path
         /// </summary>
-        [SLua.DoNotToLua]
+        
         public const string LUACFOLDER = "LuaBytes";
 
         public const string LUA_BUNDLE_NAME_X86="luabytesAsset32";
@@ -34,7 +34,7 @@ namespace Hugula.Utils
         /// <summary>
         /// lua 编译零时目录
         /// </summary>
-        [SLua.DoNotToLua]
+        
         public const string LUA_TMP_FOLDER = "PW";
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Hugula.Utils
         /// <summary>
         /// 语言包特殊前缀
         /// </summary>
-        [SLua.DoNotToLua]
+        
         public const string LANGUAGE_PREFIX = "lan+";
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Hugula.Utils
         /// <summary>
         /// 首包路径
         /// </summary>
-        [SLua.DoNotToLua]
+        
         public const string FirstOutPath = "FirstPackage";
 
         /// <summary>

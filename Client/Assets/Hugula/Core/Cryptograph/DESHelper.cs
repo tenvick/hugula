@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Hugula.Cryptograph
 {
-    [SLua.CustomLuaClass]
+    
     public class DESHelper : MonoBehaviour
     {
 

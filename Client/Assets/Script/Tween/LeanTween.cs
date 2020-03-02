@@ -141,7 +141,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-[SLua.CustomLuaClass]
+
 public enum TweenAction{
 	MOVE_X,
 	MOVE_Y,
@@ -194,7 +194,7 @@ public enum TweenAction{
 	CANVAS_SCALE,
 	CANVAS_SIZEDELTA,
 }
-[SLua.CustomLuaClass]
+
 public enum LeanTweenType{
 	notUsed, linear, easeOutQuad, easeInQuad, easeInOutQuad, easeInCubic, easeOutCubic, easeInOutCubic, easeInQuart, easeOutQuart, easeInOutQuart, 
 	easeInQuint, easeOutQuint, easeInOutQuint, easeInSine, easeOutSine, easeInOutSine, easeInExpo, easeOutExpo, easeInOutExpo, easeInCirc, easeOutCirc, easeInOutCirc, 
@@ -221,7 +221,7 @@ public enum LeanTweenType{
 *
 * @class LeanTween
 */
-[SLua.CustomLuaClass]
+
 public class LeanTween : MonoBehaviour {
 
 	public static bool throwErrors = true;
@@ -2380,7 +2380,7 @@ public class LeanTween : MonoBehaviour {
 
 
 } // End LeanTween class
-[SLua.CustomLuaClass]
+
 public class LTUtility {
 
 	public static Vector3[] reverse( Vector3[] arr ){
@@ -2396,7 +2396,7 @@ public class LTUtility {
 		return arr;
 	}
 }
-[SLua.CustomLuaClass]
+
 public class LTBezier {
 	public float length;
 
@@ -2471,7 +2471,7 @@ public class LTBezier {
 * LeanTween.move(lt, ltPath.vec3, 4.0f).setOrientToPath(true).setDelay(1f).setEase(LeanTweenType.easeInOutQuad); // animate <br>
 * Vector3 pt = ltPath.point( 0.6f ); // retrieve a point along the path
 */
-[SLua.CustomLuaClass]
+
 public class LTBezierPath {
 	public Vector3[] pts;
 	public float length;
@@ -2660,7 +2660,7 @@ public class LTBezierPath {
 * LeanTween.moveSpline(lt, ltSpline.vec3, 4.0f).setOrientToPath(true).setDelay(1f).setEase(LeanTweenType.easeInOutQuad); // animate <br>
 * Vector3 pt = ltSpline.point( 0.6f ); // retrieve a point along the path
 */
-[SLua.CustomLuaClass]
+
 [System.Serializable]
 public class LTSpline {
 	public static int DISTANCE_COUNT = 3; // increase for a more accurate constant speed
@@ -3106,7 +3106,7 @@ public class LTSpline {
 * @param {float} alpha:float (Optional) initial alpha amount (0-1)
 * @param {float} rotation:float (Optional) initial rotation in degrees (0-360) 
 */
-[SLua.CustomLuaClass]
+
 [System.Serializable]
 public class LTRect : System.Object{
 	/**
@@ -3330,7 +3330,7 @@ public class LTRect : System.Object{
 * @constructor
 * @param {object} data:object Data that has been passed from the dispatchEvent method
 */
-[SLua.CustomLuaClass]
+
 public class LTEvent {
 	public int id;
 	public object data;
@@ -3340,7 +3340,7 @@ public class LTEvent {
 		this.data = data;
 	}
 }
-[SLua.CustomLuaClass]
+
 public class LTGUI {
 	public static int RECT_LEVELS = 5;
 	public static int RECTS_PER_LEVEL = 10;

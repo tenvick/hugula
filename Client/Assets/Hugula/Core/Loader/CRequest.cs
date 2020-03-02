@@ -1,24 +1,28 @@
 // Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
+#if !LOG_DISABLE
+// #define HUGULA_PROFILER_DEBUG
+#endif
 using System;
-using System.Collections.Generic;
-using Hugula.Utils;
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using System.Net;
+using Hugula.Utils;
+using UnityEngine;
 
 namespace Hugula.Loader {
     /// <summary>
     /// Request.
     /// </summary>
-    [SLua.CustomLuaClass]
-    public class CRequest : IEnumerator,IDisposable {
+    public sealed class CRequest : IEnumerator, IDisposable {
         /// <summary>
         /// Request
         /// </summary>
         public CRequest () {
-
+#if HUGULA_PROFILER_DEBUG
+            watch.Start ();
+#endif
         }
 
         #region IEnumerator
@@ -29,89 +33,60 @@ namespace Hugula.Loader {
         }
 
         public bool MoveNext () { //false move 
-            bool re = data==null;
-            if (error != null)
-                re = false;
-            // Debug.LogFormat("MoveNext {0},error={1},data={2}",re,error,data);
-            return re;
+            // if (error != null)
+            //     return false;
+            // else
+            return !isDone;
         }
 
         public void Reset () {
-            
+
         }
 
         #endregion
 
-        public virtual void Dispose () {
-            this._url = string.Empty;
-            this._vUrl = string.Empty;
-            this._key = string.Empty;
-            this._udAssetKey = string.Empty;
+        public void Dispose () {
+            // this._url = string.Empty;
+            this._assetBundleName = string.Empty;
             this.error = null;
-
             this.priority = 0;
-            this._keyHashCode = 0;
-
+            this.progress = 0f;
             this.data = null;
-            this.uploadData = null;
-            this.webHeader = null;
-
             _assetName = string.Empty;
             assetType = null; //string.Empty;
-#if UNITY_IPHONE
-            async = false;
-#else
             async = true;
-#endif
-
             pool = false;
-            isAdditive = false;
-            isShared = false;
-
-            this.dependencies = null;
+            isDone = false;
+            userData = null;
 
             this.OnComplete = null;
             this.OnEnd = null;
         }
 
 #if HUGULA_PROFILER_DEBUG
-        [SLua.DoNotToLua]
-        public System.DateTime beginQueueTime;
-        [SLua.DoNotToLua]
-        public System.DateTime beginLoadTime;
+        internal System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch ();
 #endif
 
-        private string _vUrl,_url;
-
-        private string _key, _udAssetKey;
-
-        private int _keyHashCode = 0;
-
-        private string _assetName = string.Empty;
-
+        private string _assetBundleName, _assetName;
 
         /// <summary>
-        ///  virtual url 
-        /// the base asset BundleName URL.
-        /// or http request url
+        /// the asset BundleName URL.
         /// </summary>
         /// <value>virtual url</value>
-        public string vUrl {
+        public string assetBundleName {
             set {
-                _key = null;
-                _keyHashCode = 0;
-                _vUrl = value;
+                _assetBundleName = value;
             }
-            get { return _vUrl; }
+            get { return _assetBundleName; }
         }
-      
+
         /// <summary>
         /// 要加载的asset 名称
         /// </summary>
         public string assetName {
             get {
                 if (string.IsNullOrEmpty (_assetName))
-                     _assetName = CUtils.GetAssetName (vUrl); //Get// key;
+                    _assetName = CUtils.GetAssetName (assetBundleName); //Get// key;
                 return _assetName;
             }
             set { _assetName = value; }
@@ -124,135 +99,64 @@ namespace Hugula.Loader {
         public Type assetType {
             get {
                 if (_assetType == null)
-                    _assetType = LoaderType.Typeof_Object;
+                    _assetType = typeof (UnityEngine.Object);
                 return _assetType;
             }
-            set { _assetType = value; }
+            internal set { _assetType = value; }
         }
 
-        public string error{
-            get;internal set;
+        public string error {
+            get;
+            private set;
         }
+
+        /// <summary>
+        /// 用户自己带的信息
+        /// </summary>
+        public object userData;
+
+        /// <summary>
+        /// What's the operation's progress.
+        /// </summary>
+        public float progress { get; private set; }
 
         /// <summary>
         /// 加载的数据
         /// </summary>
-        public object data {get;internal set;}
+        public object data { get; private set; }
 
         /// <summary>
-        /// The upload data.
+        /// 是否加载完成
         /// </summary>
-        public object uploadData;
+        public bool isDone { get; private set; }
+        public System.Action<object,object> OnEnd;
 
-        /// <summary>
-        /// The http head.
-        /// </summary>
-        public WebHeaderCollection webHeader;
-
-        public System.Action<CRequest> OnEnd;
-
-        public System.Action<CRequest> OnComplete;
+        public System.Action<object,object> OnComplete;
 
         public void DispatchComplete () {
 #if HUGULA_PROFILER_DEBUG
-            Profiler.BeginSample (string.Format ("CRequest({0},{1}).DispatchComplete()", this.assetName, this.key));
-
+            // Profiler.BeginSample (string.Format ("CRequest({0},{1}).DispatchComplete()", this.assetName, this.key));
             if (OnComplete != null)
-                OnComplete (this);
-
-            Profiler.EndSample ();
+                OnComplete (data,userData);
+            // Profiler.EndSample ();
+            watch.Stop ();
+            GS_GameLog.LogFormat ("CRequest({0},{1}).data = {2} cost={3}s", this.assetBundleName, this.assetName, this.data, watch.ElapsedMilliseconds / 1000d);
 #else
+
             if (OnComplete != null)
-                OnComplete (this);
+                OnComplete (data,userData);
 #endif
         }
 
         public void DispatchEnd () {
             if (OnEnd != null)
-                OnEnd (this);
-        }
-
-        public bool isShared { get; internal set; }
-
-        /// <summary>
-        /// 请求真实url地址，可能被改变.
-        /// </summary>
-        public string url {
-            get {
-                if(string.IsNullOrEmpty(_url))
-                    _url = vUrl;
-                return _url;
-            }
-            internal set {
-                _url = value;
-            }
+                OnEnd (data,userData);
         }
 
         /// <summary>
-        /// 缓存用的关键字
-        /// 如果没有设定 则为默认key生成规则
+        /// asset 是否异步加载
         /// </summary>
-        public string key {
-            get {
-                if (string.IsNullOrEmpty (_key))
-                    key = string.Empty;
-                return _key;
-            }
-            internal set {
-                if (value == null)
-                    _key = null;
-                else//vUrl))
-                    _key = CUtils.GetAssetBundleName (vUrl);
-            }
-        }
-
-        /// <summary>
-        /// assetBundle key的hashcode 用于计算缓存的资源key
-        /// </summary>
-        internal int keyHashCode {
-            get {
-                if (_keyHashCode == 0)
-                    keyHashCode = 1;
-
-                return _keyHashCode;
-            }
-            set {
-                if (value == 0)
-                    _keyHashCode = value;
-                else
-                    _keyHashCode = LuaHelper.StringToHash (key);
-            }
-        }
-
-        /// <summary>
-        /// Sets the url and asse unique key
-        /// </summary>
-        /// <value>
-        /// The unique key.
-        /// </value>
-        internal string udAssetKey {
-            get {
-                if (string.IsNullOrEmpty (_udAssetKey))
-                    udAssetKey = string.Empty;
-                return _udAssetKey;
-            }
-            set {
-                if (value == null)
-                    _udAssetKey = null;
-                else {
-                    _udAssetKey = string.Format ("{0}+{1}", key, assetName);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 是否异步加载
-        /// </summary>
-#if UNITY_IPHONE
-        public bool async = false;
-#else
         public bool async = true;
-#endif
 
         /// <summary>
         ///  优先等级
@@ -262,42 +166,44 @@ namespace Hugula.Loader {
         public int priority = 0; //优先级
 
         /// <summary>
-        /// 场景加载追加模式
-        /// </summary>
-        public bool isAdditive = false;
-
-        /// <summary>
-        /// 所属组
-        /// </summary>
-        internal GroupQueue<CRequest> group;
-
-        /// <summary>
-        /// dependencies count;
-        /// </summary>
-        internal int[] dependencies;
-
-        /// <summary>
         /// 放入内存池
         /// </summary>
-        internal bool pool = false;
+        bool pool = false;
 
         public void ReleaseToPool () {
             if (pool)
                 Release (this);
         }
 
-          //创建一个CRequest
-        public static CRequest Create (string assetBundleName, string assetName, Type assetType, System.Action<CRequest> onComp, System.Action<CRequest> onEnd) {
-            var req = CRequest.Get ();
-            req.vUrl = assetBundleName;
-            req.assetName = assetName;
-            req.assetType = assetType;
-
-            req.OnComplete = onComp;
-            req.OnEnd = onEnd;
-
-            return req;
+        internal static void SetDone (CRequest req) {
+            req.isDone = true;
         }
+
+        internal static void SetData (CRequest req, object data) {
+            req.data = data;
+        }
+
+        internal static void SetError (CRequest req, string error) {
+            req.error = error;
+            req.isDone = true;
+        }
+
+        internal static void SetProgress (CRequest req, float progress) {
+            req.progress = progress;
+        }
+
+        //创建一个CRequest
+        // public static CRequest Create (string assetBundleName, string assetName, Type assetType, System.Action<CRequest> onComp, System.Action<CRequest> onEnd) {
+        //     var req = CRequest.Get ();
+        //     req.assetBundleName = assetBundleName;
+        //     req.assetName = assetName;
+        //     req.assetType = assetType;
+
+        //     req.OnComplete = onComp;
+        //     req.OnEnd = onEnd;
+
+        //     return req;
+        // }
 
         //创建一个http CRequest
         // public static CRequest Create(string url,System.Action<CRequest> onComp, System.Action<CRequest> onEnd)
@@ -313,11 +219,10 @@ namespace Hugula.Loader {
         #region ObjectPool 
         static ObjectPool<CRequest> objectPool = new ObjectPool<CRequest> (m_ActionOnGet, m_ActionOnRelease);
         private static void m_ActionOnGet (CRequest req) {
-            // Debug.LogFormat("",req.isShared)
             req.pool = true;
 #if HUGULA_PROFILER_DEBUG
-            req.beginQueueTime = System.DateTime.Now;
-            req.beginLoadTime = System.DateTime.Now;
+            req.watch.Start ();
+            req.watch.Restart ();
 #endif
         }
 

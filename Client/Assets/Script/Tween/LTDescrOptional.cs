@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-[SLua.CustomLuaClass]
+
 public class LTDescrOptional  {
 
 	public Transform toTrans { get; set; }

@@ -1,0 +1,625 @@
+LUA: init_view_wm
+	
+|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 21.000      : 10.500      : 52.50%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 12.000      : 12.000      : 30.00%      :       1     |
+|__index                                 : [C]                                               : 11.000      : 0.611       : 27.50%      :      18     |
+|create                                  : core.databinding.binder.bindable_container:98     : 8.000       : 8.000       : 20.00%      :       1     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:59     : 7.000       : 7.000       : 17.50%      :       1     |
+|sethook                                 : [C]                                               : 3.000       : 0.750       : 7.50%       :       4     |
+|report                                  : perf.profiler:86                                  : 3.000       : 1.000       : 7.50%       :       3     |
+|Log                                     : core.logger:10                                    : 3.000       : 0.750       : 7.50%       :       4     |
+|print                                   : [C#]                                              : 3.000       : 0.375       : 7.50%       :       8     |
+|[anonymous]                             : [C]                                               : 2.000       : 0.018       : 5.00%       :     112     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.50%       :       1     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 2.50%       :       2     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : [string "load expression"]:0                      : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding_info                        : core.databinding.binding:129                      : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binder.loop_scrollrect:39        : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       2     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|apply                                   : core.databinding.binding:235                      : 0.000       : 0.000       : 0.00%       :       1     |
+|traceback                               : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|apply_context_changed                   : core.databinding.binding:249                      : 0.000       : 0.000       : 0.00%       :       1     |
+|type                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|loadstring                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_converter                           : core.databinding.binding:57                       : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding                             : core.databinding.bindable:55                      : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|_ctor                                   : core.databinding.binding:34                       : 0.000       : 0.000       : 0.00%       :       2     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|unapply                                 : core.databinding.binding:310                      : 0.000       : 0.000       : 0.00%       :       1     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       4     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :      17     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       2     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      74     |
+|add_child                               : core.databinding.binder.bindable_container:110    : 0.000       : 0.000       : 0.00%       :       1     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      30     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "chunk"]:68                               : 0.000       : 0.000       : 0.00%       :       3     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       2     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:119    : 0.000       : 0.000       : 0.00%       :       1     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      42     |
+|on_active                               : viewmodels.welcome:28                             : 0.000       : 0.000       : 0.00%       :       1     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : core.databinding.binder.bindable_container:144    : 0.000       : 0.000       : 0.00%       :       1     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       9     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       6     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|create_binder_comp                      : core.databinding.binder.bindable_container:41     : 0.000       : 0.000       : 0.00%       :       1     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       7     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 0.000       : 0.000       : 0.00%       :       1     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      32     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+
+
+LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 22.000      : 11.000      : 57.89%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 11.000      : 11.000      : 28.95%      :       1     |
+|__index                                 : [C]                                               : 9.000       : 0.563       : 23.68%      :      16     |
+|create                                  : core.databinding.binder.bindable_container:98     : 7.000       : 7.000       : 18.42%      :       1     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:59     : 6.000       : 6.000       : 15.79%      :       1     |
+|sethook                                 : [C]                                               : 3.000       : 0.750       : 7.89%       :       4     |
+|report                                  : perf.profiler:86                                  : 3.000       : 1.000       : 7.89%       :       3     |
+|Log                                     : core.logger:10                                    : 2.000       : 0.500       : 5.26%       :       4     |
+|set_context                             : core.databinding.bindable:121                     : 1.000       : 1.000       : 2.63%       :       1     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.010       : 2.63%       :     101     |
+|print                                   : [C#]                                              : 1.000       : 0.125       : 2.63%       :       8     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 1.000       : 1.000       : 2.63%       :       1     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.63%       :       1     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 2.63%       :       2     |
+|traceback                               : [C]                                               : 1.000       : 0.250       : 2.63%       :       4     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.binder.bindable_container:144    : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      29     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :       8     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|loadstring                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "chunk"]:68                               : 0.000       : 0.000       : 0.00%       :       3     |
+|set_binding_info                        : core.databinding.binding:129                      : 0.000       : 0.000       : 0.00%       :       2     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_converter                           : core.databinding.binding:57                       : 0.000       : 0.000       : 0.00%       :       2     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       5     |
+|_ctor                                   : core.databinding.binding:34                       : 0.000       : 0.000       : 0.00%       :       2     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       1     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:119    : 0.000       : 0.000       : 0.00%       :       1     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : [string "load expression"]:0                      : 0.000       : 0.000       : 0.00%       :       2     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       3     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|on_active                               : viewmodels.welcome:28                             : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       1     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      23     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       3     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      20     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      52     |
+|type                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+	
+    
+LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 22.000      : 11.000      : 57.89%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 11.000      : 11.000      : 28.95%      :       1     |
+|__index                                 : [C]                                               : 9.000       : 1.125       : 23.68%      :       8     |
+|create                                  : core.databinding.binder.bindable_container:98     : 5.000       : 5.000       : 13.16%      :       1     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 10.53%      :       4     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:59     : 4.000       : 4.000       : 10.53%      :       1     |
+|print                                   : [C#]                                              : 3.000       : 0.375       : 7.89%       :       8     |
+|report                                  : perf.profiler:86                                  : 2.000       : 0.667       : 5.26%       :       3     |
+|sethook                                 : [C]                                               : 2.000       : 0.500       : 5.26%       :       4     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 1.000       : 1.000       : 2.63%       :       1     |
+|traceback                               : [C]                                               : 1.000       : 0.250       : 2.63%       :       4     |
+|on_active                               : viewmodels.welcome:28                             : 1.000       : 1.000       : 2.63%       :       1     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.013       : 2.63%       :      75     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.63%       :       1     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.binder.bindable_container:144    : 0.000       : 0.000       : 0.00%       :       1     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      26     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      18     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       2     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       1     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      43     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :       8     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:119    : 0.000       : 0.000       : 0.00%       :       1     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      17     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|GetComponent                            : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "chunk"]:68                               : 0.000       : 0.000       : 0.00%       :       2     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+	
+    
+    LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 23.000      : 11.500      : 53.49%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 15.000      : 15.000      : 34.88%      :       1     |
+|__index                                 : [C]                                               : 12.000      : 0.857       : 27.91%      :      14     |
+|create                                  : core.databinding.binder.bindable_container:98     : 10.000      : 10.000      : 23.26%      :       1     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:59     : 8.000       : 8.000       : 18.60%      :       1     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 9.30%       :       4     |
+|print                                   : [C#]                                              : 3.000       : 0.375       : 6.98%       :       8     |
+|sethook                                 : [C]                                               : 2.000       : 0.500       : 4.65%       :       4     |
+|report                                  : perf.profiler:86                                  : 2.000       : 0.667       : 4.65%       :       3     |
+|BindableContainer                       : core.tools:199                                    : 1.000       : 1.000       : 2.33%       :       1     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.33%       :       1     |
+|traceback                               : [C]                                               : 1.000       : 0.250       : 2.33%       :       4     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.011       : 2.33%       :      94     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 2.33%       :       2     |
+|on_active                               : viewmodels.welcome:28                             : 1.000       : 1.000       : 2.33%       :       1     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 1.000       : 1.000       : 2.33%       :       1     |
+|[anonymous]                             : core.databinding.binder.bindable_container:144    : 0.000       : 0.000       : 0.00%       :       1     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      20     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      17     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       1     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      27     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:119    : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :       8     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : [string "chunk"]:68                               : 0.000       : 0.000       : 0.00%       :       3     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      44     |
+	
+    
+    LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 21.000      : 10.500      : 63.64%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 7.000       : 7.000       : 21.21%      :       1     |
+|__index                                 : [C]                                               : 5.000       : 0.833       : 15.15%      :       6     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 12.12%      :       4     |
+|print                                   : [C#]                                              : 4.000       : 0.500       : 12.12%      :       8     |
+|report                                  : perf.profiler:86                                  : 2.000       : 0.667       : 6.06%       :       3     |
+|create                                  : core.databinding.binder.bindable_container:98     : 2.000       : 2.000       : 6.06%       :       1     |
+|sethook                                 : [C]                                               : 2.000       : 0.500       : 6.06%       :       4     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.016       : 3.03%       :      64     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:59     : 1.000       : 1.000       : 3.03%       :       1     |
+|on_active                               : viewmodels.welcome:28                             : 1.000       : 1.000       : 3.03%       :       1     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 1.000       : 1.000       : 3.03%       :       1     |
+|[anonymous]                             : [string "chunk"]:68                               : 1.000       : 1.000       : 3.03%       :       1     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 3.03%       :       1     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 3.03%       :       2     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      26     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       1     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      17     |
+|traceback                               : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      17     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.binder.bindable_container:144    : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      43     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:119    : 0.000       : 0.000       : 0.00%       :       1     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :       8     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       1     |
+	
+    
+
+    LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 20.000      : 10.000      : 52.63%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 12.000      : 12.000      : 31.58%      :       1     |
+|create                                  : core.databinding.binder.bindable_container:119    : 8.000       : 8.000       : 21.05%      :       1     |
+|CreateLuaBindableContainer              : [C#]                                              : 7.000       : 3.500       : 18.42%      :       2     |
+|__index                                 : [C]                                               : 4.000       : 1.000       : 10.53%      :       4     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 10.53%      :       4     |
+|print                                   : [C#]                                              : 3.000       : 0.375       : 7.89%       :       8     |
+|get_table_info                          : [string "chunk"]:42                               : 2.000       : 0.667       : 5.26%       :       3     |
+|report                                  : perf.profiler:86                                  : 2.000       : 0.667       : 5.26%       :       3     |
+|[anonymous]                             : [string "chunk"]:68                               : 2.000       : 0.500       : 5.26%       :       4     |
+|sethook                                 : [C]                                               : 1.000       : 0.250       : 2.63%       :       4     |
+|traceback                               : [C]                                               : 1.000       : 0.250       : 2.63%       :       4     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 1.000       : 1.000       : 2.63%       :       1     |
+|tostring                                : [C]                                               : 1.000       : 0.143       : 2.63%       :       7     |
+|on_active                               : viewmodels.welcome:28                             : 1.000       : 1.000       : 2.63%       :       1     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.012       : 2.63%       :      86     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.63%       :       1     |
+|[anonymous]                             : core.databinding.binder.bindable_container:168    : 1.000       : 0.500       : 2.63%       :       2     |
+|serialize                               : [string "chunk"]:21                               : 1.000       : 1.000       : 2.63%       :       1     |
+|string_format                           : [C]                                               : 1.000       : 0.333       : 2.63%       :       3     |
+|miku_unpack_return_value                : [C]                                               : 1.000       : 0.022       : 2.63%       :      45     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 2.63%       :       2     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :      11     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :      79     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|apply                                   : core.databinding.binding:235                      : 0.000       : 0.000       : 0.00%       :       1     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.binder.loop_scrollrect:39        : 0.000       : 0.000       : 0.00%       :       1     |
+|type                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|format                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|unapply                                 : core.databinding.binding:310                      : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:143    : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       2     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      34     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|loadstring                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       5     |
+|_ctor                                   : core.databinding.binding:34                       : 0.000       : 0.000       : 0.00%       :       2     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      38     |
+|miku_get_fun_info                       : [string "chunk"]:8                                : 0.000       : 0.000       : 0.00%       :       1     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|[anonymous]                             : core.databinding.binder.bindable_container:55     : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding_info                        : core.databinding.binding:129                      : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding                             : core.databinding.bindable:55                      : 0.000       : 0.000       : 0.00%       :       2     |
+|create_binder_comp                      : core.databinding.binder.bindable_container:42     : 0.000       : 0.000       : 0.00%       :       1     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       4     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|set_converter                           : core.databinding.binding:57                       : 0.000       : 0.000       : 0.00%       :       2     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       7     |
+|getinfo                                 : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|add_child                               : core.databinding.binder.bindable_container:134    : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : [string "load expression"]:0                      : 0.000       : 0.000       : 0.00%       :       2     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       7     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :      19     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       2     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       2     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|apply_context_changed                   : core.databinding.binding:249                      : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+	
+stack traceback:
+	core.mvvm.vm_manager:73: in upvalue 'on_res_comp'
+	core.mvvm.vm_manager:131: in upvalue 'load_resource'
+	core.mvvm.vm_manager:152: in upvalue 'load'
+	core.mvvm.vm_manager:187: in field 'active'
+	core.mvvm.vm_state:50: in field 'push'
+	begin:11: in main chunk
+	[C]: in function 'require'
+	[string "chunk"]:1: in main chunk
+UnityEngine.Debug:Log(Object)
+XLua.StaticLuaCallbacks:Print(IntPtr) (at Assets/XLua/Src/StaticLuaCallbacks.cs:629)
+XLua.LuaDLL.Lua:lua_pcall(IntPtr, Int32, Int32, Int32)
+XLua.LuaEnv:DoString(Byte[], String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:270)
+XLua.LuaEnv:DoString(String, String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:290)
+EnterLua:Start() (at Assets/Hugula/Core/EnterLua.cs:46)
+
+
+
+LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 23.000      : 11.500      : 56.10%      :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 13.000      : 13.000      : 31.71%      :       1     |
+|__index                                 : [C]                                               : 11.000      : 0.611       : 26.83%      :      18     |
+|create                                  : core.databinding.binder.bindable_container:119    : 8.000       : 8.000       : 19.51%      :       1     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:80     : 6.000       : 6.000       : 14.63%      :       1     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 9.76%       :       4     |
+|[anonymous]                             : [C]                                               : 2.000       : 0.018       : 4.88%       :     112     |
+|traceback                               : [C]                                               : 2.000       : 0.500       : 4.88%       :       4     |
+|print                                   : [C#]                                              : 2.000       : 0.250       : 4.88%       :       8     |
+|BeginMikuSample                         : [C]                                               : 2.000       : 0.027       : 4.88%       :      74     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 1.000       : 1.000       : 2.44%       :       1     |
+|on_active                               : viewmodels.welcome:28                             : 1.000       : 1.000       : 2.44%       :       1     |
+|__index                                 : core.tools:157                                    : 1.000       : 0.059       : 2.44%       :      17     |
+|on_asset_load                           : views.welcome_view:14                             : 1.000       : 1.000       : 2.44%       :       1     |
+|add_child                               : core.mvvm.view_base:55                            : 1.000       : 1.000       : 2.44%       :       1     |
+|sethook                                 : [C]                                               : 1.000       : 0.250       : 2.44%       :       4     |
+|report                                  : perf.profiler:86                                  : 1.000       : 0.333       : 2.44%       :       3     |
+|_ctor                                   : core.databinding.binder.loop_scrollrect:39        : 0.000       : 0.000       : 0.00%       :       1     |
+|set_context                             : core.databinding.bindable:121                     : 0.000       : 0.000       : 0.00%       :       1     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|add_child                               : core.databinding.binder.bindable_container:134    : 0.000       : 0.000       : 0.00%       :       1     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 0.000       : 0.000       : 0.00%       :       1     |
+|set_binding                             : core.databinding.bindable:55                      : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding_info                        : core.databinding.binding:129                      : 0.000       : 0.000       : 0.00%       :       2     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       2     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :       6     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       3     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       1     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       4     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      30     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|apply_context_changed                   : core.databinding.binding:249                      : 0.000       : 0.000       : 0.00%       :       1     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|property_changed                        : core.databinding.bindable:36                      : 0.000       : 0.000       : 0.00%       :       1     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|GetComponent                            : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|unapply                                 : core.databinding.binding:310                      : 0.000       : 0.000       : 0.00%       :       1     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binding:34                       : 0.000       : 0.000       : 0.00%       :       2     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 0.000       : 0.000       : 0.00%       :       3     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       9     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 0.000       : 0.000       : 0.00%       :       2     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|loadstring                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|set_converter                           : core.databinding.binding:57                       : 0.000       : 0.000       : 0.00%       :       2     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|[anonymous]                             : [string "chunk"]:68                               : 0.000       : 0.000       : 0.00%       :       3     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       2     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       7     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      42     |
+|[anonymous]                             : core.databinding.binder.bindable_container:168    : 0.000       : 0.000       : 0.00%       :       1     |
+|[anonymous]                             : [string "load expression"]:0                      : 0.000       : 0.000       : 0.00%       :       2     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       6     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      32     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|create_binder_comp                      : core.databinding.binder.bindable_container:42     : 0.000       : 0.000       : 0.00%       :       1     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:143    : 0.000       : 0.000       : 0.00%       :       1     |
+|type                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       1     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       2     |
+|apply                                   : core.databinding.binding:235                      : 0.000       : 0.000       : 0.00%       :       1     |
+
+
+
+
+LUA: init_view_wm
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|init_view_wm                            : core.mvvm.vm_manager:48                           : 28.000      : 28.000      : 50.91%      :       1     |
+|Instantiate                             : [C#]                                              : 22.000      : 11.000      : 40.00%      :       2     |
+|_set_value                              : core.databinding.bindable:205                     : 14.000      : 4.667       : 25.45%      :       3     |
+|apply                                   : core.databinding.binding:235                      : 14.000      : 4.667       : 25.45%      :       3     |
+|on_binding_context_changed              : core.databinding.binder.bindable_container:143    : 14.000      : 14.000      : 25.45%      :       1     |
+|set_inherited_context                   : core.databinding.bindable:178                     : 14.000      : 4.667       : 25.45%      :       3     |
+|on_binding_context_changed              : core.mvvm.view_base:64                            : 14.000      : 14.000      : 25.45%      :       1     |
+|apply_context_changed                   : core.databinding.binding:249                      : 14.000      : 4.667       : 25.45%      :       3     |
+|set_context                             : core.databinding.bindable:121                     : 14.000      : 4.667       : 25.45%      :       3     |
+|apply_actual                            : core.databinding.binding:150                      : 14.000      : 4.667       : 25.45%      :       3     |
+|on_binding_context_changed              : core.databinding.binder.loop_scrollrect:108       : 13.000      : 13.000      : 23.64%      :       1     |
+|__newindex                              : [C]                                               : 13.000      : 2.600       : 23.64%      :       5     |
+|__index                                 : [C]                                               : 11.000      : 0.579       : 20.00%      :      19     |
+|create                                  : core.databinding.binder.bindable_container:119    : 9.000       : 9.000       : 16.36%      :       1     |
+|base_on_binding_context_changed         : core.databinding.bindable:161                     : 8.000       : 2.667       : 14.55%      :       3     |
+|[anonymous]                             : [C]                                               : 7.000       : 0.039       : 12.73%      :     178     |
+|generate_bindablecontainer              : core.databinding.binder.bindable_container:80     : 6.000       : 6.000       : 10.91%      :       1     |
+|Log                                     : core.logger:10                                    : 4.000       : 1.000       : 7.27%       :       4     |
+|print                                   : [C#]                                              : 3.000       : 0.375       : 5.45%       :       8     |
+|report                                  : perf.profiler:86                                  : 2.000       : 0.667       : 3.64%       :       3     |
+|sethook                                 : [C]                                               : 2.000       : 0.500       : 3.64%       :       4     |
+|on_asset_load                           : views.welcome_view:14                             : 2.000       : 2.000       : 3.64%       :       1     |
+|property_changed                        : core.databinding.bindable:36                      : 1.000       : 0.333       : 1.82%       :       3     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 1.82%       :       2     |
+|apply_init                              : core.databinding.binding:262                      : 1.000       : 0.500       : 1.82%       :       2     |
+|apply_binding_init                      : core.databinding.binder.bindable_container:153    : 1.000       : 1.000       : 1.82%       :       1     |
+|[anonymous]                             : [string "chunk"]:68                               : 1.000       : 0.125       : 1.82%       :       8     |
+|base_apply_binding_init                 : core.databinding.bindable:66                      : 1.000       : 0.500       : 1.82%       :       2     |
+|traceback                               : [C]                                               : 1.000       : 0.250       : 1.82%       :       4     |
+|parse_path                              : core.databinding.binding:69                       : 1.000       : 0.500       : 1.82%       :       2     |
+|gmatch                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|get_source_val                          : core.databinding.binding_path_part:33             : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binder.loop_scrollrect:39        : 0.000       : 0.000       : 0.00%       :       1     |
+|set_converter                           : core.databinding.binding:57                       : 0.000       : 0.000       : 0.00%       :       2     |
+|check_vm_base_all_done                  : core.mvvm.vm_manager:29                           : 0.000       : 0.000       : 0.00%       :       1     |
+|add_child                               : core.databinding.binder.bindable_container:134    : 0.000       : 0.000       : 0.00%       :       1     |
+|string_len                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|pairs                                   : [C]                                               : 0.000       : 0.000       : 0.00%       :      11     |
+|rawget                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      66     |
+|[anonymous]                             : core.databinding.binder.loop_scrollrect:140       : 0.000       : 0.000       : 0.00%       :       1     |
+|unapply                                 : core.databinding.binding:310                      : 0.000       : 0.000       : 0.00%       :       2     |
+|get_context                             : core.databinding.bindable:100                     : 0.000       : 0.000       : 0.00%       :      11     |
+|format                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :      10     |
+|type                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|rawset                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       9     |
+|BindableContainer                       : core.tools:199                                    : 0.000       : 0.000       : 0.00%       :       2     |
+|for iterator                            : [C]                                               : 0.000       : 0.000       : 0.00%       :      40     |
+|_ctor                                   : core.databinding.binder.bindable_container:31     : 0.000       : 0.000       : 0.00%       :       1     |
+|EndMikuSample                           : [C]                                               : 0.000       : 0.000       : 0.00%       :      56     |
+|string_match                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|import_type                             : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|subscribe                               : core.databinding.binding_path_part:96             : 0.000       : 0.000       : 0.00%       :       2     |
+|BeginMikuSample                         : [C]                                               : 0.000       : 0.000       : 0.00%       :     139     |
+|string_trim                             : core.tools:23                                     : 0.000       : 0.000       : 0.00%       :       4     |
+|add_child                               : core.mvvm.view_base:55                            : 0.000       : 0.000       : 0.00%       :       1     |
+|warp_class                              : core.tools:233                                    : 0.000       : 0.000       : 0.00%       :       8     |
+|set_binding_info                        : core.databinding.binding:129                      : 0.000       : 0.000       : 0.00%       :       2     |
+|setmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :      11     |
+|sub                                     : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|getmetatable                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       7     |
+|loadstring                              : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|split_path                              : core.databinding.binding:48                       : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : [string "Init"]:9                                 : 0.000       : 0.000       : 0.00%       :       1     |
+|_ctor                                   : core.databinding.binding_path_part:20             : 0.000       : 0.000       : 0.00%       :       4     |
+|_ctor                                   : core.databinding.bindable:24                      : 0.000       : 0.000       : 0.00%       :       2     |
+|serialize                               : [string "chunk"]:21                               : 0.000       : 0.000       : 0.00%       :       2     |
+|__index                                 : core.tools:157                                    : 0.000       : 0.000       : 0.00%       :      36     |
+|miku_unpack_return_value                : [C]                                               : 0.000       : 0.000       : 0.00%       :      83     |
+|tostring                                : [C]                                               : 0.000       : 0.000       : 0.00%       :      19     |
+|[anonymous]                             : [string "load expression"]:0                      : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : core.databinding.binder.bindable_container:168    : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : core.tools:193                                    : 0.000       : 0.000       : 0.00%       :       2     |
+|gsub                                    : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|create_binder_comp                      : core.databinding.binder.bindable_container:42     : 0.000       : 0.000       : 0.00%       :       1     |
+|on_active                               : viewmodels.welcome:28                             : 0.000       : 0.000       : 0.00%       :       1     |
+|string_format                           : [C]                                               : 0.000       : 0.000       : 0.00%       :       6     |
+|miku_add_ref_fun_info                   : [C]                                               : 0.000       : 0.000       : 0.00%       :       8     |
+|set_parent                              : core.databinding.bindable:114                     : 0.000       : 0.000       : 0.00%       :       2     |
+|get_table_info                          : [string "chunk"]:42                               : 0.000       : 0.000       : 0.00%       :       6     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|ipairs                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       7     |
+|miku_get_fun_info                       : [string "chunk"]:8                                : 0.000       : 0.000       : 0.00%       :       2     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       4     |
+|Refresh                                 : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+|_ctor                                   : core.databinding.binding:34                       : 0.000       : 0.000       : 0.00%       :       2     |
+|miku_check_type                         : [C]                                               : 0.000       : 0.000       : 0.00%       :       9     |
+|getinfo                                 : [C]                                               : 0.000       : 0.000       : 0.00%       :       2     |
+|[anonymous]                             : core.databinding.notify_table:347                 : 0.000       : 0.000       : 0.00%       :       2     |
+|set_binding                             : core.databinding.bindable:55                      : 0.000       : 0.000       : 0.00%       :       2     |
+	
+stack traceback:
+	core.mvvm.vm_manager:73: in upvalue 'on_res_comp'
+	core.mvvm.vm_manager:131: in upvalue 'load_resource'
+	core.mvvm.vm_manager:152: in upvalue 'load'
+	core.mvvm.vm_manager:187: in field 'active'
+	core.mvvm.vm_state:50: in field 'push'
+	begin:11: in main chunk
+	[C]: in function 'require'
+	[string "chunk"]:1: in main chunk
+UnityEngine.Debug:Log(Object)
+XLua.StaticLuaCallbacks:Print(IntPtr) (at Assets/XLua/Src/StaticLuaCallbacks.cs:629)
+XLua.LuaDLL.Lua:lua_pcall(IntPtr, Int32, Int32, Int32)
+XLua.LuaEnv:DoString(Byte[], String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:270)
+XLua.LuaEnv:DoString(String, String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:290)
+EnterLua:Start() (at Assets/Hugula/Core/EnterLua.cs:46)
+
+
+LUA: BindableContainer.create
+	|FUNCTION                                : SOURCE                                            : TOTAL(MS)   : AVERAGE(MS) : RELATIVE    : CALLED      |
+|Instantiate                             : [C#]                                              : 22.000      : 11.000      : 81.48%      :       2     |
+|__index                                 : [C]                                               : 3.000       : 1.500       : 11.11%      :       2     |
+|GetComponent                            : [C#]                                              : 1.000       : 0.500       : 3.70%       :       2     |
+|[anonymous]                             : [C]                                               : 1.000       : 0.111       : 3.70%       :       9     |
+|Log                                     : core.logger:10                                    : 1.000       : 1.000       : 3.70%       :       1     |
+|traceback                               : [C]                                               : 1.000       : 1.000       : 3.70%       :       1     |
+|sethook                                 : [C]                                               : 0.000       : 0.000       : 0.00%       :       3     |
+|unpack                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|insert                                  : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|start                                   : perf.profiler:47                                  : 0.000       : 0.000       : 0.00%       :       1     |
+|report                                  : perf.profiler:86                                  : 0.000       : 0.000       : 0.00%       :       2     |
+|init_view_wm                            : core.mvvm.vm_manager:47                           : 0.000       : 0.000       : 0.00%       :       1     |
+|table_insert                            : [C]                                               : 0.000       : 0.000       : 0.00%       :       1     |
+|add_child                               : core.mvvm.view_base:51                            : 0.000       : 0.000       : 0.00%       :       1     |
+|print                                   : [C#]                                              : 0.000       : 0.000       : 0.00%       :       2     |
+	
+stack traceback:
+	core.mvvm.vm_manager:51: in upvalue 'init_view_wm'
+	core.mvvm.vm_manager:71: in upvalue 'on_res_comp'
+	core.mvvm.vm_manager:130: in upvalue 'load_resource'
+	core.mvvm.vm_manager:151: in upvalue 'load'
+	core.mvvm.vm_manager:186: in field 'active'
+	core.mvvm.vm_state:50: in field 'push'
+	begin:42: in main chunk
+	[C]: in function 'require'
+	[string "chunk"]:1: in main chunk
+UnityEngine.Debug:Log(Object)
+XLua.StaticLuaCallbacks:Print(IntPtr) (at Assets/XLua/Src/StaticLuaCallbacks.cs:629)
+XLua.LuaDLL.Lua:lua_pcall(IntPtr, Int32, Int32, Int32)
+XLua.LuaEnv:DoString(Byte[], String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:270)
+XLua.LuaEnv:DoString(String, String, LuaTable) (at Assets/XLua/Src/LuaEnv.cs:290)
+EnterLua:Awake() (at Assets/Hugula/Core/EnterLua.cs:46)

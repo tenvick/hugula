@@ -31,8 +31,8 @@ namespace Hugula
     /// LABEL2,Music,Musique
     /// Info,"Localization Example","Par exemple la localisation"
     /// </summary>
-    [SLua.CustomLuaClass]
-    public static class Localization 
+
+    public static class Localization
     {
         /// <summary>
         /// Whether the localization dictionary has been loaded.
@@ -43,7 +43,7 @@ namespace Hugula
         // Loaded languages, if any
         static string[] mLanguages = null;
 
-        public const string  KEY_LAN = "m_cs_Language";
+        public const string KEY_LAN = "m_cs_Language";
 
         // Key = Value dictionary (mulit language)
         static Dictionary<string, string[]> mOldDictionary = new Dictionary<string, string[]>();
@@ -61,7 +61,7 @@ namespace Hugula
         /// Localization dictionary. Dictionary key is the localization key. Dictionary value is the list of localized values (columns in the CSV file).
         /// Be very careful editing this via code, and be sure to set the "KEY" to the list of languages.
         /// </summary>
-        [SLua.DoNotToLuaAttribute]
+
         static public Dictionary<string, string> dictionary
         {
             get
@@ -124,7 +124,7 @@ namespace Hugula
         static public void SetLanguage(SystemLanguage lan)
         {
             // language = lan.ToString();
-            if((int)lan <= 0)
+            if ((int)lan <= 0)
                 PlayerPrefs.DeleteKey(KEY_LAN);
             else
                 SelectLanguage(lan.ToString());
@@ -141,35 +141,23 @@ namespace Hugula
             string assetName = Common.LANGUAGE_PREFIX + value.ToLower();
             string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
 
-            CRequest req = CRequest.Get();
-            req.vUrl = abName;
-            req.assetName = assetName;
-            req.assetType = typeof(BytesAsset);
-            req.async = false;
-            // var uri = new UriGroup();
-            // uri.Add(CUtils.GetRealPersistentDataPath(),true);
-            // uri.Add(CUtils.GetRealStreamingAssetsPath());
-            // req.uris = uri;
-
-            req.OnComplete += delegate (CRequest req1)
+            var main = ResourcesLoader.LoadAsset<BytesAsset>(abName, assetName);
+            if (main != null)
             {
-                BytesAsset main = req1.data as BytesAsset; //www.assetBundle.mainAsset as TextAsset;
                 byte[] txt = main.bytes;
 #if UNITY_EDITOR
-                Debug.Log(mLanguage + " is loaded " + txt.Length+" "+Time.frameCount);
+                Debug.Log(mLanguage + " is loaded " + txt.Length + " " + Time.frameCount);
 #endif
                 if (txt != null) Load(txt);
-                CacheManager.Unload(req1.keyHashCode);
+                CacheManager.Subtract(abName);
                 localizationHasBeenSet = true;
-            };
-
-            req.OnEnd += delegate (CRequest req1)
+            }
+            else
             {
                 if (!value.ToLower().Equals(SystemLanguage.English.ToString().ToLower()))
                     language = SystemLanguage.English.ToString();
-            };
+            }
 
-            ResourcesLoader.LoadAsset(req);
             return false;
         }
 
@@ -233,7 +221,7 @@ namespace Hugula
         static bool SelectLanguage(string language)
         {
 #if !HUGULA_RELEASE
-            Debug.Log("SelectLanguage;"+language);
+            Debug.Log("SelectLanguage;" + language);
 #endif
             PlayerPrefs.SetString(KEY_LAN, language);
             return true;
@@ -247,10 +235,10 @@ namespace Hugula
         {
             // Ensure we have a language to work with
             string val;
-//#if UNITY_IPHONE || UNITY_ANDROID
-//            //key + " Mobile"
-//            if (mDictionary.TryGetValue(key, out val)) return val;
-//#endif
+            //#if UNITY_IPHONE || UNITY_ANDROID
+            //            //key + " Mobile"
+            //            if (mDictionary.TryGetValue(key, out val)) return val;
+            //#endif
 
 #if UNITY_EDITOR
             if (mDictionary.TryGetValue(key, out val)) return val;
@@ -260,6 +248,13 @@ namespace Hugula
             return (mDictionary.TryGetValue (key, out val)) ? val : key;
 #endif
 
+        }
+
+        static public string GetFormat(string key,params object[] args)
+        {
+            string val = Get(key);
+            val = string.Format(val,args);
+            return val;
         }
 
         /// <summary>
@@ -272,9 +267,9 @@ namespace Hugula
         }
     }
 
-    public class WaitForLanguageHasBeenSet:IEnumerator
+    public class WaitForLanguageHasBeenSet : IEnumerator
     {
-        private float timeOut=0.1f;
+        private float timeOut = 0.1f;
         private System.DateTime begin;
         public WaitForLanguageHasBeenSet()
         {
@@ -292,13 +287,13 @@ namespace Hugula
         public bool MoveNext()
         {
             var dt = System.DateTime.Now - begin;
-            if (dt.TotalMinutes>=timeOut) return false;
+            if (dt.TotalMinutes >= timeOut) return false;
             return !Localization.localizationHasBeenSet;
         }
 
         public void Reset()
         {
-           
+
         }
 
     }

@@ -9,7 +9,6 @@ namespace Hugula.Pool {
     /// <summary>
     /// prefab 缓存池
     /// </summary>
-    [SLua.CustomLuaClass]
     public class PrefabPool : MonoBehaviour {
         #region const config
 
@@ -32,7 +31,7 @@ namespace Hugula.Pool {
         private static float lastGcTime = 0; //上传检测GC时间
         private static float gcDeltaTime = 0; //上传检测GC时间
         //标记回收
-        private static Dictionary<int, float> removeMark = new Dictionary<int, float> (512);
+        private static Dictionary<string, float> removeMark = new Dictionary<string, float> (512);
 
         void Awake () {
             DontDestroyOnLoad (this.gameObject);
@@ -87,7 +86,7 @@ namespace Hugula.Pool {
         /// <param name="count"></param>
         void DisposeRefer (int count) {
             if (count > willGcList.Count) count = willGcList.Count;
-            int referKey; //要删除的项目
+            string referKey; //要删除的项目
             var begin = System.DateTime.Now;
             while (count > 0) {
                 referKey = willGcList.Dequeue ();
@@ -163,12 +162,12 @@ namespace Hugula.Pool {
         /// <summary>
         /// 回收列表
         /// </summary>
-        private static Queue<int> willGcList = new Queue<int> ();
+        private static Queue<string> willGcList = new Queue<string> ();
 
         /// <summary>
         /// 原始缓存
         /// </summary>
-        private static Dictionary<int, GameObject> originalPrefabs = new Dictionary<int, GameObject> ();
+        private static Dictionary<string, GameObject> originalPrefabs = new Dictionary<string, GameObject> ();
 
         /// <summary>
         /// 原始资源标记缓存
@@ -178,17 +177,17 @@ namespace Hugula.Pool {
         /// <summary>
         /// 类型用于做回收策略
         /// </summary>
-        private static Dictionary<int, byte> prefabsType = new Dictionary<int, byte> ();
+        private static Dictionary<string, byte> prefabsType = new Dictionary<string, byte> ();
 
         /// <summary>
         /// 被引用
         /// </summary>
-        private static Dictionary<int, HashSet<ReferGameObjects>> prefabRefCaches = new Dictionary<int, HashSet<ReferGameObjects>> ();
+        private static Dictionary<string, HashSet<ReferGameObjects>> prefabRefCaches = new Dictionary<string, HashSet<ReferGameObjects>> ();
 
         /// <summary>
         /// 可用队列
         /// </summary>
-        private static Dictionary<int, Queue<ReferGameObjects>> prefabFreeQueue = new Dictionary<int, Queue<ReferGameObjects>> ();
+        private static Dictionary<string, Queue<ReferGameObjects>> prefabFreeQueue = new Dictionary<string, Queue<ReferGameObjects>> ();
 
         #endregion
 
@@ -207,25 +206,25 @@ namespace Hugula.Pool {
             originalPrefabs.Clear ();
         }
 
-        /// <summary>
-        /// 添加原始缓存
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public static bool Add (string key, GameObject value, byte type) {
-            int hashkey = LuaHelper.StringToHash (key);
-            return Add (hashkey, value, type);
-        }
+        // /// <summary>
+        // /// 添加原始缓存
+        // /// </summary>
+        // /// <param name="key"></param>
+        // /// <param name="value"></param>
+        // public static bool Add (string key, GameObject value, byte type) {
+        //     int hashkey = LuaHelper.StringToHash (key);
+        //     return Add (hashkey, value, type);
+        // }
 
         /// <summary>
         /// 添加原始缓存
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static bool Add (string key, GameObject value, byte type, bool isAsset) {
-            int hashkey = LuaHelper.StringToHash (key);
-            return Add (hashkey, value, type, isAsset);
-        }
+        // public static bool Add (string key, GameObject value, byte type, bool isAsset) {
+        //     int hashkey = LuaHelper.StringToHash (key);
+        //     return Add (hashkey, value, type, isAsset);
+        // }
 
         internal static void DestroyOriginalPrefabs (GameObject obj) {
             if (assetsFlag.ContainsKey (obj)) {
@@ -235,14 +234,14 @@ namespace Hugula.Pool {
             }
         }
 
-        private static void AddRemoveMark (int hash) {
+        private static void AddRemoveMark (string hash) {
             removeMark[hash] = Time.unscaledTime + 0.5f;
 #if HUGULA_CACHE_DEBUG
             Debug.LogFormat ("AddRemoveMark={0},hash={1},frame={2}", GetStringKey (hash), hash, Time.frameCount);
 #endif
         }
 
-        private static void DeleteRemveMark (int hash) {
+        private static void DeleteRemveMark (string hash) {
             removeMark.Remove (hash);
 #if HUGULA_CACHE_DEBUG
             Debug.LogFormat ("DeleteRemveMark={0},hash={1},frame={2}", GetStringKey (hash), hash, Time.frameCount);
@@ -254,7 +253,7 @@ namespace Hugula.Pool {
         /// </summary>
         /// <param name="hash"></param>
         /// <param name="value"></param>
-        internal static bool Add (int hash, GameObject value, byte type, bool isAsset = false) {
+        internal static bool Add (string hash, GameObject value, byte type, bool isAsset = false) {
             bool contains = ContainsKey (hash);
 
             if (!contains) //不能重复添加
@@ -281,37 +280,37 @@ namespace Hugula.Pool {
             return false;
         }
 
-        /// <summary>
-        /// 获取值
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static GameObject Get (string key) {
-            int hash = LuaHelper.StringToHash (key);
-            GameObject re = Get (hash);
-            return re;
-        }
+        // /// <summary>
+        // /// 获取值
+        // /// </summary>
+        // /// <param name="key"></param>
+        // /// <returns></returns>
+        // public static GameObject Get (string key) {
+        //     int hash = LuaHelper.StringToHash (key);
+        //     GameObject re = Get (hash);
+        //     return re;
+        // }
 
-        internal static GameObject Get (int hash) {
+        internal static GameObject Get (string hash) {
             GameObject obj = null;
             originalPrefabs.TryGetValue (hash, out obj);
             return obj;
         }
 
-        /// <summary>
-        /// 是否包含cacheKey
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool ContainsKey (string key) {
-#if HUGULA_CACHE_DEBUG
-            cacheKey1 = key;
-#endif
-            int hash = LuaHelper.StringToHash (key);
-            return ContainsKey (hash);
-        }
+//         /// <summary>
+//         /// 是否包含cacheKey
+//         /// </summary>
+//         /// <param name="key"></param>
+//         /// <returns></returns>
+//         public static bool ContainsKey (string key) {
+// #if HUGULA_CACHE_DEBUG
+//             cacheKey1 = key;
+// #endif
+//             int hash = LuaHelper.StringToHash (key);
+//             return ContainsKey (hash);
+//         }
 
-        internal static bool ContainsKey (int hash) {
+        internal static bool ContainsKey (string hash) {
             GameObject obj = null;
             originalPrefabs.TryGetValue (hash, out obj);
             bool re = false;
@@ -326,24 +325,11 @@ namespace Hugula.Pool {
         }
 
         /// <summary>
-        /// 获取值
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static ReferGameObjects GetCache (string key) {
-#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
-            cacheKey = key;
-#endif
-            int hash = LuaHelper.StringToHash (key);
-            return GetCache (hash);
-        }
-
-        /// <summary>
         /// 获取可用的实例
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        internal static ReferGameObjects GetCache (int key) {
+        internal static ReferGameObjects GetCache (string key) {
             //空闲队列
             Queue<ReferGameObjects> prefabQueueMe = null;
             if (!prefabFreeQueue.TryGetValue (key, out prefabQueueMe)) {
@@ -414,7 +400,7 @@ namespace Hugula.Pool {
         /// <param name="cop"></param>
         public static bool StoreCache (ReferGameObjects refer) {
             HashSet<ReferGameObjects> prefabRefers = null;
-            int keyHash = refer.cacheHash;
+            var keyHash = refer.cacheHash;
             if (prefabRefCaches.TryGetValue (keyHash, out prefabRefers)) { //从引用列表寻找
                 bool isremove = prefabRefers.Remove (refer);
                 if (isremove) {
@@ -445,7 +431,7 @@ namespace Hugula.Pool {
         /// <returns></returns>
         public static bool StoreCache (GameObject gobj) {
             ReferGameObjects refer = gobj.GetComponent<ReferGameObjects> ();
-            if (refer != null && refer.cacheHash != 0)
+            if (refer != null)
                 return StoreCache (refer);
             return false;
         }
@@ -481,15 +467,15 @@ namespace Hugula.Pool {
             prefabRefCaches.Clear ();
         }
 
-        private static string GetStringKey (int key) {
+        private static string GetStringKey (string key) {
             var cache = Hugula.Loader.CacheManager.TryGetCache (key);
             if (cache != null)
-                return cache.assetBundleKey + "   " + key.ToString ();
+                return cache.assetBundleName + "   " + key.ToString ();
             else
                 return key.ToString () + "(null)";
         }
 
-        internal static void Remove (int key) {
+        internal static void Remove (string key) {
             GameObject obj = null;
             if (originalPrefabs.TryGetValue (key, out obj)) {
 #if HUGULA_CACHE_DEBUG
@@ -509,14 +495,13 @@ namespace Hugula.Pool {
         /// 标记删除 如果有引用不会被删除
         /// </summary>
         public static int MarkRemove (string key) {
-            int hash = LuaHelper.StringToHash (key);
             int referCount = 0;
             HashSet<ReferGameObjects> refers = null;
-            if (prefabRefCaches.TryGetValue (hash, out refers)) {
+            if (prefabRefCaches.TryGetValue (key, out refers)) {
                 referCount = refers.Count;
             }
             if (referCount > 0) {
-                AddRemoveMark (hash);
+                AddRemoveMark (key);
                 // willGcList.Enqueue(hash);
             }
             return referCount;
@@ -529,13 +514,12 @@ namespace Hugula.Pool {
         /// <param name="force"></param>
         /// <returns></returns>
         public static bool ClearCacheImmediate (string key) {
-            int hash = LuaHelper.StringToHash (key);
             // 
             HashSet<ReferGameObjects> refers = null;
 
-            if (prefabRefCaches.TryGetValue (hash, out refers)) {
+            if (prefabRefCaches.TryGetValue (key, out refers)) {
                 Queue<ReferGameObjects> freequeue;
-                if (prefabFreeQueue.TryGetValue (hash, out freequeue)) {
+                if (prefabFreeQueue.TryGetValue (key, out freequeue)) {
                     var referItem = refers.GetEnumerator ();
                     while (referItem.MoveNext ()) {
                         freequeue.Enqueue (referItem.Current);
@@ -543,7 +527,7 @@ namespace Hugula.Pool {
                 }
                 refers.Clear ();
             }
-            ClearKey (hash);
+            ClearKey (key);
             return true;
         }
 
@@ -552,7 +536,7 @@ namespace Hugula.Pool {
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        internal static void ClearKey (int key) {
+        internal static void ClearKey (string key) {
             HashSet<ReferGameObjects> refers = null;
             if (prefabRefCaches.TryGetValue (key, out refers) && refers.Count == 0) {
                 Queue<ReferGameObjects> freequeue;
@@ -593,7 +577,7 @@ namespace Hugula.Pool {
         /// </summary>
         internal static void AutoGC (byte segmentIndex, bool compareTime = true) {
             var items = removeMark.GetEnumerator ();
-            int key = 0;
+            string key ;
             byte keyType = 0;
             while (items.MoveNext ()) {
                 var kv = items.Current;
@@ -638,7 +622,6 @@ namespace Hugula.Pool {
         #endregion
     }
 
-    [SLua.CustomLuaClass]
     public static class HugulaProfiler {
         const float m_KBSize = 1024.0f * 1024.0f;
 

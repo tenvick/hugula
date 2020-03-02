@@ -1,767 +1,434 @@
-﻿using System.Collections;
+﻿// Copyright (c) 2019 hugula
+// direct https://github.com/tenvick/hugula
+//
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Threading;
-using Hugula.Update;
-using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
+using System;
+using Hugula.Pool;
+using Hugula.Utils;
 
-namespace Hugula.Loader {
+namespace Hugula.Loader
+{
 
-    public static class OperationPools<T> where T : ResourcesLoadOperation, new () {
-        private static readonly ObjectPool<T> s_Pools = new ObjectPool<T> (null, m_ActionOnRelease);
+    public static class OperationPools<T> where T : IReset, new()
+    {
+        private static readonly ObjectPool<T> s_Pools = new ObjectPool<T>(null, m_ActionOnRelease);
 
-        private static void m_ActionOnGet (T op) {
-
-        }
-
-        private static void m_ActionOnRelease (T op) {
-            op.Reset ();
-        }
-
-        public static T Get () {
-            return s_Pools.Get ();
-        }
-
-        public static void Release (T toRelease) {
-            s_Pools.Release (toRelease);
-        }
-    }
-
-    public abstract class ResourcesLoadOperation : IReleaseToPool {
-
-        public ResourcesLoadOperation () {
-
-        }
-
-        protected System.Action m_OnStart;
-        protected System.Func<bool> m_OnUpdate;
-        protected System.Action m_OnDone;
-        // internal ResourcesLoadOperation next;
-
-        public void Start () {
-            if (m_OnStart != null) m_OnStart ();
-        }
-
-        public bool Update () //virtual function is bad for il2cpp so we use Action
+        private static void m_ActionOnGet(T op)
         {
-            return m_OnUpdate ();
+
         }
 
-        public void Done () {
-            if (m_OnDone != null) m_OnDone ();
+        private static void m_ActionOnRelease(T op)
+        {
+            op.Reset();
         }
 
-        public virtual void Reset () {
-            cRequest = null;
+        public static T Get()
+        {
+            return s_Pools.Get();
         }
 
-        public abstract void ReleaseToPool ();
-
-        internal CRequest cRequest { get; private set; }
-
-        public void SetRequest (CRequest req) {
-            this.cRequest = req;
+        public static void Release(T toRelease)
+        {
+            s_Pools.Release(toRelease);
         }
-
     }
 
-    public sealed class LoadAssetBundleInternalOperation : ResourcesLoadOperation {
-        public LoadAssetBundleInternalOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
+    /// <summary>
+    /// 加载assetbundle实现类
+    /// </summary>
+    public sealed class BundleOperation : IReset
+    {
+        public string assetBundleName;
+        AssetBundleCreateRequest m_abRequest;
+        bool m_start = false;
+        string url;
 
-        public AssetBundle assetBundle;
-        AsyncOperation m_abRequest;
-        UnityWebRequest m_UnityWebRequest;
-
-        int frameBegin = 0;
-        int timeOutFrame = 120;
-        void m_Start () {
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1 AssetBundle  Request(assetName={0}) key={1},frame={2} </color>", cRequest.assetName, cRequest.key, Time.frameCount);
-#endif
-            if (cRequest.url.StartsWith ("http")) {
-                m_UnityWebRequest = UnityWebRequest.GetAssetBundle (cRequest.url);
-                m_abRequest = m_UnityWebRequest.Send ();
-            } else {
-                cRequest.url = ResourcesLoader.GetAssetBundleDownloadingURL (cRequest.vUrl); // set full url
-                string url = CUtils.GetAndroidABLoadPath (cRequest.url);
-                // var abInfo = ManifestManager.GetABInfo (cRequest.key);
-                // if (abInfo != null && abInfo.size < ResourcesLoader.asyncSize) {
-                //     assetBundle = AssetBundle.LoadFromFile (url);
-                // } else {
-                m_abRequest = AssetBundle.LoadFromFileAsync (url);
+        public void Start()
+        {
+            m_start = true;
+            var cacheData = CacheManager.TryGetCache(assetBundleName);
+            if (!cacheData.canUse) //判断ab是否已经加载防止同步加载
+            {
+                url = ResourcesLoader.GetAssetBundleDownloadingURL(assetBundleName); // set full url
+                url = CUtils.GetAndroidABLoadPath(url);
+                m_abRequest = AssetBundle.LoadFromFileAsync(url);
+                CacheManager.SetCacheDataLoding(assetBundleName);//修改为loading状态
             }
-            frameBegin = Time.frameCount;
         }
 
-        bool m_Update () {
+        public bool Update()
+        {
+            if (!m_start) Start();
+
             if (m_abRequest == null) return false;
 
-            bool isdone = !m_abRequest.isDone;
+            bool isdone = m_abRequest.isDone;
 
-            if (!CacheManager.CheckDependenciesComplete (cRequest)) // && Time.frameCount - frameBegin >= timeOutFrame)
+            if (isdone) m_Done(m_abRequest.assetBundle);
+
+            if (!CacheManager.CheckDependenciesComplete(assetBundleName)) // && Time.frameCount - frameBegin >= timeOutFrame)
                 return true; //wait
 
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1 AssetBundle update Request(assetName={0}) key={1},isdone = {2},m_abRequest={3},frame={4} </color>", cRequest.assetName, cRequest.key, isdone, m_abRequest, Time.frameCount);
-#endif   
-            return isdone;
+            return !isdone;
         }
 
-        void m_Done () {
+        public void Reset()
+        {
+            m_start = false;
+            m_abRequest = null;
+            assetBundleName = null;
+            url = null;
+        }
 
-            if (m_abRequest == null && m_UnityWebRequest == null) {
-                cRequest.error = string.Format ("the asset bundle({0}) is wrong .    CRequest({1})", cRequest.key, cRequest.assetName);
-                CacheManager.AddErrorSourceCacheDataFromReq (cRequest);
-                Debug.LogError (cRequest.error);
+        //同步加载
+        internal void StartSync()
+        {
+            m_start = true;
+            url = ResourcesLoader.GetAssetBundleDownloadingURL(assetBundleName); // set full url
+            url = CUtils.GetAndroidABLoadPath(url);
+            var assetBundle = AssetBundle.LoadFromFile(url);
+            m_Done(assetBundle);
+        }
+
+        private void m_Done(AssetBundle assetBundle)
+        {
+            if (assetBundle == null)
+            {
+                string error = string.Format("the asset bundle({0}) is error. CRequest({1})", assetBundleName, url);
+                CacheManager.AddErrorCacheData(assetBundleName);
+                Debug.LogError(error);
             }
-
-            // AssetBundle assetBundle = null;
-
-            if (m_UnityWebRequest != null)
-                assetBundle = DownloadHandlerAssetBundle.GetContent (m_UnityWebRequest);
-            else if (m_abRequest is AssetBundleCreateRequest)
-                assetBundle = ((AssetBundleCreateRequest) m_abRequest).assetBundle;
-
-            if (assetBundle == null) {
-                cRequest.error = string.Format ("the asset bundle({0}) is not exist. CRequest({1})", cRequest.key, cRequest.assetName);
-                CacheManager.AddErrorSourceCacheDataFromReq (cRequest);
-                Debug.LogError (cRequest.error);
-            } else {
-                CacheManager.AddSourceCacheDataFromWWW (assetBundle, cRequest);
+            else
+            {
+                CacheManager.AddCacheData(assetBundle, assetBundleName);
             }
-
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1 AssetBundle is done Request(assetName={0}) key={1},frame={2} </color>", cRequest.assetName, cRequest.key, Time.frameCount);
-#endif       
 
             m_abRequest = null;
-            m_UnityWebRequest = null;
 
         }
 
-        public override void Reset()
+        public void ReleaseToPool()
         {
-            base.Reset();
-            assetBundle = null;
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<LoadAssetBundleInternalOperation>.Release (this);
+            OperationPools<BundleOperation>.Release(this);
         }
     }
 
-    public class LoadAssetOperation : ResourcesLoadOperation {
-        public LoadAssetOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
+    /// <summary>
+    /// 加载assetbundle实现类
+    /// </summary>
+    public class AssetOperation : IReset
+    {
+        public CRequest request;
 
-        CacheData m_Bundle;
-        AssetBundleRequest m_Request = null;
+        public int id { get; private set; }//标识id用于取消完成回调
 
-        void m_Start () {
-            m_Bundle = null;
-            m_Request = null;
-        }
+        internal LoadSceneMode loadSceneMode = LoadSceneMode.Additive;
 
-        bool m_Update () {
+        internal bool allowSceneActivation = true;//
 
-            if (!CacheManager.CheckDependenciesComplete (cRequest)) return true; //wait    
+        internal bool subAssets = false;//加载subassets
 
-            if (cRequest.error != null) return false; //assetbundle is error
+        protected CacheData m_Bundle;
+        protected AsyncOperation m_Request = null;
+#if UNITY_EDITOR
+        protected bool m_isDone = false; //标记完成用于编辑器 Simulate 模式
+#endif
+        internal void StartSync()
+        {
+            if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache(request.assetBundleName);
+            if (!m_Bundle.canUse) //ab失效
+            {
+                CRequest.SetError(request, string.Format("load asset({0}) from bundle({1})  error", request.assetName, request.assetBundleName));
+                Debug.LogError(request.error);
+            }
+            else
+            {
+                string assetName = request.assetName;
+                var typ = request.assetType;
 
-            if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache (cRequest.keyHashCode);
-
-            if (m_Bundle == null) return true;
-
-            if (m_Request != null) return !m_Request.isDone;
-
-            if (m_Bundle.isError || !m_Bundle.canUse) {
-                cRequest.error = string.Format ("load asset({0}) from bundle({1})  error", cRequest.assetName, cRequest.key);
-                Debug.LogError (cRequest.error);
-                return false;
-            } else {
-                string assetName = cRequest.assetName;
-                var typ = cRequest.assetType;
-                bool isLoadAll = LoaderType.Typeof_ABAllAssets.Equals (typ);
-                if (isLoadAll)
-                    m_Request = m_Bundle.assetBundle.LoadAllAssetsAsync ();
+                if (LoaderType.Typeof_ABScene.Equals(typ))
+                {
+                    CRequest.SetError(request, string.Format("cant't load scene asset({0}) from bundle({1}) in sync mode", request.assetName, request.assetBundleName));
+                    Debug.LogError(request.error);
+                }
                 else
-                    m_Request = m_Bundle.assetBundle.LoadAssetAsync (cRequest.assetName, typ);
+                {
+                    if (subAssets)
+                    {
+                        object data = m_Bundle.assetBundle.LoadAssetWithSubAssets(assetName, typ);
+                        CRequest.SetData(request, data);
+                    }
+                    else
+                    {
+                        object data = m_Bundle.assetBundle.LoadAsset(assetName, typ);
+                        CRequest.SetData(request, data);
+                    }
+                }
+            }
+        }
 
-#if HUGULA_LOADER_DEBUG
-                HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1.2 Asset  Request(assetName={0}) is done={1} key={2},frame={3} </color>", cRequest.assetName, m_Request.isDone, cRequest.key, Time.frameCount);
-#endif     
+        public bool Update()
+        {
+            if (m_Request != null)
+            {
+                CRequest.SetProgress(request, m_Request.progress);
+                if (!allowSceneActivation && LoaderType.Typeof_ABScene.Equals(request.assetType) && m_Request.progress >= 0.9f)//加载场景的时候如果allowSceneActivation = false 只能通过progress判断完成
+                    return false;
+                else
+                    return !m_Request.isDone;
+            }
+
+#if UNITY_EDITOR
+            if (m_isDone) return false; //only for editor 模拟模式使用
+#endif
+            if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache(request.assetBundleName);
+
+            if (m_Bundle == null || !m_Bundle.isDone /* || !CacheManager.CheckDependenciesComplete(request.assetBundleName)*/) return true; //wait bundle done
+
+            if (!m_Bundle.canUse) //ab失效
+            {
+                CRequest.SetError(request, string.Format("load asset({0}) from bundle({1}).canUse = false  error", request.assetName, request.assetBundleName));
+                Debug.LogError(request.error);
+                return false;
+            }
+            else
+            {
+                string assetName = request.assetName;
+                var typ = request.assetType;
+
+                if (LoaderType.Typeof_ABScene.Equals(typ))
+                {
+                    m_Request = SceneManager.LoadSceneAsync(assetName, loadSceneMode);
+                    m_Request.allowSceneActivation = allowSceneActivation;
+                    CRequest.SetData(request, m_Request);//加载场景比较特殊 提前返回AsyncOperation对象方便操作
+                    CacheManager.AddScene(request.assetName, request.assetBundleName);//缓存场景
+                }
+                else if (subAssets)
+                    m_Request = m_Bundle.assetBundle.LoadAssetWithSubAssetsAsync(assetName, typ);
+                else
+                    m_Request = m_Bundle.assetBundle.LoadAssetAsync(assetName, typ);
+                // #if HUGULA_LOADER_DEBUG
+                //                 // HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1.2 Asset  Request(assetName={0}) is done={1} key={2},frame={3} </color>", cRequest.assetName, m_Request.isDone, cRequest.key, Time.frameCount);
+                // #endif
+                // GS_GameLog.LogFormat("LoadAssetAsync({0},{1}) m_Request.isDone={2}", assetName, typ, m_Request.isDone);
+                CRequest.SetProgress(request, m_Request.progress);
+
                 return !m_Request.isDone;
             }
         }
 
-        void m_Done () {
+        public void Reset()
+        {
+            m_Request = null;
+            request = null;
+            m_Bundle = null;
+            subAssets = false;
+            allowSceneActivation = true;
+            id = 0;
+#if UNITY_EDITOR
+            m_isDone = false; //标记完成用于编辑器 Simulate 模式
+#endif
+        }
 
-            if (cRequest.error != null) return;
+        public void Done()
+        {
+            if (request.error != null) return; //报错或者加载的是场景
+
+            if (LoaderType.Typeof_ABScene.Equals(request.assetType))
+            {
+                CRequest.SetDone(request);
+                return;
+            }
+
 
             object m_Data = null;
-            bool isLoadAll = LoaderType.Typeof_ABAllAssets.Equals (cRequest.assetType);
-            if (isLoadAll)
-                m_Data = m_Request.allAssets;
+            if (subAssets)
+                m_Data = ((AssetBundleRequest)m_Request).allAssets;
             else
-                m_Data = m_Request.asset;
+                m_Data = ((AssetBundleRequest)m_Request).asset;
 
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1.2 LoadAssetOperation done  Request(assetName={0}) data={1} key={2},frame={3} </color>", cRequest.assetName, m_Data, cRequest.key, Time.frameCount);
-#endif     
-            if (m_Data == null) {
-                cRequest.error = string.Format ("load asset({0}) from {1}  error", m_Request, cRequest.url);
-                Debug.LogError (cRequest.error);
-            } else {
-                cRequest.data = m_Data;
-                m_Bundle.SetAsset (cRequest.udAssetKey, m_Data);
-            }
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<LoadAssetOperation>.Release (this);
-        }
-    }
-
-    public class LoadLevelOperation : ResourcesLoadOperation {
-
-        public LoadLevelOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        CacheData m_Bundle;
-        AsyncOperation m_Request = null;
-
-        void m_Start () {
-            m_Bundle = null;
-            m_Request = null;
-        }
-
-        bool m_Update () {
-            if (cRequest.error != null) return false; //assetbundle is error
-
-            if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache (cRequest.keyHashCode);
-
-            if (m_Bundle == null) return true;
-
-            if (m_Request != null) return !m_Request.isDone;
-
-            if (m_Bundle.isError || !m_Bundle.canUse) {
-                cRequest.error = string.Format ("load asset({0}) from bundle({1})  error", cRequest.assetName, cRequest.key);
-                Debug.LogError (cRequest.error);
-                return true;
-            } else {
-
-#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-                if (cRequest.isAdditive)
-                    m_Request = Application.LoadLevelAdditiveAsync (cRequest.assetName);
-                else
-                    m_Request = Application.LoadLevelAsync (cRequest.assetName);
-#else
-                m_Request = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync (cRequest.assetName, cRequest.isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
-#endif
-                return true;
-            }
-        }
-
-        void m_Done () {
-            m_Bundle = null;
-            m_Request = null;
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<LoadLevelOperation>.Release (this);
-        }
-
-    }
-
-    #region load http
-    public class HttpLoadOperation : ResourcesLoadOperation {
-        public string error;
-
-        public override void ReleaseToPool () {
-            // OperationPools<HttpLoadOperation>.Release (this);
-        }
-
-        public override void Reset () {
-           base.Reset();
-           error = null;
-        }
-    }
-
-    public sealed class WWWRequestOperation : HttpLoadOperation {
-
-        public WWWRequestOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        WWW m_webrequest = null;
-        AsyncOperation m_asyncOperation = null;
-
-        void m_Start () {
-
-            var type = cRequest.assetType;
-            var userData = cRequest.uploadData;
-            string url = CUtils.CheckWWWUrl (cRequest.url);
-            Dictionary<string, string> wwwheaders = null;
-            var headers = cRequest.webHeader;
-            if (headers != null) {
-                wwwheaders = new Dictionary<string, string> ();
-                foreach (var k in headers.AllKeys)
-                    wwwheaders[k] = headers.Get (k);
-            }
-
-            if (userData is WWWForm) {
-                var wwwform = (WWWForm) userData;
-                if (wwwheaders != null && wwwheaders.ContainsKey ("host")) {
-                    wwwform.headers["host"] = wwwheaders["host"];
-                    m_webrequest = new WWW (url, wwwform.data, wwwform.headers);
-                } else
-                    m_webrequest = new WWW (url, (WWWForm) userData);
-            } else if (userData is string) {
-                var bytes = LuaHelper.GetBytes (userData.ToString ());
-                if (wwwheaders != null)
-                    m_webrequest = new WWW (url, bytes, wwwheaders);
-                else
-                    m_webrequest = new WWW (url, bytes);
-            } else if (userData is System.Array) {
-                if (wwwheaders != null)
-                    m_webrequest = new WWW (url, (byte[]) userData, wwwheaders);
-                else
-                    m_webrequest = new WWW (url, (byte[]) userData);
-            } else
-                m_webrequest = new WWW (url);
-
-        }
-
-        bool m_Update () {
-            return !m_webrequest.isDone;
-        }
-
-        void m_Done () {
-
-            if (m_webrequest== null || !string.IsNullOrEmpty (m_webrequest.error)) {
-                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest==null?"m_webrequest is null":m_webrequest.error);
-                cRequest.error = error;
-                Debug.LogError (error);
-            } else {
-
-                object m_Data = null;
-                var type = cRequest.assetType;
-
-                if (LoaderType.Typeof_AudioClip.Equals (type)) {
-#if UNITY_2017
-                    m_Data = WWWAudioExtensions.GetAudioClip (m_webrequest);
-#elif UNITY_5_5_OR_NEWER
-                    m_Data = m_webrequest.GetAudioClip ();
-#endif
-                } else if (LoaderType.Typeof_Texture2D.Equals (type)) {
-                    if (!string.IsNullOrEmpty (cRequest.assetName) && cRequest.assetName.Equals ("textureNonReadable"))
-                        m_Data = m_webrequest.textureNonReadable;
-                    else
-                        m_Data = m_webrequest.texture;
-                } else if (LoaderType.Typeof_AssetBundle.Equals (type)) {
-                    m_Data = m_webrequest.assetBundle;
-                } else if (LoaderType.Typeof_Bytes.Equals (type))
-                    m_Data = m_webrequest.bytes;
-                else
-                    m_Data = m_webrequest.text;
-
-                cRequest.data = m_Data;
-                if(m_webrequest!=null) m_webrequest.Dispose ();
-                m_webrequest = null;
-            }
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<WWWRequestOperation>.Release (this);
-        }
-
-    }
-
-    public sealed class UnityWebRequestOperation : HttpLoadOperation {
-
-        public UnityWebRequestOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        UnityWebRequest m_webrequest = null;
-        AsyncOperation m_asyncOperation = null;
-
-        void m_Start () {
-
-            var type = cRequest.assetType;
-            var userData = cRequest.uploadData;
-
-            if (LoaderType.Typeof_AssetBundle.Equals (type)) {
-                m_webrequest = UnityWebRequest.GetAssetBundle (cRequest.url);
-            }
-            if (LoaderType.Typeof_Texture2D.Equals (type)) {
-#if UNITY_2017
-                m_webrequest = UnityWebRequestTexture.GetTexture (cRequest.url);
-#else
-                m_webrequest = UnityWebRequest.GetTexture (cRequest.url);
-#endif
-            } else if (userData is WWWForm) {
-                m_webrequest = UnityWebRequest.Post (cRequest.url, (WWWForm) userData);
-            } else if (userData is string) {
-                var bytes = LuaHelper.GetBytes (userData.ToString ());
-                m_webrequest = UnityWebRequest.Put (cRequest.url, bytes);
-            } else if (userData is System.Array) {
-                m_webrequest = UnityWebRequest.Put (cRequest.url, (byte[]) userData);
-            } else
-                m_webrequest = UnityWebRequest.Get (cRequest.url);
-
-            System.Net.WebHeaderCollection headers = cRequest.webHeader;
-
-            if (headers != null) {
-                foreach (var k in headers.AllKeys)
-                    m_webrequest.SetRequestHeader (k, headers.Get (k));
-            }
-
-            m_asyncOperation = m_webrequest.Send ();
-        }
-
-        bool m_Update () {
-            return !m_asyncOperation.isDone;
-        }
-
-        void m_Done () {
-            var type = cRequest.assetType;
-#if UNITY_2017
-            if (m_webrequest==null || m_webrequest.isNetworkError)
-#else
-            if (m_webrequest==null || m_webrequest.isError)
-#endif
+            if (m_Data == null)
             {
-                error = string.Format ("url:{0},erro:{1}", cRequest.url, m_webrequest==null?"m_webrequest is null":m_webrequest.error);
-                cRequest.error = error;
-                Debug.LogError (error);
-            } else if (!(m_webrequest.responseCode == 200 || m_webrequest.responseCode == 0)) {
-                error = string.Format ("response error code = {0},url={1}", m_webrequest.responseCode, cRequest.url); // m_webrequest.error;
-                cRequest.error = error;
-                Debug.LogError (error);
-            } else {
-
-                object m_Data = null;
-                if (LoaderType.Typeof_Bytes.Equals (type)) {
-                    m_Data = m_webrequest.downloadHandler.data;
-                } else if (LoaderType.Typeof_Texture2D.Equals (type)) {
-                    m_Data = DownloadHandlerTexture.GetContent (m_webrequest);
-                } else if (LoaderType.Typeof_AssetBundle.Equals (type)) {
-                    m_Data = DownloadHandlerAssetBundle.GetContent (m_webrequest);
-                } else
-                    m_Data = DownloadHandlerBuffer.GetContent (m_webrequest);
-
-                cRequest.data = m_Data;
+                CRequest.SetError(request, string.Format("load asset({0}) from {1}  error, subAssets = {2}", request.assetName, request.assetBundleName, subAssets));
+                Debug.LogError(request.error);
             }
-
-            if(m_webrequest!=null)m_webrequest.Dispose ();
-            m_webrequest = null;
-            m_asyncOperation = null;
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<UnityWebRequestOperation>.Release (this);
-        }
-    }
-
-    public sealed class HttpWebRequestOperation : HttpLoadOperation {
-
-        public HttpWebRequestOperation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        HttpWebRequest m_webrequest;
-        WebResponse m_webresponse;
-
-        Thread async_thread = null;
-
-        object m_Data;
-
-        bool httpIsDone;
-
-        void DownloadFileCore (HttpWebRequest m_webrequest, System.Type typ = null) {
-
-            try {
-                var type = cRequest.assetType;
-                var userData = cRequest.uploadData;
-
-                byte[] uploadData = null;
-                if (userData is string) {
-                    uploadData = LuaHelper.GetBytes (userData.ToString ());
-                    m_webrequest.Method = "POST";
-                } else if (userData is System.Array) {
-                    uploadData = (byte[])userData;
-                    m_webrequest.Method = "POST";
-                } else
-                    m_webrequest.Method = "GET";
-
-                if(m_webrequest.Method == "POST" && uploadData!=null)
-                {
-                    m_webrequest.ContentLength = uploadData.Length;
-                    using(var requestStream = m_webrequest.GetRequestStream())
-                    {
-                        requestStream.Write(uploadData,0,uploadData.Length);
-                    }
-                }
-
-                WebResponse webResponse = m_webrequest.GetResponse (); //this.GetWebResponse (webRequest);
-                Stream responseStream = webResponse.GetResponseStream ();
-
-#if !HUGULA_RELEASE
-                if (webResponse.Headers != null) {
-                    foreach (var k in webResponse.Headers.AllKeys) {
-                        Debug.LogFormat ("{0}={1}", k, webResponse.Headers.Get (k));
-                    }
-                }
-#endif          
-
-                if (webResponse.ContentType.ToLower ().Equals ("text/plain") || LoaderType.Typeof_String.Equals (typ)) {
-                    StreamReader sr = new StreamReader (responseStream, System.Text.Encoding.UTF8, true);
-                    m_Data = sr.ReadToEnd ();
-                    sr.Close ();
-                } else {
-                    int num = (int) webResponse.ContentLength;
-                    byte[] array = new byte[num];
-                    while (responseStream.Read (array, 0, num) != 0) { }
-                    m_Data = array;
-                    responseStream.Close ();
-                }
-
-                webResponse.Close ();
-
-            } catch (ThreadInterruptedException) {
-                this.error = string.Format ("ThreadInterruptedException  url:{0}  ", cRequest.url);
-            } finally {
-                httpIsDone = true;
-                if (m_webrequest != null) {
-                    m_webrequest.Abort ();
-                }
-            }
-
-        }
-        void m_Start () {
-            m_Data = null;
-            httpIsDone = false;
-            error = null;
-            async_thread = new Thread (delegate () {
-                m_webrequest = LoaderHelper.SetupRequest (cRequest);
-                DownloadFileCore (m_webrequest, cRequest.assetType);
-            });
-
-            async_thread.Start ();
-        }
-
-        bool m_Update () {
-            return !httpIsDone;
-        }
-
-        void m_Done () {
-
-            if (m_webrequest == null) {
-                error = string.Format ("url:{0}, webrequest is null ", cRequest.url);
-                cRequest.error = error;
-                Debug.LogError (error);
-            }
-
-            if (m_Data == null) {
-                error = string.Format ("url:{0} data is null", cRequest.url);
-                cRequest.error = error;
-                Debug.LogError (error);
-            } else {
-                cRequest.data = m_Data;
-            }
-
-            if(async_thread!=null) async_thread.Abort();
-            async_thread = null;
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<HttpWebRequestOperation>.Release (this);
-        }
-    }
-
-    public class HttpDnsResolve : HttpLoadOperation {
-
-        private ResourcesLoadOperation originalOperation;
-
-        public void SetOriginalOperation (ResourcesLoadOperation originalOperation) {
-            this.originalOperation = originalOperation;
-        }
-
-        public HttpDnsResolve () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        void m_Start () { }
-
-        bool m_Update () {
-            string url = HttpDns.GetUrl (cRequest.url); // get dns ip
-            if (string.IsNullOrEmpty (url)) {
-                return true; //wait for ip 
-            }
-
-            if (url != cRequest.url) {
-
-                var headers = cRequest.webHeader;
-                if (headers == null) {
-                    headers = new WebHeaderCollection ();
-                    cRequest.webHeader = headers;
-                }
-
-                if (string.IsNullOrEmpty (headers.Get ("host"))) {
-                    headers.Add ("host", new System.Uri (cRequest.url).Host);
-                }
-                ResourcesLoader.UnityWebRequest (cRequest);
-            } else if (originalOperation != null) {
-                Debug.LogFormat (" dns resolve fail request url {0}   ", url);
-                ResourcesLoader.ProcessFinishedOperation (originalOperation);
-            } else {
-                Debug.LogFormat ("dns resolve fail , complete request url {0} ", url);
-
-                cRequest.DispatchEnd ();
-
-                if (cRequest.group != null) cRequest.group.Complete (cRequest, true);
-
-                cRequest.ReleaseToPool ();
-            }
-
-            return false;
-        }
-
-        void m_Done () {
-
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<HttpDnsResolve>.Release (this);
-        }
-    }
-
-    #endregion
-
-    #region Simulate
-#if UNITY_EDITOR
-    public class LoadAssetOperationSimulation : ResourcesLoadOperation {
-        public LoadAssetOperationSimulation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        void m_Start () {
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1.2 LoadAssetOperationSimulation  Request(assetName={0}) key={1} </color>", cRequest.assetName, cRequest.key);
-#endif
-
-            string[] assetPaths = UnityEditor.AssetDatabase.GetAssetPathsFromAssetBundleAndAssetName (cRequest.key, cRequest.assetName);
-            if (assetPaths.Length == 0) {
-                cRequest.error = "There is no asset with name \"" + cRequest.assetName + "\" in " + cRequest.key;
-                Debug.LogError (cRequest.error);
-            }
-            var assetType = cRequest.assetType;
-            bool loadAll = LoaderType.Typeof_ABAllAssets.Equals (assetType);
-            object data = null;
-            List<UnityEngine.Object> datas = null;
-            foreach (var p in assetPaths) {
-                if (loadAll) {
-                    // data
-                    UnityEngine.Object[] target = UnityEditor.AssetDatabase.LoadAllAssetsAtPath (p);
-                    if (datas == null) {
-                        datas = new List<UnityEngine.Object> ();
-                        datas.AddRange (target);
-                    } else {
-                        datas.AddRange (target);
-                    }
-                    data = datas.ToArray ();
-                } else {
-                    UnityEngine.Object target = UnityEditor.AssetDatabase.LoadAssetAtPath (p, assetType);
-                    if (target) {
-                        data = target;
-                        break;
-                    }
-                }
-            }
-
-            cRequest.data = data;
-        }
-
-        bool m_Update () {
-            return false;
-        }
-
-        void m_Done () {
-
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<LoadAssetOperationSimulation>.Release (this);
-        }
-    }
-
-    public class LoadLevelOperationSimulation : ResourcesLoadOperation {
-        public LoadLevelOperationSimulation () {
-            m_OnStart = m_Start;
-            m_OnUpdate = m_Update;
-            m_OnDone = m_Done;
-        }
-
-        AsyncOperation m_Operation = null;
-
-        void m_Start () {
-#if HUGULA_LOADER_DEBUG
-            HugulaDebug.FilterLogFormat (cRequest.key, " <color=#15A0A1> 1.2 LoadLevelOperationSimulation  Request(assetName={0}) key={1} </color>", cRequest.assetName, cRequest.key);
-#endif
-            string assetBundleName = cRequest.key;
-            string levelName = cRequest.assetName;
-            bool isAdditive = cRequest.isAdditive;
-            string[] levelPaths = UnityEditor.AssetDatabase.GetAssetPathsFromAssetBundleAndAssetName (assetBundleName, levelName);
-            if (levelPaths.Length == 0) {
-                cRequest.error = string.Format ("There is no scene with name \"" + levelName + "\" in " + assetBundleName);
-                Debug.LogError (cRequest.error);
-            }
-            if (isAdditive)
-                m_Operation = UnityEditor.EditorApplication.LoadLevelAdditiveAsyncInPlayMode (levelPaths[0]);
             else
-                m_Operation = UnityEditor.EditorApplication.LoadLevelAsyncInPlayMode (levelPaths[0]);
+            {
+                CRequest.SetData(request, m_Data);
+                CRequest.SetDone(request);
+            }
+        }
+
+        public void ReleaseToPool()
+        {
+            OperationPools<AssetOperation>.Release(this);
+        }
+
+        //设置ID
+        public static void SetId(AssetOperation assetOp)
+        {
+            assetOp.id = M_ID;
+            M_ID++;
+            if (M_ID == int.MaxValue) M_ID = 1;
+        }
+
+        static int M_ID = 1;
+    }
+
+
+#if UNITY_EDITOR
+
+    //   模拟加载
+    public class AssetOperationSimulation : AssetOperation
+    {
+        //同步加载asset
+        internal new void StartSync()
+        {
+            string assetName = request.assetName;
+            var assetType = request.assetType;
+
+            string[] assetPaths = UnityEditor.AssetDatabase.GetAssetPathsFromAssetBundleAndAssetName(request.assetBundleName, request.assetName);
+            if (assetPaths.Length == 0)
+            {
+                CRequest.SetError(request, "There is no asset path exist  !  \"" + request.assetName + "\" in " + request.assetBundleName);
+                Debug.LogError(request.error);
+            }
+
+            object data = null;
+            foreach (var p in assetPaths)
+            {
+                if (subAssets)
+                    data = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(p);
+                else
+                    data = UnityEditor.AssetDatabase.LoadAssetAtPath(p, assetType);
+                // GS_GameLog.LogFormat("LoadAssetAtPath({1},{2}).data={0} ", data, p, assetType);
+                if (data != null && data.GetType().Equals(assetType))
+                    break;
+            }
+
+            if (data == null)
+            {
+                CRequest.SetError(request, "There is no asset data  . \"" + request.assetName + "\" in " + request.assetBundleName);
+                Debug.LogError(request.error);
+            }
+
+            CRequest.SetProgress(request, 1f);
+            CRequest.SetData(request, data);
+            CRequest.SetDone(request);
+        }
+
+        public new bool Update()
+        {
+            if (m_Request != null)
+            {
+                CRequest.SetProgress(request, m_Request.progress);
+                if (!allowSceneActivation && LoaderType.Typeof_ABScene.Equals(request.assetType) && m_Request.progress >= 0.9f)//加载场景的时候如果allowSceneActivation = false 只能通过progress判断完成
+                    return false;
+                else
+                    return !m_Request.isDone;
+            }
+
+            string assetName = request.assetName;
+            string assetBundleName = request.assetBundleName;
+
+            if (LoaderType.Typeof_ABScene.Equals(request.assetType)) //加载场景
+            {
+                var levelPaths = UnityEditor.AssetDatabase.GetAssetPathsFromAssetBundleAndAssetName(assetBundleName, assetName);
+
+                if (levelPaths.Length == 0)
+                {
+                    CRequest.SetError(request, string.Format("There is no scene with name \"" + assetName + "\" in " + assetBundleName));
+                    Debug.LogError(request.error);
+                }
+                else
+                {
+                    LoadSceneParameters loadSceneParameters = new LoadSceneParameters();
+                    loadSceneParameters.loadSceneMode = loadSceneMode;
+                    m_Request = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(levelPaths[0], loadSceneParameters);
+                    m_Request.allowSceneActivation = allowSceneActivation;
+                    CRequest.SetData(request, m_Request);
+                    CRequest.SetProgress(request, m_Request.progress);
+                    CacheManager.AddScene(request.assetName, request.assetBundleName);//缓存场景
+                }
+            }
+            else //加载资源
+            {
+                StartSync();
+                m_isDone = true;//标记完成
+                return false;
+            }
+
+            return false;
+        }
+
+        public new void Done()
+        {
 
         }
 
-        bool m_Update () {
-            return !m_Operation.isDone;
-        }
-
-        void m_Done () {
-
-        }
-
-        public override void ReleaseToPool () {
-            OperationPools<LoadLevelOperationSimulation>.Release (this);
+        public new void ReleaseToPool()
+        {
+            OperationPools<AssetOperation>.Release(this);
         }
     }
 
+
 #endif
 
-    #endregion
+    public class LoadingEventArg : System.ComponentModel.ProgressChangedEventArgs
+    {
+        //public int number;//current loading number
+        public object target
+        {
+            get;
+            internal set;
+        }
+        public long total
+        {
+            get;
+            internal set;
+        }
+        public long current
+        {
+            get;
+            internal set;
+        }
 
+        public float progress;
+
+        public LoadingEventArg() : base(0, null)
+        {
+
+        }
+
+        public LoadingEventArg(long bytesReceived, long totalBytesToReceive, object userState) : base((totalBytesToReceive == -1L) ? 0 : ((int)(bytesReceived * 100L / totalBytesToReceive)), userState)
+        {
+            this.current = bytesReceived;
+            this.total = totalBytesToReceive;
+            this.target = userState;
+        }
+    }
+
+    public class LoaderType
+    {
+        #region check type
+        public static readonly Type Typeof_String = typeof(System.String);
+        public static readonly Type Typeof_Bytes = typeof(System.Byte[]);
+        public static readonly Type Typeof_ABScene = typeof(AssetBundleScene);
+        // public static readonly Type Typeof_ABAllAssets = typeof(UnityEngine.Object[]);
+        public static readonly Type Typeof_AudioClip = typeof(AudioClip);
+        public static readonly Type Typeof_Texture2D = typeof(Texture2D);
+        public static readonly Type Typeof_Object = typeof(UnityEngine.Object);
+
+        // LoadAssetWithSubAssetsAsync
+        #endregion
+    }
+
+    public class AssetBundleScene
+    { }
 }

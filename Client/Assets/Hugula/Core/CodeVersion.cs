@@ -6,7 +6,7 @@ namespace Hugula
     /// <summary>
     /// 代码版本号Res verion.
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public static class CodeVersion
     {
 

@@ -4,15 +4,15 @@
 using UnityEngine;
 using System.IO;
 using System;
-using SLua;
-using Hugula.Update;
+using XLua;
+using Hugula.Loader;
 
 namespace Hugula.Utils
 {
     /// <summary>
     /// 文件读取等操作
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class FileHelper
     {
 
@@ -168,14 +168,14 @@ namespace Hugula.Utils
             return re;
         }
 
-        private static LuaFunction callBackFn;
+        private static System.Action<string,string> callBackFn;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ab"></param>
         /// <param name="luaFn"></param>
-        public static void UnpackConfigAssetBundleFn(AssetBundle ab, LuaFunction luaFn)
+        public static void UnpackConfigAssetBundleFn(AssetBundle ab, System.Action<string,string> luaFn)
         {
             callBackFn = luaFn;
             UnityEngine.Object[] all = ab.LoadAllAssets();
@@ -185,7 +185,7 @@ namespace Hugula.Utils
                 {
                     TextAsset a = (TextAsset)i;
                     if (callBackFn != null)
-                        callBackFn.call(a.name, a.text);
+                        callBackFn(a.name, a.text);
                 }
             }
         }

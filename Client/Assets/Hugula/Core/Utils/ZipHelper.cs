@@ -5,8 +5,8 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Collections.Generic;
-using SLua;
-using Hugula.Update;
+using XLua;
+using Hugula.Loader;
 
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.GZip;
@@ -18,7 +18,7 @@ namespace Hugula.Utils
     /// <summary>
     /// 文件读取等操作
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class ZipHelper
     {
 

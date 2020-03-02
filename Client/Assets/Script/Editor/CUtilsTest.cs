@@ -9,6 +9,9 @@ public class CUtilsEditorTest
     [Test]
     public void CUtilsGetRightFileNameTest()
     {
+        // UnityEngine.UI.Slider s;
+        //s.onValueChanged.AddListener();
+
         string url, name;//BindingTest
         url = "extends/ex_ui_bottom.u3d?adsdf=sdfdfa&dafsd"; //lastFileIndex23,lastDotIndex20,lastQueIndex0
         name = CUtils.GetRightFileName(url);

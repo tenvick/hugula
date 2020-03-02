@@ -1,148 +1,323 @@
-﻿// Copyright (c) 2017 hugula
+﻿// Copyright (c) 2020 hugula
 // direct https://github.com/tenvick/hugula
 
+using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-#if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-
-#else
 using UnityEngine.SceneManagement;
-#endif
 using Hugula.Utils;
+
 namespace Hugula.Loader
 {
+
+
+    /// <summary>
+    /// 缓存资源
+    /// </summary>
+    public class CacheData : IDisposable
+    {
+
+        public CacheData()
+        {
+            state = CacheDataState.Empty;
+        }
+
+        public enum CacheDataState
+        {
+            Empty, //创建
+            Loading,//开始加载
+            Error,//加载出错
+            Done, //加载完成
+            Unloaded //已经被卸载
+        }
+
+
+        /// <summary>
+        /// assetBundle Name
+        /// </summary>
+        public string assetBundleName { get; private set; }
+
+        /// <summary>
+        /// assetbundle对象
+        /// </summary>
+        public AssetBundle assetBundle { get; private set; }
+
+        /// <summary>
+        /// 当前引用数量
+        /// </summary>
+        public int count;
+
+        /// <summary>
+        /// 当前状态 
+        /// </summary>
+        public CacheDataState state { get; private set; }
+
+        //能否使用
+        public bool canUse
+        {
+            get
+            {
+                return state == CacheDataState.Done && assetBundle != null;
+            }
+        }
+
+        //是否加载完成
+        public bool isDone
+        {
+            get
+            {
+                return state == CacheDataState.Done || state == CacheDataState.Error;
+            }
+        }
+        public void Dispose()
+        {
+#if HUGULA_CACHE_DEBUG
+            GS_GameLog.LogFormat("Dispose  CacheData({0},)),frame={1}  ", assetBundleName, Time.frameCount);
+#endif
+            if (assetBundle) assetBundle.Unload(true);
+            assetBundle = null;
+            state = CacheDataState.Empty;
+
+            assetBundleName = string.Empty;
+            count = 0;
+        }
+
+        public void Unload()
+        {
+            if (assetBundle) assetBundle.Unload(false);
+            state = CacheDataState.Unloaded;
+#if HUGULA_CACHE_DEBUG
+            GS_GameLog.LogFormat("Unload  CacheData({0})),frame={1}  ", assetBundleName, Time.frameCount);
+#endif
+        }
+
+        #region  tool
+
+        /// <summary>
+        /// Set Cache Data 
+        /// </summary>
+        internal static void SetCacheData(CacheData cache, AssetBundle assetBundle, string assetBundleName)
+        {
+            cache.assetBundle = assetBundle;
+            cache.assetBundleName = assetBundleName;
+            cache.state = CacheDataState.Done;
+        }
+
+        /// <summary>
+        /// 创建的时候设置assetbundle name
+        /// </summary>
+        internal static void SetCacheDataAssetBundleName(CacheData cache, string assetBundleName)
+        {
+            cache.assetBundleName = assetBundleName;
+            cache.state = CacheDataState.Empty;
+        }
+
+        /// <summary>
+        /// 加载出错的时候设置状态
+        /// </summary>
+        internal static void SetCacheDataError(CacheData cache)
+        {
+            cache.state = CacheDataState.Error;
+        }
+
+        /// <summary>
+        /// 改变状态为loading 
+        /// </summary>
+        internal static void SetCacheDataLoding(CacheData cache)
+        {
+            cache.state = CacheDataState.Loading;
+        }
+
+        #endregion
+
+
+        #region ObjectPool
+        static ObjectPool<CacheData> pool = new ObjectPool<CacheData>(null, m_ActionOnRelease);
+
+        private static void m_ActionOnGet(CacheData cd)
+        {
+            // cd.Dispose();
+        }
+        private static void m_ActionOnRelease(CacheData cd)
+        {
+            cd.Dispose();
+        }
+
+        public static CacheData Get()
+        {
+            return pool.Get();
+        }
+
+        public static void Release(CacheData toRelease)
+        {
+            pool.Release(toRelease);
+        }
+        #endregion
+    }
+
     /// <summary>
     /// 缓存管理
     /// </summary>
-    [SLua.CustomLuaClass]
     public static class CacheManager
     {
         /// <summary>
-        /// 下载完成的资源
+        /// 下载完成的assetbundle缓存
         /// </summary>
-        [SLua.DoNotToLua]
-        public static Dictionary<int, CacheData> caches = new Dictionary<int, CacheData>();
-
-        /// <summary>
-        /// 清理缓存释放资源
-        /// </summary>
-        /// <param name="assetBundleName"></param>
-        public static void ClearDelay(string assetBundleName)
-        {
-            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
-            int hash = LuaHelper.StringToHash(assetBundleName);
-            ClearDelay(hash);
-        }
-
-        /// <summary>
-        /// unload assetbundle false
-        /// </summary>
-        /// <param name="assetBundleName"></param>
-        public static bool UnloadCacheFalse(string assetBundleName)
-        {
-            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
-            int hash = LuaHelper.StringToHash(assetBundleName);
-            if (!UnloadCacheFalse(hash))
-            {
-#if HUGULA_CACHE_DEBUG
-                HugulaDebug.FilterLogWarningFormat (assetBundleName,"Unload Cache False {0} fail is null or locked ", assetBundleName);
+#if UNITY_EDITOR
+        public static Dictionary<string, CacheData> m_Caches = new Dictionary<string, CacheData>();
+#else
+        internal static Dictionary<string, CacheData> m_Caches = new Dictionary<string, CacheData>();
 #endif
-                return false;
-            }
-            return true;
+
+        /// <summary>
+        /// assetbundle依赖关系
+        /// </summary>
+        internal static Dictionary<string, string[]> m_Dependencies = new Dictionary<string, string[]>();
+
+        /// <summary>
+        /// 加载完成的场景
+        /// </summary>
+        static Dictionary<string, string> loadedScenes = new Dictionary<string, string>(5);
+
+        /// <summary>
+        /// 改变cachedata状态为loading
+        /// </summary>
+        public static void SetCacheDataLoding(string assetbundle)
+        {
+            CacheData cache = TryGetCache(assetbundle);
+            CacheData.SetCacheDataLoding(cache);
+        }
+
+        // /// <summary>
+        // /// unload assetbundle false
+        // /// </summary>
+        // /// <param name="assetBundleName"></param>
+        // public static bool UnloadCacheFalse(string key)
+        // {
+        //     CacheData cache = TryGetCache(key);
+        //     if (cache != null)
+        //     {
+        //         cache.Unload();
+        //         return true;
+        //     }
+        //     else
+        //     {
+        //         return false;
+        //     }
+        // }
+
+        /// <summary>
+        /// 添加场景与assetbunlde的关系
+        /// </summary>
+        /// <param name="sceneName"></param>
+        /// <param name="abName"></param>
+        /// <return></return>
+        public static void AddScene(string sceneName, string abName)
+        {
+            loadedScenes[sceneName] = abName;
+#if UNITY_EDITOR
+            Debug.LogFormat("AddScene({0},{1})", sceneName, abName);
+#endif
         }
 
         /// <summary>
-        /// unload assetbundle false
+        /// 获取场景的assetbundle可用于判断场景是否加载
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        public static bool UnloadCacheFalse(int assethashcode)
+        /// <param name="sceneName"></param>
+        /// <return></return>
+        public static string GetSceneBundle(string sceneName)
         {
-            CacheData cache = TryGetCache(assethashcode);
-            if (cache != null)
+            string abName = null;
+            loadedScenes.TryGetValue(sceneName, out abName);
+            return abName;
+        }
+
+        /// <summary>
+        /// 卸载指定场景同时卸载assetbundle
+        /// </summary>
+        /// <param name="sceneName"></param>
+        /// <return></return>
+        public static AsyncOperation UnloadScene(string sceneName)
+        {
+            AsyncOperation async = null;
+            string abName;
+            if (loadedScenes.TryGetValue(sceneName, out abName))
             {
-                cache.Unload();
-                return true;
+                loadedScenes.Remove(sceneName);
+                async = SceneManager.UnloadSceneAsync(sceneName);//卸载场景
+                Subtract(abName);//卸载ab
             }
             else
             {
-                return false;
+                Debug.LogWarningFormat("the scene {0} you want to unload is no exist", sceneName);
             }
+            return async;
         }
 
         /// <summary>
-        /// unload assetbundle and Dependencies false
+        /// 卸载所有加载了的场景但是不卸载assetbundle
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        public static bool UnloadDependenciesCacheFalse(string assetBundleName)
+        /// <param name="exclude">注意需要小写</param>
+        /// <return></return>
+        public static void UnloadAllScenes(string exclude = null)
         {
-            assetBundleName = ManifestManager.RemapVariantName(assetBundleName);
-            int hash = LuaHelper.StringToHash(assetBundleName);
-            if (!UnloadDependenciesCacheFalse(hash))
+            foreach (var kv in loadedScenes)
             {
-#if UNITY_EDITOR || HUGULA_CACHE_DEBUG
-                HugulaDebug.FilterLogWarningFormat(assetBundleName, "Unload Dependencies Cache False {0} fail is null or locked ", assetBundleName);
-#endif
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// unload assetbundle and Dependencies false
-        /// </summary>
-        /// <param name="assethashcode"></param>
-        public static bool UnloadDependenciesCacheFalse(int assethashcode)
-        {
-            CacheData cache = TryGetCache(assethashcode);
-
-            if (cache != null)
-            {
-                int[] alldep = cache.dependencies;
-                CacheData cachetmp = null;
-                cache.Unload();
-                if (alldep != null)
+                if (!kv.Key.ToLower().Equals(exclude))
                 {
-                    for (int i = 0; i < alldep.Length; i++)
-                    {
-                        cachetmp = TryGetCache(alldep[i]);
-                        if (cachetmp != null)
-                        {
-                            cachetmp.Unload();
-                        }
-                    }
+                    Scene scene = SceneManager.GetSceneByName(kv.Key);
+                    if (scene != null && scene.IsValid())
+                        SceneManager.UnloadSceneAsync(scene);//卸载场景
+                    else
+                        Debug.LogWarningFormat("Unload Scene {0} isInvalid ", kv.Key);
                 }
-                return true;
             }
-            else
-            {
-#if HUGULA_CACHE_DEBUG
-                Debug.LogWarningFormat("Unload Dependencies Cache False {0} fail is null or locked ", assethashcode);
-#endif
-                return false;
-            }
+            loadedScenes.Clear();
         }
 
         /// <summary>
-        /// 清理缓存释放资源
+        /// 延时清理缓存释放资源
         /// </summary>
         /// <param name="assetBundleName"></param>
-        public static void ClearDelay(int assethashcode)
+        public static void Subtract(string key)
         {
-            CacheData cache = TryGetCache(assethashcode);
-
-            if (cache != null)
+            CacheData cached = TryGetCache(key);
+            if (cached != null && cached.count >= 1)
             {
 #if HUGULA_CACHE_DEBUG
-                HugulaDebug.FilterLogWarningFormat(cache.assetBundleKey," <color=#8cacbc>ClearDelay Cache (assetBundle={0},hash={1}),frameCount{2}</color>", cache.assetBundleKey,assethashcode, Time.frameCount);
+                Debug.LogFormat(" <color=#8cacbc>Subtract (assetBundle={0},count={1}) frameCount{2}</color>", cached.assetBundleName, cached.count, UnityEngine.Time.frameCount);
 #endif
-                ABDelayUnloadManager.Add(assethashcode);
+                if (--cached.count == 0) //所有引用被清理。
+                {
+                    ABDelayUnloadManager.Add(key);//放入回收队列
+                }// end if (cached.count-- == 0)
+            }
+#if UNITY_EDITOR
+            else
+            {
+                Debug.LogWarningFormat("Subtract cacheData {0} is null ", key);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// 延时清理缓存释放资源
+        /// </summary>
+        /// <param name="assetBundleName"></param>
+        public static void ClearDelay(string key)
+        {
+            CacheData cache = TryGetCache(key);
+            if (cache != null)
+            {
+                // #if HUGULA_CACHE_DEBUG
+                //                 Debug.LogFormat(" <color=#8cacbc>ClearDelay Cache (assetBundle={0}),frameCount{1}</color>", cache.key, Time.frameCount);
+                // #endif
+                ABDelayUnloadManager.Add(key);
             }
             else
             {
 #if UNITY_EDITOR || !HUGULA_RELEASE
-                Debug.LogWarningFormat("ClearCache {0} fail ", assethashcode);
+                Debug.LogWarningFormat("ClearDelay Cache {0} is null ", key);
 #endif
             }
         }
@@ -150,25 +325,13 @@ namespace Hugula.Loader
         /// <summary>
         /// 获取可以使用的缓存
         /// </summary>
-        /// <param name="assetBundleName"></param>
-        /// <returns></returns>
-        [SLua.DoNotToLua]
-        public static CacheData GetCache(string assetBundleName)
-        {
-            int hash = LuaHelper.StringToHash(assetBundleName);
-            return GetCache(hash);
-        }
-
-        /// <summary>
-        /// 获取可以使用的缓存
-        /// </summary>
         /// <param name="assethashcode"></param>
         /// <returns></returns>
-        internal static CacheData GetCache(int assethashcode)
+        public static CacheData GetCache(string key)
         {
             CacheData cache = null;
-            caches.TryGetValue(assethashcode, out cache);
-            if (cache != null && !cache.isError && cache.canUse)
+            m_Caches.TryGetValue(key, out cache);
+            if (cache != null && cache.canUse)
                 return cache;
             else
                 return null;
@@ -179,10 +342,10 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="assethashcode"></param>
         /// <returns></returns>
-        internal static CacheData TryGetCache(int assethashcode)
+        internal static CacheData TryGetCache(string abName)
         {
             CacheData cache = null;
-            caches.TryGetValue(assethashcode, out cache);
+            m_Caches.TryGetValue(abName, out cache);
             return cache;
         }
 
@@ -191,128 +354,132 @@ namespace Hugula.Loader
         /// </summary>
         /// <param name="assethashcode"></param>
         /// <returns></returns>
-        internal static bool CreateOrGetCache(int keyhashcode, out CacheData cache)
+        internal static bool CreateOrGetCache(string abName, out CacheData cache)
         {
-            if (caches.TryGetValue(keyhashcode, out cache))
-            {
-
-            }
-            else
+            if (!m_Caches.TryGetValue(abName, out cache))
             {
                 cache = CacheData.Get();
-                cache.assetHashCode = keyhashcode;
-                caches.Add(keyhashcode, cache);
+                CacheData.SetCacheDataAssetBundleName(cache, abName);
+                m_Caches.Add(abName, cache);
             }
 
             return cache.canUse;
         }
 
-        internal static bool CreateOrGetCache(string key, out CacheData cache)
-        {
 
-            int keyhashcode = LuaHelper.StringToHash(key);
-            if (caches.TryGetValue(keyhashcode, out cache))
-            {
-
-            }
-            else
-            {
-                cache = CacheData.Get();
-                cache.SetCacheData(null, key,keyhashcode);
-                caches.Add(cache.assetHashCode, cache);
-            }
-
-            return cache.canUse;
-        }
-
-        internal static bool AddSourceCacheDataFromWWW(AssetBundle ab, CRequest req)
+        internal static bool AddCacheData(AssetBundle ab, string assetBundleName)
         {
             CacheData cacheData = null;
-            CreateOrGetCache(req.keyHashCode, out cacheData);
-            cacheData.SetCacheData(ab, req.key,req.keyHashCode); //缓存
-            cacheData.dependencies = req.dependencies;
-            cacheData.isDone = true;
-#if HUGULA_CACHE_DEBUG
-            HugulaDebug.FilterLogFormat(req.key," <color=#ffffff>LoadDone (assetBundle={0},hash={1},count={2})  frameCount{3}</color>", cacheData.assetBundleKey, req.keyHashCode, cacheData.count, UnityEngine.Time.frameCount);
-#endif
+            CreateOrGetCache(assetBundleName, out cacheData);
+            CacheData.SetCacheData(cacheData, ab, assetBundleName); //缓存
             return true;
-
         }
 
-        internal static bool AddErrorSourceCacheDataFromReq(CRequest req)
+        internal static bool AddErrorCacheData(string assetBundleName)
         {
             CacheData cacheData = null;
-            CreateOrGetCache(req.keyHashCode, out cacheData);
-            cacheData.SetCacheData(null, req.key,req.keyHashCode); //缓存
-            cacheData.dependencies = req.dependencies;
-            cacheData.isError = true;
-            cacheData.isDone = true;
+            CreateOrGetCache(assetBundleName, out cacheData);
+            CacheData.SetCacheDataError(cacheData); //缓存
             return true;
+        }
+
+        /// <summary>
+        /// 添加依赖项目
+        /// </summary>
+        /// <param name="string">assetbundle name</param>
+        /// <param name="string">dependencies</param>
+        /// <returns></returns>
+        internal static void AddDependencies(string abName, string[] dependencies)
+        {
+            m_Dependencies[abName] = dependencies;
         }
 
         /// <summary>
         /// 判断所有依赖项目是否加载完成
         /// </summary>
-        /// <param name="req"></param>
+        /// <param name="string">assetbundle name</param>
+        /// <param name="string">dependencies</param>
         /// <returns></returns>
-        internal static bool CheckDependenciesComplete(CRequest req)
+        internal static string[] GetDependencies(string abName)
         {
-            if (req.dependencies == null || req.dependencies.Length == 0) return true;
+            string[] dependencies = null;
+            m_Dependencies.TryGetValue(abName, out dependencies);
+            return dependencies;
+        }
 
-            int[] denps = req.dependencies;
-            CacheData cache = null;
-            int hash = 0;
-            for (int i = 0; i < denps.Length; i++)
+        /// <summary>
+        /// 判断所有依赖项目是否加载完成
+        /// </summary>
+        /// <param name="dependencies"></param>
+        /// <returns></returns>
+        internal static bool CheckDependenciesComplete(string abName)
+        {
+            string[] deps = null;
+            if (m_Dependencies.TryGetValue(abName, out deps))
             {
-                hash = denps[i];
-                if(hash == 0)
+                CacheData cache = null;
+                string hash = string.Empty;
+                for (int i = 0; i < deps.Length; i++)
                 {
-                   continue;     
-                }
-                else if (caches.TryGetValue(hash, out cache))
-                {
-                    if (!cache.isDone) // if (!cache.isAssetLoaded || !cache.canUse)
+                    hash = deps[i];
+                    if (string.IsNullOrEmpty(hash))
+                    {
+                        continue;
+                    }
+                    else if (m_Caches.TryGetValue(hash, out cache))
+                    {
+                        if (!cache.isDone) // if (!cache.isAssetLoaded || !cache.canUse)
+                            return false;
+                    }
+                    else
+                    {
                         return false;
-                }
-                else
-                {
-                    return false;
+                    }
                 }
             }
 
             return true;
         }
 
-        /// <summary>
-        /// 立即卸载资源
-        /// </summary>
-        /// <returns></returns>
-        public static bool Unload(string key)
-        {
-            int keyhash = LuaHelper.StringToHash(key);
-            return Unload(keyhash);
-        }
 
         /// <summary>
-        /// 立即卸载资源
+        /// 安全立即卸载资源
         /// </summary>
         /// <returns></returns>
-        public static bool Unload(int hashcode)
+        public static bool UnloadSecurity(string abName)
         {
-            CacheData cache = TryGetCache(hashcode);
+            CacheData cache = TryGetCache(abName);
             if (cache != null && cache.count == 0)
             {
-#if UNITY_EDITOR
-                // Debug.LogWarningFormat ("<color=#ffff00> unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
+#if HUGULA_CACHE_DEBUG
+                Debug.LogWarningFormat("<color=#ffff00> unload  cache assetBundle={0},count={1})   </color>", cache.assetBundleName, cache.count);
 #endif
-                caches.Remove(cache.assetHashCode); //删除
+                //处理依赖项目
+                string[] deps = null;
+                if (m_Dependencies.TryGetValue(cache.assetBundleName, out deps))
+                {
+                    string tmpName;
+                    CacheData cachedChild = null;
+                    for (int i = 0; i < deps.Length; i++)
+                    {
+                        tmpName = deps[i];
+                        if (m_Caches.TryGetValue(abName, out cachedChild) && cachedChild.count >= 1)
+                        {
+                            if (--cachedChild.count == 0)
+                                ABDelayUnloadManager.AddDep(tmpName);
+                                // ABDelayUnloadManager.Add(tmpName);
+                        }
+                    }
+                }//end if
+                m_Caches.Remove(cache.assetBundleName); //删除
+                m_Dependencies.Remove(cache.assetBundleName);//依赖关系移除？
                 CacheData.Release(cache);
                 return true;
             }
 #if UNITY_EDITOR
             else if (cache != null)
             {
-                Debug.LogFormat("<color=#cccccc> can't unload  cache assetBundle={0},keyhashcode({1},count={2})   </color>", cache.assetBundleKey, cache.assetHashCode, cache.count);
+                Debug.LogFormat("<color=#cccccc> can't unload  cache assetBundle={0},count={1})   </color>", cache.assetBundleName, cache.count);
             }
 #endif
             return false;
@@ -322,9 +489,9 @@ namespace Hugula.Loader
         /// 是否下载过资源
         /// </summary>
         /// <returns></returns>
-        public static bool Contains(int keyhash)
+        public static bool Contains(string key)
         {
-            CacheData cdata = GetCache(keyhash);
+            CacheData cdata = GetCache(key);
             if (cdata != null)
                 return true;
             else
@@ -332,30 +499,20 @@ namespace Hugula.Loader
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool Contains(string key)
-        {
-            int keyhash = LuaHelper.StringToHash(key);
-            return Contains(keyhash);
-        }
-
-        /// <summary>
         /// 清理所有资源
         /// </summary>
         public static void ClearAll()
         {
-
-            var items = caches.GetEnumerator();
+            var items = m_Caches.GetEnumerator();
             while (items.MoveNext())
             {
                 items.Current.Value.Dispose();
             }
 
-            caches.Clear();
+            m_Caches.Clear();
+            m_Dependencies.Clear();
+
         }
-       
     }
+
 }

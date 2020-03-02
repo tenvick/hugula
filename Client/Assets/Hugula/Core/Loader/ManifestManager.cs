@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Hugula.Cryptograph;
-using Hugula.Update;
+using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace Hugula.Loader {
     /// <summary>
     /// ManifestManager
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public static class ManifestManager {
 
 #if UNITY_EDITOR
@@ -24,7 +24,7 @@ namespace Hugula.Loader {
         /// <summary>
         /// Flag to indicate if we want to simulate assetBundles in Editor without building them actually.
         /// </summary>
-        [SLua.DoNotToLuaAttribute]
+        
         public static bool SimulateAssetBundleInEditor {
             get {
                 if (m_SimulateAssetBundleInEditor == -1)
@@ -33,7 +33,7 @@ namespace Hugula.Loader {
                 return m_SimulateAssetBundleInEditor != 0;
             }
             set {
-                if (value) PLua.isDebug = true;
+                // if (value) PLua.isDebug = true;
                 int newValue = value ? 1 : 0;
                 if (newValue != m_SimulateAssetBundleInEditor) {
                     m_SimulateAssetBundleInEditor = newValue;
@@ -44,7 +44,7 @@ namespace Hugula.Loader {
 
 #endif
 
-        [SLua.DoNotToLuaAttribute]
+        
         public static bool CheckPersistentCrc (ABInfo abInfo) {
 #if UNITY_EDITOR
             if (SimulateAssetBundleInEditor) {
@@ -55,17 +55,17 @@ namespace Hugula.Loader {
             if (abInfo.state == ABInfoState.None) {
                 uint len = 0;
                 var url = CUtils.PathCombine (CUtils.GetRealPersistentDataPath (), abInfo.abName);
-                crc = CrcCheck.GetLocalFileCrc (url, out len);
-                if (crc == abInfo.crc32) {
+                // crc = CrcCheck.GetLocalFileCrc (url, out len);
+                // if (crc == abInfo.crc32) {
                     abInfo.state = ABInfoState.Success;
-                } else {
-                    abInfo.state = ABInfoState.Fail;
-                }
+                // } else {
+                //     abInfo.state = ABInfoState.Fail;
+                // }
             }
             return abInfo.state == ABInfoState.Success;
         }
 
-        [SLua.DoNotToLuaAttribute]
+        
         public static bool CheckReqCrc (string abName) {
             // if (req.url.StartsWith (Common.HTTP_STRING)) return true;
             // var abName = req.key;
@@ -81,7 +81,7 @@ namespace Hugula.Loader {
                 return false;
         }
 
-        [SLua.DoNotToLuaAttribute]
+        
         public static ABInfo GetABInfo (string abName) {
             ABInfo abInfo = null;
             if (fileManifest != null)
@@ -243,7 +243,7 @@ namespace Hugula.Loader {
             }
 #if UNITY_EDITOR
             else
-                Debug.LogWarning ("there is no fileManifest in StreamingAssetsPath use (Hugula/BUild For Bublish) build ");
+                Debug.LogWarning ("there is no fileManifest in StreamingAssetsPath use (Hugula/Build For Publish) build ");
 #endif
 
             if (onComplete != null) {
@@ -271,7 +271,7 @@ namespace Hugula.Loader {
             // }
 
             // if (updateFileManifest.appNumVersion < fileManifest.appNumVersion) {
-                PLua.coroutine.StartCoroutine (StartClearOldFiles (onProgress, onComplete));
+                // PLua.coroutine.StartCoroutine (StartClearOldFiles (onProgress, onComplete));
             // }
         }
 

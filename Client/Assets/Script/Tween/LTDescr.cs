@@ -29,7 +29,7 @@ using UnityEngine;
 * @class LTDescr
 * @constructor
 */
-[SLua.CustomLuaClass]
+
 public class LTDescr
 {
 	public bool toggle;

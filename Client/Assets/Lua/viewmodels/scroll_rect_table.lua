@@ -1,87 +1,123 @@
 ---------------------------------------------------------------------------------------------------
 --===============================================================================================--
---filename: scroll_rect_table.lua
---data:2016.3.19
+--filename: scroll_rect_demo_table.lua
+--data:2022.2.22
 --author:pu
 --desc:大数据滚动列表
 --===============================================================================================--
 ---------------------------------------------------------------------------------------------------
-
-local scroll_rect_table = LuaItemManager:get_item_object("scroll_rect_table")
-local StateManager = StateManager
-local delay = delay
-local LuaHelper=LuaHelper
-local CUtils = CUtils
-local get_value = get_value --多国语言
+local View = View
+local NotifyTable = NotifyTable
+local UnityEngine = CS.UnityEngine
+local Color = UnityEngine.Color
+---@class VMBase vm
+---@class welcome
+local scroll_rect_demo = VMBase()
 
 --UI资源
-scroll_rect_table.assets=
-{
-    View("rootscroll_view",scroll_rect_table)
+scroll_rect_demo.views = {
+    View(scroll_rect_demo, "views.rootscroll_view")
+}
+--------------------------------------ui数据-------------------------------------
+---
+scroll_rect_demo.input_count = "1"
+scroll_rect_demo.input_index = "1"
+---
+----------------------------------------列表数据-----------------------------
+local scroll_data = NotifyTable()
+
+scroll_data.scroll_to_index = nil
+scroll_data.input_scroll_index = 0
+---删除数据
+scroll_data.on_item_click = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(self, arg)
+        -- Logger.Log(" delete ", arg)
+        scroll_data:RemoveRange({arg})
+    end
 }
 
-------------------private-----------------
-local scroll_table
+---滚动到索引
+scroll_data.btn_scroll_to = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(self, arg)
+        scroll_data:SetProperty("scroll_to_index", scroll_data.input_scroll_index)
+    end
+}
 
 local function create_tmp_data()
-	local datas={}
-	for i=0,1000 do
-		local it ={}
-		it.name="name "..i
-		it.title ="title"..i
-		table.insert(datas,it)
-	end
-	return datas
+    local datas = {}
+    for i = 1, 10 do
+        local it = {}
+        it.name = "del " .. i
+        it.title = "title" .. i
+        table.insert(datas, it)
+    end
+    return datas
 end
-------------------public------------------
-function scroll_rect_table:set_scroll_data(data)
-	self.scroll_data = data
-	self:raise_property_changed(self.set_scroll_data)
-end
+scroll_data:InsertRange(create_tmp_data()) ---初始化数据
 
-function scroll_rect_table:scroll_to(i)
-	self.scroll_to_index = i
-	self:raise_property_changed(self.scroll_to)
-end
+scroll_rect_demo.scroll_data = scroll_data
 
-function scroll_rect_table:remove_data_at(data)
-	self.remove_data = data
-	self:raise_property_changed(self.remove_data_at)
-end
+-- scroll_data:CollectionChanged(
+--     "+",
+--     function(sender, arg)
+--         Logger.Log(
+--             string.format(
+--                 "eg_data:Action=%s,NewStartingIndex:%s,NewItems:%s,OldItems:%s,OldStartingIndex:%s",
+--                 arg.Action,
+--                 arg.NewStartingIndex,
+--                 arg.NewItems,
+--                 arg.OldItems,
+--                 arg.OldStartingIndex
+--             )
+--         )
+--     end
+-- )
+---------------------------------点击事件处理------------------------------------
+---点击返回按钮
+scroll_rect_demo.on_back = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(self, arg)
+        Logger.Log(" on back")
+        VMState.back()
+    end
+}
 
-function scroll_rect_table:add_data_at(data)
-	self.add_data = data
-	self:raise_property_changed(self.add_data_at)
-end
+---点击添加数据按钮
+scroll_rect_demo.on_add_click = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(...)
+        local size = #scroll_data.items + 1
+        scroll_data:Add({name = "insert " .. size, title = "insert title" .. size})
+    end
+}
 
---列表点击事件 Button绑定CEventReceive.OnCustomerEvent
-function scroll_rect_table:on_customer(obj,arg)
-	local name =obj.name
-	print("scroll_rect_table:on_customer"..name)
-   if name == "click me!" then
-		self:scroll_to(10+math.random(1000))
-	elseif name == "delete me!" then
-		print(arg)
-		local data = arg.data
-		self:remove_data_at(data)
-	elseif name == "click me back!" then
-		self:scroll_to(0)
-	end
-end
+---点击插入数据
+scroll_rect_demo.on_insert_click = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(...)
+        local size = #scroll_data.items
+        local index = tonumber(scroll_rect_demo.input_index or "1")
+        local count = tonumber(scroll_rect_demo.input_count or "1")
 
-function scroll_rect_table:on_showed()
-	self:set_scroll_data(create_tmp_data())
-end
+        local range = {}
+        for i = 1, count do
+            table.insert(range, {name = " insert " .. (size + i), title = "insert title" .. (size + i)})
+        end
+        scroll_data:InsertRange(index, range)
+        Logger.Log(string.format("insert_range(index=%s,#range=%s,items=%s)", index, #range, #scroll_data.items))
+    end
+}
 
---点击事件
-function scroll_rect_table:on_click(obj,arg)
-	local cmd = obj.name
-	if cmd == "Back" then
-		StateManager:set_current_state(StateManager.welcome)
-	elseif cmd == "BtnADD" then
-		local it ={}
-		it.name="name "..math.random()*1000
-		it.title ="title"..math.random()*1000
-		self:add_data_at(it)
-	end
-end
+return scroll_rect_demo

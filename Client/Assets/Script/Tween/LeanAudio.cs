@@ -1,7 +1,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
-[SLua.CustomLuaClass]
+
 public class LeanAudioStream {
 
 	public int position = 0;
@@ -33,7 +33,7 @@ public class LeanAudioStream {
 * @class LeanAudio
 * @constructor
 */
-[SLua.CustomLuaClass]
+
 public class LeanAudio : object {
 
 	public static float MIN_FREQEUNCY_PERIOD = 0.000115f;
@@ -320,7 +320,7 @@ public class LeanAudio : object {
 * @class LeanAudioOptions
 * @constructor
 */
-[SLua.CustomLuaClass]
+
 public class LeanAudioOptions : object {
 
 	public enum LeanAudioWaveStyle{

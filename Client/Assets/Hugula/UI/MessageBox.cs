@@ -8,7 +8,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 namespace Hugula.UI {
 
-    [SLua.CustomLuaClass]
+    
     public class MessageBox : MonoBehaviour {
         private const string MESSAGEBOX_ABNAME = "system_messagebox" + Common.CHECK_ASSETBUNDLE_SUFFIX;
         public Text text;
@@ -80,7 +80,7 @@ namespace Hugula.UI {
 #if MESSAGEBOX_DEBUG 
             Debug.LogFormat ("LoadMessageBox .LoadAssetCoroutine {0} ,frame={1}  ", m_messageBoxInfo,Time.frameCount);
 #endif
-            var req = ResourcesLoader.LoadAssetCoroutine (CUtils.GetRightFileName (MESSAGEBOX_ABNAME), CUtils.GetAssetName (MESSAGEBOX_ABNAME), typeof (GameObject), int.MaxValue);
+            var req = ResourcesLoader.LoadAssetCoroutine (CUtils.GetRightFileName (MESSAGEBOX_ABNAME), CUtils.GetAssetName (MESSAGEBOX_ABNAME), typeof (GameObject));
             yield return req;
 #if MESSAGEBOX_DEBUG 
             Debug.LogFormat ("LoadMessageBox LoadAssetCoroutine is done {0},frame={1}  ", req,Time.frameCount);
@@ -126,7 +126,7 @@ namespace Hugula.UI {
                 m_messageBoxInfo.text = text;
                 m_messageBoxInfo.caption = caption;
                 m_messageBoxInfo.btns = btns;
-                ResourcesLoader.instance.StartCoroutine (LoadMessageBox (m_messageBoxInfo));
+                ResourcesLoader.StartCoroutine1 (LoadMessageBox (m_messageBoxInfo));
 
             }
         }
@@ -149,13 +149,13 @@ namespace Hugula.UI {
         private static bool m_isloading;
     }
 
-    [SLua.CustomLuaClass]
+    
     public class MessageBoxButton {
         public string btnText;
         public UnityAction onClick;
     }
 
-    [SLua.CustomLuaClass]
+    
     public class MessageBoxInfo {
         public string text;
         public string caption;

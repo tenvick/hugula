@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System;
 using System.IO;
 using System.Threading;
-using SLua;
+using XLua;
 
 namespace Hugula.Net
 {
@@ -15,7 +15,7 @@ namespace Hugula.Net
     /// <summary>
     /// ����������
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class LNet : MonoBehaviour, IDisposable
     {
         TcpClient client;
@@ -49,7 +49,7 @@ namespace Hugula.Net
                 {
                     try
                     {
-                        onMessageReceiveFn.call(msg);
+                        onMessageReceiveFn(msg);
                     }
                     catch (Exception e)
                     {
@@ -71,7 +71,7 @@ namespace Hugula.Net
                         isbegin = false;
                         callConnectioneFun = false;
                         callTimeOutFun = true;
-                        onConnectionTimeoutFn.call(this);
+                        onConnectionTimeoutFn(this);
                     }
                 }
                 else if (client.Connected == false && isConnectioned)
@@ -81,7 +81,7 @@ namespace Hugula.Net
                     callTimeOutFun = false;
                     //if(receiveThread!=null)receiveThread.Abort();
                     if (onConnectionCloseFn != null)
-                        onConnectionCloseFn.call(this);
+                        onConnectionCloseFn(this);
 
                 }
 
@@ -89,7 +89,7 @@ namespace Hugula.Net
                 {
                     callConnectioneFun = false;
                     if (onConnectionFn != null)
-                        onConnectionFn.call(this);
+                        onConnectionFn(this);
                 }
 
 
@@ -98,7 +98,7 @@ namespace Hugula.Net
                     float dt = Time.time - lastSeconds;
                     if (dt > pingDelay && onIntervalFn != null)
                     {
-                        onIntervalFn.call(this);
+                        onIntervalFn(this);
                         lastSeconds = Time.time;
                     }
 
@@ -140,7 +140,7 @@ namespace Hugula.Net
         {
             Connect(Host, Port);
             if (onReConnectFn != null)
-                onReConnectFn.call(this);
+                onReConnectFn(this);
         }
 
         public void Close()
@@ -318,7 +318,7 @@ namespace Hugula.Net
         {
             if (onAppErrorFn != null)
             {
-                onAppErrorFn.call(type, desc);
+                onAppErrorFn(type, desc);
             }
             else
             {
@@ -346,19 +346,19 @@ namespace Hugula.Net
         }
 
         #region lua Event
-        public LuaFunction onAppErrorFn;
+        public Action<string,string> onAppErrorFn;
 
-        public LuaFunction onConnectionCloseFn;
+        public Action<LNet> onConnectionCloseFn;
 
-        public LuaFunction onConnectionFn;
+        public Action<LNet> onConnectionFn;
 
-        public LuaFunction onMessageReceiveFn;
+        public Action<object> onMessageReceiveFn;
 
-        public LuaFunction onConnectionTimeoutFn;
+        public Action<LNet> onConnectionTimeoutFn;
 
-        public LuaFunction onReConnectFn;
+        public Action<LNet> onReConnectFn;
 
-        public LuaFunction onIntervalFn;
+        public Action<LNet> onIntervalFn;
         #endregion
 
         private static GameObject lNetObj;

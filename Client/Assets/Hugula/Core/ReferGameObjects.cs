@@ -9,14 +9,14 @@ namespace Hugula
     /// <summary>
     /// 引用挂接
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class ReferGameObjects : MonoBehaviour
     {
 
         /// <summary>
         /// for index
         /// </summary>
-        [SLua.DoNotToLua]
+        
         [HideInInspector]
         public List<string> names;//= new List<string>();
 
@@ -34,7 +34,7 @@ namespace Hugula
         /// <summary>
         /// 缓存使用的hash值
         /// </summary>
-        internal int cacheHash;
+        internal string cacheHash;
 
         public Object Get(string n)
         {
@@ -45,12 +45,12 @@ namespace Hugula
                 return null;
             }
             else
-                return Get(index + 1);
+                return Get(index );
         }
 
         public Object Get(int index)
         {
-            index = index - 1;
+            // index = index + 1;
             if (index >= 0 && index < monos.Length)
             {
                 return monos[index];

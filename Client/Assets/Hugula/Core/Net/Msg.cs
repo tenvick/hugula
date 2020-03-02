@@ -9,9 +9,9 @@ using System.Text;
 namespace Hugula.Net
 {
     /// <summary>
-    /// 消息封装
+    /// 锟斤拷息锟斤拷装
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public class Msg
     {
 

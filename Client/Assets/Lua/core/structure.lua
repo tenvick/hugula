@@ -1,101 +1,33 @@
-function string.split(s, delimiter)
-    result = {};
-    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match)
-    end
-    return result
-end
-
-function table.clear(tb)
-  for k,v in pairs(tb) do
-    tb[k] = nil
-  end
-end
-
-function math.randomseed1(i)
-    math.randomseed(tostring(os.time()+tonumber(i)):reverse():sub(1, 6)) 
-end
-
 --常用数据结构
-
---[[
- 正的索引指的是栈上的绝对位置（从一开始）；负的索引则指从栈顶开始的偏移量。 
- 更详细的说明一下，如果堆栈有 n 个元素， 那么索引 1 表示第一个元素（也就是
- 最先被压入堆栈的元素） 而索引 n 则指最后一个元素； 索引 -1 也是指最后一个
- 元素（即栈顶的元素）， 索引 -n 是指第一个元素。如果索引在 1 到栈顶之间（
- 也就是，1 ≤ abs(index) ≤ top） 我们就说这是个有效的索引。
---]]
-LuaStack = {}
-LuaStack.__index = LuaStack
-local _mt = {}
-_mt.__call = function(tb,size)
-	return LuaStack.new(size)
-end
-
-setmetatable(LuaStack,_mt)
-
-function LuaStack.new(size)
-	if size == nil then size = 16 end
-	local o = {data={},size = size}
-	setmetatable(o,LuaStack)
-	return o
-end
-
-function LuaStack:push(v)
-	table.insert(self.data,v)
-	local top = self:get_top()
-	if top > self.size then table.remove(self.data,1) end -- 确保长度
-end
-
-function LuaStack:get(i) --获取 i 位置 -1 栈顶， 
-	local top = self:get_top() --长度
-	local pos = 0 --位置
-	if i < 0 then --从顶部取值
-		pos = top + i + 1 
-	elseif i > 0 then
-		pos = i
-	end
-    if pos > 0 and pos <= top then
-        return self.data[pos]
-    else
-        return nil
-    end
-end
-
-function LuaStack:get_top() --得到长度 
-	local top = #self.data
-  	return top
-end
-
---从堆栈中移除出 n 个元素 返回最后一个移除的元素
-function LuaStack:pop(i) --从顶部取出第 i 个 
-	local top,re = 0,nil
-    while (i>0) do
-    	top = self:get_top()
-    	if top <= 0 then break end
-    	re = table.remove(self.data,top)
-    	i = i - 1
-    end
-    return re
-end
-
+local table = table
+local string =string
+local math = math
+local math_max = math.max
+local math_min = math.min
+local setmetatable = setmetatable
+local pairs = pairs
 ------------------------------------------quadtree------------------------------------
---矩形min.xy max.xy
+---矩形min.xy max.xy
+---@overload fun(topx:number,topy:number,width:number,height:number)
+---@param topx number 
+---@param topy number
+---@param width number
+---@param height number
+---@return number
 local function get_rect_rang(topx,topy,width,height)
 	return topx , topy - height+1,topx + width-1,topy 
-	-- return cx - half_width,cy - half_height,cx + half_width,cy + half_height
 end
 
---两个矩形的交集
---第一个矩形左下角bottom_x1,bottom_y1，右上角top_x1,top_y1，第二个左下bottom_x2,bottom_y2,右上top_x2,top_y2
---1 当top_x1<bottom_x2 or top_x2<bottom_x1 or top_y2<bottom_y1 or bottom_y2>top_y1 没有交集
---2 除去1的情况后交集为  (min(top_y2,top_y1)-max(bottom_y1,bottom_y2))*(min(top_x2,top_x1)-max(bottom_x1,bottom_x2))
+---两个矩形的交集
+---第一个矩形左下角bottom_x1,bottom_y1，右上角top_x1,top_y1，第二个左下bottom_x2,bottom_y2,右上top_x2,top_y2
+---1 当top_x1<bottom_x2 or top_x2<bottom_x1 or top_y2<bottom_y1 or bottom_y2>top_y1 没有交集
+---2 除去1的情况后交集为  (min(top_y2,top_y1)-max(bottom_y1,bottom_y2))*(min(top_x2,top_x1)-max(bottom_x1,bottom_x2))
 local function get_cross_rect(bottom_x1,bottom_y1,top_x1,top_y1,bottom_x2,bottom_y2,top_x2,top_y2)
 	local re = {}
 	if top_x1<bottom_x2 or top_x2<bottom_x1 or top_y2<bottom_y1 or bottom_y2>top_y1 then
 		return re
 	else
-		local bx,ex,by,ey =math.max(bottom_x1,bottom_x2),math.min(top_x2,top_x1),math.max(bottom_y1,bottom_y2),math.min(top_y2,top_y1)
+		local bx,ex,by,ey =math_max(bottom_x1,bottom_x2),math_min(top_x2,top_x1),math_max(bottom_y1,bottom_y2),math_min(top_y2,top_y1)
 		for x = bx,ex do
 			for y = by,ey do
 				local key = string.format("%d_%d",x,y)
@@ -117,10 +49,10 @@ end
 --
 setmetatable(QuadTree,_mt)
 
---注意 off_x轴 -1向左
---		off_y轴 +1向上
--- 0，0点在左下角
---w格子宽度(level) h格子高度(level) lv级别(世界坐标/level 4的n次方) off_x(相对于w) ,off_y (相对于h) 
+---注意 off_x轴 -1向左
+---		off_y轴 +1向上
+--- 0，0点在左下角
+---w格子宽度(level) h格子高度(level) lv级别(世界坐标/level 4的n次方) off_x(相对于w) ,off_y (相对于h) 
 function QuadTree.new(w,h,lv,off_x,off_y)
 	if w == nil then w = 8 end
 	if h == nil then h = 8 end

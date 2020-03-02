@@ -6,7 +6,7 @@ namespace Hugula.Utils
     /// <summary>
     /// 光影 操作
     /// </summary>
-    [SLua.CustomLuaClass]
+    
     public static class LightHelper
     {
 

@@ -1,76 +1,59 @@
-###Hugula 游戏框架 
+###Hugula(呼咕啦) 游戏框架 
 
-Hugula是一个基于unity3d+lua技术的免费开源游戏框架，特点。
+Hugula(呼咕啦) 是一个面向unity3d的轻量级数据绑定框架，它提供简单的方式让游戏支持数据绑定，轻易做到逻辑与显示解耦。符合unity的DOTS方向。
 
-1. 全lua逻辑:
-  基于mvvm，和状态模式；view和逻辑完全解耦，界面采用数据绑定技术，界面组合切换基于状态模式，包含引用计数，对象池，自动资源回收等功能，能极大提高开发速度。
+## Hugula(呼咕啦)的特色
+    1 轻量级的数据绑定，代码结构精简，支持单向双向绑定,C#对象与luatable的双向绑定,控件之间互相绑定。
+    2 直接在界面操作数据绑定，支持表达式，format,convert，绑定模块基于lua，扩展方便。
+    3 framework基于mvvm模式，引入模块group概念方便多模块整合。
+    4 内置循环列表和自适应循环列表，面对大量数据显示无压力。
+   
+数据绑定demo演示
+![](Client/Assets/Hugula/Doc/hugula_databinding_demo.gif)
 
-2. 热更新:
- 完善的更新流程，支持md5加密，crc校验，跨版本更新。
+C# viewmodel 绑定示例
+![](Client/Assets/Hugula/Doc/hugula_databinding_cs_vm.gif)
+
+
+聊天功能演示
+![](Client/Assets/Hugula/Doc/hugula_databinding_chat_demo.gif)
 
 3. [帮助文档](https://github.com/tenvick/hugula/wiki)  交流qq群：19324776。
 
 4. [mvvm 使用文档](https://github.com/tenvick/hugula/wiki/hugula-mvvm-%E4%BD%BF%E7%94%A8)
  
-##本框架需要以下条件
 
-1)unity3d 推荐5.3以上
-
-2)slua项目 地址 https://github.com/pangweiwei/slua
-
-3)如需使用tools辅助功能 需要配置python2.7 lua5.1环境
-
-##框架目录
-
-Assets
-
--Config               （存放xxx.csv 配置文件 使用菜单 Hugula/export config [Assets\Config]导出）
-
--CustomerResource     （存放美术资源）
-
--Hugula               （核心代码）
-
--Scene                （场景 begin为开始场景）
-
--Slua                 （Slua插件）
-
--Tmp                  （编译lua文件临时存放目录）
-
--Lua                  （lua脚本）
-
-
-##运行发布
-
-1. 一键发布 Hugula -> Build For Publish (首次运行或者发布时候)
-2. 导出slua接口
-
- 2.1 Slua/All/Make   导出slua所需要的wrap类。
-
- 2.2 如果打开有报错 Slua/All/Clear	清理已经生成的wrap类
- 
-## 其他导出
-1. 导出资源
-
- 1.1  AssetBundles/Build AssetBundles 导出assetbundle资源
-
- 1.2  AssetBundles/Generate/AssetBundle Update File  导出更新差异包和版本号等信息 
- 
- 1.3  AssetBundles/Generate/AssetBundle Md5Mapping  真实名字Md5映射值表
-
-1. 导出其他 
-
- 2.1 Hugula/export lua [Assets\Lua]          打包编译脚本
-
- 2.2 Hugula/export config [Assets\Config]    打包配置
- 
- 2.3 Hugula/AES                              加密相关菜单 
+###安装与运行
+1.初次运行需要生成xlua wrap code 菜单xlua->Generate Code。
+2.打开场景s_begin即可。
+#依赖
+1. unity3d 推荐2019.3.0以上
+2. xlua项目 地址 https://github.com/Tencent/xLua
+3. 如需使用tools辅助功能 需要配置python2.7 lua5.3环境
+#运行发布
+1. xlua/Generate Code 先生成代码然后在运行
+2. 一键发布 Hugula/Build For Publish (首次运行或者发布时候)
+#开发与资源导出
+1. AssetBundles/Build AssetBundles 导出assetbundle资源
+2. Hugula/Debug Lua (开发模式)直接读取原始lua文件
+3. AssetBundles/Simulation mode (开发模式)直接读取原始prefab
+4. 选中资源右键AssetBundles/Set AssetBundle Name 设置prefab ab名。
+5. Hugula/export lua [Assets\Lua]          打包编译脚本
+6. Hugula/export config [Assets\Config]    打包配置
  
 
+### 代码结构架构图
+C#
+![](Client/Assets/Hugula/Doc/cs_binding_code.png)
 
-### lua架构图
+lua
+![](Client/Assets/Hugula/Doc/lua_binding_code.png)
 
-![](Client/Assets/Doc/hugula lua framework.png)
+界面绑定
+控件绑定示例
+![](Client/Assets/Hugula/Doc/ui_binding_eg.png)
 
-##框架案例
-百妖叛乱(卡牌) http://pan.baidu.com/s/1hssBiCG 
-俄罗斯方块小游戏 http://pan.baidu.com/s/1o6L4E86
+容器绑定示例，所有控件都必须添加到容器中继承容器的context
+![](Client/Assets/Hugula/Doc/ui_bindable_container.png)
+
+交流QQ群 19324776

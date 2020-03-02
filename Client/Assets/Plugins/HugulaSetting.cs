@@ -9,7 +9,7 @@ using UnityEditor;
 namespace Hugula
 {
 
-    [SLua.CustomLuaClassAttribute]
+    
     public class HugulaSetting : ScriptableObject
     {
 

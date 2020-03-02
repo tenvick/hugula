@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Hugula.Utils
 {
-    [SLua.CustomLuaClass]
+
     public static class CUtils
     {
 #if HUGULA_RELEASE
@@ -22,6 +22,54 @@ namespace Hugula.Utils
 #else
         public const bool printLog = true;
 #endif
+
+
+        /// <summary>
+        /// string EndWith
+        /// </summary>
+        /// <param name="str">原始串</param>
+        /// <param name="value">比较值</param>
+        /// <returns></returns>
+        public static bool EndWith(string str, string value)
+        {
+            var vlen = value.Length;
+            var sLen = str.Length;
+            if (vlen > sLen) return false;
+            // str[0].Equals(value[0])
+            int i = 0;
+            while (i < vlen)
+            {
+                i++;
+                if (!value[vlen - i].Equals(str[sLen - i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// string StartWith
+        /// </summary>
+        /// <param name="str">原始串</param>
+        /// <param name="value">比较值</param>
+        /// <returns></returns>
+        public static bool StartWith(string str, string value)
+        {
+            var vlen = value.Length;
+            var sLen = str.Length;
+            if (vlen > sLen) return false;
+            int i = 0;
+            while (i < vlen)
+            {
+                if (!value[i].Equals(str[i]))
+                    return false;
+                i++;
+            }
+
+            return true;
+        }
+
+
         /// <summary>
         /// Gets the assetname of the URL file.
         /// </summary>
@@ -140,11 +188,12 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static bool IsResolveHostError (string error) 
-		{
-            error = error.ToLower ();
-            if ((error.Contains ("resolve") && error.Contains ("host")) ||
-                error.Contains ("nameresolutionfailure")) { //dns error
+        public static bool IsResolveHostError(string error)
+        {
+            error = error.ToLower();
+            if ((error.Contains("resolve") && error.Contains("host")) ||
+                error.Contains("nameresolutionfailure"))
+            { //dns error
                 return true;
             }
             return false;
@@ -155,9 +204,9 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static bool IsHttps (string url)
-		{
-            return url.ToLower ().StartsWith ("https");
+        public static bool IsHttps(string url)
+        {
+            return url.ToLower().StartsWith("https");
         }
 
         /// <summary>
@@ -287,22 +336,22 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetRightFileName(string fileName)
         {
-// #if !HUGULA_COMMON_ASSETBUNDLE
-            if (string.IsNullOrEmpty(fileName)) return string.Empty;
-            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
-            AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            // #if !HUGULA_COMMON_ASSETBUNDLE
+            // if (string.IsNullOrEmpty(fileName)) return string.Empty;
+            // int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            // AnalysePathName(fileName, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
 
-            string fname = fileName.Substring(lastFileIndex, fileLen);
-            string md5 = string.Empty;
-            md5 = CryptographHelper.Md5String(fname);
-            _textSB.Length = 0;
-            _textSB.Append(fileName);
-            if (fileLen > 0) _textSB.Replace(fname, md5, lastFileIndex, fileLen);
-            fname = _textSB.ToString();
-            return fname;
-// #else
-//             return fileName;
-// #endif
+            // string fname = fileName.Substring(lastFileIndex, fileLen);
+            // string md5 = string.Empty;
+            // md5 = CryptographHelper.Md5String(fname);
+            // _textSB.Length = 0;
+            // _textSB.Append(fileName);
+            // if (fileLen > 0) _textSB.Replace(fname, md5, lastFileIndex, fileLen);
+            // fname = _textSB.ToString();
+            // return fname;
+            // #else
+            return fileName;
+            // #endif
         }
 
         public static bool currPersistentExist = false;
@@ -444,29 +493,29 @@ namespace Hugula.Utils
         public const string platform = "osx";//standaloneosxintel
 #else
         public const string platform = "win";// standalonewindows
-#endif 
+#endif
 
-// #if HUGULA_COMMON_ASSETBUNDLE
-//         /// <summary>
-//         /// platform
-//         /// </summary>
-//         public const string platformFloder = platform;
-// #else
+        // #if HUGULA_COMMON_ASSETBUNDLE
+        //         /// <summary>
+        //         /// platform
+        //         /// </summary>
+        //         public const string platformFloder = platform;
+        // #else
         private static string _platformFloder;
         /// <summary>
         /// platform Floder name
         /// </summary>
         public static string platformFloder
         {
-            get 
+            get
             {
                 if (string.IsNullOrEmpty(_platformFloder))
-                    _platformFloder = CryptographHelper.Md5String(platform);
+                    _platformFloder = CUtils.GetRightFileName(platform);
 
                 return _platformFloder;
             }
         }
-// #endif
+        // #endif
 
         private static string _realPersistentDataPath;
         /// <summary>
@@ -566,7 +615,7 @@ namespace Hugula.Utils
             return all_ds;
 #else
             if (!string.IsNullOrEmpty(tips))
-                Debug.LogFormat("Cast Time \"{0}\" Cast({1}s) runtime({2}ms),frame={3}", tips,cast, all_ds, Time.frameCount);
+                Debug.LogFormat("Cast Time \"{0}\" Cast({1}s) runtime({2}ms),frame={3}", tips, cast, all_ds, Time.frameCount);
             return all_ds;
 #endif
 

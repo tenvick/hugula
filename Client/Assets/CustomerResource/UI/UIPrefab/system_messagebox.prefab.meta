@@ -1,8 +1,7 @@
 fileFormatVersion: 2
 guid: abe36b59705fa054dada8146c93440c2
-timeCreated: 1500721731
-licenseType: Free
-NativeFormatImporter:
+PrefabImporter:
+  externalObjects: {}
   userData: 
-  assetBundleName: 1984de454580690f93df28bfb50e686d.u3d
+  assetBundleName: system_messagebox.u3d
   assetBundleVariant: 

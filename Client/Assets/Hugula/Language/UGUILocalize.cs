@@ -12,7 +12,7 @@ namespace Hugula {
 
     [ExecuteInEditMode]
     [RequireComponent (typeof (MaskableGraphic))]
-    [SLua.CustomLuaClass]
+    
     public class UGUILocalize : MonoBehaviour {
         /// <summary>
         /// Localization key.

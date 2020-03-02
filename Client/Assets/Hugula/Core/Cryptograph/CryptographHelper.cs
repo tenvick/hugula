@@ -8,7 +8,7 @@ using System;
 
 namespace Hugula.Cryptograph
 {
-    [SLua.CustomLuaClass]
+    
     public class CryptographHelper
     {
         private static SHA1CryptoServiceProvider KeepClass()

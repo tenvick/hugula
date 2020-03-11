@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Hugula.Databinding;
 using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
@@ -36,6 +37,7 @@ public class EnterLua : MonoBehaviour {
     // Start is called before the first frame update
     void Awake () {
         DontDestroyOnLoad (this.gameObject);
+        Executor.Initialize ();
         if (ManifestManager.fileManifest == null)
             ManifestManager.LoadFileManifest (null);
 #if UNITY_EDITOR
@@ -54,15 +56,15 @@ public class EnterLua : MonoBehaviour {
     }
 
     void OnDestroy () {
-//         luaenv.DoString (@"
-//         local util = require 'xlua.util'
-// util.print_func_ref_by_csharp()");
+                luaenv.DoString (@"
+                local util = require 'xlua.util'
+        util.print_func_ref_by_csharp()");
         // if (luaenv != null) luaenv.Dispose ();
+        ExpressionUtility.Dispose();
     }
 
-    void OnApplicationQuit()
-    {
-        Debug.Log("OnApplicationQuit");
+    void OnApplicationQuit () {
+        Debug.Log ("OnApplicationQuit");
     }
 
     /// <summary>

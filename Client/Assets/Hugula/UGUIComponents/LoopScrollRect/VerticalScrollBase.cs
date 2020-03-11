@@ -595,11 +595,11 @@ namespace Hugula.UIComponents {
         /// </summary>
         protected void InitContentBounds () {
             m_ContentBounds = viewRect.rect;
-            Debug.LogFormat ("m_ContentBounds {0}", m_ContentBounds);
+            // Debug.LogFormat ("m_ContentBounds {0}", m_ContentBounds);
             m_ContentBounds.height = -Mathf.Abs (m_ContentBounds.height);
             m_ContentBounds.x = m_Content.anchoredPosition.x; //min y
             m_ContentBounds.y = m_Content.anchoredPosition.y; //max y
-            Debug.LogFormat ("m_ContentBounds1 {0}", m_ContentBounds);
+            // Debug.LogFormat ("m_ContentBounds1 {0}", m_ContentBounds);
 
         }
 

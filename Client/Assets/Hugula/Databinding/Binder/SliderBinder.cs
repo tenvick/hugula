@@ -16,8 +16,10 @@ namespace Hugula.Databinding.Binder {
         public Slider.Direction direction {
             get { return m_Slider.direction; }
             set {
-                m_Slider.direction = value;
-                OnPropertyChanged ();
+                if (m_Slider.direction != value) {
+                    m_Slider.direction = value;
+                    OnPropertyChanged ();
+                }
             }
         }
 

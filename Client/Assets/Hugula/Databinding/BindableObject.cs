@@ -80,11 +80,6 @@ namespace Hugula.Databinding {
 		public string targetName;
 
 		///<summary>
-		/// 对应lua 中Binder的lua class type
-		///</summary>
-		public string binderType;
-
-		///<summary>
 		/// The UnityEngine.Object of the Target
 		///</summary>
 		public Object target {
@@ -106,6 +101,7 @@ namespace Hugula.Databinding {
 
 		public Binding GetBinding (string property) {
 			if (!m_IsbindingsDictionary) {
+				m_IsbindingsDictionary = true;
 				foreach (var item in bindings)
 					m_BindingsDic[item.propertyName] = item;
 			}
@@ -114,12 +110,6 @@ namespace Hugula.Databinding {
 			m_BindingsDic.TryGetValue (property, out binding);
 			return binding;
 		}
-
-		// public void SetBinding (string property, Binding binding) {
-		// 	bindings.Add (binding);
-		// 	binding.propertyName = property;
-		// 	m_BindingsDic[property] = binding;
-		// }
 
 		public void SetParent (BindableObject parent) {
 			this.m_Parent = parent;
@@ -136,9 +126,9 @@ namespace Hugula.Databinding {
 				var contextBinding = GetBinding (ContextProperty);
 				if (contextBinding != null && contextBinding.path != ".") {
 					contextBinding.Unapply ();
-					contextBinding.target = this;
-					contextBinding.context = context;
-					contextBinding.Apply (true);
+					System.Action act = () => contextBinding.Apply (context, this);
+					// act();
+					Executor.Execute (act);
 				} else
 					OnBindingContextChanged ();
 			}
@@ -148,14 +138,11 @@ namespace Hugula.Databinding {
 		}
 
 		protected virtual void OnBindingContextChanged () {
-			//上下文改变执行表达式
-			foreach (var binding in bindings) {
-				// Debug.LogFormat ("OnBindingContextChanged({0},{1})", binding.propertyName, binding.path);
+			for (int i = 0; i < bindings.Count; i++) {
+				var binding = bindings[i];
 				if (!ContextProperty.Equals (binding.propertyName)) { //context需要触发自己，由inherited触发
-					binding.target = this;
-					binding.context = context;
-					// Debug.LogFormat ("binding.Apply({0},{1})", binding, context);
-					binding.Apply ();
+					binding.Unapply(true);
+					binding.Apply (context, this, true);
 				}
 			}
 		}
@@ -167,8 +154,8 @@ namespace Hugula.Databinding {
 		//变化的同时更新目标源
 		protected virtual void OnPropertyChangedBindingApply ([CallerMemberName] string propertyName = null) {
 			Binding binding = GetBinding (propertyName);
-			if (binding != null && binding.mode == "twoway") {
-				binding.Apply (false);
+			if (binding != null && binding.mode == BindingMode.TwoWay) {
+				binding.Apply (true);
 			}
 			PropertyChanged?.Invoke (this, propertyName);
 		}
@@ -185,7 +172,7 @@ namespace Hugula.Databinding {
 		#endregion
 
 		protected virtual void Start () {
-
+			// Debug.LogFormat ("{1}.Start(Count={0})", bindings.Count, this);
 		}
 
 		protected virtual void OnDestroy () {

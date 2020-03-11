@@ -171,6 +171,10 @@ namespace XLua.Editor {
                 customlist.Add (typeof (Hugula.Databinding.IExecute));
                 customlist.Add (typeof (Func<object, int, int>));
                 customlist.Add (typeof (Action<object, Component, int>));
+                customlist.Add (typeof (Hugula.Databinding.GetSourceValue));
+                customlist.Add (typeof (Hugula.Databinding.BindingValue));
+                customlist.Add (typeof (Hugula.Databinding.ApplyActual));
+
                 customlist.Add (typeof (Action<Vector2>));
                 customlist.Add (typeof (System.Action<object, object, string, string, string, string>));
                 customlist.Add (typeof (System.Collections.Specialized.NotifyCollectionChangedEventArgs));
@@ -217,6 +221,10 @@ namespace XLua.Editor {
                 delegate_types.Add (typeof (Hugula.Databinding.IExecute));
                 delegate_types.Add (typeof (Func<object, int, int>));
                 delegate_types.Add (typeof (Action<object, Component, int>));
+                delegate_types.Add (typeof (Hugula.Databinding.GetSourceValue));
+                delegate_types.Add (typeof (Hugula.Databinding.BindingValue));
+                delegate_types.Add (typeof (Hugula.Databinding.ApplyActual));
+
                 delegate_types.Add (typeof (Action<Vector2>));
                 delegate_types.Add (typeof (System.Action<object, object, string, string, string, string>));
                 delegate_types.Add (typeof (Hugula.Databinding.NotifyCollectionChangedEventHandler));

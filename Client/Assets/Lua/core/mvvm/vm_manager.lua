@@ -62,11 +62,11 @@ end
 ---@param data GameObject
 ---@param view_base ViewBase
 local function on_res_comp(data, view_base)
-    profiler.start()
+    -- profiler.start()
     local inst = GameObject.Instantiate(data)
     init_view_wm(inst, view_base)
-    -- Logger.Log("init_view_wm\r\n", profiler.report())
-    profiler.stop()
+    -- Logger.Log(string.format("init_view_wm:%s\r\n",inst.name), profiler.report())
+    -- profiler.stop()
 end
 
 ---利用find查找view的gameobject root

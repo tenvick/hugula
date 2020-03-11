@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using Hugula.Databinding;
 using Hugula.Databinding.Binder;
 
 namespace Hugula.Databinding {
@@ -56,21 +57,11 @@ namespace Hugula.Databinding {
 
 		}
 
-		#region 创建委托
-		[XLua.CSharpCallLua]
-		public delegate IBindingExpression BindingNew (Binding binding);
-		#endregion
-		private static BindingNew bindingNew;
 
-		public static IBindingExpression NewExpression (Binding binding) {
-			if (bindingNew == null) {
-				bindingNew = EnterLua.luaenv.Global.GetInPath<BindingNew> ("BindingExpression.New");
-			}
-			return bindingNew (binding);
-		}
-
-		public static void DisoposeLuaBindingExpression () {
-			bindingNew = null;
+		public static object ConvertToNotifyTable(INotifyPropertyChanged table)
+		{
+			UnityEngine.Debug.LogWarning(" ConvertToNotifyTable:"+table);
+			return table;
 		}
 
 	}

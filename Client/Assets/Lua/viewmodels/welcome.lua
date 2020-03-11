@@ -30,7 +30,7 @@ function welcome:on_active()
 end
 
 function welcome:on_property_set(property)
-    Logger.Log("welcome。on_property_set", property)
+    Logger.Log("welcome. on_property_set", property)
 end
 
 return welcome

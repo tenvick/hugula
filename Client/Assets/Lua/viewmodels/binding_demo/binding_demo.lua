@@ -34,8 +34,7 @@ binding_demo.btn_interactable = false
 ---重载方法
 function binding_demo:on_property_set(property)
     if property == property_slider1_value then
-        Logger.Log("value ",binding_demo.slider1_value)
-       
+
         if binding_demo.slider1_value > 0.5 then
             ---viewmodel属性通知view 写法2
             binding_demo.btn_interactable = true
@@ -44,10 +43,9 @@ function binding_demo:on_property_set(property)
             binding_demo:SetProperty(property_btntext, "现在可以点击我了")
         else
             ---viewmodel属性通知view 写法1
-           binding_demo:SetProperty(property_btn_interactable, false) ---改变btn_interactable属性的值并通知view
-           binding_demo:SetProperty(property_btntext, "拖动试试。")
+            binding_demo:SetProperty(property_btn_interactable, false) ---改变btn_interactable属性的值并通知view
+            binding_demo:SetProperty(property_btntext, "拖动试试。")
         end
-
     end
 end
 
@@ -58,15 +56,14 @@ binding_demo.on_btn_click = {
         return true
     end,
     Execute = function(self, arg)
-         ---viewmodel属性通知view 写法1
+        ---viewmodel属性通知view 写法1
         binding_demo:SetProperty(property_enable_slider, (not binding_demo.enable_slider)) ---改变source属性的值并通知view
 
         -- binding_demo:set_property(property_enable_slider, (not binding_demo.enable_slider)) ---通知改变
         if binding_demo.slider1_value > 0.9 then
-            -- VMState.push(VMGroup.welcome)
+        -- VMState.push(VMGroup.welcome)
         end
     end
 }
-
 
 return binding_demo

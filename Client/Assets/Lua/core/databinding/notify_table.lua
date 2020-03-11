@@ -194,7 +194,7 @@ local function insert_range(self, index, range)
     end
 
     set_count(self)
-    Logger.Log("insert_range ", index, #range)
+    -- Logger.Log("insert_range ", index, #range)
     -- OnCollectionChanged (new NotifyCollectionChangedEventArgs (NotifyCollectionChangedAction.Add, items, originalIndex));
     on_collection_changed(
         self,
@@ -504,7 +504,8 @@ notify_table.OnPropertyChanged = on_property_changed
 notify_table.SetProperty = set_property
 notify_table.__tostring = tostring
 
----属性改变监听类
+---带通知功能的列表的数据集合,实现了INotifyCollectionChanged, INotifyPropertyChanged。
+---
 ---@class NotifyTable
 ---@class INotifyTable
 ---@module notify_table.lua
@@ -525,6 +526,7 @@ notify_table.__tostring = tostring
 ---@field set_Item function
 ---@field get_Item function
 ---@field CollectionChanged function
----@field property_changed function
+---@field OnCollectionChanged function 
+---@field OnPropertyChanged function
 ---@field SetProperty function
 NotifyTable = notify_table

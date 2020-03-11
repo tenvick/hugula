@@ -1,6 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.3.11
+1 BindingExpression和BindingPathPart移值到C#中实现。
+2 真机导出lua文件后缀修改。
+3 LoopScrollRect 单行或者单列适配pading问题修改。
+4 IBindingExpression接口修改。
+
+
 2020.3.2
 hugula 0.5.1 alpaha版本发布
 1 轻量级的数据绑定框架，支持单向双向绑定,支持C#对象与luatable的双向绑定,控件之间互相绑定。

@@ -6,7 +6,7 @@
 local table = table
 local pairs = pairs
 local class = class
-
+local string_format = string.format
 local Object = CS.System.Object
 
 --实现public interface INotifyPropertyChanged {
@@ -18,7 +18,6 @@ local nofity_object =
     function(self)
         ---属性改变事件监听
         self._property_changed = {}
-        self._items = {}
     end
 )
 
@@ -27,15 +26,16 @@ local add_property_changed = function(self, delegate)
         self._property_changed = {}
     end
     table.insert(self._property_changed, delegate)
-    Logger.Log("object add_property_changed",#self._property_changed, delegate)
+    -- Logger.LogErrorFormat("object add_property_changed=%s,%s;",#self._property_changed,delegate)
 end
 
 local remove_property_changed = function(self, delegate)
+    -- Logger.LogErrorFormat("object remove_property_changed=%s,%s;",self,delegate)
     local _property_changed = self._property_changed
     for i = 1, #_property_changed do
         if Object.Equals(_property_changed[i], delegate) then
             table.remove(_property_changed, i)
-            Logger.Log("object remove_property_changed ",i, delegate)
+            -- Logger.LogErrorFormat("object remove_property_changed=%s,%s; ",i, delegate)
             break
         end
     end
@@ -54,7 +54,7 @@ end
 ---@return void
 local function on_Property_changed(self, property_name)
     local changed = self._property_changed
-    Logger.Log(" on_Property_changed#=", #changed)
+    -- Logger.Log(" on_Property_changed#=", #changed)
     for i = 1, #changed do
         changed[i](self, property_name)
     end
@@ -71,6 +71,9 @@ local function set_property(self, property_name, value)
     end
 end
 
+local function tostring(self)
+    return string_format("NotifyObject(%s)", self._property_changed)
+end
 ---INotifyPropertyChanged接口实现
 nofity_object.PropertyChanged = property_changed
 nofity_object.add_PropertyChanged = add_property_changed
@@ -78,10 +81,11 @@ nofity_object.remove_PropertyChanged = remove_property_changed
 ---改变属性
 nofity_object.OnPropertyChanged = on_Property_changed
 nofity_object.SetProperty = set_property
+nofity_object.__tostring = tostring
 
----属性改变监听类
+---属性改变监听类 接口INotifyPropertyChanged的lua实现
 ---@class NotifyObject
----@module nofity_object.lua
+---@module Assets\Lua\core\databinding\notify_object.lua
 ---@overload fun():NotifyObject
 ---@return NotifyObject
 ---@field PropertyChanged function

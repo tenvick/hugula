@@ -32,15 +32,6 @@ namespace Hugula.Databinding {
 					throw new InvalidOperationException ();
 			}
 		}
-		// object INotifyTable.this [int index] {
-		// 	get {
-		// 		return m_Items[index];
-		// 	}
-		// 	set {
-		// 		T val = (T) value;
-		// 		m_Items[index] = val;
-		// 	}
-		// }
 
 		#region Ilist
 		object IList.this [int index] {

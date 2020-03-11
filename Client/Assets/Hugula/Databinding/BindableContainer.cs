@@ -17,6 +17,7 @@ namespace Hugula.Databinding {
 
         protected override void OnBindingContextChanged () {
             base.OnBindingContextChanged ();
+
             foreach (var child in children) {
                child.SetInheritedContext (context, true);
             }

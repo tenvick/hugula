@@ -96,7 +96,7 @@ namespace Hugula.Editor {
                 string dest = OutLuaBytesPath + "/" + CUtils.GetRightFileName (xfile);
                 string destName = dest.Substring (0, dest.Length - 3) + "bytes";
 
-                System.IO.File.Copy (file, dest, true);
+                System.IO.File.Copy (file, destName, true);
 
                 sb.AppendFormat ("\r\n {0}   ({1}) ", file, destName);
 

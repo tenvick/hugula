@@ -64,7 +64,7 @@ namespace Hugula.UIComponents {
             if (this.columns == 0) //单行
             {
                 pos.x = (rect.width + this.halfPadding) * index + this.halfPadding; // + rect.width * .5f;
-                if (rectTran.anchorMin != rectTran.anchorMax) //表示高度适配
+                if (rectTran.anchorMax.y - rectTran.anchorMin.y >= 0.99f) //表示高度适配
                 {
                     var offsetMin = rectTran.offsetMin;
                     var offsetMax = rectTran.offsetMax;
@@ -72,20 +72,20 @@ namespace Hugula.UIComponents {
                     offsetMax.y = -halfPadding;
                     rectTran.offsetMin = offsetMin;
                     rectTran.offsetMax = offsetMax;
-                }
-                pos.y = -halfPadding;
+                } else
+                    pos.y = -halfPadding;
             } else if (columns == 1) //单列 需要宽度适配
             {
-                if (rectTran.anchorMin != rectTran.anchorMax) //表示宽度适配
+                if (rectTran.anchorMax.x - rectTran.anchorMin.x >= 0.99f) //表示宽度适配
                 {
                     var offsetMin = rectTran.offsetMin;
                     var offsetMax = rectTran.offsetMax;
-                    offsetMin.x = halfPadding;
-                    offsetMax.x = -halfPadding;
+                    offsetMin.x = padding;
+                    offsetMax.x = -padding;
                     rectTran.offsetMin = offsetMin;
                     rectTran.offsetMax = offsetMax;
-                }
-                pos.x = halfPadding;
+                } else
+                    pos.x = halfPadding;
                 pos.y = (rect.height - this.halfPadding) * index - this.halfPadding; // rect.height * .5f ;
             } else // 多行
             {

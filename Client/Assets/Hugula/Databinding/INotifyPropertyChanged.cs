@@ -29,7 +29,7 @@ namespace Hugula.Databinding {
 	[XLua.CSharpCallLua]
 	public interface INotifyTable:IList,INotifyCollectionChanged,INotifyPropertyChanged
 	{
-        // object this[int index] { get; set; }
+
 	}
 
 	//用于luatable转换为Ilist对象

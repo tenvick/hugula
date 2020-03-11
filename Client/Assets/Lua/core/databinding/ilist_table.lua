@@ -187,11 +187,11 @@ ilist_table.Remove = remove_item --void Remove(object value);
 ilist_table.RemoveAt = remove_at --void RemoveAt(int index);
 ilist_table.__tostring = tostring
 
----属性改变监听类
----@class NotifyTable
----@class INotifyTable
----@module ilist_table.lua
----@overload fun():NotifyTable
+---Ilist的lua实现,在列表绑定不需要监听改变的时候可以使用这个数据结构
+---@class IListTable
+---@class IListTable
+---@module Assets\Lua\core\databinding\ilist_table.lua
+---@overload fun():IListTable
 ---@return NotifyTable
 ---@field Add   function
 ---@field Clear function

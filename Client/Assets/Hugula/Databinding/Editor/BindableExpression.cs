@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Hugula.Databinding.Editor {
     // [CustomEditor (typeof (BindableContainer), true)]
-    public static class BindableExpression {
+    public static class BindableExpressionEditor {
 
         static GUIStyle BindingPropertiesStyle = new GUIStyle ();
         // Dictionary<Binding, Dictionary<int,bool>> toggleDic = new Dictionary<Binding, Dictionary<int,bool>> ();
@@ -20,75 +20,21 @@ namespace Hugula.Databinding.Editor {
             bool toggle = false;
             int key = binding.GetHashCode () + i;
             toggleDic.TryGetValue (key, out toggle);
-            // bindingDic.TryGetValue(i,out toggle);
 
             GUILayout.Label (string.Format (".{0}=>", binding.propertyName), GUILayout.MinWidth (60));
             GUILayout.BeginHorizontal ();
             if (toggle = GUILayout.Toggle (toggle, "", GUILayout.MaxWidth (20))) {
                 GUILayout.EndHorizontal ();
-                // GUILayout.BeginVertical ();
-                // var expDic = StringToExpression (binding.expression);
-                // string path = string.Empty;
-                // string format = string.Empty;
-                // string mode = string.Empty;
-                // string convert = string.Empty;
-                // string source = string.Empty;
-
-                // expDic.TryGetValue ("path", out path);
-                // path = DrawEditorLabl ("path", path, GUILayout.MinWidth (100));
-                // expDic.TryGetValue ("format", out format);
-                // format = DrawEditorLabl ("format", format, GUILayout.MinWidth (100));
-                // expDic.TryGetValue ("mode", out mode);
-                // mode = DrawPopup ("mode", mode, GUILayout.MinWidth (100));
-                // expDic.TryGetValue ("convert", out convert);
-                // convert = DrawEditorLabl ("convert", convert, GUILayout.MinWidth (100));
-
-                // expDic.TryGetValue ("source", out source);
-                // source = DrawEditorLabl ("source", source, GUILayout.MinWidth (100));
-                // GUILayout.EndHorizontal ();
-                // expDic["path"] = path;
-                // binding.path = path;
-                // expDic["format"] = format;
-                // binding.format = format;
-                // expDic["mode"] = mode;
-                // binding.mode = mode;
-                // expDic["convert"] = convert;
-                // binding.converter = convert;
-                // expDic["source"] = source;
-                // binding.source = source;
-
-                // string expression = ExpressionToString (expDic);
-
-                // Debug.Log (expression);
-                // binding.expression = expression;
-
                 GUILayout.BeginVertical ();
                 binding.path = DrawEditorLabl ("path", binding.path, GUILayout.MinWidth (100));
                 binding.format = DrawEditorLabl ("format", binding.format, GUILayout.MinWidth (100));
-                binding.mode = DrawPopup ("mode", binding.mode, GUILayout.MinWidth (100));
+                binding.mode =  DrawEume("mode", binding.mode, GUILayout.MinWidth (100));//DrawPopup ("mode", binding.mode, GUILayout.MinWidth (100));
                 binding.converter = DrawEditorLabl ("converter", binding.converter, GUILayout.MinWidth (100));
                 binding.source = DrawEditorLabl ("source", binding.source, GUILayout.MinWidth (100));
                 GUILayout.EndHorizontal ();
-
             } else {
-                sb.Length = 0;
-                sb.Append ("{");
-                if (!string.IsNullOrEmpty (binding.path))
-                    sb.AppendFormat ("path={0},", binding.path);
-                if (!string.IsNullOrEmpty (binding.format))
-                    sb.AppendFormat ("format={0},", binding.format);
-                if (!string.IsNullOrEmpty (binding.mode))
-                    sb.AppendFormat ("mode={0},", binding.mode);
-                if (!string.IsNullOrEmpty (binding.converter))
-                    sb.AppendFormat ("converter={0},", binding.converter);
-                if (!string.IsNullOrEmpty (binding.source))
-                    sb.AppendFormat ("source={0},", binding.source);
-                if (sb.Length > 1) sb.Remove (sb.Length - 1, 1);
-                sb.Append ("}");
-                // string expression = 
-                EditorGUILayout.LabelField (sb.ToString (), GUILayout.MaxWidth (500));
+                  EditorGUILayout.LabelField (sb.ToString (), GUILayout.MaxWidth (500));
                 GUILayout.EndHorizontal ();
-
             }
 
             toggleDic[key] = toggle;
@@ -115,6 +61,17 @@ namespace Hugula.Databinding.Editor {
             content = GUILayout.TextField (content, options);
             GUILayout.EndHorizontal ();
             if (!string.IsNullOrEmpty (content)) content = content.Replace (",", "").Replace ("=", "");
+            return content;
+        }
+
+        public static BindingMode DrawEume (string title, BindingMode content, params GUILayoutOption[] options) {
+            GUILayout.BeginHorizontal ();
+            GUILayout.Label (new GUIContent (title));
+            // int selectIndex = System.Array.IndexOf (bindMode, content);
+            // if (selectIndex == -1) selectIndex = 0;
+            content = (BindingMode)EditorGUILayout.EnumPopup (content, options);
+            GUILayout.EndHorizontal ();
+
             return content;
         }
 
@@ -213,7 +170,7 @@ namespace Hugula.Databinding.Editor {
                 for (int i = 0; i < temp.bindings.Count; i++) {
                     EditorGUILayout.BeginHorizontal ();
                     var binding = temp.bindings[i];
-                    BindableExpression.Expression (binding, temp.targetName, i);
+                    BindableExpressionEditor.Expression (binding, temp.targetName, i);
                     //         GUILayout.Label ((i + 1).ToString (), GUILayout.Width (20));
                     //         // objComponent = temp.children[i];
                     //         // objComponent = PopupGameObjectComponents (GetbindableObjects (temp, i).target, i); //选择绑定的component type类型

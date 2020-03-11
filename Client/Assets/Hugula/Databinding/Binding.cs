@@ -12,6 +12,8 @@ namespace Hugula.Databinding {
 	[System.SerializableAttribute]
 	public class Binding : IDisposable //:IBinding
 	{
+		internal const string SelfPath = ".";
+
 		#region  序列化属性
 		///<summary>
 		/// The type of the property
@@ -23,29 +25,11 @@ namespace Hugula.Databinding {
 		///</summary>
 		public string propertyName;
 
-		// ///<summary>
-		// /// propertyName Is Method
-		// ///</summary>
-		// public bool isMethod;
-
-		// ///<summary>
-		// /// {path=".",format=""}
-		// ///</summary>
-		// public string expression; //表达式{}
-
 		public string path;
 		public string format;
 		public string converter;
-		public string mode;
+		public BindingMode mode;
 		public string source;
-
-		BindableObject m_Target;
-
-		//绑定的目标Bindable
-		public BindableObject target {
-			get { return m_Target; }
-			set { m_Target = value; }
-		}
 
 		#endregion
 
@@ -56,35 +40,50 @@ namespace Hugula.Databinding {
 		public object context;
 
 		private bool isApplied = false;
-		private bool isInitialize = false;
 
 		///<summary>
 		/// 表达式的解析与寻值
 		///</summary>
 		public IBindingExpression bindingExpression { get; set; }
 
-		public void Initialize () {
-			bindingExpression = BindingUtility.NewExpression (this);
-			isInitialize = true;
-		}
-
 		#endregion
 
 		#region  表达式与寻值
 		internal void Apply (bool fromTarget = true) {
-			if (!isInitialize) Initialize ();
+			if (bindingExpression == null) bindingExpression = new BindingExpression (this);
+			// Action act = () => bindingExpression.Apply (fromTarget);
+			// Executor.Execute (act);
 			bindingExpression.Apply (fromTarget);
 			isApplied = true;
 		}
 
-		internal void Unapply () {
-			if (bindingExpression != null) bindingExpression.Unapply (true);
+		//初始化绑定
+		internal void Apply (object cont, BindableObject bindObj, bool fromBindingContextChanged = false) {
+
+			if (bindingExpression == null) {
+				if (string.IsNullOrEmpty (source))
+					bindingExpression = new BindingExpression (this);
+				else
+					bindingExpression = new BindingExpression (this, bindObj);
+			}
+
+			object bindingContext = cont;
+			if (m_Source != null) bindingContext = m_Source;
+			// Debug.LogFormat ("Apply bindingContext={0};m_Source={1}", bindingContext, m_Source);
+			bindingExpression.Apply (bindingContext, bindObj, propertyName, fromBindingContextChanged);
+			isApplied = true;
+
 		}
+
+		internal void Unapply (bool fromBindingContextChanged = false) {
+			if (bindingExpression != null) bindingExpression.Unapply (fromBindingContextChanged);
+		}
+
 		#endregion
 
 		public void Dispose () {
 			Unapply ();
-			m_Target = null;
+			// m_Target = null;
 			m_Source = null;
 			context = null;
 			bindingExpression = null;

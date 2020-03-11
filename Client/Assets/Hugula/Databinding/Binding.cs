@@ -69,7 +69,6 @@ namespace Hugula.Databinding {
 
 			object bindingContext = cont;
 			if (m_Source != null) bindingContext = m_Source;
-			// Debug.LogFormat ("Apply bindingContext={0};m_Source={1}", bindingContext, m_Source);
 			bindingExpression.Apply (bindingContext, bindObj, propertyName, fromBindingContextChanged);
 			isApplied = true;
 

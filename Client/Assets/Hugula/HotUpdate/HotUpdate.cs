@@ -242,7 +242,7 @@ namespace Hugula.HotUpdate {
         public void LoadBeginScene () {
             ManifestManager.LoadUpdateFileManifest (null);
             SetSliderProgress (Localization.Get ("main_enter_game"), 5, 1);
-            ResourcesLoader.LoadScene (SCENE_ASSETBUNDLE_NAME, SCENE_NAME, null, null, true, UnityEngine.SceneManagement.LoadSceneMode.Single);
+            ResourcesLoader.LoadScene (SCENE_ASSETBUNDLE_NAME, SCENE_NAME, null, null, null,true, UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
 
         ///<summary>

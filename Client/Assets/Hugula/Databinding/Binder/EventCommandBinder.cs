@@ -18,5 +18,11 @@ namespace Hugula.Databinding.Binder {
             if (command != null && command.CanExecute (parameter))
                 command.Execute (parameter);
         }
+
+        void OnDestory()
+        {
+             command = null;
+             parameter = null;
+        }
     }
 }

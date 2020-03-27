@@ -16,7 +16,10 @@ namespace Hugula.Databinding.Editor {
             typeof (UnityEngine.UI.InputField),
             typeof (UnityEngine.UI.Slider),
             typeof (Hugula.UIComponents.LoopScrollRect),
-            typeof (Hugula.UIComponents.LoopVerticalScrollRect)
+            typeof (Hugula.UIComponents.LoopVerticalScrollRect),
+            #if USE_TMPro
+            typeof (TMPro.TextMeshProUGUI),
+            #endif
         };
 
         public List<Type> BinderCreateTypes = new List<Type> () {
@@ -26,7 +29,10 @@ namespace Hugula.Databinding.Editor {
             typeof (Hugula.Databinding.Binder.InputFieldBinder),
             typeof (Hugula.Databinding.Binder.SliderBinder),
             typeof (Hugula.Databinding.Binder.LoopScrollRectBinder),
-            typeof (Hugula.Databinding.Binder.LoopVerticalScrollRectBinder)
+            typeof (Hugula.Databinding.Binder.LoopVerticalScrollRectBinder),
+            #if USE_TMPro
+            typeof (Hugula.Databinding.Binder.TextMeshProUGUIBinder),
+            #endif
         };
 
         static List<string> names; //= new List<string>();

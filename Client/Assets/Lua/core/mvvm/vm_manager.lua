@@ -11,6 +11,7 @@ local table_insert = table.insert
 
 local profiler = require("perf.profiler")
 
+local CS = CS
 local GameObject = CS.UnityEngine.GameObject
 local Hugula = CS.Hugula
 local ResourcesLoader = Hugula.Loader.ResourcesLoader
@@ -18,6 +19,9 @@ local VMgenerate = VMgenerate
 local VMConfig = VMConfig
 local Binding = Binding
 local Binder = Binder
+local LuaHelper = Hugula.Utils.LuaHelper
+local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
+local BindingUtility = Hugula.Databinding.BindingUtility
 
 ResourcesLoader.Initialize()
 
@@ -44,7 +48,7 @@ end
 ---@param gobj GameObject
 ---@param view_base ViewBase
 local function init_view_wm(gobj, view_base)
-    local bindable_container = gobj:GetComponent("Hugula.Databinding.BindableContainer")
+    local bindable_container = BindingUtility.GetBindableContainer(gobj)
     view_base:add_child(bindable_container)
     ---@class ViewBase
     local vm_base = view_base._vm_base
@@ -67,6 +71,18 @@ local function on_res_comp(data, view_base)
     init_view_wm(inst, view_base)
     -- Logger.Log(string.format("init_view_wm:%s\r\n",inst.name), profiler.report())
     -- profiler.stop()
+end
+
+---场景加载完成
+---@overload fun(data:GameObject,view_base:ViewBase)
+---@param data GameObject
+---@param view_base ViewBase
+local function on_scene_comp(data, view_base)
+    -- body
+end
+
+local function on_res_end(data,view_base)
+    Logger.Log(string.format("on_res_end : %s",view_base.name))
 end
 
 ---利用find查找view的gameobject root
@@ -126,6 +142,28 @@ local function load_resource(res_path, res_name, view_base)
     end
 end
 
+---加载场景
+---@overload fun(res_path:string,res_name:string,view_base:ViewBase)
+---@param res_path string
+---@param res_name string
+---@param view_base ViewBase
+local function load_scene(res_path, scene_name, view_base) --LoadScene
+    local vm_base = view_base._vm_base
+    local load_scene_mode 
+    if vm_base.load_scene_mode ~= nil then
+        load_scene_mode = vm_base.load_scene_mode
+    else
+        load_scene_mode =  LoadSceneMode.Additive
+    end
+
+    local allow_scene_activation = true
+    if vm_base.allow_scene_activation ~= nil then
+        allow_scene_activation = vm_base.allow_scene_activation
+    end
+
+    ResourcesLoader.LoadScene(res_path, scene_name, on_scene_comp, on_res_end,view_base,allow_scene_activation,load_scene_mode)
+end
+
 --- 开始加载或者激活vm关联的view
 ---@overload fun(vm_name:string)
 ---@param vm_name string
@@ -137,11 +175,13 @@ local function load(vm_name)
         -- Logger.Log(vm_name)
         local views = curr_vm.views
         if views then
-            local find_path, res_name, res_path
+            local find_path, res_name,scene_name, res_path
             for k, v in ipairs(views) do
-                find_path, res_name, res_path = v.find_path, v.asset_name, v.assetbundle
+                find_path, res_name, scene_name,res_path = v.find_path, v.asset_name,v.scene_name, v.res_path
                 if v.find_path ~= nil then
                     find_gameobject(v.find_path, v)
+                elseif scene_name ~= nil and res_path ~= nil then
+                    load_scene(res_path,scene_name,v)
                 elseif res_name ~= nil and res_path ~= nil then
                     load_resource(res_path, res_name, v)
                 end

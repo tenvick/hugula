@@ -8,9 +8,13 @@
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 local moban_view= ViewBase()
----指定资源
+moban_view.res_path = "scroll_rect.u3d" ---指定assetbundle name
+---加载资源
 moban_view.asset_name = "scroll_rect"  ---指定资源名
-moban_view.assetbundle = "scroll_rect.u3d" ---指定assetbundle name
+--加载场景
+moban_view.scene_name = "myscene" --表示加载场景
+moban_view.load_scene_mode = CS.UnityEngine.SceneManagement.LoadSceneMode.Additive  --LoadSceneMode.Single
+moban_view.allow_scene_activation = true --激活场景
 
 function moban_view:on_asset_load(key,asset) ---逻辑实现，一般情况不需要代码。
 	Logger.Log(key,asset)

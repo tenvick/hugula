@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.3.27
+1 atlas图集引用与打包,全局sprite信息保存。
+2 ImageBinder增加spriteName属性，可以直接绑定spriteName对应的sprite。
+3 新增TextMeshProBinder，预编译命令USE_TMPro开启。
+3 Binder销毁引用资源清理。
+
 2020.3.11
 1 BindingExpression和BindingPathPart移值到C#中实现。
 2 真机导出lua文件后缀修改。

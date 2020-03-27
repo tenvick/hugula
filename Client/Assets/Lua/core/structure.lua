@@ -504,7 +504,7 @@ end
 
 local A = {4, 2, 5, 3, 1, 6, 8, 9}
 local T = {}
-build_binary_tree(T, A)
+-- build_binary_tree(T, A)
 
 -- inorder_tree_walk(T.root)
 -- print("min", tree_minmum(T.root))

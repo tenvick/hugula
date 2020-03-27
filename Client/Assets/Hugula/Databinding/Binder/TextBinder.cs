@@ -126,10 +126,15 @@ namespace Hugula.Databinding.Binder {
 
         #endregion
 
-        void Awake () {
+        protected override void Awake () {
             m_Text = GetTarget<Text> ();
             base.Awake ();
         }
 
+        protected override void OnDestroy()
+        {
+            m_Text = null;
+            base.OnDestroy();
+        }
     }
 }

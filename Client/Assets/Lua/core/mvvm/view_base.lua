@@ -122,12 +122,13 @@ View = function(vm_base, arg, view_path)
     view_inst._vm_base = vm_base
     if arg_is_string ~= true then --- string 表示路径
         for k, v in pairs(arg) do
-            if k == "__find" then
-                view_inst.find_path = v
-            else
-                view_inst.asset_name = k
-                view_inst.assetbundle = v
-            end
+            -- if k == "__find" then
+            --     view_inst.find_path = v
+            -- else
+            --     view_inst.asset_name = k
+            --     view_inst.assetbundle = v
+            -- end
+            view_inst[k] = v
         end
     end
     return view_inst

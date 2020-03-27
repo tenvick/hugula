@@ -32,5 +32,10 @@ namespace Hugula.Databinding.Binder {
             m_Maskable = GetTarget<MaskableGraphic> ();
         }
 
+        protected override void OnDestroy()
+        {
+            m_Maskable = null;
+            base.OnDestroy();
+        }
     }
 }

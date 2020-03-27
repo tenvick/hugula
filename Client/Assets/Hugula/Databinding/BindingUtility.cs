@@ -57,6 +57,10 @@ namespace Hugula.Databinding {
 
 		}
 
+		public static BindableContainer GetBindableContainer(UnityEngine.GameObject obj)
+		{
+			return obj.GetComponent<BindableContainer>();
+		}
 
 		public static object ConvertToNotifyTable(INotifyPropertyChanged table)
 		{

@@ -91,6 +91,7 @@ namespace Hugula.Databinding.Binder {
             m_Slider.onValueChanged.RemoveListener (OnValueChanged);
             m_OnValueChangedExecute = null;
             m_Slider = null;
+            base.OnDestroy();
         }
 
     }

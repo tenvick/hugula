@@ -126,48 +126,48 @@ public class AssetbundlesMenuItems
     }
 
 
-    [MenuItem("Assets/HugulaExtends/Add First Load Files", false, 1)]
-    static public void AddFirstLoadFiles()
-    {
-        BuildScript.FirstLoadFiles(false);
-    }
+    // [MenuItem("Assets/HugulaExtends/Add First Load Files", false, 1)]
+    // static public void AddFirstLoadFiles()
+    // {
+    //     BuildScript.FirstLoadFiles(false);
+    // }
 
-    [MenuItem("Assets/HugulaExtends/Add Extension Files", false, 2)]
-    static public void AddExtensionFiles()
-    {
-        BuildScript.ExtensionFiles(false);
-    }
+    // [MenuItem("Assets/HugulaExtends/Add Extension Files", false, 2)]
+    // static public void AddExtensionFiles()
+    // {
+    //     BuildScript.ExtensionFiles(false);
+    // }
 
-    [MenuItem("Assets/HugulaExtends/Add OnlyInclusion Files", false, 3)]
-    static public void AddOnlyInclusionFiles()
-    {
-        BuildScript.AddOnlyInclusionFiles(false);
-    }
+    // [MenuItem("Assets/HugulaExtends/Add OnlyInclusion Files", false, 3)]
+    // static public void AddOnlyInclusionFiles()
+    // {
+    //     BuildScript.AddOnlyInclusionFiles(false);
+    // }
 
 
-    [MenuItem("Assets/HugulaExtends/Remove (Extension or First Load or OnlyInclusion) Files", false, 10)]
-    static public void RemoveExtensionFiles()
-    {
-        BuildScript.ExtensionFiles(true);
-    }
+    // [MenuItem("Assets/HugulaExtends/Remove (Extension or First Load or OnlyInclusion) Files", false, 10)]
+    // static public void RemoveExtensionFiles()
+    // {
+    //     BuildScript.ExtensionFiles(true);
+    // }
 
-     [MenuItem("Assets/HugulaExtends/RemapMd5 Assts\\Tmp\\ablog.txt ", false, 100)]
-    static public void RemapMd5fileName()
-    {
-        BuildScript.RemapMd5fileName();
-    }
+    //  [MenuItem("Assets/HugulaExtends/RemapMd5 Assts\\Tmp\\ablog.txt ", false, 100)]
+    // static public void RemapMd5fileName()
+    // {
+    //     BuildScript.RemapMd5fileName();
+    // }
   
-    [MenuItem("Assets/HugulaExtends/Add OnlyInclusion Files (from Assts\\Tmp\\adlog-new.txt)", false, 102)]
-    static public void AddOnlyInclusionFilesByTxt()
-    {
-        BuildScript.AddOnlyInclusionFilesByTxt();
-    }
+    // [MenuItem("Assets/HugulaExtends/Add OnlyInclusion Files (from Assts\\Tmp\\adlog-new.txt)", false, 102)]
+    // static public void AddOnlyInclusionFilesByTxt()
+    // {
+    //     BuildScript.AddOnlyInclusionFilesByTxt();
+    // }
    
-    [MenuItem("Assets/HugulaExtends/Exclude Extension Files(from Selected .txt)", false, 103)]
-    static public void ExcludeExtensionFiles()
-    {
-        BuildScript.ExcludeExtensionFiles();
-    }
+    // [MenuItem("Assets/HugulaExtends/Exclude Extension Files(from Selected .txt)", false, 103)]
+    // static public void ExcludeExtensionFiles()
+    // {
+    //     BuildScript.ExcludeExtensionFiles();
+    // }
   
 
     [MenuItem("Assets/HugulaExtends/Check Selected (files or folder) assetbundle size [must Build AssetBundles]", false, 150)]
@@ -176,17 +176,17 @@ public class AssetbundlesMenuItems
         BuildScript.CheckSelectedAssetbundleSize();
     }
 
-     [MenuItem("Assets/HugulaExtends/Check OnlyInclusionFiles assetbundle size  [must Build AssetBundles]", false, 151)]
-    static public void CheckInCludeAssetbundleSize()
-    {
-        BuildScript.CheckInCludeAssetbundleSize();
-    }
+    //  [MenuItem("Assets/HugulaExtends/Check OnlyInclusionFiles assetbundle size  [must Build AssetBundles]", false, 151)]
+    // static public void CheckInCludeAssetbundleSize()
+    // {
+    //     BuildScript.CheckInCludeAssetbundleSize();
+    // }
 
-     [MenuItem("Assets/HugulaExtends/Check FirstLoadFiles assetbundle size  [must Build AssetBundles]", false, 152)]
-    static public void CheckFirstAssetbundleSize()
-    {
-        BuildScript.CheckFirstLoaddAssetbundleSize();
-    }
+    //  [MenuItem("Assets/HugulaExtends/Check FirstLoadFiles assetbundle size  [must Build AssetBundles]", false, 152)]
+    // static public void CheckFirstAssetbundleSize()
+    // {
+    //     BuildScript.CheckFirstLoaddAssetbundleSize();
+    // }
 
 //    [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
     static public void AddZipFiles()

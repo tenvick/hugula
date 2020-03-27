@@ -606,7 +606,7 @@ namespace Hugula.UIComponents {
             if (columns == 0) {
                 m_PageSize = Mathf.CeilToInt (Mathf.Abs (vSize.width) / (m_ItemSize.x + this.halfPadding)) + 1;
             } else {
-                m_PageSize = columns * (Mathf.FloorToInt (Mathf.Abs (vSize.height) / (m_ItemSize.y + this.halfPadding)) + 1);
+                m_PageSize = columns * (Mathf.CeilToInt (Mathf.Abs (vSize.height) / (m_ItemSize.y + this.halfPadding)) + 1);
             }
         }
 

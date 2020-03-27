@@ -8,37 +8,43 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Hugula.Loader {
+namespace Hugula.Loader
+{
     [XLua.LuaCallCSharp]
-    public sealed class ResourcesLoader : MonoBehaviour {
+    public sealed class ResourcesLoader : MonoBehaviour
+    {
 #if UNITY_EDITOR
         const string kSimulateAssetBundles = "SimulateAssetBundles";
         static int m_SimulateAssetBundleInEditor = -1;
         /// <summary>
         /// Flag to indicate if we want to simulate assetBundles in Editor without building them actually.
         /// </summary>
-        public static bool SimulateAssetBundleInEditor {
-            get {
+        public static bool SimulateAssetBundleInEditor
+        {
+            get
+            {
 #if USE_BUNDLE
                 return false;
 #endif
 
                 if (m_SimulateAssetBundleInEditor == -1)
-                    m_SimulateAssetBundleInEditor = UnityEditor.EditorPrefs.GetBool (kSimulateAssetBundles, true) ? 1 : 0;
+                    m_SimulateAssetBundleInEditor = UnityEditor.EditorPrefs.GetBool(kSimulateAssetBundles, true) ? 1 : 0;
 
                 return m_SimulateAssetBundleInEditor != 0;
             }
-            set {
+            set
+            {
                 int newValue = value ? 1 : 0;
-                if (newValue != m_SimulateAssetBundleInEditor) {
+                if (newValue != m_SimulateAssetBundleInEditor)
+                {
                     m_SimulateAssetBundleInEditor = newValue;
-                    UnityEditor.EditorPrefs.SetBool (kSimulateAssetBundles, value);
+                    UnityEditor.EditorPrefs.SetBool(kSimulateAssetBundles, value);
                 }
             }
         }
 
 #endif
-        public delegate string OverrideBaseDownloadingURLDelegate (string bundleName);
+        public delegate string OverrideBaseDownloadingURLDelegate(string bundleName);
 
         /// <summary>
         /// Implements per-bundle base downloading URL override.
@@ -55,12 +61,12 @@ namespace Hugula.Loader {
         //current loaded
         static private int currLoaded = 0;
         static LoadingEventArg loadingEvent; //事件进度
-        static List<AssetOperation> inProgressOperations = new List<AssetOperation> (); //正在加载的资源asset列表
+        static List<AssetOperation> inProgressOperations = new List<AssetOperation>(); //正在加载的资源asset列表
 
-        static List<string> downloadingBundles = new List<string> (); // 正在加载的assetbundle name
-        static List<BundleOperation> inBundleProgressOperations = new List<BundleOperation> (); //加载的assetbundle列表
-        static HashSet<int> completeOper = new HashSet<int> (); //正常回调
-        static Queue<AssetOperation> waitOperations = new Queue<AssetOperation> (); //等待队列
+        static List<string> downloadingBundles = new List<string>(); // 正在加载的assetbundle name
+        static List<BundleOperation> inBundleProgressOperations = new List<BundleOperation>(); //加载的assetbundle列表
+        static HashSet<int> completeOper = new HashSet<int>(); //正常回调
+        static Queue<AssetOperation> waitOperations = new Queue<AssetOperation>(); //等待队列
 
         /// <summary>
         /// 以同步方式加载ab资源
@@ -68,14 +74,15 @@ namespace Hugula.Loader {
         /// <param name="abName"></param>
         /// <param name="assetName"></param>
         /// <returns></returns>
-        static public T LoadAsset<T> (string abName, string assetName) {
-            var req = CRequest.Get ();
+        static public T LoadAsset<T>(string abName, string assetName)
+        {
+            var req = CRequest.Get();
             req.assetName = assetName;
-            req.assetType = typeof (T);
+            req.assetType = typeof(T);
             req.assetBundleName = abName;
-            LoadAsset (req, false);
-            T t = (T) req.data;
-            req.ReleaseToPool ();
+            LoadAsset(req, false);
+            T t = (T)req.data;
+            req.ReleaseToPool();
             return t;
         }
 
@@ -85,14 +92,15 @@ namespace Hugula.Loader {
         /// <param name="abName"></param>
         /// <param name="assetName"></param>
         /// <returns></returns>
-        static public UnityEngine.Object LoadAsset (string abName, string assetName, Type assetType) {
-            var req = CRequest.Get ();
+        static public UnityEngine.Object LoadAsset(string abName, string assetName, Type assetType)
+        {
+            var req = CRequest.Get();
             req.assetName = assetName;
             req.assetType = assetType;
             req.assetBundleName = abName;
-            LoadAsset (req, false);
-            UnityEngine.Object t = (UnityEngine.Object) req.data;
-            req.ReleaseToPool ();
+            LoadAsset(req, false);
+            UnityEngine.Object t = (UnityEngine.Object)req.data;
+            req.ReleaseToPool();
             return t;
         }
 
@@ -102,8 +110,9 @@ namespace Hugula.Loader {
         /// <param name="abName"></param>
         /// <param name="assetName"></param>
         /// <returns></returns>
-        static public CRequest LoadAssetCoroutine<T> (string abName, string assetName) {
-            return LoadAssetCoroutine (abName, assetName, typeof (T));
+        static public CRequest LoadAssetCoroutine<T>(string abName, string assetName)
+        {
+            return LoadAssetCoroutine(abName, assetName, typeof(T));
         }
 
         /// <summary>
@@ -112,12 +121,13 @@ namespace Hugula.Loader {
         /// <param name="abName"></param>
         /// <param name="assetName"></param>
         /// <returns></returns>
-        static public CRequest LoadAssetCoroutine (string abName, string assetName, Type assetType) {
-            var req = new CRequest ();
+        static public CRequest LoadAssetCoroutine(string abName, string assetName, Type assetType)
+        {
+            var req = new CRequest();
             req.assetName = assetName;
             req.assetType = assetType;
             req.assetBundleName = abName;
-            LoadAsset (req);
+            LoadAsset(req);
             return req;
         }
 
@@ -131,14 +141,16 @@ namespace Hugula.Loader {
         /// <param name="onEnd"></param>
         /// <param name="priority"></param>
         /// <returns >返回标识id可以取消完成后的complete回调</returns>
-        static public int LoadAssetAsync (string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd, object userData) {
-            var req = CRequest.Get ();
+        static public int LoadAssetAsync(string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd, object userData = null)
+        {
+            var req = CRequest.Get();
             req.assetName = assetName;
             req.assetType = type;
             req.assetBundleName = abName;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
-            return LoadAsset (req);
+            req.userData = userData;
+            return LoadAsset(req);
         }
 
         /// <summary>
@@ -150,14 +162,15 @@ namespace Hugula.Loader {
         /// <param name="onComplete"></param>
         /// <param name="onEnd"></param>
         /// <param name="priority"></param>
-        static public UnityEngine.Object[] LoadAssetWithSubAssets (string abName, string assetName, System.Type type) {
-            var req = CRequest.Get ();
+        static public UnityEngine.Object[] LoadAssetWithSubAssets(string abName, string assetName, System.Type type)
+        {
+            var req = CRequest.Get();
             req.assetName = assetName;
             req.assetType = type;
             req.assetBundleName = abName;
-            LoadAsset (req, false, true);
-            UnityEngine.Object[] t = (UnityEngine.Object[]) req.data;
-            req.ReleaseToPool ();
+            LoadAsset(req, false, true);
+            UnityEngine.Object[] t = (UnityEngine.Object[])req.data;
+            req.ReleaseToPool();
             return t;
         }
 
@@ -171,14 +184,15 @@ namespace Hugula.Loader {
         /// <param name="onEnd"></param>
         /// <param name="priority"></param>
         /// <returns >返回标识id可以取消完成后的complete回调</returns>
-        static public int LoadAssetWithSubAssetsAsync (string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd) {
-            var req = CRequest.Get ();
+        static public int LoadAssetWithSubAssetsAsync(string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd)
+        {
+            var req = CRequest.Get();
             req.assetName = assetName;
             req.assetType = type;
             req.assetBundleName = abName;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
-            return LoadAsset (req, true, true);
+            return LoadAsset(req, true, true);
         }
 
         /// <summary>
@@ -190,14 +204,15 @@ namespace Hugula.Loader {
         /// <param name="onComplete"></param>
         /// <param name="onEnd"></param>
         /// <param name="priority"></param>
-        static public CRequest LoadAssetWithSubAssetsCoroutine (string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd) {
-            var req = new CRequest ();
+        static public CRequest LoadAssetWithSubAssetsCoroutine(string abName, string assetName, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd)
+        {
+            var req = new CRequest();
             req.assetName = assetName;
             req.assetType = type;
             req.assetBundleName = abName;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
-            LoadAsset (req, true, true);
+            LoadAsset(req, true, true);
             return req;
         }
 
@@ -211,12 +226,13 @@ namespace Hugula.Loader {
         /// <param name="allowSceneActivation"></param>
         /// <param name="loadSceneMode"></param>
         /// <returns></returns>
-        static public CRequest LoadSceneCoroutine (string abName, string sceneName, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive) {
-            var req = new CRequest ();
+        static public CRequest LoadSceneCoroutine(string abName, string sceneName, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
+        {
+            var req = new CRequest();
             req.assetName = sceneName;
             req.assetType = LoaderType.Typeof_ABScene;
             req.assetBundleName = abName;
-            LoadSceneAsset (req, allowSceneActivation, loadSceneMode);
+            LoadSceneAsset(req, allowSceneActivation, loadSceneMode);
             return req;
         }
 
@@ -230,15 +246,17 @@ namespace Hugula.Loader {
         /// <param name="allowSceneActivation"></param>
         /// <param name="loadSceneMode"></param>
         /// <returns></returns>
-        static public void LoadScene (string abName, string sceneName, System.Action<object, object> onComplete, System.Action<object, object> onEnd, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive) {
-            var req = CRequest.Get ();
+        static public void LoadScene(string abName, string sceneName, System.Action<object, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
+        {
+            var req = CRequest.Get();
             req.assetName = sceneName;
             req.assetType = LoaderType.Typeof_ABScene;
             req.assetBundleName = abName;
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
+            req.userData = userData;
             // if (CacheManager.GetSceneBundle(sceneName) == null) //没有加载场景
-            LoadSceneAsset (req, allowSceneActivation, loadSceneMode);
+            LoadSceneAsset(req, allowSceneActivation, loadSceneMode);
             // else
             // {
             //     DispatchReqAssetOperation(req, false);
@@ -250,10 +268,11 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="opID">返回的Operater id</param>
         /// <returns></returns>
-        static public bool StopComplete (int opID) {
-            bool ret = completeOper.Remove (opID);
+        static public bool StopComplete(int opID)
+        {
+            bool ret = completeOper.Remove(opID);
 #if UNITY_EDITOR
-            Debug.LogFormat ("StopComplete({0}) is {1}", opID, ret);
+            Debug.LogFormat("StopComplete({0}) is {1}", opID, ret);
 #endif
             return ret;
         }
@@ -263,10 +282,11 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="sceneName"></param>
         /// <returns></returns>
-        static public void SetActiveScene (string sceneName) {
+        static public void SetActiveScene(string sceneName)
+        {
             Scene scene;
-            if (CacheManager.GetSceneBundle (sceneName) != null && (scene = SceneManager.GetSceneByName (sceneName)) != null)
-                SceneManager.SetActiveScene (scene);
+            if (CacheManager.GetSceneBundle(sceneName) != null && (scene = SceneManager.GetSceneByName(sceneName)) != null)
+                SceneManager.SetActiveScene(scene);
 
         }
 
@@ -275,8 +295,9 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="abName"></param>
         /// <returns></returns>
-        static public void Subtract (string abName) {
-            CacheManager.Subtract (abName);
+        static public void Subtract(string abName)
+        {
+            CacheManager.Subtract(abName);
         }
 
         /// <summary>
@@ -284,8 +305,9 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="sceneName"></param>
         /// <returns></returns>
-        static public AsyncOperation UnloadScene (string sceneName) {
-            return CacheManager.UnloadScene (sceneName);
+        static public AsyncOperation UnloadScene(string sceneName)
+        {
+            return CacheManager.UnloadScene(sceneName);
         }
 
         /// <summary>
@@ -293,9 +315,10 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="sceneName"></param>
         /// <returns></returns>
-        static public Coroutine StartCoroutine1 (IEnumerator coroutine) {
+        static public Coroutine StartCoroutine1(IEnumerator coroutine)
+        {
             if (_instance != null)
-                return _instance.StartCoroutine (coroutine);
+                return _instance.StartCoroutine(coroutine);
 
             return null;
         }
@@ -304,45 +327,55 @@ namespace Hugula.Loader {
         /// <summary>
         /// Awake is called when the script instance is being loaded.
         /// </summary>
-        void Awake () {
-            DontDestroyOnLoad (this.gameObject);
-            loadingEvent = new LoadingEventArg ();
+        void Awake()
+        {
+            DontDestroyOnLoad(this.gameObject);
+            loadingEvent = new LoadingEventArg();
         }
 
-        void Update () {
+        void Update()
+        {
             // 加载assetbundle
-            for (int i = 0; i < inBundleProgressOperations.Count;) {
+            for (int i = 0; i < inBundleProgressOperations.Count;)
+            {
                 var operation = inBundleProgressOperations[i];
-                if (operation.Update ()) {
+                if (operation.Update())
+                {
                     i++;
-                } else {
-                    inBundleProgressOperations.RemoveAt (i);
-                    downloadingBundles.Remove (operation.assetBundleName);
-                    operation.ReleaseToPool ();
+                }
+                else
+                {
+                    inBundleProgressOperations.RemoveAt(i);
+                    downloadingBundles.Remove(operation.assetBundleName);
+                    operation.ReleaseToPool();
                 }
             }
 
             //asset加载
-            for (int i = 0; i < inProgressOperations.Count;) {
+            for (int i = 0; i < inProgressOperations.Count;)
+            {
                 var operation = inProgressOperations[i];
-                if (operation.Update ()) {
+                if (operation.Update())
+                {
                     i++;
-                } else {
-                    inProgressOperations.RemoveAt (i);
-                    operation.Done ();
+                }
+                else
+                {
+                    inProgressOperations.RemoveAt(i);
+                    operation.Done();
                     var req = operation.request;
                     int opId = operation.id;
-                    operation.ReleaseToPool ();
-                    DispatchReqAssetOperation (req, req.error != null, opId);
+                    operation.ReleaseToPool();
+                    DispatchReqAssetOperation(req, req.error != null, opId);
 
-                    CheckAllComplete ();
+                    CheckAllComplete();
                 }
             }
 
             //判断等待队列
             while (waitOperations.Count > 0 && inProgressOperations.Count < maxLoading) //如果有
             {
-                inProgressOperations.Add (waitOperations.Dequeue ()); //放入加载队列
+                inProgressOperations.Add(waitOperations.Dequeue()); //放入加载队列
             }
 
         }
@@ -350,15 +383,17 @@ namespace Hugula.Loader {
         /// <summary>
         /// auto clear assetbundle
         /// </summary>
-        void LateUpdate () {
-            ABDelayUnloadManager.Update ();
+        void LateUpdate()
+        {
+            ABDelayUnloadManager.Update();
         }
 
         #endregion
 
         #region 
 
-        public static void RegisterOverrideBaseAssetbundleURL (OverrideBaseDownloadingURLDelegate baseDownloadingURLDelegate) {
+        public static void RegisterOverrideBaseAssetbundleURL(OverrideBaseDownloadingURLDelegate baseDownloadingURLDelegate)
+        {
             overrideBaseDownloadingURL -= baseDownloadingURLDelegate;
             overrideBaseDownloadingURL += baseDownloadingURLDelegate;
         }
@@ -371,16 +406,19 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="bundleName"></param>
         /// <returns></returns>
-        internal static string GetAssetBundleDownloadingURL (string bundleName) {
-            if (overrideBaseDownloadingURL != null) {
-                foreach (OverrideBaseDownloadingURLDelegate method in overrideBaseDownloadingURL.GetInvocationList ()) {
-                    string res = method (bundleName);
+        internal static string GetAssetBundleDownloadingURL(string bundleName)
+        {
+            if (overrideBaseDownloadingURL != null)
+            {
+                foreach (OverrideBaseDownloadingURLDelegate method in overrideBaseDownloadingURL.GetInvocationList())
+                {
+                    string res = method(bundleName);
                     if (res != null)
                         return res;
                 }
             }
 
-            return CUtils.PathCombine (CUtils.realStreamingAssetsPath, bundleName);
+            return CUtils.PathCombine(CUtils.realStreamingAssetsPath, bundleName);
         }
 
         #endregion
@@ -392,26 +430,30 @@ namespace Hugula.Loader {
         /// <param name="assetBundleName"></param>
         /// <param name="async">异步加载</param>
         /// <returns></returns>
-        static void LoadAssetBundleInternal (string assetBundleName, bool async) {
-            CacheData cache = CacheManager.TryGetCache (assetBundleName);
+        static void LoadAssetBundleInternal(string assetBundleName, bool async)
+        {
+            CacheData cache = CacheManager.TryGetCache(assetBundleName);
             if (cache.canUse) return; //可以使用
 
             // bool isIn = downloadingBundles.Contains(assetBundleName);//正在队列中
 
-            if (async && !downloadingBundles.Contains (assetBundleName)) //异步加载
+            if (async && !downloadingBundles.Contains(assetBundleName)) //异步加载
             {
-                var op = OperationPools<BundleOperation>.Get ();
+                var op = OperationPools<BundleOperation>.Get();
                 op.assetBundleName = assetBundleName;
-                inBundleProgressOperations.Add (op);
-                downloadingBundles.Add (assetBundleName);
-            } else if (!async && cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
+                inBundleProgressOperations.Add(op);
+                downloadingBundles.Add(assetBundleName);
+            }
+            else if (!async && cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
             {
-                var op = OperationPools<BundleOperation>.Get ();
+                var op = OperationPools<BundleOperation>.Get();
                 op.assetBundleName = assetBundleName;
-                op.StartSync (); //同步加载
-                op.ReleaseToPool ();
-            } else if (!async) {
-                Debug.LogWarningFormat ("the assetbundle({0}) can't be sync loaded 因为它正在异步加载中!", assetBundleName);
+                op.StartSync(); //同步加载
+                op.ReleaseToPool();
+            }
+            else if (!async)
+            {
+                Debug.LogWarningFormat("the assetbundle({0}) can't be sync loaded 因为它正在异步加载中!", assetBundleName);
             }
 
         }
@@ -422,29 +464,33 @@ namespace Hugula.Loader {
         /// <param name="assetBundleName"> string 加载资源名</param>
         /// <param name="async"> bool 异步加载默认ture</param>
         /// <returns></returns>
-        internal static bool LoadAssetBundle (string assetBundleName, bool async = true) {
+        internal static bool LoadAssetBundle(string assetBundleName, bool async = true)
+        {
 #if UNITY_EDITOR
-            if (SimulateAssetBundleInEditor) {
+            if (SimulateAssetBundleInEditor)
+            {
                 return false;
             }
 #endif
             //查找缓存
             CacheData cacheData = null;
-            CacheManager.CreateOrGetCache (assetBundleName, out cacheData);
+            CacheManager.CreateOrGetCache(assetBundleName, out cacheData);
             cacheData.count++; //引用计数加1
-            ABDelayUnloadManager.Remove (assetBundleName); //从回收列表移除
-            if (cacheData.canUse) {
+            ABDelayUnloadManager.Remove(assetBundleName); //从回收列表移除
+            if (cacheData.canUse)
+            {
                 return true;
             }
 
             //开始加载依赖
             string[] deps = null;
-            if (ManifestManager.fileManifest != null && (deps = ManifestManager.fileManifest.GetDirectDependencies (assetBundleName)).Length > 0) {
-                LoadDependencies (assetBundleName, deps, async);
+            if (ManifestManager.fileManifest != null && (deps = ManifestManager.fileManifest.GetDirectDependencies(assetBundleName)).Length > 0)
+            {
+                LoadDependencies(assetBundleName, deps, async);
             }
 
             //加载assetbundle
-            LoadAssetBundleInternal (assetBundleName, async);
+            LoadAssetBundleInternal(assetBundleName, async);
             return false;
         }
 
@@ -454,21 +500,25 @@ namespace Hugula.Loader {
         /// <param name="string">assetBundleName</param>
         /// <param name="bool">async = true 异步加载</param>
         /// <returns></returns>       
-        static void LoadDependencies (string assetBundleName, string[] deps, bool async) {
+        static void LoadDependencies(string assetBundleName, string[] deps, bool async)
+        {
             string item = null;
-            if (deps.Length > 0) {
+            if (deps.Length > 0)
+            {
                 // Debug.LogFormat("LoadDependencies assetBundleName={0},deps={0},len={1}", assetBundleName, string.Concat(deps), deps.Length);
-                CacheManager.AddDependencies (assetBundleName, deps); //记录引用关系
+                CacheManager.AddDependencies(assetBundleName, deps); //记录引用关系
                 //开始加载依赖
-                for (int i = 0; i < deps.Length; i++) {
+                for (int i = 0; i < deps.Length; i++)
+                {
                     item = deps[i];
-                    if (!item.Equals (assetBundleName)) {
+                    if (!item.Equals(assetBundleName))
+                    {
                         CacheData cacheData = null;
-                        CacheManager.CreateOrGetCache (item, out cacheData);
+                        CacheManager.CreateOrGetCache(item, out cacheData);
                         cacheData.count++; //引用计数加1
-                        ABDelayUnloadManager.Remove (item); //从列表移除
+                        ABDelayUnloadManager.Remove(item); //从列表移除
                         if (!cacheData.canUse)
-                            LoadAssetBundleInternal (item, async);
+                            LoadAssetBundleInternal(item, async);
                     }
                 }
             }
@@ -480,82 +530,91 @@ namespace Hugula.Loader {
         /// <param name="CRequest">request</param>
         /// <param name="bool">async = true 异步加载</param>
         /// <returns></returns>
-        static int LoadAsset (CRequest request, bool async = true, bool subAssets = false) {
+        static int LoadAsset(CRequest request, bool async = true, bool subAssets = false)
+        {
             totalCount++; //count ++
             int opID = 0;
-            LoadAssetBundle (request.assetBundleName, async);
+            LoadAssetBundle(request.assetBundleName, async);
 #if UNITY_EDITOR
-            if (SimulateAssetBundleInEditor) {
-                AssetOperationSimulation assetOperS = OperationPools<AssetOperationSimulation>.Get ();
+            if (SimulateAssetBundleInEditor)
+            {
+                AssetOperationSimulation assetOperS = OperationPools<AssetOperationSimulation>.Get();
                 assetOperS.request = request;
                 assetOperS.subAssets = subAssets;
-                assetOperS.StartSync ();
+                assetOperS.StartSync();
 
-                assetOperS.ReleaseToPool ();
-                DispatchReqAssetOperation (request, request.error != null, 0, false); //模拟器模式下只有同步所以需要调用回调
-            } else
+                assetOperS.ReleaseToPool();
+                DispatchReqAssetOperation(request, request.error != null, 0, false); //模拟器模式下只有同步所以需要调用回调
+            }
+            else
 #endif
             {
-                var assetOper = OperationPools<AssetOperation>.Get ();
+                var assetOper = OperationPools<AssetOperation>.Get();
                 assetOper.request = request;
                 assetOper.subAssets = subAssets;
                 if (async) //如果异步加载 设置id可以阻止回调
                 {
-                    AssetOperation.SetId (assetOper);
+                    AssetOperation.SetId(assetOper);
                     opID = assetOper.id;
-                    completeOper.Add (opID);
+                    completeOper.Add(opID);
                 }
 
                 if (!async) //同步加载
                 {
-                    assetOper.StartSync ();
-                    assetOper.ReleaseToPool ();
-                } else if (inProgressOperations.Count >= maxLoading) //如果大于最大值
+                    assetOper.StartSync();
+                    assetOper.ReleaseToPool();
+                }
+                else if (inProgressOperations.Count >= maxLoading) //如果大于最大值
                 {
-                    waitOperations.Enqueue (assetOper); //放入等待列表
-                } else {
-                    inProgressOperations.Add (assetOper);
+                    waitOperations.Enqueue(assetOper); //放入等待列表
+                }
+                else
+                {
+                    inProgressOperations.Add(assetOper);
                 }
                 // Debug.LogFormat("LoadAsset({0},{1},{2})", opID, request.assetBundleName,request.assetName);
             }
             return opID;
         }
 
-        static int LoadSceneAsset (CRequest request, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive) {
+        static int LoadSceneAsset(CRequest request, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
+        {
             totalCount++; //count ++
-            LoadAssetBundle (request.assetBundleName);
+            LoadAssetBundle(request.assetBundleName);
             int opID = 0;
 
 #if UNITY_EDITOR
-            if (SimulateAssetBundleInEditor) {
-                var assetOper = OperationPools<AssetOperationSimulation>.Get ();
+            if (SimulateAssetBundleInEditor)
+            {
+                var assetOper = OperationPools<AssetOperationSimulation>.Get();
                 assetOper.request = request;
                 assetOper.loadSceneMode = loadSceneMode;
                 assetOper.allowSceneActivation = allowSceneActivation;
-                assetOper.Update ();
-                AssetOperation.SetId (assetOper);
+                assetOper.Update();
+                AssetOperation.SetId(assetOper);
                 opID = assetOper.id;
-                completeOper.Add (opID);
+                completeOper.Add(opID);
 
                 if (inProgressOperations.Count >= maxLoading) //如果大于最大值
-                    waitOperations.Enqueue (assetOper); //放入等待列表
+                    waitOperations.Enqueue(assetOper); //放入等待列表
                 else
-                    inProgressOperations.Add (assetOper);
-            } else
+                    inProgressOperations.Add(assetOper);
+            }
+            else
 #endif
             {
-                AssetOperation assetOper = OperationPools<AssetOperation>.Get ();
+                AssetOperation assetOper = OperationPools<AssetOperation>.Get();
                 assetOper.request = request;
                 assetOper.loadSceneMode = loadSceneMode;
                 assetOper.allowSceneActivation = allowSceneActivation;
-                AssetOperation.SetId (assetOper);
+                AssetOperation.SetId(assetOper);
                 opID = assetOper.id;
-                completeOper.Add (opID);
+                completeOper.Add(opID);
 
                 if (inProgressOperations.Count >= maxLoading) //如果大于最大值
-                    waitOperations.Enqueue (assetOper); //放入等待列表
+                    waitOperations.Enqueue(assetOper); //放入等待列表
                 else
-                    inProgressOperations.Add (assetOper);
+                    inProgressOperations.Add(assetOper);
             }
 
             // Debug.LogFormat("LoadSceneAsset({0},{1})", opID, request.assetBundleName);
@@ -568,51 +627,60 @@ namespace Hugula.Loader {
         /// </summary>
         /// <param name="req"></param>
         /// <param name="isError"></param>
-        static internal void DispatchReqAssetOperation (CRequest req, bool isError, int opID, bool backPool = true) {
+        static internal void DispatchReqAssetOperation(CRequest req, bool isError, int opID, bool backPool = true)
+        {
 
             currLoaded++;
 
-            OnProcess ();
-            try {
+            OnProcess();
+            try
+            {
                 if (isError)
-                    req.DispatchEnd ();
-                else if (opID == 0 || completeOper.Contains (opID)) //正常回调
+                    req.DispatchEnd();
+                else if (opID == 0 || completeOper.Contains(opID)) //正常回调
                 {
-                    completeOper.Remove (opID);
-                    req.DispatchComplete ();
-                } else
-                    req.DispatchEnd ();
+                    completeOper.Remove(opID);
+                    req.DispatchComplete();
+                }
+                else
+                    req.DispatchEnd();
 
-            } catch (System.Exception e) {
-                Debug.LogError (e);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e);
             }
 
-            if (backPool) req.ReleaseToPool ();
+            if (backPool) req.ReleaseToPool();
 
         }
         #endregion
 
         #region  event
 
-        static void OnProcess () {
+        static void OnProcess()
+        {
             loadingEvent.total = totalCount;
             loadingEvent.current = currLoaded;
-            if (OnProgress != null && totalCount > 0) {
-                loadingEvent.progress = (float) loadingEvent.current / (float) loadingEvent.total;
-                OnProgress (loadingEvent);
+            if (OnProgress != null && totalCount > 0)
+            {
+                loadingEvent.progress = (float)loadingEvent.current / (float)loadingEvent.total;
+                OnProgress(loadingEvent);
             }
         }
 
         /// <summary>
         /// the queue is complete
         /// </summary>
-        static void CheckAllComplete () {
-            if (inBundleProgressOperations.Count == 0 && inProgressOperations.Count == 0) {
+        static void CheckAllComplete()
+        {
+            if (inBundleProgressOperations.Count == 0 && inProgressOperations.Count == 0)
+            {
                 totalCount = 0;
                 currLoaded = 0;
 
                 if (OnAllComplete != null)
-                    OnAllComplete ();
+                    OnAllComplete();
             }
         }
         #endregion
@@ -620,17 +688,21 @@ namespace Hugula.Loader {
         #region static
 
         static ResourcesLoader _instance;
-        static ResourcesLoader instance {
-            get {
-                if (_instance == null) {
-                    var go = new GameObject ("AssetBundleLoader");
-                    DontDestroyOnLoad (go);
-                    _instance = go.AddComponent<ResourcesLoader> ();
+        static ResourcesLoader instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    var go = new GameObject("AssetBundleLoader");
+                    DontDestroyOnLoad(go);
+                    _instance = go.AddComponent<ResourcesLoader>();
                 }
                 return _instance;
             }
         }
-        public static void Initialize () {
+        public static void Initialize()
+        {
             var ins = instance;
             // ReadManifest();
         }

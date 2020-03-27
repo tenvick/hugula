@@ -13,10 +13,11 @@ namespace Hugula.Databinding.Editor {
             EditorGUILayout.Separator ();
             var temp = target as BindableObject;
             // GUILayout.Label ((index).ToString (), GUILayout.Width (20));
-            EditorGUILayout.BeginHorizontal ();
-            GUILayout.Label ("target:", GUILayout.Width (40));
-            temp.target = EditorGUILayout.ObjectField (temp.target, typeof (UnityEngine.Object), GUILayout.MaxWidth (150)); //显示绑定对象
-            EditorGUILayout.EndHorizontal ();
+            // EditorGUILayout.BeginHorizontal ();
+            // GUILayout.Label ("target:", GUILayout.Width (40));
+            // temp.target = EditorGUILayout.ObjectField (temp.target, typeof (UnityEngine.Object), GUILayout.MaxWidth (150)); //显示绑定对象
+            // EditorGUILayout.EndHorizontal ();
+            base.OnInspectorGUI();
             BindableObjectHelper.BindableObjectField (temp, 0);
         }
     }

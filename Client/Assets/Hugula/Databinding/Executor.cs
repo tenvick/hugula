@@ -52,7 +52,7 @@ namespace Hugula.Databinding {
             watch.Stop ();
             long time = watch.ElapsedMilliseconds;
             if (time > 10)
-                UnityEngine.Debug.LogWarningFormat (" executor is too long.  the tasks take {0} milliseconds. count = {1}.", time,m_Tasks.Count);
+                UnityEngine.Debug.LogWarningFormat ("the executor's binding cost too long.  it  take {0} milliseconds. task count = {1}.", time,m_Tasks.Count);
 
             m_Tasks.Clear ();
         }

@@ -9,7 +9,7 @@
 local rootscroll_view= ViewBase()
 ---指定了资源
 rootscroll_view.asset_name = "scroll_rect"
-rootscroll_view.assetbundle = "scroll_rect.u3d"
+rootscroll_view.res_path = "scroll_rect.u3d"
 
 function rootscroll_view:on_asset_load(key,asset)
 	Logger.Log(key,asset)

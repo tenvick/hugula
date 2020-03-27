@@ -310,11 +310,11 @@ namespace Hugula.Editor
             if (variant)
             {
                 string m_variant;
-                if (abPath.IndexOf("Assets/TapEnjoy/WarX/Effect/Prefabs/high") == 0)
+                if (abPath.IndexOf("_high") == 0)
                     m_variant = "high";
-                else if (abPath.IndexOf("Assets/TapEnjoy/WarX/Effect/Prefabs/medium") == 0)
+                else if (abPath.IndexOf("_medium") == 0)
                     m_variant = "medium";
-                else if (abPath.IndexOf("Assets/TapEnjoy/WarX/Effect/Prefabs/low") == 0)
+                else if (abPath.IndexOf("_low") == 0)
                     m_variant = "low";
                 else
                 {

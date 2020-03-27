@@ -171,9 +171,9 @@ namespace Hugula.Databinding {
 
 		#endregion
 
-		protected virtual void Start () {
-			// Debug.LogFormat ("{1}.Start(Count={0})", bindings.Count, this);
-		}
+		// protected virtual void Start () {
+		// 	// Debug.LogFormat ("{1}.Start(Count={0})", bindings.Count, this);
+		// }
 
 		protected virtual void OnDestroy () {
 			foreach (var binding in bindings)

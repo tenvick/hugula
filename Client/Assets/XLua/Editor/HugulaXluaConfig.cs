@@ -148,7 +148,9 @@ namespace XLua.Editor {
                 List<string> namespaces = new List<string> () // 在这里添加名字空间
                 {
                     "UnityEngine",
-                    "UnityEngine.UI"
+                    "UnityEngine.UI",
+                    "Hugula.Databinding",
+                    "Hugula.Databinding.Binder"
                 };
                 var unityTypes = (from assembly in AppDomain.CurrentDomain.GetAssemblies () where!(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder) from type in assembly.GetExportedTypes () where type.Namespace != null && namespaces.Contains (type.Namespace) && !isExcluded (type) &&
                     type.BaseType != typeof (MulticastDelegate) && !type.IsInterface && !type.IsEnum select type);
@@ -180,23 +182,23 @@ namespace XLua.Editor {
                 customlist.Add (typeof (System.Collections.Specialized.NotifyCollectionChangedEventArgs));
                 customlist.Add (typeof (System.Collections.IList));
 
-                customlist.Add (typeof (Hugula.Databinding.Binding));
-                customlist.Add (typeof (Hugula.Databinding.BindableObject));
-                customlist.Add (typeof (Hugula.Databinding.BindableContainer));
-                customlist.Add (typeof (Hugula.Databinding.BindingUtility));
+                // customlist.Add (typeof (Hugula.Databinding.Binding));
+                // customlist.Add (typeof (Hugula.Databinding.BindableObject));
+                // customlist.Add (typeof (Hugula.Databinding.BindableContainer));
+                // customlist.Add (typeof (Hugula.Databinding.BindingUtility));
 
-                customlist.Add (typeof (Hugula.Databinding.Binder.EventExecuteBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.EventCommandBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.UIBehaviourBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.SelectableBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.CollectionChangedBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.ButtonBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.ImageBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.InputFieldBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.LoopScrollRectBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.MaskableGraphicBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.SliderBinder));
-                customlist.Add (typeof (Hugula.Databinding.Binder.TextBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.EventExecuteBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.EventCommandBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.UIBehaviourBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.SelectableBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.CollectionChangedBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.ButtonBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.ImageBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.InputFieldBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.LoopScrollRectBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.MaskableGraphicBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.SliderBinder));
+                // customlist.Add (typeof (Hugula.Databinding.Binder.TextBinder));
                 return unityTypes.Concat (customlist);
             }
         }

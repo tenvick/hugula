@@ -15,7 +15,7 @@ local property_enable_slider = "enable_slider"
 local property_btntext = "btntext"
 -------------------------------------------------
 moban.views = {
-    View(moban, {__find = "/Logo"}, "views.moban_view1") --- asset以key以"__find"开头表示使用GameObject.Find("moban")
+    View(moban, {find_path = "/Logo"}, "views.moban_view1") --- asset以key以"find_path"开头表示使用GameObject.Find("moban")
     View(moban, {asset_name="assetName",res_path="assetbundle.u3d"}), ---加载prefab
     View(moban, {scene_name="scene_name",res_path="assetbundle.u3d"}), ---加载场景
     View(moban, "moban.moban_view") ---关联视图，资源在视图中设置asset_name=xxx和res_path=xxx.u3d 属性

@@ -165,9 +165,10 @@ public class ProjectBuild : Editor
         return names.ToArray();
     }
 
-    static void BuildSlua()
+    static void BuildLuaWrap()
     {
         // SLua.LuaCodeGen.GenerateAll();
+        CSObjectWrapEditor.Generator.GenAll();
     }
 
     #region 构建分级
@@ -487,8 +488,12 @@ public class ProjectBuild : Editor
         path = Path.GetFullPath(path);
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);
+        Settings();
         WriteAppVerion();
         path = path + "hugula.exe";
+        if (setting.ToLower().Contains("development"))
+            BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.Development);
+        else
         BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.None);
     }
 

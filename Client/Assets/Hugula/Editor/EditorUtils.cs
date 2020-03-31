@@ -99,8 +99,14 @@ namespace Hugula.Editor {
         }
 
         public static void DirectoryDelete (string path) {
+            try{
+
             DirectoryInfo di = new DirectoryInfo (path);
             if (di.Exists) di.Delete (true);
+            }catch(System.Exception e)
+            {
+                
+            }
         }
 
         public static List<string> getAllChildFiles (string path, string suffix = "lua", List<string> files = null, bool isMatch = true) {

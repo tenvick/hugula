@@ -24,7 +24,7 @@ namespace Hugula
  * HUGULA_APPEND_CRC                更新文件带crc后缀    
  *
  * 编辑器辅助
- * HUGULA_ASSETBUNDLE_LOG           记录assetbundle加载日志用与包体
+ * HUGULA_ASSETBUNDLE_LOG           记录assetbundle加载日志与包体
  * HUGULA_LOADER_DEBUG              加载模块打印调试
  * HUGULA_PROFILER_DEBUG            profiler debug 信息
  * HUGULA_CACHE_DEBUG               引用计数与销毁debug信息

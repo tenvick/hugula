@@ -110,11 +110,12 @@ namespace Hugula.Editor
                     {
                         count++;
                         TextureImporter ti = AssetImporter.GetAtPath(f) as TextureImporter;
-                        EditorUtility.DisplayProgressBar("Processing...", "替换中... (" + count + " / " + allchildren.Count + ")", count / allchildren.Count);
+                        EditorUtility.DisplayProgressBar("Processing...", "替换中... (" + count + " / " + allchildren.Count + ")", (float)count / (float)allchildren.Count);
                         if (ti)
                         {
                             ti.spritePackingTag = ragName;
                             sb.AppendLine(ti.name);
+                            ti.assetBundleName = ragName + Common.CHECK_ASSETBUNDLE_SUFFIX;
                             ti.SaveAndReimport();
                         }
                     }

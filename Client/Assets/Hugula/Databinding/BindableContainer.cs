@@ -11,7 +11,7 @@ namespace Hugula.Databinding {
         public List<BindableObject> children;
 
         public void AddChild (BindableObject child) {
-            child.SetParent (this);
+            // child.SetParent (this);
             children.Add (child);
         }
 

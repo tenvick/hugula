@@ -226,7 +226,6 @@ namespace Hugula.Databinding.Binder
             BindableContainer item = (BindableContainer)obj2;
             if (item != null)
             {
-                item.SetParent(this); //设置上下文关系利用source表达式 parent.context把事件绑定到父级context
                 item.forceContextChanged = true;
                 item.context = items[index];
             }

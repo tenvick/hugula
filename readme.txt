@@ -1,6 +1,14 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.4.8
+1 Binding流程优化，引入IBinding接口,source修改为序列化引用。
+2 Convert管理机制引入，可以同时支持C#和lua Converter。
+3 引入Manager管理所有IManager对象，引入单例模式。
+4 组件LoopScrollRect 易用性优化。
+5 xlua某些属性黑名单不排除bug修复。
+6 资源清理，其他细节优化。
+
 2020.3.27
 1 atlas图集引用与打包,全局sprite信息保存。
 2 ImageBinder增加spriteName属性，可以直接绑定spriteName对应的sprite。

@@ -46,10 +46,17 @@ namespace Hugula.UIComponents {
             contentRT.pivot = Vector2.up;
             loopScrollRect.content = contentRT;
 
-            //create itemSource
+            //create ItemContainer
             var itemContainer = new GameObject ("ItemContainer", typeof (RectTransform));
-            itemContainer.SetActive (false);
             itemContainer.transform.SetParent (root.transform, false);
+            var itemContainerRT = itemContainer.GetComponent<RectTransform> ();
+            itemContainerRT.anchorMin = Vector2.zero;
+            itemContainerRT.anchorMax = Vector2.one;
+            itemContainerRT.sizeDelta = Vector2.zero;
+            itemContainerRT.pivot = Vector2.up;
+            itemContainer.SetActive (false);
+
+            //create ItemSource
             var itemSource = new GameObject ("ItemSource", typeof (RectTransform));
             itemSource.transform.SetParent (itemContainer.transform, false);
             RectTransform rt2 = itemSource.GetComponent<RectTransform> ();

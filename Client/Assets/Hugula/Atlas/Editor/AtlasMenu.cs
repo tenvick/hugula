@@ -73,6 +73,7 @@ namespace Hugula.Editor
 
                     atlas.names = names;
                     atlas.sprites = allSprites;
+                    EditorUtility.SetDirty(atlas);
                     var import = AssetImporter.GetAtPath(atlas_path);
                     import.assetBundleName = Path.GetFileNameWithoutExtension(ragName) + Common.CHECK_ASSETBUNDLE_SUFFIX;
                     sb.AppendFormat("build {0} success  count = {1} ", ragName, names.Count);
@@ -142,7 +143,7 @@ namespace Hugula.Editor
                 var o = AssetDatabase.LoadAssetAtPath<AtlasAsset>(files[i]);
                 if (o != null)
                 {
-                    EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + i + " / " + files.Length + ")", i / files.Length);
+                    EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + i + " / " + files.Length + ")", (float)i / (float)files.Length);
                     for (int j = 0; j < o.names.Count; j++)
                     {
                         allSprites.Add(o.names[j]);
@@ -164,9 +165,11 @@ namespace Hugula.Editor
 
             atlas.allSprites = allSprites;
             atlas.atlasNames = atlasNames;
+            EditorUtility.SetDirty(atlas);
             var import = AssetImporter.GetAtPath(atlas_path);
             import.assetBundleName = AtlasMappingAsset.ATLAS_MAPPING_ROOT_NAME + Common.CHECK_ASSETBUNDLE_SUFFIX;
             AssetDatabase.SaveAssets();
+            Debug.LogFormat(" save {0}  count = {1} ", atlas_path, atlasNames.Count);
         }
     }
 }

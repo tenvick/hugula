@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Hugula.UIComponents {
     public class LoopItemSelect : MonoBehaviour {
+        Button clickBtn;
         LoopItem loopItem;
         ILoopSelect loopScrollBase;
 
@@ -18,7 +20,15 @@ namespace Hugula.UIComponents {
 
         }
 
+        void Start () {
+            clickBtn = GetComponent<Button> ();
+            if (clickBtn) clickBtn.onClick.AddListener (OnSelect);
+        }
+
         void OnDestroy () {
+            if (clickBtn)
+                clickBtn.onClick.RemoveListener (OnSelect);
+            clickBtn = null;
             loopItem = null;
             loopScrollBase = null;
         }
@@ -39,7 +49,7 @@ namespace Hugula.UIComponents {
             bound.x = y;
         }
 
-        public bool isDirty{set;get;}
+        public bool isDirty { set; get; }
 
         public void SetHeight (float height) {
             bound.y = height;

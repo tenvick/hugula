@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+/**
 namespace Hugula.Databinding {
 
 	[XLua.LuaCallCSharp]
@@ -50,7 +50,7 @@ namespace Hugula.Databinding {
 			m_Binding = info;
 			m_Path = info.path;
 			m_TargetProperty = info.propertyName;
-			ApplySource (bindable);
+			// ApplySource (bindable);
 			ParsePath ();
 
 		}
@@ -279,3 +279,5 @@ namespace Hugula.Databinding {
 		OneTime,
 	}
 }
+
+**/

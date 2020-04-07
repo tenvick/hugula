@@ -33,9 +33,6 @@ namespace Hugula.Databinding {
 		#endregion
 
 		#region  databinding
-		[SerializeField]
-		private BindableObject m_Parent;
-		public BindableObject parent { get { return m_Parent; } }
 		protected object m_Context;
 		protected object m_InheritedContext;
 
@@ -72,7 +69,7 @@ namespace Hugula.Databinding {
 		}
 
 		[SerializeField]
-		UnityEngine.Object m_Target;
+		protected UnityEngine.Object m_Target;
 
 		///<summary>
 		/// 绑定对象的name
@@ -111,10 +108,6 @@ namespace Hugula.Databinding {
 			return binding;
 		}
 
-		public void SetParent (BindableObject parent) {
-			this.m_Parent = parent;
-		}
-
 		protected virtual void OnInheritedContextChanged () {
 
 		}
@@ -125,8 +118,9 @@ namespace Hugula.Databinding {
 				OnBindingContextChanging ();
 				var contextBinding = GetBinding (ContextProperty);
 				if (contextBinding != null && contextBinding.path != ".") {
-					contextBinding.Unapply ();
-					System.Action act = () => contextBinding.Apply (context, this);
+					// contextBinding.Unapply ();
+					contextBinding.target = this;
+					System.Action act = () => contextBinding.Apply(context);//contextBinding.Apply (context, this);
 					// act();
 					Executor.Execute (act);
 				} else
@@ -141,8 +135,9 @@ namespace Hugula.Databinding {
 			for (int i = 0; i < bindings.Count; i++) {
 				var binding = bindings[i];
 				if (!ContextProperty.Equals (binding.propertyName)) { //context需要触发自己，由inherited触发
-					binding.Unapply(true);
-					binding.Apply (context, this, true);
+					// binding.Unapply();
+					binding.target = this;
+					binding.Apply (context);
 				}
 			}
 		}
@@ -155,7 +150,8 @@ namespace Hugula.Databinding {
 		protected virtual void OnPropertyChangedBindingApply ([CallerMemberName] string propertyName = null) {
 			Binding binding = GetBinding (propertyName);
 			if (binding != null && binding.mode == BindingMode.TwoWay) {
-				binding.Apply (true);
+				// binding.Apply (true);
+				binding.UpdateSource();
 			}
 			PropertyChanged?.Invoke (this, propertyName);
 		}
@@ -183,7 +179,6 @@ namespace Hugula.Databinding {
 			m_Target = null;
 			m_Context = null;
 			m_InheritedContext = null;
-			m_Parent = null;
 		}
 
 	}

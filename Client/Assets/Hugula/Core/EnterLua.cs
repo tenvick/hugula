@@ -10,12 +10,12 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using XLua;
-
+using Hugula.Manager;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-public class EnterLua : MonoBehaviour {
+public class EnterLua : MonoBehaviour,IManager {
 #if UNITY_EDITOR
     const string KeyDebugString = "_Plua_Debug_string";
 
@@ -35,7 +35,7 @@ public class EnterLua : MonoBehaviour {
     internal static LuaEnv luaenv;
 
     // Start is called before the first frame update
-    void Awake () {
+    void Start () {
         DontDestroyOnLoad (this.gameObject);
         Executor.Initialize ();
         if (ManifestManager.fileManifest == null)
@@ -83,7 +83,7 @@ public class EnterLua : MonoBehaviour {
         if (File.Exists (path)) {
             str = File.ReadAllBytes (path); //LuaState.CleanUTF8Bom(
         } else {
-            Debug.LogWarningFormat ("lua({0}) path={1} not exists.", name, path);
+            Debug.LogErrorFormat ("lua({0}) path={1} not exists.", name, path);
             name = name.Replace ('.', '+').Replace ('/', '+');
             str = LoadLuaBytes (name);
         }
@@ -143,6 +143,14 @@ public class EnterLua : MonoBehaviour {
         return ret;
     }
 
+
+    public void Initialize(){
+
+    }
+    public   void Terminate()
+    {
+
+    }
     //重启动游戏
     public static void ReOpen (float sconds) {
         UnityEngine.SceneManagement.SceneManager.LoadScene (0);

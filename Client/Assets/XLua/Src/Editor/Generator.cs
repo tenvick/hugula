@@ -901,6 +901,20 @@ namespace CSObjectWrapEditor
             string filePath = save_path + "DelegatesGensBridge.cs";
             StreamWriter textWriter = new StreamWriter(filePath, false, Encoding.UTF8);
             types = types.Where(type => !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter));
+            types = types.Where(type =>
+            {
+                if (type is MemberInfo)
+                {
+                    var f = (MemberInfo)type;
+                    if (f.DeclaringType != null)
+                        return !isMemberInBlackList((MemberInfo)type);
+                    else
+                        return true;
+                }
+                else
+                    return true;
+            });
+           
             var hotfxDelegates = new List<MethodInfoSimulation>();
             var comparer = new MethodInfoSimulationComparer();
 

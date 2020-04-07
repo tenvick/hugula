@@ -203,6 +203,7 @@ public class ProjectBuild : Editor
 
     static void ExportRes()
     {
+        Settings();
         CUtils.DebugCastTime("Time ExportRes Begin");
         ExportResources.exportPublish();//资源
         CUtils.DebugCastTime("Time exportPublish End");
@@ -469,7 +470,7 @@ public class ProjectBuild : Editor
     {
         CUtils.DebugCastTime("Time BuildForIOS Begin");
 
-        string path = "../release/ios";
+        string path = "../Release/iOS";
         path = Path.GetFullPath(path);
         IOSSettings();
         EditorUtils.DirectoryDelete(path);
@@ -484,7 +485,7 @@ public class ProjectBuild : Editor
     //[MenuItem("Hugula/project  StandaloneWindows ", false, 16)]
     static void BuildForWindows()
     {
-        string path = "../../release/pc/";
+        string path = "../Release/PC/";
         path = Path.GetFullPath(path);
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);

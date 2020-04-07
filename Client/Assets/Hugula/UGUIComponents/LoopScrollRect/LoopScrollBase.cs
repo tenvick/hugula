@@ -582,6 +582,7 @@ namespace Hugula.UIComponents {
             int lastIdx = m_SelectedIndex;
             m_SelectedIndex = loopItem.index;
             if (onSelected != null) onSelected (this.parameter, loopItem.item, loopItem.index, lastIdx);
+            Debug.Log("onselected"+loopItem);
             if (itemCommand != null && itemCommand.CanExecute (new int[] { loopItem.index, lastIdx })) {
                 itemCommand.Execute (new int[] { loopItem.index, lastIdx });
             }

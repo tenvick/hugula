@@ -6,12 +6,12 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Hugula.Databinding.Editor {
-    [CustomEditor (typeof (BindableObject), true)]
-    public class BindableObjectEditor : UnityEditor.Editor {
+    [CustomEditor (typeof (CustomBinder), true)]
+    public class CustomerBinderEditor : UnityEditor.Editor {
         public override void OnInspectorGUI () {
             // base.OnInspectorGUI ();
             EditorGUILayout.Separator ();
-            var temp = target as BindableObject;
+            var temp = target as CustomBinder;
             // GUILayout.Label ((index).ToString (), GUILayout.Width (20));
             // EditorGUILayout.BeginHorizontal ();
             // GUILayout.Label ("target:", GUILayout.Width (40));

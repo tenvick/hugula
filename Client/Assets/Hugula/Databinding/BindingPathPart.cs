@@ -3,134 +3,146 @@ using XLua;
 
 namespace Hugula.Databinding {
 
-	[XLua.LuaCallCSharp]
-	[XLua.CSharpCallLua]
-	public class BindingPathPart {
-		public BindingPathPart nextPart { get; set; }
+    [XLua.LuaCallCSharp]
+    [XLua.CSharpCallLua]
+    public class BindingPathPart {
+        public BindingPathPart nextPart { get; set; }
 
-		public string path { get; internal set; }
+        public string path { get; internal set; }
 
-		public string indexerName { get; set; }
+        public string indexerName { get; set; }
 
-		public bool isIndexer { get; internal set; }
+        public bool isIndexer { get; internal set; }
 
-		public bool isSelf { get; }
+        public bool isSelf { get; }
 
-		//表示没有参数的方法
-		public bool isGetter { get; set; }
+        //表示方法
+        public bool isMethod { get; set; }
 
-		//表示有参数的方法
-		public bool isSetter { get; set; }
+        private WeakReference<object> m_Source = new WeakReference<object> (null);
 
-		public BindingExpression expression {
-			get {
-				return m_Expression;
-			}
-		}
-		readonly BindingExpression m_Expression;
-		readonly PropertyChangedEventHandler m_ChangeHandler;
-		readonly WeakPropertyChangedProxy _listener;
+        //当前节点的源对象
+        public object source {
+            get {
+                object real = null;
+                m_Source.TryGetTarget (out real);
+                return real;
+            }
+        }
 
-		public BindingPathPart (BindingExpression expression, string path, bool isIndexer = false) {
-			m_Expression = expression;
-			isSelf = path == Binding.SelfPath;
-			this.path = path;
-			this.isIndexer = isIndexer;
-			isGetter = false;
-			isSetter = false;
+        INotifyPropertyChanged m_NotifyPropertyChanged;
 
-			m_ChangeHandler = PropertyChanged;
-			_listener = new WeakPropertyChangedProxy ();
-		}
+        readonly Binding m_Binding;
+        readonly PropertyChangedEventHandler m_ChangeHandler;
 
-		public void Subscribe (INotifyPropertyChanged handler) {
-			if (_listener != null && Object.Equals (handler, _listener.Source))
-				return;
+        public BindingPathPart (Binding binding, string path, bool isIndexer = false) {
+            this.m_Binding = binding;
+            isSelf = path == Binding.SelfPath;
+            this.path = path;
+            this.isIndexer = isIndexer;
+            isMethod = false;
 
-			Unsubscribe ();
+            m_ChangeHandler = PropertyChanged;
+        }
 
-			_listener.SubscribeTo (handler, m_ChangeHandler);
-		}
+        public void SetSource (object current) {
+            if (m_Source.TryGetTarget (out var source) && Object.Equals (source, current))
+                return;
 
-		public void Unsubscribe () {
-			var listener = _listener;
-			if (listener != null) {
-				listener.Unsubscribe ();
-			}
-		}
+            m_Source.SetTarget (current);
+        }
 
-		public Type SetterType { get; set; }
+        public void Subscribe (INotifyPropertyChanged source) {
+            if (Object.Equals (source, m_NotifyPropertyChanged))
+                return;
 
-		public void PropertyChanged (object sender, string propertyName) {
-			BindingPathPart part = nextPart ?? this;
+            Unsubscribe ();
 
-			string name = propertyName;
+            source.PropertyChanged += m_ChangeHandler;
+            m_NotifyPropertyChanged = source;
+        }
 
-			if (!string.IsNullOrEmpty (name)) {
-				if (part.isIndexer) {
-					if (name.Contains ("[")) {
-						if (name != string.Format ("{0}[{1}]", part.indexerName, part.path))
-							return;
-					} else if (name != part.indexerName)
-						return;
-				}
-				if (name != part.path) {
-					return;
-				}
-			}
+        public void Unsubscribe () {
 
-			m_Expression.Apply (false);
+            if (m_NotifyPropertyChanged != null) {
+                m_NotifyPropertyChanged.PropertyChanged -= m_ChangeHandler;
+            }
+            m_NotifyPropertyChanged = null;
+        }
 
-		}
+        public Type SetterType { get; set; }
 
-		public bool TryGetValue (object source, out object value) {
-			value = source;
-			if (value != null) {
-				if (isSetter || isGetter)
-					value = ExpressionUtility.InvokeSourceMethod (source, this.path);
-				else
-					value = ExpressionUtility.GetSourcePropertyValue (source, this.path);
-				return true;
-			}
-			return false;
-		}
+        public void PropertyChanged (object sender, string propertyName) {
+            BindingPathPart part = nextPart ?? this;
 
-		public override string ToString () {
-			return string.Format ("BindingPathPart(path={0},isIndexer={1},isSelf={5},isSetter={2},isGetter={3},indexerName={4})", this.path, isIndexer, isSetter, isGetter, indexerName, isSelf);
-		}
-	}
+            string name = propertyName;
 
-	internal class WeakPropertyChangedProxy {
-		INotifyPropertyChanged m_Source;
-		readonly WeakReference<PropertyChangedEventHandler> m_Listener = new WeakReference<PropertyChangedEventHandler> (null);
-		readonly PropertyChangedEventHandler m_Handler;
-		internal INotifyPropertyChanged Source { get { return m_Source; } }
+            if (!string.IsNullOrEmpty (name)) {
+                if (part.isIndexer) {
+                    if (name.Contains ("[")) {
+                        if (name != string.Format ("{0}[{1}]", part.indexerName, part.path))
+                            return;
+                    } else if (name != part.indexerName)
+                        return;
+                }
+                if (name != part.path) {
+                    return;
+                }
+            }
 
-		public WeakPropertyChangedProxy () {
-			m_Handler = new PropertyChangedEventHandler (OnPropertyChanged);
-		}
+            // m_Binding.UpdateTarget ();
+            m_Binding.OnSourceChanged (this);
 
-		public void SubscribeTo (INotifyPropertyChanged source, PropertyChangedEventHandler listener) {
-			source.PropertyChanged += m_Handler;
-			var bo = source as BindableObject;
+        }
 
-			m_Source = source;
-			m_Listener.SetTarget (listener);
-		}
+        public bool TryGetValue (bool needSubscribe, out object value) {
+            value = source;
+            if (value != null) {
+                // if (isMethod)
+                //     value = ExpressionUtility.InvokeSourceMethod (value, this, needSubscribe);
+                // else
+                    value = ExpressionUtility.GetSourcePropertyValue (value, this, needSubscribe);
+                return true;
+            }
+            return false;
+        }
 
-		public void Unsubscribe () {
-			if (m_Source != null) {
-				m_Source.PropertyChanged -= m_Handler;
-			}
-			m_Source = null;
-			m_Listener.SetTarget (null);
-		}
+        public override string ToString () {
+            return string.Format ("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={2},isSelf={4})", this.path, isIndexer, isMethod, indexerName, isSelf);
+        }
+    }
 
-		void OnPropertyChanged (object sender, string e) {
-			if (m_Listener.TryGetTarget (out var handler) && handler != null)
-				handler (sender, e);
-			else
-				Unsubscribe ();
-		}
-	}
+    internal class WeakPropertyChangedProxy {
+        INotifyPropertyChanged m_Source;
+        readonly WeakReference<PropertyChangedEventHandler> m_Listener = new WeakReference<PropertyChangedEventHandler> (null);
+        readonly PropertyChangedEventHandler m_Handler;
+        internal INotifyPropertyChanged Source { get { return m_Source; } }
+
+        public WeakPropertyChangedProxy () {
+            m_Handler = new PropertyChangedEventHandler (OnPropertyChanged);
+        }
+
+        public void SubscribeTo (INotifyPropertyChanged source, PropertyChangedEventHandler listener) {
+            source.PropertyChanged += m_Handler;
+            var bo = source as BindableObject;
+
+            m_Source = source;
+            m_Listener.SetTarget (listener);
+        }
+
+        public void Unsubscribe () {
+            if (m_Source != null) {
+                m_Source.PropertyChanged -= m_Handler;
+            }
+            m_Source = null;
+            m_Listener.SetTarget (null);
+        }
+
+        void OnPropertyChanged (object sender, string e) {
+            if (m_Listener.TryGetTarget (out var handler) && handler != null)
+                handler (sender, e);
+            else
+                Unsubscribe ();
+        }
+    }
 }

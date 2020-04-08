@@ -95,13 +95,12 @@ namespace Hugula.Databinding {
 
         }
 
-        public bool TryGetValue (bool needSubscribe, out object value) {
+        public bool TryGetValue(bool needSubscribe, out object value)
+        {
             value = source;
-            if (value != null) {
-                // if (isMethod)
-                //     value = ExpressionUtility.InvokeSourceMethod (value, this, needSubscribe);
-                // else
-                    value = ExpressionUtility.GetSourcePropertyValue (value, this, needSubscribe);
+            if (value != null)
+            {
+                value = ExpressionUtility.GetSourcePropertyValue(value, this, needSubscribe);
                 return true;
             }
             return false;
@@ -109,40 +108,6 @@ namespace Hugula.Databinding {
 
         public override string ToString () {
             return string.Format ("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={2},isSelf={4})", this.path, isIndexer, isMethod, indexerName, isSelf);
-        }
-    }
-
-    internal class WeakPropertyChangedProxy {
-        INotifyPropertyChanged m_Source;
-        readonly WeakReference<PropertyChangedEventHandler> m_Listener = new WeakReference<PropertyChangedEventHandler> (null);
-        readonly PropertyChangedEventHandler m_Handler;
-        internal INotifyPropertyChanged Source { get { return m_Source; } }
-
-        public WeakPropertyChangedProxy () {
-            m_Handler = new PropertyChangedEventHandler (OnPropertyChanged);
-        }
-
-        public void SubscribeTo (INotifyPropertyChanged source, PropertyChangedEventHandler listener) {
-            source.PropertyChanged += m_Handler;
-            var bo = source as BindableObject;
-
-            m_Source = source;
-            m_Listener.SetTarget (listener);
-        }
-
-        public void Unsubscribe () {
-            if (m_Source != null) {
-                m_Source.PropertyChanged -= m_Handler;
-            }
-            m_Source = null;
-            m_Listener.SetTarget (null);
-        }
-
-        void OnPropertyChanged (object sender, string e) {
-            if (m_Listener.TryGetTarget (out var handler) && handler != null)
-                handler (sender, e);
-            else
-                Unsubscribe ();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Hugula.Databinding.Editor
         static string[] bindMode = new string[] { "oneway", "twoway" };
         static StringBuilder sb = new StringBuilder();
 
-        public static void Expression(Binding binding, string targetName, int i)
+        public static void Expression(Binding binding, int i)
         {
             bool toggle = false;
             int key = binding.GetHashCode() + i;

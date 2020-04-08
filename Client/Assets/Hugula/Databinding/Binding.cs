@@ -167,18 +167,18 @@ namespace Hugula.Databinding {
 
         internal void OnSourceChanged (BindingPathPart lastPart) {
             bool needSubscribe = mode == BindingMode.OneWay || mode == BindingMode.TwoWay;
-            BindingPathPart part = lastPart.nextPart??lastPart;
+            BindingPathPart part = lastPart.nextPart;
             object m_Current = part.source;
             while (part != null) {
-                m_LastPart = part;
                 part.SetSource (m_Current); //
+                m_LastPart = part;
                 if (!part.isSelf && m_Current != null) {
 
                     if (part.nextPart != null)
                         part.TryGetValue (needSubscribe && part.nextPart != null, out m_Current);
                 }
 
-                UnityEngine.Debug.LogFormat ("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
+                // UnityEngine.Debug.LogFormat ("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
                 if (!part.isSelf && m_Current == null)
                     break;
 
@@ -194,7 +194,6 @@ namespace Hugula.Databinding {
                 else
                     part = null;
             }
-
 
             UpdateTarget ();
         }

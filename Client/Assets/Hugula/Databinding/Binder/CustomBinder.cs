@@ -9,10 +9,16 @@ namespace Hugula.Databinding
     public class CustomBinder : BindableObject
     {
 
-        // public override Object bindingTarget
-        // {
-        //     get { return this.target; }
-        // }
+        protected override void InitBindingsDic()
+        {
+            m_IsbindingsDictionary = true;
+            foreach (var item in bindings)
+            {
+                item.target = this.target;
+                m_BindingsDic[item.propertyName] = item;
+            }
+        }
+
     }
 
 }

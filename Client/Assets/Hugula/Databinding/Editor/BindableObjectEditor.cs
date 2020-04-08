@@ -8,15 +8,25 @@ using UnityEngine;
 namespace Hugula.Databinding.Editor {
     [CustomEditor (typeof (BindableObject), true)]
     public class BindableObjectEditor : UnityEditor.Editor {
+
+        
+        void OnEnable()
+        {
+            var temp = target as CustomBinder;
+
+            if (temp && temp.target == null)
+            {
+                List<UnityEngine.EventSystems.UIBehaviour> results = new List<UnityEngine.EventSystems.UIBehaviour>();
+                temp.GetComponents<UnityEngine.EventSystems.UIBehaviour>(results);
+                if (results.Count > 0)
+                    temp.target = results[results.Count - 1];
+            }
+        }
+
         public override void OnInspectorGUI () {
             // base.OnInspectorGUI ();
             EditorGUILayout.Separator ();
             var temp = target as BindableObject;
-            // GUILayout.Label ((index).ToString (), GUILayout.Width (20));
-            // EditorGUILayout.BeginHorizontal ();
-            // GUILayout.Label ("target:", GUILayout.Width (40));
-            // temp.target = EditorGUILayout.ObjectField (temp.target, typeof (UnityEngine.Object), GUILayout.MaxWidth (150)); //显示绑定对象
-            // EditorGUILayout.EndHorizontal ();
             base.OnInspectorGUI();
             BindalbeObjectUtilty.BindableObjectField (temp, 0);
         }

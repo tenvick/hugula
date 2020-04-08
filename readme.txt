@@ -1,7 +1,14 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
-2020.4.8
+2020.4.8 
+1 C#Examples 滚动列表示例(loop_scroll_rect),Converter示例(string_texture_converter), 文本绑定与类型自动转换,控件之接双向绑定示例(textbinding)
+2 EnterLua入口属性修改为可序列化属性。
+3 清理废旧代码和注释。
+4 CustomBinder引入，可以任意单向绑定Unity的Component对象属性。
+5 Manager增加Add和Remove方法支持挂接的MonoBehaviour。
+
+2020.4.7
 1 Binding流程优化，引入IBinding接口,source修改为序列化引用。
 2 Convert管理机制引入，可以同时支持C#和lua Converter。
 3 引入Manager管理所有IManager对象，引入单例模式。

@@ -30,12 +30,12 @@ public class EnterLua : MonoBehaviour,IManager {
     }
 #endif
 
-    public static string enterLua = "begin"; //main
+    public string enterLua = "begin"; //main
 
     internal static LuaEnv luaenv;
 
     // Start is called before the first frame update
-    void Start () {
+    void Awake() {
         DontDestroyOnLoad (this.gameObject);
         Executor.Initialize ();
         if (ManifestManager.fileManifest == null)

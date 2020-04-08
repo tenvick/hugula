@@ -71,10 +71,10 @@ namespace Hugula.Databinding {
 		[SerializeField]
 		protected UnityEngine.Object m_Target;
 
-		///<summary>
-		/// 绑定对象的name
-		///</summary>
-		public string targetName;
+        // ///<summary>
+        // /// 绑定对象的name
+        // ///</summary>
+        // public string targetName;
 
 		///<summary>
 		/// The UnityEngine.Object of the Target
@@ -87,28 +87,64 @@ namespace Hugula.Databinding {
 			return (T) m_Target;
 		}
 
-		///<summary>
-		/// 绑定表达式
-		///<summary>
-		[HideInInspector]
-		public List<Binding> bindings;
+        ///<summary>
+        /// 绑定表达式
+        ///<summary>
+        [HideInInspector]
+        public List<Binding> bindings = new List<Binding>();
 
-		private bool m_IsbindingsDictionary = false;
-		Dictionary<string, Binding> m_BindingsDic = new Dictionary<string, Binding> ();
+        protected bool m_IsbindingsDictionary = false;
+        protected Dictionary<string, Binding> m_BindingsDic = new Dictionary<string, Binding>();
 
-		public Binding GetBinding (string property) {
-			if (!m_IsbindingsDictionary) {
-				m_IsbindingsDictionary = true;
-				foreach (var item in bindings)
-					m_BindingsDic[item.propertyName] = item;
-			}
+        protected virtual void InitBindingsDic()
+        {
+            m_IsbindingsDictionary = true;
+            foreach (var item in bindings)
+            {
+                item.target = this;
+                m_BindingsDic[item.propertyName] = item;
+            }
+        }
 
-			Binding binding = null;
-			m_BindingsDic.TryGetValue (property, out binding);
-			return binding;
-		}
+        public Binding GetBinding(string property)
+        {
+            if (!m_IsbindingsDictionary) InitBindingsDic();
 
-		protected virtual void OnInheritedContextChanged () {
+            Binding binding = null;
+            m_BindingsDic.TryGetValue(property, out binding);
+            return binding;
+        }
+
+        public void SetBinding(string sourcePath, object target, string property, BindingMode mode, string format, string converter)
+        {
+            if (!m_IsbindingsDictionary) InitBindingsDic();
+            if (target == null) target = this;
+            Binding binding = null;
+            if (m_BindingsDic.TryGetValue(property, out binding))
+            {
+                binding.Dispose();
+                m_BindingsDic.Remove(property);
+                Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
+            }
+
+            binding = new Binding(sourcePath, target, property, mode, format, converter);
+            bindings.Add(binding);
+            m_BindingsDic.Add(property, binding);
+
+        }
+
+        public void SetBinding(string sourcePath, object target, string property, BindingMode mode)
+        {
+            SetBinding(sourcePath, target, property, mode, string.Empty, string.Empty);
+        }
+
+        public void SetBinding(string sourcePath, string property, BindingMode mode)
+        {
+            SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
+        }
+
+        protected virtual void OnInheritedContextChanged()
+        {
 
 		}
 
@@ -117,8 +153,8 @@ namespace Hugula.Databinding {
 				m_InheritedContext = value;
 				OnBindingContextChanging ();
 				var contextBinding = GetBinding (ContextProperty);
-				if (contextBinding != null && contextBinding.path != ".") {
-					// contextBinding.Unapply ();
+                if (contextBinding != null && contextBinding.path != Binding.SelfPath)
+                {
 					contextBinding.target = this;
 					System.Action act = () => contextBinding.Apply(context);//contextBinding.Apply (context, this);
 					// act();
@@ -131,16 +167,18 @@ namespace Hugula.Databinding {
 
 		}
 
-		protected virtual void OnBindingContextChanged () {
-			for (int i = 0; i < bindings.Count; i++) {
-				var binding = bindings[i];
-				if (!ContextProperty.Equals (binding.propertyName)) { //context需要触发自己，由inherited触发
-					// binding.Unapply();
-					binding.target = this;
-					binding.Apply (context);
-				}
-			}
-		}
+        protected virtual void OnBindingContextChanged()
+        {
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                var binding = bindings[i];
+                if (!ContextProperty.Equals(binding.propertyName))
+                { //context需要触发自己，由inherited触发
+                    // binding.target = this;
+                    binding.Apply(context);
+                }
+            }
+        }
 
 		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null) {
 			PropertyChanged?.Invoke (this, propertyName);

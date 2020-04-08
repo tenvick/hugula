@@ -220,7 +220,7 @@ namespace Hugula.Databinding.Editor
                 }
             }
 
-            bindable.targetName = obj.name;
+            // bindable.targetName = obj.name;
             // bindable.binderType = GetBinderType (bindable.target.GetType ());
             if (children.IndexOf(bindable) < 0)
             {

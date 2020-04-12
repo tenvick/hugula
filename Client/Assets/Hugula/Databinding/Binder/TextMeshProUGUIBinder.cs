@@ -5,11 +5,9 @@ using UnityEngine.UI;
 #if USE_TMPro
 using TMPro;
 #endif
-namespace Hugula.Databinding.Binder
-{
+namespace Hugula.Databinding.Binder {
 
-    public class TextMeshProUGUIBinder : MaskableGraphicBinder
-    {
+    public class TextMeshProUGUIBinder : MaskableGraphicBinder {
 #if USE_TMPro
 
         public const string TextProperty = "text";
@@ -26,78 +24,70 @@ namespace Hugula.Databinding.Binder
         public const string fontStyleProperty = "fontStyle";
         public const string pixelsPerUnitProperty = "pixelsPerUnit";
 
-        TextMeshProUGUI m_Text;
+        TextMeshProUGUI m_target;
+        TextMeshProUGUI m_Text {
+            get {
+                if (m_target == null)
+                    m_target = GetTarget<TextMeshProUGUI> ();
+                return m_target;
+            }
+            set {
+                m_target = null;
+            }
+        }
 
         #region  重写属性
-        public string text
-        {
+        public string text {
             get { return m_Text.text; }
-            set
-            {
+            set {
                 m_Text.text = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public float alpha
-        {
+        public float alpha {
             get { return m_Text.alpha; }
-            set
-            {
+            set {
                 m_Text.alpha = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public TMPro.TextAlignmentOptions alignment
-        {
+        public TMPro.TextAlignmentOptions alignment {
             get { return m_Text.alignment; }
-            set
-            {
+            set {
                 m_Text.alignment = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public float fontSize
-        {
+        public float fontSize {
             get { return m_Text.fontSize; }
-            set
-            {
+            set {
                 m_Text.fontSize = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public float lineSpacing
-        {
+        public float lineSpacing {
             get { return m_Text.lineSpacing; }
-            set
-            {
+            set {
                 m_Text.lineSpacing = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public float pixelsPerUnit
-        {
+        public float pixelsPerUnit {
             get { return m_Text.pixelsPerUnit; }
         }
 
         #endregion
-
-        protected override void Awake()
-        {
-            m_Text = GetTarget<TextMeshProUGUI>();
-            base.Awake();
-        }
-
-        protected override void OnDestroy()
-        {
+   
+        protected override void OnDestroy () {
             m_Text = null;
-            base.OnDestroy();
+            base.OnDestroy ();
         }
 
-        #endif
+#endif
     }
 }

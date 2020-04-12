@@ -6,16 +6,16 @@ using System.Collections.Generic;
 using System.IO;
 using Hugula.Databinding;
 using Hugula.Loader;
+using Hugula.Manager;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using XLua;
-using Hugula.Manager;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-public class EnterLua : MonoBehaviour,IManager {
+public class EnterLua : MonoBehaviour, IManager {
 #if UNITY_EDITOR
     const string KeyDebugString = "_Plua_Debug_string";
 
@@ -35,17 +35,18 @@ public class EnterLua : MonoBehaviour,IManager {
     internal static LuaEnv luaenv;
 
     // Start is called before the first frame update
-    void Awake() {
+    void Awake () {
         DontDestroyOnLoad (this.gameObject);
         Executor.Initialize ();
         if (ManifestManager.fileManifest == null)
             ManifestManager.LoadFileManifest (null);
-#if UNITY_EDITOR
-        Debug.LogFormat ("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
-#endif
+
         if (luaenv == null) luaenv = new LuaEnv ();
         luaenv.AddLoader (Loader);
         luaenv.DoString ("require('" + enterLua + "')");
+#if UNITY_EDITOR
+        Debug.LogFormat ("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
+#endif
     }
 
     // Update is called once per frame
@@ -56,11 +57,11 @@ public class EnterLua : MonoBehaviour,IManager {
     }
 
     void OnDestroy () {
-                luaenv.DoString (@"
+        luaenv.DoString (@"
                 local util = require 'xlua.util'
         util.print_func_ref_by_csharp()");
         // if (luaenv != null) luaenv.Dispose ();
-        ExpressionUtility.Dispose();
+        ExpressionUtility.Dispose ();
     }
 
     void OnApplicationQuit () {
@@ -143,17 +144,82 @@ public class EnterLua : MonoBehaviour,IManager {
         return ret;
     }
 
-
-    public void Initialize(){
+    public void Initialize () {
+        // luaenv.DoString ("require('" + enterLua + "')");
+    }
+    public void Terminate () {
 
     }
-    public   void Terminate()
-    {
 
-    }
     //重启动游戏
     public static void ReOpen (float sconds) {
         UnityEngine.SceneManagement.SceneManager.LoadScene (0);
         Debug.LogFormat ("ReOpen !");
     }
+
+    #region delay
+
+    public static void StopDelay (object arg) {
+        var ins = Manager.Get<EnterLua> ();
+        if (ins != null && arg is IEnumerator)
+            ins.StopCoroutine ((IEnumerator) arg);
+    }
+
+    public static IEnumerator Delay (LuaFunction luafun, float time, object args) {
+        var ins = Manager.Get<EnterLua> ();
+        var _corout = DelayDo (luafun, time, args);
+        ins.StartCoroutine (_corout);
+        return _corout;
+    }
+
+    private static IEnumerator DelayDo (LuaFunction luafun, float time, object args) {
+        yield return new WaitForSeconds (time);
+        luafun.Call (args);
+    }
+
+    public static IEnumerator DelayFrame (LuaFunction luafun, int frame, object args) {
+        var ins = Manager.Get<EnterLua> ();
+        var _corout = DelayFrameDo (luafun, frame, args);
+        ins.StartCoroutine (_corout);
+        return _corout;
+    }
+
+    private static IEnumerator DelayFrameDo (LuaFunction luafun, int frame, object args) {
+        var waitFrame = WaitForFrameCountPool.Get ();
+        waitFrame.SetEndFrame (frame);
+        yield return waitFrame;
+        WaitForFrameCountPool.Release (waitFrame);
+        luafun.Call (args);
+    }
+
+    static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount> (null, null);
+    public class WaitForFrameCount : IEnumerator {
+        int m_EndCount;
+        public WaitForFrameCount (int frameCount) {
+            SetEndFrame (frameCount);
+        }
+
+        public WaitForFrameCount () {
+
+        }
+
+        public void SetEndFrame (int frameCount) {
+            m_EndCount = Time.frameCount + frameCount;
+        }
+
+        bool IEnumerator.MoveNext () {
+            return Time.frameCount <= m_EndCount;
+        }
+
+        object IEnumerator.Current {
+            get {
+                return null;
+            }
+        }
+
+        void IEnumerator.Reset () {
+
+        }
+    }
+    #endregion
 }

@@ -68,6 +68,9 @@ namespace Hugula.UIComponents {
         /// 通过OnSelected方法 选中项目的索引</br>
         /// </summary>
         public int selectedIndex { get { return m_SelectedIndex; } }
+
+        int m_LastSelectedIndex = -1;
+        public int lastSelectedIndex { get { return m_LastSelectedIndex; } }
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
@@ -579,11 +582,16 @@ namespace Hugula.UIComponents {
 
         public void OnSelect (LoopItem loopItem) //选中
         {
-            int lastIdx = m_SelectedIndex;
+            m_LastSelectedIndex = m_SelectedIndex;
             m_SelectedIndex = loopItem.index;
-            if (onSelected != null) onSelected (this.parameter, loopItem.item, loopItem.index, lastIdx);
-            if (itemCommand != null && itemCommand.CanExecute (new int[] { loopItem.index, lastIdx })) {
-                itemCommand.Execute (new int[] { loopItem.index, lastIdx });
+            if (onSelected != null) onSelected (this.parameter, loopItem.item, m_SelectedIndex, m_LastSelectedIndex);
+            object para = null;
+            if (itemParameter == null)
+                para = loopItem.item;
+            else
+                para = itemParameter;
+            if (itemCommand != null && itemCommand.CanExecute (para)) {
+                itemCommand.Execute (para);
             }
         }
 

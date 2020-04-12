@@ -1,6 +1,15 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.4.13
+1 Delay和DelayFrame功能支持。
+2 Binder target访问修改。
+3 LoopScrollRect itemParameter传递优化。
+4 AnimatorBinder,GroupSelector,CoolDown,LuaModule与LuaNotifyComponent,LuaComponent引入。
+5 ui资源清理与图集生成。
+6 bag示例。
+
+
 2020.4.8 
 1 C#Examples 滚动列表示例(loop_scroll_rect),Converter示例(string_texture_converter), 文本绑定与类型自动转换,控件之接双向绑定示例(textbinding)
 2 EnterLua入口属性修改为可序列化属性。

@@ -33,7 +33,7 @@ eg_data:InsertRange(
             id = 1,
             title = "背包",
             name = btn_tips1,
-            state = "scroll_rect_table",
+            state = "bag",
             bgcolor = Color.cyan,
             click_enable = false
         },
@@ -41,7 +41,7 @@ eg_data:InsertRange(
             id = 2,
             title = "数据绑定示例（绑定属性和方法）",
             name = btn_tips1,
-            state = "source_demo",
+            state = "binding_demo",
             bgcolor = Color.green,
             click_enable = false
         },
@@ -69,8 +69,8 @@ eg_data.on_item_select = {
     end,
     Execute = function(self, arg)
         Logger.Log("click",self,arg)
-        index = arg[0]
-        last_index = arg[1]
+        index = arg.selectedIndex
+        last_index = arg.lastSelectedIndex
         -- local item = eg_data.items[index + 1]
         local item = eg_data:get_Item(index)
         if last_index >= 0 and index ~= last_index then

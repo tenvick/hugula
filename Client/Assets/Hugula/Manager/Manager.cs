@@ -114,8 +114,8 @@ namespace Hugula.Manager {
         public static void Initialize () {
             var kv = m_Register;
             foreach (var v in kv) {
-                v.Initialize ();
                 m_Initialized.Add (v.GetType ().Name, v);
+                v.Initialize ();
             }
             m_Register.Clear ();
             m_Initialize = true;

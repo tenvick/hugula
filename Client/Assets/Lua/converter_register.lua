@@ -55,3 +55,4 @@ local number_to_string = {
 
 ValueConverterRegister:AddConverter("StringToNumber", string_to_number)
 ValueConverterRegister:AddConverter("NumberToString", number_to_string)
+

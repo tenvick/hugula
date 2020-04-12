@@ -146,7 +146,7 @@ chat_demo.chat_btn_send = {
     Execute = function(self, arg)
         Logger.Log("chat_btn_send", table.tojson(self), "arg=",arg,".")
         add_my_chat(arg)
-        chat_demo:OnPropertyChanged(property_chat_input_txt) ---情况聊天内容
+        chat_demo:OnPropertyChanged(property_chat_input_txt) ---清空聊天内容
     end
 }
 

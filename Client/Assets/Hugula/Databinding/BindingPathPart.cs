@@ -19,14 +19,14 @@ namespace Hugula.Databinding {
         //表示方法
         public bool isMethod { get; set; }
 
-        private WeakReference<object> m_Source = new WeakReference<object> (null);
-
+        // private WeakReference<object> m_Source = new WeakReference<object> (null);
+        object m_Source;
         //当前节点的源对象
         public object source {
             get {
-                object real = null;
-                m_Source.TryGetTarget (out real);
-                return real;
+                // object real = null;
+                // m_Source.TryGetTarget (out real);
+                return m_Source;
             }
         }
 
@@ -46,10 +46,11 @@ namespace Hugula.Databinding {
         }
 
         public void SetSource (object current) {
-            if (m_Source.TryGetTarget (out var source) && Object.Equals (source, current))
-                return;
+            m_Source = current;
+            // if (m_Source.TryGetTarget (out var source) && Object.Equals (source, current))
+            //     return;
 
-            m_Source.SetTarget (current);
+            // m_Source.SetTarget (current);
         }
 
         public void Subscribe (INotifyPropertyChanged source) {
@@ -95,19 +96,17 @@ namespace Hugula.Databinding {
 
         }
 
-        public bool TryGetValue(bool needSubscribe, out object value)
-        {
+        public bool TryGetValue (bool needSubscribe, out object value) {
             value = source;
-            if (value != null)
-            {
-                value = ExpressionUtility.GetSourcePropertyValue(value, this, needSubscribe);
+            if (value != null) {
+                value = ExpressionUtility.GetSourcePropertyValue (value, this, needSubscribe);
                 return true;
             }
             return false;
         }
 
         public override string ToString () {
-            return string.Format ("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={2},isSelf={4})", this.path, isIndexer, isMethod, indexerName, isSelf);
+            return string.Format ("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={2},isSelf={4},soure={5})", this.path, isIndexer, isMethod, indexerName, isSelf, source);
         }
     }
 }

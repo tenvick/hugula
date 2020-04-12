@@ -9,7 +9,19 @@ namespace Hugula.Databinding.Binder {
 
         public const string MaskableProperty = "maskable";
         public const string ColorProperty = "color";
-        protected MaskableGraphic m_Maskable;
+        private MaskableGraphic m_target_mask;
+        protected MaskableGraphic m_Maskable {
+            get {
+                if (m_target_mask == null)
+                    m_target_mask = GetTarget<MaskableGraphic> ();
+
+                return m_target_mask;
+
+            }
+            set {
+                m_target_mask = value;
+            }
+        }
         #region  重写属性
         public bool maskable {
             get { return m_Maskable.maskable; }
@@ -28,14 +40,9 @@ namespace Hugula.Databinding.Binder {
         }
         #endregion
 
-        protected virtual void Awake () {
-            m_Maskable = GetTarget<MaskableGraphic> ();
-        }
-
-        protected override void OnDestroy()
-        {
+        protected override void OnDestroy () {
             m_Maskable = null;
-            base.OnDestroy();
+            base.OnDestroy ();
         }
     }
 }

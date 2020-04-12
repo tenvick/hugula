@@ -42,15 +42,15 @@ local function update_target(target, property, source, part, format, converter)
     local val = nil
     local val_type = nil
 
+    local format = format
+    local property = property
     local path = part.path
     local is_method = part.isMethod
-    local property = property
-    local format = format
     local current = part.source
     if part.isIndexer == true then
         path = tonumber(path)
     end
-
+    
     if part.isSelf then
         val = current
     elseif is_method then
@@ -61,11 +61,12 @@ local function update_target(target, property, source, part, format, converter)
 
     -- Logger.Log(
     --     string.format(
-    --         "set_target_value target=%s,property=%s,current=%s,path=%s,val=%s",
+    --         "set_target_value target=%s,property=%s,current=%s,path=%s,converter=%s,val=%s",
     --         target,
     --         property,
     --         current,
     --         path,
+    --         converter,
     --         val
     --     )
     -- )
@@ -74,18 +75,18 @@ local function update_target(target, property, source, part, format, converter)
     if format ~= "" then
         val = string_format(format, val)
     end
-
+ 
     if converter ~= nil then
         val = converter:Convert(val, val_type)
     end
-
-    if property == context_property then ---如果是设置的context
+    -- Logger.Log("val=",val)
+    if property == context_property and val ~= nil then ---如果是设置的context
         set_target_context(target, val)
     else
-        local old = target[property]
-        if old ~= val then
+        -- local old = target[property]
+        -- if old ~= val then
             target[property] = val
-        end
+        -- end
     end
 end
 
@@ -98,24 +99,23 @@ local function update_source(target, property, source, part, format, converter)
     if is_index == true then
         path = tonumber(path)
     end
-
+    
     local val = target[property]
-    local current = part.Source
+    local current = part.source
+    if converter then
+        val = converter:ConvertBack(val)
+    end
     -- Logger.Log(
     --     string.format(
-    --         "set_source_value target=%s,property=%s,current=%s,source=%s,path=%s,val=%s",
+    --         "update_source target=%s,property=%s,current=%s,source=%s,path=%s,val=%s",
     --         target,
     --         property,
     --         current,
     --         source,
-    --         path,
+    --         part,
     --         val
     --     )
     -- )
-    if converter then
-        val = converter:ConvertBack(val)
-    end
-
     if part.isSelf then
         source = val
     elseif is_method then

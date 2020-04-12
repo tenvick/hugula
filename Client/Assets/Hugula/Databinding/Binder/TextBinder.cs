@@ -21,7 +21,17 @@ namespace Hugula.Databinding.Binder {
         public const string fontStyleProperty = "fontStyle";
         public const string pixelsPerUnitProperty = "pixelsPerUnit";
 
-        Text m_Text;
+        Text m_target_txt;
+        Text m_Text {
+            get {
+                if (m_target_txt == null)
+                    m_target_txt = GetTarget<Text> ();
+                return m_target_txt;
+            }
+            set {
+                m_target_txt = null;
+            }
+        }
 
         #region  重写属性
         public string text {
@@ -125,16 +135,9 @@ namespace Hugula.Databinding.Binder {
         }
 
         #endregion
-
-        protected override void Awake () {
-            m_Text = GetTarget<Text> ();
-            base.Awake ();
-        }
-
-        protected override void OnDestroy()
-        {
+        protected override void OnDestroy () {
             m_Text = null;
-            base.OnDestroy();
+            base.OnDestroy ();
         }
     }
 }

@@ -293,7 +293,7 @@ namespace Hugula.Loader
                 }// end if (cached.count-- == 0)
             }
 #if UNITY_EDITOR
-            else
+            else if(!ManifestManager.SimulateAssetBundleInEditor)
             {
                 Debug.LogWarningFormat("Subtract cacheData {0} is null ", key);
             }
@@ -314,12 +314,12 @@ namespace Hugula.Loader
                 // #endif
                 ABDelayUnloadManager.Add(key);
             }
-            else
-            {
 #if UNITY_EDITOR || !HUGULA_RELEASE
+            else if(!ManifestManager.SimulateAssetBundleInEditor)
+            {
                 Debug.LogWarningFormat("ClearDelay Cache {0} is null ", key);
-#endif
             }
+#endif
         }
 
         /// <summary>

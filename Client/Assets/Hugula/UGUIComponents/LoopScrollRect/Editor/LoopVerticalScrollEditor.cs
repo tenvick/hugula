@@ -35,8 +35,13 @@ namespace Hugula.UIComponents {
 
             //create Templates container
             var templateContainer = new GameObject ("TemplatesContainer", typeof (RectTransform));
-            templateContainer.SetActive (false);
             templateContainer.transform.SetParent (rootRT, false);
+            var itemContainerRT = templateContainer.GetComponent<RectTransform> ();
+            itemContainerRT.anchorMin = Vector2.up;
+            itemContainerRT.anchorMax = Vector2.one;
+            itemContainerRT.sizeDelta = new Vector2 (0, 300);
+            itemContainerRT.pivot = Vector2.up;
+            templateContainer.SetActive (false);
 
             var itemTemplate = new GameObject ("ItemTemplate", typeof (RectTransform));
             var itemTemplateRT = itemTemplate.GetComponent<RectTransform> ();
@@ -251,7 +256,7 @@ namespace Hugula.UIComponents {
             EditorGUILayout.PropertyField (m_Content);
             EditorGUILayout.PropertyField (m_CeilBar);
             EditorGUILayout.PropertyField (m_FloorBar);
-            LoopScrollRectEditor.PropertyFieldChooseMono (m_Templates);
+            PropertyFieldChooseMono (m_Templates);
             GUILayout.Space (10);
             GUILayout.Label (new GUIContent ("____________________________________________________________________________________________________"), GUILayout.MaxWidth (500));
             EditorGUILayout.PropertyField (m_PageSize);
@@ -310,5 +315,43 @@ namespace Hugula.UIComponents {
             serializedObject.ApplyModifiedProperties ();
         }
 
+        void PropertyFieldChooseMono (SerializedProperty prop) {
+            EditorGUILayout.LabelField ("Template item type must is BindableContainer", GUILayout.MaxWidth (300));
+
+            // EditorGUILayout.PropertyField (prop);
+
+            if (prop.isArray) {
+                // EditorGUILayout.PropertyField (prop);
+                var size = prop.arraySize;
+                GUILayout.Label (new GUIContent (prop.name.Replace ("m_", "")), GUILayout.Width (160));
+
+                EditorGUILayout.BeginHorizontal ();
+                GUILayout.Label (new GUIContent ("Size"), GUILayout.Width (60));
+                GUILayout.TextField (size.ToString (), GUILayout.Width (60));
+                if (GUILayout.Button ("+")) {
+                    prop.InsertArrayElementAtIndex (size);
+                }
+                EditorGUILayout.EndHorizontal ();
+
+                EditorGUILayout.BeginVertical ();
+                for (int i = 0; i < size; i++) {
+                    var item = prop.GetArrayElementAtIndex (i);
+                    EditorGUILayout.PropertyField (item);
+                    var obj = item.objectReferenceValue as Component;
+                    if (obj && !(obj is BindableContainer)) {
+                        var bindable = obj.GetComponent<BindableContainer> ();
+                        item.objectReferenceValue = bindable;
+                        if (bindable == null) {
+                            Debug.LogWarning ("Template item type must is BindableContainer .");
+                        }
+                    }
+                }
+                if (GUILayout.Button ("-")) {
+                    prop.DeleteArrayElementAtIndex (size - 1);
+                }
+                EditorGUILayout.EndVertical ();
+            }
+
+        }
     }
 }

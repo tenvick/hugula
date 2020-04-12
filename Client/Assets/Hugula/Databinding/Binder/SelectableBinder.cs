@@ -5,112 +5,98 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Hugula.Databinding.Binder
-{
+namespace Hugula.Databinding.Binder {
 
-    public class SelectableBinder : UIBehaviourBinder
-    {
+    public class SelectableBinder : UIBehaviourBinder {
 
         // public const string MaskableProperty = "maskable";
         // public const string ColorProperty = "color";
-        protected Selectable m_Selectable;
+        Selectable m_target_selectable;
+        Selectable m_Selectable {
+            get {
+                if (m_target_selectable == null)
+                    m_target_selectable = GetTarget<Selectable> ();
+                return m_target_selectable;
+            }
+            set {
+                m_target_selectable = null;
+            }
+        }
+
         #region  重写属性
-        public Navigation navigation
-        {
+        public Navigation navigation {
             get { return m_Selectable.navigation; }
-            set
-            {
+            set {
                 m_Selectable.navigation = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public Selectable.Transition transition
-        {
+        public Selectable.Transition transition {
             get { return m_Selectable.transition; }
-            set
-            {
+            set {
                 m_Selectable.transition = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public ColorBlock colors
-        {
+        public ColorBlock colors {
             get { return m_Selectable.colors; }
-            set
-            {
+            set {
                 m_Selectable.colors = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public SpriteState spriteState
-        {
+        public SpriteState spriteState {
             get { return m_Selectable.spriteState; }
-            set
-            {
+            set {
                 m_Selectable.spriteState = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public AnimationTriggers animationTriggers
-        {
+        public AnimationTriggers animationTriggers {
             get { return m_Selectable.animationTriggers; }
-            set
-            {
+            set {
                 m_Selectable.animationTriggers = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public Graphic targetGraphic
-        {
+        public Graphic targetGraphic {
             get { return m_Selectable.targetGraphic; }
-            set
-            {
+            set {
                 m_Selectable.targetGraphic = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public bool interactable
-        {
+        public bool interactable {
             get { return m_Selectable.interactable; }
-            set
-            {
+            set {
                 m_Selectable.interactable = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public Image image
-        {
+        public Image image {
             get { return m_Selectable.image; }
-            set
-            {
+            set {
                 m_Selectable.image = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
-        public Animator animator
-        {
+        public Animator animator {
             get { return m_Selectable.animator; }
         }
 
         #endregion
 
-        protected virtual void Awake()
-        {
-            m_Selectable = GetTarget<Selectable>();
-        }
-
-        protected override void OnDestroy()
-        {
+        protected override void OnDestroy () {
             m_Selectable = null;
-            base.OnDestroy();
+            base.OnDestroy ();
         }
 
     }

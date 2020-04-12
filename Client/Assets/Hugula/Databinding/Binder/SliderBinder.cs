@@ -10,7 +10,17 @@ namespace Hugula.Databinding.Binder {
         public const string OnClickExcuteProperty = "onValueChangedExcute";
         public const string ValueProperty = "value";
 
-        Slider m_Slider;
+        Slider m_target_slider;
+        Slider m_Slider {
+            get {
+                if (m_target_slider == null)
+                    m_target_slider = GetTarget<Slider> ();
+                return m_target_slider;
+            }
+            set {
+                m_target_slider = null;
+            }
+        }
 
         #region  重写属性
         public Slider.Direction direction {
@@ -82,8 +92,6 @@ namespace Hugula.Databinding.Binder {
         }
 
         void Awake () {
-            m_Slider = GetTarget<Slider> ();
-            base.Awake ();
             m_Slider.onValueChanged.AddListener (OnValueChanged);
         }
 
@@ -91,7 +99,7 @@ namespace Hugula.Databinding.Binder {
             m_Slider.onValueChanged.RemoveListener (OnValueChanged);
             m_OnValueChangedExecute = null;
             m_Slider = null;
-            base.OnDestroy();
+            base.OnDestroy ();
         }
 
     }

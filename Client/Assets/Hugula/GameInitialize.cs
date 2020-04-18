@@ -1,30 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Hugula.Framework;
 using UnityEngine;
-using Hugula.Manager;
+using Hugula.Mvvm;
 
 ///<summary>
 ///游戏初始化
 ///</summary>
-public class GameInitialize : MonoBehaviour
-{
-    void Awake()
-    {
-        Manager.Register<EnterLua>();
+public class GameInitialize : MonoBehaviour {
+    void Awake () {
+        Manager.Register<GlobalDispatcher> ();
 
-        Manager.Initialize();
-    }
-    
-    void Start()
-    {
-        //reginster manager
-        // Manager.Register<
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        Manager.Initialize ();
     }
 }

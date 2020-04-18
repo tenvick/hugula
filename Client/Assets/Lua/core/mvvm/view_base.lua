@@ -12,7 +12,7 @@ local ipairs = ipairs
 local table_remove_item = table.remove_item
 local table_insert = table.insert
 local set_target_context = BindingExpression.set_target_context
-
+local LuaHelper = CS.Hugula.Utils.LuaHelper
 ---所有视图的基类
 ---@class view_base
 ---@overload fun(vm_base:ViewBase)
@@ -21,7 +21,7 @@ local set_target_context = BindingExpression.set_target_context
 local view_base =
     class(
     function(self, ...)
-        self._children = {}
+
     end
 )
 
@@ -35,35 +35,54 @@ local view_base =
 -- end
 
 local function set_active(self, enable)
-    local children = self._children
-    for k, container in ipairs(children) do
-        container.gameObject:SetActive(enable)
+    local child = self._child
+    if child then
+        if enable then
+            LuaHelper.SetActive(child, enable)
+        else
+            LuaHelper.DelayDeActive(child.gameObject)
+        end
     end
 end
 
 ---添加子控件
 ---@overload fun(bindable_object:BindableObject)
 ---@param bindable_object BindableObject
-local function add_child(self, bindable_object)
-    local children = self._children
-    table_insert(children, bindable_object)
+local function set_child(self, bindable_object)
+    self._child = bindable_object
 end
 
----移除子对象
----@overload fun(bindable_object:BindableObject)
----@return void
-local function remove_child(self, bindable_object)
-    table_remove_item(self._children, bindable_object)
+---资源是否准备好
+---@overload fun()
+---@return  bool
+local function has_child(self)
+    return self._child ~= nil
 end
 
 ---设置子对象的context
 ---@overload fun(context:any)
 ---@param context any
-local function set_children_context(self, context)
-    local children = self._children
-    for k, child in ipairs(children) do
-        set_target_context(child, context)
+local function set_child_context(self, context)
+    local child = self._child
+    self._context = context
+    set_target_context(child, context)
+end
+
+---是否已经设置了context
+---@overload fun()
+---@return  bool
+local function has_context(self)
+    return self._context ~= nil
+end
+
+---销毁child
+---@overload fun()
+local function clear(self)
+    local child = self._child
+    if child then
+        LuaHelper.DelayDestroy(child.gameObject)
     end
+    self._child = nil
 end
 
 ---
@@ -72,12 +91,16 @@ end
 ---@param container BindableContainer
 local function dispose(self)
     self._vm_base = nil
+    self:clear()
 end
 
 -- view_base.on_asset_load = on_asset_load
-view_base.add_child = add_child
+view_base.set_child = set_child
 view_base.set_active = set_active
-view_base.set_children_context = set_children_context
+view_base.has_child = has_child
+view_base.has_context = has_context
+view_base.set_child_context = set_child_context
+view_base.clear = clear
 view_base.dispose = dispose
 
 ---
@@ -94,7 +117,7 @@ view_base.dispose = dispose
 ---@field _vm_base VMBase
 ---@field set_context any
 ---@field set_active function
----@field property_changed function
+---@field has_child function
 ---@field asset_name string
 ---@field assetbundle string
 ---@field find_path string
@@ -122,12 +145,6 @@ View = function(vm_base, arg, view_path)
     view_inst._vm_base = vm_base
     if arg_is_string ~= true then --- string 表示路径
         for k, v in pairs(arg) do
-            -- if k == "__find" then
-            --     view_inst.find_path = v
-            -- else
-            --     view_inst.asset_name = k
-            --     view_inst.assetbundle = v
-            -- end
             view_inst[k] = v
         end
     end

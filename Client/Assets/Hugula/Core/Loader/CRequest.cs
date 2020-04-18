@@ -1,15 +1,14 @@
 // Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-#if !LOG_DISABLE
-// #define HUGULA_PROFILER_DEBUG
-#endif
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using Hugula.Utils;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Hugula.Loader {
     /// <summary>
@@ -135,12 +134,12 @@ namespace Hugula.Loader {
 
         public void DispatchComplete () {
 #if HUGULA_PROFILER_DEBUG
-            // Profiler.BeginSample (string.Format ("CRequest({0},{1}).DispatchComplete()", this.assetName, this.key));
+            Profiler.BeginSample (string.Format ("CRequest({0},{1}).DispatchComplete()", this.assetName, this.assetBundleName));
             if (OnComplete != null)
                 OnComplete (data,userData);
-            // Profiler.EndSample ();
+            Profiler.EndSample ();
             watch.Stop ();
-            GS_GameLog.LogFormat ("CRequest({0},{1}).data = {2} cost={3}s", this.assetBundleName, this.assetName, this.data, watch.ElapsedMilliseconds / 1000d);
+            Debug.LogFormat ("CRequest({0},{1}).data = {2} cost={3}s", this.assetBundleName, this.assetName, this.data, watch.ElapsedMilliseconds / 1000d);
 #else
 
             if (OnComplete != null)

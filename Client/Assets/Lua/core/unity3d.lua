@@ -1,4 +1,4 @@
-local Manager = CS.Hugula.Manager.Manager
+local Manager = CS.Hugula.Framework.Manager
 local EnterLua = CS.EnterLua
 
 ---------------

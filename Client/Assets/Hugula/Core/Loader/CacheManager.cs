@@ -74,7 +74,7 @@ namespace Hugula.Loader
 #if HUGULA_CACHE_DEBUG
             GS_GameLog.LogFormat("Dispose  CacheData({0},)),frame={1}  ", assetBundleName, Time.frameCount);
 #endif
-            if (assetBundle) assetBundle.Unload(true);
+            if (assetBundle) assetBundle.Unload(true); //Loading.LockPersistentManger Windows 141ms
             assetBundle = null;
             state = CacheDataState.Empty;
 
@@ -180,6 +180,11 @@ namespace Hugula.Loader
         static Dictionary<string, string> loadedScenes = new Dictionary<string, string>(5);
 
         /// <summary>
+        /// 加载中的场景
+        /// </summary>
+        static Dictionary<string, AsyncOperation> loadingScenes = new Dictionary<string, AsyncOperation>(5);
+
+        /// <summary>
         /// 改变cachedata状态为loading
         /// </summary>
         public static void SetCacheDataLoding(string assetbundle)
@@ -221,6 +226,32 @@ namespace Hugula.Loader
         }
 
         /// <summary>
+        /// 添加场景与assetbunlde的关系
+        /// </summary>
+        /// <param name="sceneName"></param>
+        /// <param name="abName"></param>
+        /// <return></return>
+        public static void AddLoadingScene(string sceneName, AsyncOperation request)
+        {
+            loadingScenes[sceneName] = request;
+#if UNITY_EDITOR
+            Debug.LogFormat("AddLoadingScene({0},{1})", sceneName, request);
+#endif
+        }
+
+        public static void RemoveLoadingScene(string sceneName)
+        {
+            loadingScenes.Remove(sceneName);
+        }
+
+        public static AsyncOperation GetLoadingScene(string sceneName)
+        {
+            AsyncOperation request = null;
+            loadingScenes.TryGetValue(sceneName, out request);
+            return request;
+        }
+
+        /// <summary>
         /// 获取场景的assetbundle可用于判断场景是否加载
         /// </summary>
         /// <param name="sceneName"></param>
@@ -239,6 +270,7 @@ namespace Hugula.Loader
         /// <return></return>
         public static AsyncOperation UnloadScene(string sceneName)
         {
+            loadingScenes.Remove(sceneName);
             AsyncOperation async = null;
             string abName;
             if (loadedScenes.TryGetValue(sceneName, out abName))
@@ -261,6 +293,7 @@ namespace Hugula.Loader
         /// <return></return>
         public static void UnloadAllScenes(string exclude = null)
         {
+            loadingScenes.Clear();
             foreach (var kv in loadedScenes)
             {
                 if (!kv.Key.ToLower().Equals(exclude))
@@ -293,7 +326,7 @@ namespace Hugula.Loader
                 }// end if (cached.count-- == 0)
             }
 #if UNITY_EDITOR
-            else if(!ManifestManager.SimulateAssetBundleInEditor)
+            else if (!ManifestManager.SimulateAssetBundleInEditor)
             {
                 Debug.LogWarningFormat("Subtract cacheData {0} is null ", key);
             }
@@ -314,8 +347,8 @@ namespace Hugula.Loader
                 // #endif
                 ABDelayUnloadManager.Add(key);
             }
-#if UNITY_EDITOR || !HUGULA_RELEASE
-            else if(!ManifestManager.SimulateAssetBundleInEditor)
+#if UNITY_EDITOR && !HUGULA_RELEASE
+            else if (!ManifestManager.SimulateAssetBundleInEditor)
             {
                 Debug.LogWarningFormat("ClearDelay Cache {0} is null ", key);
             }
@@ -443,7 +476,7 @@ namespace Hugula.Loader
 
 
         /// <summary>
-        /// 安全立即卸载资源
+        /// 安全卸载资源
         /// </summary>
         /// <returns></returns>
         public static bool UnloadSecurity(string abName)
@@ -467,7 +500,7 @@ namespace Hugula.Loader
                         {
                             if (--cachedChild.count == 0)
                                 ABDelayUnloadManager.AddDep(tmpName);
-                                // ABDelayUnloadManager.Add(tmpName);
+                            // ABDelayUnloadManager.Add(tmpName);
                         }
                     }
                 }//end if

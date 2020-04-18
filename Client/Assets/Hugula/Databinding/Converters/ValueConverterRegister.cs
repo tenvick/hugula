@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hugula.Manager;
+using Hugula.Framework;
+using UnityEngine;
 
 namespace Hugula.Databinding {
 
@@ -22,7 +23,7 @@ namespace Hugula.Databinding {
         public void AddConverter (string name, object converter) {
             object outConvts;
             if (m_Converter.TryGetValue (name, out outConvts)) {
-                // Debug.LogWarningFormat ("The key({0}) converter({1}) already exists", name, outConvts);
+                Debug.LogWarningFormat ("The key({0}) converter({1}) already exists", name, outConvts);
             }
             m_Converter.Add (name, converter);
         }
@@ -43,10 +44,10 @@ namespace Hugula.Databinding {
             return (IValueConverter<S, T>) outConvts;
         }
 
-        public void Dispose () {
-            m_Instance = null;
+        public override void Dispose () {
             m_Converter.Clear ();
             m_DefaultConverter = null;
+            base.Dispose();
         }
 
     }

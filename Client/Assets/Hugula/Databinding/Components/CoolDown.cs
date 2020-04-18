@@ -33,8 +33,8 @@ namespace Hugula.UIComponents
             set
             {
                 m_RemainTime = value;
-                m_BeginCD = true;
                 SetText(m_RemainTime);
+                BeginCD();
                 OnPropertyChanged();
             }
         }
@@ -95,6 +95,13 @@ namespace Hugula.UIComponents
                     }
                 }
             }
+        }
+
+        void BeginCD()
+        {
+            m_BeginCD = true;
+            m_Dt = 0;
+            m_PassedTime = 0;
         }
 
         void SetText(int remainseconds)

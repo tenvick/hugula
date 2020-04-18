@@ -14,7 +14,7 @@ namespace Hugula.Utils
     /// <summary>
     /// lua helper类
     /// </summary>
-    
+
     public static class LuaHelper
     {
         private static byte[] key = new byte[] { 0x32, 0x0f, 0x8d, 0xe9, 0x3b, 0x24, 0xa5, 0xd3, 0xf2, 0xd3, 0x64, 0x58, 0xb7, 0xae, 0x3f, 0x28 };
@@ -42,6 +42,35 @@ namespace Hugula.Utils
         public static void DestroyImmediate(Object original, bool allowDestroyingAssets)
         {
             GameObject.DestroyImmediate(original, allowDestroyingAssets);
+        }
+
+        public static void DelayDestroy(GameObject gobj)
+        {
+            var delay = gobj.GetComponents<Hugula.Framework.IDelayDestory>();
+            if (delay != null && delay.Length > 0)
+            {
+                foreach (var dela in delay)
+                    dela.DelayDestory();
+            }
+            else
+                GameObject.Destroy(gobj);
+        }
+
+        public static void SetActive(Component comp, bool active)
+        {
+            comp.gameObject.SetActive(active);
+        }
+
+        public static void DelayDeActive(GameObject gobj)
+        {
+            var delay = gobj.GetComponents<Hugula.Framework.IDelayDeactive>();
+            if (delay != null && delay.Length > 0)
+            {
+                foreach (var dela in delay)
+                    dela.DelayDeactive();
+            }
+            else
+                gobj.SetActive(false);
         }
 
         /// <summary>
@@ -353,7 +382,7 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="eachFn"></param>
-        public static void ForeachChild(GameObject parent, System.Action<int,GameObject> eachFn)
+        public static void ForeachChild(GameObject parent, System.Action<int, GameObject> eachFn)
         {
             Transform pr = parent.transform;
             int count = pr.childCount;
@@ -616,7 +645,7 @@ namespace Hugula.Utils
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
             Application.UnloadLevel(sceneName);
 #else
-            UnityEngine.SceneManagement.SceneManager.UnloadScene(sceneName);
+            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
 #endif
         }
 
@@ -677,9 +706,12 @@ namespace Hugula.Utils
                     fs.Read(bytes, 0, bytes.Length);
                     fs.Close();
                     string loadData = string.Empty;
-                    try{
+                    try
+                    {
                         loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
-                    }catch(System.Exception ex){
+                    }
+                    catch (System.Exception ex)
+                    {
                         Debug.LogError(ex);
                     }
                     return loadData;

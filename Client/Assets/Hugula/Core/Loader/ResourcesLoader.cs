@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Profiling;
 
 namespace Hugula.Loader
 {
@@ -67,6 +68,29 @@ namespace Hugula.Loader
         static List<BundleOperation> inBundleProgressOperations = new List<BundleOperation>(); //加载的assetbundle列表
         static HashSet<int> completeOper = new HashSet<int>(); //正常回调
         static Queue<AssetOperation> waitOperations = new Queue<AssetOperation>(); //等待队列
+
+        #region  group load
+
+        //当前组的所有加载队列
+        static private List<CRequest> m_Groupes = new List<CRequest>();
+        //标注为一个组加载
+        static private bool m_MarkGroup = false;
+        static private int m_TotalGroupCount = 0;
+        static private int m_CurrGroupLoaded = 0;
+        static public void BeginMarkGroup()
+        {
+            m_MarkGroup = true;
+        }
+
+        static public void EndMarkGroup()
+        {
+            m_MarkGroup = false;
+        }
+
+        public static System.Action OnGroupComplete; //group加载完成回调
+        public static System.Action<LoadingEventArg> OnGroupProgress; //当前group进度
+
+        #endregion
 
         /// <summary>
         /// 以同步方式加载ab资源
@@ -255,12 +279,25 @@ namespace Hugula.Loader
             req.OnComplete = onComplete;
             req.OnEnd = onEnd;
             req.userData = userData;
-            // if (CacheManager.GetSceneBundle(sceneName) == null) //没有加载场景
-            LoadSceneAsset(req, allowSceneActivation, loadSceneMode);
-            // else
-            // {
-            //     DispatchReqAssetOperation(req, false);
-            // }
+
+            AsyncOperation request = null;
+            if ((request = CacheManager.GetLoadingScene(sceneName)) != null)
+            {
+                instance.StartCoroutine(LoadDeActiveScene(request, req, allowSceneActivation));
+            }
+            else
+            {
+                LoadSceneAsset(req, allowSceneActivation, loadSceneMode);
+            }
+
+        }
+
+        private static IEnumerator LoadDeActiveScene(AsyncOperation request, CRequest req, bool allowSceneActivation)
+        {
+            request.allowSceneActivation = allowSceneActivation;
+            yield return request.isDone;
+            CacheManager.RemoveLoadingScene(req.assetName);
+            DispatchReqAssetOperation(req, false, 0, true);
         }
 
         /// <summary>
@@ -285,8 +322,10 @@ namespace Hugula.Loader
         static public void SetActiveScene(string sceneName)
         {
             Scene scene;
-            if (CacheManager.GetSceneBundle(sceneName) != null && (scene = SceneManager.GetSceneByName(sceneName)) != null)
+            if ((scene = SceneManager.GetSceneByName(sceneName)) != null)
+            {
                 SceneManager.SetActiveScene(scene);
+            }
 
         }
 
@@ -472,6 +511,10 @@ namespace Hugula.Loader
                 return false;
             }
 #endif
+
+#if HUGULA_PROFILER_DEBUG
+            Profiler.BeginSample("LoadAssetBundle:"+assetBundleName);
+#endif
             //查找缓存
             CacheData cacheData = null;
             CacheManager.CreateOrGetCache(assetBundleName, out cacheData);
@@ -479,6 +522,9 @@ namespace Hugula.Loader
             ABDelayUnloadManager.Remove(assetBundleName); //从回收列表移除
             if (cacheData.canUse)
             {
+#if HUGULA_PROFILER_DEBUG
+            Profiler.EndSample();
+#endif
                 return true;
             }
 
@@ -491,6 +537,9 @@ namespace Hugula.Loader
 
             //加载assetbundle
             LoadAssetBundleInternal(assetBundleName, async);
+#if HUGULA_PROFILER_DEBUG
+            Profiler.EndSample();
+#endif
             return false;
         }
 
@@ -533,6 +582,13 @@ namespace Hugula.Loader
         static int LoadAsset(CRequest request, bool async = true, bool subAssets = false)
         {
             totalCount++; //count ++
+
+            if (m_MarkGroup)
+            {
+                m_Groupes.Add(request);
+                m_TotalGroupCount++;
+            }
+
             int opID = 0;
             LoadAssetBundle(request.assetBundleName, async);
 #if UNITY_EDITOR
@@ -580,6 +636,13 @@ namespace Hugula.Loader
         static int LoadSceneAsset(CRequest request, bool allowSceneActivation = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
         {
             totalCount++; //count ++
+
+            if (m_MarkGroup)
+            {
+                m_Groupes.Add(request);
+                m_TotalGroupCount++;
+            }
+
             LoadAssetBundle(request.assetBundleName);
             int opID = 0;
 
@@ -632,6 +695,13 @@ namespace Hugula.Loader
 
             currLoaded++;
 
+            int g_Idx = m_Groupes.IndexOf(req);
+            if (g_Idx >= 0)
+            {
+                m_Groupes.RemoveAt(g_Idx);
+                m_CurrGroupLoaded++;
+            }
+
             OnProcess();
             try
             {
@@ -660,13 +730,24 @@ namespace Hugula.Loader
 
         static void OnProcess()
         {
-            loadingEvent.total = totalCount;
-            loadingEvent.current = currLoaded;
+
+            if (OnGroupProgress != null && m_TotalGroupCount > 0)
+            {
+                loadingEvent.total = m_TotalGroupCount;
+                loadingEvent.current = m_CurrGroupLoaded;
+                loadingEvent.progress = (float)loadingEvent.current / (float)loadingEvent.total;
+                OnGroupProgress(loadingEvent);
+            }
+
             if (OnProgress != null && totalCount > 0)
             {
+                loadingEvent.total = totalCount;
+                loadingEvent.current = currLoaded;
                 loadingEvent.progress = (float)loadingEvent.current / (float)loadingEvent.total;
                 OnProgress(loadingEvent);
             }
+
+
         }
 
         /// <summary>
@@ -674,6 +755,14 @@ namespace Hugula.Loader
         /// </summary>
         static void CheckAllComplete()
         {
+            if (OnGroupComplete != null && m_TotalGroupCount <= m_CurrGroupLoaded && m_Groupes.Count == 0)
+            {
+                m_TotalGroupCount = 0;
+                m_CurrGroupLoaded = 0;
+                OnGroupComplete();
+            }
+
+
             if (inBundleProgressOperations.Count == 0 && inProgressOperations.Count == 0)
             {
                 totalCount = 0;
@@ -682,6 +771,15 @@ namespace Hugula.Loader
                 if (OnAllComplete != null)
                     OnAllComplete();
             }
+        }
+
+        public static void Clear()
+        {
+            OnGroupProgress = null;
+            OnProgress = null;
+
+            OnGroupComplete = null;
+            OnAllComplete = null;
         }
         #endregion
 

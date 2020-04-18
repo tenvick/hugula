@@ -43,11 +43,11 @@ namespace Hugula.Converter {
         }
 
         void Awake () {
-            ValueConverterRegister.instance.AddConverter (this.name, this);
+            ValueConverterRegister.instance.AddConverter (this.GetType().Name, this);
         }
 
-        void OnDestory () {
-            ValueConverterRegister.instance.RemoveConverter (this.name);
+        void OnDestroy () {
+            ValueConverterRegister.instance.RemoveConverter (this.GetType().Name);
 
             if (m_Map != null)
                 m_Map.Clear ();

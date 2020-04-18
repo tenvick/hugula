@@ -97,5 +97,14 @@ namespace Hugula.Databinding.Binder
         {
             this.m_Target = this.gameObject;
         }
+
+        protected override void OnDestroy()
+        {
+            if (m_Instance && string.IsNullOrEmpty(m_AssetName)) //清空
+            {
+                Unload(m_AssetName);
+            }
+            base.OnDestroy();
+        }
     }
 }

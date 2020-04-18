@@ -1,6 +1,14 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.4.18
+1 列表控件支持选中样式。
+2 view支持延时关闭和销毁。
+3 VMState:push("vm",arg)参数传递。
+4 viewmodel.views 销毁流程增加。
+5 Hugula.Manager名字空间修改为Hugula.Framework
+6 GlobalDispathcer全局事件派发,VMStateHelper C#访问lua VMState辅助类。
+
 2020.4.13
 1 Delay和DelayFrame功能支持。
 2 Binder target访问修改。

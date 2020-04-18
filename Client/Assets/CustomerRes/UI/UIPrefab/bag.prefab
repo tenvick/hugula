@@ -851,7 +851,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7076665907693501849
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1082,7 +1082,6 @@ MonoBehaviour:
   children:
   - {fileID: 7076665907938245314}
   - {fileID: 7076665907693501846}
-  - {fileID: 7076665906891902606}
   - {fileID: 7076665906816002882}
 --- !u!222 &7076665907762591866
 CanvasRenderer:
@@ -1487,7 +1486,6 @@ GameObject:
   - component: {fileID: 7076665908441038182}
   - component: {fileID: 7076665908441038180}
   - component: {fileID: 7076665908441038183}
-  - component: {fileID: 7076665908441038181}
   m_Layer: 5
   m_Name: selected
   m_TagString: Untagged
@@ -1550,21 +1548,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7076665908441038181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076665908441038185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33f0a9013daecbb43802bdeba8961f98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Target: {fileID: 7076665908441038183}
-  bindings: []
-  setNativeSize: 0
 --- !u!1 &7076665908509375231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1579,7 +1562,6 @@ GameObject:
   - component: {fileID: 7076665908509375226}
   - component: {fileID: 7076665908509375225}
   - component: {fileID: 7076665908509375224}
-  - component: {fileID: 3185420495474992399}
   m_Layer: 5
   m_Name: ItemSource
   m_TagString: Untagged
@@ -1628,7 +1610,6 @@ MonoBehaviour:
   - {fileID: 7076665908172257984}
   - {fileID: 7076665906960771333}
   - {fileID: 7076665908813975177}
-  - {fileID: 3185420495474992399}
 --- !u!222 &7076665908509375227
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1720,30 +1701,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8117146b07e27849a1edefd17f4108d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3185420495474992399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076665908509375231}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6220dbe69bc875140800f71d4872257e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Target: {fileID: 7076665908509375224}
-  bindings:
-  - propertyName: inverse
-    path: selected
-    format: 
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-  m_Inverse: 0
-  group: []
-  inverseGroup:
+  clickBtn: {fileID: 0}
+  selected:
   - {fileID: 7076665908441038185}
+  selectedAnimation: {fileID: 0}
 --- !u!1 &7076665908621779125
 GameObject:
   m_ObjectHideFlags: 0

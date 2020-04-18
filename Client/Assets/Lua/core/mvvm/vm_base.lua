@@ -67,6 +67,11 @@ local function set_property(self, property_name, value)
         on_Property_changed(self, property_name)
     end
 end
+
+local function on_push_arg(arg)
+    -- body
+end
+
 ---激活的时候
 ---@overload fun()
 local function on_active(self)
@@ -79,20 +84,19 @@ local function on_deactive(self)
     -- body
 end
 
+
+---view销毁的时候
+---@overload fun()
+local function on_destroy(self)
+    -- body
+end
+
+
 ---注销的时候
 ---@overload fun()
 local function dispose(self)
     -- body
 end
-
-local on_back = {
-    Execute = function(self, arg)
-        VMState.back()
-    end,
-    CanExecute = function(...)
-        return true
-    end
-}
 
 local function tostring(self)
     return string_format("VMBase(name=%s).views=%s ", self.views, self.name)
@@ -106,10 +110,12 @@ vm_base.remove_PropertyChanged = remove_property_changed
 vm_base.OnPropertyChanged = on_Property_changed
 vm_base.SetProperty = set_property
 
+vm_base.on_push_arg = on_push_arg
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
+vm_base.on_destroy = on_destroy
 vm_base.dispose = dispose
-vm_base.on_back = on_back
+
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase

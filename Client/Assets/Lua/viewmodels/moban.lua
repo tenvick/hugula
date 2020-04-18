@@ -30,13 +30,17 @@ function moban:on_property_set(property)
     if property == "value" and moban.slider1_value > 0.5 then
         -- Logger.Log("value ",moban.slider1_value)
         ---设置属性改变写法1
-        moban:set_property(property_enable_slider, (not moban.enable_slider)) ---改变source属性的值并通知view
+        moban:SetProperty(property_enable_slider, (not moban.enable_slider)) ---改变source属性的值并通知view
         ---设置属性改变写法2
         moban.btn_interactable = (not moban.enable_slider)
-        moban:property_changed(property_btn_interactable) ---通知view source属性改变
+        moban:OnPropertyChanged(property_btn_interactable) ---通知view source属性改变
 
-        moban:set_property(property_btntext, "现在可以点击我了")
+        moban:SetProperty(property_btntext, "现在可以点击我了")
     end
+end
+
+function moban:on_push_arg(arg)
+
 end
 
 function moban:on_active()
@@ -53,7 +57,7 @@ moban.on_btn_click = {
         return true
     end,
     Execute = function(self,arg)
-        -- VMState.push(VMGroup.welcome)
+        -- VMState:push(VMGroup.welcome)
     end
 }
 

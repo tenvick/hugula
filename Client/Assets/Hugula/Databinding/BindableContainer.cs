@@ -27,6 +27,7 @@ namespace Hugula.Databinding {
 
         protected override void OnDestroy () {
             children.Clear ();
+            base.OnDestroy();
           }
         #endregion
     }

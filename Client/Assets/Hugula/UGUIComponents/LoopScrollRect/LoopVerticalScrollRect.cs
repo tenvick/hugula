@@ -74,6 +74,7 @@ namespace Hugula.UIComponents {
         /// </summary>
         public int selectedIndex { get { return m_SelectedIndex; } }
 
+        ILoopSelectStyle m_SelecteStyle;
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
@@ -270,6 +271,7 @@ namespace Hugula.UIComponents {
             content = null;
             itemCommand = null;
             droppedCommand = null;
+            m_SelecteStyle = null;
             for (int i = 0; i < m_Templates.Length; i++) {
                 m_Pool.Clear (i);
             }
@@ -605,8 +607,12 @@ namespace Hugula.UIComponents {
                 content.anchoredPosition = m_ContentInitializePosition;
         }
 
-        public void OnSelect (LoopItem loopItem) //选中
+        public void OnSelect (ILoopSelectStyle loopSelectStyle) //选中
         {
+            if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle ();
+            var loopItem = loopSelectStyle.loopItem;
+            m_SelecteStyle = loopSelectStyle;
+            loopSelectStyle.SelectedStyle ();
             int lastIdx = m_SelectedIndex;
             m_SelectedIndex = loopItem.index;
             if (onSelected != null) onSelected (this.parameter, loopItem.item, loopItem.index, lastIdx);
@@ -621,7 +627,7 @@ namespace Hugula.UIComponents {
 
         protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem> ();
 
-        protected GameObjectPool m_Pool;
+        protected Hugula.Utils.GameObjectPool m_Pool;
         void OnPoolGet (Component comp) {
             comp.gameObject.SetActive (true);
         }
@@ -632,7 +638,7 @@ namespace Hugula.UIComponents {
 
         void InitTemplatePool () {
             if (m_Pool == null) {
-                m_Pool = new GameObjectPool (OnPoolGet, OnPoolRealse);
+                m_Pool = new Hugula.Utils.GameObjectPool (OnPoolGet, OnPoolRealse);
                 for (int i = 0; i < templates.Length; i++)
                     m_Pool.Add (i, templates[i]);
             }
@@ -718,8 +724,8 @@ namespace Hugula.UIComponents {
                     if (onInstantiated != null)
                         onInstantiated (this.parameter, item, idx);
 
-                    var LoopVerticalItemSelect = item.GetComponent<LoopItemSelect> ();
-                    if (LoopVerticalItemSelect != null) LoopVerticalItemSelect.InitLoopItem (loopItem, this);
+                    var selecteStyle = item.GetComponent<ILoopSelectStyle> ();
+                    if (selecteStyle != null) selecteStyle.InitSytle (loopItem, this);
                 }
             }
 
@@ -759,6 +765,14 @@ namespace Hugula.UIComponents {
                 gObj.SetActive (true);
             }
 
+            //keep selected
+            if (m_SelecteStyle != null) {
+                if (m_SelecteStyle.loopItem.index == m_SelectedIndex)
+                    m_SelecteStyle.SelectedStyle ();
+                else if (m_SelecteStyle.loopItem == loopItem)
+                    m_SelecteStyle.CancelStyle ();
+            }
+            
             AddShowList (idx);
             onItemRender (this.parameter, loopItem.item, loopItem.index); //填充内容
             //

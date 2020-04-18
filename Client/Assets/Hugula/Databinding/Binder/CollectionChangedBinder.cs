@@ -10,6 +10,7 @@ namespace Hugula.Databinding.Binder {
 
     public class CollectionChangedBinder : UIBehaviourBinder {
 
+        private INotifyCollectionChanged notify;
         #region  集合数据变更
 
         protected virtual void OnCollectionAdd (object sender, NotifyCollectionChangedEventArgs args) {
@@ -50,7 +51,7 @@ namespace Hugula.Databinding.Binder {
         protected override void OnBindingContextChanging () {
             base.OnBindingContextChanging ();
             if (context is INotifyCollectionChanged) {
-                var notify = ((INotifyCollectionChanged) context);
+                notify = ((INotifyCollectionChanged) context);
                 notify.CollectionChanged -= OnCollectionChanged;
             }
         }
@@ -58,10 +59,16 @@ namespace Hugula.Databinding.Binder {
             base.OnBindingContextChanged ();
 
             if (context is INotifyCollectionChanged) {
-                var notify = ((INotifyCollectionChanged) context);
+                notify = ((INotifyCollectionChanged) context);
                 notify.CollectionChanged += OnCollectionChanged;
             }
         }
-      
+
+        protected override void OnDestroy () {
+            if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
+            notify = null;
+            base.OnDestroy ();
+        }
+
     }
 }

@@ -6,7 +6,6 @@
 local require = require
 local rawset = rawset
 local rawget = rawget
-local BindableContainer = CS.Hugula.Databinding.BindableContainer
 local VMConfig = VMConfig
 
 ---根据 WindowConfig的配置来require view model文件

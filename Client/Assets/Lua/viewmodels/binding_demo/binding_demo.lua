@@ -61,7 +61,7 @@ binding_demo.on_btn_click = {
 
         -- binding_demo:set_property(property_enable_slider, (not binding_demo.enable_slider)) ---通知改变
         if binding_demo.slider1_value > 0.9 then
-        -- VMState.push(VMGroup.welcome)
+        -- VMState:push(VMGroup.welcome)
         end
     end
 }

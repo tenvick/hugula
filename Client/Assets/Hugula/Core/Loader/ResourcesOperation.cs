@@ -178,7 +178,9 @@ namespace Hugula.Loader
             {
                 CRequest.SetProgress(request, m_Request.progress);
                 if (!allowSceneActivation && LoaderType.Typeof_ABScene.Equals(request.assetType) && m_Request.progress >= 0.9f)//加载场景的时候如果allowSceneActivation = false 只能通过progress判断完成
+                {
                     return false;
+                }
                 else
                     return !m_Request.isDone;
             }
@@ -207,6 +209,7 @@ namespace Hugula.Loader
                     m_Request.allowSceneActivation = allowSceneActivation;
                     CRequest.SetData(request, m_Request);//加载场景比较特殊 提前返回AsyncOperation对象方便操作
                     CacheManager.AddScene(request.assetName, request.assetBundleName);//缓存场景
+                    if (!allowSceneActivation) CacheManager.AddLoadingScene(request.assetName, m_Request);
                 }
                 else if (subAssets)
                     m_Request = m_Bundle.assetBundle.LoadAssetWithSubAssetsAsync(assetName, typ);
@@ -354,6 +357,7 @@ namespace Hugula.Loader
                     CRequest.SetData(request, m_Request);
                     CRequest.SetProgress(request, m_Request.progress);
                     CacheManager.AddScene(request.assetName, request.assetBundleName);//缓存场景
+                    if (!allowSceneActivation) CacheManager.AddLoadingScene(request.assetName, m_Request);
                 }
             }
             else //加载资源

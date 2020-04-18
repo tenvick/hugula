@@ -68,7 +68,7 @@ eg_data.on_btn_click = {
     end,
     Execute = function(self, arg)
         Logger.Log("we will go to state :", self, "arg=", arg)
-        VMState.push(VMGroup[arg.state]) -- scroll_rect_table
+        VMState:push(VMGroup[arg.state]) -- scroll_rect_table
     end
 }
 

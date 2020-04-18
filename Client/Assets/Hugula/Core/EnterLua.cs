@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Hugula.Databinding;
 using Hugula.Loader;
-using Hugula.Manager;
+using Hugula.Framework;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,17 +15,21 @@ using XLua;
 using UnityEditor;
 #endif
 
-public class EnterLua : MonoBehaviour, IManager {
+public class EnterLua : MonoBehaviour, IManager
+{
 #if UNITY_EDITOR
     const string KeyDebugString = "_Plua_Debug_string";
 
-    public static bool isDebug {
-        get {
-            bool _debug = EditorPrefs.GetBool (KeyDebugString, true);
+    public static bool isDebug
+    {
+        get
+        {
+            bool _debug = EditorPrefs.GetBool(KeyDebugString, true);
             return _debug;
         }
-        set {
-            EditorPrefs.SetBool (KeyDebugString, value);
+        set
+        {
+            EditorPrefs.SetBool(KeyDebugString, value);
         }
     }
 #endif
@@ -35,37 +39,45 @@ public class EnterLua : MonoBehaviour, IManager {
     internal static LuaEnv luaenv;
 
     // Start is called before the first frame update
-    void Awake () {
-        DontDestroyOnLoad (this.gameObject);
-        Executor.Initialize ();
+    void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+        Executor.Initialize();
         if (ManifestManager.fileManifest == null)
-            ManifestManager.LoadFileManifest (null);
+            ManifestManager.LoadFileManifest(null);
 
-        if (luaenv == null) luaenv = new LuaEnv ();
-        luaenv.AddLoader (Loader);
-        luaenv.DoString ("require('" + enterLua + "')");
+        if (luaenv == null) luaenv = new LuaEnv();
+        luaenv.AddLoader(Loader);
+        luaenv.DoString("require('" + enterLua + "')");
 #if UNITY_EDITOR
-        Debug.LogFormat ("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
+        Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
 #endif
+        Manager.Add(this.GetType(), this);
     }
 
     // Update is called once per frame
-    void Update () {
-        if (luaenv != null) {
-            luaenv.Tick ();
+    void Update()
+    {
+        if (luaenv != null)
+        {
+            luaenv.Tick();
         }
     }
 
-    void OnDestroy () {
-        luaenv.DoString (@"
+    void OnDestroy()
+    {
+        Manager.Remove(this.GetType());
+
+        luaenv.DoString(@"
                 local util = require 'xlua.util'
         util.print_func_ref_by_csharp()");
         // if (luaenv != null) luaenv.Dispose ();
-        ExpressionUtility.Dispose ();
+        ExpressionUtility.instance.Dispose();
     }
 
-    void OnApplicationQuit () {
-        Debug.Log ("OnApplicationQuit");
+    void OnApplicationQuit()
+    {
+        Debug.Log("OnApplicationQuit");
     }
 
     /// <summary>
@@ -73,20 +85,24 @@ public class EnterLua : MonoBehaviour, IManager {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    private byte[] Loader (ref string name) {
+    private byte[] Loader(ref string name)
+    {
         byte[] str = null;
 #if UNITY_EDITOR
-        string name1 = name.Replace ('.', '/');
+        string name1 = name.Replace('.', '/');
         string path = Application.dataPath + "/Lua/" + name1 + ".lua";
         // if (!File.Exists (path))
         //     path = Application.dataPath + "/Config/" + name1 + ".lua";
 
-        if (File.Exists (path)) {
-            str = File.ReadAllBytes (path); //LuaState.CleanUTF8Bom(
-        } else {
-            Debug.LogErrorFormat ("lua({0}) path={1} not exists.", name, path);
-            name = name.Replace ('.', '+').Replace ('/', '+');
-            str = LoadLuaBytes (name);
+        if (File.Exists(path))
+        {
+            str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
+        }
+        else
+        {
+            Debug.LogErrorFormat("lua({0}) path={1} not exists.", name, path);
+            name = name.Replace('.', '+').Replace('/', '+');
+            str = LoadLuaBytes(name);
         }
 #else
         name = name.Replace ('.', '+').Replace ('/', '+');
@@ -123,52 +139,61 @@ public class EnterLua : MonoBehaviour, IManager {
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    private byte[] LoadLuaBytes (string name) {
+    private byte[] LoadLuaBytes(string name)
+    {
         byte[] ret = null;
         string cryName = "";
         if (System.IntPtr.Size == 4)
-            cryName = CUtils.GetRightFileName (name);
+            cryName = CUtils.GetRightFileName(name);
         else
-            cryName = CUtils.GetRightFileName (string.Format ("{0}_64", name));
+            cryName = CUtils.GetRightFileName(string.Format("{0}_64", name));
 
         string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
-        bool isupdate = ManifestManager.CheckIsUpdateFile (abName);
-        string path = CUtils.PathCombine (CUtils.realPersistentDataPath, abName);
-        if (isupdate && File.Exists (path)) {
-            ret = File.ReadAllBytes (path);
-        } else {
-            var textAsset = (TextAsset) Resources.Load ("luac/" + cryName);
+        bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
+        string path = CUtils.PathCombine(CUtils.realPersistentDataPath, abName);
+        if (isupdate && File.Exists(path))
+        {
+            ret = File.ReadAllBytes(path);
+        }
+        else
+        {
+            var textAsset = (TextAsset)Resources.Load("luac/" + cryName);
             ret = textAsset.bytes; // --Resources.Load
-            Resources.UnloadAsset (textAsset);
+            Resources.UnloadAsset(textAsset);
         }
         return ret;
     }
 
-    public void Initialize () {
+    public void Initialize()
+    {
         // luaenv.DoString ("require('" + enterLua + "')");
     }
-    public void Terminate () {
+    public void Terminate()
+    {
 
     }
 
     //重启动游戏
-    public static void ReOpen (float sconds) {
-        UnityEngine.SceneManagement.SceneManager.LoadScene (0);
-        Debug.LogFormat ("ReOpen !");
+    public static void ReOpen(float sconds)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        Debug.LogFormat("ReOpen !");
     }
 
     #region delay
 
-    public static void StopDelay (object arg) {
-        var ins = Manager.Get<EnterLua> ();
+    public static void StopDelay(object arg)
+    {
+        var ins = Manager.Get<EnterLua>();
         if (ins != null && arg is IEnumerator)
-            ins.StopCoroutine ((IEnumerator) arg);
+            ins.StopCoroutine((IEnumerator)arg);
     }
 
-    public static IEnumerator Delay (LuaFunction luafun, float time, object args) {
-        var ins = Manager.Get<EnterLua> ();
-        var _corout = DelayDo (luafun, time, args);
-        ins.StartCoroutine (_corout);
+    public static IEnumerator Delay(LuaFunction luafun, float time, object args)
+    {
+        var ins = Manager.Get<EnterLua>();
+        var _corout = DelayDo(luafun, time, args);
+        ins.StartCoroutine(_corout);
         return _corout;
     }
 

@@ -1,48 +1,41 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using Hugula.Loader;
 using Hugula.Loader;
+using UnityEngine;
 
-public class AutoHotResDownLoad : MonoBehaviour
-{
+public class AutoHotResDownLoad : MonoBehaviour {
     private bool m_isStart = false;
     // Use this for initialization
-    IEnumerator Start()
-    {
+    IEnumerator Start () {
 
-        yield return new WaitForSeconds(1f);
-        if (ManifestManager.CheckNeedBackgroundLoad())
-        {
-            BackGroundDownload.instance.AddBackgroundManifestTask(ManifestManager.fileManifest, null, OnComplete);// AddBackManifestTask
-            BackGroundDownload.instance.Begin();
+        yield return new WaitForSeconds (1f);
+        if (ManifestManager.CheckNeedBackgroundLoad ()) {
+            BackGroundDownload.instance.AddBackgroundManifestTask (ManifestManager.fileManifest, null, OnComplete); // AddBackManifestTask
+            BackGroundDownload.instance.Begin ();
         }
         m_isStart = true;
 
     }
 
-    void OnComplete(bool isErr)
-    {
+    void OnComplete (bool isErr) {
         if (!isErr)
-            ManifestManager.FinishBackgroundLoad();
+            ManifestManager.FinishBackgroundLoad ();
     }
 
     /// <summary>
     /// This function is called when the object becomes enabled and active.
     /// </summary>
-    void OnEnable()
-    {
+    void OnEnable () {
         if (m_isStart)
-            BackGroundDownload.instance.Begin();
+            BackGroundDownload.instance.Begin ();
     }
 
     /// <summary>
     /// This function is called when the behaviour becomes disabled or inactive.
     /// </summary>
-    void OnDisable()
-    {
-        BackGroundDownload.instance.Suspend();
+    void OnDisable () {
+        BackGroundDownload.instance.Suspend ();
     }
-
 
     // /// <summary>
     // /// suspend download

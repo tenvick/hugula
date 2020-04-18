@@ -70,7 +70,12 @@ namespace Hugula.UIComponents {
         public int selectedIndex { get { return m_SelectedIndex; } }
 
         int m_LastSelectedIndex = -1;
+        /// <summary>
+        /// 通过OnSelected方法 选中项目的索引</br>
+        /// </summary>
         public int lastSelectedIndex { get { return m_LastSelectedIndex; } }
+
+        ILoopSelectStyle m_SelecteStyle;
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
@@ -248,13 +253,15 @@ namespace Hugula.UIComponents {
                 }
             }
 
-            base.LateUpdate ();
+            base.LateUpdate (); //... CanvasUpdateRegistry.PerformUpdate() 75.23 ms
         }
 
         protected void OnDestory () {
             onItemRender = null;
             onInstantiated = null;
             content = null;
+            m_SelecteStyle = null;
+
             foreach (var loopItem in m_Pages) {
                 if (loopItem.item != null) {
                     GameObject.Destroy (loopItem.item.gameObject);
@@ -580,10 +587,14 @@ namespace Hugula.UIComponents {
             m_FootDataIndex = 0;
         }
 
-        public void OnSelect (LoopItem loopItem) //选中
+        public void OnSelect (ILoopSelectStyle loopSelectStyle) //选中
         {
+            if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle ();
+            var loopItem = loopSelectStyle.loopItem;
+            m_SelecteStyle = loopSelectStyle;
             m_LastSelectedIndex = m_SelectedIndex;
             m_SelectedIndex = loopItem.index;
+            loopSelectStyle.SelectedStyle ();
             if (onSelected != null) onSelected (this.parameter, loopItem.item, m_SelectedIndex, m_LastSelectedIndex);
             object para = null;
             if (itemParameter == null)
@@ -673,8 +684,8 @@ namespace Hugula.UIComponents {
                 if (onInstantiated != null)
                     onInstantiated (this.parameter, loopItem.item, loopItem.index);
 
-                var LoopItemSelect = item.GetComponent<LoopItemSelect> ();
-                if (LoopItemSelect != null) LoopItemSelect.InitLoopItem (loopItem, this);
+                var LoopItemSelect = item.GetComponent<ILoopSelectStyle> ();
+                if (LoopItemSelect != null) LoopItemSelect.InitSytle (loopItem, this);
             }
 
             if (onGetItem != null) {
@@ -691,8 +702,8 @@ namespace Hugula.UIComponents {
                 loopItem.transform = rent;
                 loopItem.item = item;
 
-                var LoopItemSelect = item.GetComponent<LoopItemSelect> ();
-                if (LoopItemSelect != null) LoopItemSelect.InitLoopItem (loopItem, this);
+                var LoopItemSelect = item.GetComponent<ILoopSelectStyle> ();
+                if (LoopItemSelect != null) LoopItemSelect.InitSytle (loopItem, this);
             }
 
             var gObj = loopItem.item.gameObject;
@@ -702,9 +713,18 @@ namespace Hugula.UIComponents {
             } else if (!gObj.activeSelf) {
                 gObj.SetActive (true);
             }
+            
+            //keep selected
+            if (m_SelecteStyle != null) {
+                if (m_SelecteStyle.loopItem.index == m_SelectedIndex)
+                    m_SelecteStyle.SelectedStyle ();
+                else if (m_SelecteStyle.loopItem == loopItem)
+                    m_SelecteStyle.CancelStyle ();
+            }
 
             onItemRender (this.parameter, loopItem.item, loopItem.index); //填充内容
             LayOut (loopItem);
+
         }
 
         protected void UpdateViewPointBounds () {

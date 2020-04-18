@@ -96,30 +96,18 @@ bag.items = items
 bag.selected_item = nil
 bag.selected_trigger = "fadeIn"
 
-local index, last_index
 
 bag.on_item_select = {
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
-        index = arg.selectedIndex
-        last_index = arg.lastSelectedIndex
+        local index = arg.selectedIndex
         --播放动画
         bag:OnPropertyChanged(property_selected_trigger)
 
-        --选中状态
+        -- 显示详细
         local item_data = items:get_Item(index)
-        item_data.selected = true
-        items:set_Item(index, item_data) --更新数据
-
-        --取消上个选中
-        if last_index >= 0 and last_index ~= index then
-            local last_item = items:get_Item(last_index)
-            last_item.selected = false
-            items:set_Item(last_index, last_item) --更新数据
-        end
-
         --刷新详细数据
         DelayFrame(
             function()

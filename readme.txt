@@ -2,7 +2,14 @@
 
 更新日志:
 2020.4.25
-1 
+1 vm模块资源预加载功能,动态资源加载asset_loader,scene_loader功能。
+2 Config目录.bytes文件打包功能。
+3 图集打包assetbundle统一，资源整理。
+4 依赖项引用ab计数bug修复。
+5 资源释放策略目前支持释放类型有(NEVER,ALWAYS,AUTO,STATE_CHANGED,MANUAL)
+6 group与item log_enable控制(loading界面在VMState:back()的时候不需要返回)。
+7 GloabalDispatcher引入。
+8 场景加载示例(带loading界面)。
 
 2020.4.18
 1 列表控件支持选中样式。

@@ -107,9 +107,9 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-  spritePackingTag: item
+  spritePackingTag: item_atlas
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: item.u3d
+  assetBundleName: item_atlas.u3d
   assetBundleVariant: 

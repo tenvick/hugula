@@ -8,6 +8,7 @@ require("core.tools")
 require("core.structure")
 require("core.unity3d")
 
+require("common.constants") --定义的常量
 require("core.databinding.ilist_table") --可以装换成ilist的table
 require("core.databinding.notify_object") ---带通知功能的table集合
 require("core.databinding.notify_table") ---带通知功能的普通luatable

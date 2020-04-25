@@ -21,7 +21,6 @@ local LuaHelper = CS.Hugula.Utils.LuaHelper
 local view_base =
     class(
     function(self, ...)
-
     end
 )
 
@@ -36,13 +35,15 @@ local view_base =
 
 local function set_active(self, enable)
     local child = self._child
-    if child then
+    local scene_name = self.scene_name
+    if scene_name == nil and child then
         if enable then
             LuaHelper.SetActive(child, enable)
         else
             LuaHelper.DelayDeActive(child.gameObject)
         end
     end
+    -- Logger.Log(string.format("set_active %s ,scene_name=%s,self._child=%s,self._context=%s",enable,self.scene_name,self._child,self._context));
 end
 
 ---添加子控件
@@ -78,11 +79,20 @@ end
 ---销毁child
 ---@overload fun()
 local function clear(self)
-    local child = self._child
-    if child then
-        LuaHelper.DelayDestroy(child.gameObject)
+    --scene
+    local scene_name = self.scene_name
+    if scene_name ~= nil and self._child then
+        -- local res_path = self.res_path
+        LuaHelper.UnloadScene(scene_name)
+    else
+        local child = self._child
+        if child then
+            LuaHelper.DelayDestroy(child.gameObject,self.res_path)
+        end
     end
-    self._child = nil
+    -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
+    self._child = nil    
+    self._context = nil
 end
 
 ---

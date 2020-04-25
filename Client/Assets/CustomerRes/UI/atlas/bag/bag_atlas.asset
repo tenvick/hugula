@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b000d61f828821a40af92064c64f76fb, type: 3}
-  m_Name: bag_atlas_atlas
+  m_Name: bag_atlas
   m_EditorClassIdentifier: 
   names: b8b3b66902e2bff094d2b8873747dc19a177db6e1b26d2f78d16d5801c0b6a108a3b6d676fb2aa07a207c28faf919ecd6154efa4dc285edabf06c3ec6807df82d256d61b81c1ad4e
   sprites:

@@ -72,7 +72,7 @@ namespace Hugula.Loader
         public void Dispose()
         {
 #if HUGULA_CACHE_DEBUG
-            GS_GameLog.LogFormat("Dispose  CacheData({0},)),frame={1}  ", assetBundleName, Time.frameCount);
+            Debug.LogFormat("Dispose  CacheData({0},)),frame={1}  ", assetBundleName, Time.frameCount);
 #endif
             if (assetBundle) assetBundle.Unload(true); //Loading.LockPersistentManger Windows 141ms
             assetBundle = null;
@@ -87,7 +87,7 @@ namespace Hugula.Loader
             if (assetBundle) assetBundle.Unload(false);
             state = CacheDataState.Unloaded;
 #if HUGULA_CACHE_DEBUG
-            GS_GameLog.LogFormat("Unload  CacheData({0})),frame={1}  ", assetBundleName, Time.frameCount);
+            Debug.LogFormat("Unload  CacheData({0})),frame={1}  ", assetBundleName, Time.frameCount);
 #endif
         }
 
@@ -496,10 +496,12 @@ namespace Hugula.Loader
                     for (int i = 0; i < deps.Length; i++)
                     {
                         tmpName = deps[i];
-                        if (m_Caches.TryGetValue(abName, out cachedChild) && cachedChild.count >= 1)
+                        if (m_Caches.TryGetValue(tmpName, out cachedChild) && cachedChild.count >= 1)
                         {
                             if (--cachedChild.count == 0)
+                            {
                                 ABDelayUnloadManager.AddDep(tmpName);
+                            }
                             // ABDelayUnloadManager.Add(tmpName);
                         }
                     }

@@ -33,18 +33,18 @@ eg_data:InsertRange(
             id = 1,
             title = "背包",
             name = btn_tips1,
-            state = "bag",
-            click_enable = false
+            state = "bag"
+            -- click_enable = false
         },
         {
             id = 2,
             title = "数据绑定示例（绑定属性和方法）",
             name = btn_tips1,
-            state = "binding_demo",
-            click_enable = false
+            state = "binding_demo"
+            -- click_enable = false
         },
-        {id = 3, title = "聊天", name = btn_tips1, state = "chat_demo", click_enable = false}
-        -- {id = 4, title = "俄罗斯方块", name = btn_tips1, state = "tetris", bgcolor = Color.blue, click_enable = false}
+        {id = 3, title = "聊天", name = btn_tips1, state = "chat_demo"},
+        {id = 4, title = "加载游戏场景", name = btn_tips1, state = "loading", arg="game_scene",bgcolor = Color.blue}
     }
 )
 ---按钮点击事件
@@ -54,7 +54,7 @@ eg_data.on_btn_click = {
     end,
     Execute = function(self, arg)
         Logger.Log("we will go to state :", self, "arg=", arg)
-        VMState:push(VMGroup[arg.state]) -- scroll_rect_table
+        VMState:push(VMGroup[arg.state],arg.arg) -- scroll_rect_table
     end
 }
 
@@ -76,12 +76,12 @@ eg_data.on_item_select = {
             eg_data:set_Item(last_index, last_item) --更新数据
         end
         if index ~= last_index then
-            if item.id == 4 then
-                item.name = "敬请期待"
-            else
+            -- if item.id == 4 then
+            --     item.name = "敬请期待"
+            -- else
                 item.name = btn_tips2
                 item.click_enable = true
-            end
+            -- end
             eg_data:set_Item(index, item) --更新数据
         end
 

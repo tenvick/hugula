@@ -858,6 +858,29 @@ namespace Hugula.Editor
         }
 
         /// <summary>
+        /// 按照单文件构建
+        /// </summary>
+        /// <param name="assets"></param>
+        /// <param name="outPath"></param>
+        /// <param name="abName"></param>
+        /// <param name="bbo"></param>
+        static public void BuildABsOneByOne(string[] assets, string outPath, BuildAssetBundleOptions bbo)
+        {
+            AssetBundleBuild[] builds = new AssetBundleBuild[assets.Length];
+
+            for (int i = 0; i < assets.Length; i++)
+            {
+                AssetBundleBuild curr = new AssetBundleBuild();
+                string path = assets[i];
+                curr.assetNames = new string[] { path };
+                curr.assetBundleName = Path.GetFileNameWithoutExtension(path).ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
+                builds[i] = curr;
+            }
+
+            BuildABs(builds, outPath, bbo);
+        }
+
+        /// <summary>
         /// 自动构建abs
         /// </summary>
         /// <param name="assets"></param>
@@ -872,17 +895,20 @@ namespace Hugula.Editor
             string tmpPath = EditorUtils.GetProjectTempPath();
             EditorUtils.CheckDirectory(tmpPath);
 
-            BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
+            var assetBundleManifest = BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
 
-            foreach (AssetBundleBuild abb in bab)
+
+            var abNames = assetBundleManifest.GetAllAssetBundles();
+
+            foreach (var abName in abNames)
             {
-                string abName = abb.assetBundleName;
                 string tmpFileName = Path.Combine(tmpPath, abName);
                 string targetFileName = Path.Combine(outPath, abName);
                 FileInfo tInfo = new FileInfo(targetFileName);
                 if (tInfo.Exists) tInfo.Delete();
                 FileInfo fino = new FileInfo(tmpFileName);
                 fino.CopyTo(targetFileName);
+                Debug.LogFormat("Build assetbundle : {0} ", targetFileName);
             }
 
         }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b000d61f828821a40af92064c64f76fb, type: 3}
-  m_Name: tetris_atlas_atlas
+  m_Name: tetris_atlas
   m_EditorClassIdentifier: 
   names: 0dbed51ab4ca369e216099294efc0ac6c3c7c15e8ad7841e30868d87a6b68af00523ee6e2e95cd852a2215c0f876a9efa1836757912695bd502786ea0b9cd9df5f1235c63e4fa7a62924494e21ee9ad08f5f61fabc3e5e569fec04d0
   sprites:

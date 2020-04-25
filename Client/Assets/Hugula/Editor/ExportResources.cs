@@ -125,16 +125,16 @@ namespace Hugula.Editor {
 
         public static void exportConfig () {
             var files = AssetDatabase.GetAllAssetPaths ().Where (p =>
-                p.StartsWith ("Assets/Config") || !p.StartsWith ("Assets/Config/Lan") &&
-                p.EndsWith (".csv")
+              p.StartsWith("Assets/Config") && !p.StartsWith("Assets/Config/Lan") &&
+              p.EndsWith(".bytes")
             ).ToArray ();
 
             EditorUtils.CheckstreamingAssetsPath ();
 
             if (files.Length > 0) {
                 string cname = CUtils.GetRightFileName (Common.CONFIG_CSV_NAME);
-                BuildScript.BuildABs (files.ToArray (), null, cname, SplitPackage.DefaultBuildAssetBundleOptions);
-                Debug.Log (" Config export " + cname);
+                BuildScript.BuildABsOneByOne(files.ToArray(), null, SplitPackage.DefaultBuildAssetBundleOptions);
+                Debug.LogFormat(" Config export {0}", files.Length);
             }
 
         }
@@ -163,7 +163,7 @@ namespace Hugula.Editor {
             exportLua ();
             CUtils.DebugCastTime ("Time exportLua End");
             exportLanguage ();
-            //exportConfig();
+            exportConfig();
             BuildScript.BuildAssetBundles (); //导出资源
             // CleanAssetbundle.Clean();        //清理多余的资源
             CUtils.DebugCastTime ("Time BuildAssetBundles End");

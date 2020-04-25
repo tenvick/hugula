@@ -100,7 +100,7 @@ namespace Hugula.Editor
                 if (s is DefaultAsset && (path = AssetDatabase.GetAssetPath(s)) != null && Directory.Exists(path))
                 {
                     var import = AssetImporter.GetAtPath(path);
-                    var ragName = s.name.ToLower();
+                    var ragName = s.name.ToLower()+ "_atlas";
                     sb.Append("set folder spritePackingTag = ");
                     sb.Append(ragName);
                     sb.Append("\r\n");

@@ -5,8 +5,13 @@
 ------------------------------------------------
 local table_insert = table.insert
 local table_remove = table.remove
+local table_remove_item = table.remove_item
+local table_indexof = table.indexof
+local ipairs = ipairs
 local type = type
 
+local VM_GC_TYPE = VM_GC_TYPE
+local VMConfig = VMConfig
 local VMManager = VMManager
 local _VMGroup = _VMGroup
 local VMgenerate = VMgenerate
@@ -29,18 +34,67 @@ local VMgenerate = VMgenerate
 local vm_state = {}
 local _stack = {}
 
+---根据策略判断回收view
+---@overload fun(vm_name:string,is_popup:boolean,is_state_change:boolean)
+---@param vm_name string
+---@param is_popup boolean
+local function strategy_view_gc(vm_name, is_popup, is_state_change)
+    local config_item = VMConfig[vm_name]
+    local vm_gc = VM_GC_TYPE.AUTO
+    if config_item.gc_type ~= nil then
+        vm_gc = config_item.gc_type
+    end
+    -- Logger.Log("strategy_view_gc",vm_name,vm_gc)
+    if config_item.log_enable == true then --如果当前viewmodel模块不需要记录log栈
+        table_remove_item(_stack, vm_name)
+    end
+
+    if vm_gc == VM_GC_TYPE.AUTO then --内存不够的时候回收
+        --todo 检查内存
+        VMManager:deactive_view(vm_name)
+    elseif vm_gc == VM_GC_TYPE.ALWAYS then
+        VMManager:destory_view(vm_name)
+    elseif vm_gc == VM_GC_TYPE.NEVER then
+        VMManager:deactive_view(vm_name)
+    elseif vm_gc == VM_GC_TYPE.STATE_CHANGED then
+        if is_state_change == true then
+            VMManager:destory_view(vm_name)
+        else
+            VMManager:deactive_view(vm_name)
+        end
+    else --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
+        local curr_vm = VMgenerate[vm_name] --获取vm实例
+        curr_vm.is_active = false
+        curr_vm:on_deactive()
+    end
+end
+
 ---失活当前栈顶以下的state
 ---@overload fun()
-local function hide_group()
+local function hide_group(curr)
     local len = #_stack - 1
     local item
 
     for i = len, 1, -1 do
         item = _stack[i]
-        -- VMManager.deactive(item)
-        VMManager.destory_views(item)
-        if type(item) == "table" then
+        if type(item) == "table" then --如果是group
+            for k, v in ipairs(item) do
+                -- Logger.Log("hide_group.table  ",table_indexof(curr, k),k)
+                if table_indexof(curr, v) == nil then
+                    strategy_view_gc(v, false, true)
+                end
+            end
+
+            if item.log_enable == false then --如果不需要记录log栈
+                table_remove(_stack, i) --从当前栈移除
+                -- Logger.Log(" pop stack", item[1])
+            end
             return
+        else
+            -- Logger.Log("hide_group.string ",table_indexof(curr, item),item)
+            if table_indexof(curr, item) == nil then
+                strategy_view_gc(item, false, true)
+            end
         end
     end
 end
@@ -49,8 +103,9 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_config.name string
 local function push_item(self, vm_name, arg)
-    VMManager.active(vm_name, arg) ---激活组
+    VMManager:active(vm_name, arg) ---激活组
     table_insert(_stack, vm_name) --- 进入显示stack
+    --todo item 互斥流程
 end
 
 ---入栈group
@@ -58,10 +113,10 @@ end
 ---@param vm_group_name string
 local function push(self, vm_group_name, arg)
     local vm_group = _VMGroup[vm_group_name]
-    VMManager.active(vm_group, arg) ---激活组
+    VMManager:active(vm_group, arg) ---激活组
     table_insert(_stack, vm_group) --- 进入显示stack
     if type(vm_group) == "table" then ---如果是加入的是root 需要隐藏到上一个root的所有栈内容
-        hide_group()
+        hide_group(vm_group)
     end
 end
 
@@ -89,8 +144,7 @@ local function popup_item(self, vm)
 
     if del > 0 then
         table_remove(_stack, del)
-        -- VMManager.deactive(item) ---
-        VMManager.destory_views(item)
+        strategy_view_gc(item, true, false)
         return true
     end
 
@@ -104,19 +158,37 @@ local function back(self)
     local len = #_stack
     local curr = _stack[len]
     table_remove(_stack, len) ---移除最顶上的
-    -- VMManager.deactive(curr)
-    VMManager.destory_views(curr) --
 
     if type(curr) == "table" then --如果当前最顶上的是vm group 则要找到下一个vm group
+        local active = {}
+
         local item
+        --激活项
         for i = #_stack, 1, -1 do
             item = _stack[i]
-            -- Logger.Log("active",item)
-            VMManager.active(item) --重新激活
             if type(item) == "table" then
-                return
+                for k, v in ipairs(item) do
+                    table_insert(active, v)
+                end
+                break
+            else
+                table_insert(active, item) 
             end
         end
+
+        --deactive
+        for k, v in ipairs(curr) do
+            if table_indexof(active, v) == nil then --在激活名单的不用激活
+                strategy_view_gc(v, true, true)
+            end
+        end
+
+        --active
+        for k, v in ipairs(active) do
+            VMManager:load(v) --重新激活
+        end
+    else
+        strategy_view_gc(curr, true, false)
     end
 end
 

@@ -1,6 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.4.25
+1 
+
 2020.4.18
 1 列表控件支持选中样式。
 2 view支持延时关闭和销毁。

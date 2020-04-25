@@ -20,8 +20,8 @@ back_tips.on_back = {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log(" on back")
-        VMState.back()
+        -- Logger.Log(" on back")
+        VMState:back()
     end
 }
 return back_tips

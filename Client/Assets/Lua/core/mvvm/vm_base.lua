@@ -5,6 +5,7 @@
 ------------------------------------------------
 local table = table
 local pairs = pairs
+local ipairs = ipairs
 local string_format = string.format
 local class = class
 local VMState = VMState
@@ -17,6 +18,7 @@ local vm_base =
         self._property_changed = {}
         self.is_active = false ---是否激活。
         self.is_res_ready = false ---资源是否准备好
+        self.auto_context = true ---资源完成自动设置context
     end
 )
 
@@ -91,6 +93,17 @@ local function on_destroy(self)
     -- body
 end
 
+---清理View的资源
+---@overload fun()
+local function clear(self)
+    local views = self.views
+    if views then
+        for k, v in ipairs(views) do
+            v:clear()
+        end
+    end
+    self.is_res_ready = false
+end
 
 ---注销的时候
 ---@overload fun()
@@ -114,6 +127,7 @@ vm_base.on_push_arg = on_push_arg
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
 vm_base.on_destroy = on_destroy
+vm_base.clear = clear
 vm_base.dispose = dispose
 
 vm_base.__tostring = tostring
@@ -124,6 +138,7 @@ vm_base.__tostring = tostring
 ---@field on_active function
 ---@field on_deactive function
 ---@field on_property_set function
+---@field clear function
 ---@field dispose function
 ---@field is_active boolean
 ---@field is_res_ready boolean

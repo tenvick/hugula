@@ -279,7 +279,7 @@ public class AssetbundlesMenuItems
         ExportResources.exportLua();
     }
 
-    [MenuItem("Hugula/Export Config [Assets\\Config *.csv]", false, 13)]
+    [MenuItem("Hugula/Export Config [Assets\\Config *.bytes]", false, 13)]
     public static void exportConfig()
     {
         ExportResources.exportConfig();

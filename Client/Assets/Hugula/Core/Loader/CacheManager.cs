@@ -500,9 +500,8 @@ namespace Hugula.Loader
                         {
                             if (--cachedChild.count == 0)
                             {
-                                ABDelayUnloadManager.AddDep(tmpName);
+                                ABDelayUnloadManager.Add(tmpName);
                             }
-                            // ABDelayUnloadManager.Add(tmpName);
                         }
                     }
                 }//end if

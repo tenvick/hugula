@@ -10,7 +10,7 @@ namespace Hugula.Framework {
     public interface IDelayDestory {
         void DelayDestory ();
 
-        System.Action onComplete{get;set;}
+        System.Action onDelayCompleted{get;set;}
     }
 
     public interface IDelayCancel

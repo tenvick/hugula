@@ -7,9 +7,10 @@ namespace Hugula.UIComponents {
 
     public class DelayDeactiveBehaviour : MonoBehaviour, IDelayDeactive, IDelayDestory {
         public float delayTime = 1;
-        public System.Action onComplete { get; set; }
-        public void DelayDeactive () {
-            StartCoroutine (Deactive ());
+        public System.Action onDelayCompleted { get; set; }
+        public void DelayDeactive()
+        {
+            StartCoroutine(Deactive());
         }
 
         IEnumerator Deactive () {
@@ -21,10 +22,11 @@ namespace Hugula.UIComponents {
             StartCoroutine (Destory ());
         }
 
-        IEnumerator Destory () {
-            yield return new WaitForSeconds (delayTime);
-            if (onComplete != null) onComplete ();
-            GameObject.Destroy (this.gameObject);
+        IEnumerator Destory()
+        {
+            yield return new WaitForSeconds(delayTime);
+            GameObject.Destroy(this.gameObject);
+            if (onDelayCompleted != null) onDelayCompleted();
         }
     }
 }

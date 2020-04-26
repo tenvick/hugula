@@ -47,4 +47,12 @@ public static class ExtensionMethods
         return obj.transform.localScale != Vector3.zero;
     }
 
+    public static T CheckAddComponent<T>(this GameObject obj) where T : Component
+    {
+        T com = obj.GetComponent<T>();
+        if (com == null)
+            com = obj.AddComponent<T>();
+
+        return com;
+    }
 }

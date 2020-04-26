@@ -573,8 +573,10 @@ namespace Hugula.Utils {
         /// </summary>
         /// <param name="sceneName">Scene name.</param>
         /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
-        public static void LoadScene (string sceneName, bool isAdditive) {
-            Hugula.Loader.ResourcesLoader.LoadScene (sceneName, sceneName, null, null, null, true, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+        public static void LoadScene(string sceneName, bool isAdditive)
+        {
+            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null,null,true,isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+            //UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
 
         /// <summary>

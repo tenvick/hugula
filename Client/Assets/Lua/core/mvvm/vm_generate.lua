@@ -35,6 +35,6 @@ local vm_generate = {}
 setmetatable(vm_generate,mt)
 
 --- 保持对所有view models的实例引用 __index回自动require vm_config 对应路径的viewmodel lua文件
----@class VMgenerate
+---@class VMGenerate
 ---@field index string
-VMgenerate = vm_generate
+VMGenerate = vm_generate

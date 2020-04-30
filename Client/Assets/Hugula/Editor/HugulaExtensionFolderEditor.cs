@@ -4,7 +4,7 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEditor;
 
-namespace Hugula.Editor
+namespace HugulaEditor
 {
 
     /// <summary>

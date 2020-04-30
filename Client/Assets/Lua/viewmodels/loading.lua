@@ -9,7 +9,7 @@ local View = View
 local VMState = VMState
 local VMGroup = VMGroup
 local VMManager = VMManager
-local VMgenerate = VMgenerate
+local VMGenerate = VMGenerate
 local ResourcesLoader = CS.Hugula.Loader.ResourcesLoader
 ---@class VMBase vm
 ---@class loading
@@ -47,7 +47,7 @@ local function load_async()
     ResourcesLoader.OnGroupProgress = on_progress
     ResourcesLoader.OnGroupComplete = all_complete
 
-    ResourcesLoader.BeginMarkGroup()
+    ResourcesLoader.BeginMarkGroup(#pre_loading)
     for k, v in pairs(pre_loading) do
         -- Logger.Log(k,v)
         VMManager:pre_load(v)
@@ -65,13 +65,13 @@ end
 function loading:on_push_arg(arg)
     --接受loading信息
     if arg ~= nil then
-        VMgenerate.scene_loader:on_push_arg({scene_loader = arg})
+        VMGenerate.scene_loader:on_push_arg({scene_loader = arg})
     end
 
     --读取数据信息
     local assets = {}
     table_insert(assets,{asset_name="Player1",res_path="player1.u3d"})
-    VMgenerate.asset_loader:on_push_arg({asset_loader=assets})
+    VMGenerate.asset_loader:on_push_arg({asset_loader=assets})
 end
 
 function loading:on_active()

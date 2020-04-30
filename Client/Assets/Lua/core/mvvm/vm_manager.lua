@@ -15,7 +15,7 @@ local CS = CS
 local GameObject = CS.UnityEngine.GameObject
 local Hugula = CS.Hugula
 local ResourcesLoader = Hugula.Loader.ResourcesLoader
-local VMgenerate = VMgenerate
+local VMGenerate = VMGenerate
 local VMConfig = VMConfig
 
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
@@ -30,7 +30,7 @@ local function check_vm_base_all_done(vm_base)
     local views = vm_base.views
     if views then
         for k, v in ipairs(views) do
-            if v:has_child() == false then
+            if v:is_initialized() == false then
                 return false
             end
         end
@@ -47,7 +47,7 @@ end
 ---@param view_base ViewBase
 local function set_view_child(gobj, view_base)
     local bindable_container = BindingUtility.GetBindableContainer(gobj)
-    view_base:set_child(bindable_container or gobj.transform)
+    view_base:set_child(bindable_container or gobj)
 end
 
 ---初始化视图和viewmode并设置他们的关系
@@ -61,6 +61,7 @@ local function init_view(view_base)
         on_asset_load(view_base, view_base._child)
     end
     view_base:set_active(true)
+    view_base:initialized() --标记初始化
     local vm_base = view_base._vm_base
     if vm_base.auto_context then
         view_base:set_child_context(vm_base)
@@ -96,6 +97,7 @@ local function on_pre_load_comp(data, view_base)
         set_view_child(inst, view_base)
         inst:SetActive(false)
     end
+
 end
 
 ---场景加载完成
@@ -106,9 +108,10 @@ local function on_scene_comp(data, view_base)
     if view_base:has_child() ~= true then
         -- set_view_child(data, view_base)
         view_base:set_child(data)
-        Logger.Log("on_scene_comp ", data)
     end
+
     init_view(view_base)
+    -- Logger.Log(string.format("on_scene_comp : %s", view_base))
 end
 
 ---场景预加载完成
@@ -119,12 +122,12 @@ local function on_pre_scene_comp(data, view_base)
     if view_base:has_child() ~= true then
         -- set_view_child(data, view_base)
         view_base:set_child(data)
-        Logger.Log("on_scene_comp ", data)
     end
+    -- Logger.Log(string.format("on_pre_scene_comp : %s", view_base))
 end
 
 local function on_res_end(data, view_base)
-    Logger.Log(string.format("on_res_end : %s", view_base.name))
+    Logger.Log(string.format("on_res_end : %s", view_base))
 end
 
 ---利用find查找view的gameobject root
@@ -148,7 +151,7 @@ end
 ---@param enable boolean
 local function active_view(self, vm_name)
     ---@class VMBase
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- local vm_config = VMConfig[vm_name] --获取配置信息
     if curr_vm.is_res_ready == true then --已经加载过
         local views = curr_vm.views
@@ -164,7 +167,7 @@ local function active_view(self, vm_name)
 end
 
 local function deactive_view(self, vm_name)
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
         local views = curr_vm.views
         if views then
@@ -182,7 +185,7 @@ end
 ---@overload fun(vm_name:string)
 ---@param vm_name string
 local function destory_view(self, vm_name)
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- if curr_vm.is_res_ready == true then --已经加载过
     local views = curr_vm.views
     if views then
@@ -275,12 +278,11 @@ end
 ---@param vm_name string
 ---@param arg any
 local function load(self, vm_name, arg)
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm:on_push_arg(arg) --有参数
     if curr_vm.is_res_ready == true then --已经加载过
         active_view(self, vm_name)
     else
-        -- Logger.Log(vm_name)
         local views = curr_vm.views
         if views then
             local find_path, res_name, scene_name, res_path
@@ -322,7 +324,7 @@ end
 ---@overload fun(vm_name:string)
 ---@param vm_name string
 local function pre_load(self, vm_name)
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     local views = curr_vm.views
     if views then
         local find_path, res_name, scene_name, res_path
@@ -333,6 +335,7 @@ local function pre_load(self, vm_name)
             elseif res_name ~= nil and res_path ~= nil then
                 load_resource(res_path, res_name, v, on_pre_load_comp, true)
             end
+            -- Logger.Log("pre_load", vm_name, k, v)
         end
     end
 end
@@ -347,4 +350,6 @@ vm_manager.deactive_view = deactive_view
 ---vm的激活与失活管理
 ---@class VMManager
 ---@field active function
+---@field pre_load function
+---@field load function
 VMManager = vm_manager

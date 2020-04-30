@@ -139,7 +139,7 @@ namespace Hugula.Loader {
                 OnComplete (data,userData);
             Profiler.EndSample ();
             watch.Stop ();
-            Debug.LogFormat ("CRequest({0},{1}).data = {2} cost={3}s", this.assetBundleName, this.assetName, this.data, watch.ElapsedMilliseconds / 1000d);
+            // Debug.LogFormat ("CRequest({0},{1}).data = {2} cost={3}s", this.assetBundleName, this.assetName, this.data, watch.ElapsedMilliseconds / 1000d);
 #else
 
             if (OnComplete != null)

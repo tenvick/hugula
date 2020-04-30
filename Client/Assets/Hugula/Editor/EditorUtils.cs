@@ -3,8 +3,8 @@ using System.IO;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
-
-namespace Hugula.Editor {
+using Hugula;
+namespace HugulaEditor {
     //编辑器工具类
     public static class EditorUtils {
 

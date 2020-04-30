@@ -1,6 +1,16 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.4.30
+1 Hugula.Editor名字空间变更。
+2 Binder对象修改为泛型方式。
+3 CollectionViewBinder新的集合显示组件，需要自己定义布局。
+4 log日志关闭功能。
+5 NofityTable增加FindIndex(filter_fun(index,item) )函数方便数据索引查找
+6 VMState初始化流程修改，以字段标识初始状态。
+7 xlua Config去除黑名单添加，生成模板添加Lua Profiler功能。
+
+
 2020.4.25
 1 vm模块资源预加载功能,动态资源加载asset_loader,scene_loader功能。
 2 Config目录.bytes文件打包功能。

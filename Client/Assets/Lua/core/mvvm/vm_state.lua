@@ -14,7 +14,7 @@ local VM_GC_TYPE = VM_GC_TYPE
 local VMConfig = VMConfig
 local VMManager = VMManager
 local _VMGroup = _VMGroup
-local VMgenerate = VMgenerate
+local VMGenerate = VMGenerate
 ---
 ---     下面是一个典型的vm stack示例：{}表示根状态,""表示追加状态, 根状态来控制stack上的UI显示。
 ------------------------------------------------------
@@ -63,7 +63,7 @@ local function strategy_view_gc(vm_name, is_popup, is_state_change)
             VMManager:deactive_view(vm_name)
         end
     else --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
-        local curr_vm = VMgenerate[vm_name] --获取vm实例
+        local curr_vm = VMGenerate[vm_name] --获取vm实例
         curr_vm.is_active = false
         curr_vm:on_deactive()
     end
@@ -103,8 +103,8 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_config.name string
 local function push_item(self, vm_name, arg)
-    VMManager:active(vm_name, arg) ---激活组
     table_insert(_stack, vm_name) --- 进入显示stack
+    VMManager:active(vm_name, arg) ---激活组
     --todo item 互斥流程
 end
 
@@ -113,8 +113,8 @@ end
 ---@param vm_group_name string
 local function push(self, vm_group_name, arg)
     local vm_group = _VMGroup[vm_group_name]
-    VMManager:active(vm_group, arg) ---激活组
     table_insert(_stack, vm_group) --- 进入显示stack
+    VMManager:active(vm_group, arg) ---激活组
     if type(vm_group) == "table" then ---如果是加入的是root 需要隐藏到上一个root的所有栈内容
         hide_group(vm_group)
     end
@@ -194,7 +194,7 @@ end
 
 local function call_func(self, vm_name, fun_name, arg)
     -- Logger.Log("call_func",vm_name,fun_name,arg)
-    local curr_vm = VMgenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm then
         local fun = curr_vm[fun_name]
         if fun ~= nil then

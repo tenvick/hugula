@@ -7,14 +7,14 @@ using System.IO;
 using System.Text;
 using Hugula;
 using Hugula.Cryptograph;
-using Hugula.Editor.Task;
+using HugulaEditor.Task;
 using Hugula.Pool;
 using Hugula.Loader;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace Hugula.Editor
+namespace HugulaEditor
 {
     public class BuildScript
     {
@@ -55,7 +55,7 @@ namespace Hugula.Editor
             EditorUtility.DisplayProgressBar(title, info, 0.1f);
             var hotResGenSharedData = new HotResGenSharedData();
             //流程封装方便自己定义流程
-            // HugulaPlayerPrefs.SetString(Hugula.Editor.EditorCommon.KeyVerChannels,"imsdk");
+            // HugulaPlayerPrefs.SetString(HugulaEditor.EditorCommon.KeyVerChannels,"imsdk");
             string KeyVerChannels = HugulaPlayerPrefs.GetString(EditorCommon.KeyVerChannels, string.Empty);
             Debug.LogFormat("GenerateAssetBundlesUpdateFile KeyVerChannels:{0}", KeyVerChannels);
             TaskManager<HotResGenSharedData>.AddTask(new ReadFirst(allBundles));

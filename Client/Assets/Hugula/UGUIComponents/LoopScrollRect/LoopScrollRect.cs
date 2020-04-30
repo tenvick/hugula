@@ -80,8 +80,8 @@ namespace Hugula.UIComponents {
                 {
                     var offsetMin = rectTran.offsetMin;
                     var offsetMax = rectTran.offsetMax;
-                    offsetMin.x = padding;
-                    offsetMax.x = -padding;
+                    offsetMin.x = halfPadding;
+                    offsetMax.x = -halfPadding;
                     rectTran.offsetMin = offsetMin;
                     rectTran.offsetMax = offsetMax;
                 } else

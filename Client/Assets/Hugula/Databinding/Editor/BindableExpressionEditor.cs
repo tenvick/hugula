@@ -6,7 +6,7 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 
-namespace Hugula.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     // [CustomEditor (typeof (BindableContainer), true)]
     public static class BindableExpressionEditor

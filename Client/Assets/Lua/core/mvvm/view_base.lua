@@ -21,6 +21,7 @@ local LuaHelper = CS.Hugula.Utils.LuaHelper
 local view_base =
     class(
     function(self, ...)
+        self._nitialized = false
     end
 )
 
@@ -69,11 +70,18 @@ local function set_child_context(self, context)
     set_target_context(child, context)
 end
 
----是否已经设置了context
+---是否初始化了
 ---@overload fun()
 ---@return  bool
-local function has_context(self)
-    return self._context ~= nil
+local function is_initialized(self)
+    return self._nitialized == true and self:has_child()
+end
+
+---设置初始化状态
+---@overload fun()
+---@return  bool
+local function initialized(self)
+    self._nitialized = true
 end
 
 ---销毁child
@@ -87,12 +95,13 @@ local function clear(self)
     else
         local child = self._child
         if child then
-            LuaHelper.DelayDestroy(child.gameObject,self.res_path)
+            LuaHelper.DelayDestroy(child.gameObject, self.res_path)
         end
     end
     -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
-    self._child = nil    
+    self._child = nil
     self._context = nil
+    self._nitialized = false
 end
 
 ---
@@ -104,15 +113,20 @@ local function dispose(self)
     self:clear()
 end
 
+local function tostring(self)
+   return string.format("asset=%s,res=%s,child=%s ",self.asset_name or self.scene_name, self.res_path,self._child)
+end
+
 -- view_base.on_asset_load = on_asset_load
 view_base.set_child = set_child
 view_base.set_active = set_active
 view_base.has_child = has_child
-view_base.has_context = has_context
+view_base.is_initialized = is_initialized
+view_base.initialized = initialized
 view_base.set_child_context = set_child_context
 view_base.clear = clear
 view_base.dispose = dispose
-
+view_base.__tostring = tostring
 ---
 ---所有视图的基类，提供资源的配置信息和加载完成的相关处理。
 ---注意:ViewBase.assets

@@ -9,7 +9,7 @@ using Hugula.Atlas;
 using Hugula.Utils;
 using Hugula;
 
-namespace Hugula.Editor
+namespace HugulaEditor
 {
     public class AtlasConfig
     {

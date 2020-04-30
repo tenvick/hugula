@@ -3,68 +3,68 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hugula.Databinding.Binder {
+namespace Hugula.Databinding.Binder
+{
 
-    public class AnimatorBinder : BindableObject {
-        Animator m_target;
-        Animator m_Animator {
-            get {
-                if (m_target == null)
-                    m_target = GetTarget<Animator> ();
-                return m_target;
-            }
-            set {
-                m_target = null;
-            }
-        }
+    [RequireComponent(typeof(Animator))]
+    public class AnimatorBinder : UIBehaviourBinder<Animator>
+    {
 
         //要设定的参数名
         public string parameterName;
 
-        public int IntegerValue {
-            get {
-                return m_Animator.GetInteger (parameterName);
+        public int IntegerValue
+        {
+            get
+            {
+                return target.GetInteger(parameterName);
             }
-            set {
-                m_Animator.SetInteger (parameterName, value);
-            }
-        }
-
-        public float FloatValue {
-            get {
-                return m_Animator.GetFloat (parameterName);
-            }
-            set {
-                m_Animator.SetFloat (parameterName, value);
+            set
+            {
+                target.SetInteger(parameterName, value);
             }
         }
 
-        public bool BoolValue {
-            get {
-                return m_Animator.GetBool (parameterName);
+        public float FloatValue
+        {
+            get
+            {
+                return target.GetFloat(parameterName);
             }
-            set {
-                m_Animator.SetBool (parameterName, value);
+            set
+            {
+                target.SetFloat(parameterName, value);
             }
         }
 
-        public string SetTrigger {
-            get {
+        public bool BoolValue
+        {
+            get
+            {
+                return target.GetBool(parameterName);
+            }
+            set
+            {
+                target.SetBool(parameterName, value);
+            }
+        }
+
+        public string SetTrigger
+        {
+            get
+            {
                 return parameterName;
 
             }
-            set {
-                if (!string.IsNullOrEmpty (value))
-                    m_Animator.SetTrigger (value);
-                else if (!string.IsNullOrEmpty (parameterName))
-                    m_Animator.SetTrigger (parameterName);
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                    target.SetTrigger(value);
+                else if (!string.IsNullOrEmpty(parameterName))
+                    target.SetTrigger(parameterName);
             }
         }
 
-        protected override void OnDestroy () {
-            m_Animator = null;
-            base.OnDestroy ();
-        }
 
     }
 }

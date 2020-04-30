@@ -197,52 +197,63 @@ public class EnterLua : MonoBehaviour, IManager
         return _corout;
     }
 
-    private static IEnumerator DelayDo (LuaFunction luafun, float time, object args) {
-        yield return new WaitForSeconds (time);
-        luafun.Call (args);
+    private static IEnumerator DelayDo(LuaFunction luafun, float time, object args)
+    {
+        yield return new WaitForSeconds(time);
+        luafun.Call(args);
     }
 
-    public static IEnumerator DelayFrame (LuaFunction luafun, int frame, object args) {
-        var ins = Manager.Get<EnterLua> ();
-        var _corout = DelayFrameDo (luafun, frame, args);
-        ins.StartCoroutine (_corout);
+    public static IEnumerator DelayFrame(LuaFunction luafun, int frame, object args)
+    {
+        var ins = Manager.Get<EnterLua>();
+        var _corout = DelayFrameDo(luafun, frame, args);
+        ins.StartCoroutine(_corout);
         return _corout;
     }
 
-    private static IEnumerator DelayFrameDo (LuaFunction luafun, int frame, object args) {
-        var waitFrame = WaitForFrameCountPool.Get ();
-        waitFrame.SetEndFrame (frame);
+    private static IEnumerator DelayFrameDo(LuaFunction luafun, int frame, object args)
+    {
+        var waitFrame = WaitForFrameCountPool.Get();
+        waitFrame.SetEndFrame(frame);
         yield return waitFrame;
-        WaitForFrameCountPool.Release (waitFrame);
-        luafun.Call (args);
+        WaitForFrameCountPool.Release(waitFrame);
+        luafun.Call(args);
     }
 
-    static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount> (null, null);
-    public class WaitForFrameCount : IEnumerator {
+    static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
+    public class WaitForFrameCount : IEnumerator
+    {
         int m_EndCount;
-        public WaitForFrameCount (int frameCount) {
-            SetEndFrame (frameCount);
+        public WaitForFrameCount(int frameCount)
+        {
+            SetEndFrame(frameCount);
         }
 
-        public WaitForFrameCount () {
+        public WaitForFrameCount()
+        {
 
         }
 
-        public void SetEndFrame (int frameCount) {
+        public void SetEndFrame(int frameCount)
+        {
             m_EndCount = Time.frameCount + frameCount;
         }
 
-        bool IEnumerator.MoveNext () {
+        bool IEnumerator.MoveNext()
+        {
             return Time.frameCount <= m_EndCount;
         }
 
-        object IEnumerator.Current {
-            get {
+        object IEnumerator.Current
+        {
+            get
+            {
                 return null;
             }
         }
 
-        void IEnumerator.Reset () {
+        void IEnumerator.Reset()
+        {
 
         }
     }

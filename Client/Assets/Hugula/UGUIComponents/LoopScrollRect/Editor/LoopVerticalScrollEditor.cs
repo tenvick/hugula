@@ -5,8 +5,9 @@ using UnityEditor;
 using UnityEditor.AnimatedValues;
 using UnityEngine;
 using UnityEngine.UI;
+using Hugula.UIComponents;
 
-namespace Hugula.UIComponents {
+namespace HugulaEditor.UIComponents {
 
     public partial class AssetsMenu {
 

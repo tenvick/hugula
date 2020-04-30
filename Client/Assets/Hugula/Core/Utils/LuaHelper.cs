@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
+using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
+using XLua;
+using System.IO;
 using System.Text;
 using Hugula.Cryptograph;
-using UnityEngine;
-using XLua;
 
 namespace Hugula.Utils
 {
@@ -63,6 +63,10 @@ namespace Hugula.Utils
             comp.gameObject.SetActive (active);
         }
 
+        public static void SetActive (GameObject gameObject, bool active) {
+            gameObject.SetActive (active);
+        }
+
         public static void DelayDeActive(GameObject gobj)
         {
             var delay = gobj.GetComponents<Hugula.Framework.IDelayDeactive>();
@@ -73,6 +77,7 @@ namespace Hugula.Utils
             }
             else
                 gobj.SetActive(false);
+
         }
 
         /// <summary>
@@ -211,6 +216,7 @@ namespace Hugula.Utils
             return LayerMask.GetMask(a);
         }
 
+
         /// <summary>
         /// getType
         /// </summary>
@@ -271,6 +277,7 @@ namespace Hugula.Utils
             if (t != null && obj != null) comp = obj.GetComponentInChildren(t);
             return comp;
         }
+
 
         /// <summary>
         /// 
@@ -433,7 +440,7 @@ namespace Hugula.Utils
                 Shader newShader = Shader.Find(shaderName);
                 if (newShader != null)
                 {
-                    mat.shader = newShader; //    Debug.Log("refresh shader: " + shaderName + " in material " + mat.name);
+                    mat.shader = newShader;  //    Debug.Log("refresh shader: " + shaderName + " in material " + mat.name);
                 }
                 else
                 {
@@ -518,7 +525,7 @@ namespace Hugula.Utils
         {
             byte[] bts = (byte[])bytes;
 #if UNITY_5_0 || UNITY_5_1 || UNITY_5_2
-            AssetBundle ab = AssetBundle.CreateFromMemoryImmediate (bts);
+			AssetBundle ab = AssetBundle.CreateFromMemoryImmediate(bts);
 #else
             AssetBundle ab = AssetBundle.LoadFromMemory(bts);
 #endif
@@ -635,6 +642,7 @@ namespace Hugula.Utils
             return state;
         }
 
+
         /// <summary>
         /// 卸载场景
         /// </summary>
@@ -642,6 +650,7 @@ namespace Hugula.Utils
         public static void UnloadScene(string sceneName)
         {
             Hugula.Loader.ResourcesLoader.UnloadScene(sceneName);
+            //UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
         }
 
         /// <summary>
@@ -651,9 +660,10 @@ namespace Hugula.Utils
         /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
         public static void LoadScene(string sceneName, bool isAdditive)
         {
-            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null, null, true, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null,null,true,isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
             //UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
+
 
         /// <summary>
         /// check Object is Null

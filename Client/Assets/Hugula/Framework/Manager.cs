@@ -52,29 +52,34 @@ namespace Hugula.Framework {
             }
         }
 
-        internal static void Add (Type type, IManager manager) {
+        internal static void Add(Type type, IManager manager)
+        {
             string name = type.Name;
-            if (m_Initialized.TryGetValue (name, out var exist)) {
-                exist.Terminate ();
-                Debug.LogWarningFormat ("type {0},{1} is already existed in Managers ", name, exist);
+            if (m_Initialized.TryGetValue(name, out var exist))
+            {
+                exist.Terminate();
+                Debug.LogWarningFormat("type {0},{1} is already existed in Managers ", name, exist);
             }
-            manager.Initialize ();
-            m_Initialized.Add (name, manager);
+            manager.Initialize();
+            m_Initialized.Add(name, manager);
         }
 
-        internal static void Remove (Type type) {
+        internal static void Remove(Type type)
+        {
             IManager reged = null;
-            if (m_Initialized.TryGetValue (type.Name, out reged)) {
-                reged.Terminate ();
+            if (m_Initialized.TryGetValue(type.Name, out reged))
+            {
+                reged.Terminate();
                 // if (type.IsAssignableFrom(typeof(MonoBehaviour)))
                 // {
                 //     GameObject.Destroy((MonoBehaviour)reged);
                 // }
-                m_Initialized.Remove (type.Name);
+                m_Initialized.Remove(type.Name);
             }
         }
 
-        public static IManager Get (string name) {
+        public static IManager Get(string name)
+        {
             IManager reged = null;
             if (m_Initialized.TryGetValue (name, out reged)) {
                 return reged;

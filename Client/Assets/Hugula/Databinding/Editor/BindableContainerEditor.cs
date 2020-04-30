@@ -5,7 +5,7 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 
-namespace Hugula.Databinding.Editor {
+namespace HugulaEditor.Databinding {
     [CustomEditor (typeof (BindableContainer), true)]
     public class BindableContainerEditor : UnityEditor.Editor {
 
@@ -189,13 +189,13 @@ namespace Hugula.Databinding.Editor {
                     }
 
                     if (bindable == null) {
-                        Type createBinderType = typeof (Hugula.Databinding.Binder.UIBehaviourBinder);
+                        Type createBinderType = typeof (Hugula.Databinding.BindableObject);
                         if (tpId >= 0) {
                             createBinderType = BinderCreateTypes[tpId];
                         }
 
                         bindable = (BindableObject) obj.gameObject.AddComponent (createBinderType);
-                        bindable.target = target;
+                        // bindable.target = target;
                     }
                 }
             }

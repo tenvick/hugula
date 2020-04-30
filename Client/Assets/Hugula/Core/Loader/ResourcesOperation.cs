@@ -140,6 +140,8 @@ namespace Hugula.Loader
 #endif
         internal void StartSync()
         {
+            m_Request = null;
+
             if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache(request.assetBundleName);
             if (!m_Bundle.canUse) //ab失效
             {
@@ -265,6 +267,7 @@ namespace Hugula.Loader
                 CRequest.SetData(request, m_Data);
                 CRequest.SetDone(request);
             }
+
         }
 
         public void ReleaseToPool()
@@ -272,6 +275,10 @@ namespace Hugula.Loader
             OperationPools<AssetOperation>.Release(this);
         }
 
+        public string DebugString()
+        {
+            return string.Format(" m_Bundle={0},canuse={1},isdone={2},progress={3},assetname={4}", m_Bundle, m_Bundle != null ? m_Bundle.canUse : false, m_Request.isDone, m_Request.progress, request.assetName);
+        }
         //设置ID
         public static void SetId(AssetOperation assetOp)
         {

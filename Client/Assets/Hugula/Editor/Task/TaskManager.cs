@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-namespace Hugula.Editor.Task
+namespace HugulaEditor.Task
 {
     public static class TaskManager<T>
     {

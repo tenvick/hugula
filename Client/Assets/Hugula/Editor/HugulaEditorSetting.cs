@@ -4,8 +4,8 @@ using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
 using System.Text.RegularExpressions;
-
-namespace Hugula.Editor
+using Hugula;
+namespace HugulaEditor
 {
     public class HugulaEditorSetting
     {

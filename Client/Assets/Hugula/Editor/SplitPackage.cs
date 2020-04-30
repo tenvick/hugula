@@ -6,9 +6,9 @@ using UnityEngine;
 
 using Hugula.Utils;
 using Hugula.Loader;
-using Hugula.Loader;
+using Hugula;
 
-namespace Hugula.Editor
+namespace HugulaEditor
 {
 
     /// <summary>

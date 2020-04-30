@@ -222,7 +222,8 @@ namespace Hugula.Databinding {
 				return m_Items[i];
 			}
 			set {
-				m_Items[i] = value;
+				// m_Items[i] = value;
+				SetItem(i,value);
 			}
 		}
 

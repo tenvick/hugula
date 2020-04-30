@@ -5,8 +5,10 @@ using System.Reflection;
 using UnityEngine;
 using XLua;
 
-namespace XLua.Editor {
-    public static class HugulaXluaConfig {
+namespace XLua.Editor
+{
+    public static class HugulaXluaConfig
+    {
         /***************如果你全lua编程，可以参考这份自动化配置***************/
         //--------------begin 纯lua编程配置参考----------------------------
         static List<string> exclude = new List<string> {
@@ -96,13 +98,17 @@ namespace XLua.Editor {
             "NativeLeakDetectionMode",
             "WWWAudioExtensions",
             "UnityEngine.Experimental",
-            "UnityEngine.CanvasRenderer.OnRequestRebuild"
+            "UnityEngine.CanvasRenderer.OnRequestRebuild",
+            "Hugula.Loader.AssetOperationSimulation"
         };
 
-        static bool isExcluded (Type type) {
+        static bool isExcluded(Type type)
+        {
             var fullName = type.FullName;
-            for (int i = 0; i < exclude.Count; i++) {
-                if (fullName.Contains (exclude[i])) {
+            for (int i = 0; i < exclude.Count; i++)
+            {
+                if (fullName.Contains(exclude[i]))
+                {
                     return true;
                 }
             }
@@ -110,7 +116,7 @@ namespace XLua.Editor {
         }
 
         [BlackList]
-        public static List<List<string>> HugulaBlackList = new List<List<string>> () {
+        public static List<List<string>> HugulaBlackList = new List<List<string>>() {
             new List<string> () { "UnityEngine.GameObject", "networkView" },
             new List<string> () { "System.IO.FileInfo", "GetAccessControl", "System.Security.AccessControl.AccessControlSections" },
             new List<string> () { "UnityEngine.CanvasRenderer", "OnRequestRebuild" },
@@ -143,46 +149,57 @@ namespace XLua.Editor {
         };
 
         [LuaCallCSharp]
-        public static IEnumerable<Type> LuaCallCSharp {
-            get {
-                List<string> namespaces = new List<string> () // 在这里添加名字空间
+        public static IEnumerable<Type> LuaCallCSharp
+        {
+            get
+            {
+                List<string> namespaces = new List<string>() // 在这里添加名字空间
                 {
                     "UnityEngine",
                     "UnityEngine.UI",
+                    "Hugula",
+                    "Hugula.Loader",
+                    "Hugula.Utils",
+                    "Hugula.Framework",
+                    "Hugula.UIComponents",
                     "Hugula.Databinding",
-                    "Hugula.Databinding.Binder"
+                    "Hugula.Databinding.Binder",
                 };
-                var unityTypes = (from assembly in AppDomain.CurrentDomain.GetAssemblies () where!(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder) from type in assembly.GetExportedTypes () where type.Namespace != null && namespaces.Contains (type.Namespace) && !isExcluded (type) &&
-                    type.BaseType != typeof (MulticastDelegate) && !type.IsInterface && !type.IsEnum select type);
+                var unityTypes = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                  where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
+                                  from type in assembly.GetExportedTypes()
+                                  where type.Namespace != null && namespaces.Contains(type.Namespace) && !isExcluded(type) &&
+type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
+                                  select type);
 
                 // string[] customAssemblys = new string[] {
                 //     "Assembly-CSharp",
                 // };
                 // var customTypes = (from assembly in customAssemblys.Select (s => Assembly.Load (s)) from type in assembly.GetExportedTypes () where type.Namespace == null || !type.Namespace.StartsWith ("XLua") &&
                 //     type.BaseType != typeof (MulticastDelegate) && !type.IsInterface && !type.IsEnum select type);
-                var customlist = new List<Type> ();
-                customlist.Add (typeof (Func<object, int, Component, int, RectTransform, Component>));
-                customlist.Add (typeof (Action<object, object, int>));
-                customlist.Add (typeof (UnityEngine.Events.UnityAction<float>));
-                customlist.Add (typeof (UnityEngine.Events.UnityAction));
-                customlist.Add (typeof (System.Func<System.Object, int, int>));
-                customlist.Add (typeof (Action<object, object, int>));
-                customlist.Add (typeof (Func<object, int, Component, int, RectTransform, Component>));
-                customlist.Add (typeof (Action<object, object, int, int>));
+                var customlist = new List<Type>();
+                customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                customlist.Add(typeof(Action<object, object, int>));
+                customlist.Add(typeof(UnityEngine.Events.UnityAction<float>));
+                customlist.Add(typeof(UnityEngine.Events.UnityAction));
+                customlist.Add(typeof(System.Func<System.Object, int, int>));
+                customlist.Add(typeof(Action<object, object, int>));
+                customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                customlist.Add(typeof(Action<object, object, int, int>));
                 customlist.Add(typeof(System.Action));
                 customlist.Add(typeof(System.Action<Hugula.Loader.LoadingEventArg>));
-                customlist.Add (typeof (Hugula.Databinding.ICommand));
-                customlist.Add (typeof (Hugula.Databinding.IExecute));
-                customlist.Add (typeof (Func<object, int, int>));
-                customlist.Add (typeof (Action<object, Component, int>));
-                customlist.Add (typeof (Hugula.Databinding.BindPathPartGetValue));
-                customlist.Add (typeof (Hugula.Databinding.UpdateValue));
-                customlist.Add (typeof (Hugula.Databinding.ApplyActual));
+                customlist.Add(typeof(Hugula.Databinding.ICommand));
+                customlist.Add(typeof(Hugula.Databinding.IExecute));
+                customlist.Add(typeof(Func<object, int, int>));
+                customlist.Add(typeof(Action<object, Component, int>));
+                customlist.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
+                customlist.Add(typeof(Hugula.Databinding.UpdateValue));
+                customlist.Add(typeof(Hugula.Databinding.ApplyActual));
 
-                customlist.Add (typeof (Action<Vector2>));
-                customlist.Add (typeof (System.Action<object, object, string, string, string, string>));
-                customlist.Add (typeof (System.Collections.Specialized.NotifyCollectionChangedEventArgs));
-                customlist.Add (typeof (System.Collections.IList));
+                customlist.Add(typeof(Action<Vector2>));
+                customlist.Add(typeof(System.Action<object, object, string, string, string, string>));
+                customlist.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
+                customlist.Add(typeof(System.Collections.IList));
 
                 // customlist.Add (typeof (Hugula.Databinding.Binding));
                 // customlist.Add (typeof (Hugula.Databinding.BindableObject));
@@ -201,61 +218,69 @@ namespace XLua.Editor {
                 // customlist.Add (typeof (Hugula.Databinding.Binder.MaskableGraphicBinder));
                 // customlist.Add (typeof (Hugula.Databinding.Binder.SliderBinder));
                 // customlist.Add (typeof (Hugula.Databinding.Binder.TextBinder));
-                return unityTypes.Concat (customlist);
+                return unityTypes.Concat(customlist);
             }
         }
 
         //自动把LuaCallCSharp涉及到的delegate加到CSharpCallLua列表，后续可以直接用lua函数做callback
         [CSharpCallLua]
-        public static List<Type> CSharpCallLua {
-            get {
+        public static List<Type> CSharpCallLua
+        {
+            get
+            {
                 var lua_call_csharp = LuaCallCSharp;
-                var delegate_types = new List<Type> ();
+                var delegate_types = new List<Type>();
 
                 //自定义方法
-                delegate_types.Add (typeof (Func<object, int, Component, int, RectTransform, Component>));
-                delegate_types.Add (typeof (Action<object, object, int>));
-                delegate_types.Add (typeof (UnityEngine.Events.UnityAction<float>));
-                delegate_types.Add (typeof (UnityEngine.Events.UnityAction));
-                delegate_types.Add (typeof (System.Func<System.Object, int, int>));
-                delegate_types.Add (typeof (Action<object, object, int>));
-                delegate_types.Add (typeof (Func<object, int, Component, int, RectTransform, Component>));
-                delegate_types.Add (typeof (Action<object, object, int, int>));
-                delegate_types.Add (typeof (Hugula.Databinding.ICommand));
-                delegate_types.Add (typeof (Hugula.Databinding.IExecute));
-                delegate_types.Add (typeof (Func<object, int, int>));
-                delegate_types.Add (typeof (Action<object, Component, int>));
-                delegate_types.Add (typeof (Hugula.Databinding.BindPathPartGetValue));
-                delegate_types.Add (typeof (Hugula.Databinding.UpdateValue));
-                delegate_types.Add (typeof (Hugula.Databinding.ApplyActual));
+                delegate_types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                delegate_types.Add(typeof(Action<object, object, int>));
+                delegate_types.Add(typeof(UnityEngine.Events.UnityAction<float>));
+                delegate_types.Add(typeof(UnityEngine.Events.UnityAction));
+                delegate_types.Add(typeof(System.Func<System.Object, int, int>));
+                delegate_types.Add(typeof(Action<object, object, int>));
+                delegate_types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                delegate_types.Add(typeof(Action<object, object, int, int>));
+                delegate_types.Add(typeof(Hugula.Databinding.ICommand));
+                delegate_types.Add(typeof(Hugula.Databinding.IExecute));
+                delegate_types.Add(typeof(Func<object, int, int>));
+                delegate_types.Add(typeof(Action<object, Component, int>));
+                delegate_types.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
+                delegate_types.Add(typeof(Hugula.Databinding.UpdateValue));
+                delegate_types.Add(typeof(Hugula.Databinding.ApplyActual));
                 delegate_types.Add(typeof(Hugula.Mvvm.VMStateHelper.IVMState));
 
-                delegate_types.Add (typeof (Action<Vector2>));
-                delegate_types.Add (typeof (System.Action<object, object, string, string, string, string>));
-                delegate_types.Add (typeof (Hugula.Databinding.NotifyCollectionChangedEventHandler));
-                delegate_types.Add (typeof (Hugula.Databinding.PropertyChangedEventHandler));
-                delegate_types.Add (typeof (System.Collections.IList));
+                delegate_types.Add(typeof(Action<Vector2>));
+                delegate_types.Add(typeof(System.Action<object, object, string, string, string, string>));
+                delegate_types.Add(typeof(Hugula.Databinding.NotifyCollectionChangedEventHandler));
+                delegate_types.Add(typeof(Hugula.Databinding.PropertyChangedEventHandler));
+                delegate_types.Add(typeof(System.Collections.IList));
 
                 var flag = BindingFlags.Public | BindingFlags.Instance |
                     BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
-                foreach (var field in (from type in lua_call_csharp select type).SelectMany (type => type.GetFields (flag))) {
-                    if (typeof (Delegate).IsAssignableFrom (field.FieldType)) {
-                        delegate_types.Add (field.FieldType);
+                foreach (var field in (from type in lua_call_csharp select type).SelectMany(type => type.GetFields(flag)))
+                {
+                    if (typeof(Delegate).IsAssignableFrom(field.FieldType))
+                    {
+                        delegate_types.Add(field.FieldType);
                     }
                 }
 
-                foreach (var method in (from type in lua_call_csharp select type).SelectMany (type => type.GetMethods (flag))) {
-                    if (typeof (Delegate).IsAssignableFrom (method.ReturnType)) {
-                        delegate_types.Add (method.ReturnType);
+                foreach (var method in (from type in lua_call_csharp select type).SelectMany(type => type.GetMethods(flag)))
+                {
+                    if (typeof(Delegate).IsAssignableFrom(method.ReturnType))
+                    {
+                        delegate_types.Add(method.ReturnType);
                     }
-                    foreach (var param in method.GetParameters ()) {
-                        var paramType = param.ParameterType.IsByRef ? param.ParameterType.GetElementType () : param.ParameterType;
-                        if (typeof (Delegate).IsAssignableFrom (paramType)) {
-                            delegate_types.Add (paramType);
+                    foreach (var param in method.GetParameters())
+                    {
+                        var paramType = param.ParameterType.IsByRef ? param.ParameterType.GetElementType() : param.ParameterType;
+                        if (typeof(Delegate).IsAssignableFrom(paramType))
+                        {
+                            delegate_types.Add(paramType);
                         }
                     }
                 }
-                return delegate_types.Where (t => t.BaseType == typeof (MulticastDelegate) && !hasGenericParameter (t) && !delegateHasEditorRef (t)).Distinct ().ToList ();
+                return delegate_types.Where(t => t.BaseType == typeof(MulticastDelegate) && !hasGenericParameter(t) && !delegateHasEditorRef(t)).Distinct().ToList();
             }
         }
         //--------------end 纯lua编程配置参考----------------------------
@@ -272,15 +297,20 @@ namespace XLua.Editor {
         //    }
         //}
         //--------------begin 热补丁自动化配置-------------------------
-        static bool hasGenericParameter (Type type) {
+        static bool hasGenericParameter(Type type)
+        {
             if (type.IsGenericTypeDefinition) return true;
             if (type.IsGenericParameter) return true;
-            if (type.IsByRef || type.IsArray) {
-                return hasGenericParameter (type.GetElementType ());
+            if (type.IsByRef || type.IsArray)
+            {
+                return hasGenericParameter(type.GetElementType());
             }
-            if (type.IsGenericType) {
-                foreach (var typeArg in type.GetGenericArguments ()) {
-                    if (hasGenericParameter (typeArg)) {
+            if (type.IsGenericType)
+            {
+                foreach (var typeArg in type.GetGenericArguments())
+                {
+                    if (hasGenericParameter(typeArg))
+                    {
                         return true;
                     }
                 }
@@ -288,19 +318,26 @@ namespace XLua.Editor {
             return false;
         }
 
-        static bool typeHasEditorRef (Type type) {
-            if (type.Namespace != null && (type.Namespace == "UnityEditor" || type.Namespace.StartsWith ("UnityEditor."))) {
+        static bool typeHasEditorRef(Type type)
+        {
+            if (type.Namespace != null && (type.Namespace == "UnityEditor" || type.Namespace.StartsWith("UnityEditor.")))
+            {
                 return true;
             }
-            if (type.IsNested) {
-                return typeHasEditorRef (type.DeclaringType);
+            if (type.IsNested)
+            {
+                return typeHasEditorRef(type.DeclaringType);
             }
-            if (type.IsByRef || type.IsArray) {
-                return typeHasEditorRef (type.GetElementType ());
+            if (type.IsByRef || type.IsArray)
+            {
+                return typeHasEditorRef(type.GetElementType());
             }
-            if (type.IsGenericType) {
-                foreach (var typeArg in type.GetGenericArguments ()) {
-                    if (typeHasEditorRef (typeArg)) {
+            if (type.IsGenericType)
+            {
+                foreach (var typeArg in type.GetGenericArguments())
+                {
+                    if (typeHasEditorRef(typeArg))
+                    {
                         return true;
                     }
                 }
@@ -308,14 +345,16 @@ namespace XLua.Editor {
             return false;
         }
 
-        static bool delegateHasEditorRef (Type delegateType) {
-            if (typeHasEditorRef (delegateType)) return true;
-            var method = delegateType.GetMethod ("Invoke");
-            if (method == null) {
+        static bool delegateHasEditorRef(Type delegateType)
+        {
+            if (typeHasEditorRef(delegateType)) return true;
+            var method = delegateType.GetMethod("Invoke");
+            if (method == null)
+            {
                 return false;
             }
-            if (typeHasEditorRef (method.ReturnType)) return true;
-            return method.GetParameters ().Any (pinfo => typeHasEditorRef (pinfo.ParameterType));
+            if (typeHasEditorRef(method.ReturnType)) return true;
+            return method.GetParameters().Any(pinfo => typeHasEditorRef(pinfo.ParameterType));
         }
         /**
 
@@ -352,7 +391,7 @@ namespace XLua.Editor {
         */
         //黑名单
         [BlackList]
-        public static List<List<string>> BlackList = new List<List<string>> () {
+        public static List<List<string>> BlackList = new List<List<string>>() {
             new List<string> () { "System.Xml.XmlNodeList", "ItemOf" },
             new List<string> () { "UnityEngine.WWW", "movie" },
 #if UNITY_WEBGL
@@ -378,23 +417,42 @@ namespace XLua.Editor {
             new List<string> () { "System.IO.DirectoryInfo", "CreateSubdirectory", "System.String", "System.Security.AccessControl.DirectorySecurity" },
             new List<string> () { "System.IO.DirectoryInfo", "Create", "System.Security.AccessControl.DirectorySecurity" },
             new List<string> () { "UnityEngine.MonoBehaviour", "runInEditMode" },
+
+            new List<string> () { "Hugula.Loader.FileManifest", "WriteToFile","System.String" },
+            new List<string> () { "Hugula.Loader.ManifestManager", "SimulateAssetBundleInEditor" },
+            new List<string> () { "Hugula.ZipConfigs", "CreateInstance" },
+            new List<string> () { "Hugula.ZipConfigs", "Delete" },
+
+            new List<string> () { "Hugula.Loader.BackGroundDownload", "currentLoadingCount" },
+            new List<string> () { "Hugula.Loader.BackGroundDownload", "loadingList" },
+            new List<string> () { "Hugula.Loader.ABInfo", "EqualsDependencies","Hugula.Loader.ABInfo" },
+            new List<string> () { "Hugula.Loader.ABInfo", "assetPath"},
+
         };
 
 #if UNITY_2018_1_OR_NEWER
         [BlackList]
-        public static Func<MemberInfo, bool> MethodFilter = (memberInfo) => {
-            if (memberInfo.DeclaringType.IsGenericType && memberInfo.DeclaringType.GetGenericTypeDefinition () == typeof (Dictionary<,>)) {
-                if (memberInfo.MemberType == MemberTypes.Constructor) {
+        public static Func<MemberInfo, bool> MethodFilter = (memberInfo) =>
+        {
+            if (memberInfo.DeclaringType.IsGenericType && memberInfo.DeclaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                if (memberInfo.MemberType == MemberTypes.Constructor)
+                {
                     ConstructorInfo constructorInfo = memberInfo as ConstructorInfo;
-                    var parameterInfos = constructorInfo.GetParameters ();
-                    if (parameterInfos.Length > 0) {
-                        if (typeof (System.Collections.IEnumerable).IsAssignableFrom (parameterInfos[0].ParameterType)) {
+                    var parameterInfos = constructorInfo.GetParameters();
+                    if (parameterInfos.Length > 0)
+                    {
+                        if (typeof(System.Collections.IEnumerable).IsAssignableFrom(parameterInfos[0].ParameterType))
+                        {
                             return true;
                         }
                     }
-                } else if (memberInfo.MemberType == MemberTypes.Method) {
+                }
+                else if (memberInfo.MemberType == MemberTypes.Method)
+                {
                     var methodInfo = memberInfo as MethodInfo;
-                    if (methodInfo.Name == "TryAdd" || methodInfo.Name == "Remove" && methodInfo.GetParameters ().Length == 2) {
+                    if (methodInfo.Name == "TryAdd" || methodInfo.Name == "Remove" && methodInfo.GetParameters().Length == 2)
+                    {
                         return true;
                     }
                 }

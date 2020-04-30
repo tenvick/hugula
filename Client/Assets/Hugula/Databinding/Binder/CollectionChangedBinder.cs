@@ -8,7 +8,8 @@ using UnityEngine.UI;
 
 namespace Hugula.Databinding.Binder {
 
-    public class CollectionChangedBinder : UIBehaviourBinder {
+    public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T> where T :UnityEngine.Object
+     {
 
         private INotifyCollectionChanged notify;
         #region  集合数据变更

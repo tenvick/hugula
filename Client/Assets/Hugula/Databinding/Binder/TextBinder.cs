@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hugula.Databinding.Binder {
+namespace Hugula.Databinding.Binder
+{
 
-    public class TextBinder : MaskableGraphicBinder {
+    [RequireComponent(typeof(Text))]
+    public class TextBinder : MaskableGraphicBinder<Text>
+    {
 
         public const string TextProperty = "text";
         public const string SupportRichTextProperty = "supportRichText";
@@ -21,123 +24,134 @@ namespace Hugula.Databinding.Binder {
         public const string fontStyleProperty = "fontStyle";
         public const string pixelsPerUnitProperty = "pixelsPerUnit";
 
-        Text m_target_txt;
-        Text m_Text {
-            get {
-                if (m_target_txt == null)
-                    m_target_txt = GetTarget<Text> ();
-                return m_target_txt;
-            }
-            set {
-                m_target_txt = null;
-            }
-        }
 
         #region  重写属性
-        public string text {
-            get { return m_Text.text; }
-            set {
-                m_Text.text = value;
-                OnPropertyChanged ();
+        public string text
+        {
+            get { return target.text; }
+            set
+            {
+                target.text = value;
+                OnPropertyChanged();
             }
         }
 
-        public bool supportRichText {
-            get { return m_Text.supportRichText; }
-            set {
-                m_Text.supportRichText = value;
-                OnPropertyChanged ();
+        public bool supportRichText
+        {
+            get { return target.supportRichText; }
+            set
+            {
+                target.supportRichText = value;
+                OnPropertyChanged();
             }
         }
 
-        public bool resizeTextForBestFit {
-            get { return m_Text.resizeTextForBestFit; }
-            set {
-                m_Text.resizeTextForBestFit = value;
-                OnPropertyChanged ();
+        public bool resizeTextForBestFit
+        {
+            get { return target.resizeTextForBestFit; }
+            set
+            {
+                target.resizeTextForBestFit = value;
+                OnPropertyChanged();
             }
         }
 
-        public int resizeTextMinSize {
-            get { return m_Text.resizeTextMinSize; }
-            set {
-                m_Text.resizeTextMinSize = value;
-                OnPropertyChanged ();
+        public int resizeTextMinSize
+        {
+            get { return target.resizeTextMinSize; }
+            set
+            {
+                target.resizeTextMinSize = value;
+                OnPropertyChanged();
             }
         }
 
-        public int resizeTextMaxSize {
-            get { return m_Text.resizeTextMaxSize; }
-            set {
-                m_Text.resizeTextMaxSize = value;
-                OnPropertyChanged ();
+        public int resizeTextMaxSize
+        {
+            get { return target.resizeTextMaxSize; }
+            set
+            {
+                target.resizeTextMaxSize = value;
+                OnPropertyChanged();
             }
         }
 
-        public TextAnchor alignment {
-            get { return m_Text.alignment; }
-            set {
-                m_Text.alignment = value;
-                OnPropertyChanged ();
+        public TextAnchor alignment
+        {
+            get { return target.alignment; }
+            set
+            {
+                target.alignment = value;
+                OnPropertyChanged();
             }
         }
 
-        public bool alignByGeometry {
-            get { return m_Text.alignByGeometry; }
-            set {
-                m_Text.alignByGeometry = value;
-                OnPropertyChanged ();
+        public bool alignByGeometry
+        {
+            get { return target.alignByGeometry; }
+            set
+            {
+                target.alignByGeometry = value;
+                OnPropertyChanged();
             }
         }
 
-        public int fontSize {
-            get { return m_Text.fontSize; }
-            set {
-                m_Text.fontSize = value;
-                OnPropertyChanged ();
+        public int fontSize
+        {
+            get { return target.fontSize; }
+            set
+            {
+                target.fontSize = value;
+                OnPropertyChanged();
             }
         }
 
-        public HorizontalWrapMode horizontalOverflow {
-            get { return m_Text.horizontalOverflow; }
-            set {
-                m_Text.horizontalOverflow = value;
-                OnPropertyChanged ();
+        public HorizontalWrapMode horizontalOverflow
+        {
+            get { return target.horizontalOverflow; }
+            set
+            {
+                target.horizontalOverflow = value;
+                OnPropertyChanged();
             }
         }
 
-        public VerticalWrapMode verticalOverflow {
-            get { return m_Text.verticalOverflow; }
-            set {
-                m_Text.verticalOverflow = value;
-                OnPropertyChanged ();
+        public VerticalWrapMode verticalOverflow
+        {
+            get { return target.verticalOverflow; }
+            set
+            {
+                target.verticalOverflow = value;
+                OnPropertyChanged();
             }
         }
 
-        public float lineSpacing {
-            get { return m_Text.lineSpacing; }
-            set {
-                m_Text.lineSpacing = value;
-                OnPropertyChanged ();
+        public float lineSpacing
+        {
+            get { return target.lineSpacing; }
+            set
+            {
+                target.lineSpacing = value;
+                OnPropertyChanged();
             }
         }
 
-        public FontStyle fontStyle {
-            get { return m_Text.fontStyle; }
-            set {
-                m_Text.fontStyle = value;
-                OnPropertyChanged ();
+        public FontStyle fontStyle
+        {
+            get { return target.fontStyle; }
+            set
+            {
+                target.fontStyle = value;
+                OnPropertyChanged();
             }
         }
 
-        public float pixelsPerUnit {
-            get { return m_Text.pixelsPerUnit; }
+        public float pixelsPerUnit
+        {
+            get { return target.pixelsPerUnit; }
         }
 
         #endregion
-        protected override void OnDestroy () {
-            m_Text = null;
-            base.OnDestroy ();
-        }
+
     }
 }

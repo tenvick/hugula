@@ -93,11 +93,6 @@ namespace Hugula.Databinding.Binder
 
         #endregion
 
-        void Awake()
-        {
-            this.m_Target = this.gameObject;
-        }
-
         protected override void OnDestroy()
         {
             if (m_Instance && string.IsNullOrEmpty(m_AssetName)) //清空

@@ -7,16 +7,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Hugula.Databinding {
+namespace Hugula.Databinding
+{
 
-    public enum BindingMode {
+    public enum BindingMode
+    {
         OneWay,
         TwoWay,
         OneWayToSource,
     }
 
     [System.SerializableAttribute]
-    public class Binding : IDisposable, IBinding {
+    public class Binding : IDisposable, IBinding
+    {
         internal const string SelfPath = ".";
 
         #region  序列化属性
@@ -43,8 +46,10 @@ namespace Hugula.Databinding {
 
         #region  绑定
         //是否已经绑定过
-        public bool isBound {
-            get {
+        public bool isBound
+        {
+            get
+            {
                 return m_Context != null;
             }
         }
@@ -57,15 +62,18 @@ namespace Hugula.Databinding {
 
         #endregion
 
-        public Binding () {
+        public Binding()
+        {
 
         }
 
-        public Binding (string path, object target, string propertyName, BindingMode mode) : this (path, target, propertyName, mode, "", "") {
+        public Binding(string path, object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "", "")
+        {
 
         }
 
-        public Binding (string path, object target, string propertyName, BindingMode mode, string format, string converter) {
+        public Binding(string path, object target, string propertyName, BindingMode mode, string format, string converter)
+        {
             this.path = path;
             this.target = target;
             this.propertyName = propertyName;
@@ -76,41 +84,51 @@ namespace Hugula.Databinding {
 
         #region  表达式与寻值
         //更新目标
-        public void UpdateTarget () {
+        public void UpdateTarget()
+        {
             //set target value
-            if (!isBound) {
-                Debug.LogErrorFormat ("invalide source {0}", this.path);
+            if (!isBound)
+            {
+                Debug.LogErrorFormat("invalide source {0}", this.path);
                 return;
             }
 
-            ExpressionUtility.UpdateTargetValue (target, propertyName, m_Context, m_LastPart, format, convert);
+            ExpressionUtility.UpdateTargetValue(target, propertyName, m_Context, m_LastPart, format, convert);
         }
 
         //更新源
-        public void UpdateSource () {
-            if (!isBound) {
-                Debug.LogErrorFormat ("invalide source {0}", this.path);
+        public void UpdateSource()
+        {
+            if (!isBound)
+            {
+                Debug.LogErrorFormat("invalide source {0}", this.path);
                 return;
             }
 
-            ExpressionUtility.UpdateSourceValue (target, propertyName, m_Context, m_LastPart, format, convert);
+            ExpressionUtility.UpdateSourceValue(target, propertyName, m_Context, m_LastPart, format, convert);
         }
 
         //绑定目标
-        public void Apply (object context, bool invoke = true) {
-            if (!m_IsApplied) {
-                ParsePath ();
+        public void Apply(object context, bool invoke = true)
+        {
+            if (!m_IsApplied)
+            {
+                ParsePath();
                 m_IsApplied = true;
+            }
+
+
+            if (isBound)
+            {
+                Unapply();
             }
 
             object bindingContext = context;
             if (source) bindingContext = source;
 
-            if (isBound) {
-                Unapply ();
-            }
-
             m_Context = bindingContext;
+
+            if (m_Context == null) return;
 
             object m_Current = bindingContext;
 
@@ -119,73 +137,88 @@ namespace Hugula.Databinding {
 #else
             bool needSubscribe = this.needSubscribe;
             BindingPathPart part = null;
-            for (var i = 0; i < m_Parts.Count; i++) {
+            for (var i = 0; i < m_Parts.Count; i++)
+            {
                 part = m_Parts[i];
-                part.SetSource (m_Current); //
-                if (!part.isSelf && m_Current != null) {
+                part.SetSource(m_Current); //
+                if (!part.isSelf && m_Current != null)
+                {
 
                     if (i < m_Parts.Count - 1)
-                        part.TryGetValue (needSubscribe && part.nextPart != null, out m_Current); //lua NofityObject对象通过此方法在BindingExpression.get_property中订阅
+                        part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current); //lua NofityObject对象通过此方法在BindingExpression.get_property中订阅
                 }
 
                 if (!part.isSelf && m_Current == null)
                     break;
 
-                if (part.nextPart != null && needSubscribe) {
-                    if (m_Current is INotifyPropertyChanged) {
-                        part.Subscribe ((INotifyPropertyChanged) m_Current);
+                if (part.nextPart != null && needSubscribe)
+                {
+                    if (m_Current is INotifyPropertyChanged)
+                    {
+                        part.Subscribe((INotifyPropertyChanged)m_Current);
                     }
                 }
             }
 
-            SetLastPart ();
+            SetLastPart();
 
-            if (invoke) {
+            if (invoke)
+            {
                 //初始化值
-                InitValue ();
+                InitValue();
             }
 #endif
         }
 
         //解绑目标
-        public void Unapply () {
-            for (var i = 0; i < m_Parts.Count - 1; i++) {
+        public void Unapply()
+        {
+            for (var i = 0; i < m_Parts.Count - 1; i++)
+            {
                 BindingPathPart part = m_Parts[i];
-                part.Unsubscribe ();
+                part.Unsubscribe();
             }
         }
 
-        public bool needSubscribe {
-            get {
+        public bool needSubscribe
+        {
+            get
+            {
                 return mode == BindingMode.OneWay || mode == BindingMode.TwoWay;
             }
         }
 
-        public void SetLastPart () {
+        public void SetLastPart()
+        {
             m_LastPart = m_Parts[m_Parts.Count - 1];
         }
 
-        internal void OnSourceChanged (BindingPathPart lastPart) {
+        internal void OnSourceChanged(BindingPathPart lastPart)
+        {
             bool needSubscribe = mode == BindingMode.OneWay || mode == BindingMode.TwoWay;
             BindingPathPart part = lastPart.nextPart;
             object m_Current = part.source;
-            while (part != null) {
-                part.SetSource (m_Current); //
+            while (part != null)
+            {
+                part.SetSource(m_Current); //
                 m_LastPart = part;
-                if (!part.isSelf && m_Current != null) {
+                if (!part.isSelf && m_Current != null)
+                {
 
                     if (part.nextPart != null)
-                        part.TryGetValue (needSubscribe && part.nextPart != null, out m_Current);
+                        part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current);
                 }
 
                 // UnityEngine.Debug.LogFormat ("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
                 if (!part.isSelf && m_Current == null)
                     break;
 
-                if (part.nextPart != null && needSubscribe) {
-                    if (m_Current is INotifyPropertyChanged) {
+                if (part.nextPart != null && needSubscribe)
+                {
+                    if (m_Current is INotifyPropertyChanged)
+                    {
                         // UnityEngine.Debug.LogFormat ("current = {0}", current);
-                        part.Subscribe ((INotifyPropertyChanged) m_Current);
+                        part.Subscribe((INotifyPropertyChanged)m_Current);
                     }
                 }
 
@@ -195,89 +228,98 @@ namespace Hugula.Databinding {
                     part = null;
             }
 
-            UpdateTarget ();
+            UpdateTarget();
         }
 
-        void InitValue () {
-            switch (mode) {
+        void InitValue()
+        {
+            switch (mode)
+            {
                 case BindingMode.OneWay:
-                    UpdateTarget ();
+                    UpdateTarget();
                     break;
 
                 case BindingMode.TwoWay:
-                    UpdateTarget ();
+                    UpdateTarget();
                     break;
 
                 case BindingMode.OneWayToSource:
-                    UpdateSource ();
+                    UpdateSource();
                     break;
 
                 default:
-                    Debug.LogErrorFormat ("Invalid mode {0}", mode);
+                    Debug.LogErrorFormat("Invalid mode {0}", mode);
                     break;
             }
         }
 
-        static readonly char[] ExpressionSplit = new [] { '.' };
+        static readonly char[] ExpressionSplit = new[] { '.' };
 
         //解析的path路径
-        readonly List<BindingPathPart> m_Parts = new List<BindingPathPart> ();
+        readonly List<BindingPathPart> m_Parts = new List<BindingPathPart>();
 
-        public List<BindingPathPart> parts {
-            get {
+        public List<BindingPathPart> parts
+        {
+            get
+            {
                 return m_Parts;
             }
         }
-        void ParsePath () {
-            string p = path.Trim ();
+        void ParsePath()
+        {
+            string p = path.Trim();
 
-            var last = new BindingPathPart (this, SelfPath);
-            m_Parts.Add (last);
+            var last = new BindingPathPart(this, SelfPath);
+            m_Parts.Add(last);
 
-            if (p[0] == ExpressionSplit[0]) {
+            if (p[0] == ExpressionSplit[0])
+            {
                 if (p.Length == 1)
                     return;
 
-                p = p.Substring (1);
+                p = p.Substring(1);
             }
 
-            string[] pathParts = p.Split (ExpressionSplit);
-            for (var i = 0; i < pathParts.Length; i++) {
-                string part = pathParts[i].Trim ();
+            string[] pathParts = p.Split(ExpressionSplit);
+            for (var i = 0; i < pathParts.Length; i++)
+            {
+                string part = pathParts[i].Trim();
 
                 if (part == string.Empty)
-                    throw new FormatException ("Path contains an empty part:" + this.propertyName);
+                    throw new FormatException("Path contains an empty part:" + this.propertyName);
 
                 BindingPathPart indexer = null;
                 //索引解析
-                int lbIndex = part.IndexOf ('[');
-                if (lbIndex != -1) {
-                    int rbIndex = part.LastIndexOf (']');
+                int lbIndex = part.IndexOf('[');
+                if (lbIndex != -1)
+                {
+                    int rbIndex = part.LastIndexOf(']');
                     if (rbIndex == -1)
-                        throw new FormatException ("Indexer did not contain closing [");
+                        throw new FormatException("Indexer did not contain closing [");
 
                     int argLength = rbIndex - lbIndex - 1;
                     if (argLength == 0)
-                        throw new FormatException ("Indexer did not contain arguments");
+                        throw new FormatException("Indexer did not contain arguments");
 
-                    string argString = part.Substring (lbIndex + 1, argLength);
-                    indexer = new BindingPathPart (this, argString, true);
-                    part = part.Substring (0, lbIndex);
-                    part = part.Trim ();
+                    string argString = part.Substring(lbIndex + 1, argLength);
+                    indexer = new BindingPathPart(this, argString, true);
+                    part = part.Substring(0, lbIndex);
+                    part = part.Trim();
                     indexer.indexerName = part;
                 }
 
                 //方法解析
-                lbIndex = part.IndexOf ('(');
-                if (lbIndex != -1) {
-                    int rbIndex = part.LastIndexOf (')');
+                lbIndex = part.IndexOf('(');
+                if (lbIndex != -1)
+                {
+                    int rbIndex = part.LastIndexOf(')');
                     if (rbIndex == -1)
-                        throw new FormatException ("Method did not contain closing (");
+                        throw new FormatException("Method did not contain closing (");
 
                     int argLength = rbIndex - lbIndex - 1;
 
-                    string argString = part.Substring (0, lbIndex);
-                    var next = new BindingPathPart (this, argString);
+                    string argString = part.Substring(0, lbIndex);
+                    var next = new BindingPathPart(this, argString);
 
                     // if (argLength >= 1) {
                     //     next.isSetter = true;
@@ -286,39 +328,44 @@ namespace Hugula.Databinding {
                     // }
 
                     last.nextPart = next;
-                    m_Parts.Add (next);
+                    m_Parts.Add(next);
                     last = next;
-                } else if (part.Length > 0) {
-                    var next = new BindingPathPart (this, part);
+                }
+                else if (part.Length > 0)
+                {
+                    var next = new BindingPathPart(this, part);
                     last.nextPart = next;
-                    m_Parts.Add (next);
+                    m_Parts.Add(next);
                     last = next;
                 }
 
-                if (indexer != null) {
+                if (indexer != null)
+                {
                     last.nextPart = indexer;
-                    m_Parts.Add (indexer);
+                    m_Parts.Add(indexer);
                     last = indexer;
                 }
             }
 
             //解析convert
 
-            if (!string.IsNullOrEmpty (converter)) {
-                convert = ValueConverterRegister.instance.Get (converter);
+            if (!string.IsNullOrEmpty(converter))
+            {
+                convert = ValueConverterRegister.instance.Get(converter);
             }
         }
 
         #endregion
 
-        public void Dispose () {
-            Unapply ();
+        public void Dispose()
+        {
+            Unapply();
             target = null;
             source = null;
             m_Context = null;
             m_LastPart = null;
 
-            m_Parts.Clear ();
+            m_Parts.Clear();
         }
 
     }

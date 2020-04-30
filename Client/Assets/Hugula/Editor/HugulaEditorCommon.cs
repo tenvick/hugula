@@ -1,5 +1,5 @@
 ﻿
-namespace Hugula.Editor {
+namespace HugulaEditor {
     public class EditorCommon {
 
         public const string KeyVerChannels = "hugula_ver_Channels";

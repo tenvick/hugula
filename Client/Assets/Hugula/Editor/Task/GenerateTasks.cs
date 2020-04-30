@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Hugula.Editor;
+using HugulaEditor;
 using Hugula.Loader;
 using Hugula.Utils;
+using Hugula;
 
-namespace Hugula.Editor.Task
+namespace HugulaEditor.Task
 {
 
     public class HotResGenSharedData

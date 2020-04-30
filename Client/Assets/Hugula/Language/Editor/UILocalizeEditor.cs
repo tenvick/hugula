@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Hugula;
 
-
-namespace Hugula.Editor {
+namespace HugulaEditor {
 
     [CanEditMultipleObjects]
     [CustomEditor (typeof (Hugula.UGUILocalize), true)]

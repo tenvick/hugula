@@ -5,8 +5,9 @@ using System.Text;
 using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
+using Hugula.Databinding.Binder;
 
-namespace Hugula.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     public static class BindalbeObjectUtilty
     {
@@ -76,7 +77,8 @@ namespace Hugula.Databinding.Editor
             EditorGUILayout.BeginHorizontal();
             var temp = target as CustomBinder;
             GUILayout.Label(target.name, GUILayout.Width(100));
-            EditorGUILayout.ObjectField(temp.target, typeof(CustomBinder), false, GUILayout.MaxWidth(150)); //显示绑定对象
+            GUILayout.Label("property:", GUILayout.MinWidth(60));
+            // EditorGUILayout.ObjectField(temp.binderTarget, typeof(CustomBinder), false, GUILayout.MaxWidth(150)); //显示绑定对象
             int selectedIndex = PopupComponentsProperty(temp.target, propertyName, GUILayout.MaxWidth(150)); //绑定属性
             propertyName = GetSelectedPropertyByIndex(selectedIndex);
             dicPropertyName[key] = propertyName;
@@ -189,7 +191,7 @@ namespace Hugula.Databinding.Editor
         public static UnityEngine.Object DrawPopUpComponents(string title, UnityEngine.Object content, params GUILayoutOption[] options)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(new GUIContent(title), GUILayout.Width(60));
+            GUILayout.Label(new GUIContent(title), GUILayout.Width(80));
             content = EditorGUILayout.ObjectField(content, typeof(UnityEngine.Component), true, GUILayout.MaxWidth(150)); //显示绑定对象
             if (content is UnityEngine.Component)
             {

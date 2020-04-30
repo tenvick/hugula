@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Hugula.Editor
+namespace HugulaEditor
 {
 
     public static class HugulaPlayerPrefs

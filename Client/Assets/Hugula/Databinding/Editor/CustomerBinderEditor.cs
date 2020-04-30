@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Hugula.Databinding;
+using Hugula.Databinding.Binder;
 using UnityEditor;
 using UnityEngine;
 
-namespace Hugula.Databinding.Editor {
-    [CustomEditor (typeof (CustomBinder), true)]
-    public class CustomerBinderEditor : UnityEditor.Editor {
+namespace HugulaEditor.Databinding
+{
+    [CustomEditor(typeof(CustomBinder), true)]
+    public class CustomerBinderEditor : UnityEditor.Editor
+    {
+        SerializableAttribute binderTarget;
         void OnEnable()
         {
             var temp = target as CustomBinder;
@@ -19,13 +22,24 @@ namespace Hugula.Databinding.Editor {
                 if (results.Count > 0)
                     temp.target = results[results.Count - 1];
             }
+
         }
-        public override void OnInspectorGUI () {
+        public override void OnInspectorGUI()
+        {
             // base.OnInspectorGUI ();
-            EditorGUILayout.Separator ();
+            EditorGUILayout.Separator();
             var temp = target as CustomBinder;
-            base.OnInspectorGUI();
-            BindalbeObjectUtilty.BindableObjectField (temp, 0);
+            // base.OnInspectorGUI();
+            GUILayout.BeginHorizontal();
+
+            // GUILayout.Label(new GUIContent("Binder Target"), GUILayout.MinWidth(60));
+            // content = GUILayout.TextField(content, options);
+            // GUILayout.EndHorizontal();
+            // if (!string.IsNullOrEmpty(content)) content = content.Replace(",", "").Replace("=", "");
+            // temp.binderTarget = (Component)EditorGUILayout.ObjectField(temp.binderTarget, typeof(Component), false, GUILayout.MaxWidth(150)); //显示绑定对象
+            temp.target = (Component)BindalbeEditorUtilty.DrawPopUpComponents("Binder Target",temp.target, GUILayout.MinWidth(150));
+            GUILayout.EndHorizontal();
+            BindalbeObjectUtilty.BindableObjectField(temp, 0);
         }
     }
 }

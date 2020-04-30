@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using UnityEditor.Callbacks;
-using Hugula.Editor;
+using HugulaEditor;
 using Hugula.Utils;
 using System.Xml;
 using System.Xml.Linq;
@@ -123,7 +123,7 @@ public class ProjectBuild : Editor
         }
     }
 
-       ///<summary>
+    ///<summary>
     /// appName only android
     ///</summary>
     public static string version
@@ -155,12 +155,12 @@ public class ProjectBuild : Editor
 
         List<string> names = new List<string>();
 #if HUGULA_RELEASE
-        names.Add("Assets/Scene/s_first.unity");
+        names.Add("Assets/Scene/begin.unity");
 #else
         if (setting.Contains("dev_scene"))
-            names.Add("Assets/Scene/s_first.unity");
+            names.Add("Assets/Scene/begin.unity");
         else
-            names.Add("Assets/Scene/s_first.unity");
+            names.Add("Assets/Scene/begin.unity");
 #endif
         return names.ToArray();
     }
@@ -338,10 +338,10 @@ public class ProjectBuild : Editor
 
     }
 
-    static void SetApplicationIdentifier(BuildTargetGroup group,string buildId)
+    static void SetApplicationIdentifier(BuildTargetGroup group, string buildId)
     {
 #if UNITY_5_6_OR_NEWER
-         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleId);
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleId);
 #else
         PlayerSettings.bundleIdentifier = bundleId;
 #endif
@@ -351,7 +351,7 @@ public class ProjectBuild : Editor
     {
         if (!string.IsNullOrEmpty(productName))
             PlayerSettings.productName = productName;
-        if(!string.IsNullOrEmpty(version))
+        if (!string.IsNullOrEmpty(version))
             PlayerSettings.bundleVersion = version;
 #if UNITY_ANDROID        
         if (!string.IsNullOrEmpty(bundleId))
@@ -491,11 +491,11 @@ public class ProjectBuild : Editor
         EditorUtils.CheckDirectory(path);
         Settings();
         WriteAppVerion();
-        path = path + "hugula.exe";
+        path = path + "nijin.exe";
         if (setting.ToLower().Contains("development"))
             BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.Development);
         else
-        BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.None);
+            BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.None);
     }
 
 

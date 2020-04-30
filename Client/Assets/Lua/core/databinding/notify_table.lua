@@ -235,6 +235,7 @@ local function remove_at(self, index, count)
 
     set_count(self)
     count = #changedItems
+
     if count == 1 then
         on_property_changed(self, string_format("Item[%d]", index - 1))
         on_collection_changed(
@@ -344,6 +345,16 @@ local function indexof(self, item)
     end
 end
 
+local function find_index(self, filter_fun)
+    local items = self.items
+    for i, v in ipairs(items) do
+        if filter_fun(i, v) then
+            return i - 1
+        end
+    end
+    return nil
+end
+
 local function contains(self, item)
     local idx = table.indexof(self.items, item)
     if idx ~= nil then
@@ -433,14 +444,15 @@ end
 ---删除index处的元素
 ---@overload fun(index:int):void
 ---@param index int
-local function remove_item(self, index)
-    if index == nil then
+local function remove_item(self, obj)
+    if obj == nil then
         error("Argument index is nil")
     end
     local items = self.items
     local size = #items
-    index = index + 1
-    if index < 1 or index > size then
+    local index = table.indexof(items, obj)
+    -- index = index + 1
+    if index == nil then
         error("Argument index Out of Range")
     end
 
@@ -491,6 +503,7 @@ notify_table.IndexOf = indexof --int IndexOf(object value);
 notify_table.Insert = insert_item --void Insert(int index, object value);
 notify_table.Remove = remove_item --void Remove(object value);
 notify_table.RemoveAt = remove_at --void RemoveAt(int index);
+notify_table.FindIndex = find_index --- filter_fun(int,item) return index
 -- notify_table.Count = Count --int Count { get; }
 ---集合改变
 notify_table.OnCollectionChanged = on_collection_changed
@@ -515,6 +528,7 @@ notify_table.__tostring = tostring
 ---@field Clear function
 ---@field Contains function
 ---@field IndexOf function
+---@field FindIndex function
 ---@field InsertRange function
 ---@field RemoveAt function
 ---@field RemoveRange function
@@ -526,7 +540,7 @@ notify_table.__tostring = tostring
 ---@field set_Item function
 ---@field get_Item function
 ---@field CollectionChanged function
----@field OnCollectionChanged function 
+---@field OnCollectionChanged function
 ---@field OnPropertyChanged function
 ---@field SetProperty function
 NotifyTable = notify_table

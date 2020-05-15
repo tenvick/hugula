@@ -5,11 +5,13 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 
-namespace HugulaEditor.Databinding {
-    [CustomEditor (typeof (BindableContainer), true)]
-    public class BindableContainerEditor : UnityEditor.Editor {
+namespace HugulaEditor.Databinding
+{
+    [CustomEditor(typeof(BindableContainer), true)]
+    public class BindableContainerEditor : UnityEditor.Editor
+    {
 
-        public List<Type> BinderCheckTypes = new List<Type> () {
+        public List<Type> BinderCheckTypes = new List<Type>() {
             typeof (UnityEngine.UI.Text),
             typeof (UnityEngine.UI.Button),
             typeof (UnityEngine.UI.Image),
@@ -24,7 +26,7 @@ namespace HugulaEditor.Databinding {
 #endif
         };
 
-        public List<Type> BinderCreateTypes = new List<Type> () {
+        public List<Type> BinderCreateTypes = new List<Type>() {
             typeof (Hugula.Databinding.Binder.TextBinder),
             typeof (Hugula.Databinding.Binder.ButtonBinder),
             typeof (Hugula.Databinding.Binder.ImageBinder),
@@ -42,89 +44,106 @@ namespace HugulaEditor.Databinding {
         static List<string> names; //= new List<string>();
         static GameObject[] refers; //=new List<GameObject>();
         static UnityEngine.Object[] bindableObjects; // = new List<Behaviour>();
-        public override void OnInspectorGUI () {
+        public override void OnInspectorGUI()
+        {
             // base.OnInspectorGUI ();
-            EditorGUILayout.Separator ();
-
-            EditorGUILayout.LabelField ("Drag(BindableObject) to add", GUILayout.Width (200));
-            EditorGUILayout.Space ();
-            UnityEngine.Component addComponent = null;
-            addComponent = (UnityEngine.Component) EditorGUILayout.ObjectField (addComponent, typeof (UnityEngine.Component), true, GUILayout.Height (40));
-
-            EditorGUILayout.Separator ();
-            EditorGUILayout.LabelField ("Bindable List", GUILayout.Width (200));
-            EditorGUILayout.Space ();
-
+            EditorGUILayout.Separator();
             var temp = target as BindableContainer;
-            Undo.RecordObject (target, "F");
+
+            EditorGUILayout.LabelField("Drag(BindableObject) to add", GUILayout.Width(200));
+            EditorGUILayout.Space();
+            UnityEngine.Component addComponent = null;
+            addComponent = (UnityEngine.Component)EditorGUILayout.ObjectField(addComponent, typeof(UnityEngine.Component), true, GUILayout.Height(40));
+
+            EditorGUILayout.Separator();
+            EditorGUILayout.Space();
+            if (GUILayout.Button("auto add hierarchy  children", GUILayout.MaxWidth(300)))
+            {
+                //清理
+                var children = temp.children;
+                for (int i = 0; i < children.Count;)
+                {
+                    if (children[i] != null)
+                        i++;
+                    else
+                        children.RemoveAt(i);
+                }
+                AddHierarchyChildren(temp.transform, temp, true);
+
+            }
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Bindable List", GUILayout.Width(200));
+            EditorGUILayout.Space();
+
+            Undo.RecordObject(target, "F");
             BindableObject objComponent;
-            if (temp.children != null) {
-                for (int i = 0; i < temp.children.Count; i++) {
-                    // EditorGUILayout.BeginHorizontal ();
-                    // GUILayout.Label ((i + 1).ToString (), GUILayout.Width (20));
+            if (temp.children != null)
+            {
+                for (int i = 0; i < temp.children.Count; i++)
+                {
                     objComponent = temp.children[i];
-                    // EditorGUILayout.ObjectField (objComponent, typeof (UnityEngine.Object));
-                    // objComponent = PopupGameObjectComponents (GetbindableObjects (temp, i).target, i); //选择绑定的component type类型
-                    // if (objComponent != null) AddbindableObjects (temp, i, objComponent); //绑定选中的类型
-                    // //显示选中的对象
-                    // AddbindableObjects (temp, i, EditorGUILayout.ObjectField (GetbindableObjects (temp, i).target, typeof (UnityEngine.Object), true, GUILayout.MaxWidth (80)));
-                    // //选择可绑定属性
-                    // PopupComponentsProperty (temp, i);
-                    BindalbeObjectUtilty.BindableObjectField (objComponent, i);
-                    if (GUILayout.Button ("Del", GUILayout.Width (30))) {
-                        RemoveAtbindableObjects (temp, i);
+                    BindalbeObjectUtilty.BindableObjectField(objComponent, i);
+                    if (GUILayout.Button("Del", GUILayout.Width(30)))
+                    {
+                        RemoveAtbindableObjects(temp, i);
                     }
 
-                    // EditorGUILayout.EndHorizontal ();
                     //设置binding属性
-                    SetBindingProperties (temp, i);
-                    EditorGUILayout.Space ();
+                    SetBindingProperties(temp, i);
+                    EditorGUILayout.Space();
                 }
             }
-            EditorGUILayout.Space ();
-            EditorGUILayout.BeginHorizontal ();
-            EditorGUILayout.Space ();
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.Space();
 
-            if (addComponent) {
-                AddbindableObjects (temp, addComponent); //allcomps[allcomps.Length - 1]);
+            if (addComponent)
+            {
+                AddbindableObjects(temp, addComponent); //allcomps[allcomps.Length - 1]);
             }
-            EditorGUILayout.Space ();
-            EditorGUILayout.EndHorizontal ();
+            EditorGUILayout.Space();
+            EditorGUILayout.EndHorizontal();
 
             //EditorUtility.SetDirty (target);
         }
 
-        List<string> allowTypes = new List<string> ();
-        List<Type> allowTypeProperty = new List<Type> ();
-        List<bool> allowIsMethod = new List<bool> ();
+        List<string> allowTypes = new List<string>();
+        List<Type> allowTypeProperty = new List<Type>();
+        List<bool> allowIsMethod = new List<bool>();
 
-        UnityEngine.Object PopupGameObjectComponents (UnityEngine.Object obj, int i) {
+        UnityEngine.Object PopupGameObjectComponents(UnityEngine.Object obj, int i)
+        {
             UnityEngine.Object selected = null;
 
             int selectIndex = 0;
-            allowTypes.Clear ();
-            if (obj != null) {
+            allowTypes.Clear();
+            if (obj != null)
+            {
 
-                Type currentType = obj.GetType ();
+                Type currentType = obj.GetType();
                 GameObject go = null;
-                if (currentType == typeof (GameObject))
-                    go = (GameObject) obj;
-                else if (currentType.IsSubclassOf (typeof (Component)))
-                    go = ((Component) obj).gameObject;
+                if (currentType == typeof(GameObject))
+                    go = (GameObject)obj;
+                else if (currentType.IsSubclassOf(typeof(Component)))
+                    go = ((Component)obj).gameObject;
 
-                allowTypes.Add (string.Format ("{0}({1})", go.GetType ().Name, go.name));
+                allowTypes.Add(string.Format("{0}({1})", go.GetType().Name, go.name));
 
-                if (go != null) {
-                    Component[] comps = go.GetComponents (typeof (Component)); //GetComponents<Component>();
+                if (go != null)
+                {
+                    Component[] comps = go.GetComponents(typeof(Component)); //GetComponents<Component>();
                     Component item = null;
-                    for (int j = 0; j < comps.Length; j++) {
+                    for (int j = 0; j < comps.Length; j++)
+                    {
                         item = comps[j];
                         if (item)
-                            allowTypes.Add (string.Format ("{0}({1})", item.GetType ().Name, item.name));
+                            allowTypes.Add(string.Format("{0}({1})", item.GetType().Name, item.name));
                         if (obj == item)
                             selectIndex = j + 1;
                     }
-                    selectIndex = EditorGUILayout.Popup (selectIndex, allowTypes.ToArray ());
+                    selectIndex = EditorGUILayout.Popup(selectIndex, allowTypes.ToArray());
                     if (selectIndex == 0)
                         selected = go;
                     else
@@ -135,120 +154,111 @@ namespace HugulaEditor.Databinding {
             return selected;
         }
 
-        GUIStyle BindingPropertiesStyle = new GUIStyle ();
-        void SetBindingProperties (BindableContainer refer, int i) {
+        GUIStyle BindingPropertiesStyle = new GUIStyle();
+        void SetBindingProperties(BindableContainer refer, int i)
+        {
             BindingPropertiesStyle.fontStyle = FontStyle.Italic;
             BindingPropertiesStyle.fontSize = 10;
             BindingPropertiesStyle.alignment = TextAnchor.UpperLeft;
-            // BindingPropertiesStyle.
-            var binding = GetbindableObjects (refer, i);
-            if (binding != null) {
-                // BindableExpression.Expression (binding, i);
-                // EditorGUILayout.LabelField (new GUIContent ("expression:"), BindingPropertiesStyle,GUILayout.Width(55));
-                // EditorGUILayout.EndHorizontal ();
-            }
         }
 
-        public void AddbindableObjects (BindableContainer refer, UnityEngine.Component obj) {
+        public void AddbindableObjects(BindableContainer refer, UnityEngine.Component obj)
+        {
 
             if (refer.children == null) //需要新增加
             {
-                List<Binding> bindings = new List<Binding> ();
-                // if (refer.bindableObjects != null) bindings.AddRange (refer.bindableObjects);
-                // if (i == -1) i = bindings.Count;
-                // while (bindings.Count <= i)
-                //     bindings.Add (new Binding () { expression = @"{}" });
-
-                refer.children = new List<BindableObject> (); // bindings.ToArray ();
-                // Debug.Log (bindings.Count);
+                List<Binding> bindings = new List<Binding>();
+                refer.children = new List<BindableObject>(); // bindings.ToArray ();
             }
 
             var children = refer.children;
             BindableObject bindable = null;
 
-            if (obj is BindableObject) {
+            if (obj is BindableObject)
+            {
                 bindable = obj as BindableObject;
-                // bindable.target = obj;
-            } else {
+            }
+            else
+            {
 
-                // BindableObject bindable = obj.<BindableObject> ();
-
-                if (bindable == null) {
-                    Component[] allcomps = obj.GetComponents<Component> (); //默认绑定最后一个组件
+                if (bindable == null)
+                {
+                    Component[] allcomps = obj.GetComponents<Component>(); //默认绑定最后一个组件
                     Component target = null;
                     int index = 0;
                     int tpId = -1;
-                    foreach (var comp in allcomps) {
-                        if (comp is BindableObject) {
-                            bindable = (BindableObject) comp;
+                    foreach (var comp in allcomps)
+                    {
+                        if (comp is BindableObject)
+                        {
+                            bindable = (BindableObject)comp;
                             break;
-                        } else if ((index = BinderCheckTypes.IndexOf (comp.GetType ())) >= 0) {
+                        }
+                        else if ((index = BinderCheckTypes.IndexOf(comp.GetType())) >= 0)
+                        {
                             target = comp;
                             tpId = index;
                         }
                     }
 
-                    if (bindable == null) {
-                        Type createBinderType = typeof (Hugula.Databinding.BindableObject);
-                        if (tpId >= 0) {
+                    if (bindable == null)
+                    {
+                        Type createBinderType = typeof(Hugula.Databinding.BindableObject);
+                        if (tpId >= 0)
+                        {
                             createBinderType = BinderCreateTypes[tpId];
                         }
 
-                        bindable = (BindableObject) obj.gameObject.AddComponent (createBinderType);
-                        // bindable.target = target;
+                        bindable = (BindableObject)obj.gameObject.AddComponent(createBinderType);
                     }
                 }
             }
 
-            // bindable.targetName = obj.name;
-            // bindable.binderType = GetBinderType (bindable.target.GetType ());
-            if (children.IndexOf (bindable) < 0) {
-                refer.AddChild (bindable);
+            if (children.IndexOf(bindable) < 0)
+            {
+                refer.AddChild(bindable);
+            }
+        }
+
+        public void RemoveAtbindableObjects(BindableContainer refer, int index)
+        {
+            var children = refer.children;
+            children.RemoveAt(index);
+        }
+
+        public void AddHierarchyChildren(Transform transform, BindableContainer container, bool checkChildren = false)
+        {
+            var children = transform.GetComponents<BindableObject>();
+
+
+            var oldChildren = container.children;
+            if (oldChildren == null)
+            {
+                oldChildren = new List<BindableObject>();
+                container.children = oldChildren;
             }
 
-            // Binding binditem = bindableObjects[i];
-            // binditem.target = obj;
-            // if (obj) {
-            //     binditem.binderType = GetBinderType (obj.GetType ());
-            //     binditem.targetName = obj.name.Trim ();
-            // }
+            bool needDeep = true;
+            foreach (var child in children)
+            {
+                if (oldChildren.IndexOf(child) == -1 && !System.Object.Equals(child, container))
+                {
+                    container.AddChild(child);
+                }
+
+                if (child is BindableContainer && !checkChildren) //如果遇到容器不需要遍历
+                    needDeep = false;
+            }
+
+            if (needDeep)
+            {
+                for (int i = 0; i < transform.childCount; i++)
+                {
+                    AddHierarchyChildren(transform.GetChild(i), container);
+                }
+            }
+
         }
 
-        public void RemoveAtbindableObjects (BindableContainer refer, int index) {
-            // List<Binding> bindableObjects = new List<Binding> (refer.bindableObjects);
-            var children = refer.children;
-            children.RemoveAt (index);
-            // bindableObjects.RemoveAt (index);
-            // refer.bindableObjects = bindableObjects.ToArray ();
-        }
-
-        public Binding GetbindableObjects (BindableContainer refer, int index) {
-            // if (index >= 0 && index < refer.bindableObjects.Length)
-            //     return refer.bindableObjects[index];
-            return null;
-        }
-
-        private static string GetBinderType (Type type) {
-            string tp = type.Name;
-
-            return tp;
-        }
-        public static string GetLuaType (Type type) {
-            string luaType = string.Empty;
-            if (type == null)
-                luaType = "nil";
-            else if (type.Equals (typeof (string)))
-                luaType = "string";
-            else if (type.Equals (typeof (bool)))
-                luaType = "boolean";
-            else if (type.Equals (typeof (float)) || type.Equals (typeof (double)) || type.Equals (typeof (int)))
-                luaType = "number";
-            // else if(type.IsSubclassOf(typeof(UnityEngine.Events.UnityEvent)) || type.IsSubclassOf(typeof(UnityEngine.Events.UnityAction)))
-            //     luaType = "table";
-            else
-                luaType = "userdata"; //function
-
-            return luaType;
-        }
     }
 }

@@ -32,11 +32,4 @@ namespace Hugula.Databinding {
 
 	}
 
-	//用于luatable转换为Ilist对象
-	[XLua.LuaCallCSharp]
-	[XLua.CSharpCallLua]
-	public interface IListTable:IList
-	{
-
-	}
 }

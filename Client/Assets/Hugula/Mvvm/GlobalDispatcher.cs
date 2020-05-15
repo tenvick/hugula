@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using Hugula.Framework;
 using UnityEngine;
 
-namespace Hugula.Mvvm {
+namespace Hugula.Mvvm
+{
 
     ///<summary>
     /// 全局事件派发
@@ -45,14 +46,7 @@ namespace Hugula.Mvvm {
 
         public void AddListener(DispatcherEvent key, System.Action<object> action)
         {
-            List<object> events = null;
-            if (!m_Dispatcher.TryGetValue(key, out events))
-            {
-                events = new List<object>();
-                m_Dispatcher.Add(key, events);
-            }
-
-            events.Add(action);
+            AddListener<object>(key, action);
         }
 
         public void RemoveListener(DispatcherEvent key, System.Action<object> action)
@@ -62,33 +56,23 @@ namespace Hugula.Mvvm {
             {
                 events.Remove(action);
             }
-        } 
+        }
 
         public void RemoveListenerByKey(DispatcherEvent key)
         {
             List<object> events = null;
             if (m_Dispatcher.TryGetValue(key, out events))
             {
-                events.Clear(); 
+                events.Clear();
             }
         }
 
-        public void Dispatcher(DispatcherEvent key, object arg)
+        public void Dispatch(DispatcherEvent key, object arg)
         {
-            List<object> events = null;
-            if (m_Dispatcher.TryGetValue(key, out events))
-            {
-                object e = null;
-                for (int i = events.Count - 1; i >= 0; i--) //倒着执行防止删除后少执行一次bug
-                {
-                    e = events[i];
-                    if (e is System.Action<object>)
-                        ((System.Action<object>)e)(arg);
-                }
-            }
+            Dispatch<object>(key, arg);
         }
 
-        public void Dispatcher<T>(DispatcherEvent key, T arg)
+        public void Dispatch<T>(DispatcherEvent key, T arg)
         {
             List<object> events = null;
             if (m_Dispatcher.TryGetValue(key, out events))
@@ -104,13 +88,58 @@ namespace Hugula.Mvvm {
             }
         }
 
-
-
-        // public void AddListener(DispatcherEnum event, System.Action<object> action )
-        // {
-
-        // }
     }
 
+
+    ///<summary>
+    /// 全局事件派发泛型展开
+    ///</summary>
+    public static class GlobalDispatcherExtension
+    {
+        public static void AddListenerVector3(this GlobalDispatcher self, DispatcherEvent key, System.Action<Vector3> action)
+        {
+            self.AddListener<Vector3>(key, action);
+        }
+
+        public static void RemoveListenerVector3(this GlobalDispatcher self, DispatcherEvent key, System.Action<Vector3> action)
+        {
+            self.RemoveListener<Vector3>(key, action);
+        }
+
+        public static void DispatchVector3(this GlobalDispatcher self, DispatcherEvent key, Vector3 arg)
+        {
+            self.Dispatch<Vector3>(key, arg);
+        }
+
+        public static void AddListenerBool(this GlobalDispatcher self, DispatcherEvent key, System.Action<bool> action)
+        {
+            self.AddListener<bool>(key, action);
+        }
+
+        public static void RemoveListenerBool(this GlobalDispatcher self, DispatcherEvent key, System.Action<bool> action)
+        {
+            self.RemoveListener<bool>(key, action);
+        }
+
+        public static void DispatchBool(this GlobalDispatcher self, DispatcherEvent key, bool arg)
+        {
+            self.Dispatch<bool>(key, arg);
+        }
+
+        public static void AddListenerInt(this GlobalDispatcher self, DispatcherEvent key, System.Action<int> action)
+        {
+            self.AddListener<int>(key, action);
+        }
+
+        public static void RemoveListenerInt(this GlobalDispatcher self, DispatcherEvent key, System.Action<int> action)
+        {
+            self.RemoveListener<int>(key, action);
+        }
+
+        public static void DispatchInt(this GlobalDispatcher self, DispatcherEvent key, int arg)
+        {
+            self.Dispatch<int>(key, arg);
+        }
+    }
 
 }

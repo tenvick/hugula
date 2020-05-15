@@ -44,27 +44,42 @@ namespace Hugula.Utils
             GameObject.DestroyImmediate(original, allowDestroyingAssets);
         }
 
-        public static void DelayDestroy (GameObject gobj, string abName) {
-            var delay = gobj.GetComponent<Hugula.Framework.IDelayDestory> ();
-            if (delay != null) {
-                delay.onDelayCompleted = () => {
-                    if (!string.IsNullOrEmpty (abName)) //引用计数减一
-                        Hugula.Loader.CacheManager.Subtract (abName);
+        public static void DelayDestroy(GameObject gobj, string abName)
+        {
+            var delay = gobj.GetComponent<Hugula.Framework.IDelayDestory>();
+            if (delay != null)
+            {
+                delay.onDelayCompleted = () =>
+                {
+                    if (!string.IsNullOrEmpty(abName)) //引用计数减一
+                        Hugula.Loader.CacheManager.Subtract(abName);
                 };
-                delay.DelayDestory ();
-            } else {
-                GameObject.Destroy (gobj);
-                if (!string.IsNullOrEmpty (abName)) //引用计数减一
-                    Hugula.Loader.CacheManager.Subtract (abName);
+                delay.DelayDestory();
+            }
+            else
+            {
+                GameObject.Destroy(gobj);
+                if (!string.IsNullOrEmpty(abName)) //引用计数减一
+                    Hugula.Loader.CacheManager.Subtract(abName);
             }
         }
 
-        public static void SetActive (Component comp, bool active) {
-            comp.gameObject.SetActive (active);
+        public static void SetActive(Component comp, bool active)
+        {
+            SetActive(comp.gameObject, active);
         }
 
-        public static void SetActive (GameObject gameObject, bool active) {
-            gameObject.SetActive (active);
+        public static void SetActive(GameObject gameObject, bool active)
+        {
+            // gameObject.SetActive (active);
+            var delay = gameObject.GetComponents<Hugula.Framework.IDelayCancel>();
+            if (delay != null && delay.Length > 0)
+            {
+                foreach (var dela in delay)
+                    dela.CancelDelay();
+            }
+
+            gameObject.SetActive(active);
         }
 
         public static void DelayDeActive(GameObject gobj)
@@ -660,7 +675,7 @@ namespace Hugula.Utils
         /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
         public static void LoadScene(string sceneName, bool isAdditive)
         {
-            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null,null,true,isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null, null, true, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
             //UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
 

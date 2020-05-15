@@ -367,6 +367,17 @@ namespace Hugula.Utils
             return (int)(time - startTime).TotalSeconds;
         }
 
+
+        /// <summary>
+        /// 当前时间戳
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static int Timeline()
+        {
+            return ConvertDateTimeInt(DateTime.Now);
+        }
+
         /// <summary>
         /// Path Combine
         /// </summary>

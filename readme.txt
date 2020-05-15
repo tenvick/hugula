@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.5.15
+1 Timer功能延时执行n次，Timer.Add(delay,cycle,action<object>)。
+2 NotifyTable 与ObservableCollection<T> FindIndex功能，方便查找索引。
+3 BindableContainer 一键添加所有子BindableObject对象，Ctrl+g 打开开始场景。
+4 NotifyTable 支持C# List对象插入替换删除。
+
 2020.4.30
 1 Hugula.Editor名字空间变更。
 2 Binder对象修改为泛型方式。

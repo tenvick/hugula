@@ -26,6 +26,9 @@ namespace Hugula.Databinding {
                 Debug.LogWarningFormat ("The key({0}) converter({1}) already exists", name, outConvts);
             }
             m_Converter.Add (name, converter);
+            #if UNITY_EDITOR
+                Debug.LogFormat ("AddConverter({0}) {1}", name, outConvts);
+            #endif
         }
 
         public void RemoveConverter (string name) {

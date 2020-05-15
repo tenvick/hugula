@@ -1,13 +1,16 @@
 local CS = CS
 local UnityEngine = CS.UnityEngine
 local Hugula = CS.Hugula
-local Manager = Hugula.Framework.Manager
+local manager = Hugula.Framework.Manager
 local EnterLua = CS.EnterLua
+local timer = Hugula.Framework.Timer.instance --≥ı ºªØtimer
 
 ---------------
 Delay = EnterLua.Delay
 DelayFrame = EnterLua.DelayFrame
-StopDelay = EnterLua.StopDelayD
+StopDelay = EnterLua.StopDelay
+Timer = Hugula.Framework.Timer
+Manager = manager
 ---------------------unityEngine--------------------------------
 local GameObject = UnityEngine.GameObject
 local Transform = UnityEngine.Transform

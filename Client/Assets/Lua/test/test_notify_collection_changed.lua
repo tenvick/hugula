@@ -40,8 +40,8 @@ print("notify:move_item(4,5)",table.concat(notify.items,","))
 notify:MoveItem(4,5)
 assert("hello,welcome,to,hugula,替换2,替换1,notify,table" == table.concat(notify.items,","),"notify:RemoveAt(2) error")
 
-print("notify:remove_item(4)",table.concat(notify.items,","))
-notify:Remove(4)
+print("notify:RemoveAt(4)",table.concat(notify.items,","))
+notify:RemoveAt(4)
 assert("hello,welcome,to,hugula,替换1,notify,table" == table.concat(notify.items,","),"notify:RemoveAt(2) error")
 
 print("notify:set_item(4,'this')",table.concat(notify.items,","))

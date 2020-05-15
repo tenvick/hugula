@@ -401,27 +401,27 @@ namespace HugulaEditor.UIComponents {
         }
 
         public static void PropertyFieldChooseMono (SerializedProperty prop) {
-            EditorGUILayout.LabelField ("Template item type must is BindableContainer", GUILayout.MaxWidth (300));
+            EditorGUILayout.LabelField ("Template item type must is a BindableContainer", GUILayout.MaxWidth (300));
 
             EditorGUILayout.BeginHorizontal ();
 
             EditorGUILayout.PropertyField (prop);
 
-            if (prop.isArray) {
+            // if (prop) {
 
-                var size = prop.arraySize;
-                for (int i = 0; i < size; i++) {
-                    var item = prop.GetArrayElementAtIndex (i);
+                // var size = prop.arraySize;
+                // for (int i = 0; i < size; i++) {
+                    var item = prop;//prop.GetArrayElementAtIndex (i);
                     var obj = item.objectReferenceValue as Component;
-                    if (obj && !(obj is BindableContainer)) {
-                        var bindable = obj.GetComponent<BindableContainer> ();
+                    if (obj && !(obj is BindableObject)) {
+                        var bindable = obj.GetComponent<BindableObject> ();
                         item.objectReferenceValue = bindable;
                         if (bindable == null) {
                             Debug.LogWarning ("Template item type must is BindableContainer .");
                         }
                     }
-                }
-            }
+                // }
+            // }
             EditorGUILayout.EndHorizontal ();
         }
 

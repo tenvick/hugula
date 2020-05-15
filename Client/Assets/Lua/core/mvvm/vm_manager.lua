@@ -46,7 +46,7 @@ end
 ---@param gobj GameObject
 ---@param view_base ViewBase
 local function set_view_child(gobj, view_base)
-    local bindable_container = BindingUtility.GetBindableContainer(gobj)
+    local bindable_container = BindingUtility.GetBindableObject(gobj)
     view_base:set_child(bindable_container or gobj)
 end
 

@@ -188,6 +188,7 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(Action<object, object, int, int>));
                 customlist.Add(typeof(System.Action));
                 customlist.Add(typeof(System.Action<Hugula.Loader.LoadingEventArg>));
+                customlist.Add(typeof(System.Action<object>));
                 customlist.Add(typeof(Hugula.Databinding.ICommand));
                 customlist.Add(typeof(Hugula.Databinding.IExecute));
                 customlist.Add(typeof(Func<object, int, int>));
@@ -198,6 +199,8 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
 
                 customlist.Add(typeof(Action<Vector2>));
                 customlist.Add(typeof(System.Action<object, object, string, string, string, string>));
+                customlist.Add(typeof(System.Func<int, object, bool>));
+
                 customlist.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
                 customlist.Add(typeof(System.Collections.IList));
 
@@ -224,36 +227,12 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
 
         //自动把LuaCallCSharp涉及到的delegate加到CSharpCallLua列表，后续可以直接用lua函数做callback
         [CSharpCallLua]
-        public static List<Type> CSharpCallLua
+        public static List<Type> CSharpCallLuaDelegate
         {
             get
             {
                 var lua_call_csharp = LuaCallCSharp;
                 var delegate_types = new List<Type>();
-
-                //自定义方法
-                delegate_types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
-                delegate_types.Add(typeof(Action<object, object, int>));
-                delegate_types.Add(typeof(UnityEngine.Events.UnityAction<float>));
-                delegate_types.Add(typeof(UnityEngine.Events.UnityAction));
-                delegate_types.Add(typeof(System.Func<System.Object, int, int>));
-                delegate_types.Add(typeof(Action<object, object, int>));
-                delegate_types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
-                delegate_types.Add(typeof(Action<object, object, int, int>));
-                delegate_types.Add(typeof(Hugula.Databinding.ICommand));
-                delegate_types.Add(typeof(Hugula.Databinding.IExecute));
-                delegate_types.Add(typeof(Func<object, int, int>));
-                delegate_types.Add(typeof(Action<object, Component, int>));
-                delegate_types.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
-                delegate_types.Add(typeof(Hugula.Databinding.UpdateValue));
-                delegate_types.Add(typeof(Hugula.Databinding.ApplyActual));
-                delegate_types.Add(typeof(Hugula.Mvvm.VMStateHelper.IVMState));
-
-                delegate_types.Add(typeof(Action<Vector2>));
-                delegate_types.Add(typeof(System.Action<object, object, string, string, string, string>));
-                delegate_types.Add(typeof(Hugula.Databinding.NotifyCollectionChangedEventHandler));
-                delegate_types.Add(typeof(Hugula.Databinding.PropertyChangedEventHandler));
-                delegate_types.Add(typeof(System.Collections.IList));
 
                 var flag = BindingFlags.Public | BindingFlags.Instance |
                     BindingFlags.Static | BindingFlags.IgnoreCase | BindingFlags.DeclaredOnly;
@@ -282,6 +261,43 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 }
                 return delegate_types.Where(t => t.BaseType == typeof(MulticastDelegate) && !hasGenericParameter(t) && !delegateHasEditorRef(t)).Distinct().ToList();
             }
+        }
+
+        [CSharpCallLua]
+        public static List<Type> CSharpCallLua
+        {
+            get
+            {
+
+                var types = new List<Type>();
+
+                //自定义方法
+                types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                types.Add(typeof(Action<object, object, int>));
+                types.Add(typeof(UnityEngine.Events.UnityAction<float>));
+                types.Add(typeof(UnityEngine.Events.UnityAction));
+                types.Add(typeof(System.Func<System.Object, int, int>));
+                types.Add(typeof(Action<object, object, int>));
+                types.Add(typeof(System.Action<object>));
+                types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
+                types.Add(typeof(Action<object, object, int, int>));
+                types.Add(typeof(Hugula.Databinding.ICommand));
+                types.Add(typeof(Hugula.Databinding.IExecute));
+                types.Add(typeof(Func<object, int, int>));
+                types.Add(typeof(Action<object, Component, int>));
+                types.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
+                types.Add(typeof(Hugula.Databinding.UpdateValue));
+                types.Add(typeof(Hugula.Databinding.ApplyActual));
+                types.Add(typeof(Hugula.Mvvm.VMStateHelper.IVMState));
+
+                types.Add(typeof(Action<Vector2>));
+                types.Add(typeof(System.Action<object, object, string, string, string, string>));
+                types.Add(typeof(Hugula.Databinding.NotifyCollectionChangedEventHandler));
+                types.Add(typeof(Hugula.Databinding.PropertyChangedEventHandler));
+                types.Add(typeof(System.Collections.IList));
+                return types;
+            }
+
         }
         //--------------end 纯lua编程配置参考----------------------------
 

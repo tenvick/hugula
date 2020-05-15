@@ -53,8 +53,20 @@ local function on_property_changed(self, property_name)
     end
 end
 
-local function create_arg_class()
-    -- create_arg_class
+---获取table或者list的长度
+---@overload fun(property_name:string)
+---@return void
+local function get_list_length(range)
+    local is_table = type(range) == "table"
+    local size = 0
+    if is_table then
+        size = #range - 1
+    else
+        size = range.Count or range.Length
+        size = size - 1
+    end
+
+    return size, is_table
 end
 
 ---属性改变的时候通知绑定对象
@@ -177,33 +189,45 @@ end
 local function insert_range(self, index, range)
     local items = self.items
     local count = #items
-    if type(index) == "table" then
+    if type(index) == "table" or type(index) == "userdata" then
         range = index
         index = count
     end
+
     if index == nil then
         index = count
     end
+
     index = index + 1 --luatable从1开始
     if index >= count then
         index = count + 1
     end
 
-    for k, v in ipairs(range) do
-        table_insert(items, index + k - 1, v)
+    local size, is_table = get_list_length(range)
+
+    local j = 0
+    for i = 0, size do
+        if is_table then
+            j = i + 1
+        else
+            j = i
+        end
+        table_insert(items, index + i, range[j])
     end
 
     set_count(self)
-    -- Logger.Log("insert_range ", index, #range)
-    -- OnCollectionChanged (new NotifyCollectionChangedEventArgs (NotifyCollectionChangedAction.Add, items, originalIndex));
+
+    if is_table then
+        range = IListTable(range)
+    end
+
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsChangedItemsStartingIndex(
             NotifyCollectionChangedAction.Add,
-            IListTable(range),
+            range,
             index - 1
         )
-        -- {action = NotifyCollectionChangedAction.Add, changedItems = range, startingIndex = index - 1}
     )
 end
 
@@ -261,12 +285,20 @@ end
 ---@param range table
 local function remove_range(self, range)
     local items = self.items
-    local size = #items
+    local size, is_table = get_list_length(range)
 
     local removes = {}
     -- local indexs = {}
     local min_idx = size
-    for k, v in pairs(range) do
+
+    local j = 0
+    for i = 0, size do
+        if is_table then
+            j = i + 1
+        else
+            j = i
+        end
+        local v = range[j]
         local del_idx = table_remove_item(items, v)
         if del_idx ~= nil and del_idx > 0 then
             -- table_insert(indexs, del_idx)
@@ -304,26 +336,38 @@ local function replace_range(self, range, start_index)
 
     local items = self.items
     local size = #items
-
-    if start_index < 0 or start_index + #range > size then
+    local rep_count, is_table = get_list_length(range)
+    if start_index < 0 or start_index + rep_count > size then
         error("Argument start_index Out Of Range)")
     end
 
     start_index = start_index + 1
-    local rep_count = #range
+    -- local rep_count = #range
+
     local old_items = {}
-    for i = 1, rep_count do
-        table_insert(old_items, items[i + start_index - 1])
-        items[i + start_index - 1] = range[i]
+    -- for i = 1, rep_count do
+    local j = 0
+    for i = 0, rep_count do
+        if is_table then
+            j = i + 1
+        else
+            j = i
+        end
+        table_insert(old_items, items[i + start_index])
+        items[i + start_index] = range[j]
     end
 
     set_count(self)
+
+    if is_table then
+        range = IListTable(range)
+    end
 
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsNewItemsOldItemsStartingIndex(
             NotifyCollectionChangedAction.Replace,
-            IListTable(range),
+            range,
             IListTable(old_items),
             start_index - 1
         )
@@ -453,7 +497,7 @@ local function remove_item(self, obj)
     local index = table.indexof(items, obj)
     -- index = index + 1
     if index == nil then
-        error("Argument index Out of Range")
+        error(" Argument index Out of Range " .. tostring(self))
     end
 
     local old = table_remove(items, index)

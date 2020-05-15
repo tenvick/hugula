@@ -8,6 +8,7 @@ namespace Hugula.Databinding.Binder
 
     public abstract class UIBehaviourBinder<T> : BindableObject where T : UnityEngine.Object
     {
+        [HideInInspector]
         //关联的ugui对象
         [SerializeField]
         private T m_Target;

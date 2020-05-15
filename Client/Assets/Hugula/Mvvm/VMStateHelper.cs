@@ -12,7 +12,7 @@ namespace Hugula.Mvvm
         private const string VM_NAME = "VMState";
         public VMStateHelper()
         {
-            m_VMState = EnterLua.luaenv.Global.GetInPath<IVMState>(VM_NAME);
+            m_VMState = EnterLua.luaenv?.Global.GetInPath<IVMState>(VM_NAME);
         }
 
         public override void Dispose()
@@ -28,22 +28,22 @@ namespace Hugula.Mvvm
 
         public void PushItem(string vm_name, object arg)
         {
-            m_VMState.push_item(vm_name, arg);
+            m_VMState?.push_item(vm_name, arg);
         }
 
         public void PopupItem(string vm_name)
         {
-            m_VMState.popup_item(vm_name);
+            m_VMState?.popup_item(vm_name);
         }
 
         public void PushGroup(string vm_name, object arg)
         {
-            m_VMState.push(vm_name, arg);
+            m_VMState?.push(vm_name, arg);
         }
 
         public void Back()
         {
-            m_VMState.back();
+            m_VMState?.back();
         }
 
         [XLua.CSharpCallLua]

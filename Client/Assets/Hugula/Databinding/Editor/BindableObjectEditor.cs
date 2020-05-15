@@ -30,8 +30,8 @@ namespace HugulaEditor.Databinding
                 if (prop.GetValue(target) == null)
                     prop.SetValue(target, temp.GetComponent(prop.PropertyType));
             }
-            else
-                base.OnInspectorGUI();
+            // else
+            base.OnInspectorGUI();
             BindalbeObjectUtilty.BindableObjectField(temp, 0);
         }
 
@@ -53,30 +53,4 @@ namespace HugulaEditor.Databinding
             }
         }
     }
-
-    // [CustomEditor (typeof (UIBehaviourBinder<UnityEngine.Object>), true)]
-    // public class UIBehaviourBinderEditor : UnityEditor.Editor {
-
-
-    //     void OnEnable()
-    //     {
-    //         var temp = target as UIBehaviourBinder<UnityEngine.Object>;
-
-    //         // if (temp && temp.target == null)
-    //         // {
-    //         //     List<UnityEngine.EventSystems.UIBehaviour> results = new List<UnityEngine.EventSystems.UIBehaviour>();
-    //         //     temp.GetComponents<UnityEngine.EventSystems.UIBehaviour>(results);
-    //         //     if (results.Count > 0)
-    //         //         temp.target = results[results.Count - 1];
-    //         // }
-    //     }
-
-    //     public override void OnInspectorGUI () {
-    //         // base.OnInspectorGUI ();
-    //         EditorGUILayout.Separator ();
-    //         var temp = target as UIBehaviourBinder<UnityEngine.Object>;
-    //         base.OnInspectorGUI();
-    //         // BindalbeObjectUtilty.BindableObjectField (temp, 0);
-    //     }
-    // }
 }

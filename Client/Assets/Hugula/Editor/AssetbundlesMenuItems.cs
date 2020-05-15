@@ -24,17 +24,17 @@ public class AssetbundlesMenuItems
     // [MenuItem("AssetBundles/Generate/Update All AssetBundle Name", false, 2)]
     static public void UpdateAssetBundlesName()
     {
-        var  allAssets = AssetDatabase.GetAllAssetPaths().ToArray(); 
+        var allAssets = AssetDatabase.GetAllAssetPaths().ToArray();
         BuildScript.UpdateAssetBundlesName(allAssets);
     }
 
-    [MenuItem("AssetBundles/Generate/AssetBundle Md5Mapping ", false, 5)]
+    // [MenuItem("AssetBundles/Generate/AssetBundle Md5Mapping ", false, 5)]
     static public void GenerateAssetBundlesMd5Mapping()
     {
         var  allAssets = AssetDatabase.GetAllAssetPaths().ToArray(); 
         BuildScript.GenerateAssetBundlesMd5Mapping(allAssets);
     }
-   
+
 
     [MenuItem("AssetBundles/Generate/AssetBundle Update File ", false, 6)]
     static public void GenerateAssetBundlesUpdate()
@@ -65,7 +65,7 @@ public class AssetbundlesMenuItems
         BuildScript.SetAssetBundlesVariantsAndName();
     }
 
-    
+
     [MenuItem("Assets/AssetBundles/Clear AssetBundle Name", false, 51)]
     static public void ClearAssetBundlesName()
     {
@@ -77,8 +77,8 @@ public class AssetbundlesMenuItems
     {
         BuildScript.ClearUnUsedAssetBundlesName();
     }
-    
-     [MenuItem("Assets/AssetBundles/Delete Selected Prefab's AssetBundle ", false, 53)]
+
+    [MenuItem("Assets/AssetBundles/Delete Selected Prefab's AssetBundle ", false, 53)]
     static public void DeleteAssetBundlesName()
     {
         BuildScript.DeleteAssetBundlesName();
@@ -91,22 +91,24 @@ public class AssetbundlesMenuItems
         List<string> allAssetPaths = new List<string>();
         foreach (Object s in selection)
         {
-			string filepath = AssetDatabase.GetAssetPath (s);
-			if (!File.Exists (filepath)) {
-				string dirpath = filepath.Replace (Application.dataPath, "");
-				Debug.Log (dirpath);
-				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
-					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
-					&& !(path.EndsWith(".cs"))
-				).ToArray();
+            string filepath = AssetDatabase.GetAssetPath(s);
+            if (!File.Exists(filepath))
+            {
+                string dirpath = filepath.Replace(Application.dataPath, "");
+                Debug.Log(dirpath);
+                var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+                    (path.StartsWith(dirpath + "/") || path.StartsWith(dirpath + "\\"))
+                    && !(path.EndsWith(".cs"))
+                ).ToArray();
 
-				allAssetPaths.AddRange (allAssets);
-			}else
-				allAssetPaths.Add(filepath);
+                allAssetPaths.AddRange(allAssets);
+            }
+            else
+                allAssetPaths.Add(filepath);
         }
 
-//		foreach (var s in allAssetPaths)
-//			Debug.Log (s);
+        //		foreach (var s in allAssetPaths)
+        //			Debug.Log (s);
         BuildScript.UpdateAssetBundlesName(allAssetPaths.ToArray());
     }
 
@@ -156,19 +158,19 @@ public class AssetbundlesMenuItems
     // {
     //     BuildScript.RemapMd5fileName();
     // }
-  
+
     // [MenuItem("Assets/HugulaExtends/Add OnlyInclusion Files (from Assts\\Tmp\\adlog-new.txt)", false, 102)]
     // static public void AddOnlyInclusionFilesByTxt()
     // {
     //     BuildScript.AddOnlyInclusionFilesByTxt();
     // }
-   
+
     // [MenuItem("Assets/HugulaExtends/Exclude Extension Files(from Selected .txt)", false, 103)]
     // static public void ExcludeExtensionFiles()
     // {
     //     BuildScript.ExcludeExtensionFiles();
     // }
-  
+
 
     [MenuItem("Assets/HugulaExtends/Check Selected (files or folder) assetbundle size [must Build AssetBundles]", false, 150)]
     static public void CheckSelectedAssetbundleSize()
@@ -188,7 +190,7 @@ public class AssetbundlesMenuItems
     //     BuildScript.CheckFirstLoaddAssetbundleSize();
     // }
 
-//    [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
+    //    [MenuItem("Assets/HugulaExtends/Add Zip Files", false, 3)]
     static public void AddZipFiles()
     {
         // BuildScript.ZipFiles(false);
@@ -200,7 +202,7 @@ public class AssetbundlesMenuItems
         // BuildScript.ZipFiles(true);
     }
 
-   
+
 
     const string kSimulationMode = "AssetBundles/Simulation Mode";
 
@@ -229,20 +231,22 @@ public class AssetbundlesMenuItems
         List<string> allAssetPaths = new List<string>();
         foreach (Object s in selection)
         {
-			string filepath = AssetDatabase.GetAssetPath (s);
-			if (!File.Exists (filepath)) {
-				string dirpath = filepath.Replace (Application.dataPath, "");
-				Debug.Log (dirpath);
-				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
-					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
-					&& (path.EndsWith(".lua"))
-				).ToArray();
-				allAssetPaths.AddRange (allAssets);
-			}else
-				allAssetPaths.Add(filepath);
+            string filepath = AssetDatabase.GetAssetPath(s);
+            if (!File.Exists(filepath))
+            {
+                string dirpath = filepath.Replace(Application.dataPath, "");
+                Debug.Log(dirpath);
+                var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+                    (path.StartsWith(dirpath + "/") || path.StartsWith(dirpath + "\\"))
+                    && (path.EndsWith(".lua"))
+                ).ToArray();
+                allAssetPaths.AddRange(allAssets);
+            }
+            else
+                allAssetPaths.Add(filepath);
         }
 
-        foreach(var p in allAssetPaths){ Debug.Log(p);}  
+        foreach (var p in allAssetPaths) { Debug.Log(p); }
 
         // ExportResources.doExportLua(allAssetPaths.ToArray());
     }
@@ -254,24 +258,26 @@ public class AssetbundlesMenuItems
         List<string> allAssetPaths = new List<string>();
         foreach (Object s in selection)
         {
-			string filepath = AssetDatabase.GetAssetPath (s);
-			if (!File.Exists (filepath)) {
-				string dirpath = filepath.Replace (Application.dataPath, "");
-				Debug.Log (dirpath);
-				var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
-					(path.StartsWith(dirpath+"/") || path.StartsWith(dirpath+"\\"))
-					&& (path.EndsWith(".bytes") || path.EndsWith(".txt"))
-				).ToArray();
-				allAssetPaths.AddRange (allAssets);
-			}else
-				allAssetPaths.Add(filepath);
+            string filepath = AssetDatabase.GetAssetPath(s);
+            if (!File.Exists(filepath))
+            {
+                string dirpath = filepath.Replace(Application.dataPath, "");
+                Debug.Log(dirpath);
+                var allAssets = AssetDatabase.GetAllAssetPaths().Where(path =>
+                    (path.StartsWith(dirpath + "/") || path.StartsWith(dirpath + "\\"))
+                    && (path.EndsWith(".bytes") || path.EndsWith(".txt"))
+                ).ToArray();
+                allAssetPaths.AddRange(allAssets);
+            }
+            else
+                allAssetPaths.Add(filepath);
         }
 
-        foreach(var p in allAssetPaths){ Debug.Log(p);}  
+        foreach (var p in allAssetPaths) { Debug.Log(p); }
 
         BuildScript.ChangeAssetsToBytesAsset(allAssetPaths.ToArray());
     }
-    
+
 
     [MenuItem("Hugula/Export Lua [Assets\\Lua *.lua] %l", false, 12)]
     public static void exportLua()
@@ -296,6 +302,13 @@ public class AssetbundlesMenuItems
     {
         ExportResources.exportPublish();
     }
+
+    [MenuItem("Hugula/打开开始场景  %g")]
+    static public void OpenBeginSence()
+    {
+        AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath("Assets/Scene/s_begin.unity", typeof(UnityEngine.Object)));
+    }
+
 
     #endregion
 

@@ -18,14 +18,14 @@ local converter = {}
 
 ---string 与 number的相互装换
 local string_to_number = {
-    Convert = function(source_value, type)
+    Convert = function(self, source_value, type)
         if source_value == nil then
             return 0
         else
             return tonumber(source_value)
         end
     end,
-    ConvertBack = function(target_value, type)
+    ConvertBack = function(self, target_value, type)
         if target_value == nil then
             return ""
         else
@@ -35,14 +35,14 @@ local string_to_number = {
 }
 
 local number_to_string = {
-    Convert = function(target_value, type)
+    Convert = function(self, target_value, type)
         if target_value == nil then
             return ""
         else
             return tostring(target_value)
         end
     end,
-    ConvertBack = function(source_value, type)
+    ConvertBack = function(self, source_value, type)
         if source_value == nil then
             return 0
         else

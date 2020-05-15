@@ -19,18 +19,18 @@ namespace Hugula.Databinding {
 			bindable.context = notify;
 		}
 
-		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItems (NotifyCollectionChangedAction action, IListTable changedItems) {
+		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItems (NotifyCollectionChangedAction action, IList changedItems) {
 			return new NotifyCollectionChangedEventArgs (action, changedItems);
 		}
 		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItem (NotifyCollectionChangedAction action, object changedItem) {
 			return new NotifyCollectionChangedEventArgs (action, changedItem);
 		}
 
-		public static NotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItems (NotifyCollectionChangedAction action, IListTable newItems, IListTable oldItems) {
+		public static NotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItems (NotifyCollectionChangedAction action, IList newItems, IList oldItems) {
 			return new NotifyCollectionChangedEventArgs (action, newItems, oldItems);
 		}
 
-		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsStartingIndex (NotifyCollectionChangedAction action, IListTable changedItems, int startingIndex) {
+		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsStartingIndex (NotifyCollectionChangedAction action, IList changedItems, int startingIndex) {
 			return new NotifyCollectionChangedEventArgs (action, changedItems, startingIndex);
 		}
 
@@ -41,11 +41,11 @@ namespace Hugula.Databinding {
 			return new NotifyCollectionChangedEventArgs (action, newItem, oldItem);
 
 		}
-		public static NotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItemsStartingIndex (NotifyCollectionChangedAction action, IListTable newItems, IListTable oldItems, int startingIndex) {
+		public static NotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItemsStartingIndex (NotifyCollectionChangedAction action, IList newItems, IList oldItems, int startingIndex) {
 			return new NotifyCollectionChangedEventArgs (action, newItems, oldItems, startingIndex);
 
 		}
-		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsIndexOldIndex (NotifyCollectionChangedAction action, IListTable changedItems, int index, int oldIndex) {
+		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsIndexOldIndex (NotifyCollectionChangedAction action, IList changedItems, int index, int oldIndex) {
 			return new NotifyCollectionChangedEventArgs (action, changedItems, index, oldIndex);
 		}
 		public static NotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemIndexOldIndex (NotifyCollectionChangedAction action, object changedItem, int index, int oldIndex) {
@@ -60,6 +60,11 @@ namespace Hugula.Databinding {
 		public static BindableContainer GetBindableContainer(UnityEngine.GameObject obj)
 		{
 			return obj.GetComponent<BindableContainer>();
+		}
+
+		public static BindableObject GetBindableObject(UnityEngine.GameObject obj)
+		{
+			return obj.GetComponent<BindableObject>();
 		}
 
 		public static object ConvertToNotifyTable(INotifyPropertyChanged table)

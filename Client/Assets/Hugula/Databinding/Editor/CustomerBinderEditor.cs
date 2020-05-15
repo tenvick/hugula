@@ -26,18 +26,12 @@ namespace HugulaEditor.Databinding
         }
         public override void OnInspectorGUI()
         {
-            // base.OnInspectorGUI ();
             EditorGUILayout.Separator();
             var temp = target as CustomBinder;
             // base.OnInspectorGUI();
             GUILayout.BeginHorizontal();
 
-            // GUILayout.Label(new GUIContent("Binder Target"), GUILayout.MinWidth(60));
-            // content = GUILayout.TextField(content, options);
-            // GUILayout.EndHorizontal();
-            // if (!string.IsNullOrEmpty(content)) content = content.Replace(",", "").Replace("=", "");
-            // temp.binderTarget = (Component)EditorGUILayout.ObjectField(temp.binderTarget, typeof(Component), false, GUILayout.MaxWidth(150)); //显示绑定对象
-            temp.target = (Component)BindalbeEditorUtilty.DrawPopUpComponents("Binder Target",temp.target, GUILayout.MinWidth(150));
+            temp.target = (Component)BindalbeEditorUtilty.DrawPopUpComponents("Binder Target", temp.target, GUILayout.MinWidth(150));
             GUILayout.EndHorizontal();
             BindalbeObjectUtilty.BindableObjectField(temp, 0);
         }

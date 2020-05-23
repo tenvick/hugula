@@ -24,8 +24,8 @@ welcome.views = {
 local property_eg_data = "eg_data"
 
 --------------------------------绑定属性-----------------
-local btn_tips1 = "选中点击"
-local btn_tips2 = "点击前往"
+local btn_tips1 = "点击背景"
+local btn_tips2 = "打开"
 local eg_data = NotifyTable() ---数据变更功能
 eg_data:InsertRange(
     {

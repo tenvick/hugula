@@ -352,4 +352,6 @@ vm_manager.deactive_view = deactive_view
 ---@field active function
 ---@field pre_load function
 ---@field load function
+---@field destory_view function
+---@field deactive_view function
 VMManager = vm_manager

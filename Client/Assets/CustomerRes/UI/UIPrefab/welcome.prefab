@@ -144,7 +144,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
   children:
   - {fileID: 1898566435255580335}
@@ -351,7 +350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 1898566435255580329}
   bindings:
   - propertyName: text
     path: title
@@ -359,6 +357,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 1898566435255580329}
 --- !u!1 &1898566435622137220
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +448,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 1898566435622137210}
   bindings:
   - propertyName: text
     path: name
@@ -457,6 +455,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 1898566435622137210}
 --- !u!1 &1898566435724762646
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,6 +574,7 @@ MonoBehaviour:
   m_Padding: 6
   m_RenderPerFrames: 0
   m_ItemSource: {fileID: 1898566434948006685}
+  m_SelectedIndex: 1
 --- !u!114 &1898566436092732780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,7 +587,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 090081d77b1845e4fa7c4c91ffe5b475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 1898566436092732782}
   bindings:
   - propertyName: itemCommand
     path: on_item_select
@@ -607,6 +606,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 1898566436092732782}
 --- !u!1 &1898566436120551731
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,7 +738,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1938a333f6cda9409963f3d19f2edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 1898566436120551729}
   bindings:
   - propertyName: commandParameter
     path: .
@@ -752,6 +751,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 1898566436092732780}
+  m_Target: {fileID: 1898566436120551729}
 --- !u!1 &1898566436711939040
 GameObject:
   m_ObjectHideFlags: 0
@@ -864,7 +864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
   children:
   - {fileID: 1898566436092732780}

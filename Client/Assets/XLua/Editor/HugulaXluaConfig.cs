@@ -203,6 +203,8 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
 
                 customlist.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
                 customlist.Add(typeof(System.Collections.IList));
+                customlist.Add(typeof(Hugula.Audio.AudioManager));
+                customlist.Add(typeof(Hugula.Atlas.AtlasManager));
 
                 // customlist.Add (typeof (Hugula.Databinding.Binding));
                 // customlist.Add (typeof (Hugula.Databinding.BindableObject));
@@ -443,6 +445,8 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
             new List<string> () { "Hugula.Loader.BackGroundDownload", "loadingList" },
             new List<string> () { "Hugula.Loader.ABInfo", "EqualsDependencies","Hugula.Loader.ABInfo" },
             new List<string> () { "Hugula.Loader.ABInfo", "assetPath"},
+            new List<string> () { "Hugula.Loader.CacheManager", "EditorCacheData"},
+
 
         };
 

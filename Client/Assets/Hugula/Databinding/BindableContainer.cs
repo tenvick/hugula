@@ -21,14 +21,16 @@ namespace Hugula.Databinding
         protected override void OnBindingContextChanged()
         {
             base.OnBindingContextChanged();
-
-            foreach (var child in children)
+            BindableObject child;
+            for (int i = 0; i < children.Count; i++)
+            // foreach (var child in children)
             {
+                child = children[i];
                 if (child)
                     child.SetInheritedContext(context, true);
                 else
                 {
-                    Debug.LogWarningFormat("OnBindingContextChanged({0}) child({1}) is null ", this, child);
+                    Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", this, i);
                 }
             }
         }

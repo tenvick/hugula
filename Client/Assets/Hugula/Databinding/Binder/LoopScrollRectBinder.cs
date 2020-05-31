@@ -65,7 +65,14 @@ namespace Hugula.Databinding.Binder
 
         public int selectedIndex
         {
-            get { return target.selectedIndex; }
+            get
+            {
+                return target.selectedIndex;
+            }
+            set
+            {
+                target.selectedIndex = value;
+            }
         }
 
         public Action<object, object, int> onInstantiated

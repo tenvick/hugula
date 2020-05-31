@@ -492,6 +492,9 @@ public class ProjectBuild : Editor
         Settings();
         WriteAppVerion();
         path = path + "nijin.exe";
+        if (setting.ToLower().Contains("il2cpp"))
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+
         if (setting.ToLower().Contains("development"))
             BuildPipeline.BuildPlayer(GetBuildScenes(), path, BuildTarget.StandaloneWindows, BuildOptions.Development);
         else

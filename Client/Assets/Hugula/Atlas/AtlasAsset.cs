@@ -1,18 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Hugula;
 
 namespace Hugula.Atlas
 {
 
-    public class AtlasAsset : ScriptableObject
+    public class AtlasAsset : ScriptableObject,IMappingAsset<Sprite>
     {
         public List<int> names = new List<int>();
         public List<Sprite> sprites = new List<Sprite>();
         public Texture2D alphaTex;
         private Dictionary<int, Sprite> m_Map;
 
-        public Sprite GetSprite(string name)
+        public Sprite GetAsset(string name)
         {
             if (m_Map == null)
             {

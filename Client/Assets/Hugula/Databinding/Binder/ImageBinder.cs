@@ -28,59 +28,40 @@ namespace Hugula.Databinding.Binder
             }
             set
             {
-                UnloadSprite(m_spriteName);
                 if (!string.Equals(value, m_spriteName))
                 {
+                    LoadSprite(value,m_spriteName);
                     m_spriteName = value;
-                    LoadSprite(value);
                 }
             }
         }
         #endregion
 
         #region  protected method
-        void LoadSprite(string spriteName)
+        void LoadSprite(string spriteName,string lastName)
         {
             if (target)
             {
                 target.enabled = false;
                 //load altas
-                var altasBundle = Atlas.AtlasMappingManager.GetSpriteBundle(spriteName); // find altas
-                if (altasBundle != null)
-                {
-                    ResourcesLoader.LoadAssetAsync(altasBundle + Common.CHECK_ASSETBUNDLE_SUFFIX, altasBundle, typeof(Atlas.AtlasAsset), OnAltasCompleted, null, spriteName);
-                }
-#if UNITY_EDITOR
-                else
-                {
-                    Debug.LogWarningFormat("can't find {0}'s mapping in Assets/Config/atlas_mapping_root.asset", spriteName);
-                }
-#endif
+                Atlas.AtlasManager.instance.GetAssetAsync(spriteName, OnAltasCompleted);
+                Atlas.AtlasManager.instance.Subtract(lastName);
             }
         }
 
-        void OnAltasCompleted(object data, object arg)
+        void OnAltasCompleted(Sprite sprite)
         {
-            if (target && data is Atlas.AtlasAsset)
-            {
-                var altas = (Atlas.AtlasAsset)data;
-                var sprite = altas.GetSprite(arg.ToString());
-                target.sprite = sprite;
-                target.enabled = true;
-                if (setNativeSize)
-                    target.SetNativeSize();
-            }
+            target.sprite = sprite;
+            target.enabled = true;
+            if (setNativeSize)
+                target.SetNativeSize();
         }
 
         void UnloadSprite(string spriteName)
         {
             if (!string.IsNullOrEmpty(spriteName))
             {
-                var altasBundle = Atlas.AtlasMappingManager.GetSpriteBundle(spriteName); // find altas
-                if (altasBundle != null)
-                {
-                    CacheManager.Subtract(altasBundle + Common.CHECK_ASSETBUNDLE_SUFFIX);
-                }
+                Atlas.AtlasManager.instance.Subtract(spriteName);
             }
         }
 

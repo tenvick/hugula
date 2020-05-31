@@ -72,7 +72,15 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 通过OnSelected方法 选中项目的索引</br>
         /// </summary>
-        public int selectedIndex { get { return m_SelectedIndex; } }
+        public int selectedIndex
+        {
+            get { return m_SelectedIndex; }
+            set
+            {
+                // m_SelectedIndex = value;
+                TriggerStyleBySelectedIndex(value);
+            }
+        }
 
         int m_LastSelectedIndex = -1;
         /// <summary>
@@ -638,6 +646,23 @@ namespace Hugula.UIComponents
             }
         }
 
+        protected void TriggerStyleBySelectedIndex(int selectedIndex)
+        {
+            if (selectedIndex >= 0 && selectedIndex < dataLength)
+            {
+                //find exist
+                var item = GetItemAt(selectedIndex);
+                ILoopSelectStyle style;
+                if (item != null && (style = item.GetComponent<ILoopSelectStyle>()) != null)
+                {
+                    OnSelect(style);
+                }
+                else
+                    m_SelectedIndex = selectedIndex;
+            }
+
+        }
+
         #endregion
 
         #region 模板项目
@@ -778,7 +803,7 @@ namespace Hugula.UIComponents
             onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             LayOut(loopItem);
 
-            if(dispatchOnSelectedEvent)
+            if (dispatchOnSelectedEvent)
             {
                 OnSelect(m_SelecteStyle);
             }

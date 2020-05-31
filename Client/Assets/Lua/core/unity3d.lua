@@ -52,4 +52,6 @@ local UIBehaviourBinder = Binder.UIBehaviourBinder
 local UIComponents = Hugula.UIComponents
 local CoolDown = UIComponents.CoolDown
 local GroupSelector = UIComponents.GroupSelector
+--------------hugula------------------
+AudioManager = Hugula.Audio.AudioManager
 

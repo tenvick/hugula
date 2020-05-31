@@ -1,6 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.5.31
+1 AudioManager模块，声音分音乐和音效，音效需要利用工具Hugula/Audio/Create(Refresh) AudioClip Asset打包成集合。
+2 assetbundle与asset映射查找模块，加载资源再也不需要关心ab了。
+3 AtlasManger图集sprite加载管理模块。
+4 LoopScrollRect selectedIndex触发选中功能。
+5 ReferCountInfo 查看assetbundle数量筛选优化。
+
 2020.5.15
 1 Timer功能延时执行n次，Timer.Add(delay,cycle,action<object>)。
 2 NotifyTable 与ObservableCollection<T> FindIndex功能，方便查找索引。

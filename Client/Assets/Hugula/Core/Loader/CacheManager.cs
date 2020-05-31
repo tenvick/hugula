@@ -163,11 +163,8 @@ namespace Hugula.Loader
         /// <summary>
         /// 下载完成的assetbundle缓存
         /// </summary>
-#if UNITY_EDITOR
-        public static Dictionary<string, CacheData> m_Caches = new Dictionary<string, CacheData>();
-#else
         internal static Dictionary<string, CacheData> m_Caches = new Dictionary<string, CacheData>();
-#endif
+        // #endif
 
         /// <summary>
         /// assetbundle依赖关系
@@ -193,23 +190,15 @@ namespace Hugula.Loader
             CacheData.SetCacheDataLoding(cache);
         }
 
-        // /// <summary>
-        // /// unload assetbundle false
-        // /// </summary>
-        // /// <param name="assetBundleName"></param>
-        // public static bool UnloadCacheFalse(string key)
-        // {
-        //     CacheData cache = TryGetCache(key);
-        //     if (cache != null)
-        //     {
-        //         cache.Unload();
-        //         return true;
-        //     }
-        //     else
-        //     {
-        //         return false;
-        //     }
-        // }
+#if UNITY_EDITOR
+        public static Dictionary<string, Hugula.Loader.CacheData> EditorCacheData
+        {
+            get
+            {
+                return m_Caches;
+            }
+        }
+#endif
 
         /// <summary>
         /// 添加场景与assetbunlde的关系

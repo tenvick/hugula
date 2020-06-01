@@ -501,17 +501,17 @@ namespace Hugula.Loader
                 inBundleProgressOperations.Add(op);
                 downloadingBundles.Add(assetBundleName);
             }
-            else if (!async && cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
+            else if (!async )//&& cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
             {
                 var op = OperationPools<BundleOperation>.Get();
                 op.assetBundleName = assetBundleName;
                 op.StartSync(); //同步加载
                 op.ReleaseToPool();
             }
-            else if (!async)
-            {
-                Debug.LogWarningFormat("the assetbundle({0}) can't be sync loaded 因为它正在异步加载中!", assetBundleName);
-            }
+            // else if (!async)
+            // {
+            //     Debug.LogWarningFormat("the assetbundle({0}) can't be sync loaded 因为它正在异步加载中!", assetBundleName);
+            // }
 
         }
 

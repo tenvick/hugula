@@ -39,7 +39,7 @@ local function set_active(self, enable)
     local scene_name = self.scene_name
     if scene_name == nil and child then
         if enable then
-            LuaHelper.SetActive(child, enable)
+            LuaHelper.Active(child)
         else
             LuaHelper.DelayDeActive(child.gameObject)
         end

@@ -6,6 +6,9 @@ using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding;
 using UnityEngine.UI;
+using UnityEditorInternal;
+using Hugula.Databinding.Binder;
+
 
 namespace HugulaEditor.Databinding
 {
@@ -13,10 +16,14 @@ namespace HugulaEditor.Databinding
     public class BindableObjectEditor : UnityEditor.Editor
     {
 
+        SerializedProperty bindings;
+        string propertyName = string.Empty;
+
+        List<int> selectedList = new List<int>();
 
         void OnEnable()
         {
-
+            bindings = serializedObject.FindProperty("bindings");
         }
 
         public override void OnInspectorGUI()
@@ -30,9 +37,92 @@ namespace HugulaEditor.Databinding
                 if (prop.GetValue(target) == null)
                     prop.SetValue(target, temp.GetComponent(prop.PropertyType));
             }
-            // else
-            base.OnInspectorGUI();
-            BindalbeObjectUtilty.BindableObjectField(temp, 0);
+
+            var rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
+            var rect1 = rect;
+            float w = rect.width;
+            EditorGUI.HelpBox(rect, "", MessageType.None);
+
+            rect1.height -= BindableObjectStyle.kExtraSpacing * 2;
+            rect1.x += BindableObjectStyle.kExtraSpacing;
+            rect1.y += BindableObjectStyle.kExtraSpacing;
+            rect1.width = w * .4f;
+
+            //
+            CustomBinder customer = null;
+            if (temp is CustomBinder)
+            {
+                customer = (CustomBinder)temp;
+                EditorGUI.ObjectField(rect1, customer.target, typeof(Component), false); //显示绑定对象
+            }
+            else
+                EditorGUI.ObjectField(rect1, temp, typeof(BindableObject), false); //显示绑定对象
+
+            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
+            rect1.width = w * .4f;
+
+            if (customer != null)
+            {
+                propertyName = BindalbeObjectUtilty.PopupComponentsProperty(rect1, customer.target, propertyName); //绑定属性
+            }
+            else
+                propertyName = BindalbeObjectUtilty.PopupComponentsProperty(rect1, temp, propertyName); //绑定属性
+
+            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
+            rect1.width = w * .2f - BindableObjectStyle.kExtraSpacing * 4;
+            if (GUI.Button(rect1, "add"))
+            {
+                if (string.Equals(propertyName, BindableObjectStyle.FIRST_PROPERTY_NAME))
+                {
+                    Debug.LogWarningFormat("please choose a property to binding");
+                    return;
+                }
+                Binding expression = new Binding();
+                expression.propertyName = propertyName;
+                temp.AddBinding(expression);
+            }
+            EditorGUILayout.Separator();
+            EditorGUILayout.EndHorizontal();
+
+            //显示列表
+            if (bindings.isArray)
+            {
+                selectedList.Clear();
+                serializedObject.Update();
+
+                var len = temp.GetBindings().Count;
+                SerializedProperty bindingProperty;
+                for (int i = 0; i < len; i++)
+                {
+                    bindingProperty = bindings.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(bindingProperty, true);
+                    if (bindingProperty.isExpanded)
+                    {
+                        selectedList.Add(i);
+                    }
+                }
+
+                serializedObject.ApplyModifiedProperties();
+
+                //删除数据
+                if (selectedList.Count > 0)
+                {
+                    rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
+                    rect.x = rect.xMax - 100;
+                    rect.width = 100;
+                    if (GUI.Button(rect, "del property " + selectedList.Count))
+                    {
+                        foreach (var i in selectedList)
+                            BindalbeObjectUtilty.RemoveAtbindableObjects(temp, i);
+                    }
+                    EditorGUILayout.Separator();
+                    EditorGUILayout.EndHorizontal();
+                }
+                else
+                {
+                    GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
+                }
+            }
         }
 
         private static void DisplayTypeInfo(Type t)

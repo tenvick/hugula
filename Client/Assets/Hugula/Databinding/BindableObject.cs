@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Hugula;
 
 namespace Hugula.Databinding
 {
@@ -66,7 +67,7 @@ namespace Hugula.Databinding
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
-                    if(!m_IsbindingsDictionary)InitBindingsDic();
+                    if (!m_IsbindingsDictionary) InitBindingsDic();
                     OnBindingContextChanging();
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
@@ -93,8 +94,10 @@ namespace Hugula.Databinding
         ///<summary>
         /// 绑定表达式
         ///<summary>
-        [HideInInspector]
-        public List<Binding> bindings = new List<Binding>();
+        // [HideInInspector]
+        [SerializeField]
+        // [BindingsAttribute]
+        protected List<Binding> bindings = new List<Binding>();
 
         protected bool m_IsbindingsDictionary = false;
         protected Dictionary<string, Binding> m_BindingsDic = new Dictionary<string, Binding>();
@@ -230,5 +233,24 @@ namespace Hugula.Databinding
             m_InheritedContext = null;
         }
 
+#if UNITY_EDITOR
+        // [XLua.BlackList]
+        public void AddBinding(Binding expression)
+        {
+            bindings.Add(expression);
+        }
+
+        public List<Binding> GetBindings()
+        {
+            return bindings;
+        }
+
+        public Binding GetBindingAt(int i)
+        {
+            return bindings[i];
+        }
+#endif
     }
+
+
 }

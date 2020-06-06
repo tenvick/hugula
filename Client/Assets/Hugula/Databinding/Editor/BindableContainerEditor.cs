@@ -4,12 +4,14 @@ using System.Reflection;
 using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
+using Hugula.Databinding.Binder;
 
 namespace HugulaEditor.Databinding
 {
     [CustomEditor(typeof(BindableContainer), true)]
     public class BindableContainerEditor : UnityEditor.Editor
     {
+        public const string DELETE_TIPS = "choose item for detail or  delete!";
 
         public List<Type> BinderCheckTypes = new List<Type>() {
             typeof (UnityEngine.UI.Text),
@@ -41,23 +43,28 @@ namespace HugulaEditor.Databinding
 #endif
         };
 
-        static List<string> names; //= new List<string>();
-        static GameObject[] refers; //=new List<GameObject>();
-        static UnityEngine.Object[] bindableObjects; // = new List<Behaviour>();
+        List<int> selectedList = new List<int>();
+
+        SerializedProperty property_children;
+
+        void OnEnable()
+        {
+            property_children = serializedObject.FindProperty("children");
+        }
+
         public override void OnInspectorGUI()
         {
             // base.OnInspectorGUI ();
             EditorGUILayout.Separator();
             var temp = target as BindableContainer;
 
-            EditorGUILayout.LabelField("Drag(BindableObject) to add", GUILayout.Width(200));
-            EditorGUILayout.Space();
+            var rect = EditorGUILayout.BeginVertical(GUILayout.Height(100));
+            EditorGUI.HelpBox(rect, "", MessageType.None);
+
+            EditorGUILayout.LabelField("Drag(UIComponet) to there for add", GUILayout.Height(20));
             UnityEngine.Component addComponent = null;
             addComponent = (UnityEngine.Component)EditorGUILayout.ObjectField(addComponent, typeof(UnityEngine.Component), true, GUILayout.Height(40));
-
-            EditorGUILayout.Separator();
-            EditorGUILayout.Space();
-            if (GUILayout.Button("auto add hierarchy  children", GUILayout.MaxWidth(300)))
+            if (GUILayout.Button("auto add hierarchy  children"))
             {
                 //清理
                 var children = temp.children;
@@ -69,36 +76,60 @@ namespace HugulaEditor.Databinding
                         children.RemoveAt(i);
                 }
                 AddHierarchyChildren(temp.transform, temp, true);
-
             }
+            EditorGUILayout.Separator();
+            EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Bindable List");
 
-            EditorGUILayout.LabelField("Bindable List", GUILayout.Width(200));
-            EditorGUILayout.Space();
-
-            Undo.RecordObject(target, "F");
-            BindableObject objComponent;
-            if (temp.children != null)
+            //
+            if (property_children.isArray)
             {
-                for (int i = 0; i < temp.children.Count; i++)
-                {
-                    objComponent = temp.children[i];
-                    BindalbeObjectUtilty.BindableObjectField(objComponent, i);
-                    if (GUILayout.Button("Del", GUILayout.Width(30)))
+                selectedList.Clear();
+                serializedObject.Update();
+                    var len = property_children.arraySize;
+                    SerializedProperty bindingProperty;
+                    for (int i = 0; i < len; i++)
                     {
-                        RemoveAtbindableObjects(temp, i);
+                        bindingProperty = property_children.GetArrayElementAtIndex(i);
+                        EditorGUILayout.PropertyField(bindingProperty, false);
+                        if (bindingProperty.isExpanded)
+                        {
+                            selectedList.Add(i);
+                        }
                     }
+                serializedObject.ApplyModifiedProperties();
 
-                    //设置binding属性
-                    SetBindingProperties(temp, i);
-                    EditorGUILayout.Space();
+                //删除数据
+                float width = 0;
+                rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
+                rect.y += BindableObjectStyle.kExtraSpacing;
+                if (selectedList.Count > 0)
+                {
+                    width = 260;
+                    rect.x = rect.xMax - width;
+                    rect.width = width;
+                    if (GUI.Button(rect, "del BindalbeObject " + selectedList.Count))
+                    {
+                        foreach (var i in selectedList)
+                            BindalbeObjectUtilty.RemoveAtbindableObjects(temp, i);
+                    }
                 }
+                else
+                {
+                    width = DELETE_TIPS.Length * BindableObjectStyle.kExtraSpacing;
+                    rect.x = rect.xMax - width;
+                    rect.width = width;
+                    GUI.Box(rect, DELETE_TIPS);
+                }
+
+                EditorGUILayout.Separator();
+                EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.Space();
+
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space();
-
             if (addComponent)
             {
                 AddbindableObjects(temp, addComponent); //allcomps[allcomps.Length - 1]);
@@ -239,14 +270,19 @@ namespace HugulaEditor.Databinding
             }
 
             bool needDeep = true;
+            bool isSelf = false;
             foreach (var child in children)
             {
-                if (oldChildren.IndexOf(child) == -1 && !System.Object.Equals(child, container))
+                isSelf = System.Object.Equals(child, container);
+                if (oldChildren.IndexOf(child) == -1 && !isSelf)
                 {
                     container.AddChild(child);
                 }
 
-                if (child is BindableContainer && !checkChildren) //如果遇到容器不需要遍历
+                if (!isSelf && (child is BindableContainer ||
+                child is LoopScrollRectBinder ||
+                child is LoopVerticalScrollRectBinder ||
+                child is CollectionViewBinder)) //如果遇到容器不需要遍历
                     needDeep = false;
             }
 

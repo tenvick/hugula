@@ -256,14 +256,17 @@ namespace Hugula.UIComponents
         }
 
         float m_Renderframs = 0;
-        protected void Update()
-        {
-            UpdateViewPointBounds();
-            ScrollLoopItem();
-        }
+        // protected void Update()
+        // {
+        //     UpdateViewPointBounds();
+        //     // ScrollLoopItem();
+        // }
 
         protected override void LateUpdate()
         {
+            UpdateViewPointBounds();
+            ScrollLoopItem();
+
             if (renderQueue.Count > 0)
             {
                 // if (m_RenderPerFrames < columns) m_RenderPerFrames = columns;
@@ -274,6 +277,7 @@ namespace Hugula.UIComponents
             }
 
             base.LateUpdate(); //... CanvasUpdateRegistry.PerformUpdate() 75.23 ms
+
         }
 
         protected void OnDestory()
@@ -292,6 +296,26 @@ namespace Hugula.UIComponents
                 loopItem.item = null;
             }
 
+        }
+
+        /// <summary>
+        /// >Set the horizontal or vertical scroll position as a value between 0 and 1, with 0 being at the left or at the bottom.
+        /// </summary>
+        /// <param name="value">The position to set, between 0 and 1.</param>
+        /// <param name="axis">The axis to set: 0 for horizontal, 1 for vertical.</param>
+        protected override void SetNormalizedPosition(float value, int axis)
+        {
+            base.SetNormalizedPosition(value, axis);
+            m_ScrollBarFrame = Time.frameCount;
+        }
+
+        private int m_ScrollBarFrame;
+        protected bool scrollBarDragging
+        {
+            get
+            {
+                return m_ScrollBarFrame == Time.frameCount;
+            }
         }
 
         #region  数据操作相关

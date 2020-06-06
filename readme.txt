@@ -1,6 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.6.6
+1 Bindalbe对象编辑界面优化。
+2 LoopScrollRect 滚动条支持。
+
 2020.5.31
 1 AudioManager模块，声音分音乐和音效，音效需要利用工具Hugula/Audio/Create(Refresh) AudioClip Asset打包成集合。
 2 assetbundle与asset映射查找模块，加载资源再也不需要关心ab了。

@@ -6,145 +6,33 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding.Binder;
+using UnityEditorInternal;
 
 namespace HugulaEditor.Databinding
 {
     public static class BindalbeObjectUtilty
     {
-        static Dictionary<int, string> dicPropertyName = new Dictionary<int, string>();
-        public static void BindableObjectField(BindableObject target, int index)
-        {
-            if (target == null) return;
-            int key = target.GetHashCode();
-            string propertyName;
-            dicPropertyName.TryGetValue(key, out propertyName);
-            EditorGUILayout.Separator();
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            var temp = target as BindableObject;
-            GUILayout.Label(target.name, GUILayout.Width(100));
-            EditorGUILayout.ObjectField(temp, typeof(BindableObject), false, GUILayout.MaxWidth(150)); //显示绑定对象
-            int selectedIndex = PopupComponentsProperty(temp, propertyName, GUILayout.MaxWidth(150)); //绑定属性
-            propertyName = GetSelectedPropertyByIndex(selectedIndex);
-            dicPropertyName[key] = propertyName;
-            if (GUILayout.Button("+", GUILayout.MaxWidth(50)))
-            {
-                if (selectedIndex == 0)
-                {
-                    Debug.LogWarningFormat("please choose a property to binding");
-                    return;
-                }
-                if (temp.bindings == null) temp.bindings = new List<Binding>();
-
-                Binding expression = new Binding();
-                expression.propertyName = propertyName;
-                temp.bindings.Add(expression);
-            }
-            Undo.RecordObject(target, "F");
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Separator();
-            if (temp.bindings != null)
-            {
-                for (int i = 0; i < temp.bindings.Count; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    var binding = temp.bindings[i];
-                    BindableExpressionEditor.Expression(binding, i);
-
-                    if (GUILayout.Button("-", GUILayout.Width(30)))
-                    {
-                        RemoveAtbindableObjects(temp, i);
-                    }
-
-                    EditorGUILayout.EndHorizontal();
-
-                }
-            }
-
-        }
-
-        public static void BindableObjectField(CustomBinder target, int index)
-        {
-            if (target == null) return;
-            int key = target.GetHashCode();
-            string propertyName;
-            dicPropertyName.TryGetValue(key, out propertyName);
-            EditorGUILayout.Separator();
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            var temp = target as CustomBinder;
-            GUILayout.Label(target.name, GUILayout.Width(100));
-            GUILayout.Label("property:", GUILayout.MinWidth(60));
-            // EditorGUILayout.ObjectField(temp.binderTarget, typeof(CustomBinder), false, GUILayout.MaxWidth(150)); //显示绑定对象
-            int selectedIndex = PopupComponentsProperty(temp.target, propertyName, GUILayout.MaxWidth(150)); //绑定属性
-            propertyName = GetSelectedPropertyByIndex(selectedIndex);
-            dicPropertyName[key] = propertyName;
-            if (GUILayout.Button("+", GUILayout.MaxWidth(50)))
-            {
-                if (selectedIndex == 0)
-                {
-                    Debug.LogWarningFormat("please choose a property to binding");
-                    return;
-                }
-                if (temp.bindings == null) temp.bindings = new List<Binding>();
-
-                Binding expression = new Binding();
-                expression.propertyName = propertyName;
-                temp.bindings.Add(expression);
-            }
-            Undo.RecordObject(target, "F");
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Separator();
-
-            if (temp.bindings != null)
-            {
-                for (int i = 0; i < temp.bindings.Count; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    var binding = temp.bindings[i];
-                    BindableExpressionEditor.Expression(binding, i);
-
-                    if (GUILayout.Button("-", GUILayout.Width(30)))
-                    {
-                        RemoveAtbindableObjects(temp, i);
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-            }
-
-        }
         static List<string> allowTypes = new List<string>();
         static List<Type> allowTypeProperty = new List<Type>();
         static List<bool> allowIsMethod = new List<bool>();
 
         public static void RemoveAtbindableObjects(BindableObject target, int index)
         {
-            var binding = target.bindings;
+            var binding = target.GetBindings();
             binding.RemoveAt(index);
         }
 
-        public static string GetSelectedPropertyByIndex(int selectIndex)
-        {
-            if (allowTypes.Count > selectIndex)
-                return allowTypes[selectIndex];
-            return null;
-        }
-        public static int PopupComponentsProperty(UnityEngine.Object target, string propertyName, params GUILayoutOption[] options)
+        public static int GetObjectPropertyIndex(UnityEngine.Object target, string propertyName, out string[] properties)
         {
             int selectIndex = 0;
             if (target)
             {
-
                 var obj = target; //temp
                 Type t = obj.GetType();
                 allowTypes.Clear();
                 allowTypeProperty.Clear();
                 allowIsMethod.Clear();
-                allowTypes.Add("choose property");
+                allowTypes.Add(BindableObjectStyle.FIRST_PROPERTY_NAME);
                 allowTypeProperty.Add(typeof(Nullable));
                 allowTypes.Add(BindableObject.ContextProperty);
                 allowTypeProperty.Add(typeof(object));
@@ -177,16 +65,35 @@ namespace HugulaEditor.Databinding
                 {
                     selectIndex = allowTypes.IndexOf(BindableObject.ContextProperty);
                 }
-                selectIndex = EditorGUILayout.Popup(selectIndex, allowTypes.ToArray(), options);
+                properties = allowTypes.ToArray();
+            }
+            else
+            {
+                properties = new string[] { };
             }
             return selectIndex;
         }
-
+        public static string PopupComponentsProperty(UnityEngine.Object target, string propertyName, params GUILayoutOption[] options)
+        {
+            string[] propertes = null;
+            int selectIndex = GetObjectPropertyIndex(target, propertyName, out propertes);
+            selectIndex = EditorGUILayout.Popup(selectIndex, propertes, options);
+            propertyName = propertes[selectIndex];
+            return propertyName;
+        }
+        public static string PopupComponentsProperty(Rect rect, UnityEngine.Object target, string propertyName)
+        {
+            string[] propertes = null;
+            int selectIndex = GetObjectPropertyIndex(target, propertyName, out propertes);
+            selectIndex = EditorGUI.Popup(rect, selectIndex, propertes);
+            propertyName = propertes[selectIndex];
+            return propertyName;
+        }
     }
+
 
     public class BindalbeEditorUtilty
     {
-
         static List<string> m_AllComponents = new List<string>();
         public static UnityEngine.Object DrawPopUpComponents(string title, UnityEngine.Object content, params GUILayoutOption[] options)
         {
@@ -235,5 +142,65 @@ namespace HugulaEditor.Databinding
         }
     }
 
+    public class BindableObjectStyle
+    {
 
+        #region  tips
+        public const string PROPPERTY_CHOOSE_TIPS = "choose property to editor or delete!";
+        public const string FIRST_PROPERTY_NAME = "choose property";
+
+        #endregion
+
+        #region  style
+        internal const float kSingleLineHeight = 18f;
+        internal static readonly float kControlVerticalSpacing = 2f;
+        private static readonly GUIContent s_MixedValueContent = EditorGUIUtility.TrTextContent("\u2014", "Mixed Values");
+
+        internal const float kSpacing = 5;
+        internal const int kExtraSpacing = 9;
+
+        internal static GUIContent mixedValueContent => s_MixedValueContent;
+
+        internal static GUIStyle textStyle1 = new GUIStyle();
+
+        private static readonly GUIContent s_Text = new GUIContent();
+        private static readonly GUIContent s_Image = new GUIContent();
+        private static readonly GUIContent s_TextImage = new GUIContent();
+
+        internal static GUIContent Temp(string t)
+        {
+            s_Text.text = t;
+            s_Text.tooltip = string.Empty;
+            return s_Text;
+        }
+        internal static GUIContent Temp(string t, string tooltip)
+        {
+            s_Text.text = t;
+            s_Text.tooltip = tooltip;
+            return s_Text;
+        }
+
+        internal static GUIContent Temp(Texture i)
+        {
+            s_Image.image = i;
+            s_Image.tooltip = string.Empty;
+            return s_Image;
+        }
+
+        internal static GUIContent Temp(Texture i, string tooltip)
+        {
+            s_Image.image = i;
+            s_Image.tooltip = tooltip;
+            return s_Image;
+        }
+
+        internal static GUIContent Temp(string t, Texture i)
+        {
+            s_TextImage.text = t;
+            s_TextImage.image = i;
+            return s_TextImage;
+        }
+
+        #endregion
+    }
 }

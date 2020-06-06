@@ -50,6 +50,7 @@ namespace HugulaEditor
                         TextureImporter ti = AssetImporter.GetAtPath(f) as TextureImporter;
                         if (ti != null)
                         {
+                            if (ti.textureType != TextureImporterType.Sprite) ti.textureType = TextureImporterType.Sprite;
                             Object[] objs = AssetDatabase.LoadAllAssetRepresentationsAtPath(f);
                             foreach (var item in objs)
                             {

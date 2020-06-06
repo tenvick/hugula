@@ -54,8 +54,13 @@ end
 ---@return void
 local function on_Property_changed(self, property_name)
     local changed = self._property_changed
+    local act
     for i = 1, #changed do
-        changed[i](self, property_name)
+        act = changed[i]
+        if act then
+        -- Logger.Log(" for",i,act)
+            act(self, property_name)
+        end
     end
 end
 

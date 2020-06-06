@@ -64,12 +64,12 @@ namespace Hugula.Utils
             }
         }
 
-        public static void SetActive(Component comp, bool active)
+        public static void Active(Component comp)
         {
-            SetActive(comp.gameObject, active);
+            Active(comp.gameObject);
         }
 
-        public static void SetActive(GameObject gameObject, bool active)
+        public static void Active(GameObject gameObject)
         {
             // gameObject.SetActive (active);
             var delay = gameObject.GetComponents<Hugula.Framework.IDelayCancel>();
@@ -79,7 +79,7 @@ namespace Hugula.Utils
                     dela.CancelDelay();
             }
 
-            gameObject.SetActive(active);
+            gameObject.SetActive(true);
         }
 
         public static void DelayDeActive(GameObject gobj)

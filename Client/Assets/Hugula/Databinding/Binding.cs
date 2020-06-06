@@ -37,6 +37,8 @@ namespace Hugula.Databinding
         public string format;
         public string converter;
         public BindingMode mode;
+        
+        [PopUpComponentsAttribute]
         public UnityEngine.Object source;
         public object target;
 
@@ -61,6 +63,17 @@ namespace Hugula.Databinding
         protected bool m_IsApplied = false;
 
         #endregion
+
+#if LUA_PROFILER_DEBUG
+        string ProfilerName = "";
+        string GetProfilerName()
+        {
+            if (string.IsNullOrEmpty(ProfilerName))
+                ProfilerName = string.Format("Binding(path={0},prop={1},tar={2})", this.path, this.propertyName, this.target);
+            return ProfilerName;
+        }
+        //UnityEngine.Profiling.Profiler.BeginSample();
+#endif
 
         public Binding()
         {
@@ -92,8 +105,13 @@ namespace Hugula.Databinding
                 Debug.LogErrorFormat("invalide source {0}", this.path);
                 return;
             }
-
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".UpdateTarget");
+#endif
             ExpressionUtility.UpdateTargetValue(target, propertyName, m_Context, m_LastPart, format, convert);
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
         }
 
         //更新源
@@ -104,8 +122,13 @@ namespace Hugula.Databinding
                 Debug.LogErrorFormat("invalide source {0}", this.path);
                 return;
             }
-
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".UpdateSource");
+#endif
             ExpressionUtility.UpdateSourceValue(target, propertyName, m_Context, m_LastPart, format, convert);
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
         }
 
         //绑定目标
@@ -113,14 +136,26 @@ namespace Hugula.Databinding
         {
             if (!m_IsApplied)
             {
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".ParsePath");
+#endif
                 ParsePath();
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
                 m_IsApplied = true;
             }
 
 
             if (isBound)
             {
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".Unapply");
+#endif
                 Unapply();
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
             }
 
             object bindingContext = context;
@@ -128,13 +163,20 @@ namespace Hugula.Databinding
 
             m_Context = bindingContext;
 
-            if (m_Context == null) return;
+            if (m_Context == null)
+            {
+                Unapply();
+                return;
+            }
 
             object m_Current = bindingContext;
 
-#if false 
+#if false
             ExpressionUtility.ApplyByLua (this, m_Current);
 #else
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".Part.TryGetValue");
+#endif
             bool needSubscribe = this.needSubscribe;
             BindingPathPart part = null;
             for (var i = 0; i < m_Parts.Count; i++)
@@ -162,10 +204,19 @@ namespace Hugula.Databinding
 
             SetLastPart();
 
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
             if (invoke)
             {
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".InitValue");
+#endif
                 //初始化值
                 InitValue();
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
             }
 #endif
         }
@@ -267,7 +318,11 @@ namespace Hugula.Databinding
         }
         void ParsePath()
         {
+
             string p = path.Trim();
+
+            if (!string.IsNullOrEmpty(converter))
+                convert = ValueConverterRegister.instance.Get(converter);
 
             var last = new BindingPathPart(this, SelfPath);
             m_Parts.Add(last);
@@ -275,7 +330,9 @@ namespace Hugula.Databinding
             if (p[0] == ExpressionSplit[0])
             {
                 if (p.Length == 1)
+                {
                     return;
+                }
 
                 p = p.Substring(1);
             }
@@ -345,13 +402,6 @@ namespace Hugula.Databinding
                     m_Parts.Add(indexer);
                     last = indexer;
                 }
-            }
-
-            //解析convert
-
-            if (!string.IsNullOrEmpty(converter))
-            {
-                convert = ValueConverterRegister.instance.Get(converter);
             }
         }
 

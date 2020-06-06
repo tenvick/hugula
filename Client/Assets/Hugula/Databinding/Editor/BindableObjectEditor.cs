@@ -102,8 +102,6 @@ namespace HugulaEditor.Databinding
                     }
                 }
 
-                serializedObject.ApplyModifiedProperties();
-
                 //删除数据
                 if (selectedList.Count > 0)
                 {
@@ -112,8 +110,17 @@ namespace HugulaEditor.Databinding
                     rect.width = 100;
                     if (GUI.Button(rect, "del property " + selectedList.Count))
                     {
+
+                        selectedList.Sort((int a, int b) =>
+                            {
+                                if (a < b) return 1;
+                                else if (a == b) return 0;
+                                else
+                                    return -1;
+                            });
+
                         foreach (var i in selectedList)
-                            BindalbeObjectUtilty.RemoveAtbindableObjects(temp, i);
+                            bindings.DeleteArrayElementAtIndex(i);
                     }
                     EditorGUILayout.Separator();
                     EditorGUILayout.EndHorizontal();
@@ -122,6 +129,8 @@ namespace HugulaEditor.Databinding
                 {
                     GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
                 }
+                serializedObject.ApplyModifiedProperties();
+
             }
         }
 

@@ -88,18 +88,17 @@ namespace HugulaEditor.Databinding
             {
                 selectedList.Clear();
                 serializedObject.Update();
-                    var len = property_children.arraySize;
-                    SerializedProperty bindingProperty;
-                    for (int i = 0; i < len; i++)
+                var len = property_children.arraySize;
+                SerializedProperty bindingProperty;
+                for (int i = 0; i < len; i++)
+                {
+                    bindingProperty = property_children.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(bindingProperty, false);
+                    if (bindingProperty.isExpanded)
                     {
-                        bindingProperty = property_children.GetArrayElementAtIndex(i);
-                        EditorGUILayout.PropertyField(bindingProperty, false);
-                        if (bindingProperty.isExpanded)
-                        {
-                            selectedList.Add(i);
-                        }
+                        selectedList.Add(i);
                     }
-                serializedObject.ApplyModifiedProperties();
+                }
 
                 //删除数据
                 float width = 0;
@@ -112,8 +111,15 @@ namespace HugulaEditor.Databinding
                     rect.width = width;
                     if (GUI.Button(rect, "del BindalbeObject " + selectedList.Count))
                     {
+                        selectedList.Sort((int a, int b) =>
+                                {
+                                    if (a < b) return 1;
+                                    else if (a == b) return 0;
+                                    else
+                                        return -1;
+                                });
                         foreach (var i in selectedList)
-                            BindalbeObjectUtilty.RemoveAtbindableObjects(temp, i);
+                            property_children.DeleteArrayElementAtIndex(i);
                     }
                 }
                 else
@@ -123,6 +129,8 @@ namespace HugulaEditor.Databinding
                     rect.width = width;
                     GUI.Box(rect, DELETE_TIPS);
                 }
+
+                serializedObject.ApplyModifiedProperties();
 
                 EditorGUILayout.Separator();
                 EditorGUILayout.EndHorizontal();
@@ -251,11 +259,11 @@ namespace HugulaEditor.Databinding
             }
         }
 
-        public void RemoveAtbindableObjects(BindableContainer refer, int index)
-        {
-            var children = refer.children;
-            children.RemoveAt(index);
-        }
+        // public void RemoveAtbindableObjects(BindableContainer refer, int index)
+        // {
+        //     var children = refer.children;
+        //     children.RemoveAt(index);
+        // }
 
         public void AddHierarchyChildren(Transform transform, BindableContainer container, bool checkChildren = false)
         {

@@ -38,6 +38,8 @@ namespace HugulaEditor.Databinding
                     prop.SetValue(target, temp.GetComponent(prop.PropertyType));
             }
 
+            base.OnInspectorGUI();
+
             var rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
             var rect1 = rect;
             float w = rect.width;

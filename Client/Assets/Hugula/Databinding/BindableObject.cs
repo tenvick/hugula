@@ -94,7 +94,7 @@ namespace Hugula.Databinding
         ///<summary>
         /// 绑定表达式
         ///<summary>
-        // [HideInInspector]
+        [HideInInspector]
         [SerializeField]
         // [BindingsAttribute]
         protected List<Binding> bindings = new List<Binding>();

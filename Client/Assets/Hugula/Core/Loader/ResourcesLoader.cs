@@ -492,8 +492,6 @@ namespace Hugula.Loader
             CacheData cache = CacheManager.TryGetCache(assetBundleName);
             if (cache.canUse) return; //可以使用
 
-            // bool isIn = downloadingBundles.Contains(assetBundleName);//正在队列中
-
             if (async && !downloadingBundles.Contains(assetBundleName)) //异步加载
             {
                 var op = OperationPools<BundleOperation>.Get();
@@ -501,8 +499,20 @@ namespace Hugula.Loader
                 inBundleProgressOperations.Add(op);
                 downloadingBundles.Add(assetBundleName);
             }
-            else if (!async )//&& cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
+            else if (!async)// && cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
             {
+                //cancel async loader
+                if (cache.state == CacheData.CacheDataState.Loading) //异步加载中需要终止done
+                {
+                    foreach (var opAsync in inBundleProgressOperations)
+                    {
+                        if (string.Equals(opAsync.assetBundleName, assetBundleName))
+                        {
+                            opAsync.CancelAsyncDone();
+                            break;
+                        }
+                    }
+                }
                 var op = OperationPools<BundleOperation>.Get();
                 op.assetBundleName = assetBundleName;
                 op.StartSync(); //同步加载
@@ -680,7 +690,7 @@ namespace Hugula.Loader
                 // if (inProgressOperations.Count >= maxLoading) //如果大于最大值
                 //     waitOperations.Enqueue(assetOper); //放入等待列表
                 // else
-                    inProgressOperations.Add(assetOper);
+                inProgressOperations.Add(assetOper);
             }
             else
 #endif
@@ -696,7 +706,7 @@ namespace Hugula.Loader
                 // if (inProgressOperations.Count >= maxLoading) //如果大于最大值
                 //     waitOperations.Enqueue(assetOper); //放入等待列表
                 // else
-                    inProgressOperations.Add(assetOper);
+                inProgressOperations.Add(assetOper);
             }
 
             // Debug.LogFormat("LoadSceneAsset({0},{1})", opID, request.assetBundleName);

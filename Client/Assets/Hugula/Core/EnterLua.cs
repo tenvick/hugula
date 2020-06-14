@@ -14,9 +14,12 @@ using XLua;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
-public class EnterLua : MonoBehaviour, IManager
+namespace Hugula
 {
+
+    [XLua.LuaCallCSharp]
+    public class EnterLua : MonoBehaviour, IManager
+    {
 #if UNITY_EDITOR
     const string KeyDebugString = "_Plua_Debug_string";
 
@@ -34,7 +37,7 @@ public class EnterLua : MonoBehaviour, IManager
     }
 #endif
 
-    public string enterLua = "begin"; //main
+        [SerializeField] string enterLua = "begin"; //main
 
     internal static LuaEnv luaenv;
 
@@ -220,14 +223,16 @@ public class EnterLua : MonoBehaviour, IManager
         luafun.Call(args);
     }
 
-    static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
-    public class WaitForFrameCount : IEnumerator
-    {
-        int m_EndCount;
-        public WaitForFrameCount(int frameCount)
+        static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
+
+        [XLua.LuaCallCSharp]
+        public class WaitForFrameCount : IEnumerator
         {
-            SetEndFrame(frameCount);
-        }
+            int m_EndCount;
+            public WaitForFrameCount(int frameCount)
+            {
+                SetEndFrame(frameCount);
+            }
 
         public WaitForFrameCount()
         {
@@ -255,7 +260,8 @@ public class EnterLua : MonoBehaviour, IManager
         void IEnumerator.Reset()
         {
 
+            }
         }
+        #endregion
     }
-    #endregion
 }

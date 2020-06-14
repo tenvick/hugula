@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.6.14
+1 同步加载assetbundle时候取消异步加载done事件。
+2 VMManager 先执行on_deactive然后在设置view.gameobject active为false
+3 BindableObject xlua方法黑名单增加，默认显示所有BindableObject的可序列化属性。
+4 新的fps类，支持采样分析。
+
 2020.6.6
 1 Bindalbe对象编辑界面优化。
 2 LoopScrollRect 滚动条支持。

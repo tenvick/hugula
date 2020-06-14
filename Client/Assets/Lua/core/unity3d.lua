@@ -2,8 +2,8 @@ local CS = CS
 local UnityEngine = CS.UnityEngine
 local Hugula = CS.Hugula
 local manager = Hugula.Framework.Manager
-local EnterLua = CS.EnterLua
-local timer = Hugula.Framework.Timer.instance --≥ı ºªØtimer
+local EnterLua = CS.Hugula.EnterLua
+local timer = Hugula.Framework.Timer.instance --ÂàùÂßãÂåñtimer
 
 ---------------
 Delay = EnterLua.Delay

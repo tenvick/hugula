@@ -8,15 +8,15 @@ public class TestEnterLua : MonoBehaviour {
     // Start is called before the first frame update
     public TextAsset luaAsset;
     void Awake () {
-        EnterLua.luaenv = new LuaEnv ();
-        EnterLua.luaenv.AddLoader ((ref string name) => {
+        Hugula.EnterLua.luaenv = new LuaEnv ();
+        Hugula.EnterLua.luaenv.AddLoader ((ref string name) => {
             string name1 = name.Replace ('.', '/');
             string path = Application.dataPath + "/Lua/" + name1 + ".lua";
             var str = File.ReadAllBytes (path);
             return str;
         });
 
-        EnterLua.luaenv.DoString ("require('" + enterLua + "')");
+        Hugula.EnterLua.luaenv.DoString ("require('" + enterLua + "')");
     }
 
     // Update is called once per frame

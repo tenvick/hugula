@@ -46,6 +46,7 @@ namespace Hugula.Loader
         public string assetBundleName;
         AssetBundleCreateRequest m_abRequest;
         bool m_start = false;
+        bool m_CancelDone = false;
         string url;
 
         public void Start()
@@ -67,9 +68,14 @@ namespace Hugula.Loader
 
             if (m_abRequest == null) return false;
 
+            if (m_CancelDone) return false;
+
             bool isdone = m_abRequest.isDone;
 
-            if (isdone) m_Done(m_abRequest.assetBundle);
+            if (isdone)
+            {
+                m_Done(m_abRequest.assetBundle);
+            }
 
             if (!CacheManager.CheckDependenciesComplete(assetBundleName)) // && Time.frameCount - frameBegin >= timeOutFrame)
                 return true; //wait
@@ -79,6 +85,7 @@ namespace Hugula.Loader
 
         public void Reset()
         {
+            m_CancelDone = false;
             m_start = false;
             m_abRequest = null;
             assetBundleName = null;
@@ -93,6 +100,15 @@ namespace Hugula.Loader
             url = CUtils.GetAndroidABLoadPath(url);
             var assetBundle = AssetBundle.LoadFromFile(url);
             m_Done(assetBundle);
+        }
+
+        //取消异步加载
+        internal void CancelAsyncDone()
+        {
+            m_CancelDone = true;
+#if UNITY_EDITOR
+            Debug.LogWarningFormat("cancel({0}) async done  it's mean sync load when async loading ", this.assetBundleName);
+#endif
         }
 
         private void m_Done(AssetBundle assetBundle)

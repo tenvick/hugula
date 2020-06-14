@@ -97,7 +97,6 @@ local function on_pre_load_comp(data, view_base)
         set_view_child(inst, view_base)
         inst:SetActive(false)
     end
-
 end
 
 ---场景加载完成
@@ -169,6 +168,7 @@ end
 local function deactive_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
+        curr_vm:on_deactive()
         local views = curr_vm.views
         if views then
             for k, v in ipairs(views) do
@@ -177,7 +177,6 @@ local function deactive_view(self, vm_name)
         end
 
         curr_vm.is_active = false
-        curr_vm:on_deactive()
     end
 end
 
@@ -187,6 +186,10 @@ end
 local function destory_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- if curr_vm.is_res_ready == true then --已经加载过
+    curr_vm.is_active = false
+    curr_vm.is_res_ready = false
+    curr_vm:on_deactive()
+
     local views = curr_vm.views
     if views then
         for k, v in ipairs(views) do
@@ -194,9 +197,6 @@ local function destory_view(self, vm_name)
         end
     end
 
-    curr_vm.is_active = false
-    curr_vm.is_res_ready = false
-    curr_vm:on_deactive()
     curr_vm:on_destroy()
     -- else
     --     Logger.Log(vm_name," is not ready")

@@ -114,7 +114,7 @@ namespace Hugula
             if (string.IsNullOrEmpty(abName))
             {
 #if UNITY_EDITOR
-                Debug.LogWarningFormat("could't find  asset ({0})'s {1}", assetName, typeof(IMappingAsset<R>));
+                Debug.LogWarningFormat("could't find  asset name ({0})'s  assetBundleMappingAsset({1})", assetName, typeof(IMappingAsset<R>));
 #endif
                 return;
             }
@@ -159,7 +159,7 @@ namespace Hugula
 
             string abName = m_AssetBundleMappingAsset.GetAassetBundleName(assetName);
             int count = 0;
-            if (m_AudioClipAssetRefer.TryGetValue(abName, out count))
+            if (abName!=null && m_AudioClipAssetRefer.TryGetValue(abName, out count))
             {
                 count = --m_AudioClipAssetRefer[abName];
                 if (count <= 0)

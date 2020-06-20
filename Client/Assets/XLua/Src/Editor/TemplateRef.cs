@@ -13,6 +13,7 @@ namespace XLua
         public TextAsset LuaInterfaceBridge;
         public TextAsset LuaRegister;
         public TextAsset LuaRegisterGCM;
+        public TextAsset LuaRegisterWrap;
         public TextAsset LuaWrapPusher;
         public TextAsset PackUnpack;
         public TextAsset TemplateCommon;

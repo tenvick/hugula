@@ -15,6 +15,7 @@ MonoImporter:
       type: 3}
   - LuaRegister: {fileID: 4900000, guid: e416b82ec9fe340458f97cf1e3468ef7, type: 3}
   - LuaRegisterGCM: {fileID: 4900000, guid: 46c7366d55afbf1459674448d92c44c8, type: 3}
+  - LuaRegisterWrap: {fileID: 4900000, guid: 6c2a24554216b5a469941f85da5d33a6, type: 3}
   - LuaWrapPusher: {fileID: 4900000, guid: d1a916469d261d447972d287b6c5b7a0, type: 3}
   - PackUnpack: {fileID: 4900000, guid: c9ef7e8f2a3b37744aad49b99370c16b, type: 3}
   - TemplateCommon: {fileID: 4900000, guid: cb41d53afe75a9443b182e284298feeb, type: 3}

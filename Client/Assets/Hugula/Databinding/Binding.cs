@@ -144,6 +144,10 @@ namespace Hugula.Databinding
                 UnityEngine.Profiling.Profiler.EndSample();
 #endif
                 m_IsApplied = true;
+            }else if(!string.IsNullOrEmpty(converter) && convert == null)
+            {
+                //refresh converter
+                convert = ValueConverterRegister.instance.Get(converter);
             }
 
 
@@ -165,7 +169,8 @@ namespace Hugula.Databinding
 
             if (m_Context == null)
             {
-                Unapply();
+                // Unapply();
+                convert = null;
                 return;
             }
 
@@ -410,6 +415,7 @@ namespace Hugula.Databinding
         public void Dispose()
         {
             Unapply();
+            convert = null;
             target = null;
             source = null;
             m_Context = null;

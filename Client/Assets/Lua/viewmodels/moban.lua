@@ -47,9 +47,20 @@ function moban:on_active()
     print("moban:on_active")
 end
 
+-- --在切换state的时候调用此函数
+-- function moban:on_state_changed()
+
+-- end
+
 function moban:on_deactive()
     print("moban:on_deactive")
 end
+
+-- --在销毁的时候调用此函数
+-- function moban:on_destroy()
+--     print("moban:on_deactive")
+-- end
+
 
 ---点击事件
 moban.on_btn_click = {

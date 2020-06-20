@@ -87,7 +87,7 @@ local function hide_group(curr)
 
             if item.log_enable == false then --如果不需要记录log栈
                 table_remove(_stack, i) --从当前栈移除
-                -- Logger.Log(" pop stack", item[1])
+            -- Logger.Log(" pop stack", item[1])
             end
             return
         else
@@ -114,10 +114,11 @@ end
 local function push(self, vm_group_name, arg)
     local vm_group = _VMGroup[vm_group_name]
     table_insert(_stack, vm_group) --- 进入显示stack
-    VMManager:active(vm_group, arg) ---激活组
     if type(vm_group) == "table" then ---如果是加入的是root 需要隐藏到上一个root的所有栈内容
+        VMManager:_call_on_state_changed() --调用on_state_changed方法
         hide_group(vm_group)
     end
+    VMManager:active(vm_group, arg) ---激活组
 end
 
 ---移除view model追加项目,只有追加项目才需要手动移除
@@ -172,7 +173,7 @@ local function back(self)
                 end
                 break
             else
-                table_insert(active, item) 
+                table_insert(active, item)
             end
         end
 
@@ -203,6 +204,20 @@ local function call_func(self, vm_name, fun_name, arg)
     end
 end
 
+local function get_member(self, vm_name, member_name)
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
+    if curr_vm then
+        if member_name == "." or member_name == nil then
+            return curr_vm
+        else
+            local fun = curr_vm[member_name]
+            return fun
+        end
+    end
+    return nil
+end
+
+vm_state.get_member = get_member
 vm_state.call_func = call_func
 vm_state.push_item = push_item
 vm_state.push = push

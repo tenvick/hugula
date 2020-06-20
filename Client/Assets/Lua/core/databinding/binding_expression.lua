@@ -23,11 +23,11 @@ local context_property = "context"
 ---@param bindable_object BindableObject
 ---@param context any
 local function set_target_context(bindable_object, context)
-    if context.CollectionChanged and context.get_Item ~= nil then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
+    if context and context.CollectionChanged and context.get_Item ~= nil then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
         BindingUtility.SetContextByINotifyTable(bindable_object, context)
-    elseif context.get_Item then ---chekc IList
+    elseif context and context.get_Item then ---chekc IList
         BindingUtility.SetContextByIList(bindable_object, context)
-    elseif context.PropertyChanged then --check INotifyPropertyChanged
+    elseif  context and context.PropertyChanged then --check INotifyPropertyChanged
         BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
     else
         bindable_object[context_property] = context

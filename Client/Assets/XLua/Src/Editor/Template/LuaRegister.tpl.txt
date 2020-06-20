@@ -83,6 +83,9 @@ namespace XLua.CSObjectWrap
 	    static XLua_Gen_Initer_Register__()
         {
 		    XLua.LuaEnv.AddIniter(Init);
+            #if XLUA_AUTOWRAP
+		    XLua.LuaEnv.AddIniter(XLua_Gen_Initer_AutoWrap__.Init);
+            #endif
 		}
 		
 		

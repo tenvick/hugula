@@ -47,7 +47,7 @@ local function load_async()
     ResourcesLoader.OnGroupProgress = on_progress
     ResourcesLoader.OnGroupComplete = all_complete
 
-    ResourcesLoader.BeginMarkGroup(#pre_loading)
+    ResourcesLoader.BeginMarkGroup()
     for k, v in pairs(pre_loading) do
         -- Logger.Log(k,v)
         VMManager:pre_load(v)

@@ -21,6 +21,11 @@ namespace Hugula.Mvvm
             m_VMState = null;
         }
 
+        public XLua.LuaBase GetMemeber(string vm_name, string mebmer_name)
+        {
+            return m_VMState.get_member(vm_name, mebmer_name);
+        }
+
         public void CallFunc(string vm_name, string fun_name, object arg)
         {
             m_VMState.call_func(vm_name, fun_name, arg);
@@ -49,6 +54,7 @@ namespace Hugula.Mvvm
         [XLua.CSharpCallLua]
         public interface IVMState
         {
+            XLua.LuaBase get_member(string vm_name, string member_name);
             void call_func(string vm_name, string fun_name, object arg);
             void push_item(string vm_name, object arg);
             void push(string vm_group_name, object arg);

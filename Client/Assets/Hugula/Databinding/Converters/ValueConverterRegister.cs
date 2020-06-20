@@ -37,7 +37,12 @@ namespace Hugula.Databinding {
 
         public object Get (string name) {
             object outConvts = null;
-            m_Converter.TryGetValue (name, out outConvts);
+            if(!m_Converter.TryGetValue (name, out outConvts))
+            {
+                #if UNITY_EDITOR
+                    Debug.LogWarningFormat("there is no converter named {0}",name);
+                #endif
+            }
             return outConvts;
         }
 

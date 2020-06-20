@@ -76,17 +76,21 @@ namespace Hugula.Loader
         //标注为一个组加载
         static private bool m_MarkGroup = false;
         static private int m_TotalGroupCount = 0;
-        static private int m_minTotalGroupCount = 0;
         static private int m_CurrGroupLoaded = 0;
-        static public void BeginMarkGroup(int minTotalCount = 0)
+        static public void BeginMarkGroup()
         {
             m_MarkGroup = true;
-            m_minTotalGroupCount = minTotalCount;
         }
 
         static public void EndMarkGroup()
         {
             m_MarkGroup = false;
+            if (OnGroupComplete != null && m_TotalGroupCount <= m_CurrGroupLoaded && m_Groupes.Count == 0)
+            {
+                m_TotalGroupCount = 0;
+                m_CurrGroupLoaded = 0;
+                OnGroupComplete();
+            }
         }
 
         public static System.Action OnGroupComplete; //group加载完成回调
@@ -762,7 +766,7 @@ namespace Hugula.Loader
 
             if (OnGroupProgress != null && m_TotalGroupCount > 0)
             {
-                loadingEvent.total = m_TotalGroupCount > m_minTotalGroupCount ? m_TotalGroupCount : m_minTotalGroupCount;
+                loadingEvent.total = m_TotalGroupCount;
                 loadingEvent.current = m_CurrGroupLoaded;
                 loadingEvent.progress = (float)loadingEvent.current / (float)loadingEvent.total;
                 OnGroupProgress(loadingEvent);
@@ -784,7 +788,7 @@ namespace Hugula.Loader
         /// </summary>
         static void CheckAllComplete()
         {
-            if (OnGroupComplete != null && m_TotalGroupCount <= m_CurrGroupLoaded && m_CurrGroupLoaded >= m_minTotalGroupCount && m_Groupes.Count == 0)
+            if (OnGroupComplete != null && m_TotalGroupCount <= m_CurrGroupLoaded && !m_MarkGroup && m_Groupes.Count == 0)
             {
                 m_TotalGroupCount = 0;
                 m_CurrGroupLoaded = 0;

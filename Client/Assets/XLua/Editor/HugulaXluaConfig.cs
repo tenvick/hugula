@@ -450,6 +450,7 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
             new List<string> () { "Hugula.Loader.ABInfo", "EqualsDependencies","Hugula.Loader.ABInfo" },
             new List<string> () { "Hugula.Loader.ABInfo", "assetPath"},
             new List<string> () { "Hugula.Loader.CacheManager", "EditorCacheData"},
+            new List<string> () { "Hugula.EnterLua", "isDebug"},
 
 
         };

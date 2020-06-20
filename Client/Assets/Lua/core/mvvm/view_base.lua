@@ -34,10 +34,14 @@ local view_base =
 
 -- end
 
+local function is_scene(self)
+    local scene_name = self.scene_name
+    return scene_name ~= nil
+end
+
 local function set_active(self, enable)
     local child = self._child
-    local scene_name = self.scene_name
-    if scene_name == nil and child then
+    if not self:is_scene() and child then
         if enable then
             LuaHelper.Active(child)
         else
@@ -67,7 +71,10 @@ end
 local function set_child_context(self, context)
     local child = self._child
     self._context = context
-    set_target_context(child, context)
+
+    if not self:is_scene() then
+        set_target_context(child, context)
+    end
 end
 
 ---是否初始化了
@@ -118,6 +125,7 @@ local function tostring(self)
 end
 
 -- view_base.on_asset_load = on_asset_load
+view_base.is_scene = is_scene
 view_base.set_child = set_child
 view_base.set_active = set_active
 view_base.has_child = has_child

@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.6.20
+1 xlua auto wrap 预编译命令XLUA_AUTOWRAP开启。
+2 binding对象convert刷新，设置context为null后下次自动刷新。
+3 VMStateHelper增加get_member方法。用于无GC执行luafunction
+4 框架方面:viewmodel增加on_state_changed方法。当VMState.push()时候触发
+
 2020.6.14
 1 同步加载assetbundle时候取消异步加载done事件。
 2 VMManager 先执行on_deactive然后在设置view.gameobject active为false

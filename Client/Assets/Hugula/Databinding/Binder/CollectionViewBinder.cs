@@ -196,7 +196,7 @@ namespace Hugula.Databinding.Binder
         {
 
             items = (IList)context;
-
+            ClearItems();
             base.OnBindingContextChanged();
 
             UpdateView(0, items.Count);

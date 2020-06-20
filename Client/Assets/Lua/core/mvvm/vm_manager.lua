@@ -7,8 +7,11 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local string_match = string.match
+local table = table
 local table_insert = table.insert
-
+local table_indexof = table.indexof
+local table_remove_item = table.remove_item
+local table_remove_at = table.remove
 local profiler = require("perf.profiler")
 
 local CS = CS
@@ -22,6 +25,27 @@ local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
 local BindingUtility = Hugula.Databinding.BindingUtility
 
 ResourcesLoader.Initialize()
+--------------------state 相关----------------------------
+local _state_changed = {} --记录有on_state_changed的viewmodel lua
+
+local function add_state_changed(vm_base)
+    if table_indexof(_state_changed, vm_base) == nil then
+        table_insert(_state_changed, vm_base)
+    end
+end
+
+local function remove_state_changed(vm_base)
+    table_remove_item(_state_changed, vm_base)
+end
+
+local function _call_on_state_changed()
+    -- Logger.Log("_call_on_state_changed",#_state_changed)
+    for k,v in ipairs(_state_changed) do
+        v:on_state_changed()
+    end
+end
+
+------------------------------------------------
 
 ---检查view_base的所有资源是否都加载完成
 ---@overload fun(view_base:VMBase)
@@ -65,6 +89,11 @@ local function init_view(view_base)
     local vm_base = view_base._vm_base
     if vm_base.auto_context then
         view_base:set_child_context(vm_base)
+    end
+
+    --记录on_state_changed
+    if vm_base.on_state_changed ~= nil then
+        add_state_changed(vm_base)
     end
 
     check_vm_base_all_done(vm_base)
@@ -186,9 +215,13 @@ end
 local function destory_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- if curr_vm.is_res_ready == true then --已经加载过
+    if curr_vm.on_state_changed then
+        remove_state_changed(curr_vm)
+    end
     curr_vm.is_active = false
     curr_vm.is_res_ready = false
     curr_vm:on_deactive()
+    curr_vm:on_destroy()
 
     local views = curr_vm.views
     if views then
@@ -197,7 +230,6 @@ local function destory_view(self, vm_name)
         end
     end
 
-    curr_vm:on_destroy()
     -- else
     --     Logger.Log(vm_name," is not ready")
     -- end
@@ -214,15 +246,20 @@ local function load_resource(res_path, res_name, view_base, on_asset_comp, is_pr
     local vm_name = view_base._vm_base.name
     local vm_config = VMConfig[vm_name]
     local async = vm_config.async
+    local has_child = view_base:has_child()
 
     if is_pre_load == true then
         async = is_pre_load
+        if has_child then
+            return
+        end --
     end
+
     if on_asset_comp == nil then
         on_asset_comp = on_res_comp
     end
 
-    if view_base:has_child() == true then --and is_pre_load ~= true then --如果已经加载资源
+    if has_child then --and is_pre_load ~= true then --如果已经加载资源
         init_view(view_base)
     else
         if async ~= false then ---异步加载
@@ -260,6 +297,9 @@ local function load_scene(res_path, scene_name, view_base, on_asset_comp, is_pre
 
     if is_pre_load == true then --强制设置scene active 一般用于预加载
         allow_scene_activation = false
+        if view_base:has_child() then
+            return
+        end --
     end
 
     ResourcesLoader.LoadScene(
@@ -326,7 +366,7 @@ end
 local function pre_load(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     local views = curr_vm.views
-    if views then
+    if views and not curr_vm.is_res_ready then
         local find_path, res_name, scene_name, res_path
         for k, v in ipairs(views) do
             find_path, res_name, scene_name, res_path = v.find_path, v.asset_name, v.scene_name, v.res_path
@@ -341,6 +381,7 @@ local function pre_load(self, vm_name)
 end
 
 local vm_manager = {}
+vm_manager._call_on_state_changed = _call_on_state_changed
 vm_manager.pre_load = pre_load
 vm_manager.load = load
 vm_manager.active = active

@@ -200,6 +200,10 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
                 customlist.Add(typeof(Hugula.Databinding.UpdateValue));
                 customlist.Add(typeof(Hugula.Databinding.ApplyActual));
+                
+                customlist.Add(typeof(Hugula.Audio.AudioManager));
+                customlist.Add(typeof(Hugula.Atlas.AtlasManager));
+                customlist.Add(typeof(Hugula.Loader.ResourcesLoader.OverrideBaseDownloadingURLDelegate));
 
                 customlist.Add(typeof(Action<Vector2>));
                 customlist.Add(typeof(System.Action<object, object, string, string, string, string>));

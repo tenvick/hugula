@@ -1,6 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+
+2020.6.24
+1 xlua v2.1.15版本同步。
+2 AssetbundleMappingManger 变量名修改，列表为空时候移除list。
+
 2020.6.20
 1 xlua auto wrap 预编译命令XLUA_AUTOWRAP开启。
 2 binding对象convert刷新，设置context为null后下次自动刷新。

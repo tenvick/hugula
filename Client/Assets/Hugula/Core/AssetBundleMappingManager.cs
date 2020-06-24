@@ -13,8 +13,8 @@ namespace Hugula
     public abstract class AssetBundleMappingManager<T, R> : Singleton<T>, IDisposable where T : AssetBundleMappingManager<T, R>, IDisposable where R : UnityEngine.Object
     {
         private AssetBundleMappingAsset m_AssetBundleMappingAsset;
-        private Dictionary<string, IMappingAsset<R>> m_AudioClipAssetCache;
-        private Dictionary<string, int> m_AudioClipAssetRefer;
+        private Dictionary<string, IMappingAsset<R>> m_MappingAssetCache;
+        private Dictionary<string, int> m_AssetRefer;
         private Dictionary<string, int> m_ABCacheSubCount;
 
         private Dictionary<string, Dictionary<string, int>> m_ABGroups;
@@ -35,8 +35,8 @@ namespace Hugula
         {
             string mappingAssetName = GetMappingAssetName();
             m_AssetBundleMappingAsset = ResourcesLoader.LoadAsset<AssetBundleMappingAsset>(mappingAssetName + Common.CHECK_ASSETBUNDLE_SUFFIX, mappingAssetName);
-            m_AudioClipAssetCache = new Dictionary<string, IMappingAsset<R>>();
-            m_AudioClipAssetRefer = new Dictionary<string, int>();
+            m_MappingAssetCache = new Dictionary<string, IMappingAsset<R>>();
+            m_AssetRefer = new Dictionary<string, int>();
             m_ABCacheSubCount = new Dictionary<string, int>();
             m_ABGroups = new Dictionary<string, Dictionary<string, int>>();
         }
@@ -46,13 +46,13 @@ namespace Hugula
         protected int AddRefer(string abName)
         {
             //引用计数+1
-            if (!m_AudioClipAssetRefer.ContainsKey(abName))
+            if (!m_AssetRefer.ContainsKey(abName))
             {
-                m_AudioClipAssetRefer.Add(abName, 1);
+                m_AssetRefer.Add(abName, 1);
                 return 1;
             }
             else
-                return m_AudioClipAssetRefer[abName]++;
+                return m_AssetRefer[abName]++;
         }
 
         protected int AddGroup(string abGrounpName, string abName)
@@ -78,13 +78,13 @@ namespace Hugula
 
         public R GetAsset(string assetName, string groupName = "")
         {
-            IMappingAsset<R> audioClipAsset;
+            IMappingAsset<R> mappingAsset;
             //find assetbundle name
             string abName = m_AssetBundleMappingAsset.GetAassetBundleName(assetName);
             if (string.IsNullOrEmpty(abName))
             {
 #if UNITY_EDITOR
-                Debug.LogWarningFormat("could't find  asset ({0})'s {1}", assetName, typeof(IMappingAsset<R>));
+                Debug.LogWarningFormat("{1} doesn't contains asset {0}.", assetName, typeof(IMappingAsset<R>));
 #endif
                 return null;
             }
@@ -94,15 +94,15 @@ namespace Hugula
             if (!string.IsNullOrEmpty(groupName))
                 AddGroup(groupName, abName);
 
-            if (m_AudioClipAssetCache.TryGetValue(abName, out audioClipAsset))
+            if (m_MappingAssetCache.TryGetValue(abName, out mappingAsset))
             {
-                return audioClipAsset.GetAsset(assetName);
+                return mappingAsset.GetAsset(assetName);
             }
             else
             {
-                audioClipAsset = ResourcesLoader.LoadAsset<IMappingAsset<R>>(abName, Utils.CUtils.GetAssetName(abName));
-                m_AudioClipAssetCache.Add(abName, audioClipAsset);
-                return audioClipAsset.GetAsset(assetName);
+                mappingAsset = ResourcesLoader.LoadAsset<IMappingAsset<R>>(abName, Utils.CUtils.GetAssetName(abName));
+                m_MappingAssetCache.Add(abName, mappingAsset);
+                return mappingAsset.GetAsset(assetName);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Hugula
             if (string.IsNullOrEmpty(abName))
             {
 #if UNITY_EDITOR
-                Debug.LogWarningFormat("could't find  asset name ({0})'s  assetBundleMappingAsset({1})", assetName, typeof(IMappingAsset<R>));
+                Debug.LogWarningFormat("{1} doesn't contains asset {0}.", assetName, typeof(IMappingAsset<R>));
 #endif
                 return;
             }
@@ -124,19 +124,26 @@ namespace Hugula
             if (!string.IsNullOrEmpty(groupName))
                 AddGroup(groupName, abName);
 
-            if (m_AudioClipAssetCache.TryGetValue(abName, out mappingAsset))
+            if (m_MappingAssetCache.TryGetValue(abName, out mappingAsset))
             {
-                onComplete(mappingAsset.GetAsset(assetName));
+                var asset = mappingAsset.GetAsset(assetName);
+                onComplete(asset);
+                #if UNITY_EDITOR
+                if(asset == null)
+                {
+                    Debug.LogWarningFormat("{0} doesn't contains asset {1}.",mappingAsset,assetName);
+                }
+                #endif
             }
             else
             {
                 Action<object, object> onComplete1 = (data, userData) =>
                 {
                     IMappingAsset<R> mappingAsset1 = (IMappingAsset<R>)data;
-                    if (!m_AudioClipAssetCache.ContainsKey(abName))
-                        m_AudioClipAssetCache.Add(abName, mappingAsset1);
-                    R audio = mappingAsset1.GetAsset(assetName);
-                    onComplete(audio);
+                    if (!m_MappingAssetCache.ContainsKey(abName))
+                        m_MappingAssetCache.Add(abName, mappingAsset1);
+                    R asset = mappingAsset1.GetAsset(assetName);
+                    onComplete(asset);
 
                     //keep reference count as 1
                     int count = 0;
@@ -159,13 +166,13 @@ namespace Hugula
 
             string abName = m_AssetBundleMappingAsset.GetAassetBundleName(assetName);
             int count = 0;
-            if (abName!=null && m_AudioClipAssetRefer.TryGetValue(abName, out count))
+            if (abName != null && m_AssetRefer.TryGetValue(abName, out count))
             {
-                count = --m_AudioClipAssetRefer[abName];
+                count = --m_AssetRefer[abName];
                 if (count <= 0)
                 {
-                    m_AudioClipAssetCache.Remove(abName);
-                    m_AudioClipAssetRefer.Remove(abName);
+                    m_MappingAssetCache.Remove(abName);
+                    m_AssetRefer.Remove(abName);
                     CacheManager.Subtract(abName);
                 }
             }
@@ -182,10 +189,11 @@ namespace Hugula
                 {
                     abName = kv.Key;
                     count = kv.Value;
-                    count = m_AudioClipAssetRefer[abName] -= count;
+                    count = m_AssetRefer[abName] -= count;
                     if (count <= 0)
                     {
-                        m_AudioClipAssetRefer.Remove(abName);
+                        m_MappingAssetCache.Remove(abName);
+                        m_AssetRefer.Remove(abName);
                         CacheManager.Subtract(abName);
                     }
                 }
@@ -205,8 +213,8 @@ namespace Hugula
             }
             m_ABGroups.Clear();
             m_AssetBundleMappingAsset.Dispose();
-            m_AudioClipAssetRefer.Clear();
-            m_AudioClipAssetCache.Clear();
+            m_AssetRefer.Clear();
+            m_MappingAssetCache.Clear();
         }
     }
 }

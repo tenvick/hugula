@@ -16,14 +16,16 @@ namespace HugulaEditor.Databinding
     public class BindableObjectEditor : UnityEditor.Editor
     {
 
-        SerializedProperty bindings;
+        SerializedProperty m_Property_bindings;
+        SerializedProperty m_Property_m_Target;
         string propertyName = string.Empty;
 
         List<int> selectedList = new List<int>();
 
         void OnEnable()
         {
-            bindings = serializedObject.FindProperty("bindings");
+            m_Property_bindings = serializedObject.FindProperty("bindings");
+            m_Property_m_Target = serializedObject.FindProperty("m_Target");
         }
 
         public override void OnInspectorGUI()
@@ -39,6 +41,13 @@ namespace HugulaEditor.Databinding
             }
 
             base.OnInspectorGUI();
+
+            if(temp is CustomBinder)
+            {
+                serializedObject.Update();
+                EditorGUILayout.PropertyField(m_Property_m_Target);
+                serializedObject.ApplyModifiedProperties();
+            }
 
             var rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
             var rect1 = rect;
@@ -58,7 +67,9 @@ namespace HugulaEditor.Databinding
                 EditorGUI.ObjectField(rect1, customer.target, typeof(Component), false); //显示绑定对象
             }
             else
+            {
                 EditorGUI.ObjectField(rect1, temp, typeof(BindableObject), false); //显示绑定对象
+            }
 
             rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
             rect1.width = w * .4f;
@@ -87,7 +98,7 @@ namespace HugulaEditor.Databinding
             EditorGUILayout.EndHorizontal();
 
             //显示列表
-            if (bindings.isArray)
+            if (m_Property_bindings.isArray)
             {
                 selectedList.Clear();
                 serializedObject.Update();
@@ -96,7 +107,7 @@ namespace HugulaEditor.Databinding
                 SerializedProperty bindingProperty;
                 for (int i = 0; i < len; i++)
                 {
-                    bindingProperty = bindings.GetArrayElementAtIndex(i);
+                    bindingProperty = m_Property_bindings.GetArrayElementAtIndex(i);
                     EditorGUILayout.PropertyField(bindingProperty, true);
                     if (bindingProperty.isExpanded)
                     {
@@ -122,7 +133,7 @@ namespace HugulaEditor.Databinding
                             });
 
                         foreach (var i in selectedList)
-                            bindings.DeleteArrayElementAtIndex(i);
+                            m_Property_bindings.DeleteArrayElementAtIndex(i);
                     }
                     EditorGUILayout.Separator();
                     EditorGUILayout.EndHorizontal();

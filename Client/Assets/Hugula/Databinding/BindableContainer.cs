@@ -10,6 +10,7 @@ namespace Hugula.Databinding
         /// 绑定的对象
         ///<summary>
         [HideInInspector]
+        [BindableObjectAttribute]
         public List<BindableObject> children;
 
         public void AddChild(BindableObject child)

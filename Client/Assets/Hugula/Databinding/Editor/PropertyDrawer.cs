@@ -52,7 +52,7 @@ namespace HugulaEditor.Databinding
     }
 
 
-    [CustomPropertyDrawer(typeof(BindableObject), true)]
+    [CustomPropertyDrawer(typeof(BindableObjectAttribute), true)]
     public class BindableObjectProperty : PropertyDrawer
     {
         List<int> selectedList = new List<int>();
@@ -119,12 +119,15 @@ namespace HugulaEditor.Databinding
                 if (string.Equals(propertyName, BindableObjectStyle.FIRST_PROPERTY_NAME))
                 {
                     Debug.LogWarningFormat("please choose a property to binding");
-                    return;
                 }
-                Binding expression = new Binding();
-                expression.propertyName = propertyName;
-                temp.AddBinding(expression);
-                property.isExpanded = true;
+                else
+                {
+                    Binding expression = new Binding();
+                    expression.propertyName = propertyName;
+                    temp.AddBinding(expression);
+                    property.isExpanded = true;
+                }
+
             }
             EditorGUILayout.Separator();
             EditorGUILayout.EndHorizontal();
@@ -204,6 +207,8 @@ namespace HugulaEditor.Databinding
                 // GUILayout.Box("click checkbox  to see detail or delete!");
             }
         }
+
+
     }
 
     [CustomPropertyDrawer(typeof(Binding), true)]

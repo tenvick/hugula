@@ -2,6 +2,10 @@
 
 更新日志:
 
+2020.7.5
+1 VMManager,VMConfig 全局变量优化。
+2 模块间调用,统一为VMState:call_fun(viewmodel_name,function_name,arg)
+
 2020.6.24
 1 xlua v2.1.15版本同步。
 2 AssetbundleMappingManger 变量名修改，列表为空时候移除list。

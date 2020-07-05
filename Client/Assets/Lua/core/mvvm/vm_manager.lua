@@ -6,6 +6,7 @@
 local type = type
 local ipairs = ipairs
 local pairs = pairs
+local require = require
 local string_match = string.match
 local table = table
 local table_insert = table.insert
@@ -18,8 +19,8 @@ local CS = CS
 local GameObject = CS.UnityEngine.GameObject
 local Hugula = CS.Hugula
 local ResourcesLoader = Hugula.Loader.ResourcesLoader
-local VMGenerate = VMGenerate
-local VMConfig = VMConfig
+local VMConfig = require("vm_config")[1]
+local VMGenerate = require("core.mvvm.vm_generate")
 
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
 local BindingUtility = Hugula.Databinding.BindingUtility
@@ -40,7 +41,7 @@ end
 
 local function _call_on_state_changed()
     -- Logger.Log("_call_on_state_changed",#_state_changed)
-    for k,v in ipairs(_state_changed) do
+    for k, v in ipairs(_state_changed) do
         v:on_state_changed()
     end
 end
@@ -180,7 +181,6 @@ end
 local function active_view(self, vm_name)
     ---@class VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
-    -- local vm_config = VMConfig[vm_name] --获取配置信息
     if curr_vm.is_res_ready == true then --已经加载过
         local views = curr_vm.views
         if views then
@@ -189,23 +189,27 @@ local function active_view(self, vm_name)
             end
         end
 
-        curr_vm.is_active = true
-        curr_vm:on_active()
+        if not curr_vm.is_active then
+            curr_vm.is_active = true
+            curr_vm:on_active()
+        end
     end
 end
 
 local function deactive_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
-        curr_vm:on_deactive()
-        local views = curr_vm.views
-        if views then
-            for k, v in ipairs(views) do
-                v:set_active(false)
+        if curr_vm.is_active then
+            curr_vm:on_deactive()
+            local views = curr_vm.views
+            if views then
+                for k, v in ipairs(views) do
+                    v:set_active(false)
+                end
             end
-        end
 
-        curr_vm.is_active = false
+            curr_vm.is_active = false
+        end
     end
 end
 
@@ -395,4 +399,5 @@ vm_manager.deactive_view = deactive_view
 ---@field load function
 ---@field destory_view function
 ---@field deactive_view function
-VMManager = vm_manager
+-- VMManager = vm_manager
+return vm_manager

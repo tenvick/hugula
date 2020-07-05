@@ -4,12 +4,17 @@
 --  author pu
 ------------------------------------------------
 local pairs = pairs
+local require = require
 local table_insert = table.insert
+
 local View = View
 local VMState = VMState
 local VMGroup = VMGroup
-local VMManager = VMManager
-local VMGenerate = VMGenerate
+local VMManager = require("core.mvvm.vm_manager")
+
+local Manager = Manager
+local DispatcherEnum = DispatcherEnum
+local CS = CS
 local ResourcesLoader = CS.Hugula.Loader.ResourcesLoader
 ---@class VMBase vm
 ---@class loading
@@ -65,13 +70,15 @@ end
 function loading:on_push_arg(arg)
     --接受loading信息
     if arg ~= nil then
-        VMGenerate.scene_loader:on_push_arg({scene_loader = arg})
+        VMState:call_func("scene_loader","on_push_arg",{scene_loader = arg})
+	--VMGenerate.scene_loader:on_push_arg({scene_loader = arg})
     end
 
     --读取数据信息
     local assets = {}
     table_insert(assets,{asset_name="Player1",res_path="player1.u3d"})
-    VMGenerate.asset_loader:on_push_arg({asset_loader=assets})
+    -- VMGenerate.asset_loader:on_push_arg({asset_loader=assets})
+    VMState:call_func("asset_loader","on_push_arg",{asset_loader=assets})
 end
 
 function loading:on_active()

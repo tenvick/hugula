@@ -6,7 +6,9 @@
 local require = require
 local rawset = rawset
 local rawget = rawget
-local VMConfig = VMConfig
+local setmetatable = setmetatable
+
+local VMConfig = require("vm_config")[1]
 
 ---根据 WindowConfig的配置来require view model文件
 local function _require_vm(t, k)
@@ -19,7 +21,7 @@ local function _require_vm(t, k)
             rawset(re, "name", k) ---设置view model的 name
             return re
         else
-            error(string.format("core/mvvm/vm_config.lua does't contains vm_config.%s",k))
+            error(string.format("/vm_config.lua does't contains vm_config.%s",k))
         end
     else
         return raw
@@ -37,4 +39,4 @@ setmetatable(vm_generate,mt)
 --- 保持对所有view models的实例引用 __index回自动require vm_config 对应路径的viewmodel lua文件
 ---@class VMGenerate
 ---@field index string
-VMGenerate = vm_generate
+return vm_generate

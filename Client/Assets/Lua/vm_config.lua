@@ -21,7 +21,7 @@ setmetatable(vm_config, mt)
 ---@class WindowConfig
 ---@field logo table
 ---@field scroll_rect_table table
-VMConfig = vm_config
+-- VMConfig = vm_config
 
 local vm_group = {name = "ViewModelGroup  file: vm_config.lua"}
 setmetatable(vm_group, mt)
@@ -30,17 +30,17 @@ setmetatable(vm_group, mt)
 ---@field welcome table
 ---@field source_demo table
 ---@field scroll_rect_table table
-_VMGroup = vm_group
+-- _VMGroup = vm_group
 
-local vmgroup_name= {}
-vmgroup_name.__index=function(t,k)
+local vmgroup_name = {}
+vmgroup_name.__index = function(t, k)
     return k
 end
 -- for k,v in pairs(vm_group) do
 --     vmgroup_name[k] = k
 -- end
 local vm_g = {}
-setmetatable(vm_g,vmgroup_name)
+setmetatable(vm_g, vmgroup_name)
 VMGroup = vm_g
 --------------------------------------------------------------------------
 -------------------------------viewmodel配置-------------------------------
@@ -65,3 +65,4 @@ vm_group.binding_demo = {"binding_demo","back_tips"}
 vm_group.chat_demo = {"chat_demo","back_tips"}
 vm_group.loading = {"loading",log_enable = false} --loading不需要回退
 vm_group.gamescene = {"asset_loader","scene_loader","back_tips"}
+return {vm_config,vm_group}

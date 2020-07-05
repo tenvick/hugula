@@ -7,14 +7,16 @@ local table_insert = table.insert
 local table_remove = table.remove
 local table_remove_item = table.remove_item
 local table_indexof = table.indexof
+local unpack = table.unpack
 local ipairs = ipairs
 local type = type
+local require = require
 
 local VM_GC_TYPE = VM_GC_TYPE
-local VMConfig = VMConfig
-local VMManager = VMManager
-local _VMGroup = _VMGroup
-local VMGenerate = VMGenerate
+local VMConfig,_VMGroup = unpack(require("vm_config"))
+local VMManager = require("core.mvvm.vm_manager")
+local VMGenerate = require("core.mvvm.vm_generate")
+
 ---
 ---     下面是一个典型的vm stack示例：{}表示根状态,""表示追加状态, 根状态来控制stack上的UI显示。
 ------------------------------------------------------
@@ -219,14 +221,15 @@ end
 
 vm_state.get_member = get_member
 vm_state.call_func = call_func
-vm_state.push_item = push_item
 vm_state.push = push
+vm_state.push_item = push_item
 vm_state.popup_item = popup_item
 vm_state.back = back
 
 --- view model 的显示隐藏管理
 ---@class VMState
 ---@field push function
----@field remove_item   function
+---@field push_item   function
+---@field popup_item function
 ---@field back  function
 VMState = vm_state

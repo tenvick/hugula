@@ -16,12 +16,8 @@ require("core.databinding.binding_expression") ---表达式与寻值
 
 require("models.model")
 
-require("vm_config")
 require("core.mvvm.view_base")
-require("core.mvvm.vm_generate")
-require("core.mvvm.vm_manager")
 require("core.mvvm.vm_state")
 require("core.mvvm.vm_base")
 
 require("converter_register")
-

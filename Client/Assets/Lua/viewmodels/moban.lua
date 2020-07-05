@@ -25,7 +25,7 @@ local property_btntext = "btntext"
 moban.enable_slider = true
 moban.btntext = "拖动滑动条"
 
----当vmbase的属性被设置的时候回调次方法
+---当vmbase的属性被设置的时候回调此方法
 function moban:on_property_set(property)
     if property == "value" and moban.slider1_value > 0.5 then
         -- Logger.Log("value ",moban.slider1_value)

@@ -8,7 +8,6 @@ local pairs = pairs
 local ipairs = ipairs
 local string_format = string.format
 local class = class
-local VMState = VMState
 local Object = CS.System.Object
 
 local vm_base =

@@ -80,9 +80,14 @@ namespace Hugula.Mvvm
                 object e = null;
                 for (int i = events.Count - 1; i >= 0; i--)
                 {
+                    if (events.Count > i) // for events.Clear()
+                    {
                     e = events[i];
                     if (e is System.Action<T>)
                         ((System.Action<T>)e)(arg);
+					else if (e is System.Action<object>)
+						 ((System.Action<object>)e)(arg);
+                    }
                 }
 
             }
@@ -139,6 +144,21 @@ namespace Hugula.Mvvm
         public static void DispatchInt(this GlobalDispatcher self, DispatcherEvent key, int arg)
         {
             self.Dispatch<int>(key, arg);
+        }
+
+         public static void AddListenerFloat(this GlobalDispatcher self, DispatcherEvent key, System.Action<float> action)
+        {
+            self.AddListener<float>(key, action);
+        }
+
+        public static void RemoveListenerFloat(this GlobalDispatcher self, DispatcherEvent key, System.Action<float> action)
+        {
+            self.RemoveListener<float>(key, action);
+        }
+
+        public static void DispatchFloat(this GlobalDispatcher self, DispatcherEvent key, float arg)
+        {
+            self.Dispatch<float>(key, arg);
         }
     }
 

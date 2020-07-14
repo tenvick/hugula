@@ -280,7 +280,7 @@ namespace Hugula.UIComponents
 
         }
 
-        protected void OnDestory()
+        protected void OnDestroy()
         {
             onItemRender = null;
             onInstantiated = null;

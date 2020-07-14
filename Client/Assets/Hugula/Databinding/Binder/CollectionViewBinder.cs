@@ -199,7 +199,8 @@ namespace Hugula.Databinding.Binder
             ClearItems();
             base.OnBindingContextChanged();
 
-            UpdateView(0, items.Count);
+            if(items!=null)
+                UpdateView(0, items.Count);
         }
 
         protected override void OnDestroy()

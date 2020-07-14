@@ -48,7 +48,7 @@ namespace Hugula.Audio
                 PlayEffect(audioClip);
         }
 
-        void OnDestory()
+        void OnDestroy()
         {
             
             AudioManager.instance.Substract(audioClip);

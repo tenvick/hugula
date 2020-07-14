@@ -271,9 +271,15 @@ namespace Hugula.Audio
 
         public AudioSource PlayMusic(string name, float volume, float pitch)
         {
+            AudioSourcePrefab clipPrefab;
+            if (string.Equals(m_PlayMusicName, name))
+            {
+                clipPrefab = musicSroucePrefabs[m_MusicIndex % musicSroucePrefabs.Count];
+                return clipPrefab.audioSource;
+            }
+
             EaseOutMusic(m_PlayMusicName);
             m_PlayMusicName = name;
-            AudioSourcePrefab clipPrefab;
             AudioClip clip = null;//GetAudioClip(name);
             // if (clip == null)
             // {

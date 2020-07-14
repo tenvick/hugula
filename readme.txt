@@ -1,6 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.7.14
+1 LoopVericalScrollRect控件删除数据清空索引，模板变更刷新样式，默认参数传递优化。
+2 AuioManager同一个音乐不重复播放。
+3 CollectionViewBinder context null 判断。
 
 2020.7.5
 1 VMManager,VMConfig 全局变量优化。

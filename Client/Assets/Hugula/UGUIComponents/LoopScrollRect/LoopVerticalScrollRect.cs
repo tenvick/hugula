@@ -8,21 +8,23 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Hugula.UIComponents {
+namespace Hugula.UIComponents
+{
     /// <summary>
     /// 内容适应滚动列表</br>
     ///  1 支持数据批量插入。</br>
     ///  2 末尾插入数据自动滚动</br>
     ///  3 跳转到头部或者尾部  </br>
     /// </summary>
-    public class LoopVerticalScrollRect : VerticalScrollBase, ILoopSelect {
+    public class LoopVerticalScrollRect : VerticalScrollBase, ILoopSelect
+    {
         #region  rect属性
         [SerializeField]
         int m_PageSize = 6;
         /// <summary>
         /// 项目池的大小 
         /// </summary>
-        public int pageSize { get { return m_PageSize; } set { m_PageSize = value; InitPages (); } } //分页数量 
+        public int pageSize { get { return m_PageSize; } set { m_PageSize = value; InitPages(); } } //分页数量 
 
         [SerializeField]
         float m_Padding = 0;
@@ -241,29 +243,33 @@ namespace Hugula.UIComponents {
 
         #endregion
 
-        protected override void Awake () {
-            base.Awake ();
-            InitPages ();
-            InitTemplatePool ();
-            onDragChanged.AddListener (OnDraging);
-            onEndDragChanged.AddListener (OnEndDrag);
+        protected override void Awake()
+        {
+            base.Awake();
+            InitPages();
+            InitTemplatePool();
+            onDragChanged.AddListener(OnDraging);
+            onEndDragChanged.AddListener(OnEndDrag);
         }
 
-        protected override void LateUpdate () {
+        protected override void LateUpdate()
+        {
             if (m_RenderPerFrames < 1) m_RenderPerFrames = 1;
-            for (int i = 0; i < this.renderPerFrames; i++) {
-                QueueToRender ();
+            for (int i = 0; i < this.renderPerFrames; i++)
+            {
+                QueueToRender();
                 if ((m_RenderQueue.Count == 0)) break;
             }
 
-            ScrollLoopVerticalItem ();
-            Layout ();
-            base.LateUpdate ();
+            ScrollLoopVerticalItem();
+            Layout();
+            base.LateUpdate();
         }
 
-        protected void OnDestory () {
-            onDragChanged.RemoveListener (OnDraging);
-            onEndDragChanged.RemoveListener (OnEndDrag);
+        protected override void OnDestroy()
+        {
+            onDragChanged.RemoveListener(OnDraging);
+            onEndDragChanged.RemoveListener(OnEndDrag);
 
             onItemRender = null;
             onDropped = null;
@@ -272,48 +278,58 @@ namespace Hugula.UIComponents {
             itemCommand = null;
             droppedCommand = null;
             m_SelecteStyle = null;
-            for (int i = 0; i < m_Templates.Length; i++) {
-                m_Pool.Clear (i);
+            for (int i = 0; i < m_Templates.Length; i++)
+            {
+                m_Pool.Clear(i);
             }
             m_Pool = null;
-            foreach (var loopItem in m_Pages) {
-                if (loopItem.item != null) {
-                    GameObject.Destroy (loopItem.item.gameObject);
+            foreach (var loopItem in m_Pages)
+            {
+                if (loopItem.item != null)
+                {
+                    GameObject.Destroy(loopItem.item.gameObject);
                 }
                 loopItem.item = null;
             }
-
+            base.OnDestroy();
         }
 
         #region  拖动与数据联动
 
-        public override void OnBeginDrag (PointerEventData eventData) {
+        public override void OnBeginDrag(PointerEventData eventData)
+        {
             m_autoScrollFloor = false;
-            base.OnBeginDrag (eventData);
+            base.OnBeginDrag(eventData);
         }
 
-        void OnDraging (Vector2 offset) {
+        void OnDraging(Vector2 offset)
+        {
             m_autoScrollFloor = false;
 
             if (offset.y >= m_DragOffsetShow) //top
             {
-                if (m_CeilBar != null && !m_CeilBar.activeSelf) m_CeilBar.SetActive (true);
-            } else if (offset.y <= -m_DragOffsetShow) //bottom
+                if (m_CeilBar != null && !m_CeilBar.activeSelf) m_CeilBar.SetActive(true);
+            }
+            else if (offset.y <= -m_DragOffsetShow) //bottom
             {
-                if (m_FloorBar != null && !m_FloorBar.activeSelf) m_FloorBar.SetActive (true);
-            } else {
-                if (m_CeilBar != null && m_CeilBar.activeSelf) m_CeilBar.SetActive (false);
-                if (m_FloorBar != null && m_FloorBar.activeSelf) m_FloorBar.SetActive (false);
+                if (m_FloorBar != null && !m_FloorBar.activeSelf) m_FloorBar.SetActive(true);
+            }
+            else
+            {
+                if (m_CeilBar != null && m_CeilBar.activeSelf) m_CeilBar.SetActive(false);
+                if (m_FloorBar != null && m_FloorBar.activeSelf) m_FloorBar.SetActive(false);
             }
         }
 
-        void OnEndDrag (Vector2 offset) {
-            if (m_CeilBar != null && m_CeilBar.activeSelf) m_CeilBar.SetActive (false);
-            if (m_FloorBar != null && m_FloorBar.activeSelf) m_FloorBar.SetActive (false);
-            if (offset.y >= m_DragOffsetShow || offset.y <= -m_DragOffsetShow) {
-                if (onDropped != null) onDropped (offset);
-                if (droppedCommand != null && droppedCommand.CanExecute (offset))
-                    droppedCommand.Execute (offset);
+        void OnEndDrag(Vector2 offset)
+        {
+            if (m_CeilBar != null && m_CeilBar.activeSelf) m_CeilBar.SetActive(false);
+            if (m_FloorBar != null && m_FloorBar.activeSelf) m_FloorBar.SetActive(false);
+            if (offset.y >= m_DragOffsetShow || offset.y <= -m_DragOffsetShow)
+            {
+                if (onDropped != null) onDropped(offset);
+                if (droppedCommand != null && droppedCommand.CanExecute(offset))
+                    droppedCommand.Execute(offset);
             }
         }
 
@@ -345,11 +361,14 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public int dataLength {
-            get {
+        public int dataLength
+        {
+            get
+            {
                 return m_DataLength;
             }
-            set {
+            set
+            {
                 m_DataLength = value;
             }
         }
@@ -378,7 +397,7 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public void InsertRange (int index, int count) //批量插入
+        public void InsertRange(int index, int count) //批量插入
         {
 
             //数据变更范围
@@ -386,11 +405,13 @@ namespace Hugula.UIComponents {
             //当前数据范围 m_DataLength
             //寻找当前显示范围
             int min = int.MaxValue, max = int.MinValue;
-            StopMovement ();
-            foreach (var item1 in m_Pages) {
-                if (item1.index != -1) {
-                    min = Math.Min (item1.index, min);
-                    max = Math.Max (item1.index, max);
+            StopMovement();
+            foreach (var item1 in m_Pages)
+            {
+                if (item1.index != -1)
+                {
+                    min = Math.Min(item1.index, min);
+                    max = Math.Max(item1.index, max);
                 }
             }
 
@@ -403,15 +424,17 @@ namespace Hugula.UIComponents {
             m_DataLength += count;
 
             //显示规则 1如果min=MaxValue,刷新  m_DataLength - pagesize - 1 ~ pageSize     索引并判断是否滚动到底部。 
-            if (min == int.MaxValue) {
+            if (min == int.MaxValue)
+            {
                 bIdx = m_DataLength - pageSize - 1;
                 eIdx = m_DataLength - 1;
 
                 if (bIdx < 0) bIdx = 0;
                 // Debug.LogFormat("bIdx={0},eIdx={1},m_DataLength={2}", bIdx, eIdx, m_DataLength);
                 for (int i = bIdx; i <= eIdx; i++)
-                    m_RenderQueue.Enqueue (i);
-            } else //if (index == 0) //从开始位置插入数据
+                    m_RenderQueue.Enqueue(i);
+            }
+            else //if (index == 0) //从开始位置插入数据
             {
 
                 eIdx = min + m_PageSize - 1; //本来应该的最大索引
@@ -420,23 +443,26 @@ namespace Hugula.UIComponents {
 
                 bIdx = index > min ? index : min; //最小开始位置索引 
 
-                if (m_autoScrollFloor) {
+                if (m_autoScrollFloor)
+                {
                     if (max < 0) max = 0;
-                    // Debug.LogFormat("m_FloorDataIndex={0},m_DataLength={1},count={2}", min, m_DataLength, count);
+                    // Debug.LogFormat("m_FloorDataIndex={0},max={1},m_DataLength={2},count={3}", min, max, dataLength, count);
                     for (int i = max; i < m_DataLength; i++)
-                        m_RenderQueue.Enqueue (i);
-                } else if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
+                        m_RenderQueue.Enqueue(i);
+                }
+                else if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
                 {
                     int bi = min - (max - eIdx);
                     if (bi < 0) bi = 0;
-                    // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
+                    // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, dataLength);
                     for (int i = min; i >= bi; i--)
-                        m_RenderQueue.Enqueue (i);
-                } else //从idx到end刷新
+                        m_RenderQueue.Enqueue(i);
+                }
+                else //从idx到end刷新
                 {
-                    // Debug.LogFormat ("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, dataLength);
+                    // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, dataLength);
                     for (int i = min; i <= eIdx; i++)
-                        m_RenderQueue.Enqueue (i);
+                        m_RenderQueue.Enqueue(i);
                 }
 
             }
@@ -464,10 +490,11 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public void RemoveAt (int index, int count = 1) {
+        public void RemoveAt(int index, int count = 1)
+        {
             m_DataLength -= count;
             //刷新数据
-            UpdateBegin (index);
+            UpdateBegin(index);
         }
 
         /// <summary>
@@ -491,12 +518,14 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public void UpdateBegin (int idx) {
+        public void UpdateBegin(int idx)
+        {
             int min = int.MaxValue, max = int.MinValue;
-            foreach (var item1 in m_Pages) {
+            foreach (var item1 in m_Pages)
+            {
                 if (item1.index != -1)
-                    min = Math.Min (item1.index, min);
-                max = Math.Max (item1.index, max);
+                    min = Math.Min(item1.index, min);
+                max = Math.Max(item1.index, max);
             }
 
             if (min == int.MaxValue) min = 0;
@@ -507,15 +536,18 @@ namespace Hugula.UIComponents {
 
             int range_begin = idx > min ? idx : min; //取大
             int range_end = max_idx;
-            if (max >= dataLength) { //有数据删除
+            if (max >= dataLength)
+            { //有数据删除
                 range_end = max;
-            } else {
+            }
+            else
+            {
                 if (range_end >= dataLength) range_end = dataLength - 1;
             }
 
-            // Debug.LogFormat ("range_begin{0},range_end:{1},min:{2},idx:{3},max:{4},max_idx:{5},m_PageSize={6},Datalength:{7} ", range_begin, range_end, min, idx, max,max_idx, m_PageSize, DataLength);
+            // Debug.LogFormat("range_begin{0},range_end:{1},min:{2},idx:{3},max:{4},max_idx:{5},m_PageSize={6},Datalength:{7} ", range_begin, range_end, min, idx, max, max_idx, m_PageSize, dataLength);
             for (int i = range_begin; i <= range_end; i++)
-                m_RenderQueue.Enqueue (i);
+                m_RenderQueue.Enqueue(i);
 
         }
 
@@ -540,13 +572,16 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public void Refresh () {
-            StopMovement ();
+        public void Refresh()
+        {
+            StopMovement();
             int min = int.MaxValue, max = int.MinValue;
-            foreach (var item1 in m_Pages) {
-                if (item1.index != -1) {
-                    min = Math.Min (item1.index, min);
-                    max = Math.Max (item1.index, max);
+            foreach (var item1 in m_Pages)
+            {
+                if (item1.index != -1)
+                {
+                    min = Math.Min(item1.index, min);
+                    max = Math.Max(item1.index, max);
                 }
             }
 
@@ -560,12 +595,13 @@ namespace Hugula.UIComponents {
                 if (bi < 0) bi = 0;
                 // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
                 for (int i = min; i >= bi; i--)
-                    m_RenderQueue.Enqueue (i);
-            } else //从idx到end刷新
+                    m_RenderQueue.Enqueue(i);
+            }
+            else //从idx到end刷新
             {
                 // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, DataLength);
                 for (int i = min; i <= eIdx; i++)
-                    m_RenderQueue.Enqueue (i);
+                    m_RenderQueue.Enqueue(i);
             }
 
         }
@@ -591,33 +627,39 @@ namespace Hugula.UIComponents {
         /// }
         /// </code>
         /// </example>
-        public void Clear () {
-            StopMovement ();
-            BackToStart ();
+        public void Clear()
+        {
+            StopMovement();
+            BackToStart();
             m_DataLength = 0;
-            m_DataBounds.Clear ();
-            m_ShowList.Clear ();
-            m_RenderQueue.Clear ();
-            ClearItems ();
-            InitContentBounds ();
+            m_DataBounds.Clear();
+            m_ShowList.Clear();
+            m_RenderQueue.Clear();
+            ClearItems();
+            InitContentBounds();
         }
 
-        private void BackToStart () {
+        private void BackToStart()
+        {
             if (content)
                 content.anchoredPosition = m_ContentInitializePosition;
         }
 
-        public void OnSelect (ILoopSelectStyle loopSelectStyle) //选中
+        private int[] defaultArg = new int[2];
+        public void OnSelect(ILoopSelectStyle loopSelectStyle) //选中
         {
-            if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle ();
+            if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle();
             var loopItem = loopSelectStyle.loopItem;
             m_SelecteStyle = loopSelectStyle;
-            loopSelectStyle.SelectedStyle ();
+            loopSelectStyle.SelectedStyle();
             int lastIdx = m_SelectedIndex;
             m_SelectedIndex = loopItem.index;
-            if (onSelected != null) onSelected (this.parameter, loopItem.item, loopItem.index, lastIdx);
-            if (itemCommand != null && itemCommand.CanExecute (new int[] { loopItem.index, lastIdx })) {
-                itemCommand.Execute (new int[] { loopItem.index, lastIdx });
+            if (onSelected != null) onSelected(this.parameter, loopItem.item, loopItem.index, lastIdx);
+            defaultArg[0] = loopItem.index;
+            defaultArg[1] = lastIdx;
+            if (itemCommand != null && itemCommand.CanExecute(defaultArg))
+            {
+                itemCommand.Execute(defaultArg);
             }
         }
 
@@ -625,39 +667,47 @@ namespace Hugula.UIComponents {
 
         #region 模板项目
 
-        protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem> ();
+        protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem>();
 
         protected Hugula.Utils.GameObjectPool m_Pool;
-        void OnPoolGet (Component comp) {
-            comp.gameObject.SetActive (true);
+        void OnPoolGet(Component comp)
+        {
+            comp.gameObject.SetActive(true);
         }
 
-        void OnPoolRealse (Component comp) {
-            comp.gameObject.SetActive (false);
+        void OnPoolRealse(Component comp)
+        {
+            comp.gameObject.SetActive(false);
         }
 
-        void InitTemplatePool () {
-            if (m_Pool == null) {
-                m_Pool = new Hugula.Utils.GameObjectPool (OnPoolGet, OnPoolRealse);
+        void InitTemplatePool()
+        {
+            if (m_Pool == null)
+            {
+                m_Pool = new Hugula.Utils.GameObjectPool(OnPoolGet, OnPoolRealse);
                 for (int i = 0; i < templates.Length; i++)
-                    m_Pool.Add (i, templates[i]);
+                    m_Pool.Add(i, templates[i]);
             }
         }
 
-        void InitPages () {
-            for (int i = m_Pages.Count; i < m_PageSize; i++) {
-                m_Pages.Add (new LoopVerticalItem ());
+        void InitPages()
+        {
+            for (int i = m_Pages.Count; i < m_PageSize; i++)
+            {
+                m_Pages.Add(new LoopVerticalItem());
             }
         }
 
-        protected LoopVerticalItem GetLoopVerticalItemAt (int idx) {
+        protected LoopVerticalItem GetLoopVerticalItemAt(int idx)
+        {
             int i = idx % pageSize;
             return m_Pages[i];
         }
 
-        public Component GetItemAt (int idx) {
+        public Component GetItemAt(int idx)
+        {
             if (idx < 0) return null;
-            var loopItem = GetLoopVerticalItemAt (idx);
+            var loopItem = GetLoopVerticalItemAt(idx);
             if (loopItem.index == idx)
                 return loopItem.item;
 
@@ -669,166 +719,189 @@ namespace Hugula.UIComponents {
         #region 渲染与布局        
 
         //每一项目的位置
-        Dictionary<int, Vector2> m_DataBounds = new Dictionary<int, Vector2> ();
+        Dictionary<int, Vector2> m_DataBounds = new Dictionary<int, Vector2>();
         //显示的列表索引
-        List<int> m_ShowList = new List<int> ();
+        List<int> m_ShowList = new List<int>();
         float m_CalcBoundyMin;
         float m_CalcBoundyMax;
         private float m_HalfPadding = float.NaN;
-        protected float halfPadding {
-            get {
-                if (m_HalfPadding.Equals (float.NaN))
+        protected float halfPadding
+        {
+            get
+            {
+                if (m_HalfPadding.Equals(float.NaN))
                     m_HalfPadding = padding * .5f;
                 return m_HalfPadding;
             }
         }
 
-        protected Queue<int> m_RenderQueue = new Queue<int> (); //渲染队列
+        protected Queue<int> m_RenderQueue = new Queue<int>(); //渲染队列
 
-        void AddShowList (int index) {
-            m_ShowList.Add (index);
+        void AddShowList(int index)
+        {
+            m_ShowList.Add(index);
         }
 
-        protected void QueueToRender () {
-            if (m_RenderQueue.Count > 0) {
-                int idx = m_RenderQueue.Dequeue ();
-                var item = GetLoopVerticalItemAt (idx);
-                RenderItem (item, idx);
+        protected void QueueToRender()
+        {
+            if (m_RenderQueue.Count > 0)
+            {
+                int idx = m_RenderQueue.Dequeue();
+                var item = GetLoopVerticalItemAt(idx);
+                RenderItem(item, idx);
             }
         }
 
         //立即完成等待队列
-        protected void RenderWaitQueue () {
-            while (m_RenderQueue.Count > 0) {
-                int idx = m_RenderQueue.Dequeue ();
-                var item = GetLoopVerticalItemAt (idx);
-                RenderItem (item, idx);
+        protected void RenderWaitQueue()
+        {
+            while (m_RenderQueue.Count > 0)
+            {
+                int idx = m_RenderQueue.Dequeue();
+                var item = GetLoopVerticalItemAt(idx);
+                RenderItem(item, idx);
             }
         }
 
-        Component OnCreateOrGetItem (int idx, int templateId, LoopVerticalItem loopItem, RectTransform content) {
+        Component OnCreateOrGetItem(int idx, int templateId, LoopVerticalItem loopItem, RectTransform content)
+        {
             Component item = loopItem.item;
-            if (item == null || loopItem.templateType != templateId) {
+            if (item == null || loopItem.templateType != templateId)
+            {
                 //还对象到缓存池
-                m_Pool.Release (loopItem.templateType, item);
+                m_Pool.Release(loopItem.templateType, item);
                 bool isNew = false;
-                item = m_Pool.Get (templateId, out isNew); //创建或者从缓存中获取
+                item = m_Pool.Get(templateId, out isNew); //创建或者从缓存中获取
                 loopItem.templateType = templateId;
-                if (isNew) {
-                    var sourceRT = templates[templateId].GetComponent<RectTransform> ();
+                if (isNew)
+                {
+                    var sourceRT = templates[templateId].GetComponent<RectTransform>();
                     var itemTrans = item.transform;
-                    itemTrans.SetParent (content);
+                    itemTrans.SetParent(content);
                     itemTrans.localScale = sourceRT.localScale;
                     itemTrans.localRotation = sourceRT.localRotation;
                     itemTrans.localPosition = sourceRT.localPosition;
                     if (onInstantiated != null)
-                        onInstantiated (this.parameter, item, idx);
+                        onInstantiated(this.parameter, item, idx);
 
-                    var selecteStyle = item.GetComponent<ILoopSelectStyle> ();
-                    if (selecteStyle != null) selecteStyle.InitSytle (loopItem, this);
                 }
+                var selecteStyle = item.GetComponent<ILoopSelectStyle>();
+                if (selecteStyle != null) selecteStyle.InitSytle(loopItem, this);
             }
 
             return item;
         }
 
-        protected void RenderItem (LoopVerticalItem loopItem, int idx) {
+        protected void RenderItem(LoopVerticalItem loopItem, int idx)
+        {
             var oldRect = loopItem.rect;
             var oldIdx = loopItem.index;
 
-            if (idx < dataLength) {
+            if (idx < dataLength)
+            {
                 var templateId = 0;
-                if (onGetItemTemplateType != null) templateId = onGetItemTemplateType (this.parameter, idx);
+                if (onGetItemTemplateType != null) templateId = onGetItemTemplateType(this.parameter, idx);
+                var item = OnCreateOrGetItem(idx, templateId, loopItem, content); //
+                // item.name = string.Format("item {0} {1}", idx, templateId);
 
-                var item = OnCreateOrGetItem (idx, templateId, loopItem, content); //
-                item.name = string.Format ("item {0} {1}", idx, templateId);
-                var rent = item.GetComponent<RectTransform> ();
-                // if (rent.parent == null) {
-                //     rent.SetParent (content);
-                //     rent.rotation = Quaternion.Euler (0, 0, 0);
-                //     rent.localScale = Vector3.one;
-                //     // Vector3 newPos = Vector3.zero;
-                //     // newPos.x = halfPadding;
-                //     // rent.anchoredPosition = newPos;
-                // }
+                // Debug.LogFormat("RenderItem oldIdx={0},item={1},loopItem={2},idx={3},templateId={4} ", oldIdx, item, loopItem.item, idx, templateId);
+
+                var rent = item.GetComponent<RectTransform>();
                 loopItem.transform = rent;
                 loopItem.item = item;
                 loopItem.index = idx;
             }
 
+
             var gObj = loopItem?.item.gameObject;
-            if (idx >= dataLength) {
+            if (idx >= dataLength)
+            {
                 // CalcBounds (loopItem, oldIdx, oldRect); //删除时候需要计算bounds
-                if (gObj) gObj.SetActive (false);
+                if (gObj) gObj.SetActive(false);
+                loopItem.index = -1;
                 return;
-            } else if (!gObj.activeSelf) {
-                gObj.SetActive (true);
+            }
+            else if (!gObj.activeSelf)
+            {
+                gObj.SetActive(true);
             }
 
             //keep selected
-            if (m_SelecteStyle != null) {
+            if (m_SelecteStyle != null)
+            {
                 if (m_SelecteStyle.loopItem.index == m_SelectedIndex)
-                    m_SelecteStyle.SelectedStyle ();
+                    m_SelecteStyle.SelectedStyle();
                 else if (m_SelecteStyle.loopItem == loopItem)
-                    m_SelecteStyle.CancelStyle ();
+                    m_SelecteStyle.CancelStyle();
             }
-            
-            AddShowList (idx);
-            onItemRender (this.parameter, loopItem.item, loopItem.index); //填充内容
+
+            AddShowList(idx);
+            onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             //
-            CalcItemBound (loopItem);
+            CalcItemBound(loopItem);
             // CalcBounds (loopItem, oldIdx, oldRect);
         }
 
         ///<summary>
         /// 内容滚动
         ///</summary>
-        protected void ScrollLoopVerticalItem () {
+        protected void ScrollLoopVerticalItem()
+        {
             if (velocity.y == 0 && !isTweening) return; //没有移动不需要计算
             int min = int.MaxValue, max = int.MinValue;
             int max1; //= GetBottomItem ();
             int min1; //= GetTopItem ();
             LoopVerticalItem itemToRender = null;
-            for (int i = 0; i < m_Pages.Count; i++) {
+            for (int i = 0; i < m_Pages.Count; i++)
+            {
                 var item = m_Pages[i];
                 if (item.index == -1)
                     return;
                 else
-                    min = Math.Min (item.index, min);
+                    min = Math.Min(item.index, min);
 
-                max = Math.Max (item.index, max);
+                max = Math.Max(item.index, max);
             }
 
-            if (velocity.y > 0 || tweenDir.y > 0) {
-                UpdateBounds ();
+            if (velocity.y > 0 || tweenDir.y > 0)
+            {
+                UpdateBounds();
                 // RenderWaitQueue ();
                 max1 = max;
                 min1 = min;
                 // Debug.LogFormat ("m_ViewBounds={0},m_ViewBounds.yMin{1},m_ViewBounds.yMax{2},(min1).yMax={3},(min1).yMax<m_ViewBounds.yMin:{4}",m_ViewBounds, m_ViewBounds.yMin,m_ViewBounds.yMax,GetLoopVerticalItemAt (min1).yMax,Mathf.Abs(GetLoopVerticalItemAt (min1).yMax) < Mathf.Abs (m_ViewBounds.yMin));
-                while (m_DataLength > max1 && GetLoopVerticalItemAt (min1).yMax < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
+                while (m_DataLength > max1 && GetLoopVerticalItemAt(min1).yMax < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
                 {
                     max1 = max1 + 1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMax:{2}>m_ViewBounds.yMin{3} ", min1, max1, GetLoopVerticalItemAt (min1).yMax, m_ViewBounds.yMin);
-                    if (m_DataLength > max1 && (itemToRender = GetLoopVerticalItemAt (max1)) != null && itemToRender.index != max1) {
+                    if (m_DataLength > max1 && (itemToRender = GetLoopVerticalItemAt(max1)) != null && itemToRender.index != max1)
+                    {
                         min1 = min1 + 1;
-                        RenderItem (itemToRender, max1);
-                    } else {
+                        RenderItem(itemToRender, max1);
+                    }
+                    else
+                    {
                         break;
                     }
                 }
-            } else if (velocity.y < 0 || tweenDir.y < 0) {
-                UpdateBounds ();
+            }
+            else if (velocity.y < 0 || tweenDir.y < 0)
+            {
+                UpdateBounds();
                 // RenderWaitQueue ();
                 max1 = max;
                 min1 = min;
-                while (min1 >= 0 && GetLoopVerticalItemAt (max1).yMin > -m_ViewBounds.yMin + Mathf.Abs (m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
+                while (min1 >= 0 && GetLoopVerticalItemAt(max1).yMin > -m_ViewBounds.yMin + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
                 {
                     min1 = min1 - 1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMin:{2}>m_ViewBounds.yMax{3} ", min1, max1, GetLoopVerticalItemAt (max1).yMin, m_ViewBounds.yMax);
-                    if (min1 >= 0 && (itemToRender = GetLoopVerticalItemAt (min1)) != null && itemToRender.index != min1) {
+                    if (min1 >= 0 && (itemToRender = GetLoopVerticalItemAt(min1)) != null && itemToRender.index != min1)
+                    {
                         max1 = max1 - 1;
-                        RenderItem (itemToRender, min1);
-                    } else {
+                        RenderItem(itemToRender, min1);
+                    }
+                    else
+                    {
                         break;
                     }
                 }
@@ -839,16 +912,20 @@ namespace Hugula.UIComponents {
         ///<summary>
         /// 计算内容Bounds
         ///</summary>
-        protected void CalcBounds () {
+        protected void CalcBounds()
+        {
 
-            if (m_CalcBoundyMax > -m_ContentBounds.yMax) {
+            if (m_CalcBoundyMax > -m_ContentBounds.yMax)
+            {
                 m_ContentBounds.yMax = -m_CalcBoundyMax;
             }
 
-            if (m_autoScrollFloor && m_RenderQueue.Count == 0) {
+            if (m_autoScrollFloor && m_RenderQueue.Count == 0)
+            {
                 Vector2 curr = content.anchoredPosition;
                 curr.y = m_ContentBounds.yMax - m_ViewBounds.height; //如果标记了需要滚动到末尾
-                if (curr.y < 0) {
+                if (curr.y < 0)
+                {
                     curr.y = -curr.y;
                     content.anchoredPosition = curr;
                 }
@@ -858,7 +935,7 @@ namespace Hugula.UIComponents {
 
             // Debug.LogFormat ("{0},ymax{1}.ymin={2},height={5}m_CalcBoundyMin={3},m_CalcBoundyMax={4}", m_ContentBounds, m_ContentBounds.yMax, m_ContentBounds.yMin, m_CalcBoundyMin, m_CalcBoundyMax,m_ContentBounds.height);
             var size = content.sizeDelta;
-            size.y = Mathf.Abs (m_ContentBounds.height);
+            size.y = Mathf.Abs(m_ContentBounds.height);
             content.sizeDelta = size;
             // Debug.LogFormat ("content.sizeDelta={0} ", content.sizeDelta);
         }
@@ -866,7 +943,8 @@ namespace Hugula.UIComponents {
         ///<summary>
         /// 计算bound 高度
         ///</summary>
-        protected void CalcItemBound (LoopVerticalItem loopItem) {
+        protected void CalcItemBound(LoopVerticalItem loopItem)
+        {
             RectTransform rectTran = loopItem.transform;
             if (rectTran.anchorMin != rectTran.anchorMax) //表示宽度适配
             {
@@ -880,16 +958,19 @@ namespace Hugula.UIComponents {
 
             // Debug.LogFormat("LayoutRebuilder.ForceRebuildLayoutImmediate= {0},frame={1}", loopItem.item,  Time.frameCount);
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate (rectTran); //立马计算布局
-            var layoutEle = loopItem.item.GetComponent<LayoutElement> ();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran); //立马计算布局
+            var layoutEle = loopItem.item.GetComponent<LayoutElement>();
             Vector2 bound = Vector2.zero;
             bound.x = halfPadding;
-            if (layoutEle != null) {
+            if (layoutEle != null)
+            {
                 bound.y = layoutEle.preferredHeight + halfPadding; //高度
-            } else {
-                bound.y = Mathf.Abs (rectTran.rect.height) + halfPadding;
             }
-            loopItem.SetHeight (bound.y);
+            else
+            {
+                bound.y = Mathf.Abs(rectTran.rect.height) + halfPadding;
+            }
+            loopItem.SetHeight(bound.y);
             // Debug.LogFormat ("End item= {0},layoutEle={1},bound={2},frame={3}", loopItem.item, layoutEle, bound, Time.frameCount);
 
             // int index = loopItem.index;
@@ -929,10 +1010,12 @@ namespace Hugula.UIComponents {
             // rectTran.anchoredPosition = pos;
         }
 
-        bool GetItemYMax (int index, bool isYmax, out float posY) {
+        bool GetItemYMax(int index, bool isYmax, out float posY)
+        {
             posY = 0;
             Vector2 lastBound;
-            if (m_DataBounds.TryGetValue (index, out lastBound)) {
+            if (m_DataBounds.TryGetValue(index, out lastBound))
+            {
                 if (isYmax)
                     posY = lastBound.x + lastBound.y;
                 else
@@ -942,27 +1025,31 @@ namespace Hugula.UIComponents {
             return false;
         }
 
-        void SetItemBound (int index, Vector2 bound) {
+        void SetItemBound(int index, Vector2 bound)
+        {
             m_DataBounds[index] = bound;
         }
 
         ///<summary>
         /// 布局
         ///</summary>
-        public void Layout () {
+        public void Layout()
+        {
             LoopVerticalItem item;
             float lastPosY = halfPadding;
             int index = 0;
-            for (int i = 0; i < m_ShowList.Count; i++) {
+            for (int i = 0; i < m_ShowList.Count; i++)
+            {
                 index = m_ShowList[i];
-                item = GetLoopVerticalItemAt (index);
-                if (item.isDirty) {
-                    if (!GetItemYMax (index - 1, true, out lastPosY))
-                        if (GetItemYMax (index + 1, false, out lastPosY))
+                item = GetLoopVerticalItemAt(index);
+                if (item.isDirty)
+                {
+                    if (!GetItemYMax(index - 1, true, out lastPosY))
+                        if (GetItemYMax(index + 1, false, out lastPosY))
                             lastPosY = lastPosY - item.bound.y - padding;
-                    item.SetPos (lastPosY + halfPadding);
+                    item.SetPos(lastPosY + halfPadding);
                     // Debug.LogFormat (" index={0},lastPosY={1},item.bound={2}", index, lastPosY, item.bound);
-                    SetItemBound (index, item.bound);
+                    SetItemBound(index, item.bound);
 
                     var rectTran = item.transform;
                     Vector2 pos = rectTran.anchoredPosition;
@@ -971,22 +1058,24 @@ namespace Hugula.UIComponents {
                     rectTran.anchoredPosition3D = Vector3.zero;
                     rectTran.anchoredPosition = pos;
                     item.isDirty = false;
-                    m_CalcBoundyMin = Mathf.Min (m_CalcBoundyMin, item.yMin - halfPadding);
-                    if (index == 0) {
+                    m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, item.yMin - halfPadding);
+                    if (index == 0)
+                    {
                         m_CalcBoundyMin = item.yMin - halfPadding;
                         m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
                     }
-                    m_CalcBoundyMax = Mathf.Max (m_CalcBoundyMax, item.yMax);
-                    if (index == m_DataLength - 1) {
+                    m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, item.yMax);
+                    if (index == m_DataLength - 1)
+                    {
                         m_CalcBoundyMax = item.yMax;
                         m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
                     }
                     // Debug.LogFormat ("m_CalcBoundyMax={0},m_CalcBoundyMin={1},index = {2} ", m_CalcBoundyMax, m_CalcBoundyMin, index);
                 }
             }
-            m_ShowList.Clear ();
+            m_ShowList.Clear();
 
-            CalcBounds ();
+            CalcBounds();
         }
 
         #endregion
@@ -996,60 +1085,74 @@ namespace Hugula.UIComponents {
         /// 滚动到底部或者顶部
         /// 对方法的包装方便数据绑定
         ///</summary>
-        public bool scrollToBottom {
-            get {
+        public bool scrollToBottom
+        {
+            get
+            {
                 return false;
             }
-            set {
-                ScrollTo (value);
+            set
+            {
+                ScrollTo(value);
             }
         }
 
         ///<summary>
         /// 滚动到底部或者顶部
         ///</summary>
-        public void ScrollTo (bool isBottom = true) {
-            StopMovement ();
+        public void ScrollTo(bool isBottom = true)
+        {
+            StopMovement();
             var cpos = Vector2.zero; //开始位置
             Vector2 curr = content.anchoredPosition;
 
-            if (isBottom) {
+            if (isBottom)
+            {
                 cpos.x = curr.x;
-                cpos.y = Mathf.Abs (m_ContentBounds.yMax - m_ViewBounds.height); //
-            } else {
+                cpos.y = Mathf.Abs(m_ContentBounds.yMax - m_ViewBounds.height); //
+            }
+            else
+            {
                 cpos.x = curr.x;
                 cpos.y = m_ContentBounds.yMin + halfPadding; //- m_ContentStartPosition.y;
             }
 
-            if (m_Coroutine != null) StopCoroutine (m_Coroutine);
-            m_Coroutine = StartCoroutine (TweenMoveToPos (curr, cpos, 0.5f));
+            if (m_Coroutine != null) StopCoroutine(m_Coroutine);
+            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, cpos, 0.5f));
 
         }
 
         Vector2 tweenDir;
         //在使用scrollto的时候需要控制drag
-        protected bool isTweening {
-            get {
-                return !tweenDir.Equals (Vector2.zero);
+        protected bool isTweening
+        {
+            get
+            {
+                return !tweenDir.Equals(Vector2.zero);
             }
         }
 
-        protected IEnumerator TweenMoveToPos (Vector2 pos, Vector2 v2Pos, float delay) {
-            var waitForend = new WaitForEndOfFrame ();
+        protected IEnumerator TweenMoveToPos(Vector2 pos, Vector2 v2Pos, float delay)
+        {
+            var waitForend = new WaitForEndOfFrame();
             float passedTime = 0f;
             tweenDir = (v2Pos - pos).normalized;
 
-            while (!tweenDir.Equals (Vector2.zero)) {
+            while (!tweenDir.Equals(Vector2.zero))
+            {
                 yield return waitForend;
                 passedTime += Time.deltaTime;
                 Vector2 vCur;
-                if (passedTime >= delay) {
+                if (passedTime >= delay)
+                {
                     vCur = v2Pos;
                     tweenDir = Vector2.zero;
-                    StopCoroutine (m_Coroutine);
+                    StopCoroutine(m_Coroutine);
                     m_Coroutine = null;
-                } else {
-                    vCur = Vector2.Lerp (pos, v2Pos, passedTime / delay);
+                }
+                else
+                {
+                    vCur = Vector2.Lerp(pos, v2Pos, passedTime / delay);
                 }
                 content.anchoredPosition = vCur;
             }
@@ -1060,7 +1163,8 @@ namespace Hugula.UIComponents {
         #endregion
 
         #region  tool
-        protected void ClearItems () {
+        protected void ClearItems()
+        {
             foreach (var item in m_Pages)
                 item.index = -1;
         }

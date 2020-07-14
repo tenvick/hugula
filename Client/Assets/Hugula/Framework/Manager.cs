@@ -126,7 +126,7 @@ namespace Hugula.Framework {
             if (m_Instance == null) m_Instance = this;
         }
 
-        void OnDestory () {
+        void OnDestroy () {
             Terminate ();
         }
 

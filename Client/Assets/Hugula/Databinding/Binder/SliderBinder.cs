@@ -105,7 +105,7 @@ namespace Hugula.Databinding.Binder
             target.onValueChanged.AddListener(OnValueChanged);
         }
 
-        void OnDestory()
+        protected override void OnDestroy()
         {
             target.onValueChanged.RemoveListener(OnValueChanged);
             m_OnValueChangedExecute = null;

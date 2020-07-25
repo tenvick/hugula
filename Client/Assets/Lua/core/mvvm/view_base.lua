@@ -65,6 +65,13 @@ local function has_child(self)
     return self._child ~= nil
 end
 
+---view是否有关联的context
+---@overload fun()
+---@return  bool
+local function has_context(self)
+    return self._context ~= nil
+end
+
 ---设置子对象的context
 ---@overload fun(context:any)
 ---@param context any
@@ -132,6 +139,7 @@ view_base.has_child = has_child
 view_base.is_initialized = is_initialized
 view_base.initialized = initialized
 view_base.set_child_context = set_child_context
+view_base.has_context = has_context
 view_base.clear = clear
 view_base.dispose = dispose
 view_base.__tostring = tostring
@@ -149,7 +157,8 @@ view_base.__tostring = tostring
 ---@field _vm_base VMBase
 ---@field set_context any
 ---@field set_active function
----@field has_child function
+---@field has_context function 是否设置了context
+---@field has_child function 是否有BindableObject
 ---@field asset_name string
 ---@field assetbundle string
 ---@field find_path string

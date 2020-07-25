@@ -78,6 +78,14 @@ local function on_push_arg(arg)
     -- body
 end
 
+local function on_push()
+    -- body
+end
+
+local function on_back()
+    -- body
+end
+
 ---激活的时候
 ---@overload fun()
 local function on_active(self)
@@ -109,6 +117,17 @@ local function clear(self)
     self.is_res_ready = false
 end
 
+--清理context
+---@overload fun()
+local function clear_context(self)
+    local views = self.views
+    if views then
+        for k, v in ipairs(views) do
+            v:set_child_context(nil)
+        end
+    end    
+end
+
 ---注销的时候
 ---@overload fun()
 local function dispose(self)
@@ -126,11 +145,14 @@ vm_base.remove_PropertyChanged = remove_property_changed
 ---改变属性
 vm_base.OnPropertyChanged = on_Property_changed
 vm_base.SetProperty = set_property
-
+--栈相关事件
 vm_base.on_push_arg = on_push_arg
+vm_base.on_push = on_push
+vm_base.on_back = on_back
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
 vm_base.on_destroy = on_destroy
+vm_base.clear_context = clear_context
 vm_base.clear = clear
 vm_base.dispose = dispose
 
@@ -139,10 +161,13 @@ vm_base.__tostring = tostring
 ---@class VMBase
 ---@field PropertyChanged function
 ---@field SetProperty function
+---@field on_push_arg function 入栈资源加载之前调用 由VMState:push() 触发
+---@field on_push function 入栈资源加载完成后调用在on_active之前
+---@field on_back function 从回退栈激活资源加载完成后调用在on_active之前
 ---@field on_active function
 ---@field on_deactive function
----@field on_property_set function
----@field clear function
+---@field clear function 清理view 
+---@field clear_context function 取消关联的viewmodel
 ---@field dispose function
 ---@field is_active boolean
 ---@field is_res_ready boolean

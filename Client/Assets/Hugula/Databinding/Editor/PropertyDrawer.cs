@@ -20,20 +20,33 @@ namespace HugulaEditor.Databinding
         {
             float w = position.width;
             position.width = w * .6f;
-            EditorGUI.ObjectField(position, property, typeof(UnityEngine.Component), label);
-            UnityEngine.Component content = null;//(UnityEngine.Component)property.objectReferenceValue;
+            EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
+            UnityEngine.Object content = null;//(UnityEngine.Component)property.objectReferenceValue;
             var obj = property.objectReferenceValue;
-            if (obj != null && obj is UnityEngine.Component)
+            if (obj != null && obj is UnityEngine.Object)
             {
-                content = (UnityEngine.Component)obj;
-                var comps = content.GetComponents<Component>();
+                Component[] comps;
+                if (obj is GameObject)
+                {
+                    comps = ((GameObject)obj).GetComponents<Component>();
+                }
+                else if (obj is Component)
+                {
+                    comps = ((Component)obj).GetComponents<Component>();
+                }
+                else
+                {
+                    Debug.LogFormat("PopUpComponentsDrawer.value={0}",obj);
+                    return;
+                }
+
                 m_AllComponents.Clear();
                 int selectIndex = 0;
                 int i = 0;
                 foreach (var comp in comps)
                 {
                     m_AllComponents.Add(comp.GetType().Name);
-                    if (comp == content) selectIndex = i;
+                    if (comp == obj) selectIndex = i;
                     i++;
                 }
                 position.x = position.xMax;

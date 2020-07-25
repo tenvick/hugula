@@ -84,6 +84,7 @@ namespace HugulaEditor.Databinding
         public static string PopupComponentsProperty(Rect rect, UnityEngine.Object target, string propertyName)
         {
             string[] propertes = null;
+            if(target==null) return string.Empty;
             int selectIndex = GetObjectPropertyIndex(target, propertyName, out propertes);
             selectIndex = EditorGUI.Popup(rect, selectIndex, propertes);
             propertyName = propertes[selectIndex];

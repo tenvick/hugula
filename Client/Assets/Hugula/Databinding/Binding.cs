@@ -37,7 +37,7 @@ namespace Hugula.Databinding
         public string format;
         public string converter;
         public BindingMode mode;
-        
+
         [PopUpComponentsAttribute]
         public UnityEngine.Object source;
         public object target;
@@ -144,7 +144,8 @@ namespace Hugula.Databinding
                 UnityEngine.Profiling.Profiler.EndSample();
 #endif
                 m_IsApplied = true;
-            }else if(!string.IsNullOrEmpty(converter) && convert == null)
+            }
+            else if (!string.IsNullOrEmpty(converter) && convert == null)
             {
                 //refresh converter
                 convert = ValueConverterRegister.instance.Get(converter);
@@ -414,13 +415,16 @@ namespace Hugula.Databinding
 
         public void Dispose()
         {
-            Unapply();
+            for (var i = 0; i < m_Parts.Count - 1; i++)
+            {
+                BindingPathPart part = m_Parts[i];
+                part.Dispose();
+            }
             convert = null;
             target = null;
             source = null;
             m_Context = null;
             m_LastPart = null;
-
             m_Parts.Clear();
         }
 

@@ -59,10 +59,10 @@ namespace Hugula.Loader
                 return true;
             }
 #endif
-            uint crc = 0;
+            // uint crc = 0;
             if (abInfo.state == ABInfoState.None)
             {
-                uint len = 0;
+                // uint len = 0;
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), abInfo.abName);
                 // crc = CrcCheck.GetLocalFileCrc (url, out len);
                 // if (crc == abInfo.crc32) {

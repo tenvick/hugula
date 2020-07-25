@@ -208,7 +208,7 @@ namespace Hugula.Loader
 #endif
             if (m_Bundle == null) m_Bundle = CacheManager.TryGetCache(request.assetBundleName);
 
-            if (m_Bundle == null || !m_Bundle.isDone /* || !CacheManager.CheckDependenciesComplete(request.assetBundleName)*/) return true; //wait bundle done
+            if (m_Bundle == null || !m_Bundle.isDone || !CacheManager.CheckDependenciesComplete(request.assetBundleName)) return true; //wait bundle done
 
             if (!m_Bundle.canUse) //ab失效
             {

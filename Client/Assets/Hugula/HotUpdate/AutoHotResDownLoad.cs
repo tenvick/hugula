@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Hugula.Loader;
-using Hugula.Loader;
 
 public class AutoHotResDownLoad : MonoBehaviour
 {

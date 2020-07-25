@@ -39,10 +39,11 @@ local function remove_state_changed(vm_base)
     table_remove_item(_state_changed, vm_base)
 end
 
-local function _call_on_state_changed()
+---@overload fun(view_base:VMBase)
+local function _call_on_state_changed(self,arg)
     -- Logger.Log("_call_on_state_changed",#_state_changed)
     for k, v in ipairs(_state_changed) do
-        v:on_state_changed()
+        v:on_state_changed(arg)
     end
 end
 
@@ -60,8 +61,14 @@ local function check_vm_base_all_done(vm_base)
             end
         end
     end
+    vm_base._isloading = false
     vm_base.is_res_ready = true
     vm_base.is_active = true
+    if vm_base._is_push == true then
+        vm_base:on_push()
+    else
+        vm_base:on_back()
+    end
     vm_base:on_active()
     return true
 end
@@ -182,15 +189,24 @@ local function active_view(self, vm_name)
     ---@class VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
-        local views = curr_vm.views
-        if views then
-            for k, v in ipairs(views) do
-                v:set_active(true)
-            end
-        end
-
         if not curr_vm.is_active then
+            local views = curr_vm.views
+            local _auto_context = curr_vm.auto_context
+            if views then
+                for k, v in ipairs(views) do
+                    v:set_active(true)
+                    if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
+                        v:set_child_context(curr_vm)
+                    end
+                end
+            end
+
             curr_vm.is_active = true
+            if curr_vm._is_push == true then
+                curr_vm:on_push()
+            else
+                curr_vm:on_back()
+            end
             curr_vm:on_active()
         end
     end
@@ -321,14 +337,19 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_name string
 ---@param arg any
-local function load(self, vm_name, arg)
+local function load(self, vm_name, arg,is_push)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm:on_push_arg(arg) --有参数
+    curr_vm._is_push = is_push --是否是push到栈上的
+    if curr_vm.views == nil then
+        curr_vm.is_res_ready = true
+    end
     if curr_vm.is_res_ready == true then --已经加载过
         active_view(self, vm_name)
     else
         local views = curr_vm.views
-        if views then
+        if views and curr_vm._isloading ~= true then
+            curr_vm._isloading = true
             local find_path, res_name, scene_name, res_path
             for k, v in ipairs(views) do
                 find_path, res_name, scene_name, res_path = v.find_path, v.asset_name, v.scene_name, v.res_path
@@ -350,15 +371,15 @@ end
 ---@overload fun(vm_name:any,arg:any)
 ---@param vm_name any
 ---@param arg any
-local function active(self, vm_name, arg)
+local function active(self, vm_name, arg,is_push)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
     if type(vm_name) == "string" then --单个
-        load(self, vm_name, arg)
+        load(self, vm_name, arg,is_push)
     else
         for k, v in ipairs(vm_name) do --多个
-            load(self, v, arg)
+            load(self, v, arg,is_push)
         end
     end
 end

@@ -102,14 +102,16 @@ public class TextPerferredLayout : UIBehaviour, ILayoutElement
     public Text m_Text;
     public LayoutElement m_LayoutElement;
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         m_Text.RegisterDirtyVerticesCallback(new UnityAction(_textDirtyVerticesCallback));
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
         m_Text.UnregisterDirtyVerticesCallback(new UnityAction(_textDirtyVerticesCallback));
+        base.OnDisable();
     }
 
     private void _textDirtyVerticesCallback()

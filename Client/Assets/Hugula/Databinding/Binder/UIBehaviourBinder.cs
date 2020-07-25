@@ -8,8 +8,8 @@ namespace Hugula.Databinding.Binder
 
     public abstract class UIBehaviourBinder<T> : BindableObject where T : UnityEngine.Object
     {
-        [HideInInspector]
-        [PopUpComponentsAttribute]
+        // [HideInInspector]
+        // [PopUpComponentsAttribute]
         [SerializeField]
         private T m_Target;
 

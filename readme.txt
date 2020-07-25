@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.7.25
+1 Binder在属性面板暴露Target 属性,PopUpComponentsAttribute Drawer类型修改为UnityEngine.object,部分C#代码警告消除。
+2 VMState 增加 onremove_pop()移除栈顶对象，debug_stack()测试方法，暴露vm_group配置为VMGroupSource。
+3 viewmodel 引入on_push和on_back事件方法,on_state_changed(group)增加vm_group参数。
+
+
 2020.7.14
 1 LoopVericalScrollRect控件删除数据清空索引，模板变更刷新样式，默认参数传递优化。
 2 AuioManager同一个音乐不重复播放。

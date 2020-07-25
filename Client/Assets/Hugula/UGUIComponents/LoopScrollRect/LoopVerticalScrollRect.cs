@@ -337,7 +337,7 @@ namespace Hugula.UIComponents
 
         #region  数据操作相关
         //索引后面的项目都需要重新刷新
-        private int m_DirtyIndex = 0;
+        // private int m_DirtyIndex = 0;
 
         private int m_DataLength;
 

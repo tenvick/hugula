@@ -255,7 +255,7 @@ namespace Hugula.UIComponents
             // if (m_RenderPerFrames == 0) m_RenderPerFrames = pageSize;
         }
 
-        float m_Renderframs = 0;
+        // float m_Renderframs = 0;
         // protected void Update()
         // {
         //     UpdateViewPointBounds();
@@ -280,7 +280,7 @@ namespace Hugula.UIComponents
 
         }
 
-        protected void OnDestroy()
+        protected override void OnDestroy()
         {
             onItemRender = null;
             onInstantiated = null;
@@ -295,7 +295,7 @@ namespace Hugula.UIComponents
                 }
                 loopItem.item = null;
             }
-
+            base.OnDestroy();
         }
 
         /// <summary>

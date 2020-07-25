@@ -15,6 +15,7 @@ namespace Hugula.Databinding.Binder
     {
         #region  数据绑定相关
         [Tooltip("template for clone")]
+        [PopUpComponentsAttribute]
         public BindableObject templateItem;
         [Tooltip("销毁item")]
         public bool destoryItem = false;

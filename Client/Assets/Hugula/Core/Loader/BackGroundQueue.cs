@@ -17,13 +17,13 @@ namespace Hugula.Loader
         public int priority;
 
         //private
-        protected LoadingEventArg loadingEventArg = new LoadingEventArg();
-        protected int loadedCount = 0;
-        protected int totalCount;
-        protected Queue<ABInfo> groupRes = new Queue<ABInfo>();
-        protected SafeDictionary<ABInfo, int> loadingGroupRes = new SafeDictionary<ABInfo, int>();
-        protected List<ABInfo> errRes = new List<ABInfo>();
-        protected readonly object syncRoot = new object();
+        LoadingEventArg loadingEventArg = new LoadingEventArg();
+        int loadedCount = 0;
+        int totalCount;
+        Queue<ABInfo> groupRes = new Queue<ABInfo>();
+        SafeDictionary<ABInfo, int> loadingGroupRes = new SafeDictionary<ABInfo, int>();
+        List<ABInfo> errRes = new List<ABInfo>();
+        readonly object syncRoot = new object();
 
         internal bool pool = false;
 

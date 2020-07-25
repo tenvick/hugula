@@ -19,21 +19,18 @@ namespace Hugula.Databinding {
         //表示方法
         public bool isMethod { get; set; }
 
-        // private WeakReference<object> m_Source = new WeakReference<object> (null);
         object m_Source;
         //当前节点的源对象
         public object source {
             get {
-                // object real = null;
-                // m_Source.TryGetTarget (out real);
                 return m_Source;
             }
         }
 
         INotifyPropertyChanged m_NotifyPropertyChanged;
 
-        readonly Binding m_Binding;
-        readonly PropertyChangedEventHandler m_ChangeHandler;
+        Binding m_Binding;
+        PropertyChangedEventHandler m_ChangeHandler;
 
         public BindingPathPart (Binding binding, string path, bool isIndexer = false) {
             this.m_Binding = binding;
@@ -47,10 +44,6 @@ namespace Hugula.Databinding {
 
         public void SetSource (object current) {
             m_Source = current;
-            // if (m_Source.TryGetTarget (out var source) && Object.Equals (source, current))
-            //     return;
-
-            // m_Source.SetTarget (current);
         }
 
         public void Subscribe (INotifyPropertyChanged source) {
@@ -91,7 +84,6 @@ namespace Hugula.Databinding {
                 }
             }
 
-            // m_Binding.UpdateTarget ();
             m_Binding.OnSourceChanged (this);
 
         }
@@ -103,6 +95,14 @@ namespace Hugula.Databinding {
                 return true;
             }
             return false;
+        }
+
+        public void Dispose()
+        {
+            Unsubscribe();
+            m_Source = null;
+            nextPart = null;  
+            m_Binding = null;  
         }
 
         public override string ToString () {

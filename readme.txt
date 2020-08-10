@@ -1,6 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.8.10
+1 AudioManager声音停止后再播放bug修复，CoolDown时间格式显示错误修复，LoopScrollRect滚动条报错处理。
+2 vm_state增加不入栈，激活和失活vm模块功能(自己管理vm状态)。
+3 AssetbundleMappingManger 异步加载计数默认为1。
+
 2020.7.25
 1 Binder在属性面板暴露Target 属性,PopUpComponentsAttribute Drawer类型修改为UnityEngine.object,部分C#代码警告消除。
 2 VMState 增加 onremove_pop()移除栈顶对象，debug_stack()测试方法，暴露vm_group配置为VMGroupSource。

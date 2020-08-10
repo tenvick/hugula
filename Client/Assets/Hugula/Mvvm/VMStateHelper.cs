@@ -46,6 +46,16 @@ namespace Hugula.Mvvm
             m_VMState?.push(vm_name, arg);
         }
 
+        public void Active(string vm_name, object arg)
+        {
+            m_VMState?.active(vm_name, arg);
+        }
+
+        public void Dactive(string vm_name)
+        {
+            m_VMState?.deactive(vm_name);
+        }
+
         public void Back()
         {
             m_VMState?.back();
@@ -59,6 +69,8 @@ namespace Hugula.Mvvm
             void push_item(string vm_name, object arg);
             void push(string vm_group_name, object arg);
             void popup_item(string vm_name);
+            void active(string vm_name, object arg);
+            void deactive(string vm_name);
             void back();
         }
     }

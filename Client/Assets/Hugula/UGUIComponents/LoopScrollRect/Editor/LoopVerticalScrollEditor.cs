@@ -7,65 +7,69 @@ using UnityEngine;
 using UnityEngine.UI;
 using Hugula.UIComponents;
 
-namespace HugulaEditor.UIComponents {
+namespace HugulaEditor.UIComponents
+{
 
-    public partial class AssetsMenu {
+    public partial class AssetsMenu
+    {
 
-        [MenuItem ("GameObject/UI/Create LoopVerticalScrollRect")]
-        static public void CreateLoopVerticalScrollRect (MenuCommand menuCommand) {
-            GameObject root = new GameObject ("Loop Vertical Scroll View", typeof (RectTransform), typeof (CanvasRenderer));
-            RectTransform rootRT = root.GetComponent<RectTransform> ();
+        [MenuItem("GameObject/UI/Create LoopVerticalScrollRect")]
+        static public void CreateLoopVerticalScrollRect(MenuCommand menuCommand)
+        {
+            GameObject root = new GameObject("Loop Vertical Scroll View", typeof(RectTransform), typeof(CanvasRenderer));
+            RectTransform rootRT = root.GetComponent<RectTransform>();
             rootRT.anchorMin = Vector2.zero;
             rootRT.anchorMax = Vector2.one;
             rootRT.sizeDelta = Vector2.zero;
-            rootRT.pivot = new Vector2 (.5f, .5f);
-            root.SetActive (false);
-            AddImage (root);
-            root.AddComponent<RectMask2D> ();
-            var loopScrollRect = root.AddComponent<LoopVerticalScrollRect> ();
+            rootRT.pivot = new Vector2(.5f, .5f);
+            root.SetActive(false);
+            AddImage(root);
+            root.AddComponent<RectMask2D>();
+            var loopScrollRect = root.AddComponent<LoopVerticalScrollRect>();
 
             //create content 
-            var content = new GameObject ("Content", typeof (RectTransform));
-            content.transform.SetParent (rootRT, false);
-            RectTransform contentRT = content.GetComponent<RectTransform> ();
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(rootRT, false);
+            RectTransform contentRT = content.GetComponent<RectTransform>();
             contentRT.anchorMin = Vector2.up;
             contentRT.anchorMax = Vector2.one;
-            contentRT.sizeDelta = new Vector2 (0, 300);
+            contentRT.sizeDelta = new Vector2(0, 300);
             contentRT.pivot = Vector2.up;
             loopScrollRect.content = contentRT;
 
             //create Templates container
-            var templateContainer = new GameObject ("TemplatesContainer", typeof (RectTransform));
-            templateContainer.transform.SetParent (rootRT, false);
-            var itemContainerRT = templateContainer.GetComponent<RectTransform> ();
+            var templateContainer = new GameObject("TemplatesContainer", typeof(RectTransform));
+            templateContainer.transform.SetParent(rootRT, false);
+            var itemContainerRT = templateContainer.GetComponent<RectTransform>();
             itemContainerRT.anchorMin = Vector2.up;
             itemContainerRT.anchorMax = Vector2.one;
-            itemContainerRT.sizeDelta = new Vector2 (0, 300);
+            itemContainerRT.sizeDelta = new Vector2(0, 300);
             itemContainerRT.pivot = Vector2.up;
-            templateContainer.SetActive (false);
+            templateContainer.SetActive(false);
 
-            var itemTemplate = new GameObject ("ItemTemplate", typeof (RectTransform));
-            var itemTemplateRT = itemTemplate.GetComponent<RectTransform> ();
-            itemTemplateRT.SetParent (templateContainer.transform, false);
+            var itemTemplate = new GameObject("ItemTemplate", typeof(RectTransform));
+            var itemTemplateRT = itemTemplate.GetComponent<RectTransform>();
+            itemTemplateRT.SetParent(templateContainer.transform, false);
             itemTemplateRT.anchorMin = Vector2.up;
             itemTemplateRT.anchorMax = Vector2.one;
-            contentRT.sizeDelta = new Vector2 (0, 300);
+            contentRT.sizeDelta = new Vector2(0, 300);
             itemTemplateRT.pivot = Vector2.up;
-            var bindableContainer = itemTemplate.AddComponent<BindableContainer> ();
+            var bindableContainer = itemTemplate.AddComponent<BindableContainer>();
 
             loopScrollRect.templates = new Component[1];
             loopScrollRect.templates[0] = bindableContainer;
 
             GameObject parent = menuCommand.context as GameObject; // Selection.activeGameObject;
-            root.SetActive (true);
-            GameObjectUtility.SetParentAndAlign (root, parent);
+            root.SetActive(true);
+            GameObjectUtility.SetParentAndAlign(root, parent);
 
         }
     }
 
-    [CustomEditor (typeof (LoopVerticalScrollRect), true)]
+    [CustomEditor(typeof(LoopVerticalScrollRect), true)]
     [CanEditMultipleObjects]
-    public class LoopVerticalScrollEditor : UnityEditor.Editor {
+    public class LoopVerticalScrollEditor : UnityEditor.Editor
+    {
         protected SerializedProperty m_Templates;
         protected SerializedProperty m_RenderPerFrames;
         protected SerializedProperty m_PageSize;
@@ -98,60 +102,66 @@ namespace HugulaEditor.UIComponents {
         protected static string s_HError = "For this visibility mode, the Viewport property and the Horizontal Scrollbar property both needs to be set to a Rect Transform that is a child to the Scroll Rect.";
         protected static string s_VError = "For this visibility mode, the Viewport property and the Vertical Scrollbar property both needs to be set to a Rect Transform that is a child to the Scroll Rect.";
 
-        protected virtual void OnEnable () {
-            m_Content = serializedObject.FindProperty ("m_Content");
+        protected virtual void OnEnable()
+        {
+            m_Content = serializedObject.FindProperty("m_Content");
 
-            m_Elasticity = serializedObject.FindProperty ("m_Elasticity");
-            m_Inertia = serializedObject.FindProperty ("m_Inertia");
-            m_DecelerationRate = serializedObject.FindProperty ("m_DecelerationRate");
-            m_ScrollSensitivity = serializedObject.FindProperty ("m_ScrollSensitivity");
+            m_Elasticity = serializedObject.FindProperty("m_Elasticity");
+            m_Inertia = serializedObject.FindProperty("m_Inertia");
+            m_DecelerationRate = serializedObject.FindProperty("m_DecelerationRate");
+            m_ScrollSensitivity = serializedObject.FindProperty("m_ScrollSensitivity");
             // m_Viewport = serializedObject.FindProperty("m_Viewport");
-            m_VerticalScrollbar = serializedObject.FindProperty ("m_VerticalScrollbar");
-            m_VerticalScrollbarVisibility = serializedObject.FindProperty ("m_VerticalScrollbarVisibility");
+            m_VerticalScrollbar = serializedObject.FindProperty("m_VerticalScrollbar");
+            m_VerticalScrollbarVisibility = serializedObject.FindProperty("m_VerticalScrollbarVisibility");
             // m_OnValueChanged = serializedObject.FindProperty("m_OnValueChanged");
-            m_PointerClickEvent = serializedObject.FindProperty ("m_PointerClickEvent");
-            m_OnBeginDragChanged = serializedObject.FindProperty ("m_OnBeginDragChanged");
-            m_OnDragChanged = serializedObject.FindProperty ("m_OnDragChanged");
-            m_OnEndDragChanged = serializedObject.FindProperty ("m_OnEndDragChanged");
+            m_PointerClickEvent = serializedObject.FindProperty("m_PointerClickEvent");
+            m_OnBeginDragChanged = serializedObject.FindProperty("m_OnBeginDragChanged");
+            m_OnDragChanged = serializedObject.FindProperty("m_OnDragChanged");
+            m_OnEndDragChanged = serializedObject.FindProperty("m_OnEndDragChanged");
 
-            m_CeilBar = serializedObject.FindProperty ("m_CeilBar");
-            m_FloorBar = serializedObject.FindProperty ("m_FloorBar");
-            m_DragOffsetShow = serializedObject.FindProperty ("m_DragOffsetShow");
+            m_CeilBar = serializedObject.FindProperty("m_CeilBar");
+            m_FloorBar = serializedObject.FindProperty("m_FloorBar");
+            m_DragOffsetShow = serializedObject.FindProperty("m_DragOffsetShow");
 
-            m_ShowElasticity = new AnimBool (Repaint);
-            m_ShowDecelerationRate = new AnimBool (Repaint);
-            SetAnimBools (true);
+            m_ShowElasticity = new AnimBool(Repaint);
+            m_ShowDecelerationRate = new AnimBool(Repaint);
+            SetAnimBools(true);
 
             // m_Viewport.serializedObject =  (RectTransform)((GameObject)target).transform;
             //新增加属性
-            m_Templates = serializedObject.FindProperty ("m_Templates");
-            m_RenderPerFrames = serializedObject.FindProperty ("m_RenderPerFrames");
-            m_PageSize = serializedObject.FindProperty ("m_PageSize");
-            m_Padding = serializedObject.FindProperty ("m_Padding");
+            m_Templates = serializedObject.FindProperty("m_Templates");
+            m_RenderPerFrames = serializedObject.FindProperty("m_RenderPerFrames");
+            m_PageSize = serializedObject.FindProperty("m_PageSize");
+            m_Padding = serializedObject.FindProperty("m_Padding");
             // m_Columns = serializedObject.FindProperty("m_Columns");
 
-            Init ();
+            Init();
         }
 
-        protected virtual void OnDisable () {
-            m_ShowElasticity.valueChanged.RemoveListener (Repaint);
-            m_ShowDecelerationRate.valueChanged.RemoveListener (Repaint);
+        protected virtual void OnDisable()
+        {
+            m_ShowElasticity.valueChanged.RemoveListener(Repaint);
+            m_ShowDecelerationRate.valueChanged.RemoveListener(Repaint);
         }
 
-        protected void SetAnimBools (bool instant) {
-            SetAnimBool (m_ShowElasticity, true, instant);
-            SetAnimBool (m_ShowDecelerationRate, !m_Inertia.hasMultipleDifferentValues && m_Inertia.boolValue == true, instant);
+        protected void SetAnimBools(bool instant)
+        {
+            SetAnimBool(m_ShowElasticity, true, instant);
+            SetAnimBool(m_ShowDecelerationRate, !m_Inertia.hasMultipleDifferentValues && m_Inertia.boolValue == true, instant);
         }
 
-        protected void SetAnimBool (AnimBool a, bool value, bool instant) {
+        protected void SetAnimBool(AnimBool a, bool value, bool instant)
+        {
             if (instant)
                 a.value = value;
             else
                 a.target = value;
         }
-        protected virtual void Init () {
-            if (targets.Length == 1) {
-                RectTransform transform = (RectTransform) ((MonoBehaviour) target).transform;
+        protected virtual void Init()
+        {
+            if (targets.Length == 1)
+            {
+                RectTransform transform = (RectTransform)((MonoBehaviour)target).transform;
                 // int colums = m_Columns.intValue;
                 // if (m_ItemSource.objectReferenceValue == null) {
                 //     var item = transform.GetChild (0);
@@ -164,15 +174,17 @@ namespace HugulaEditor.UIComponents {
                 //     }
                 // }
 
-                if (m_Content.objectReferenceValue == null) {
-                    m_Content.objectReferenceValue = transform.GetChild (0);
-                    Debug.LogFormat (" m_Content = {0}", m_Content.objectReferenceValue);
+                if (m_Content.objectReferenceValue == null)
+                {
+                    m_Content.objectReferenceValue = transform.GetChild(0);
+                    Debug.LogFormat(" m_Content = {0}", m_Content.objectReferenceValue);
                 }
 
                 //设置对齐方式
                 RectTransform rect;
-                transform.pivot = new Vector2 (0f, 1f);
-                if ((rect = (RectTransform) m_Content.objectReferenceValue) != null && !EditorApplication.isPlaying) {
+                transform.pivot = new Vector2(0f, 1f);
+                if ((rect = (RectTransform)m_Content.objectReferenceValue) != null && !EditorApplication.isPlaying)
+                {
                     // rect.pivot = Vector2.zero;
                     var pivot = rect.pivot;
                     // if (colums == 0) //单列
@@ -188,14 +200,14 @@ namespace HugulaEditor.UIComponents {
                             var anchor = rect.anchorMax;
                             anchor.y = 1;
                             rect.anchorMax = anchor;
-                            Debug.LogWarningFormat ("当({0})只有一列的时候{1}锚点必须上对齐 anchorMax= {2}", transform, rect, rect.anchorMax);
+                            Debug.LogWarningFormat("当({0})只有一列的时候{1}锚点必须上对齐 anchorMax= {2}", transform, rect, rect.anchorMax);
                         }
                         if (rect.anchorMin.y != 1) //锚点必须上对齐
                         {
                             var anchor = rect.anchorMin;
                             anchor.y = 1;
                             rect.anchorMin = anchor;
-                            Debug.LogWarningFormat ("当({0})只有一列的时候{1}锚点必须上对齐 anchorMin= {2}", transform, rect, rect.anchorMin);
+                            Debug.LogWarningFormat("当({0})只有一列的时候{1}锚点必须上对齐 anchorMin= {2}", transform, rect, rect.anchorMin);
                         }
                     }
                     // else //左上角对齐
@@ -233,124 +245,142 @@ namespace HugulaEditor.UIComponents {
                 //     }
 
                 // }
-                serializedObject.ApplyModifiedProperties ();
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
-        protected void CalculateCachedValues () {
+        protected void CalculateCachedValues()
+        {
             m_ViewportIsNotChild = false;
             m_HScrollbarIsNotChild = false;
             m_VScrollbarIsNotChild = false;
-            if (targets.Length == 1) {
-                Transform transform = ((MonoBehaviour) target).transform;
-                if (m_VerticalScrollbar.objectReferenceValue == null || ((Scrollbar) m_VerticalScrollbar.objectReferenceValue).transform.parent != transform)
+            if (targets.Length == 1)
+            {
+                Transform transform = ((MonoBehaviour)target).transform;
+                if (m_VerticalScrollbar.objectReferenceValue == null || ((Scrollbar)m_VerticalScrollbar.objectReferenceValue).transform.parent != transform)
                     m_VScrollbarIsNotChild = true;
             }
         }
-        public override void OnInspectorGUI () {
-            SetAnimBools (false);
+        public override void OnInspectorGUI()
+        {
+            SetAnimBools(false);
 
-            serializedObject.Update ();
+            serializedObject.Update();
             // Once we have a reliable way to know if the object changed, only re-cache in that case.
-            CalculateCachedValues ();
+            CalculateCachedValues();
 
-            EditorGUILayout.PropertyField (m_Content);
-            EditorGUILayout.PropertyField (m_CeilBar);
-            EditorGUILayout.PropertyField (m_FloorBar);
-            PropertyFieldChooseMono (m_Templates);
-            GUILayout.Space (10);
-            GUILayout.Label (new GUIContent ("____________________________________________________________________________________________________"), GUILayout.MaxWidth (500));
-            EditorGUILayout.PropertyField (m_PageSize);
-            EditorGUILayout.PropertyField (m_Padding);
+            EditorGUILayout.PropertyField(m_Content);
+            EditorGUILayout.PropertyField(m_CeilBar);
+            EditorGUILayout.PropertyField(m_FloorBar);
+            PropertyFieldChooseMono(m_Templates);
+            GUILayout.Space(10);
+            GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
+            EditorGUILayout.PropertyField(m_PageSize);
+            EditorGUILayout.PropertyField(m_Padding);
             // EditorGUILayout.PropertyField(m_Columns);
-            EditorGUILayout.PropertyField (m_RenderPerFrames);
-            EditorGUILayout.PropertyField (m_DragOffsetShow);
+            EditorGUILayout.PropertyField(m_RenderPerFrames);
+            EditorGUILayout.PropertyField(m_DragOffsetShow);
 
             // EditorGUILayout.PropertyField(m_Horizontal);
             // EditorGUILayout.PropertyField(m_Vertical);
             // EditorGUILayout.PropertyField(m_MovementType);
 
-            if (EditorGUILayout.BeginFadeGroup (m_ShowElasticity.faded)) {
+            if (EditorGUILayout.BeginFadeGroup(m_ShowElasticity.faded))
+            {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField (m_Elasticity);
+                EditorGUILayout.PropertyField(m_Elasticity);
                 EditorGUI.indentLevel--;
             }
-            EditorGUILayout.EndFadeGroup ();
+            EditorGUILayout.EndFadeGroup();
 
-            EditorGUILayout.PropertyField (m_Inertia);
-            if (EditorGUILayout.BeginFadeGroup (m_ShowDecelerationRate.faded)) {
+            EditorGUILayout.PropertyField(m_Inertia);
+            if (EditorGUILayout.BeginFadeGroup(m_ShowDecelerationRate.faded))
+            {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField (m_DecelerationRate);
+                EditorGUILayout.PropertyField(m_DecelerationRate);
                 EditorGUI.indentLevel--;
             }
-            EditorGUILayout.EndFadeGroup ();
+            EditorGUILayout.EndFadeGroup();
 
-            EditorGUILayout.PropertyField (m_ScrollSensitivity);
+            EditorGUILayout.PropertyField(m_ScrollSensitivity);
 
-            EditorGUILayout.Space ();
+            EditorGUILayout.Space();
 
             // EditorGUILayout.PropertyField(m_Viewport);
 
-            EditorGUILayout.PropertyField (m_VerticalScrollbar);
-            if (m_VerticalScrollbar.objectReferenceValue && !m_VerticalScrollbar.hasMultipleDifferentValues) {
+            EditorGUILayout.PropertyField(m_VerticalScrollbar);
+            if (m_VerticalScrollbar.objectReferenceValue && !m_VerticalScrollbar.hasMultipleDifferentValues)
+            {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField (m_VerticalScrollbarVisibility, EditorGUIUtility.TrTextContent ("Visibility"));
 
-                if ((ScrollRect.ScrollbarVisibility) m_VerticalScrollbarVisibility.enumValueIndex == ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport &&
-                    !m_VerticalScrollbarVisibility.hasMultipleDifferentValues) {
-                    if (m_ViewportIsNotChild || m_VScrollbarIsNotChild)
-                        EditorGUILayout.HelpBox (s_VError, MessageType.Error);
-                    EditorGUILayout.PropertyField (m_VerticalScrollbarSpacing, EditorGUIUtility.TrTextContent ("Spacing"));
+                if (m_VerticalScrollbarVisibility != null)
+                {
+                    EditorGUILayout.PropertyField(m_VerticalScrollbarVisibility, EditorGUIUtility.TrTextContent("Visibility"));
+
+                    if ((ScrollRect.ScrollbarVisibility)m_VerticalScrollbarVisibility.enumValueIndex == ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport &&
+                        !m_VerticalScrollbarVisibility.hasMultipleDifferentValues)
+                    {
+                        if (m_ViewportIsNotChild || m_VScrollbarIsNotChild)
+                            EditorGUILayout.HelpBox(s_VError, MessageType.Error);
+                        EditorGUILayout.PropertyField(m_VerticalScrollbarSpacing, EditorGUIUtility.TrTextContent("Spacing"));
+                    }
                 }
 
                 EditorGUI.indentLevel--;
             }
 
-            EditorGUILayout.Space ();
+            EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField (m_PointerClickEvent);
-            EditorGUILayout.PropertyField (m_OnBeginDragChanged);
-            EditorGUILayout.PropertyField (m_OnDragChanged);
-            EditorGUILayout.PropertyField (m_OnEndDragChanged);
+            EditorGUILayout.PropertyField(m_PointerClickEvent);
+            EditorGUILayout.PropertyField(m_OnBeginDragChanged);
+            EditorGUILayout.PropertyField(m_OnDragChanged);
+            EditorGUILayout.PropertyField(m_OnEndDragChanged);
 
-            serializedObject.ApplyModifiedProperties ();
+            serializedObject.ApplyModifiedProperties();
         }
 
-        void PropertyFieldChooseMono (SerializedProperty prop) {
-            EditorGUILayout.LabelField ("Template item type must is BindableContainer", GUILayout.MaxWidth (300));
+        void PropertyFieldChooseMono(SerializedProperty prop)
+        {
+            EditorGUILayout.LabelField("Template item type must is BindableContainer", GUILayout.MaxWidth(300));
 
             // EditorGUILayout.PropertyField (prop);
 
-            if (prop.isArray) {
+            if (prop.isArray)
+            {
                 // EditorGUILayout.PropertyField (prop);
                 var size = prop.arraySize;
-                GUILayout.Label (new GUIContent (prop.name.Replace ("m_", "")), GUILayout.Width (160));
+                GUILayout.Label(new GUIContent(prop.name.Replace("m_", "")), GUILayout.Width(160));
 
-                EditorGUILayout.BeginHorizontal ();
-                GUILayout.Label (new GUIContent ("Size"), GUILayout.Width (60));
-                GUILayout.TextField (size.ToString (), GUILayout.Width (60));
-                if (GUILayout.Button ("+")) {
-                    prop.InsertArrayElementAtIndex (size);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(new GUIContent("Size"), GUILayout.Width(60));
+                GUILayout.TextField(size.ToString(), GUILayout.Width(60));
+                if (GUILayout.Button("+"))
+                {
+                    prop.InsertArrayElementAtIndex(size);
                 }
-                EditorGUILayout.EndHorizontal ();
+                EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.BeginVertical ();
-                for (int i = 0; i < size; i++) {
-                    var item = prop.GetArrayElementAtIndex (i);
-                    EditorGUILayout.PropertyField (item);
+                EditorGUILayout.BeginVertical();
+                for (int i = 0; i < size; i++)
+                {
+                    var item = prop.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(item);
                     var obj = item.objectReferenceValue as Component;
-                    if (obj && !(obj is BindableContainer)) {
-                        var bindable = obj.GetComponent<BindableContainer> ();
+                    if (obj && !(obj is BindableContainer))
+                    {
+                        var bindable = obj.GetComponent<BindableContainer>();
                         item.objectReferenceValue = bindable;
-                        if (bindable == null) {
-                            Debug.LogWarning ("Template item type must is BindableContainer .");
+                        if (bindable == null)
+                        {
+                            Debug.LogWarning("Template item type must is BindableContainer .");
                         }
                     }
                 }
-                if (GUILayout.Button ("-")) {
-                    prop.DeleteArrayElementAtIndex (size - 1);
+                if (GUILayout.Button("-"))
+                {
+                    prop.DeleteArrayElementAtIndex(size - 1);
                 }
-                EditorGUILayout.EndVertical ();
+                EditorGUILayout.EndVertical();
             }
 
         }

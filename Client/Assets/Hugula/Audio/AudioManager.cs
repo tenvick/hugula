@@ -235,6 +235,7 @@ namespace Hugula.Audio
             {
                 musicSroucePrefabs[i].Stop(easyTime);
             }
+            m_PlayMusicName = null;
         }
 
         /// <summary>

@@ -117,7 +117,7 @@ namespace Hugula.UIComponents
 
             int h = remainseconds / 3600;
             int m = (remainseconds - h * 3600) / 60;
-            int s = remainseconds - -h * 3600 - m * 60;
+            int s = remainseconds - h * 3600 - m * 60;
             sb.Clear();
             if (h <= 9)
             {

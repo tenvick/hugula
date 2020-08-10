@@ -52,6 +52,7 @@ namespace Hugula.Audio
         [Range(0, 10)]
         public float easeTime = 1f;
 
+        bool m_IsStop = false;
         void Awake()
         {
             if (m_AudioSource == null) m_AudioSource = GetComponent<AudioSource>();
@@ -92,10 +93,13 @@ namespace Hugula.Audio
             {
                 VolumeTo(0, easeTime);
             }
+            m_IsStop = true;
         }
 
         public void VolumeTo(float value, float easeTime = -1)
         {
+            if(m_IsStop) return;
+
             if (float.Equals(easeTime, -1f))
                 easeTime = this.easeTime;
 
@@ -111,11 +115,13 @@ namespace Hugula.Audio
         {
             audioSource.volume = 0;
             audioSource.Play();
+            m_IsStop = false;
             VolumeTo(volume, easeTime);
         }
 
         public void PlayAsync(string clipname, float volume, float easeTime = -1)
         {
+            m_IsStop = false;
             var abName = clipname.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
             m_Volume = volume;
             m_EaseTime = easeTime;
@@ -124,11 +130,13 @@ namespace Hugula.Audio
 
         public void PlayOnShot(AudioClip clip, float volumeScale)
         {
+            m_IsStop = false;
             audioSource?.PlayOneShot(clip, volumeScale);
         }
 
         public void PlayScheduled(double time)
         {
+            m_IsStop = false;
             audioSource?.PlayScheduled(time);
         }
     }

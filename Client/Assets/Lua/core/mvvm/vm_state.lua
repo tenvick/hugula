@@ -207,6 +207,21 @@ local function push(self, vm_group_name, arg)
     -- debug_stack()
 end
 
+---激活active不放入栈
+---@overload fun(vm_name:string,arg:any)
+---@param vm_name string
+local function active_vm(self, vm_name, arg)
+    VMManager:active(vm_name, arg, false) ---激活组
+end
+
+---失活
+---@overload fun(vm_name:string,arg:any)
+---@param vm_name string
+local function deactive_vm(self, vm_name)
+    strategy_view_gc(vm_name,false)
+end
+
+
 local remove, active = {}, {}
 
 --移除最顶上的项目
@@ -300,6 +315,8 @@ vm_state.push_item = push_item
 vm_state.popup_item = popup_item
 vm_state.back = back
 vm_state.remove_pop = remove_pop
+vm_state.active = active_vm --激活当前viewmodel 不入栈
+vm_state.deactive = deactive_vm --失活当前viewmodel与上面配对。
 --- view model 的显示隐藏管理
 ---@class VMState
 ---@field push function
@@ -307,4 +324,6 @@ vm_state.remove_pop = remove_pop
 ---@field popup_item function
 ---@field back  function
 ---@field remove_pop function
+---@field active function
+---@field deactive function
 VMState = vm_state

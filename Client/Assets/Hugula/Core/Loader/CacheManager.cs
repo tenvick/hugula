@@ -474,7 +474,7 @@ namespace Hugula.Loader
             if (cache != null && cache.count == 0)
             {
 #if HUGULA_CACHE_DEBUG
-                Debug.LogWarningFormat("<color=#ffff00> unload  cache assetBundle={0},count={1})   </color>", cache.assetBundleName, cache.count);
+                Debug.LogWarningFormat("<color=#ffff00> unload  cache assetBundle={0},count={1}) frameCount={2}.  </color>", cache.assetBundleName, cache.count,Time.frameCount);
 #endif
                 //处理依赖项目
                 string[] deps = null;

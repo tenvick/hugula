@@ -149,7 +149,7 @@ namespace Hugula
                     int count = 0;
                     if (m_ABCacheSubCount.TryGetValue(abName, out count))
                     {
-                        for (int i = 0; i < count; i++)
+                        for (int i = 1; i < count; i++)
                             CacheManager.Subtract(abName);
                         m_ABCacheSubCount.Remove(abName);
                     }

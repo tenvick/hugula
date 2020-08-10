@@ -293,7 +293,8 @@ namespace Hugula.Loader
 
         public string DebugString()
         {
-            return string.Format(" m_Bundle={0},canuse={1},isdone={2},progress={3},assetname={4}", m_Bundle, m_Bundle != null ? m_Bundle.canUse : false, m_Request.isDone, m_Request.progress, request.assetName);
+            return string.Format(" m_Bundle={0},canuse={1},isdone={2},progress={3},assetname={4}", m_Bundle!= null?m_Bundle.assetBundleName:string.Empty, m_Bundle != null ? m_Bundle.canUse : false,
+             m_Request != null ? m_Request.isDone : false, m_Request != null ? m_Request.progress : -1, request.assetName);
         }
         //设置ID
         public static void SetId(AssetOperation assetOp)

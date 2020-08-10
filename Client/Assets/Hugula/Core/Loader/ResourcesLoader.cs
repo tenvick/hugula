@@ -67,7 +67,7 @@ namespace Hugula.Loader
         static List<string> downloadingBundles = new List<string>(); // 正在加载的assetbundle name
         static List<BundleOperation> inBundleProgressOperations = new List<BundleOperation>(); //加载的assetbundle列表
         static HashSet<int> completeOper = new HashSet<int>(); //正常回调
-        static Queue<AssetOperation> waitOperations = new Queue<AssetOperation>(); //等待队列
+        // static Queue<AssetOperation> waitOperations = new Queue<AssetOperation>(); //等待队列
 
         #region  group load
 
@@ -430,11 +430,11 @@ namespace Hugula.Loader
             // if (Time.frameCount % 180 == 0)
             // {
             //     Debug.LogFormat("inProgressOperations:{0},inBundleProgressOperations:{1},waitOperations:{2} ", inProgressOperations.Count, inBundleProgressOperations.Count, waitOperations.Count);
-            //     if(inProgressOperations.Count>0)
+            //     if (inProgressOperations.Count > 0)
             //     {
-            //         foreach(var i in inProgressOperations)
+            //         foreach (var i in inProgressOperations)
             //         {
-            //             Debug.LogFormat("item={0},progress={1} ",i.request.assetName,i.DebugString());
+            //             Debug.LogFormat("item={0},info:{1} ", i.request.assetName, i.DebugString());
             //         }
             //     }
             // }
@@ -502,6 +502,9 @@ namespace Hugula.Loader
                 op.assetBundleName = assetBundleName;
                 inBundleProgressOperations.Add(op);
                 downloadingBundles.Add(assetBundleName);
+#if HUGULA_CACHE_DEBUG
+                Debug.LogFormat("LoadAssetBundleInternalAsync({0},async=true),isloading = false", assetBundleName);
+#endif           
             }
             else if (!async)// && cache.state != CacheData.CacheDataState.Loading) //如果是同步加载，
             {
@@ -513,6 +516,9 @@ namespace Hugula.Loader
                         if (string.Equals(opAsync.assetBundleName, assetBundleName))
                         {
                             opAsync.CancelAsyncDone();
+#if UNITY_EDITOR
+                            Debug.LogWarningFormat("CancelAsyncDone({0}", assetBundleName);
+#endif
                             break;
                         }
                     }
@@ -522,10 +528,12 @@ namespace Hugula.Loader
                 op.StartSync(); //同步加载
                 op.ReleaseToPool();
             }
-            // else if (!async)
-            // {
-            //     Debug.LogWarningFormat("the assetbundle({0}) can't be sync loaded 因为它正在异步加载中!", assetBundleName);
-            // }
+#if UNITY_EDITOR && HUGULA_CACHE_DEBUG
+            else //if (!async)
+            {
+                Debug.LogWarningFormat("the assetbundle({0}) 正在异步加载中!", assetBundleName);
+            }
+#endif
 
         }
 
@@ -586,7 +594,6 @@ namespace Hugula.Loader
             string item = null;
             if (deps.Length > 0)
             {
-                // Debug.LogFormat("LoadDependencies assetBundleName={0},deps={0},len={1}", assetBundleName, string.Concat(deps), deps.Length);
                 CacheManager.AddDependencies(assetBundleName, deps); //记录引用关系
                 //开始加载依赖
                 for (int i = 0; i < deps.Length; i++)

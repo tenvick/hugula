@@ -291,7 +291,13 @@ public class AssetbundlesMenuItems
         ExportResources.exportConfig();
     }
 
-    [MenuItem("Hugula/Export Language [Assets\\Config\\Lan *.csv]", false, 14)]
+    [MenuItem("Hugula/Export Lua Protobuf [Assets\\Lua\\proto *.proto]", false, 14)]
+    public static void exportLuaProtobuf()
+    {
+        ExportResources.exportLuaProtobuf();
+    }
+
+    [MenuItem("Hugula/Export Language [Assets\\Config\\Lan *.csv]", false, 15)]
     public static void exportLanguage()
     {
         ExportResources.exportLanguage();

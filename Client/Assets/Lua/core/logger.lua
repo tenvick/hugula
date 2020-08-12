@@ -4,6 +4,7 @@
 --	author pu
 ------------------------------------------------
 local CUtils = CS.Hugula.Utils.CUtils
+local serpent = require("serpent")
 
 --- 日志打印
 ---@class Logger
@@ -14,6 +15,12 @@ function Logger.Log(...)
         local tab = {...}
         table.insert(tab, debug.traceback("", 2))
         print(unpack(tab))
+    end
+end
+
+function Logger.LogTable(tb)
+    if CUtils.printLog then
+        print(serpent.block(tb))
     end
 end
 

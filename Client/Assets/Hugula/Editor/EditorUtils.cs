@@ -71,6 +71,14 @@ namespace HugulaEditor {
             return luapath;
         }
 
+        public static string GetLuaProtobufResourcesPath () {
+            string luapath = "Assets/Proto/Resources/proto";
+            DirectoryInfo p = new DirectoryInfo(luapath);
+            if(!p.Exists) p.Create();
+            return luapath;
+        }
+
+
         public static string GetFileStreamingOutAssetsPath () {
             string dircAssert = Path.Combine (Application.streamingAssetsPath, CUtils.GetAssetPath (""));
             return dircAssert;

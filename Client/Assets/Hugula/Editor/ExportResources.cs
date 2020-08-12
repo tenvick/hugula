@@ -95,7 +95,7 @@ namespace HugulaEditor
 
             var files = Directory.GetFiles(rootPath, "*.lua", SearchOption.AllDirectories);
             var dests = new string[files.Length];
-            var dests64 = new string[files.Length];
+            // var dests64 = new string[files.Length];
 
             for (int i = 0; i < files.Length; i++)
             {
@@ -150,6 +150,43 @@ namespace HugulaEditor
                 Debug.LogFormat(" Config export {0}", files.Length);
             }
 
+        }
+
+        public static void exportLuaProtobuf()
+        {
+            var files = AssetDatabase.GetAllAssetPaths().Where(p =>
+              p.StartsWith("Assets/Lua/proto")
+               && (p.EndsWith(".proto") || p.EndsWith(".pb"))
+            ).ToArray();
+
+            //copy
+            EditorUtils.CheckstreamingAssetsPath();
+            string OutLuaProtobufPath = EditorUtils.GetLuaProtobufResourcesPath();
+            AssetDatabase.DeleteAsset(OutLuaProtobufPath);
+            EditorUtils.GetLuaProtobufResourcesPath();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < files.Length; i++)
+            {
+                string xfile = System.IO.Path.GetFileName(files[i]);//.Remove(0, rootPath.Length + 1);
+                string file = files[i].Replace("\\", "/");
+                string dest = OutLuaProtobufPath + "/" + CUtils.GetRightFileName(xfile);
+                string destName = dest + ".txt";
+                Debug.LogFormat("Copy({0},{1})",file,destName);
+                System.IO.File.Copy(file, destName, true);
+                sb.AppendFormat("\r\n {0}   ({1}) ", file, destName);
+            }
+
+            string tmpPath = EditorUtils.GetAssetTmpPath();
+            EditorUtils.CheckDirectory(tmpPath);
+            string outPath = Path.Combine(tmpPath, "lua_protobuf_export_log.txt");
+            Debug.Log("write to path=" + outPath);
+            using (StreamWriter sr = new StreamWriter(outPath, false))
+            {
+                sr.Write(sb.ToString());
+            }
+
+            EditorUtility.ClearProgressBar();
         }
 
         public static void exportLanguage()

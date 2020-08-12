@@ -21,207 +21,189 @@ namespace Hugula
     public class EnterLua : MonoBehaviour, IManager
     {
 #if UNITY_EDITOR
-    const string KeyDebugString = "_Plua_Debug_string";
+        const string KeyDebugString = "_Plua_Debug_string";
 
-    public static bool isDebug
-    {
-        get
+        public static bool isDebug
         {
-            bool _debug = EditorPrefs.GetBool(KeyDebugString, true);
-            return _debug;
+            get
+            {
+                bool _debug = EditorPrefs.GetBool(KeyDebugString, true);
+                return _debug;
+            }
+            set
+            {
+                EditorPrefs.SetBool(KeyDebugString, value);
+            }
         }
-        set
-        {
-            EditorPrefs.SetBool(KeyDebugString, value);
-        }
-    }
 #endif
 
         [SerializeField] string enterLua = "begin"; //main
 
-    internal static LuaEnv luaenv;
+        internal static LuaEnv luaenv;
 
-    // Start is called before the first frame update
-    void Awake()
-    {
-        DontDestroyOnLoad(this.gameObject);
-        Executor.Initialize();
-        if (ManifestManager.fileManifest == null)
-            ManifestManager.LoadFileManifest(null);
-
-        if (luaenv == null) luaenv = new LuaEnv();
-        luaenv.AddLoader(Loader);
-        luaenv.DoString("require('" + enterLua + "')");
-#if UNITY_EDITOR
-        Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
-#endif
-        Manager.Add(this.GetType(), this);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (luaenv != null)
+        // Start is called before the first frame update
+        void Awake()
         {
-            luaenv.Tick();
+            DontDestroyOnLoad(this.gameObject);
+            Executor.Initialize();
+            if (ManifestManager.fileManifest == null)
+                ManifestManager.LoadFileManifest(null);
+
+            if (luaenv == null) luaenv = new LuaEnv();
+            luaenv.AddLoader(Loader);
+            luaenv.DoString("require('" + enterLua + "')");
+#if UNITY_EDITOR
+            Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
+#endif
+            Manager.Add(this.GetType(), this);
         }
-    }
 
-    void OnDestroy()
-    {
-        Manager.Remove(this.GetType());
+        // Update is called once per frame
+        void Update()
+        {
+            if (luaenv != null)
+            {
+                luaenv.Tick();
+            }
+        }
 
-        luaenv.DoString(@"
+        void OnDestroy()
+        {
+            Manager.Remove(this.GetType());
+
+            luaenv.DoString(@"
                 local util = require 'xlua.util'
         util.print_func_ref_by_csharp()");
-        // if (luaenv != null) luaenv.Dispose ();
-        ExpressionUtility.instance.Dispose();
-    }
+            // if (luaenv != null) luaenv.Dispose ();
+            ExpressionUtility.instance.Dispose();
+        }
 
-    void OnApplicationQuit()
-    {
-        Debug.Log("OnApplicationQuit");
-    }
+        void OnApplicationQuit()
+        {
+            Debug.Log("OnApplicationQuit");
+        }
 
-    /// <summary>
-    ///  loader
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    private byte[] Loader(ref string name)
-    {
-        byte[] str = null;
+        /// <summary>
+        ///  loader
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private byte[] Loader(ref string name)
+        {
+            byte[] str = null;
 #if UNITY_EDITOR
-        string name1 = name.Replace('.', '/');
-        string path = Application.dataPath + "/Lua/" + name1 + ".lua";
-        // if (!File.Exists (path))
-        //     path = Application.dataPath + "/Config/" + name1 + ".lua";
+            string name1 = name.Replace('.', '/');
+            string path = Application.dataPath + "/Lua/" + name1 + ".lua";
 
-        if (File.Exists(path))
-        {
-            str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
-        }
-        else
-        {
-            Debug.LogErrorFormat("lua({0}) path={1} not exists.", name, path);
-            name = name.Replace('.', '+').Replace('/', '+');
-            str = LoadLuaBytes(name);
-        }
+            if (isDebug && File.Exists(path))
+            {
+                str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
+            }
+            else
+            {
+                name = name.Replace('.', '+').Replace('/', '+');
+                str = LoadLuaBytes(name);
+            }
 #else
         name = name.Replace ('.', '+').Replace ('/', '+');
-        string cryName = "";
-        if (System.IntPtr.Size == 4)
-            cryName = CUtils.GetRightFileName (name);
-        else
-            cryName = CUtils.GetRightFileName (string.Format ("{0}_64", name));
-
-        string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
-        bool isupdate = ManifestManager.CheckIsUpdateFile (abName);
-
-#if !HUGULA_NO_LOG
-        Debug.LogFormat ("loader lua {0}={1}", name, cryName);
+        str = LoadLuaBytes(name);
 #endif
 
-        string path = null;
-        if (isupdate && File.Exists (path = CUtils.PathCombine (CUtils.realPersistentDataPath, abName))) {
-            str = File.ReadAllBytes (path);
-        } else {
-            var textAsset = (TextAsset) Resources.Load ("luac/" + cryName);
-            if (textAsset == null) {
-                Debug.LogWarningFormat ("lua({0}={1}) bytes error!", name, cryName);
-            } else
-                str = textAsset.bytes; // --Resources.Load
-            Resources.UnloadAsset (textAsset);
-        }
+#if UNITY_EDITOR
+            if (str == null)
+            {
+                if (isDebug)
+                    Debug.LogErrorFormat("lua ({0}) path={1} not exists.", name, path);
+                else
+                    Debug.LogErrorFormat("the file(Assets/LuaBytes/Resources/luac/{0}.lua)  did't exists.", name);
+
+            }
 #endif
-        return str;
-    }
-
-    /// <summary>
-    /// load lua bytes
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    private byte[] LoadLuaBytes(string name)
-    {
-        byte[] ret = null;
-        string cryName = "";
-        if (System.IntPtr.Size == 4)
-            cryName = CUtils.GetRightFileName(name);
-        else
-            cryName = CUtils.GetRightFileName(string.Format("{0}_64", name));
-
-        string abName = cryName + Common.CHECK_ASSETBUNDLE_SUFFIX;
-        bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
-        string path = CUtils.PathCombine(CUtils.realPersistentDataPath, abName);
-        if (isupdate && File.Exists(path))
-        {
-            ret = File.ReadAllBytes(path);
+            return str;
         }
-        else
+
+        /// <summary>
+        /// load lua bytes
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private byte[] LoadLuaBytes(string name)
         {
-            var textAsset = (TextAsset)Resources.Load("luac/" + cryName);
-            ret = textAsset.bytes; // --Resources.Load
-            Resources.UnloadAsset(textAsset);
+            byte[] ret = null;
+            string abName = name + Common.CHECK_ASSETBUNDLE_SUFFIX;
+            bool isupdate = ManifestManager.CheckIsUpdateFile(abName);
+            string path;
+            if (isupdate && File.Exists(path = CUtils.PathCombine(CUtils.realPersistentDataPath, abName)))
+            {
+                ret = File.ReadAllBytes(path);
+            }
+            else
+            {
+                var textAsset = (TextAsset)Resources.Load("luac/" + name);
+                if (textAsset != null)
+                {
+                    ret = textAsset.bytes; // --Resources.Load
+                    Resources.UnloadAsset(textAsset);
+                }
+            }
+            return ret;
         }
-        return ret;
-    }
 
-    public void Initialize()
-    {
-        // luaenv.DoString ("require('" + enterLua + "')");
-    }
-    public void Terminate()
-    {
+        public void Initialize()
+        {
+            // luaenv.DoString ("require('" + enterLua + "')");
+        }
+        public void Terminate()
+        {
 
-    }
+        }
 
-    //重启动游戏
-    public static void ReOpen(float sconds)
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-        Debug.LogFormat("ReOpen !");
-    }
+        //重启动游戏
+        public static void ReOpen(float sconds)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+            Debug.LogFormat("ReOpen !");
+        }
 
-    #region delay
+        #region delay
 
-    public static void StopDelay(object arg)
-    {
-        var ins = Manager.Get<EnterLua>();
-        if (ins != null && arg is IEnumerator)
-            ins.StopCoroutine((IEnumerator)arg);
-    }
+        public static void StopDelay(object arg)
+        {
+            var ins = Manager.Get<EnterLua>();
+            if (ins != null && arg is IEnumerator)
+                ins.StopCoroutine((IEnumerator)arg);
+        }
 
-    public static IEnumerator Delay(LuaFunction luafun, float time, object args)
-    {
-        var ins = Manager.Get<EnterLua>();
-        var _corout = DelayDo(luafun, time, args);
-        ins.StartCoroutine(_corout);
-        return _corout;
-    }
+        public static IEnumerator Delay(LuaFunction luafun, float time, object args)
+        {
+            var ins = Manager.Get<EnterLua>();
+            var _corout = DelayDo(luafun, time, args);
+            ins.StartCoroutine(_corout);
+            return _corout;
+        }
 
-    private static IEnumerator DelayDo(LuaFunction luafun, float time, object args)
-    {
-        yield return new WaitForSeconds(time);
-        luafun.Call(args);
-    }
+        private static IEnumerator DelayDo(LuaFunction luafun, float time, object args)
+        {
+            yield return new WaitForSeconds(time);
+            luafun.Call(args);
+        }
 
-    public static IEnumerator DelayFrame(LuaFunction luafun, int frame, object args)
-    {
-        var ins = Manager.Get<EnterLua>();
-        var _corout = DelayFrameDo(luafun, frame, args);
-        ins.StartCoroutine(_corout);
-        return _corout;
-    }
+        public static IEnumerator DelayFrame(LuaFunction luafun, int frame, object args)
+        {
+            var ins = Manager.Get<EnterLua>();
+            var _corout = DelayFrameDo(luafun, frame, args);
+            ins.StartCoroutine(_corout);
+            return _corout;
+        }
 
-    private static IEnumerator DelayFrameDo(LuaFunction luafun, int frame, object args)
-    {
-        var waitFrame = WaitForFrameCountPool.Get();
-        waitFrame.SetEndFrame(frame);
-        yield return waitFrame;
-        WaitForFrameCountPool.Release(waitFrame);
-        luafun.Call(args);
-    }
+        private static IEnumerator DelayFrameDo(LuaFunction luafun, int frame, object args)
+        {
+            var waitFrame = WaitForFrameCountPool.Get();
+            waitFrame.SetEndFrame(frame);
+            yield return waitFrame;
+            WaitForFrameCountPool.Release(waitFrame);
+            luafun.Call(args);
+        }
 
         static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
 
@@ -234,31 +216,31 @@ namespace Hugula
                 SetEndFrame(frameCount);
             }
 
-        public WaitForFrameCount()
-        {
-
-        }
-
-        public void SetEndFrame(int frameCount)
-        {
-            m_EndCount = Time.frameCount + frameCount;
-        }
-
-        bool IEnumerator.MoveNext()
-        {
-            return Time.frameCount <= m_EndCount;
-        }
-
-        object IEnumerator.Current
-        {
-            get
+            public WaitForFrameCount()
             {
-                return null;
-            }
-        }
 
-        void IEnumerator.Reset()
-        {
+            }
+
+            public void SetEndFrame(int frameCount)
+            {
+                m_EndCount = Time.frameCount + frameCount;
+            }
+
+            bool IEnumerator.MoveNext()
+            {
+                return Time.frameCount <= m_EndCount;
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return null;
+                }
+            }
+
+            void IEnumerator.Reset()
+            {
 
             }
         }

@@ -1,6 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.8.12
+1 lua protobuf 集成。
+
 2020.8.10
 1 AudioManager声音停止后再播放bug修复，CoolDown时间格式显示错误修复，LoopScrollRect滚动条报错处理。
 2 vm_state增加不入栈，激活和失活vm模块功能(自己管理vm状态)。

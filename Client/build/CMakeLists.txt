@@ -24,6 +24,7 @@ option ( UINT_ESPECIALLY "using custom ulong" OFF )
 option ( USING_LUAJIT "using luajit" OFF )
 option ( GC64 "using gc64" OFF )
 option ( LUAC_COMPATIBLE_FORMAT "compatible format" OFF )
+option ( PBC "using pbc" OFF )
 
 find_path(XLUA_PROJECT_DIR NAMES SConstruct
     PATHS 
@@ -35,6 +36,99 @@ MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 
 set(LUA_SRC_PATH lua-5.3.5/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
+#begin lua-rapidjson
+set (RAPIDJSON_SRC lua-rapidjson/source/rapidjson.cpp)
+set_property(
+	SOURCE ${RAPIDJSON_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+list(APPEND THIRDPART_INC  lua-rapidjson/include)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
+#end lua-rapidjson
+
+if (NOT PBC)
+	#begin lua-profobuf
+	set (LPB_SRC 
+		lua-protobuf/pb.c
+	)
+	set_property(
+		SOURCE ${LPB_SRC}
+		APPEND
+		PROPERTY COMPILE_DEFINITIONS
+		LUA_LIB
+	)
+	list(APPEND THIRDPART_INC lua-protobuf)
+	set (THIRDPART_SRC ${THIRDPART_SRC} ${LPB_SRC})
+	#end lua-protobuf
+else()
+	#begin pbc
+	set (PBC_SRC 
+		pbc/src/alloc.c
+		pbc/src/array.c
+		pbc/src/array.c
+		pbc/src/bootstrap.c
+		pbc/src/context.c
+		pbc/src/decode.c
+		pbc/src/map.c
+		pbc/src/pattern.c
+		pbc/src/proto.c
+		pbc/src/register.c
+		pbc/src/rmessage.c
+		pbc/src/stringpool.c
+		pbc/src/varint.c
+		pbc/src/wmessage.c
+	)
+
+	if (USING_LUAJIT)
+		list(APPEND PBC_SRC pbc pbc/binding/lua/pbc-lua.c)
+	else ()
+		list(APPEND PBC_SRC pbc pbc/binding/lua53/pbc-lua53.c)
+	endif ()
+
+	set_property(
+		SOURCE ${PBC_SRC}
+		APPEND
+		PROPERTY COMPILE_DEFINITIONS
+		LUA_LIB
+	)
+	list(APPEND THIRDPART_INC pbc pbc/src)
+	set (THIRDPART_SRC ${THIRDPART_SRC} ${PBC_SRC})
+	#end pbc
+endif ()
+
+#begin lpeg
+set ( LPEG_SRC
+    lpeg/lpcap.c
+    lpeg/lpcode.c
+    lpeg/lpprint.c
+    lpeg/lptree.c
+    lpeg/lpvm.c
+)
+set_property(
+    SOURCE ${LPEG_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list(APPEND THIRDPART_INC  lpeg)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
+#end lpeg
+
+#begin FFI
+if (NOT USING_LUAJIT)
+	set (FFI_SRC ffi/parser.c ffi/ctype.c ffi/ffi.c)
+	set_property(
+		SOURCE ${FFI_SRC}
+		APPEND
+		PROPERTY COMPILE_DEFINITIONS
+		LUA_LIB
+	)
+	list(APPEND THIRDPART_INC  ffi)
+	set (THIRDPART_SRC ${THIRDPART_SRC} ${FFI_SRC})
+endif ()
+#end FFI
 
 if (USING_LUAJIT)
 	
@@ -64,7 +158,7 @@ if (USING_LUAJIT)
     endif ()
 	set ( LUA_LIB )
 else ()
-	set ( LUA_IDSIZE 120 CACHE STRING "gives the maximum size for the description of the source." )
+	set ( LUA_IDSIZE 120 CACHE NUMBER "gives the maximum size for the description of the source." )
 
 	configure_file ( ${LUA_SRC_PATH}/luaconf.h.in ${CMAKE_CURRENT_BINARY_DIR}/luaconf.h )
 
@@ -106,6 +200,7 @@ endif ( )
 
 set ( XLUA_CORE
     i64lib.c
+    perflib.c
     xlua.c
 )
 
@@ -147,7 +242,6 @@ if (APPLE)
         )
 		set_xcode_property (xlua IPHONEOS_DEPLOYMENT_TARGET "7.0" "all")
     else ()
-        ADD_DEFINITIONS(-DLUA_USE_MACOSX) #osx platform emmylua debugger must have this option or can not load cpath
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
         add_library(xlua MODULE
             ${LUA_CORE}

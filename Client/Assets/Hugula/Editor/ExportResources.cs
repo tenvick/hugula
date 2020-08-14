@@ -217,6 +217,7 @@ namespace HugulaEditor
             CUtils.DebugCastTime("Time exportLua End");
             exportLanguage();
             exportConfig();
+            exportLuaProtobuf();
             BuildScript.BuildAssetBundles(); //导出资源
             // CleanAssetbundle.Clean();        //清理多余的资源
             CUtils.DebugCastTime("Time BuildAssetBundles End");

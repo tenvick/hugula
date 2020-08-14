@@ -7,16 +7,17 @@ local View = View
 local VMState = VMState
 local VMGroup = VMGroup
 
-
-
+local DIS_TYPE = DIS_TYPE
+local LuaDispatcher = LuaDispatcher
+local Rpc = Rpc
 
 ---@class VMBase vm
 ---@class moban
 local moban = VMBase()
 moban.views = {
     View(moban, {find_path = "/Logo"}, "views.moban_view1"), --- asset以key以"find_path"开头表示使用GameObject.Find("moban")
-    View(moban, {asset_name="assetName",res_path="assetbundle.u3d"}), ---加载prefab
-    View(moban, {scene_name="scene_name",res_path="assetbundle.u3d"}), ---加载场景
+    View(moban, {asset_name = "assetName", res_path = "assetbundle.u3d"}), ---加载prefab
+    View(moban, {scene_name = "scene_name", res_path = "assetbundle.u3d"}), ---加载场景
     View(moban, "moban.moban_view") ---关联视图，资源在视图中设置asset_name=xxx和res_path=xxx.u3d 属性
 }
 
@@ -39,17 +40,14 @@ end
 
 --
 function moban:on_push_arg(arg)
-
 end
 
 --push到stack上时候调用
 function moban:on_push()
-
 end
 
 --从stack里返回激活调用
 function moban:on_back()
-
 end
 
 --view激活时候调用
@@ -72,13 +70,12 @@ end
 --     print("moban:on_deactive")
 -- end
 
-
 ---点击事件
 moban.on_btn_click = {
-    CanExecute = function(self,arg)
+    CanExecute = function(self, arg)
         return true
     end,
-    Execute = function(self,arg)
+    Execute = function(self, arg)
         -- VMState:push(VMGroup.welcome)
     end
 }

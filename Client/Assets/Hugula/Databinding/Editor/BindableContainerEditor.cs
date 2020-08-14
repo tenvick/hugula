@@ -25,6 +25,7 @@ namespace HugulaEditor.Databinding
 
 #if USE_TMPro
             typeof (TMPro.TextMeshProUGUI),
+            typeof(TMPro.TMP_InputField),
 #endif
         };
 
@@ -40,6 +41,7 @@ namespace HugulaEditor.Databinding
 
 #if USE_TMPro
             typeof (Hugula.Databinding.Binder.TextMeshProUGUIBinder),
+            typeof(Hugula.Databinding.Binder.TMP_InputFieldBinder),
 #endif
         };
 

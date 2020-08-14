@@ -3,6 +3,7 @@
 --
 --  author pu
 ------------------------------------------------
+local require = require
 require("core.logger")
 require("core.tools")
 require("core.structure")
@@ -21,3 +22,11 @@ require("core.mvvm.vm_state")
 require("core.mvvm.vm_base")
 
 require("converter_register")
+
+--net
+DIS_TYPE=require("net.lua_dispatcher_type") --派发事件类型
+LuaDispatcher=require("net.lua_dispatcher") --lua 派发器
+require("net.protoc_init") --加载描述文件
+Rpc = require("net.rpc") --rpc
+Rpc:init()
+Net=require("net.net") --网络处理

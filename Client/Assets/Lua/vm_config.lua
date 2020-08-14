@@ -54,6 +54,7 @@ vm_config.back_tips = {vm="viewmodels.back_tips",gc_type = VM_GC_TYPE.NEVER} --l
 vm_config.binding_demo = {vm = "viewmodels.binding_demo.binding_demo",gc_type = VM_GC_TYPE.STATE_CHANGED}
 vm_config.chat_demo = {vm = "viewmodels.chat_demo",gc_type = VM_GC_TYPE.STATE_CHANGED}
 vm_config.loading = {vm = "viewmodels.loading", gc_type = VM_GC_TYPE.STATE_CHANGED} ---  loading界面
+vm_config.login ={vm ="viewmodels.login"}
 --------------------------------------------------------------------------
 ------------------------viewmodel group 配置-------------------------------
 ---------------------------------------------------------------------------
@@ -65,5 +66,8 @@ vm_group.binding_demo = {"binding_demo","back_tips"}
 vm_group.chat_demo = {"chat_demo","back_tips"}
 vm_group.loading = {"loading",log_enable = false} --loading不需要回退
 vm_group.gamescene = {"asset_loader","scene_loader","back_tips"}
+vm_group.login = {"login","back_tips"}
+
+
 VMGroupSource = vm_group
 return {vm_config,vm_group}

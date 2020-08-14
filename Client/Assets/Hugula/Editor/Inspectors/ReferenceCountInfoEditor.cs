@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.Text.RegularExpressions;
 
-using Hugula.Pool;
+using Hugula;
 using Hugula.Loader;
 using Hugula.Utils;
-
 namespace HugulaEditor
 {
     public static class CacheManagerExtension

@@ -44,8 +44,9 @@ eg_data:InsertRange(
             -- click_enable = false
         },
         {id = 3, title = "聊天", name = btn_tips1, state = "chat_demo"},
-        {id = 4, title = "加载游戏场景", name = btn_tips1, state = "loading", arg="game_scene",bgcolor = Color.blue}
-    }
+        {id = 4, title = "加载游戏场景", name = btn_tips1, state = "loading", arg="game_scene",bgcolor = Color.blue},
+        {id = 5, title = "登录(rpc 示例)", name = btn_tips1, state = "login", bgcolor = Color.blue},
+        }
 )
 ---按钮点击事件
 eg_data.on_btn_click = {

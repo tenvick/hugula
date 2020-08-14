@@ -1,13 +1,14 @@
 syntax = "proto3";
 
-import public "commcode.proto";
 package netpack;
+
+import public "commcode.proto";
 
 /***********************************/
 /***登入消息******************/
 /***********************************/
 //登入请求
-message MsgLoginReq
+message Msg_LoginReq
 {
     string account =  1; //账号名字
 	string password = 2; //密码
@@ -15,10 +16,12 @@ message MsgLoginReq
 }
 
 //登入返回
-message MsgLoginAck
+message Msg_LoginAck
 {
     ServerCode code 				= 1;
 	string token    				= 2;
-	uint64 id       				= 3;//用户ID
-	string ipaddr                   = 4;//分配的GateIP:port
+	int64  utc      			    = 3;//时间
+	uint64 id       				= 4;//用户ID
+	string ip                       = 5;//分配的GateIP
+	int32    port                   = 6;//端口
 }

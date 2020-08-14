@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System;
-using Hugula.Pool;
 using Hugula.Utils;
 
 namespace Hugula.Loader

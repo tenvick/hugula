@@ -1,19 +1,19 @@
 syntax = "proto3";
-package netpack;
 
+package netpack;
 //ping包
-message MsgPing
+message Msg_Ping
 {
 	uint64	utc = 1;
 }
 
 //握手消息
-message MsgHandShakeREQ {
+message Msg_HandShakeREQ {
 	int64 time = 1;
 }
 
 //握手返回
-message MsgHandShakeACK {
+message Msg_HandShakeACK {
 	uint32 enSeed = 1;
 	uint32 deSeed = 2;
 }

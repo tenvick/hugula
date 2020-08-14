@@ -8,7 +8,6 @@ using System.Text;
 using Hugula;
 using Hugula.Cryptograph;
 using HugulaEditor.Task;
-using Hugula.Pool;
 using Hugula.Loader;
 using Hugula.Utils;
 using UnityEditor;

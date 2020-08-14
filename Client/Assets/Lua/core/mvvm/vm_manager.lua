@@ -341,13 +341,15 @@ local function load(self, vm_name, arg,is_push)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm:on_push_arg(arg) --有参数
     curr_vm._is_push = is_push --是否是push到栈上的
-    if curr_vm.views == nil then
+    local views = curr_vm.views
+
+    if views == nil or #views == 0 then
         curr_vm.is_res_ready = true
     end
+    
     if curr_vm.is_res_ready == true then --已经加载过
         active_view(self, vm_name)
     else
-        local views = curr_vm.views
         if views and curr_vm._isloading ~= true then
             curr_vm._isloading = true
             local find_path, res_name, scene_name, res_path

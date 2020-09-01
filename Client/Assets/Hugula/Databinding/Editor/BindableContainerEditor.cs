@@ -78,6 +78,7 @@ namespace HugulaEditor.Databinding
                         children.RemoveAt(i);
                 }
                 AddHierarchyChildren(temp.transform, temp, true);
+                EditorUtility.SetDirty (target);
             }
             EditorGUILayout.Separator();
             EditorGUILayout.EndVertical();

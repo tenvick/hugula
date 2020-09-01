@@ -370,6 +370,7 @@ namespace Hugula.UIComponents
             set
             {
                 m_DataLength = value;
+                ClearItems();
             }
         }
 
@@ -1166,7 +1167,10 @@ namespace Hugula.UIComponents
         protected void ClearItems()
         {
             foreach (var item in m_Pages)
+            {
+                if (item.transform) item.transform.gameObject.SetActive(false);
                 item.index = -1;
+            }
         }
         #endregion
 

@@ -282,7 +282,7 @@ local function load_resource(res_path, res_name, view_base, on_asset_comp, is_pr
     if has_child then --and is_pre_load ~= true then --如果已经加载资源
         init_view(view_base)
     else
-        if async  then ---异步加载
+        if async ~= false then ---异步加载
             ResourcesLoader.LoadAssetAsync(res_path, res_name, nil, on_asset_comp, nil, view_base)
         else
             local gobj = ResourcesLoader.LoadAsset(res_path, res_name, nil)

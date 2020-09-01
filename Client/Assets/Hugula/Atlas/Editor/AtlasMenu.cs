@@ -64,7 +64,8 @@ namespace HugulaEditor
                             ti.spritePackingTag = tagName;
                             ti.assetBundleName = tagName + Common.CHECK_ASSETBUNDLE_SUFFIX;
                             EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + count + " / " + allchildren.Count + ")", count / allchildren.Count);
-                        }
+                        }else
+                            Debug.LogWarningFormat("{0} is not Texture ",f);
                     }
                     EditorUtility.ClearProgressBar();
                     //生成或者替换资源

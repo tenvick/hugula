@@ -106,7 +106,7 @@ namespace Hugula.Databinding
                 return;
             }
 #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".UpdateTarget");
+            UnityEngine.Profiling.Profiler.BeginSample("Binding.UpdateTarget");
 #endif
             ExpressionUtility.UpdateTargetValue(target, propertyName, m_Context, m_LastPart, format, convert);
 #if LUA_PROFILER_DEBUG
@@ -123,7 +123,7 @@ namespace Hugula.Databinding
                 return;
             }
 #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".UpdateSource");
+            UnityEngine.Profiling.Profiler.BeginSample("Binding.UpdateSource");
 #endif
             ExpressionUtility.UpdateSourceValue(target, propertyName, m_Context, m_LastPart, format, convert);
 #if LUA_PROFILER_DEBUG
@@ -137,7 +137,7 @@ namespace Hugula.Databinding
             if (!m_IsApplied)
             {
 #if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".ParsePath");
+                UnityEngine.Profiling.Profiler.BeginSample("Binding.ParsePath");
 #endif
                 ParsePath();
 #if LUA_PROFILER_DEBUG
@@ -155,7 +155,7 @@ namespace Hugula.Databinding
             if (isBound)
             {
 #if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".Unapply");
+                UnityEngine.Profiling.Profiler.BeginSample("Binding.Unapply");
 #endif
                 Unapply();
 #if LUA_PROFILER_DEBUG
@@ -181,7 +181,7 @@ namespace Hugula.Databinding
             ExpressionUtility.ApplyByLua (this, m_Current);
 #else
 #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".Part.TryGetValue");
+            UnityEngine.Profiling.Profiler.BeginSample("Binding.Part.TryGetValue");
 #endif
             bool needSubscribe = this.needSubscribe;
             BindingPathPart part = null;
@@ -216,7 +216,7 @@ namespace Hugula.Databinding
             if (invoke)
             {
 #if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample(GetProfilerName() + ".InitValue");
+                UnityEngine.Profiling.Profiler.BeginSample("Binding.InitValue");
 #endif
                 //初始化值
                 InitValue();

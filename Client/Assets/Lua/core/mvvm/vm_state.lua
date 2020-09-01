@@ -38,7 +38,6 @@ local TYPE_TABLE = "table"
 local vm_state = {}
 local _stack = {} --记录栈
 local _root_index = 0 --当前group root的stack索引
-local _item_index = {} --当前item的最新stack索引
 
 local function debug_stack()
     local str, item = ""
@@ -148,12 +147,14 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_config.name string
 local function push_item(self, vm_name, arg)
-    local curr_index = _item_index[vm_name]
-    if curr_index ~= nil and curr_index > _root_index then
-        table_remove(_stack, curr_index) --移除
+    for i=#_stack,_root_index,-1 do
+        if _stack[i] == vm_name then
+            table_remove(_stack, i) --移除
+            break
+        end
     end
+
     table_insert(_stack, vm_name) --- 进入显示stack
-    _item_index[vm_name] = #_stack --更新新的索引
     VMManager:active(vm_name, arg, true) ---激活组
     -- debug_stack()
 end
@@ -181,9 +182,8 @@ local function popup_item(self, vm)
     end
 
     if del > 0 then
-        _item_index[item] = nil
         table_remove(_stack, del)
-        strategy_view_gc(item, false)
+        strategy_view_gc(vm, false)
         -- debug_stack()
         return true
     end
@@ -278,7 +278,6 @@ local function back(self)
             table_insert(remove, item)
         end
         table_remove(_stack, i)
-        _item_index[item] = nil --更新的索引
     end
 
     --激活项

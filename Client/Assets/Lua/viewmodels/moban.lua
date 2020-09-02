@@ -38,7 +38,7 @@ function moban:on_property_set(property)
     end
 end
 
---
+--VMState:push(vm_name,arg) push过来的arg，此时view资源可能还没准备好
 function moban:on_push_arg(arg)
 end
 

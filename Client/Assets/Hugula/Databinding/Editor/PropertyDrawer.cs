@@ -97,6 +97,10 @@ namespace HugulaEditor.Databinding
             rect1.y += BindableObjectStyle.kExtraSpacing;
 
             rect1.x += BindableObjectStyle.kExtraSpacing;
+            rect1.width = 24f;
+            EditorGUI.LabelField(rect1, GetIndex(property.propertyPath)); //Debug.LogFormat("prop={0}", property.propertyPath);
+
+            rect1.x += BindableObjectStyle.kExtraSpacing*2;
             rect1.width = 26f;
             isExpanded = EditorGUI.Toggle(rect1, isExpanded);
             property.isExpanded = isExpanded;
@@ -221,6 +225,18 @@ namespace HugulaEditor.Databinding
             }
         }
 
+        const string ArrayBegin = "Array.data";
+        private static string GetIndex(string propPath)
+        {
+            string re = string.Empty;
+            int idx = propPath.IndexOf(ArrayBegin);
+            if (idx >= 0)
+            {
+                int begin = idx + ArrayBegin.Length + 1;
+                re = propPath.Substring(begin, propPath.Length - begin - 1);
+            }
+            return re;
+        }
 
     }
 

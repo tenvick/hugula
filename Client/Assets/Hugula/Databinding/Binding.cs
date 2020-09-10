@@ -119,7 +119,7 @@ namespace Hugula.Databinding
         {
             if (!isBound)
             {
-                Debug.LogErrorFormat("invalide source {0}", this.path);
+                Debug.LogErrorFormat("invalide source {0}.{1}",this.m_Context,this.path);
                 return;
             }
 #if LUA_PROFILER_DEBUG

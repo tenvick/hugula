@@ -7,6 +7,7 @@ namespace Hugula.Databinding.Binder
 {
     public class ToggleBinder : SelectableBinder<Toggle>
     {
+        private const string IsOnProperty = "isOn";
 
         #region  重写属性
         public Toggle.ToggleTransition toggleTransition
@@ -74,7 +75,7 @@ namespace Hugula.Databinding.Binder
 
         void OnValueChanged(bool changed)
         {
-            isOn = changed;
+            OnPropertyChangedBindingApply(IsOnProperty);
             if (m_Command != null && m_Command.CanExecute(m_commandParameter))
                 m_Command.Execute(m_commandParameter);
         }

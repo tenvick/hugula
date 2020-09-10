@@ -198,7 +198,7 @@ namespace Hugula.Databinding
         protected virtual void OnPropertyChangedBindingApply([CallerMemberName] string propertyName = null)
         {
             Binding binding = GetBinding(propertyName);
-            if (binding != null && binding.mode == BindingMode.TwoWay)
+            if (binding != null && (binding.mode == BindingMode.TwoWay || binding.mode == BindingMode.OneWayToSource))
             {
                 binding.UpdateSource();
             }

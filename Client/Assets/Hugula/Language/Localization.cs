@@ -133,15 +133,16 @@ namespace Hugula
         /// <summary>
         /// Load the specified localization dictionary.
         /// </summary>
-        static bool LoadDictionary(string value)
+        static async void LoadDictionary(string value)
         {
             if (value.Equals(SystemLanguage.ChineseSimplified.ToString()))
                 value = SystemLanguage.Chinese.ToString();
 
             string assetName = Common.LANGUAGE_PREFIX + value.ToLower();
-            // string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
 
-            var main = ResLoader.LoadAsset<BytesAsset>(assetName);
+            var task = ResLoader.LoadAssetAsyncTask<BytesAsset>(assetName);
+            await task;
+            var main = task.Result;
             if (main != null)
             {
                 byte[] txt = main.bytes;
@@ -159,7 +160,7 @@ namespace Hugula
                     language = SystemLanguage.English.ToString();
             }
 
-            return false;
+            // return false;
         }
 
 #if UNITY_EDITOR
@@ -172,15 +173,15 @@ namespace Hugula
         {
             string url = "Assets/Config/Lan/" + Common.LANGUAGE_PREFIX + value.ToLower() + ".csv";
             Debug.Log(url);
-            Object m = UnityEditor.AssetDatabase.LoadAssetAtPath(url, typeof(BytesAsset));
+            Object m = UnityEditor.AssetDatabase.LoadAssetAtPath(url, typeof(TextAsset));
 
-            BytesAsset main = m as BytesAsset;
+            var main = m as TextAsset;
             if (main)
             {
                 byte[] txt = main.bytes;
                 // mLanguage = value;
-                // Debug.Log(mLanguage + "   Editor is loaded " + txt.Length);
-                //Debug.Log(System.Text.Encoding.UTF8.GetString(txt));
+                Debug.Log(mLanguage + "   Editor is loaded " + txt.Length);
+                // Debug.Log(System.Text.Encoding.UTF8.GetString(txt));
                 if (txt != null) Load(txt);
             }
             localizationHasBeenSet = true;
@@ -197,7 +198,7 @@ namespace Hugula
             {
 #if UNITY_EDITOR
                 // if (Hugula.Loader.ManifestManager.SimulateAssetBundleInEditor)
-                    LoadDictionaryInEditor(value);
+                LoadDictionaryInEditor(value);
                 // else
                 //     LoadDictionary(value);
 #else
@@ -251,10 +252,10 @@ namespace Hugula
 
         }
 
-        static public string GetFormat(string key,params object[] args)
+        static public string GetFormat(string key, params object[] args)
         {
             string val = Get(key);
-            val = string.Format(val,args);
+            val = string.Format(val, args);
             return val;
         }
 

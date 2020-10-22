@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468a46d0ae32c3544b7d98094e6448a9, type: 3}
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
-  m_DefaultGroup: 8dea4c14613fd4e4dba99b76be3fca70
+  m_DefaultGroup: acf98194c361f6c47ac7bdfd454d6e3f
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
   m_DisableCatalogUpdateOnStart: 0
@@ -26,6 +26,7 @@ MonoBehaviour:
   m_overridePlayerVersion: 
   m_GroupAssets:
   - {fileID: 11400000, guid: 60eae9d780f64674b893996a96f44b9c, type: 2}
+  - {fileID: 11400000, guid: 8e79e58efc192b941b38dc5a9d589519, type: 2}
   - {fileID: 11400000, guid: 437c41c5f7ec85a49ae1dd3d1fe184a4, type: 2}
   - {fileID: 11400000, guid: 86e332f4ae6053142affb5a8e5f56b80, type: 2}
   - {fileID: 11400000, guid: 6685c1a7e894f2b4a8a1dad43470f7d9, type: 2}
@@ -33,8 +34,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3b66ee7172cd63441ad13a0f81603520, type: 2}
   - {fileID: 11400000, guid: 1f2362c723cb97843a54968b18708533, type: 2}
   - {fileID: 11400000, guid: e425b863905e3a046899df6dda63c95c, type: 2}
-  - {fileID: 11400000, guid: 24ae2a574e3d2fa4b9163b2c6db11b8f, type: 2}
   - {fileID: 11400000, guid: 792b72eca0dc4924082438df6b35f341, type: 2}
+  - {fileID: 11400000, guid: 24ae2a574e3d2fa4b9163b2c6db11b8f, type: 2}
   - {fileID: 11400000, guid: ef795a1237be6bf48a48600a89efd7ec, type: 2}
   - {fileID: 11400000, guid: eff3d0ae386dd29439cf5e39060ee113, type: 2}
   - {fileID: 11400000, guid: ce502409cc678444ea96587a29f47a45, type: 2}
@@ -45,7 +46,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9ad0a12864c03c145ba82b2ea2d1094a, type: 2}
   - {fileID: 11400000, guid: 056337edaa16d1e4886b59c04898ff40, type: 2}
   - {fileID: 11400000, guid: 5313b5f9164199241b589f4d4e7d1a4b, type: 2}
-  - {fileID: 11400000, guid: 8e79e58efc192b941b38dc5a9d589519, type: 2}
+  - {fileID: 11400000, guid: 5beeb53458f1f104a9a7032d0798a097, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -89,6 +90,7 @@ MonoBehaviour:
     - default
     - lua_script
     - lua_protobuf
+    - lan_csv
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 49b07f7c0cbfef043a078c34e89ab058, type: 2}

@@ -8,6 +8,7 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Profiling;
+using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -229,6 +230,12 @@ namespace Hugula
             }
 
             OnItemLoaded(key);
+        }
+
+        static public Task<T> LoadAssetAsyncTask<T>(string key)
+        {
+            var task = Addressables.LoadAssetAsync<T>(key).Task;
+            return task;
         }
 
         #endregion

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Hugula.Loader;
+using Hugula;
 using Hugula.Utils;
 
 namespace Hugula.Databinding.Binder
@@ -9,7 +9,6 @@ namespace Hugula.Databinding.Binder
 
     ///<summary>
     /// prefab的加载和卸载绑定。
-    /// 注意绑定顺序assetBundleName在前面，assetName在后
     ///</summary>
     public class PrefabBinder : BindableObject
     {
@@ -21,12 +20,9 @@ namespace Hugula.Databinding.Binder
             {
                 if (!string.Equals(m_AssetName, value))
                 {
-                    if (m_LoadId > 0)
-                        ResourcesLoader.StopComplete(m_LoadId);
-
                     if (m_Instance || string.Empty.Equals(value)) //清空
                     {
-                        Unload(m_AssetName);
+                        Unload();
                     }
 
                     m_AssetName = value;
@@ -36,18 +32,18 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        private string m_AssetBundleName;
-        public string assetBundleName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(m_AssetBundleName) && !string.IsNullOrEmpty(assetName))
-                    return assetName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
-                else
-                    return m_AssetBundleName;
-            }
-            set { m_AssetBundleName = value; }
-        }
+        // private string m_AssetBundleName;
+        // public string assetBundleName
+        // {
+        //     get
+        //     {
+        //         if (string.IsNullOrEmpty(m_AssetBundleName) && !string.IsNullOrEmpty(assetName))
+        //             return assetName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
+        //         else
+        //             return m_AssetBundleName;
+        //     }
+        //     set { m_AssetBundleName = value; }
+        // }
 
         // public Transform 
         #region  protected method
@@ -58,21 +54,23 @@ namespace Hugula.Databinding.Binder
         {
             if (!string.IsNullOrEmpty(assetName))
             {
-                var abName = assetBundleName;
-                m_LoadId = ResourcesLoader.LoadAssetAsync(assetBundleName, assetName, typeof(GameObject), OnCompleted, OnEnd);
+                // var abName = assetBundleName;
+                m_LoadId = 0;
+                ResLoader.InstantiateAsync(assetName, OnCompleted, OnEnd,null,this.GetComponent<Transform>());
             }
         }
 
-        void OnCompleted(object data, object arg)
+        void OnCompleted(GameObject data, object arg)
         {
             m_LoadId = -1;
-            if (data is GameObject)
-            {
-                m_Instance = GameObject.Instantiate<GameObject>((GameObject)data, this.GetComponent<Transform>(), false);
+            m_Instance = data;
+            // if (data is GameObject)
+            // {
+            //     m_Instance = GameObject.Instantiate<GameObject>((GameObject)data, this.GetComponent<Transform>(), false);
                 var transform = m_Instance.GetComponent<Transform>();
                 transform.localScale = Vector3.one;
                 transform.localPosition = Vector3.zero;
-            }
+            // }
         }
 
         void OnEnd(object data, object arg)
@@ -80,25 +78,20 @@ namespace Hugula.Databinding.Binder
             m_LoadId = -1;
         }
 
-        void Unload(string abName)
+        void Unload()
         {
             if (m_Instance)
             {
-                GameObject.Destroy(m_Instance);
+                ResLoader.ReleaseInstance(m_Instance);
                 m_Instance = null;
             }
-            if (!string.IsNullOrEmpty(abName))
-                CacheManager.Subtract(abName);
         }
 
         #endregion
 
         protected override void OnDestroy()
         {
-            if (m_Instance && string.IsNullOrEmpty(m_AssetName)) //清空
-            {
-                Unload(m_AssetName);
-            }
+            Unload();
             base.OnDestroy();
         }
     }

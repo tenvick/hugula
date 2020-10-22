@@ -1,0 +1,295 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abc77607c2a62ef48b8f7dec55cc6d91, type: 3}
+  m_Name: AnalyzeRuleData
+  m_EditorClassIdentifier: 
+  m_RuleToResults:
+  - RuleName: Check Duplicate Bundle Dependencies
+    Results:
+    - m_ResultName: No issues found
+      m_Severity: 0
+  - RuleName: Check Resources to Addressable Duplicate Dependencies
+    Results:
+    - m_ResultName: Check Resources to Addressable Duplicate DependenciesAnalyze
+        build failed. Exception
+      m_Severity: 0
+  - RuleName: Check Scene to Addressable Duplicate Dependencies
+    Results:
+    - m_ResultName: Check Scene to Addressable Duplicate DependenciesAnalyze build
+        failed. Exception
+      m_Severity: 0
+  - RuleName: Check Sprite Atlas to Addressable Duplicate Dependencies
+    Results: []
+  - RuleName: Build Bundle Layout
+    Results: []
+  - RuleName: Bundle Layout Preview
+    Results:
+    - m_ResultName: 0572877a0f3b5e5eface79646597b752_assets_all.bundle:Explicit:Assets/Lua/vm_config.lua
+      m_Severity: 0
+    - m_ResultName: 022686ca4661ace01a25b3a21bab2001_assets_all.bundle:Explicit:Assets/SlgRes/UI/Font/DFPHaiBaoW12GBFont.ttf
+      m_Severity: 0
+    - m_ResultName: 31ecd51e9ac8198f364159784a8b2582_assets_all.bundle:Explicit:Assets/Config/atlas_mapping_root.asset
+      m_Severity: 0
+    - m_ResultName: d821388ad59a0ad212faad71d67e7d87_assets_all.bundle:Explicit:Assets/Config/audioclip_mapping.asset
+      m_Severity: 0
+    - m_ResultName: 6874054813d95337a95ea0c9417f3229_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/back_tips.prefab
+      m_Severity: 0
+    - m_ResultName: 43bc1f48886439d7f806e6fb174171db_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/bag.prefab
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim01.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img050.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim08.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img038.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/bag_atlas.asset
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim03.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img020.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim07.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img053.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim02.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img005.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim06.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim05.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img089.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img035.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim10.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim04.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_hero_rim09.png
+      m_Severity: 0
+    - m_ResultName: 282f12b4d0f97dca19a7046e078a8309_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/bag/common_img041.png
+      m_Severity: 0
+    - m_ResultName: 34fad75cd0990760ad40716f5e9389a2_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/binding_demo.prefab
+      m_Severity: 0
+    - m_ResultName: a829abada15b682d704f5889fbd64a78_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/chat_demo.prefab
+      m_Severity: 0
+    - m_ResultName: c57dd87cf74f22b94d3a64bdacb4478f_scenes_all.bundle:Explicit:Assets/SlgRes/Scenes/game_scene.unity
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_sword.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0033.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0003.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_sign_0004.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0294.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0019.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0011.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0026.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_sign_0001.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0024.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0012.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0591.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0302.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/item_atlas.asset
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_shield.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0030.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0031.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0034.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0590.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0314.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0013.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0001.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0018.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0032.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0035.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0025.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0291.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0014.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0020.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0006.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0292.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0009.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0007.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0017.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0319.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0036.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0587.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0588.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0023.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0440.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0029.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0040.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_suipian_0001.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0008.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_arrow.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0027.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0028.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0311.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0320.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0038.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0296.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0301.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0016.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0308.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_juanzhou_0001.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0589.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0015.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0002.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0021.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0022.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0293.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0306.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0010.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0037.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0005.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0004.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_baoxiang_0001.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0039.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0438.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_sign_0002.png
+      m_Severity: 0
+    - m_ResultName: dada8206c5ea1a932f26f7595b2e2968_assets_all.bundle:Explicit:Assets/SlgRes/UI/icon/item/icon_equip_0295.png
+      m_Severity: 0
+    - m_ResultName: 3defa1ee1981deb85253138a9d16b90a_assets_all.bundle:Explicit:Assets/SlgRes/UI/bg/lianliankan_beijing.png
+      m_Severity: 0
+    - m_ResultName: 746aca0c185fbebf182aa7aeff69219a_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/loading.prefab
+      m_Severity: 0
+    - m_ResultName: 8c6a0611942039140f37d0daee9f662b_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/login.prefab
+      m_Severity: 0
+    - m_ResultName: c53307e059163831c67d58b609760e1f_assets_all.bundle:Explicit:Assets/SlgRes/Art/Player1.prefab
+      m_Severity: 0
+    - m_ResultName: 938a3b39fb170700e67f3e36cdfb01ef_scenes_all.bundle:Explicit:Assets/Scenes/s_begin.unity
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_qing.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/ui_1.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_lv.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_daojishi.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/yellow.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/tetris_atlas.asset
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_box1.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_hong.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_cheng.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_box3.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_box2.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_lan.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/red.jpg
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/button_back2.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/button_btn05_1.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/green.jpg
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_huang.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/2.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/blue.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_xuanzhuan.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_jiantou.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/button_btn04_2.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_zi.png
+      m_Severity: 0
+    - m_ResultName: ca28c148b804b770ee28f29403e23df3_assets_all.bundle:Explicit:Assets/SlgRes/UI/atlas/tetris/eluosi_box4.png
+      m_Severity: 0
+    - m_ResultName: 05546e73845efbc89c1d337044590280_assets_all.bundle:Explicit:Assets/SlgRes/UI/UIPrefab/welcome.prefab
+      m_Severity: 0
+  - RuleName: UnityEditor.AddressableAssets.Build.AnalyzeRules.AnalyzeRule
+    Results: []

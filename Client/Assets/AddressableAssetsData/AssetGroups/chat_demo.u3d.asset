@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: chat_demo.u3d
+  m_EditorClassIdentifier: 
+  m_GroupName: chat_demo.u3d
+  m_Data:
+    m_SerializedData: []
+  m_GUID: f43b7441c6a9cad4c867544b83622d56
+  m_SerializeEntries:
+  - m_GUID: 8f71dff3e3a987845ad362b75f690430
+    m_Address: chat_demo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 3707053567079337942, guid: 8f71dff3e3a987845ad362b75f690430,
+      type: 3}
+    m_TargetAsset: {fileID: 3707053567079337942, guid: 8f71dff3e3a987845ad362b75f690430,
+      type: 3}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 41ff7472fdc1ede4d9639df56498c6ae, type: 2}
+    - {fileID: 11400000, guid: c0751200e0dc17f4799a43a39d2d8327, type: 2}

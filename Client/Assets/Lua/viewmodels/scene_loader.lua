@@ -21,13 +21,11 @@ scene_loader.auto_context = false
 function scene_loader:on_push_arg(arg)
     if arg ~= nil and arg.scene_loader then
         local args = arg.scene_loader
-        local scene_name, res_path = "", ""
+        local scene_name = ""
         if type(args) == "string" then
             scene_name = args
-            res_path = string_lower(scene_name) .. ".u3d"
         else
             scene_name = args.scene_name
-            res_path = args.res_path
         end
         self:clear()
         --
@@ -36,10 +34,9 @@ function scene_loader:on_push_arg(arg)
         if (#views > 0) then
             view1 = views[1]
             view1.scene_name = scene_name
-            view1.res_path = res_path
             -- Logger.Log("on_push_arg ", scene_name, res_path)
         else
-            view1 = View(self, {scene_name = scene_name, res_path = res_path}) --,load_scene_mode = CS.UnityEngine.SceneManagement.LoadSceneMode.Single})
+            view1 = View(self, {scene_name = scene_name}) --,load_scene_mode = CS.UnityEngine.SceneManagement.LoadSceneMode.Single})
             table_insert(views, view1)
             -- Logger.Log("on_push_arg View(", scene_name, res_path)
         end

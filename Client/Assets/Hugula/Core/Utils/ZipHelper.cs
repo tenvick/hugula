@@ -6,7 +6,6 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using XLua;
-using Hugula.Loader;
 
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.GZip;

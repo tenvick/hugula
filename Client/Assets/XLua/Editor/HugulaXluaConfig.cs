@@ -149,8 +149,12 @@ namespace XLua.Editor
             new List<string> () { "UnityEngine.Texture", "imageContentsHash" },
             new List<string> () { "UnityEngine.UI.DefaultControls", "factory" },
             new List<string> () { "UnityEngine.UI.Graphic", "OnRebuildRequested" },
-            new List<string> () { "UnityEngine.UI.Text", "OnRebuildRequested" }
-        };
+            new List<string> () { "UnityEngine.UI.Text", "OnRebuildRequested" },
+            new List<string> () { "UnityEngine.MeshRenderer","scaleInLightmap","System.Int32"},
+            new List<string> () { "UnityEngine.MeshRenderer","stitchLightmapSeams","System.Boolean"},
+            new List<string> () { "UnityEngine.ParticleSystemRenderer","supportsMeshInstancing","System.Boolean"},
+
+         };
 
         [LuaCallCSharp]
         public static IEnumerable<Type> LuaCallCSharp
@@ -191,7 +195,6 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 customlist.Add(typeof(Action<object, object, int, int>));
                 customlist.Add(typeof(System.Action));
-                customlist.Add(typeof(System.Action<Hugula.Loader.LoadingEventArg>));
                 customlist.Add(typeof(System.Action<object>));
                 customlist.Add(typeof(Hugula.Databinding.ICommand));
                 customlist.Add(typeof(Hugula.Databinding.IExecute));
@@ -202,8 +205,6 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(Hugula.Databinding.ApplyActual));
                 
                 customlist.Add(typeof(Hugula.Audio.AudioManager));
-                customlist.Add(typeof(Hugula.Atlas.AtlasManager));
-                customlist.Add(typeof(Hugula.Loader.ResourcesLoader.OverrideBaseDownloadingURLDelegate));
 
                 customlist.Add(typeof(Action<Vector2>));
                 customlist.Add(typeof(System.Action<object, object, string, string, string, string>));
@@ -212,7 +213,6 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
                 customlist.Add(typeof(System.Collections.IList));
                 customlist.Add(typeof(Hugula.Audio.AudioManager));
-                customlist.Add(typeof(Hugula.Atlas.AtlasManager));
 
                 // customlist.Add (typeof (Hugula.Databinding.Binding));
                 // customlist.Add (typeof (Hugula.Databinding.BindableObject));

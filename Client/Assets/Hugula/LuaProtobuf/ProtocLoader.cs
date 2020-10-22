@@ -27,9 +27,11 @@ namespace Hugula
             }
             else
             {
+                name = name.Replace(".", "+");
                 str = LoadResource(name);
             }
 #else
+            name = name.Replace(".", "+");
             str =  LoadResource(name);
 #endif
 
@@ -39,7 +41,7 @@ namespace Hugula
                 if (Hugula.EnterLua.isDebug)
                     Debug.LogErrorFormat("protobuf ({0}) path={1} not exists.", name, path);
                 else
-                    Debug.LogErrorFormat("the protobuf(Assets/Proto/Resources/proto/{0}) did't exists.", name);
+                    Debug.LogErrorFormat("the protobuf(Assets/LuaBytes/lua_proto/{0}) did't exists.", name);
             }
 
 #endif
@@ -49,11 +51,12 @@ namespace Hugula
 
         string LoadResource(string name)
         {
-            var textAsset = (TextAsset)Resources.Load("proto/" + name);
+            // var textAsset = (TextAsset)Resources.Load("proto/" + name);
+            var textAsset = ResLoader.LoadAsset<TextAsset>(name);
             if (textAsset != null)
             {
                 var ret = textAsset.text;
-                Resources.UnloadAsset(textAsset);
+                // Resources.UnloadAsset(textAsset);
                 return ret;
             }
             else

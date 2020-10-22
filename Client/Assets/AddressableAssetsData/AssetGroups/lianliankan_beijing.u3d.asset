@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: lianliankan_beijing.u3d
+  m_EditorClassIdentifier: 
+  m_GroupName: lianliankan_beijing.u3d
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 07cf6e12a2d486445abb01cf704e0a00
+  m_SerializeEntries:
+  - m_GUID: dd2702940651df6408114323b58d26bb
+    m_Address: lianliankan_beijing
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 2800000, guid: dd2702940651df6408114323b58d26bb, type: 3}
+    m_TargetAsset: {fileID: 2800000, guid: dd2702940651df6408114323b58d26bb, type: 3}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: b2b0838188bff4f42bdb06d5a6d63f9c, type: 2}
+    - {fileID: 11400000, guid: 822aec3c747f13d4390c0f4bb9e46cb2, type: 2}

@@ -19,13 +19,13 @@ asset_loader.auto_context = false
 -------------------------------------------------
 --加载的
 function asset_loader:set_views(tab)
-    self:clear()
+    -- self:clear()
     local views = {}
 
     for k, v in ipairs(tab) do
-        local view1 = View(self, {asset_name = v.asset_name, res_path = v.res_path})
+        local view1 = View(self, {key = v.key}) --, res_path = v.res_path})
         table_insert(views, view1)
-        -- Logger.Log(v.asset_name,v.res_path)
+        Logger.Log(v.key)
     end
 
     asset_loader.views = views
@@ -42,6 +42,13 @@ function asset_loader:on_active()
 end
 
 function asset_loader:on_deactive()
+
+end
+
+function asset_loader:on_destroy()
+    self:clear()
+
+    Logger.Log(" asset_loader:on_destroy")
 end
 
 return asset_loader

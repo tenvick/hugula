@@ -21,7 +21,7 @@ local property_chat_input_txt = "chat_input_txt"
 local property_chat_btn_send = "chat_btn_send"
 -------------------------------------------------
 chat_demo.views = {
-    View(chat_demo, {asset_name = "chat_demo", res_path = "chat_demo.u3d"}) ---直接加载资源使用默认视图
+    View(chat_demo, {key = "chat_demo"}) ---直接加载资源使用默认视图
 }
 local chat_data = NotifyTable()
 

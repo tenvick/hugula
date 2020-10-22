@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -624,7 +625,6 @@ GameObject:
   - component: {fileID: 1239483953}
   - component: {fileID: 1239483954}
   - component: {fileID: 1239483952}
-  - component: {fileID: 1239483955}
   m_Layer: 0
   m_Name: Initialize
   m_TagString: Untagged
@@ -676,19 +676,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enterLua: begin
---- !u!114 &1239483955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1239483951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f29e3288679134049b73fa93515728d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  info: 
 --- !u!1 &1553619859
 GameObject:
   m_ObjectHideFlags: 0

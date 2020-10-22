@@ -58,6 +58,9 @@ namespace Hugula.Utils
         
         public const string LANGUAGE_PREFIX = "lan+";
 
+        public const string  LUA_PREFIX = "lua_";
+
+
         /// <summary>
         /// The Http STAR.
         /// </summary>

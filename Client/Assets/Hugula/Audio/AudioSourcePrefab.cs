@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using Hugula.Loader;
 using Hugula.Utils;
 
 namespace Hugula.Audio
@@ -71,9 +70,9 @@ namespace Hugula.Audio
 
         }
 
-        void OnAudioClipComp(object data, object userData)
+        void OnAudioClipComp(AudioClip data, object userData)
         {
-            AudioClip clip = (AudioClip)data;
+            AudioClip clip = data;//(AudioClip)data;
 
             if (clip)
             {
@@ -122,10 +121,11 @@ namespace Hugula.Audio
         public void PlayAsync(string clipname, float volume, float easeTime = -1)
         {
             m_IsStop = false;
-            var abName = clipname.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
+            // var abName = clipname.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
             m_Volume = volume;
             m_EaseTime = easeTime;
-            ResourcesLoader.LoadAssetAsync(abName, clipname, typeof(AudioClip), OnAudioClipComp, null);
+            ResLoader.LoadAssetAsync<AudioClip>(clipname,OnAudioClipComp,null);
+            // ResLoader.LoadAssetAsync(abName, clipname, typeof(AudioClip), OnAudioClipComp, null);
         }
 
         public void PlayOnShot(AudioClip clip, float volumeScale)

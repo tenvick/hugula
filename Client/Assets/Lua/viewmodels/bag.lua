@@ -15,7 +15,7 @@ local Color = UnityEngine.Color
 local bag = VMBase()
 --UI资源
 bag.views = {
-    View(bag, {asset_name = "bag", res_path = "bag.u3d"})
+    View(bag, {key = "bag"})
 }
 ----------------------------------申明属性名用于绑定--------------
 local property_selected_item = "selected_item"

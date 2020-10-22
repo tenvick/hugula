@@ -36,7 +36,7 @@ namespace HugulaEditor.Databinding
                 }
                 else
                 {
-                    Debug.LogFormat("PopUpComponentsDrawer.value={0}",obj);
+                    Debug.LogFormat("PopUpComponentsDrawer.value={0}", obj);
                     return;
                 }
 
@@ -100,7 +100,7 @@ namespace HugulaEditor.Databinding
             rect1.width = 24f;
             EditorGUI.LabelField(rect1, GetIndex(property.propertyPath)); //Debug.LogFormat("prop={0}", property.propertyPath);
 
-            rect1.x += BindableObjectStyle.kExtraSpacing*2;
+            rect1.x += BindableObjectStyle.kExtraSpacing * 2;
             rect1.width = 26f;
             isExpanded = EditorGUI.Toggle(rect1, isExpanded);
             property.isExpanded = isExpanded;
@@ -164,6 +164,7 @@ namespace HugulaEditor.Databinding
 
                         var len = bindings.arraySize;
                         SerializedProperty bindingProperty;
+                        // EditorGUILayout.BeginVertical();
                         for (int i = 0; i < len; i++)
                         {
                             bindingProperty = bindings.GetArrayElementAtIndex(i);
@@ -173,7 +174,7 @@ namespace HugulaEditor.Databinding
                                 selectedList.Add(i);
                             }
                         }
-
+                        // EditorGUILayout.EndVertical();
 
                         rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
                         rect.y += BindableObjectStyle.kExtraSpacing;
@@ -206,7 +207,7 @@ namespace HugulaEditor.Databinding
                         {
                             string DELETE_TIPS = BindableObjectStyle.PROPPERTY_CHOOSE_TIPS;
                             width = DELETE_TIPS.Length * BindableObjectStyle.kExtraSpacing;
-                            rect.x = rect.xMax - width;
+                            rect.x = rect.xMax - width-BindableObjectStyle.kExtraSpacing;
                             rect.width = width;
                             GUI.Box(rect, DELETE_TIPS);
                         }
@@ -250,37 +251,13 @@ namespace HugulaEditor.Databinding
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            float w = position.width;
-            var rect = position;
             string propertyName = property.FindPropertyRelative("propertyName").stringValue;
-
-            EditorGUI.LabelField(rect, BindableObjectStyle.Temp(propertyName));
-            EditorGUI.HelpBox(rect, "", MessageType.None);
-            rect.width = 28;
-            rect.height = 26;
-            rect.x = EditorGUIUtility.singleLineHeight * 1.5f;
-            rect.y += EditorGUIUtility.singleLineHeight;
             bool toggle = property.isExpanded;
-            toggle = EditorGUI.Toggle(rect, toggle);
-            if (toggle)
-            {
-                property.isExpanded = true;
+            position.x += EditorGUIUtility.singleLineHeight;
+            position.width -= EditorGUIUtility.singleLineHeight;
 
-                position.x = EditorGUIUtility.singleLineHeight * 2.5f;
-                position.y += EditorGUIUtility.singleLineHeight;
-                position.width -= EditorGUIUtility.singleLineHeight * 2f;
-                var rects = GetRowRects(position);
-                EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("path"));
-                EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("mode"));
-                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("source"));
-            }
-            else
+              if (toggle == false)
             {
-                property.isExpanded = false;
-                position.x = EditorGUIUtility.singleLineHeight * 2.5f;
-                position.y += EditorGUIUtility.singleLineHeight;
                 var path = property.FindPropertyRelative("path").stringValue;
                 var format = property.FindPropertyRelative("format").stringValue;
                 BindingMode mode = (BindingMode)property.FindPropertyRelative("mode").enumValueIndex;
@@ -288,6 +265,9 @@ namespace HugulaEditor.Databinding
                 var source = property.FindPropertyRelative("source").objectReferenceValue;
 
                 sb.Clear();
+                sb.Append(propertyName);
+                sb.Append(":    ");
+
                 if (!string.IsNullOrEmpty(path))
                     sb.AppendFormat("path({0})    ", path);
                 if (!string.IsNullOrEmpty(format))
@@ -302,9 +282,31 @@ namespace HugulaEditor.Databinding
                     sb.AppendFormat("source:{0}", source.ToString());
                 }
 
-                EditorGUI.LabelField(position, sb.ToString());
+                propertyName =  sb.ToString();
+                position.height = EditorGUIUtility.singleLineHeight * 2f;
             }
 
+            var rect = position;
+            rect.height = 26;
+            rect.x = EditorGUIUtility.singleLineHeight * 1.5f;
+
+            if(EditorGUI.ToggleLeft(rect,propertyName,toggle))
+            {
+                property.isExpanded = true;
+                position.y += EditorGUIUtility.singleLineHeight*.5f;
+                position.width -= EditorGUIUtility.singleLineHeight*.5f;
+                var rects = GetRowRects(position);
+                EditorGUI.PropertyField(rects[0],property.FindPropertyRelative("path"));
+                EditorGUI.PropertyField(rects[1],property.FindPropertyRelative("mode"));
+                EditorGUI.PropertyField(rects[2],property.FindPropertyRelative("format"));
+                EditorGUI.PropertyField(rects[3],property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[4],property.FindPropertyRelative("source"));
+            }
+            else
+            {
+                property.isExpanded = false;
+            }
+          
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -312,11 +314,11 @@ namespace HugulaEditor.Databinding
             float h;
             if (property.isExpanded)
             {
-                h = (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 6.2f + BindableObjectStyle.kControlVerticalSpacing * 2;
+                h = (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 7f + BindableObjectStyle.kControlVerticalSpacing * 2;
             }
             else
             {
-                h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 3;
+                h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 2;
             }
             return h;
         }

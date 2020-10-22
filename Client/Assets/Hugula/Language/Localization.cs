@@ -4,7 +4,7 @@
 //----------------------------------------------
 using System.Collections.Generic;
 using System.Collections;
-using Hugula.Loader;
+using Hugula;
 using Hugula.Utils;
 using UnityEngine;
 
@@ -139,9 +139,9 @@ namespace Hugula
                 value = SystemLanguage.Chinese.ToString();
 
             string assetName = Common.LANGUAGE_PREFIX + value.ToLower();
-            string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
+            // string abName = CUtils.GetRightFileName(assetName + Common.CHECK_ASSETBUNDLE_SUFFIX);
 
-            var main = ResourcesLoader.LoadAsset<BytesAsset>(abName, assetName);
+            var main = ResLoader.LoadAsset<BytesAsset>(assetName);
             if (main != null)
             {
                 byte[] txt = main.bytes;
@@ -149,7 +149,8 @@ namespace Hugula
                 Debug.Log(mLanguage + " is loaded " + txt.Length + " " + Time.frameCount);
 #endif
                 if (txt != null) Load(txt);
-                CacheManager.Subtract(abName);
+                // CacheManager.Subtract(abName);
+                // ResLoader.Subtract(abName);
                 localizationHasBeenSet = true;
             }
             else
@@ -195,10 +196,10 @@ namespace Hugula
             if (!string.IsNullOrEmpty(value))
             {
 #if UNITY_EDITOR
-                if (ManifestManager.SimulateAssetBundleInEditor)
+                // if (Hugula.Loader.ManifestManager.SimulateAssetBundleInEditor)
                     LoadDictionaryInEditor(value);
-                else
-                    LoadDictionary(value);
+                // else
+                //     LoadDictionary(value);
 #else
                 LoadDictionary (value);
 #endif

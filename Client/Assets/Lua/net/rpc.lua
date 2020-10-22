@@ -9,7 +9,7 @@ local string_format = string.format
 local net_api_list = require("net.net_api_list")
 local client_rpc = require("net.client_rpc")
 
-local SIMULATION_SERVER = true
+local SIMULATION_SERVER = false
 
 local function make_rpc(rpc, name, ...)
     local rf = rpc.remoteF[name]

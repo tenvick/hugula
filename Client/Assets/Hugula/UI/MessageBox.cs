@@ -1,7 +1,7 @@
 ﻿//#define MESSAGEBOX_DEBUG
 using System.Collections;
 using System.Collections.Generic;
-using Hugula.Loader;
+using Hugula;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.Events;
@@ -77,23 +77,24 @@ namespace Hugula.UI {
         }
 
         private static IEnumerator LoadMessageBox (MessageBoxInfo m_messageBoxInfo) {
-#if MESSAGEBOX_DEBUG 
-            Debug.LogFormat ("LoadMessageBox .LoadAssetCoroutine {0} ,frame={1}  ", m_messageBoxInfo,Time.frameCount);
-#endif
-            var req = ResourcesLoader.LoadAssetCoroutine (CUtils.GetRightFileName (MESSAGEBOX_ABNAME), CUtils.GetAssetName (MESSAGEBOX_ABNAME), typeof (GameObject));
-            yield return req;
-#if MESSAGEBOX_DEBUG 
-            Debug.LogFormat ("LoadMessageBox LoadAssetCoroutine is done {0},frame={1}  ", req,Time.frameCount);
-#endif
-            var obj = (GameObject)req.data;
-#if MESSAGEBOX_DEBUG 
-            Debug.LogFormat ("LoadMessageBox obj req.GetAsset<GameObject> {0} ,frame={1}  ", obj,Time.frameCount);
-#endif
-            var ins = GameObject.Instantiate (obj);
-            m_messageBox = ins.GetComponent<MessageBox> ();
-            m_isloading = false;
-            DontDestroyOnLoad (ins);
-            m_messageBox.ShowContent (m_messageBoxInfo.text, m_messageBoxInfo.caption, m_messageBoxInfo.btns);
+// #if MESSAGEBOX_DEBUG 
+//             Debug.LogFormat ("LoadMessageBox .LoadAssetCoroutine {0} ,frame={1}  ", m_messageBoxInfo,Time.frameCount);
+// #endif
+//             var req = ResourcesLoader.LoadAssetCoroutine (CUtils.GetRightFileName (MESSAGEBOX_ABNAME), CUtils.GetAssetName (MESSAGEBOX_ABNAME), typeof (GameObject));
+//             yield return req;
+// #if MESSAGEBOX_DEBUG 
+//             Debug.LogFormat ("LoadMessageBox LoadAssetCoroutine is done {0},frame={1}  ", req,Time.frameCount);
+// #endif
+//             var obj = (GameObject)req.data;
+// #if MESSAGEBOX_DEBUG 
+//             Debug.LogFormat ("LoadMessageBox obj req.GetAsset<GameObject> {0} ,frame={1}  ", obj,Time.frameCount);
+// #endif
+//             var ins = GameObject.Instantiate (obj);
+//             m_messageBox = ins.GetComponent<MessageBox> ();
+//             m_isloading = false;
+//             DontDestroyOnLoad (ins);
+//             m_messageBox.ShowContent (m_messageBoxInfo.text, m_messageBoxInfo.caption, m_messageBoxInfo.btns);
+            yield return null;
         }
 
         public static void Show (string text, string caption, string btn1Text, UnityAction btn1OnClick) {
@@ -126,7 +127,7 @@ namespace Hugula.UI {
                 m_messageBoxInfo.text = text;
                 m_messageBoxInfo.caption = caption;
                 m_messageBoxInfo.btns = btns;
-                ResourcesLoader.StartCoroutine1 (LoadMessageBox (m_messageBoxInfo));
+                // ResourcesLoader.StartCoroutine1 (LoadMessageBox (m_messageBoxInfo));
 
             }
         }

@@ -18,7 +18,7 @@ local welcome = VMBase()
 
 --UI资源
 welcome.views = {
-    View(welcome, {asset_name = "welcome", res_path = "welcome.u3d"}) --
+    View(welcome, {key = "welcome"}) --
 }
 ----------------------------------申明属性名用于绑定--------------
 local property_eg_data = "eg_data"

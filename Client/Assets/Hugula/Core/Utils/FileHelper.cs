@@ -5,7 +5,6 @@ using UnityEngine;
 using System.IO;
 using System;
 using XLua;
-using Hugula.Loader;
 
 namespace Hugula.Utils
 {
@@ -132,22 +131,22 @@ namespace Hugula.Utils
 			return File.Exists (path); 
 		}
 
-        /// <summary>
-        /// Computes the crc32.
-        /// </summary>
-        /// <returns>The crc32.</returns>
-        /// <param name="path">Path.</param>
-        public static uint ComputeCrc32(string path)
-        {
-            if (File.Exists(path))
-            {
-                var bytes = File.ReadAllBytes(path);
-                uint crc = Crc32.Compute(bytes);
-                return crc;
-            }
-            else
-                return 0;
-        }
+        // /// <summary>
+        // /// Computes the crc32.
+        // /// </summary>
+        // /// <returns>The crc32.</returns>
+        // /// <param name="path">Path.</param>
+        // public static uint ComputeCrc32(string path)
+        // {
+        //     if (File.Exists(path))
+        //     {
+        //         var bytes = File.ReadAllBytes(path);
+        //         uint crc = Crc32.Compute(bytes);
+        //         return crc;
+        //     }
+        //     else
+        //         return 0;
+        // }
 
         /// <summary>
         /// read file text

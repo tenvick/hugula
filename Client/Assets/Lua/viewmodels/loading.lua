@@ -15,13 +15,13 @@ local VMManager = require("core.mvvm.vm_manager")
 local Manager = Manager
 local DispatcherEnum = DispatcherEnum
 local CS = CS
-local ResourcesLoader = CS.Hugula.Loader.ResourcesLoader
+local ResLoader = CS.Hugula.ResLoader
 ---@class VMBase vm
 ---@class loading
 local loading = VMBase()
 
 loading.views = {
-    View(loading, {asset_name = "loading", res_path = "loading.u3d"}) ---加载prefab
+    View(loading, {key = "loading"}) ---加载prefab
 }
 
 ----------------------------------申明属性名用于绑定--------------
@@ -44,20 +44,20 @@ end
 local function all_complete()
     Logger.Log("all_complete")
     VMState:push(VMGroup.gamescene) --预加载完成后跳转到场景
-    ResourcesLoader.OnGroupProgress = nil
-    ResourcesLoader.OnGroupComplete = nil
+    ResLoader.OnGroupProgress = nil
+    ResLoader.OnGroupComplete = nil
 end
 
 local function load_async()
-    ResourcesLoader.OnGroupProgress = on_progress
-    ResourcesLoader.OnGroupComplete = all_complete
+    ResLoader.OnGroupProgress = on_progress
+    ResLoader.OnGroupComplete = all_complete
 
-    ResourcesLoader.BeginMarkGroup()
+    ResLoader.BeginMarkGroup()
     for k, v in pairs(pre_loading) do
-        -- Logger.Log(k,v)
+        Logger.Log(k,v)
         VMManager:pre_load(v)
     end
-    ResourcesLoader.EndMarkGroup()
+    ResLoader.EndMarkGroup()
 end
 
 ------------------------------------------------------------------
@@ -76,7 +76,7 @@ function loading:on_push_arg(arg)
 
     --读取数据信息
     local assets = {}
-    table_insert(assets,{asset_name="Player1",res_path="player1.u3d"})
+    table_insert(assets,{key="Player1"})
     -- VMGenerate.asset_loader:on_push_arg({asset_loader=assets})
     VMState:call_func("asset_loader","on_push_arg",{asset_loader=assets})
 end

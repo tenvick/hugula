@@ -11,7 +11,7 @@ local VMGroup = VMGroup
 local back_tips = VMBase()
 --back_tips 以LuaModule挂接在GameObject上不需要指定views
 back_tips.views = {
-    View(back_tips, {asset_name = "back_tips", res_path = "back_tips.u3d"}) ---加载prefab
+    View(back_tips, {key = "back_tips"}) ---加载prefab
 }
 
 ---点击返回按钮

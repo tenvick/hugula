@@ -12,12 +12,12 @@ local LuaDispatcher = LuaDispatcher
 local Rpc = Rpc
 
 local CUtils = CS.Hugula.Utils.CUtils
-
+local NetworkProxy = CS.Hugula.Net.NetworkProxy
 ---@class VMBase vm
 ---@class login
 local login = VMBase()
 login.views = {
-    View(login, {asset_name = "login", res_path = "login.u3d"}), ---加载prefab
+    View(login, {key = "login"}), ---加载prefab
 }
 
 ----------------------------------申明属性名用于绑定--------------
@@ -25,7 +25,9 @@ local property_user_name = "user_name"
 local property_password = "password"
 local property_login_tips="login_tips"
 local property_group_index = "group_index"
+local property_is_connected = "is_connected"
 -------------------------------------------------
+login.is_connected = false
 login.group_index = 0
 login.password = "" --双向绑定
 login._user_name = CS.UnityEngine.SystemInfo.deviceUniqueIdentifier
@@ -44,6 +46,10 @@ function login.on_login_act(data)
     login:SetProperty(property_group_index,1)
 end
 
+function login.on_connection()
+    login:SetProperty(property_is_connected,true) 
+end
+
 ------------------------------------------------
 function login:on_push_arg(arg)
 
@@ -60,12 +66,23 @@ end
 
 --view激活时候调用
 function login:on_active()
+    local ips = "10.23.7.189"
+    local port = 5000
+    local WARNET_PING_PORT = 5000 --端口
+    local isEncode = false
+    CS.Hugula.Net.NetWork.main:Connect(ips, ips, port, isEncode);
+
+    -- NetworkProxy.main:Connect(ips,port,WARNET_PING_PORT,WARNET_IS_ENCODE)
+
+    LuaDispatcher:binding(DIS_TYPE.NET_CONNECT_SUCCESS,login.on_connection)
     LuaDispatcher:binding(DIS_TYPE.LOGIN_PACKET_ACK, login.on_login_act)
+
 end
 
 
 --view失活调用
 function login:on_deactive()
+    LuaDispatcher:unbinding(DIS_TYPE.NET_CONNECT_SUCCESS,login.on_connection)
     LuaDispatcher:unbinding(DIS_TYPE.LOGIN_PACKET_ACK, login.on_login_act)
 end
 

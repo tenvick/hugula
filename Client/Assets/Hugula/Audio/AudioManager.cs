@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Hugula.Framework;
 using Hugula.Utils;
-using Hugula.Loader;
 
 namespace Hugula.Audio
 {
@@ -190,7 +189,7 @@ namespace Hugula.Audio
         /// <returns></returns>
         internal AudioClip GetAudioClip(string key)
         {
-            AudioClip ac = AudioClipMappingManager.instance.GetAsset(key);
+            AudioClip ac =  ResLoader.LoadAsset<AudioClip>(key); // AudioClipMappingManager.instance.GetAsset(key);
             return ac;
         }
 
@@ -372,7 +371,7 @@ namespace Hugula.Audio
 
         public void Substract(string clipName)
         {
-            AudioClipMappingManager.instance.Subtract(clipName);
+            // AudioClipMappingManager.instance.Subtract(clipName);
         }
     }
 }

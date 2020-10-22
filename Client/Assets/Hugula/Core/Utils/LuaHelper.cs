@@ -44,23 +44,20 @@ namespace Hugula.Utils
             GameObject.DestroyImmediate(original, allowDestroyingAssets);
         }
 
-        public static void DelayDestroy(GameObject gobj, string abName)
+        public static void DelayDestroy(GameObject gobj)
         {
             var delay = gobj.GetComponent<Hugula.Framework.IDelayDestory>();
             if (delay != null)
             {
                 delay.onDelayCompleted = () =>
                 {
-                    if (!string.IsNullOrEmpty(abName)) //引用计数减一
-                        Hugula.Loader.CacheManager.Subtract(abName);
+                    ResLoader.ReleaseInstance(gobj);
                 };
                 delay.DelayDestory();
             }
             else
             {
-                GameObject.Destroy(gobj);
-                if (!string.IsNullOrEmpty(abName)) //引用计数减一
-                    Hugula.Loader.CacheManager.Subtract(abName);
+                ResLoader.ReleaseInstance(gobj);
             }
         }
 
@@ -664,20 +661,21 @@ namespace Hugula.Utils
         /// <param name="scenename"></param>
         public static void UnloadScene(string sceneName)
         {
-            Hugula.Loader.ResourcesLoader.UnloadScene(sceneName);
+            Hugula.ResLoader.UnloadSceneAsync(sceneName,null,null);
+            // Hugula.Loader.ResourcesLoader.UnloadScene(sceneName);
             //UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
         }
 
-        /// <summary>
-        /// Loads the scene.
-        /// </summary>
-        /// <param name="sceneName">Scene name.</param>
-        /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
-        public static void LoadScene(string sceneName, bool isAdditive)
-        {
-            Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null, null, true, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
-            //UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
-        }
+        // /// <summary>
+        // /// Loads the scene.
+        // /// </summary>
+        // /// <param name="sceneName">Scene name.</param>
+        // /// <param name="isAdditive">If set to <c>true</c> is additive.</param>
+        // public static void LoadScene(string sceneName, bool isAdditive)
+        // {
+        //     Hugula.Loader.ResourcesLoader.LoadScene(sceneName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX, sceneName, null, null, null, true, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+        //     //UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single);
+        // }
 
 
         /// <summary>

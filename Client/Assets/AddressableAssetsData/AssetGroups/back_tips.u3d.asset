@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: back_tips.u3d
+  m_EditorClassIdentifier: 
+  m_GroupName: back_tips.u3d
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 3387c19466802644e986e9a15232879e
+  m_SerializeEntries:
+  - m_GUID: 28413faf0422c80499fb13ce48d66768
+    m_Address: back_tips
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 1700335427540178329, guid: 28413faf0422c80499fb13ce48d66768,
+      type: 3}
+    m_TargetAsset: {fileID: 1700335427540178329, guid: 28413faf0422c80499fb13ce48d66768,
+      type: 3}
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: fadea13c6ba05fe47bec36631965dee7, type: 2}
+    - {fileID: 11400000, guid: 146f28a0374d4824da618c5bbd6eb8ed, type: 2}

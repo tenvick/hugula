@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Hugula.Loader;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+using Hugula;
 
 namespace Hugula.Databinding.Binder
 {
@@ -16,6 +16,8 @@ namespace Hugula.Databinding.Binder
         // public const string ColorProperty = "color";
 
         public bool setNativeSize = false;
+
+        private Sprite addressSprite ;
 
         #region 新增属性
         private string m_spriteName;
@@ -30,39 +32,42 @@ namespace Hugula.Databinding.Binder
             {
                 if (!string.Equals(value, m_spriteName))
                 {
-                    LoadSprite(value,m_spriteName);
+                    UnloadSprite();
+
+                    LoadSprite(value);
                     m_spriteName = value;
                 }
             }
         }
+
         #endregion
 
         #region  protected method
-        void LoadSprite(string spriteName,string lastName)
+        void LoadSprite(string spriteName)
         {
-            if (target)
+            if (target && !string.IsNullOrEmpty(spriteName))
             {
                 target.enabled = false;
-                //load altas
-                Atlas.AtlasManager.instance.GetAssetAsync(spriteName, OnAltasCompleted);
-                Atlas.AtlasManager.instance.Subtract(lastName);
+                ResLoader.LoadAssetAsync<Sprite>(spriteName, OnSpriteCompleted, null);
             }
         }
 
-        void OnAltasCompleted(Sprite sprite)
+        void OnSpriteCompleted(Sprite sprite, object arg)
         {
+            addressSprite = sprite;
             target.sprite = sprite;
             target.enabled = true;
             if (setNativeSize)
                 target.SetNativeSize();
         }
 
-        void UnloadSprite(string spriteName)
+        void UnloadSprite()
         {
-            if (!string.IsNullOrEmpty(spriteName))
+            if (addressSprite!= null)
             {
-                Atlas.AtlasManager.instance.Subtract(spriteName);
+                ResLoader.Release(addressSprite);
             }
+            addressSprite = null; 
         }
 
         #endregion
@@ -216,7 +221,7 @@ namespace Hugula.Databinding.Binder
 
         protected override void OnDestroy()
         {
-            UnloadSprite(m_spriteName);
+            UnloadSprite();
             base.OnDestroy();
         }
 

@@ -138,7 +138,7 @@ namespace Hugula.Net
 
                                     // LuaPacket luaPacket = new LuaPacket(tpacket);
                                     // luaNetHandler.call(luaPacket);
-                                    //   luaNetHandler.Action<int, byte[]>(msgid, data);
+                                      luaNetHandler.Action<int, byte[]>(tpacket.Type, tpacket.GetBytes());
                                 }
                             }
                         }
@@ -146,6 +146,8 @@ namespace Hugula.Net
                         {
                             // LuaPacket luaPacket = new LuaPacket(packet);
                             // luaNetHandler.call(luaPacket);
+                            luaNetHandler.Action<int, byte[]>(packet.Type, packet.GetBytes());
+
                         }
                         else
                         {

@@ -17,7 +17,7 @@ local property_slider1_value = "slider1_value"
 local property_btn_interactable = "btn_interactable"
 -------------------------------------------------
 binding_demo.views = {
-    View(binding_demo, {asset_name="binding_demo",res_path="binding_demo.u3d"}) ---使用默认view视图
+    View(binding_demo, {key="binding_demo",res_path="binding_demo.u3d"}) ---使用默认view视图
 }
 
 ----界面PanelOneWayVM 和界面PanelTwoWayVM 共同使用vm

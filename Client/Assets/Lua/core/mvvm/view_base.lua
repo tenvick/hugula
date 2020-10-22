@@ -104,15 +104,14 @@ local function clear(self)
     --scene
     local scene_name = self.scene_name
     if scene_name ~= nil and self._child then
-        -- local res_path = self.res_path
         LuaHelper.UnloadScene(scene_name)
     else
         local child = self._child
         if child then
-            LuaHelper.DelayDestroy(child.gameObject, self.res_path)
+            LuaHelper.DelayDestroy(child.gameObject)
         end
     end
-    -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
+    Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil
     self._context = nil
     self._nitialized = false
@@ -128,7 +127,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-   return string.format("asset=%s,res=%s,child=%s ",self.asset_name or self.scene_name, self.res_path,self._child)
+   return string.format("asset=%s,is_scene=%s,child=%s ",self.key or self.scene_name, self:is_scene(),self._child)
 end
 
 -- view_base.on_asset_load = on_asset_load
@@ -159,7 +158,7 @@ view_base.__tostring = tostring
 ---@field set_active function
 ---@field has_context function 是否设置了context
 ---@field has_child function 是否有BindableObject
----@field asset_name string
+---@field key string
 ---@field assetbundle string
 ---@field find_path string
 --- "welcome"

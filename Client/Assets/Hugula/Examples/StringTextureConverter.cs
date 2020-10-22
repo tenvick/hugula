@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Hugula.Databinding;
-using Hugula.Loader;
+using Hugula;
 using Hugula.Utils;
 using UnityEngine;
 
@@ -18,7 +18,7 @@ public class StringTextureConverter : MonoBehaviour, IValueConverter {
 
     public object Convert (object target, Type targetType) {
         string rawImageUrl = target.ToString ();
-        Texture tex = ResourcesLoader.LoadAsset<Texture> (rawImageUrl.ToLower () + Common.CHECK_ASSETBUNDLE_SUFFIX, rawImageUrl);
+        Texture tex = ResLoader.LoadAsset<Texture> (rawImageUrl);
         return tex;
     }
 

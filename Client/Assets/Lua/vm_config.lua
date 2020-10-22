@@ -47,7 +47,7 @@ VMGroup = vm_g
 ---------------------------------------------------------------------------
 --log_enable --为是否记录回退栈。
 vm_config.scene_loader = {vm = "viewmodels.scene_loader",gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载场景
-vm_config.asset_loader = {vm = "viewmodels.asset_loader",gc_type = VM_GC_TYPE.STATE_CHANGED} ---  动态加载资源
+vm_config.asset_loader = {vm = "viewmodels.asset_loader",gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载资源
 vm_config.welcome = {vm = "viewmodels.welcome"} ---  示例列表
 vm_config.bag = {vm = "viewmodels.bag",gc_type = VM_GC_TYPE.STATE_CHANGED} --- 背包
 vm_config.back_tips = {vm="viewmodels.back_tips",gc_type = VM_GC_TYPE.NEVER} --luaModule

@@ -18,14 +18,13 @@ local profiler = require("perf.profiler")
 local CS = CS
 local GameObject = CS.UnityEngine.GameObject
 local Hugula = CS.Hugula
-local ResourcesLoader = Hugula.Loader.ResourcesLoader
+local ResLoader = Hugula.ResLoader
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
 
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
 local BindingUtility = Hugula.Databinding.BindingUtility
 
-ResourcesLoader.Initialize()
 --------------------state 相关----------------------------
 local _state_changed = {} --记录有on_state_changed的viewmodel lua
 
@@ -40,7 +39,7 @@ local function remove_state_changed(vm_base)
 end
 
 ---@overload fun(view_base:VMBase)
-local function _call_on_state_changed(self,arg)
+local function _call_on_state_changed(self, arg)
     -- Logger.Log("_call_on_state_changed",#_state_changed)
     for k, v in ipairs(_state_changed) do
         v:on_state_changed(arg)
@@ -114,8 +113,8 @@ end
 local function on_res_comp(data, view_base)
     -- profiler.start()
     if view_base:has_child() ~= true then
-        local inst = GameObject.Instantiate(data)
-        set_view_child(inst, view_base)
+        -- local inst = GameObject.Instantiate(data)
+        set_view_child(data, view_base)
     end
 
     init_view(view_base)
@@ -130,9 +129,9 @@ end
 local function on_pre_load_comp(data, view_base)
     if view_base:has_child() ~= true then
         -- data:SetActive(false)
-        local inst = GameObject.Instantiate(data)
-        set_view_child(inst, view_base)
-        inst:SetActive(false)
+        -- local inst = GameObject.Instantiate(data)
+        set_view_child(data, view_base)
+        data:SetActive(false)
     end
 end
 
@@ -256,13 +255,12 @@ local function destory_view(self, vm_name)
 end
 
 ---加载配置的资源
----@overload fun(res_path:string,res_name:string,view_base:ViewBase,on_asset_comp:function,is_pre_load:boolean)
----@param res_path string
+---@overload fun(res_name:string,view_base:ViewBase,on_asset_comp:function,is_pre_load:boolean)
 ---@param res_name string
 ---@param view_base ViewBase
 ---@param on_asset_comp function
 ---@param is_pre_load boolean
-local function load_resource(res_path, res_name, view_base, on_asset_comp, is_pre_load)
+local function load_resource(res_name, view_base, on_asset_comp, is_pre_load)
     local vm_name = view_base._vm_base.name
     local vm_config = VMConfig[vm_name]
     local async = vm_config.async
@@ -283,22 +281,21 @@ local function load_resource(res_path, res_name, view_base, on_asset_comp, is_pr
         init_view(view_base)
     else
         if async ~= false then ---异步加载
-            ResourcesLoader.LoadAssetAsync(res_path, res_name, nil, on_asset_comp, nil, view_base)
+            ResLoader.InstantiateAsync(res_name, on_asset_comp, nil, view_base)
         else
-            local gobj = ResourcesLoader.LoadAsset(res_path, res_name, nil)
+            local gobj = ResLoader.Instantiate(res_name)
             on_asset_comp(gobj, view_base) ---同步步加载
         end
     end
 end
 
 ---加载场景
----@overload fun(res_path:string,res_name:string,view_base:ViewBase,on_asset_comp:function,is_pre_load:boolean)
----@param res_path string
----@param res_name string
+---@overload fun(scene_name:string,view_base:ViewBase,on_asset_comp:function,is_pre_load:boolean)
+---@param scene_name string
 ---@param view_base ViewBase
 ---@param on_asset_comp function
 ---@param is_pre_load boolean
-local function load_scene(res_path, scene_name, view_base, on_asset_comp, is_pre_load) --LoadScene
+local function load_scene(scene_name, view_base, on_asset_comp, is_pre_load) --LoadScene
     local load_scene_mode
     if view_base.load_scene_mode ~= nil then
         load_scene_mode = view_base.load_scene_mode
@@ -322,22 +319,14 @@ local function load_scene(res_path, scene_name, view_base, on_asset_comp, is_pre
         end --
     end
 
-    ResourcesLoader.LoadScene(
-        res_path,
-        scene_name,
-        on_asset_comp,
-        on_res_end,
-        view_base,
-        allow_scene_activation,
-        load_scene_mode
-    )
+    ResLoader.LoadSceneAsync(scene_name, on_asset_comp, on_res_end, view_base, allow_scene_activation, load_scene_mode)
 end
 
 --- 开始加载或者激活vm关联的view
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_name string
 ---@param arg any
-local function load(self, vm_name, arg,is_push)
+local function load(self, vm_name, arg, is_push)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm:on_push_arg(arg) --有参数
     curr_vm._is_push = is_push --是否是push到栈上的
@@ -346,19 +335,19 @@ local function load(self, vm_name, arg,is_push)
     if views == nil or #views == 0 then
         curr_vm.is_res_ready = true
     end
-    
+
     if curr_vm.is_res_ready == true then --已经加载过
         active_view(self, vm_name)
     else
         if views and curr_vm._isloading ~= true then
             curr_vm._isloading = true
-            local find_path, res_name, scene_name, res_path
+            local find_path, res_name, scene_name
             for k, v in ipairs(views) do
-                find_path, res_name, scene_name, res_path = v.find_path, v.asset_name, v.scene_name, v.res_path
-                if res_name ~= nil and res_path ~= nil then
-                    load_resource(res_path, res_name, v)
-                elseif scene_name ~= nil and res_path ~= nil then
-                    load_scene(res_path, scene_name, v)
+                find_path, res_name, scene_name = v.find_path, v.key, v.scene_name
+                if res_name ~= nil  then
+                    load_resource( res_name, v)
+                elseif scene_name ~= nil then
+                    load_scene(scene_name, v)
                 elseif v.find_path ~= nil then
                     find_gameobject(v.find_path, v)
                 end
@@ -373,15 +362,15 @@ end
 ---@overload fun(vm_name:any,arg:any)
 ---@param vm_name any
 ---@param arg any
-local function active(self, vm_name, arg,is_push)
+local function active(self, vm_name, arg, is_push)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
     if type(vm_name) == "string" then --单个
-        load(self, vm_name, arg,is_push)
+        load(self, vm_name, arg, is_push)
     else
         for k, v in ipairs(vm_name) do --多个
-            load(self, v, arg,is_push)
+            load(self, v, arg, is_push)
         end
     end
 end
@@ -394,15 +383,15 @@ local function pre_load(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     local views = curr_vm.views
     if views and not curr_vm.is_res_ready then
-        local find_path, res_name, scene_name, res_path
+        local res_name, scene_name
         for k, v in ipairs(views) do
-            find_path, res_name, scene_name, res_path = v.find_path, v.asset_name, v.scene_name, v.res_path
-            if scene_name ~= nil and res_path ~= nil then
-                load_scene(res_path, scene_name, v, on_pre_scene_comp, true)
-            elseif res_name ~= nil and res_path ~= nil then
-                load_resource(res_path, res_name, v, on_pre_load_comp, true)
+            res_name, scene_name = v.key, v.scene_name
+            if scene_name ~= nil then
+                load_scene(scene_name, v, on_pre_scene_comp, true)
+            elseif res_name ~= nil then
+                load_resource(res_name, v, on_pre_load_comp, true)
             end
-            -- Logger.Log("pre_load", vm_name, k, v)
+            Logger.Log("pre_load", vm_name, k, v)
         end
     end
 end

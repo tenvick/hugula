@@ -72,6 +72,23 @@ namespace HugulaEditor
             return Path.Combine(streamingPath, CUtils.GetAssetPath(""));
         }
 
+        /// <summary>
+        /// 向tmp目录写入数据。
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="context"></param>
+        public static void WriteToTmpFile(string fileName, string context)
+        {
+            string tmpPath = GetAssetTmpPath();
+            EditorUtils.CheckDirectory(tmpPath);
+            string outPath = Path.Combine(tmpPath, fileName);
+            using (StreamWriter sr = new StreamWriter(outPath, false))
+            {
+                sr.Write(context);
+            }
+            Debug.Log("write to path=" + outPath);
+        }
+
         public static string GetAssetPath(string filePath)
         {
             string path = filePath.Replace(Application.dataPath + "/", "");
@@ -214,6 +231,13 @@ namespace HugulaEditor
             }
 
             return re.ToArray();
+        }
+
+
+        [MenuItem("Assets/Hugula/打开开始场景  %g")]
+        static public void OpenBeginSence()
+        {
+            AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath("Assets/Scenes/s_begin.unity", typeof(UnityEngine.Object)));
         }
     }
 

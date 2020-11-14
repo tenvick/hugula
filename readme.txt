@@ -1,6 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2020.11.14
+1 基于ass的atlas生成工具与热更新打包脚本。
+2 demo资源与代码独立成单独文件夹。
+
 2020.8.14
 1 lua protobuf 生成工具(Hugula/Lua Protobuf ...)导出工具(Hugula/Export Lua Protobuf)
 2 登录示例，客户端模拟服务器发送消息。

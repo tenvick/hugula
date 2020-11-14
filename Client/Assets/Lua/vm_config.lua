@@ -46,15 +46,19 @@ VMGroup = vm_g
 -------------------------------viewmodel配置-------------------------------
 ---------------------------------------------------------------------------
 --log_enable --为是否记录回退栈。
-vm_config.scene_loader = {vm = "viewmodels.scene_loader",gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载场景
-vm_config.asset_loader = {vm = "viewmodels.asset_loader",gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载资源
-vm_config.welcome = {vm = "viewmodels.welcome"} ---  示例列表
-vm_config.bag = {vm = "viewmodels.bag",gc_type = VM_GC_TYPE.STATE_CHANGED} --- 背包
-vm_config.back_tips = {vm="viewmodels.back_tips",gc_type = VM_GC_TYPE.NEVER} --luaModule
-vm_config.binding_demo = {vm = "viewmodels.binding_demo.binding_demo",gc_type = VM_GC_TYPE.STATE_CHANGED}
-vm_config.chat_demo = {vm = "viewmodels.chat_demo",gc_type = VM_GC_TYPE.STATE_CHANGED}
-vm_config.loading = {vm = "viewmodels.loading", gc_type = VM_GC_TYPE.STATE_CHANGED} ---  loading界面
-vm_config.login ={vm ="viewmodels.login"}
+
+--------------------------demo-------------------------------------
+vm_config.scene_loader = {vm = "demo.scene_loader", gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载场景
+vm_config.asset_loader = {vm = "demo.asset_loader", gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载资源
+vm_config.welcome = {vm = "demo.welcome"} ---  示例列表
+vm_config.bag = {vm = "demo.bag", gc_type = VM_GC_TYPE.STATE_CHANGED} --- 背包
+vm_config.back_tips = {vm = "demo.back_tips", gc_type = VM_GC_TYPE.NEVER} --luaModule
+vm_config.binding_demo = {vm = "demo.binding_demo.binding_demo", gc_type = VM_GC_TYPE.STATE_CHANGED}
+vm_config.chat_demo = {vm = "demo.chat_demo", gc_type = VM_GC_TYPE.STATE_CHANGED}
+vm_config.loading = {vm = "demo.loading", gc_type = VM_GC_TYPE.STATE_CHANGED} ---  loading界面
+vm_config.login = {vm = "demo.login"}
+----------------------------------------------------------------------------------demo end-----
+
 --------------------------------------------------------------------------
 ------------------------viewmodel group 配置-------------------------------
 ---------------------------------------------------------------------------

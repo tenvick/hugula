@@ -9,8 +9,7 @@ using Hugula.Mvvm;
 ///</summary>
 public class GameInitialize : MonoBehaviour {
     void Awake () {
-        Manager.Register<GlobalDispatcher> ();
-
+        
         Manager.Initialize ();
     }
 }

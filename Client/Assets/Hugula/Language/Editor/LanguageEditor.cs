@@ -56,8 +56,8 @@ namespace HugulaEditor
 
             AssetDatabase.Refresh();
 
-            var setting = AssetDatabase.LoadAssetAtPath<AddressableAssetSettings>("Assets/AddressableAssetsData/AddressableAssetSettings.asset");
-            var group = setting.FindGroup(LAN_GROUP_NAME);
+            var setting = AASEditorUtility.LoadAASSetting();
+            var group = AASEditorUtility.FindGroup(LAN_GROUP_NAME, AASEditorUtility.DefaltGroupSchema[0]);//setting.FindGroup(LUA_GROUP_NAME);
 
             foreach (var str in dests)
             {

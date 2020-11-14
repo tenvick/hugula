@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: bag_atlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 0
+      compressionQuality: 0
+      maxTextureSize: 0
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 0
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: 0d8e74db86f71d04f8b13e7440adc3ca, type: 3}
+    - {fileID: 21300000, guid: bad0760f7a9151d43bfbcf8bd17a84b7, type: 3}
+    - {fileID: 21300000, guid: 6bbd8f17c95dfe84fb8b3adbb8b1049a, type: 3}
+    - {fileID: 21300000, guid: ebf9728844c5bf2489be386433741082, type: 3}
+    - {fileID: 21300000, guid: cc9f059de590c944b9639dec2e06d7fe, type: 3}
+    - {fileID: 21300000, guid: cc7b9f042ff83d34db370ba2f4a86eaa, type: 3}
+    - {fileID: 21300000, guid: 886b4c0e38eaa7d4f927cc2c97755972, type: 3}
+    - {fileID: 21300000, guid: 5ce1108009853004a95da31feba26886, type: 3}
+    - {fileID: 21300000, guid: f2253f0a8b9b7484688b6de5bff3ed97, type: 3}
+    - {fileID: 21300000, guid: e308e9a22f316c647af06a513e2637be, type: 3}
+    - {fileID: 21300000, guid: c69d33d2551231143a7a247a57dda37a, type: 3}
+    - {fileID: 21300000, guid: 75e38637b38400245b6545b10917610e, type: 3}
+    - {fileID: 21300000, guid: e2013592c17184749be201db4961e300, type: 3}
+    - {fileID: 21300000, guid: 5ed78207946c9bb46aa6fea4f859fc99, type: 3}
+    - {fileID: 21300000, guid: f4def9afb03e4b940a2b2ecace0eb41e, type: 3}
+    - {fileID: 21300000, guid: 1434ebd040a24584b98fb826eb2b285a, type: 3}
+    - {fileID: 21300000, guid: a18e906288fd6fe4d83ce2f40fa8809b, type: 3}
+    - {fileID: 21300000, guid: cd0cbeaabcc2ffe45b0a951c62def134, type: 3}
+    totalSpriteSurfaceArea: 195803
+    bindAsDefault: 1
+    storedHash:
+      serializedVersion: 2
+      Hash: a287a84a1ff4cfd5bb3bbc904955711e
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 5ce1108009853004a95da31feba26886, type: 3}
+  - {fileID: 21300000, guid: 1434ebd040a24584b98fb826eb2b285a, type: 3}
+  - {fileID: 21300000, guid: a18e906288fd6fe4d83ce2f40fa8809b, type: 3}
+  - {fileID: 21300000, guid: e2013592c17184749be201db4961e300, type: 3}
+  - {fileID: 21300000, guid: e308e9a22f316c647af06a513e2637be, type: 3}
+  - {fileID: 21300000, guid: c69d33d2551231143a7a247a57dda37a, type: 3}
+  - {fileID: 21300000, guid: cc7b9f042ff83d34db370ba2f4a86eaa, type: 3}
+  - {fileID: 21300000, guid: 5ed78207946c9bb46aa6fea4f859fc99, type: 3}
+  - {fileID: 21300000, guid: 6bbd8f17c95dfe84fb8b3adbb8b1049a, type: 3}
+  - {fileID: 21300000, guid: 75e38637b38400245b6545b10917610e, type: 3}
+  - {fileID: 21300000, guid: ebf9728844c5bf2489be386433741082, type: 3}
+  - {fileID: 21300000, guid: f2253f0a8b9b7484688b6de5bff3ed97, type: 3}
+  - {fileID: 21300000, guid: cd0cbeaabcc2ffe45b0a951c62def134, type: 3}
+  - {fileID: 21300000, guid: 0d8e74db86f71d04f8b13e7440adc3ca, type: 3}
+  - {fileID: 21300000, guid: cc9f059de590c944b9639dec2e06d7fe, type: 3}
+  - {fileID: 21300000, guid: 886b4c0e38eaa7d4f927cc2c97755972, type: 3}
+  - {fileID: 21300000, guid: bad0760f7a9151d43bfbcf8bd17a84b7, type: 3}
+  - {fileID: 21300000, guid: f4def9afb03e4b940a2b2ecace0eb41e, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - common_hero_rim08
+  - common_img050
+  - common_img053
+  - common_img035
+  - common_hero_rim10
+  - common_img005
+  - common_hero_rim06
+  - common_img038
+  - common_hero_rim03
+  - common_img020
+  - common_hero_rim04
+  - common_hero_rim09
+  - common_img089
+  - common_hero_rim01
+  - common_hero_rim05
+  - common_hero_rim07
+  - common_hero_rim02
+  - common_img041
+  m_Tag: bag_atlas
+  m_IsVariant: 0

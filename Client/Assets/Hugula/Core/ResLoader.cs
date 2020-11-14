@@ -226,7 +226,7 @@ namespace Hugula
             }
             else
             {
-                onEnd(null, userData);
+                if (onEnd != null) onEnd(null, userData);
             }
 
             OnItemLoaded(key);

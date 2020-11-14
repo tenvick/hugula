@@ -86,13 +86,13 @@ namespace HugulaEditor
             AssetDatabase.Refresh();
 
             //addressables
-            var setting = AssetDatabase.LoadAssetAtPath<AddressableAssetSettings>("Assets/AddressableAssetsData/AddressableAssetSettings.asset");
-            var group = setting.FindGroup(LUA_GROUP_NAME);
-
+            var setting = AASEditorUtility.LoadAASSetting();
+            var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
+            // groupSchama.FindSchema()
+            var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama);//setting.FindGroup(LUA_GROUP_NAME);
             foreach (var str in dests)
             {
                 var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
-
                 var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
                 entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
                 entry.SetLabel("lua_script", true);

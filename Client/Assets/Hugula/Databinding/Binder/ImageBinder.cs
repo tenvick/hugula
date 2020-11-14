@@ -4,6 +4,7 @@ using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using Hugula;
+using Hugula.Atlas;
 
 namespace Hugula.Databinding.Binder
 {
@@ -17,7 +18,7 @@ namespace Hugula.Databinding.Binder
 
         public bool setNativeSize = false;
 
-        private Sprite addressSprite ;
+        private Sprite addressSprite;
 
         #region 新增属性
         private string m_spriteName;
@@ -48,7 +49,7 @@ namespace Hugula.Databinding.Binder
             if (target && !string.IsNullOrEmpty(spriteName))
             {
                 target.enabled = false;
-                ResLoader.LoadAssetAsync<Sprite>(spriteName, OnSpriteCompleted, null);
+                ResLoader.LoadAssetAsync<Sprite>(AtlasManager.GetAtlasKey(spriteName), OnSpriteCompleted, null);
             }
         }
 
@@ -63,11 +64,11 @@ namespace Hugula.Databinding.Binder
 
         void UnloadSprite()
         {
-            if (addressSprite!= null)
+            if (addressSprite != null)
             {
                 ResLoader.Release(addressSprite);
             }
-            addressSprite = null; 
+            addressSprite = null;
         }
 
         #endregion

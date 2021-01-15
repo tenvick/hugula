@@ -62,6 +62,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -172,6 +173,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -321,6 +323,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -419,6 +422,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -607,6 +611,7 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
   m_Target: {fileID: 1898566436092732782}
+  m_forceBinding: 1
 --- !u!1 &1898566436120551731
 GameObject:
   m_ObjectHideFlags: 0
@@ -620,6 +625,7 @@ GameObject:
   - component: {fileID: 1898566436120551728}
   - component: {fileID: 1898566436120551729}
   - component: {fileID: 1898566436120551734}
+  - component: {fileID: 4638732201441098971}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -670,6 +676,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -752,6 +759,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 1898566436092732780}
   m_Target: {fileID: 1898566436120551729}
+--- !u!114 &4638732201441098971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898566436120551731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ae57f087d78284cb178401be30d975, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioClip: ui_button
+  audioClipDisabled: ui_button
+  trigger: 0
 --- !u!1 &1898566436711939040
 GameObject:
   m_ObjectHideFlags: 0
@@ -963,6 +985,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.40153593, b: 0.09803921, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

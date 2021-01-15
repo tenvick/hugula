@@ -56,6 +56,16 @@ namespace Hugula.Mvvm
             m_VMState?.deactive(vm_name);
         }
 
+        public void InitViewmodel(string vm_name, Hugula.Databinding.BindableObject bindalbeObject)
+        {
+            m_VMState?.init_viewmodel(vm_name, bindalbeObject);
+        }
+
+        public void DestroyViewmodel(string vm_name)
+        {
+            m_VMState?.destroy_viewmodel(vm_name);
+        }
+
         public void Back()
         {
             m_VMState?.back();
@@ -71,6 +81,17 @@ namespace Hugula.Mvvm
             void popup_item(string vm_name);
             void active(string vm_name, object arg);
             void deactive(string vm_name);
+            /// <summary>
+            /// 用于luamodule初始化
+            /// </summary>
+            /// <param name="vm_name"></param>
+            /// <param name="container"></param>
+            void init_viewmodel(string vm_name, object container);
+            /// <summary>
+            /// 销毁viewmodel
+            /// </summary>
+            /// <param name="vm_name"></param>
+            void destroy_viewmodel(string vm_name);
             void back();
         }
     }

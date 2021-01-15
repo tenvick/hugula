@@ -12,13 +12,13 @@ local string = string
 local tostring = tostring
 local table_insert = table.insert
 local os = os
----@class VMBase vm
----@class chat_demo
+
+---@class chat_demo:VMBase
+---@type chat_demo
 local chat_demo = VMBase()
 
 ----------------------------------申明属性名用于绑定--------------
 local property_chat_input_txt = "chat_input_txt"
-local property_chat_btn_send = "chat_btn_send"
 -------------------------------------------------
 chat_demo.views = {
     View(chat_demo, {key = "chat_demo"}) ---直接加载资源使用默认视图

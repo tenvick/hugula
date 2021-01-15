@@ -45,8 +45,9 @@ public class CustomBindingExample : MonoBehaviour
         }
     }
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
+        yield return null;
         m_Click.AddListener(OnBtnClick);
         container.context = this;
     }

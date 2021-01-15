@@ -1,6 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.1.16
+1 音效资源asset包支持。
+2 集合绑定控件强制刷新内容。
+3 BindableContainer容器编辑器删除bug修复。
+4 msg自动绑定机制。 
+5 viewmodel.property.property_name = value 设置替代 viewmodel:SetProperty("property_name",value)
+
 2020.11.14
 1 基于ass的atlas生成工具与热更新打包脚本。
 2 demo资源与代码独立成单独文件夹。

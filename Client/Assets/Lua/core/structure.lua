@@ -6,7 +6,9 @@ local math_max = math.max
 local math_min = math.min
 local setmetatable = setmetatable
 local pairs = pairs
-------------------------------------------quadtree------------------------------------
+local ipairs = ipairs
+local table_indexof = table.indexof
+------------------------------------------_QuadTree------------------------------------
 ---矩形min.xy max.xy
 ---@overload fun(topx:number,topy:number,width:number,height:number)
 ---@param topx number
@@ -16,6 +18,10 @@ local pairs = pairs
 ---@return number
 local function get_rect_rang(topx, topy, width, height)
     return topx, topy - height + 1, topx + width - 1, topy
+end
+
+local function get_key(x,y)
+    return 12800*x+y
 end
 
 ---两个矩形的交集
@@ -34,7 +40,7 @@ local function get_cross_rect(bottom_x1, bottom_y1, top_x1, top_y1, bottom_x2, b
             math_min(top_y2, top_y1)
         for x = bx, ex do
             for y = by, ey do
-                local key = string.format("%d_%d", x, y)
+                local key = get_key(x, y)
                 re[key] = true
             end
         end
@@ -44,28 +50,29 @@ local function get_cross_rect(bottom_x1, bottom_y1, top_x1, top_y1, bottom_x2, b
 end
 
 -- 按照位置存储对象
-QuadTree = {}
-QuadTree.__index = QuadTree
+local _QuadTree = {}
+QuadTree = _QuadTree
+_QuadTree.__index = _QuadTree
 local _mt = {}
 _mt.__call = function(tb, w, h, lv, off_x, off_y)
-    return QuadTree.new(w, h, lv, off_x, off_y)
+    return _QuadTree.new(w, h, lv, off_x, off_y)
 end
 --
-setmetatable(QuadTree, _mt)
+setmetatable(_QuadTree, _mt)
 
 ---注意 off_x轴 -1向左
 ---		off_y轴 +1向上
 --- 0，0点在左下角
----w格子宽度(level) h格子高度(level) lv级别(世界坐标/level 4的n次方) off_x(相对于w) ,off_y (相对于h)
-function QuadTree.new(w, h, lv, off_x, off_y)
-    if w == nil then
-        w = 8
-    end
-    if h == nil then
-        h = 8
-    end
-    if lv == nil then
-        lv = 4
+---w格子宽度以cube为一个单位 h格子高度, level(世界坐标/level 压缩比例) off_x(相对于w) ,off_y (相对于h)
+function _QuadTree.new( level, off_x, off_y)
+    -- if w == nil then
+    --     w = 8
+    -- end
+    -- if h == nil then
+    --     h = 8
+    -- end
+    if level == nil then
+        level = 1
     end
     if off_x == nil then
         off_x = 0
@@ -74,61 +81,102 @@ function QuadTree.new(w, h, lv, off_x, off_y)
         off_y = 0
     end
 
-    local o = {width = w, height = h, data = {}, level = lv, offset_y = off_y, offset_x = off_x}
-    o.half_width, o.half_height = math.floor(w / 2), math.floor(h / 2)
-    setmetatable(o, QuadTree)
+    local o = {data = {}, level = level,last_retrieve ={}}
+    setmetatable(o, _QuadTree)
+    o.offset_x = off_x --math.floor(off_x/level)
+    o.offset_y = off_x --math.floor(off_y/level) 
+    -- o:set_size(w,h)
     return o
 end
 
-function QuadTree:set_size(w, h)
-    self.width = w
-    self.height = h
+function _QuadTree:set_size(w, h)
+    local lv = self.level
+    self.width =  math.floor(w / lv)
+    self.height =  math.floor(w / lv)
+    self.half_width = math.floor(self.width / 2)
+    self.half_height = math.floor(self.height / 2)
 end
 
 --x,y 世界坐标 v对象
-function QuadTree:push(x, y, v)
+function _QuadTree:push(x, y, v)
     local level = self.level
     local tx, ty = math.floor(x / level), math.floor(y / level)
-    local key = string.format("%d_%d", tx, ty)
+    local key = get_key(tx, ty)
     local data = self.data
     if data[key] == nil then
         data[key] = {}
     end
     local leaf = data[key]
-    local i = table.index_of(leaf, v)
+    local i = table_indexof(leaf, v)
     if i == -1 then
         table.insert(leaf, v)
     end
 end
 
 --x,y 世界坐标 v对象
-function QuadTree:remove(x, y, v)
+function _QuadTree:remove(x, y, v)
     local level = self.level
     local tx, ty = math.floor(x / level), math.floor(y / level)
-    local key = string.format("%d_%d", tx, ty)
+    local key = get_key( tx, ty)
     local data = self.data
     if data[key] == nil then
         data[key] = {}
     end
     local leaf = data[key]
-    local i = table.index_of(leaf, v)
+    local i = table_indexof(leaf, v)
     if i > -1 then
         table.remove(leaf, i)
     end
 end
 
+---获取以center_x,center_y为中心，width和height的所有对象
+function _QuadTree:retrieve(center_x,center_y,width,height)
+      -- 求矩形的坐标min.xy max.xy
+      self:set_size(width,height)
+      local level = self.level
+      local hf_width, hf_height = self.half_width, self.half_height
+      local c_x1, c_y1 =
+          math.floor((center_x + self.offset_x) / level) - hf_width,
+          math.floor((center_x + self.offset_y) / level) + hf_height 
+
+      self.bottom_left_x, self.bottom_left_y, self.top_right_x, self.top_right_y = get_rect_rang(c_x1, c_y1, self.width, self.height)
+      local bx, ex, by, ey = self.bottom_left_x, self.top_right_x, self.bottom_left_y, self.top_right_y
+      -- print(string.format("target sizex(%d,%d),sizey(%d,%d)",bx,ex,by,ey))
+      local data = self.data
+      local leaf
+      local re = self.last_retrieve
+      table.clear(re)
+      for x = bx, ex do
+          for y = by, ey do
+              local key = get_key( x, y)
+              -- re[key] = true
+              leaf = data[key]
+              if  leaf then --
+                  for k, v in pairs(leaf) do
+                    --   table.insert(re, v)
+                    re[v] = k
+                  end
+              end
+          end
+      end
+
+      return re
+end
+
+
+
 --返回 x/level,y/level 坐标周围radius半径的所有对象
-function QuadTree:get_objects(x, y, radius)
+function _QuadTree:get_objects(x, y, radius)
     local level = self.level
     local tx, ty = math.floor(x / level), math.floor(y / level)
-
     local ret = {} --数据
+
     local key
     local data = self.data
     local leaf
     for i = tx - radius, tx + radius do
         for j = ty - radius, ty + radius do
-            key = string.format("%d_%d", i, j)
+            key = get_key( i, j)
             leaf = data[key]
             if leaf then
                 for k, v in ipairs(leaf) do
@@ -141,25 +189,26 @@ function QuadTree:get_objects(x, y, radius)
     return ret
 end
 
-function QuadTree:clear()
+function _QuadTree:clear()
     table.clear(self.data)
 end
 
-function QuadTree:offset(off_x, off_y) --相对于中心点偏移
-    self.offset_x = off_x
-    self.offset_y = off_y
-end
+-- function _QuadTree:offset(off_x, off_y) --相对于中心点偏移
+--     local level = self.level
+--     self.offset_x = math.floor(off_x/2
+--     self.offset_y = off_y
+-- end
 
-function QuadTree:_move_rect(x, y) --目标矩形
+function _QuadTree:_move_rect(x, y) --目标矩形
     -- 求矩形的坐标min.xy max.xy
     self.bottom_left_x, self.bottom_left_y, self.top_right_x, self.top_right_y =
         get_rect_rang(x, y, self.width, self.height)
 end
 
-function QuadTree:__tostring()
+function _QuadTree:__tostring()
     if self.bottom_left_x and self.bottom_left_y and self.top_right_x and self.top_right_y then
         return string.format(
-            "quadTree(%s)x[%d:%d],y[%d:%d];",
+            "_QuadTree(%s)x[%d:%d],y[%d:%d];",
             tostring(self.data),
             self.bottom_left_x,
             self.top_right_x,
@@ -167,11 +216,11 @@ function QuadTree:__tostring()
             self.top_right_y
         )
     else
-        return string.format("quadTree(%s)", tostring(self.data))
+        return string.format("_QuadTree(%s)", tostring(self.data))
     end
 end
 
-function QuadTree:check_in_visible(x, y)
+function _QuadTree:check_in_visible(x, y)
     local level = self.level
     local tx, ty = math.floor(x / level), math.floor(y / level) --四*四个格子为一组
     local x1, y1 = self.bottom_left_x, self.bottom_left_y
@@ -184,7 +233,7 @@ function QuadTree:check_in_visible(x, y)
     return re
 end
 
-function QuadTree:get_change(x1, y1, x2, y2) --return {remove,add}
+function _QuadTree:get_change(x1, y1, x2, y2) --return {remove,add}
     local remove, add = {}, {}
     if x1 == nil then
         x1 = self._last_x or -x2 - 100
@@ -228,7 +277,7 @@ function QuadTree:get_change(x1, y1, x2, y2) --return {remove,add}
     -- print(string.format("source sizex(%d,%d),sizey(%d,%d)",bx,ex,by,ey))
     for x = bx, ex do
         for y = by, ey do
-            local key = string.format("%d_%d", x, y)
+            local key = get_key( x, y)
             -- re[key] = true
             leaf = data[key]
             if not cross[key] and leaf then --
@@ -247,7 +296,7 @@ function QuadTree:get_change(x1, y1, x2, y2) --return {remove,add}
     -- print(string.format("target sizex(%d,%d),sizey(%d,%d)",bx,ex,by,ey))
     for x = bx, ex do
         for y = by, ey do
-            local key = string.format("%d_%d", x, y)
+            local key = get_key( x, y)
             -- re[key] = true
             leaf = data[key]
             if not cross[key] and leaf then --
@@ -261,7 +310,7 @@ function QuadTree:get_change(x1, y1, x2, y2) --return {remove,add}
     return remove, add
 end
 
-------------------------------------------end quadtree------------------------------------
+------------------------------------------end _QuadTree------------------------------------
 ---
 
 local function left(i)

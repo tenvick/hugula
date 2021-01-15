@@ -766,7 +766,7 @@ namespace Hugula.Net
         //}
     }
 
-
+    [XLua.LuaCallCSharp]
     public static class NetEventPacketType
     {
         public const int UNKOWN = 50;

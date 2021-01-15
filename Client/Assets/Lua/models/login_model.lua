@@ -6,7 +6,8 @@
 local require = require
 local Rpc = Rpc
 local DIS_TYPE = DIS_TYPE
-local LuaDispatcher = LuaDispatcher
+local lua_binding = lua_binding
+local lua_unbinding = lua_unbinding
 
 
 local login_model={}
@@ -21,11 +22,11 @@ end
 
 
 function login_model.listen_connect()
-    LuaDispatcher:binding(DIS_TYPE.NET_CONNECT_SUCCESS,login_model.on_connection)
+    lua_binding(DIS_TYPE.NET_CONNECT_SUCCESS,login_model.on_connection)
 end
 
 function login_model.remove_listen_connect()
-    LuaDispatcher:unbinding(DIS_TYPE.NET_CONNECT_SUCCESS,login_model.on_connection)
+    lua_unbinding(DIS_TYPE.NET_CONNECT_SUCCESS,login_model.on_connection)
 end
 
 

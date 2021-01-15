@@ -223,10 +223,10 @@ namespace Hugula.Databinding.Binder
 
         protected void OnItemRender(object obj1, object obj2, int index)
         {
-            BindableContainer item = (BindableContainer)obj2;
+            var item = (BindableObject)obj2;
             if (item != null)
             {
-                item.forceContextChanged = true;
+                item.forceContextChanged = m_forceBinding;
                 item.context = items[index];
             }
         }

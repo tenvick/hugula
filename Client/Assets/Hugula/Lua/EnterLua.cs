@@ -103,13 +103,14 @@ namespace Hugula
 #if UNITY_EDITOR
             string name1 = name.Replace('.', '/');
             string path = Application.dataPath + "/Lua/" + name1 + ".lua";
-
-            if (isDebug && File.Exists(path))
+            bool exist = File.Exists(path);
+            if (isDebug && exist)
             {
                 str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
             }
             else
             {
+                if (!exist) Debug.LogErrorFormat("file {0} does't exists. ", path);
                 name = name.Replace('.', '+');
                 str = LoadLuaBytes(Common.LUA_PREFIX + name);
             }

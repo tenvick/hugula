@@ -77,7 +77,7 @@ namespace Hugula.UIComponents
             get { return m_SelectedIndex; }
             set
             {
-                // m_SelectedIndex = value;
+                m_SelectedIndex = value;
                 TriggerStyleBySelectedIndex(value);
             }
         }

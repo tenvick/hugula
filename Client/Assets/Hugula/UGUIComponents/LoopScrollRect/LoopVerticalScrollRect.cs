@@ -41,12 +41,12 @@ namespace Hugula.UIComponents
         public int renderPerFrames { get { return m_RenderPerFrames; } set { m_RenderPerFrames = value; } } //每次渲染item数
 
         [SerializeField]
-        Component[] m_Templates;
+        BindableObject[] m_Templates;
 
         /// <summary>
         /// clone模板项目</br>
         /// </summary>
-        public Component[] templates { get { return m_Templates; } set { m_Templates = value; } } //clone的项目
+        public BindableObject[] templates { get { return m_Templates; } set { m_Templates = value; } } //clone的项目
 
         [SerializeField]
         GameObject m_CeilBar;
@@ -670,7 +670,7 @@ namespace Hugula.UIComponents
 
         protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem>();
 
-        protected Hugula.Utils.GameObjectPool m_Pool;
+        protected Hugula.Utils.GameObjectPool<BindableObject> m_Pool;
         void OnPoolGet(Component comp)
         {
             comp.gameObject.SetActive(true);
@@ -685,7 +685,7 @@ namespace Hugula.UIComponents
         {
             if (m_Pool == null)
             {
-                m_Pool = new Hugula.Utils.GameObjectPool(OnPoolGet, OnPoolRealse);
+                m_Pool = new Hugula.Utils.GameObjectPool<BindableObject>(OnPoolGet, OnPoolRealse);
                 for (int i = 0; i < templates.Length; i++)
                     m_Pool.Add(i, templates[i]);
             }
@@ -770,7 +770,7 @@ namespace Hugula.UIComponents
             if (item == null || loopItem.templateType != templateId)
             {
                 //还对象到缓存池
-                m_Pool.Release(loopItem.templateType, item);
+                m_Pool.Release(loopItem.templateType, (BindableObject)item);
                 bool isNew = false;
                 item = m_Pool.Get(templateId, out isNew); //创建或者从缓存中获取
                 loopItem.templateType = templateId;

@@ -1,12 +1,20 @@
 local pairs = pairs
+local ipairs = ipairs
 local type = type
+local print = print
+local unpack = unpack
 local setmetatable = setmetatable
 local require = require
 local error = error
 local assert = assert
 local pb = require "pb"
 local string_format = string.format
+local string_gmatch = string.gmatch
 local net_api_list = require("net.net_api_list")
+local table_remove = table.remove
+local lower = string.lower
+local DIS_TYPE = DIS_TYPE --require("net.lua_dispatcher_type")
+local lua_distribute = lua_distribute
 local client_rpc = require("net.client_rpc")
 
 local SIMULATION_SERVER = false
@@ -37,6 +45,10 @@ local function parse_rpc(rpc, code, bytes)
     if lf then
         local data2 = assert(pb.decode(rf.type, bytes))
         lf(data2)
+        
+        local key = "rpc_" .. rf.name
+        lua_distribute(lower(key), unpack(data2))
+
     end
     return true, rf.name
 end

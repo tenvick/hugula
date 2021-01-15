@@ -1,11 +1,26 @@
-local dispatcher_type = {
-    --网络消息类型
-    NET_DISCONNECT = "net_disconnect", --断线
-    NET_RECONNECT = "net_reconnect", --重连成功
-    NET_CONNECT_ERROR = "net_connect_error", --链接失败
-    NET_CONNECT_SUCCESS = "net_connnect_success", --链接成功
-    LOGIN_PACKET_ACK = "login_packet_ack", --登录确认信息
-    NET_CERTIFY = "net_certify"
-}
+local rawset = rawset
+local rawget = rawget
+local setmetatable = setmetatable
+local lower = string.lower
 
-return dispatcher_type
+local dispatcher_type = {}
+-- 返回key，用于分发网络消息
+local mt = {}
+mt.__index = function(tb, key)
+    rawset(tb, key, lower(key))
+    return rawget(tb, key)
+end
+setmetatable(dispatcher_type, mt)
+---消息类型提示
+---@class DIS_TYPE
+------------------------网络消息------------------------
+---@field NET_DISCONNECT function 网络断开
+---@field NET_RECONNECT function 网络重连
+---@field NET_CONNECT_ERROR function 网络链接错误
+---@field NET_CONNECT_SUCCESS function 网络链接成功
+    
+---@field     RPC_LOGIN_PACKET_ACK function 登录确认信息
+---@field     RPC_NET_CERTIFY function 验证成功后回调
+
+DIS_TYPE = dispatcher_type
+-- return dispatcher_type

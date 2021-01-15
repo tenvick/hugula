@@ -133,14 +133,14 @@ namespace HugulaEditor.Databinding
                             });
 
                         foreach (var i in selectedList)
-                            m_Property_bindings.DeleteArrayElementAtIndex(i);
+                            m_Property_bindings.RemoveElement(i);// DeleteArrayElementAtIndex(i);
                     }
                     EditorGUILayout.Separator();
                     EditorGUILayout.EndHorizontal();
                 }
                 else
                 {
-                    GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
+                    // GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
                 }
                 serializedObject.ApplyModifiedProperties();
 

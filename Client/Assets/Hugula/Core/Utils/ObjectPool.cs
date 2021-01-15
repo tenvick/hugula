@@ -101,29 +101,18 @@ namespace Hugula.Utils
         void Reset();
     }
 
-    public class GameObjectPool
+    public class GameObjectPool<T> where T : Component
     {
-        private static GameObjectPool m_Instance;
-        public static GameObjectPool Instance
-        {
-            get
-            {
-                if (m_Instance == null)
-                    m_Instance = new GameObjectPool();
-
-                return m_Instance;
-            }
-        }
-        private Dictionary<int, Stack<Component>> m_StackDic = new Dictionary<int, Stack<Component>>();
-        private readonly System.Action<Component> m_ActionOnGet;
-        private readonly System.Action<Component> m_ActionOnRelease;
-        public Dictionary<int, Component> m_Source = new Dictionary<int, Component>();
+        private Dictionary<int, Stack<T>> m_StackDic = new Dictionary<int, Stack<T>>();
+        private readonly System.Action<T> m_ActionOnGet;
+        private readonly System.Action<T> m_ActionOnRelease;
+        public Dictionary<int, T> m_Source = new Dictionary<int, T>();
 
         // public int countAll { get; private set; }
         // public int countActive { get { return countAll - countInactive; } }
         // public int countInactive { get { return m_StackDic.Count; } }
         public GameObjectPool() { }
-        public GameObjectPool(System.Action<Component> actionOnGet, System.Action<Component> actionOnRelease)
+        public GameObjectPool(System.Action<T> actionOnGet, System.Action<T> actionOnRelease)
         {
             this.m_ActionOnGet = actionOnGet;
             this.m_ActionOnRelease = actionOnRelease;
@@ -134,29 +123,30 @@ namespace Hugula.Utils
             m_StackDic.Remove(key);
         }
 
-        public void Add(int key, Component comp)
+        public void Add(int key, T comp)
         {
             if (m_Source.ContainsKey(key)) m_Source.Remove(key);
             if (m_StackDic.ContainsKey(key)) m_StackDic.Remove(key);
             m_Source.Add(key, comp);
-            m_StackDic.Add(key, new Stack<Component>());
+            m_StackDic.Add(key, new Stack<T>());
         }
 
-        public Component Get(int key, out bool isNew)
+        public T Get(int key, out bool isNew)
         {
             isNew = false;
-            Stack<Component> m_Stack;
+            Stack<T> m_Stack;
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return null;
 
-            Component element = null;
+            T element = null;
 
             if (m_Stack.Count == 0)
             {
-                Component source = null;
+                T source = null;
                 if (m_Source.TryGetValue(key, out source))
                 {
                     isNew = true;
-                    element = GameObject.Instantiate(source);
+                    var obj = GameObject.Instantiate(source.gameObject);
+                    element = obj.GetComponent<T>();
                 }
                 // countAll++;
             }
@@ -169,18 +159,21 @@ namespace Hugula.Utils
             return element;
         }
 
-        public Component Get(int key)
+        public T Get(int key)
         {
-            Stack<Component> m_Stack;
+            Stack<T> m_Stack;
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return null;
 
-            Component element = null;
+            T element = null;
 
             if (m_Stack.Count == 0)
             {
-                Component source = null;
+                T source = null;
                 if (m_Source.TryGetValue(key, out source))
-                    element = GameObject.Instantiate(source);
+                {
+                    var obj = GameObject.Instantiate(source.gameObject);
+                    element = obj.GetComponent<T>();
+                }
                 // countAll++;
             }
             else
@@ -193,10 +186,10 @@ namespace Hugula.Utils
             return element;
         }
 
-        public void Release(int key, Component element)
+        public void Release(int key, T element)
         {
             if (element == null) return;
-            Stack<Component> m_Stack;
+            Stack<T> m_Stack;
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return;
 
             if (m_Stack.Count > 0 && ReferenceEquals(m_Stack.Peek(), element))

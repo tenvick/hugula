@@ -7,13 +7,18 @@
 local View = View
 local VMState = VMState
 local VMGroup = VMGroup
-
+--lua
 local DIS_TYPE = DIS_TYPE
-local LuaDispatcher = LuaDispatcher
+local lua_binding = lua_binding
+local lua_unbinding = lua_unbinding
 local Rpc = Rpc
+--C#
+local CS = CS
+local GlobalDispatcher = GlobalDispatcher
+local DispatcherEvent = DispatcherEvent
 
----@class VMBase vm
----@class moban
+---@class moban:VMBase
+---@type moban
 local moban = VMBase()
 moban.views = {
     -- View(moban, {find_path = "/Logo"}, "views.moban_view1"), --- asset以key以"find_path"开头表示使用GameObject.Find("moban")
@@ -23,7 +28,7 @@ moban.views = {
 }
 
 ----------------------------------申明属性名用于绑定--------------
--- local property_enable_slider = "enable_slider"
+
 -------------------------------------------------
 ---绑定属性
 -- moban.enable_slider = true
@@ -36,6 +41,7 @@ moban.views = {
 -- function moban:on_property_set(property)
 --     if property == "value" and moban.slider1_value > 0.5 then
 --         ---设置属性改变写法1
+--         moban.property.enable_slider = not moban.enable_slider
 --         moban:SetProperty(property_enable_slider, (not moban.enable_slider)) ---改变source属性的值并通知view
 --         ---设置属性改变写法2
 --         moban.btn_interactable = (not moban.enable_slider)

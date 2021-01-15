@@ -8,6 +8,7 @@ public class LoopScrollExample : MonoBehaviour
     IEnumerator Start()
     {
         onClick = new Command(ClickHandler);
+        yield return null;
         LoopScrollContainer.context = this;
         myList.InsertRange(0, new string[] { "hello", "welcome", "to", "hugula", "demo" });
         yield return new WaitForSeconds(0.5f);

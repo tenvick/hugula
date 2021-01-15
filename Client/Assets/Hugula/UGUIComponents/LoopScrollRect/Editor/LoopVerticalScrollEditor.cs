@@ -56,7 +56,7 @@ namespace HugulaEditor.UIComponents
             itemTemplateRT.pivot = Vector2.up;
             var bindableContainer = itemTemplate.AddComponent<BindableContainer>();
 
-            loopScrollRect.templates = new Component[1];
+            loopScrollRect.templates = new BindableObject[1];
             loopScrollRect.templates[0] = bindableContainer;
 
             GameObject parent = menuCommand.context as GameObject; // Selection.activeGameObject;

@@ -10,15 +10,14 @@ local View = View
 local NotifyTable = NotifyTable
 local UnityEngine = CS.UnityEngine
 local Color = UnityEngine.Color
----@class VMBase vm
----@class welcome
+---@class bag:VMBase
+---@type bag
 local bag = VMBase()
 --UI资源
 bag.views = {
     View(bag, {key = "bag"})
 }
 ----------------------------------申明属性名用于绑定--------------
-local property_selected_item = "selected_item"
 local property_selected_trigger = "selected_trigger"
 -------------------------------------------------
 --------------------------------------ui数据-------------------------------------
@@ -111,7 +110,7 @@ bag.on_item_select = {
         --刷新详细数据
         DelayFrame(
             function()
-                bag:SetProperty(property_selected_item, item_data)
+                bag.property.selected_item = item_data
             end,
             24
         )

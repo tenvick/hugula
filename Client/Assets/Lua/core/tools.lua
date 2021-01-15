@@ -20,6 +20,12 @@ local setmetatable = setmetatable
 local getmetatable = getmetatable
 local tonumber = tonumber
 
+function math.lerp(min, max, t)
+    --   y = y0 + α(y1 - y0)
+    local v = min + t * (max - min)
+    return v
+end
+
 function string.trim(s)
     return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
@@ -125,6 +131,10 @@ function table.get_size(tab)
         i = i + 1
     end
     return i
+end
+
+function table.has_value(tb)
+    return type(tb) == "table" and next(tb) ~= nil
 end
 
 function string.split(s, delimiter)

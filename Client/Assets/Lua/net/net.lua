@@ -6,7 +6,7 @@ local error = error
 local assert = assert
 local pb = require "pb"
 local string_format = string.format
-local LuaDispatcher = LuaDispatcher
+local lua_distribute = lua_distribute
 local Rpc = Rpc
 local DIS_TYPE = DIS_TYPE
 local Logger = Logger
@@ -16,9 +16,9 @@ net.is_connected = false
 
 --- 与服务器连接成功触发此事件
 function net.on_connect()
-    -- net.is_connected = true
+    net.is_connected = true
     Logger.Log("Lua Net.onConnect")
-    LuaDispatcher:distribute(DIS_TYPE.NET_CONNECT_SUCCESS)
+    lua_distribute(DIS_TYPE.NET_CONNECT_SUCCESS)
 end
 
 --- 应该弹出提示框让玩家主动点击重连
@@ -29,13 +29,14 @@ function net.on_disconnect()
 
     -- net.is_connected = false
     Logger.Log("Lua Net.onDisconnect")
-    LuaDispatcher:distribute(DIS_TYPE.NET_DISCONNECT)
+    lua_distribute(DIS_TYPE.NET_DISCONNECT)
 end
 
 --- 开始尝试重连的时候触发这个事件，可以用于重置数据
 function net.on_reconnect()
     -- net.is_connected = true
     Logger.Log("onReconnect")
+    lua_distribute(DIS_TYPE.NET_RECONNECT)
 end
 
 function net.on_connect_error()
@@ -45,7 +46,7 @@ function net.on_connect_error()
 
     -- net.is_connected = false
     Logger.Log("onConnectError")
-    LuaDispatcher:distribute(DIS_TYPE.NET_CONNECT_ERROR)
+    lua_distribute(DIS_TYPE.NET_CONNECT_ERROR)
 end
 
 function net.on_unkown_error()

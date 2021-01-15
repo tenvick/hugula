@@ -9,12 +9,15 @@ local ipairs = ipairs
 local string_format = string.format
 local class = class
 local Object = CS.System.Object
+local GetSetObject = GetSetObject
 
 local vm_base =
     class(
     function(self)
         ---属性改变事件监听
         self._property_changed = {}
+        self.msg = {} --消息监听
+        self.property = GetSetObject(self) --设置property getset
         self.is_active = false ---是否激活。
         self.is_res_ready = false ---资源是否准备好
         self.auto_context = true ---资源完成自动设置context
@@ -57,7 +60,7 @@ local function on_Property_changed(self, property_name)
     for i = 1, #changed do
         act = changed[i]
         if act then
-        -- Logger.Log(" for",i,act)
+            -- Logger.Log(" for",i,act)
             act(self, property_name)
         end
     end
@@ -98,7 +101,6 @@ local function on_deactive(self)
     -- body
 end
 
-
 ---view销毁的时候
 ---@overload fun()
 local function on_destroy(self)
@@ -125,7 +127,7 @@ local function clear_context(self)
         for k, v in ipairs(views) do
             v:set_child_context(nil)
         end
-    end    
+    end
 end
 
 ---注销的时候
@@ -159,16 +161,16 @@ vm_base.dispose = dispose
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase
----@field PropertyChanged function
----@field SetProperty function
----@field on_push_arg function 入栈资源加载之前调用 由VMState:push() 触发
----@field on_push function 入栈资源加载完成后调用在on_active之前
----@field on_back function 从回退栈激活资源加载完成后调用在on_active之前
----@field on_active function
----@field on_deactive function
----@field clear function 清理view 
----@field clear_context function 取消关联的viewmodel
----@field dispose function
+---@field OnPropertyChanged fun(self:table, op:string, delegate:function)
+---@field SetProperty fun(self:table, property_name:string, value:any)
+---@field on_push_arg fun(arg:any) 入栈资源加载之前调用 由VMState:push() 触发
+---@field on_push fun() 入栈资源加载完成后调用在on_active之前
+---@field on_back fun() 从回退栈激活资源加载完成后调用在on_active之前
+---@field on_active fun(self:table)
+---@field on_deactive fun(self:table)
+---@field clear fun(self:table) 清理view
+---@field clear_context fun(self:table) 取消关联的viewmodel
+---@field dispose fun(self:table)
 ---@field is_active boolean
 ---@field is_res_ready boolean
 VMBase = vm_base

@@ -9,6 +9,9 @@ local pairs = pairs
 local require = require
 local string_match = string.match
 local table = table
+local lua_binding = lua_binding
+local lua_unbinding = lua_unbinding
+
 local table_insert = table.insert
 local table_indexof = table.indexof
 local table_remove_item = table.remove_item
@@ -46,6 +49,20 @@ local function _call_on_state_changed(self, arg)
     end
 end
 
+local function _binding_rpc(vm)
+    local listener = vm.msg
+    for k, v in pairs(listener) do
+        lua_binding(k, v)
+    end
+end
+
+local function _unbinding_rpc(vm)
+    local listener = vm.msg
+    for k, v in pairs(listener) do
+        lua_unbinding(k, v)
+    end
+end
+
 ------------------------------------------------
 
 ---检查view_base的所有资源是否都加载完成
@@ -68,6 +85,7 @@ local function check_vm_base_all_done(vm_base)
     else
         vm_base:on_back()
     end
+    _binding_rpc(vm_base)
     vm_base:on_active()
     return true
 end
@@ -85,7 +103,7 @@ end
 ---@overload fun(gobj:GameObject,view_base:ViewBase)
 ---@param gobj GameObject
 ---@param view_base ViewBase
-local function init_view(view_base)
+local function init_view(view_base, viewmodel)
     -- body
     local on_asset_load = view_base.on_asset_load
     if on_asset_load then
@@ -93,7 +111,7 @@ local function init_view(view_base)
     end
     view_base:set_active(true)
     view_base:initialized() --标记初始化
-    local vm_base = view_base._vm_base
+    local vm_base = view_base._vm_base or viewmodel
     if vm_base.auto_context then
         view_base:set_child_context(vm_base)
     end
@@ -185,7 +203,7 @@ end
 ---@param vm_name string
 ---@param enable boolean
 local function active_view(self, vm_name)
-    ---@class VMBase
+    ---@type VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
         if not curr_vm.is_active then
@@ -206,6 +224,7 @@ local function active_view(self, vm_name)
             else
                 curr_vm:on_back()
             end
+            _binding_rpc(curr_vm)
             curr_vm:on_active()
         end
     end
@@ -216,6 +235,7 @@ local function deactive_view(self, vm_name)
     if curr_vm.is_res_ready == true then --已经加载过
         if curr_vm.is_active then
             curr_vm:on_deactive()
+            _unbinding_rpc(curr_vm)
             local views = curr_vm.views
             if views then
                 for k, v in ipairs(views) do
@@ -231,7 +251,7 @@ end
 --- 销毁vm关联的所有view的资源
 ---@overload fun(vm_name:string)
 ---@param vm_name string
-local function destory_view(self, vm_name)
+local function destroy_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- if curr_vm.is_res_ready == true then --已经加载过
     if curr_vm.on_state_changed then
@@ -240,6 +260,7 @@ local function destory_view(self, vm_name)
     curr_vm.is_active = false
     curr_vm.is_res_ready = false
     curr_vm:on_deactive()
+    _unbinding_rpc(curr_vm)
     curr_vm:on_destroy()
 
     local views = curr_vm.views
@@ -344,8 +365,8 @@ local function load(self, vm_name, arg, is_push)
             local find_path, res_name, scene_name
             for k, v in ipairs(views) do
                 find_path, res_name, scene_name = v.find_path, v.key, v.scene_name
-                if res_name ~= nil  then
-                    load_resource( res_name, v)
+                if res_name ~= nil then
+                    load_resource(res_name, v)
                 elseif scene_name ~= nil then
                     load_scene(scene_name, v)
                 elseif v.find_path ~= nil then
@@ -401,7 +422,7 @@ vm_manager._call_on_state_changed = _call_on_state_changed
 vm_manager.pre_load = pre_load
 vm_manager.load = load
 vm_manager.active = active
-vm_manager.destory_view = destory_view
+vm_manager.destroy_view = destroy_view
 vm_manager.deactive_view = deactive_view
 
 ---vm的激活与失活管理
@@ -409,7 +430,7 @@ vm_manager.deactive_view = deactive_view
 ---@field active function
 ---@field pre_load function
 ---@field load function
----@field destory_view function
+---@field destroy_view function
 ---@field deactive_view function
 -- VMManager = vm_manager
 return vm_manager

@@ -151,6 +151,21 @@ namespace Hugula.Audio
                 return m_PlayMusicName;
             }
         }
+
+        bool m_IsReady = false;
+        public bool isReady
+        {
+            get
+            {
+                return m_IsReady;
+            }
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            InitAudioClipAsset();
+        }
         #region dnot public
         /// <summary>
         /// system music audioclip 
@@ -182,6 +197,19 @@ namespace Hugula.Audio
             soundSourcePrefabs.Remove(acp);
         }
 
+        private static AudioClipAsset m_AudioClipAsset;
+
+        private void OnAudioClipAssetComp(AudioClipAsset aclipasset, object arg)
+        {
+            m_AudioClipAsset = aclipasset;
+            m_IsReady = true;
+        }
+
+        internal void InitAudioClipAsset()
+        {
+            ResLoader.LoadAssetAsync<AudioClipAsset>(AudioClipAsset.DEFALUT_SOUND_ASSET_NAME, OnAudioClipAssetComp, null);
+        }
+
         /// <summary>
         /// 获取AudioClip
         /// </summary>
@@ -189,7 +217,7 @@ namespace Hugula.Audio
         /// <returns></returns>
         internal AudioClip GetAudioClip(string key)
         {
-            AudioClip ac =  ResLoader.LoadAsset<AudioClip>(key); // AudioClipMappingManager.instance.GetAsset(key);
+            AudioClip ac = m_AudioClipAsset?.GetAsset(key); //ResLoader.LoadAsset<AudioClip>(key); // AudioClipMappingManager.instance.GetAsset(key);
             return ac;
         }
 
@@ -266,6 +294,10 @@ namespace Hugula.Audio
         /// <returns></returns>
         public AudioSource PlayMusic(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
             return PlayMusic(name, musicVolume, 1f);
         }
 

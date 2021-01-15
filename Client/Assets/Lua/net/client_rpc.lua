@@ -1,7 +1,12 @@
+local require = require
+local pairs = pairs
+
+--lua
 local DIS_TYPE = DIS_TYPE
-local LuaDispatcher = LuaDispatcher
 local Logger = Logger
-local Model = Model
+local lua_distribute = lua_distribute
+local Rpc = Rpc
+local Model = require("models.model")
 local client_rpc = {}
 
 function client_rpc.Msg_LoginAck(data)

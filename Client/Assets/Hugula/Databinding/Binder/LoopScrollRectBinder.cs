@@ -208,7 +208,7 @@ namespace Hugula.Databinding.Binder
             BindableObject item = (BindableObject)obj2;
             if (item != null)
             {
-                item.forceContextChanged = true;
+                item.forceContextChanged = m_forceBinding;
                 item.context = items[index];
             }
         }

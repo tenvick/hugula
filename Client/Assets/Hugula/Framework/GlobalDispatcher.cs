@@ -75,7 +75,8 @@ namespace Hugula.Framework
             if (m_Dispatcher.TryGetValue(key, out events))
             {
                 object e = null;
-                for (int i = events.Count - 1; i >= 0; i--)
+                // for (int i = events.Count - 1; i >= 0; i--)
+                for (int i = 0; i < events.Count; i++)
                 {
                     if (events.Count > i) // for events.Clear()
                     {

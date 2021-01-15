@@ -12,10 +12,10 @@ public class TextBindingExample : MonoBehaviour
 
     public string strValue = "hello";
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
         var ins = ValueConverterRegister.instance;
-        //    ins.AddConverter("FloatToString",this);
+        yield return null;
         container.context = this;
     }
 

@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Hugula.Utils;
 using Hugula.Audio;
 
@@ -110,17 +112,9 @@ namespace HugulaEditor.Audio
                 foreach (string guid in guids)
                 {
                     string p = AssetDatabase.GUIDToAssetPath(guid);
-                    var im = AssetImporter.GetAtPath(p);
-                    if (im != null && !string.IsNullOrEmpty(im.assetBundleName))
-                    {
-                        var abFileName = CUtils.GetAssetName(im.assetBundleName);
-                        string k = CUtils.GetAssetName(p);
-                        if (k.Equals(abFileName)) //assetbundle name equals asset name is music
-                        {
-                            needName.Add(k);
-                            allsoundPath.Add(k, p);
-                        }
-                    }
+                    string k = CUtils.GetAssetName(p);
+                    needName.Add(k);
+                    allsoundPath.Add(k, p);
                 }
                 allsound = needName;
             }

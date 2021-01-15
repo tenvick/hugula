@@ -124,7 +124,7 @@ namespace HugulaEditor.Databinding
                                         return -1;
                                 });
                         foreach (var i in selectedList)
-                            property_children.DeleteArrayElementAtIndex(i);
+                            property_children.RemoveElement(i);
                     }
                 }
                 else

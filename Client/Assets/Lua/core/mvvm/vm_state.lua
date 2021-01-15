@@ -13,6 +13,7 @@ local ipairs = ipairs
 local type = type
 local require = require
 
+local set_target_context = BindingExpression.set_target_context
 local VM_GC_TYPE = VM_GC_TYPE
 local VMConfig, _VMGroup = unpack(require("vm_config"))
 local VMManager = require("core.mvvm.vm_manager")
@@ -33,7 +34,7 @@ local TYPE_TABLE = "table"
 ---      1   {lobby,chatui,...}      root---大厅                    (自动隐藏 0)
 ---      0   {loading}                  ---加载界面
 ------------------------------------------------------
----@class VMState
+
 ---
 local vm_state = {}
 local _stack = {} --记录栈
@@ -100,12 +101,12 @@ local function strategy_view_gc(vm_name, is_state_change, stack_index)
         --todo 检查内存
         VMManager:deactive_view(vm_name)
     elseif vm_gc == VM_GC_TYPE.ALWAYS then
-        VMManager:destory_view(vm_name)
+        VMManager:destroy_view(vm_name)
     elseif vm_gc == VM_GC_TYPE.NEVER then
         VMManager:deactive_view(vm_name)
     elseif vm_gc == VM_GC_TYPE.STATE_CHANGED then
         if is_state_change == true then
-            VMManager:destory_view(vm_name)
+            VMManager:destroy_view(vm_name)
         else
             VMManager:deactive_view(vm_name)
         end
@@ -131,13 +132,13 @@ local function hide_group(curr)
             end
 
             if log_enable == false then --如果不需要记录root log栈
-                table_remove(_stack,i)
-                -- debug_stack() 
+                table_remove(_stack, i)
+            -- debug_stack()
             end
             return
         else
             if table_indexof(curr, item) == nil then
-                strategy_view_gc(item, true,i) --需要判断出stack
+                strategy_view_gc(item, true, i) --需要判断出stack
             end
         end
     end
@@ -147,7 +148,7 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_config.name string
 local function push_item(self, vm_name, arg)
-    for i=#_stack,_root_index,-1 do
+    for i = #_stack, _root_index, -1 do
         if _stack[i] == vm_name then
             table_remove(_stack, i) --移除
             break
@@ -218,9 +219,8 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_name string
 local function deactive_vm(self, vm_name)
-    strategy_view_gc(vm_name,false)
+    strategy_view_gc(vm_name, false)
 end
-
 
 local remove, active = {}, {}
 
@@ -307,6 +307,21 @@ local function back(self)
     -- debug_stack()
 end
 
+local function init_viewmodel(self, vm_name, container)
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
+    if curr_vm then
+        -- BindingUtility.SetContextByINotifyTable(bindable_object, context)
+        if curr_vm.auto_context then
+            VMManager:active(vm_name, nil, false) ---激活组
+        end
+        set_target_context(container, curr_vm)
+    end
+end
+
+local function destroy_viewmodel(self, vm_name)
+    VMManager:destroy_view(vm_name)
+end
+
 vm_state.get_member = get_member
 vm_state.call_func = call_func
 vm_state.push = push
@@ -316,13 +331,15 @@ vm_state.back = back
 vm_state.remove_pop = remove_pop
 vm_state.active = active_vm --激活当前viewmodel 不入栈
 vm_state.deactive = deactive_vm --失活当前viewmodel与上面配对。
+vm_state.init_viewmodel = init_viewmodel -- 初始化viewmodel并激活用于组件初始化
+vm_state.destroy_viewmodel = destroy_viewmodel
 --- view model 的显示隐藏管理
 ---@class VMState
----@field push function
----@field push_item   function
----@field popup_item function
----@field back  function
----@field remove_pop function
----@field active function
----@field deactive function
+---@field push fun(self:table, vm_group_name:string, arg:any)
+---@field push_item   fun(self:table, vm_name:string, arg:any)
+---@field popup_item fun(self:table, vm:string)
+---@field back  fun(self:table)
+---@field remove_pop fun()
+---@field active fun(self:table, vm_name:string, arg:any)
+---@field deactive fun(self:table, vm_name:string)
 VMState = vm_state

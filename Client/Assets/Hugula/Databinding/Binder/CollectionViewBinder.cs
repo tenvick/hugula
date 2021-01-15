@@ -188,6 +188,7 @@ namespace Hugula.Databinding.Binder
                 item.transform.SetSiblingIndex(i);
 
                 itemData = items[i];
+                item.forceContextChanged = m_forceBinding;
                 item.context = itemData;
             }
         }

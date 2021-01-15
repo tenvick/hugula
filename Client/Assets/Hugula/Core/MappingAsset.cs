@@ -57,4 +57,8 @@ namespace Hugula
         }
     }
 
+    public interface IMappingAsset<T>
+    {
+        T GetAsset(string name);
+    }
 }

@@ -149,81 +149,87 @@ namespace HugulaEditor.Databinding
             EditorGUILayout.Separator();
             EditorGUILayout.EndHorizontal();
 
-            if (isExpanded)
+            // if (isExpanded)
+            // {
+            //显示列表
+            if (temSerialziedObject == null || temSerialziedObject.targetObject != temp)
+                temSerialziedObject = new SerializedObject(temp);
             {
-                //显示列表
-                if (temSerialziedObject == null || temSerialziedObject.targetObject != temp)
-                    temSerialziedObject = new SerializedObject(temp);
+                var bindings = temSerialziedObject.FindProperty("bindings");
+                // serializedObject.targetObject
+                if (bindings != null && bindings.isArray)
                 {
-                    var bindings = temSerialziedObject.FindProperty("bindings");
-                    // serializedObject.targetObject
-                    if (bindings != null && bindings.isArray)
+                    selectedList.Clear();
+                    temSerialziedObject.Update();
+
+                    var len = bindings.arraySize;
+                    SerializedProperty bindingProperty;
+                    // EditorGUILayout.BeginVertical();
+                    for (int i = 0; i < len; i++)
                     {
-                        selectedList.Clear();
-                        temSerialziedObject.Update();
-
-                        var len = bindings.arraySize;
-                        SerializedProperty bindingProperty;
-                        // EditorGUILayout.BeginVertical();
-                        for (int i = 0; i < len; i++)
+                        bindingProperty = bindings.GetArrayElementAtIndex(i);
+                        EditorGUILayout.PropertyField(bindingProperty, true);
+                        if (bindingProperty.isExpanded)
                         {
-                            bindingProperty = bindings.GetArrayElementAtIndex(i);
-                            EditorGUILayout.PropertyField(bindingProperty, true);
-                            if (bindingProperty.isExpanded)
-                            {
-                                selectedList.Add(i);
-                            }
+                            selectedList.Add(i);
                         }
-                        // EditorGUILayout.EndVertical();
-
-                        rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
-                        rect.y += BindableObjectStyle.kExtraSpacing;
-
-                        float width;
-                        //删除数据
-                        if (selectedList.Count > 0)
-                        {
-                            width = 102;
-                            rect.x = rect.xMax - width;
-                            rect.width = width;
-                            if (GUI.Button(rect, "del property " + selectedList.Count))
-                            {
-                                selectedList.Sort((int a, int b) =>
-                                {
-                                    if (a < b) return 1;
-                                    else if (a == b) return 0;
-                                    else
-                                        return -1;
-                                });
-
-                                foreach (var i in selectedList)
-                                {
-                                    bindings.DeleteArrayElementAtIndex(i);
-                                }
-                            }
-                            EditorGUILayout.Separator();
-                        }
-                        else
-                        {
-                            string DELETE_TIPS = BindableObjectStyle.PROPPERTY_CHOOSE_TIPS;
-                            width = DELETE_TIPS.Length * BindableObjectStyle.kExtraSpacing;
-                            rect.x = rect.xMax - width-BindableObjectStyle.kExtraSpacing;
-                            rect.width = width;
-                            GUI.Box(rect, DELETE_TIPS);
-                        }
-
-                        temSerialziedObject.ApplyModifiedProperties();
-
-                        EditorGUILayout.Separator();
-                        EditorGUILayout.EndHorizontal();
                     }
-                }
+                    // EditorGUILayout.EndVertical();
 
+                    rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
+                    rect.y += BindableObjectStyle.kExtraSpacing;
+
+                    // if (isExpanded)
+                    // {
+
+                    float width;
+                    //删除数据
+                    if (selectedList.Count > 0)
+                    {
+                        width = 102;
+                        rect.x = rect.xMax - width;
+                        rect.width = width;
+                        if (GUI.Button(rect, "del property " + selectedList.Count))
+                        {
+                            selectedList.Sort((int a, int b) =>
+                            {
+                                if (a < b) return 1;
+                                else if (a == b) return 0;
+                                else
+                                    return -1;
+                            });
+
+                            foreach (var i in selectedList)
+                            {
+                                bindings.RemoveElement(i);
+                                // bindings.DeleteArrayElementAtIndex(i);
+                            }
+                        }
+                        EditorGUILayout.Separator();
+                    }
+                    else
+                    {
+                        string DELETE_TIPS = BindableObjectStyle.PROPPERTY_CHOOSE_TIPS;
+                        width = DELETE_TIPS.Length * BindableObjectStyle.kExtraSpacing;
+                        rect.x = rect.xMax - width - BindableObjectStyle.kExtraSpacing;
+                        rect.width = width;
+                        // GUI.Box(rect, DELETE_TIPS);
+                    }
+                    // }
+
+                    temSerialziedObject.ApplyModifiedProperties();
+
+                    EditorGUILayout.Separator();
+                    EditorGUILayout.EndHorizontal();
+                }
             }
-            else
-            {
-                // GUILayout.Box("click checkbox  to see detail or delete!");
-            }
+
+            // }
+            // else
+            // {
+
+            //     // GUILayout.Box("click checkbox  to see detail or delete!");
+            // }
         }
 
         const string ArrayBegin = "Array.data";
@@ -248,7 +254,7 @@ namespace HugulaEditor.Databinding
         static Dictionary<string, float> toggleHeight = new Dictionary<string, float>();
 
         static System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
+        static GUIStyle fontStyle = new GUIStyle();
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             string propertyName = property.FindPropertyRelative("propertyName").stringValue;
@@ -256,7 +262,7 @@ namespace HugulaEditor.Databinding
             position.x += EditorGUIUtility.singleLineHeight;
             position.width -= EditorGUIUtility.singleLineHeight;
 
-              if (toggle == false)
+            if (toggle == false)
             {
                 var path = property.FindPropertyRelative("path").stringValue;
                 var format = property.FindPropertyRelative("format").stringValue;
@@ -282,7 +288,7 @@ namespace HugulaEditor.Databinding
                     sb.AppendFormat("source:{0}", source.ToString());
                 }
 
-                propertyName =  sb.ToString();
+                propertyName = sb.ToString();
                 position.height = EditorGUIUtility.singleLineHeight * 2f;
             }
 
@@ -290,23 +296,25 @@ namespace HugulaEditor.Databinding
             rect.height = 26;
             rect.x = EditorGUIUtility.singleLineHeight * 1.5f;
 
-            if(EditorGUI.ToggleLeft(rect,propertyName,toggle))
+            fontStyle.fontSize = 12;
+            fontStyle.fontStyle = FontStyle.Italic;
+            if (EditorGUI.ToggleLeft(rect, propertyName, toggle, fontStyle))
             {
                 property.isExpanded = true;
-                position.y += EditorGUIUtility.singleLineHeight*.5f;
-                position.width -= EditorGUIUtility.singleLineHeight*.5f;
+                position.y += EditorGUIUtility.singleLineHeight * .5f;
+                position.width -= EditorGUIUtility.singleLineHeight * .5f;
                 var rects = GetRowRects(position);
-                EditorGUI.PropertyField(rects[0],property.FindPropertyRelative("path"));
-                EditorGUI.PropertyField(rects[1],property.FindPropertyRelative("mode"));
-                EditorGUI.PropertyField(rects[2],property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[3],property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[4],property.FindPropertyRelative("source"));
+                EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("path"));
+                EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("mode"));
+                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
+                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("source"));
             }
             else
             {
                 property.isExpanded = false;
             }
-          
+
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -318,7 +326,7 @@ namespace HugulaEditor.Databinding
             }
             else
             {
-                h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 2;
+                h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 2f;
             }
             return h;
         }

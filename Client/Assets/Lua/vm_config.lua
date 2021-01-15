@@ -55,8 +55,8 @@ vm_config.bag = {vm = "demo.bag", gc_type = VM_GC_TYPE.STATE_CHANGED} --- 背包
 vm_config.back_tips = {vm = "demo.back_tips", gc_type = VM_GC_TYPE.NEVER} --luaModule
 vm_config.binding_demo = {vm = "demo.binding_demo.binding_demo", gc_type = VM_GC_TYPE.STATE_CHANGED}
 vm_config.chat_demo = {vm = "demo.chat_demo", gc_type = VM_GC_TYPE.STATE_CHANGED}
-vm_config.loading = {vm = "demo.loading", gc_type = VM_GC_TYPE.STATE_CHANGED} ---  loading界面
-vm_config.login = {vm = "demo.login"}
+vm_config.demo_loading = {vm = "demo.demo_loading", gc_type = VM_GC_TYPE.STATE_CHANGED} ---  loading界面
+vm_config.demo_login = {vm = "demo.demo_login"}
 ----------------------------------------------------------------------------------demo end-----
 
 --------------------------------------------------------------------------
@@ -68,9 +68,9 @@ vm_group.welcome = {"welcome"}
 vm_group.bag = {"bag","back_tips"}
 vm_group.binding_demo = {"binding_demo","back_tips"}
 vm_group.chat_demo = {"chat_demo","back_tips"}
-vm_group.loading = {"loading",log_enable = false} --loading不需要回退
+vm_group.demo_loading = {"demo_loading",log_enable = false} --loading不需要回退
 vm_group.gamescene = {"asset_loader","scene_loader","back_tips"}
-vm_group.login = {"login","back_tips"}
+vm_group.demo_login = {"demo_login","back_tips"}
 
 
 VMGroupSource = vm_group

@@ -33,7 +33,10 @@ namespace Hugula.Audio
 
         void PlayEffect(string clipname)
         {
-            AudioManager.instance.PlaySound(clipname);
+            if (!string.IsNullOrEmpty(clipname))
+            {
+                AudioManager.instance.PlaySound(clipname);
+            }
         }
 
         void OnEnable()

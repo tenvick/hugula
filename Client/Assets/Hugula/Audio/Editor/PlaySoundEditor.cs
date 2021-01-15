@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Hugula.Utils;
 using Hugula.Audio;
 
@@ -28,7 +30,7 @@ namespace HugulaEditor.Audio
         {
             GameObject parent = menuCommand.context as GameObject; // Selection.activeGameObject;
             var playSound = parent.CheckAddComponent<PlaySound>();
-            playSound.audioClip = "btn_click";
+            playSound.audioClip = "ui_button";
         }
 
         void OnEnable()
@@ -133,24 +135,24 @@ namespace HugulaEditor.Audio
                 foreach (string guid in guids)
                 {
                     string p = AssetDatabase.GUIDToAssetPath(guid);
-                    // var audioClipAsset = AssetDatabase.LoadAssetAtPath<AudioClipAsset>(p);
-                    // if (audioClipAsset != null)
-                    // {
-                    //     foreach (var cp in audioClipAsset.audioClips)
-                    //     {
-                    //         string k = cp.name;
-                    //         string ap1 = AssetDatabase.GetAssetPath(cp);
-                    //         needName.Add(k);
-                    //         if (allsoundPath.ContainsKey(k))
-                    //         {
-                    //             Debug.LogWarningFormat("声音文件{0}重名 路径：{1} ", k, ap1);
-                    //         }
-                    //         else
-                    //         {
-                    //             allsoundPath.Add(k, ap1);
-                    //         }
-                    //     }
-                    // }
+                    var audioClipAsset = AssetDatabase.LoadAssetAtPath<AudioClipAsset>(p);
+                    if (audioClipAsset != null)
+                    {
+                        foreach (var cp in audioClipAsset.audioClips)
+                        {
+                            string k = cp.name;
+                            string ap1 = AssetDatabase.GetAssetPath(cp);
+                            needName.Add(k);
+                            if (allsoundPath.ContainsKey(k))
+                            {
+                                Debug.LogWarningFormat("声音文件{0}重名 路径：{1} ", k, ap1);
+                            }
+                            else
+                            {
+                                allsoundPath.Add(k, ap1);
+                            }
+                        }
+                    }
                 }
                 allsound = needName;
             }

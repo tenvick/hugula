@@ -309,5 +309,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6408daaf9be63d0459f150c044168ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enterLua: test/test_notify_collection_changed
+  enterLua: common/tests
   luaAsset: {fileID: 0}

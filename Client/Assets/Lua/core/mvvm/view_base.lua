@@ -111,7 +111,7 @@ local function clear(self)
             LuaHelper.DelayDestroy(child.gameObject)
         end
     end
-    Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
+    -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil
     self._context = nil
     self._nitialized = false
@@ -127,7 +127,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-   return string.format("asset=%s,is_scene=%s,child=%s ",self.key or self.scene_name, self:is_scene(),self._child)
+    return string.format("asset=%s,is_scene=%s,child=%s ", self.key or self.scene_name, self:is_scene(), self._child)
 end
 
 -- view_base.on_asset_load = on_asset_load

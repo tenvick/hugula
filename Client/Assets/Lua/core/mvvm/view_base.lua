@@ -21,7 +21,7 @@ local LuaHelper = CS.Hugula.Utils.LuaHelper
 local view_base =
     class(
     function(self, ...)
-        self._nitialized = false
+        self._initialized = false
     end
 )
 
@@ -77,7 +77,7 @@ end
 ---@param context any
 local function set_child_context(self, context)
     local child = self._child
-    self._context = context
+    self._context = context or self._context
 
     if not self:is_scene() then
         set_target_context(child, context)
@@ -88,14 +88,14 @@ end
 ---@overload fun()
 ---@return  bool
 local function is_initialized(self)
-    return self._nitialized == true and self:has_child()
+    return self._initialized == true and self:has_child()
 end
 
 ---设置初始化状态
 ---@overload fun()
 ---@return  bool
 local function initialized(self)
-    self._nitialized = true
+    self._initialized = true
 end
 
 ---销毁child
@@ -103,18 +103,18 @@ end
 local function clear(self)
     --scene
     local scene_name = self.scene_name
-    if scene_name ~= nil and self._child then
-        LuaHelper.UnloadScene(scene_name)
-    else
-        local child = self._child
-        if child then
+    local child = self._child
+    if child then
+        if scene_name ~= nil then
+            LuaHelper.UnloadScene(scene_name)
+        else
             LuaHelper.DelayDestroy(child.gameObject)
         end
     end
     -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil
     self._context = nil
-    self._nitialized = false
+    self._initialized = false
 end
 
 ---
@@ -152,12 +152,13 @@ view_base.__tostring = tostring
 ---@param vm_base ViewBase
 ---@return ViewBase
 ---@field on_asset_load function
----@field set_child function
+---@field set_child fun(bindable_object:BindableObject)
 ---@field _vm_base VMBase
 ---@field set_context any
----@field set_active function
+---@field set_active fun(self:ViewBase,enable:boolean)
 ---@field has_context function 是否设置了context
 ---@field has_child function 是否有BindableObject
+---@field clear function  销毁child
 ---@field key string
 ---@field assetbundle string
 ---@field find_path string

@@ -223,7 +223,7 @@ namespace Hugula.Databinding.Binder
 
         protected void OnItemRender(object obj1, object obj2, int index)
         {
-            var item = (BindableObject)obj2;
+            BindableObject item = (BindableObject)obj2;
             if (item != null)
             {
                 item.forceContextChanged = m_forceBinding;
@@ -248,7 +248,12 @@ namespace Hugula.Databinding.Binder
             target.Refresh();
 
         }
-
+        public override IList<BindableObject> GetChildren()
+        {
+            var list = new List<BindableObject>();
+            list.AddRange(target.templates);
+            return list;
+        }
 
         protected override void OnDestroy()
         {

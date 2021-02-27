@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Hugula.Databinding;
+using Hugula.Databinding.Binder;
 using UnityEditor;
 using UnityEngine;
-using Hugula.Databinding.Binder;
 
 namespace HugulaEditor.Databinding
 {
@@ -12,40 +12,6 @@ namespace HugulaEditor.Databinding
     public class BindableContainerEditor : UnityEditor.Editor
     {
         public const string DELETE_TIPS = "choose item for detail or  delete!";
-
-        public List<Type> BinderCheckTypes = new List<Type>() {
-            typeof (UnityEngine.UI.Text),
-            typeof (UnityEngine.UI.Button),
-            typeof (UnityEngine.UI.Image),
-            typeof (UnityEngine.UI.InputField),
-            typeof (UnityEngine.UI.Slider),
-            typeof (UnityEngine.UI.Toggle),
-            typeof (Hugula.UIComponents.LoopScrollRect),
-            typeof (Hugula.UIComponents.LoopVerticalScrollRect),
-            typeof (UnityEngine.Animator),
-
-#if USE_TMPro
-            typeof (TMPro.TextMeshProUGUI),
-            typeof(TMPro.TMP_InputField),
-#endif
-        };
-
-        public List<Type> BinderCreateTypes = new List<Type>() {
-            typeof (Hugula.Databinding.Binder.TextBinder),
-            typeof (Hugula.Databinding.Binder.ButtonBinder),
-            typeof (Hugula.Databinding.Binder.ImageBinder),
-            typeof (Hugula.Databinding.Binder.InputFieldBinder),
-            typeof (Hugula.Databinding.Binder.SliderBinder),
-            typeof (Hugula.Databinding.Binder.ToggleBinder),
-            typeof (Hugula.Databinding.Binder.LoopScrollRectBinder),
-            typeof (Hugula.Databinding.Binder.LoopVerticalScrollRectBinder),
-            typeof (Hugula.Databinding.Binder.AnimatorBinder),
-
-#if USE_TMPro
-            typeof (Hugula.Databinding.Binder.TextMeshProUGUIBinder),
-            typeof(Hugula.Databinding.Binder.TMP_InputFieldBinder),
-#endif
-        };
 
         List<int> selectedList = new List<int>();
 
@@ -80,7 +46,7 @@ namespace HugulaEditor.Databinding
                         children.RemoveAt(i);
                 }
                 AddHierarchyChildren(temp.transform, temp, true);
-                EditorUtility.SetDirty (target);
+                EditorUtility.SetDirty(target);
             }
             EditorGUILayout.Separator();
             EditorGUILayout.EndVertical();
@@ -117,14 +83,15 @@ namespace HugulaEditor.Databinding
                     if (GUI.Button(rect, "del BindalbeObject " + selectedList.Count))
                     {
                         selectedList.Sort((int a, int b) =>
-                                {
-                                    if (a < b) return 1;
-                                    else if (a == b) return 0;
-                                    else
-                                        return -1;
-                                });
+                        {
+                            if (a < b) return 1;
+                            else if (a == b) return 0;
+                            else
+                                return -1;
+                        });
                         foreach (var i in selectedList)
-                            property_children.RemoveElement(i);
+                            temp.children.RemoveAt(i);
+                        // property_children.RemoveElement(i);
                     }
                 }
                 else
@@ -229,8 +196,8 @@ namespace HugulaEditor.Databinding
                 {
                     Component[] allcomps = obj.GetComponents<Component>(); //默认绑定最后一个组件
                     Component target = null;
-                    int index = 0;
-                    int tpId = -1;
+                    Type addType = typeof(Hugula.Databinding.BindableObject);
+                    Type findType;
                     foreach (var comp in allcomps)
                     {
                         if (comp is BindableObject)
@@ -238,27 +205,21 @@ namespace HugulaEditor.Databinding
                             bindable = (BindableObject)comp;
                             break;
                         }
-                        else if ((index = BinderCheckTypes.IndexOf(comp.GetType())) >= 0)
+                        else if ((findType = BindalbeObjectUtilty.FindBinderType(comp.GetType())) != null)
                         {
                             target = comp;
-                            tpId = index;
+                            addType = findType;
                         }
                     }
 
                     if (bindable == null)
                     {
-                        Type createBinderType = typeof(Hugula.Databinding.BindableObject);
-                        if (tpId >= 0)
-                        {
-                            createBinderType = BinderCreateTypes[tpId];
-                        }
-
-                        bindable = (BindableObject)obj.gameObject.AddComponent(createBinderType);
+                        bindable = (BindableObject)obj.gameObject.AddComponent(addType);
                     }
                 }
             }
 
-            if (children.IndexOf(bindable) < 0)
+            if (bindable != null && children.IndexOf(bindable) < 0)
             {
                 refer.AddChild(bindable);
             }
@@ -273,7 +234,6 @@ namespace HugulaEditor.Databinding
         public void AddHierarchyChildren(Transform transform, BindableContainer container, bool checkChildren = false)
         {
             var children = transform.GetComponents<BindableObject>();
-
 
             var oldChildren = container.children;
             if (oldChildren == null)
@@ -292,10 +252,7 @@ namespace HugulaEditor.Databinding
                     container.AddChild(child);
                 }
 
-                if (!isSelf && (child is BindableContainer ||
-                child is LoopScrollRectBinder ||
-                child is LoopVerticalScrollRectBinder ||
-                child is CollectionViewBinder)) //如果遇到容器不需要遍历
+                if (!isSelf && child is ICollectionBinder) //如果遇到容器不需要遍历
                     needDeep = false;
             }
 
@@ -309,5 +266,32 @@ namespace HugulaEditor.Databinding
 
         }
 
+    }
+
+    public static class BinableObjectMenu
+    {
+        [MenuItem("CONTEXT/BindableContainer/Clear All Children")]
+        static void ClearAllChildren(MenuCommand menuCommand)
+        {
+            var bc = menuCommand.context as BindableContainer;
+
+            if (bc != null)
+            {
+                bc.children.Clear();
+                Debug.LogFormat("{0} clear ", bc);
+            }
+        }
+
+        [MenuItem("CONTEXT/BindableObject/Clear All Bindings")]
+        static void ClearAllBindings(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableObject;
+
+            if (bo != null)
+            {
+                bo.GetBindings().Clear();
+                Debug.LogFormat("{0} clear ", bo);
+            }
+        }
     }
 }

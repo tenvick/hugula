@@ -80,8 +80,8 @@ namespace HugulaEditor
                         SpriteAtlasPackingSettings packSet = new SpriteAtlasPackingSettings()
                         {
                             blockOffset = 1,
-                            enableRotation = true,
-                            enableTightPacking = true,
+                            enableRotation = false,
+                            enableTightPacking = false,
                             padding = 2,
                         };
                         atlas.SetPackingSettings(packSet);

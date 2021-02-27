@@ -58,7 +58,7 @@ namespace HugulaEditor
 
             var setting = AASEditorUtility.LoadAASSetting();
             var group = AASEditorUtility.FindGroup(LAN_GROUP_NAME, AASEditorUtility.DefaltGroupSchema[0]);//setting.FindGroup(LUA_GROUP_NAME);
-
+            AASEditorUtility.ClearGroup(LAN_GROUP_NAME); //清空
             foreach (var str in dests)
             {
                 var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID

@@ -103,6 +103,7 @@ namespace Hugula.Utils
 
     public class GameObjectPool<T> where T : Component
     {
+
         private Dictionary<int, Stack<T>> m_StackDic = new Dictionary<int, Stack<T>>();
         private readonly System.Action<T> m_ActionOnGet;
         private readonly System.Action<T> m_ActionOnRelease;
@@ -121,6 +122,11 @@ namespace Hugula.Utils
         {
             m_Source.Remove(key);
             m_StackDic.Remove(key);
+        }
+
+        public bool Contains(int key)
+        {
+            return m_Source.ContainsKey(key) && m_StackDic.ContainsKey(key);
         }
 
         public void Add(int key, T comp)
@@ -159,7 +165,7 @@ namespace Hugula.Utils
             return element;
         }
 
-        public T Get(int key)
+        public T Get(int key, Transform parent = null)
         {
             Stack<T> m_Stack;
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return null;
@@ -171,7 +177,7 @@ namespace Hugula.Utils
                 T source = null;
                 if (m_Source.TryGetValue(key, out source))
                 {
-                    var obj = GameObject.Instantiate(source.gameObject);
+                    var obj = GameObject.Instantiate(source.gameObject, parent);
                     element = obj.GetComponent<T>();
                 }
                 // countAll++;
@@ -189,6 +195,7 @@ namespace Hugula.Utils
         public void Release(int key, T element)
         {
             if (element == null) return;
+            element.gameObject.SetActive(false);
             Stack<T> m_Stack;
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return;
 

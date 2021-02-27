@@ -671,12 +671,12 @@ namespace Hugula.UIComponents
         protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem>();
 
         protected Hugula.Utils.GameObjectPool<BindableObject> m_Pool;
-        void OnPoolGet(Component comp)
+        void OnPoolGet(BindableObject comp)
         {
             comp.gameObject.SetActive(true);
         }
 
-        void OnPoolRealse(Component comp)
+        void OnPoolRealse(BindableObject comp)
         {
             comp.gameObject.SetActive(false);
         }

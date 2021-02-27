@@ -705,6 +705,11 @@ namespace Hugula.UIComponents
                 if (m_ItemSize.y == 0) SetItemSize(Mathf.Abs(rect.height), 1);
             }
 
+            if (!horizontal && columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
+            {
+                columns = Mathf.FloorToInt(Mathf.Abs(vSize.width) / (m_ItemSize.x + this.halfPadding));
+            }
+
             if (columns == 0)
             {
                 m_PageSize = Mathf.CeilToInt(Mathf.Abs(vSize.width) / (m_ItemSize.x + this.halfPadding)) + 1;

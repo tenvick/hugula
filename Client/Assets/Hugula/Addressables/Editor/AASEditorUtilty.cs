@@ -48,6 +48,23 @@ namespace HugulaEditor
             return setting;
         }
 
+        /// <summary>
+        /// 移除一个组
+        /// </summary>
+        /// <param name="groupName"></param>
+        public static void ClearGroup(string groupName)
+        {
+            var setting = LoadAASSetting();
+            var group = setting.FindGroup(groupName);
+            if (group != null)
+            {
+                var gps = new List<AddressableAssetEntry>(group.entries);
+                for (int i = 0; i < gps.Count; i++)
+                {
+                    group.RemoveAssetEntry(gps[i]);
+                }
+            }
+        }
         // Start is called before the first frame update
         /// <summary>
         /// 创建寻找指导名字的group 

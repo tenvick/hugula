@@ -216,16 +216,16 @@ namespace HugulaEditor.UIComponents
                     Debug.LogFormat(" m_Viewport = {0}", m_Viewport.objectReferenceValue);
                 }
 
-                if (m_Columns.intValue == 0)
-                {
-                    // if(m_Horizontal.boolValue) = true; //水平
-                    m_Vertical.boolValue = false;
-                }
-                else
-                {
-                    m_Horizontal.boolValue = false;
-                    // m_Vertical.boolValue = true;
-                }
+                // if (m_Columns.intValue == 0)
+                // {
+                //     // if(m_Horizontal.boolValue) = true; //水平
+                //     m_Vertical.boolValue = false;
+                // }
+                // else
+                // {
+                //     m_Horizontal.boolValue = false;
+                //     // m_Vertical.boolValue = true;
+                // }
 
                 //设置对齐方式
                 // RectTransform rect;

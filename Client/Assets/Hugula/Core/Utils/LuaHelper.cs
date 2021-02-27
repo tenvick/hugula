@@ -661,7 +661,7 @@ namespace Hugula.Utils
         /// <param name="scenename"></param>
         public static void UnloadScene(string sceneName)
         {
-            Hugula.ResLoader.UnloadSceneAsync(sceneName,null,null);
+            Hugula.ResLoader.UnloadSceneAsync(sceneName, null, null);
             // Hugula.Loader.ResourcesLoader.UnloadScene(sceneName);
             //UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
         }
@@ -693,30 +693,32 @@ namespace Hugula.Utils
         public static bool SaveLocalData(string fileName, string saveData)
         {
             string fullPath = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), fileName);
-            FileStream fs = new FileStream(fullPath, FileMode.Create);
-            if (fs != null)
+            FileInfo fileInfo = new FileInfo(fullPath);
+            if (!fileInfo.Directory.Exists) fileInfo.Directory.Create();
+            // if (!fileInfo.Exists) fileInfo.Create();
+            using (var sw = fileInfo.OpenWrite())
             {
                 byte[] bytes = CryptographHelper.Encrypt(Encoding.UTF8.GetBytes(saveData), key, iv);
-                fs.Write(bytes, 0, bytes.Length);
-                fs.Flush();
-                fs.Close();
-                return true;
+                sw.Write(bytes, 0, bytes.Length);
+                sw.Flush();
             }
-            return false;
+
+            return true;
         }
 
         public static string LoadLocalData(string fileName)
         {
             string fullPath = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), fileName);
-            if (System.IO.File.Exists(fullPath))
+            FileInfo fileInfo = new FileInfo(fullPath);
+            string loadData = string.Empty;
+
+            if (fileInfo.Exists)
             {
-                FileStream fs = new FileStream(fullPath, FileMode.Open);
-                if (fs != null && fs.Length > 0)
+                using (FileStream fs = fileInfo.OpenRead())
                 {
+
                     byte[] bytes = new byte[fs.Length];
                     fs.Read(bytes, 0, bytes.Length);
-                    fs.Close();
-                    string loadData = string.Empty;
                     try
                     {
                         loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
@@ -728,10 +730,17 @@ namespace Hugula.Utils
                     return loadData;
                 }
             }
-            return "";
+            return loadData;
         }
     }
-
+    [LuaCallCSharp]
+    public static class UnityEngineObjectExtention
+    {
+        public static bool IsNull(this UnityEngine.Object o)
+        {
+            return o == null;
+        }
+    }
 }
 //namespace AnimationOrTween
 //{

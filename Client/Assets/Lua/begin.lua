@@ -7,6 +7,7 @@ local require = require
 require("common.requires")
 local VMState = VMState
 local VMGroup = VMGroup
+require("core.hot_reload")
 
 -- -------------------------------------------------------------------------------
 local GameObject = CS.UnityEngine.GameObject

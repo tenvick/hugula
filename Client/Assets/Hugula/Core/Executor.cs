@@ -4,37 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
+using Hugula.Framework;
 
 namespace Hugula
 {
-    public class Executor : MonoBehaviour
+    public class Executor : BehaviourSingleton<Executor>
     {
 
         private static List<object> m_Tasks = new List<object>(); //lock
         private static List<object> m_CancelQueue = new List<object>(); //lock
         private static Stopwatch watch = new Stopwatch();
-        // tasks
-        static Executor m_Instance;
-
-        [RuntimeInitializeOnLoadMethod]
-
-        public static void Initialize()
-        {
-            if (m_Instance == null)
-            {
-                var obj = new GameObject("Executor");
-                m_Instance = obj.AddComponent<Executor>();
-                DontDestroyOnLoad(obj);
-            }
-        }
 
         #region  mono
-        void Awake()
-        {
-            m_Instance = this;
-        }
-
-        // void FixedUpdate () {
         void LateUpdate()
         {
             if (m_CancelQueue.Count > 0)
@@ -63,7 +44,7 @@ namespace Hugula
                     ((Action)act)();
                     UnityEngine.Profiling.Profiler.EndSample();
 #else
-                    ((Action) act) ();
+                    ((Action)act)();
 
 #endif
                     // Debug.LogFormat ("m_Task.action = {0} ", act);
@@ -86,11 +67,7 @@ namespace Hugula
             this.StopAllCoroutines();
             m_Tasks.Clear();
             m_CancelQueue.Clear();
-            if (m_Instance != null)
-            {
-                Destroy(this.gameObject);
-            }
-            m_Instance = null;
+            // Destroy(this.gameObject);
         }
         #endregion
 

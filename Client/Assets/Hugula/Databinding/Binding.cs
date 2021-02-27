@@ -119,7 +119,9 @@ namespace Hugula.Databinding
         {
             if (!isBound)
             {
-                Debug.LogErrorFormat("invalide source {0}.{1}",this.m_Context,this.path);
+#if UNITY_EDITOR
+                Debug.LogWarningFormat("invalide source {0}.{1}", this.m_Context, this.path);
+#endif
                 return;
             }
 #if LUA_PROFILER_DEBUG
@@ -266,7 +268,7 @@ namespace Hugula.Databinding
                         part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current);
                 }
 
-                // UnityEngine.Debug.LogFormat ("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
+                // UnityEngine.Debug.LogFormat("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
                 if (!part.isSelf && m_Current == null)
                     break;
 
@@ -274,7 +276,7 @@ namespace Hugula.Databinding
                 {
                     if (m_Current is INotifyPropertyChanged)
                     {
-                        // UnityEngine.Debug.LogFormat ("current = {0}", current);
+                        // UnityEngine.Debug.LogFormat("current = {0}", m_Current);
                         part.Subscribe((INotifyPropertyChanged)m_Current);
                     }
                 }

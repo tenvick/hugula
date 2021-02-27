@@ -73,5 +73,5 @@ vm_group.gamescene = {"asset_loader","scene_loader","back_tips"}
 vm_group.demo_login = {"demo_login","back_tips"}
 
 
-VMGroupSource = vm_group
+-- VMGroupSource = vm_group
 return {vm_config,vm_group}

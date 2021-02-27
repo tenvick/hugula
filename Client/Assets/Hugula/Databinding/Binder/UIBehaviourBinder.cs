@@ -25,8 +25,9 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (!m_Target) m_Target = GetComponent<T>();
         }
 

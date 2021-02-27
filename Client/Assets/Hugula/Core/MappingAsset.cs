@@ -45,7 +45,7 @@ namespace Hugula
             }
             int idx = UnityEngine.Animator.StringToHash(name);
             string re = null;
-            // Debug.LogFormat("StringToHash:{0} ", idx);
+            //Debug.LogFormat("StringToHash:{0} ", idx);
             m_Map.TryGetValue(idx, out re);
             return re;
         }

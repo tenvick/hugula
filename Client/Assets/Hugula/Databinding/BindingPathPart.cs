@@ -84,7 +84,7 @@ namespace Hugula.Databinding {
                 }
             }
 
-            m_Binding.OnSourceChanged (this);
+            m_Binding?.OnSourceChanged (this);
 
         }
 

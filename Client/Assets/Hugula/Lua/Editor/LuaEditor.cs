@@ -88,8 +88,8 @@ namespace HugulaEditor
             //addressables
             var setting = AASEditorUtility.LoadAASSetting();
             var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
-            // groupSchama.FindSchema()
             var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama);//setting.FindGroup(LUA_GROUP_NAME);
+            AASEditorUtility.ClearGroup(LUA_GROUP_NAME); //清空
             foreach (var str in dests)
             {
                 var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID

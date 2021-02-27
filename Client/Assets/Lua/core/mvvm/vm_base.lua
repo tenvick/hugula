@@ -7,6 +7,8 @@ local table = table
 local pairs = pairs
 local ipairs = ipairs
 local string_format = string.format
+local table_insert = table.insert
+local table_remove = table.remove
 local class = class
 local Object = CS.System.Object
 local GetSetObject = GetSetObject
@@ -28,19 +30,21 @@ local add_property_changed = function(self, delegate)
     if self._property_changed == nil then
         self._property_changed = {}
     end
-    table.insert(self._property_changed, delegate)
-    -- Logger.Log("object add_property_changed", delegate)
+    table_insert(self._property_changed, delegate)
+    -- Logger.Log("object add_property_changed", delegate, tostring(self), #self._property_changed)
 end
 
 local remove_property_changed = function(self, delegate)
     local _property_changed = self._property_changed
+    -- Logger.Log("object begin remove_property_changed ", delegate, tostring(self))
+    -- Logger.LogTable(_property_changed)
     for i = 1, #_property_changed do
         if Object.Equals(_property_changed[i], delegate) then
-            table.remove(_property_changed, i)
-            break
+            table_remove(_property_changed, i)
+            -- Logger.Log("object remove_property_changed ", delegate, i, tostring(self))
+            return
         end
     end
-    -- Logger.Log("object remove_property_changed ", delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -116,28 +120,28 @@ local function clear(self)
             v:clear()
         end
     end
+    table.clear(self._property_changed)
     self.is_res_ready = false
-end
-
---清理context
----@overload fun()
-local function clear_context(self)
-    local views = self.views
-    if views then
-        for k, v in ipairs(views) do
-            v:set_child_context(nil)
-        end
-    end
 end
 
 ---注销的时候
 ---@overload fun()
 local function dispose(self)
     -- body
+    table.clear(self._property_changed)
+    self._push_arg = nil
 end
 
 local function tostring(self)
     return string_format("VMBase(name=%s).views=%s ", self.views, self.name)
+end
+
+---注销的时候
+---@overload fun()
+local function debug_property_changed(self)
+    local changed = self._property_changed
+    Logger.Log(string.format("debug_property_changed(%s) (%s) ", #changed, tostring(self)))
+    Logger.LogTable(changed)
 end
 
 ---INotifyPropertyChanged接口实现
@@ -154,10 +158,10 @@ vm_base.on_back = on_back
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
 vm_base.on_destroy = on_destroy
-vm_base.clear_context = clear_context
 vm_base.clear = clear
 vm_base.dispose = dispose
 
+vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase
@@ -169,7 +173,6 @@ vm_base.__tostring = tostring
 ---@field on_active fun(self:table)
 ---@field on_deactive fun(self:table)
 ---@field clear fun(self:table) 清理view
----@field clear_context fun(self:table) 取消关联的viewmodel
 ---@field dispose fun(self:table)
 ---@field is_active boolean
 ---@field is_res_ready boolean

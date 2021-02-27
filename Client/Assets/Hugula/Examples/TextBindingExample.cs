@@ -14,8 +14,9 @@ public class TextBindingExample : MonoBehaviour
     // Start is called before the first frame update
     IEnumerator Start()
     {
-        var ins = ValueConverterRegister.instance;
         yield return null;
+        var ins = ValueConverterRegister.instance;
+        //    ins.AddConverter("FloatToString",this);
         container.context = this;
     }
 

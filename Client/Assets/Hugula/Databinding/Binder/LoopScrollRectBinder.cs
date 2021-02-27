@@ -237,7 +237,16 @@ namespace Hugula.Databinding.Binder
         }
 
         #endregion
-
+        public override IList<BindableObject> GetChildren()
+        {
+            var list = new List<BindableObject>();
+            var itemtemplate = target.itemSource as BindableObject;
+            if (itemtemplate != null)
+            {
+                list.Add(itemtemplate);
+            }
+            return list;
+        }
 
         protected override void OnDestroy()
         {

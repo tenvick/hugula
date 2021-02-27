@@ -27,7 +27,7 @@ local function set_target_context(bindable_object, context)
         BindingUtility.SetContextByINotifyTable(bindable_object, context)
     elseif context and context.get_Item then ---chekc IList
         BindingUtility.SetContextByIList(bindable_object, context)
-    elseif  context and context.PropertyChanged then --check INotifyPropertyChanged
+    elseif context and context.PropertyChanged then --check INotifyPropertyChanged
         BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
     else
         bindable_object[context_property] = context
@@ -50,7 +50,7 @@ local function update_target(target, property, source, part, format, converter)
     if part.isIndexer == true then
         path = tonumber(path)
     end
-    
+
     if part.isSelf then
         val = current
     elseif is_method then
@@ -75,7 +75,7 @@ local function update_target(target, property, source, part, format, converter)
     if format ~= "" then
         val = string_format(format, val)
     end
- 
+
     if converter ~= nil then
         val = converter:Convert(val, val_type)
     end
@@ -83,10 +83,10 @@ local function update_target(target, property, source, part, format, converter)
     if property == context_property and val ~= nil then ---如果是设置的context
         set_target_context(target, val)
     else
+        -- end
         -- local old = target[property]
         -- if old ~= val then
-            target[property] = val
-        -- end
+        target[property] = val
     end
 end
 
@@ -99,7 +99,7 @@ local function update_source(target, property, source, part, format, converter)
     if is_index == true then
         path = tonumber(path)
     end
-    
+
     local val = target[property]
     local current = part.source
     if converter then
@@ -138,7 +138,7 @@ end
 ---@param needsGetter bool
 ---@param needsSetter bool
 ---@param needSubscribe bool
-local function apply_actual_by_lua(binding,source)
+local function apply_actual_by_lua(binding, source)
     local current = source
     local needSubscribe = binding.needSubscribe
     local part = nil
@@ -177,13 +177,13 @@ local function apply_actual_by_lua(binding,source)
 
     if part == nil then
         return
-    end 
+    end
     binding:SetLastPart()
     local mode = binding.mode
     if mode == BindingMode.OneWay or BindingMode.TwoWay then
-        update_target(binding.target,binding.propertyName,source,part,binding.format,binding.convert)
-    elseif mode == BindingMode.OneWayToSource  then
-        update_source(binding.target,binding.propertyName,source,part,binding.format,binding.convert)
+        update_target(binding.target, binding.propertyName, source, part, binding.format, binding.convert)
+    elseif mode == BindingMode.OneWayToSource then
+        update_source(binding.target, binding.propertyName, source, part, binding.format, binding.convert)
     end
 end
 

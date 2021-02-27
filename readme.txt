@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.2.27
+1 databinding graph 工具。
+2 编辑器热重载，打开界面F5刷新代码(无需关闭界面直接刷新)。
+3 编辑器拖拽Binder类匹配修改为class name匹配。
+4 Hugula教程doc更新。
+
 2021.1.16
 1 音效资源asset包支持。
 2 集合绑定控件强制刷新内容。

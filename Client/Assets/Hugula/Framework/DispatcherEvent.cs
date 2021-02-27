@@ -5,6 +5,6 @@ using UnityEngine;
 namespace Hugula.Framework {
 
     public enum DispatcherEvent {
-
+        F5,
     }
 }

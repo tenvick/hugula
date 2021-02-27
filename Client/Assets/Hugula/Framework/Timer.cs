@@ -32,7 +32,7 @@ namespace Hugula.Framework
             {
                 get
                 {
-                    return currCycle >= cycle;
+                    return (cycle !=-1) && (currCycle >= cycle);
                 }
             }
         }

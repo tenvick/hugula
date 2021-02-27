@@ -42,7 +42,7 @@ namespace HugulaEditor.Databinding
 
             base.OnInspectorGUI();
 
-            if(temp is CustomBinder)
+            if (temp is CustomBinder)
             {
                 serializedObject.Update();
                 EditorGUILayout.PropertyField(m_Property_m_Target);

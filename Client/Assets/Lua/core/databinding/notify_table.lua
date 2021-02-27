@@ -568,23 +568,23 @@ notify_table.__tostring = tostring
 ---@module notify_table.lua
 ---@overload fun():NotifyTable
 ---@return NotifyTable
----@field Add   function
----@field Clear function
----@field Contains function
----@field IndexOf function
----@field FindIndex function
----@field InsertRange function
----@field RemoveAt function
----@field RemoveRange function
----@field ReplaceRange function
----@field Insert function
----@field MoveItem function
----@field Move function
----@field Remove function
----@field set_Item function
----@field get_Item function
----@field CollectionChanged function
----@field OnCollectionChanged function
----@field OnPropertyChanged function
----@field SetProperty function
+---@field Add   fun(self:table, item:table)
+---@field Clear fun(self:table)
+---@field Contains  fun(self:table, item:table)
+---@field IndexOf fun(self:table, item:table)
+---@field FindIndex fun(self:table, filter_fun:fun(i:number, v:table):number):number
+---@field InsertRange fun(self:table, index:number, range:table)
+---@field RemoveAt fun(self:table, index:table, count:table)
+---@field RemoveRange fun(self:table, range:table)
+---@field ReplaceRange fun(self:table, range:table, start_index:number)
+---@field Insert fun(self:table, index:number, item:table)
+---@field MoveItem fun(self:table, old_index:number, new_index:number)
+---@field Move fun(self:table, old_index:number, new_index:number)
+---@field Remove fun(self:table, obj:table)
+---@field set_Item fun(self:table, index:number, item:table)
+---@field get_Item fun(self:table, index:number):table
+---@field CollectionChanged fun(self:table, op:string, delegate:fun())
+---@field OnCollectionChanged fun(self:table, arg:any}))
+---@field OnPropertyChanged fun(self:table, property_name:string)
+---@field SetProperty fun(self:table, property_name:string, value:any)
 NotifyTable = notify_table

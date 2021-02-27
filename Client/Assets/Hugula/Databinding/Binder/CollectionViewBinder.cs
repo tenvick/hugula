@@ -194,6 +194,14 @@ namespace Hugula.Databinding.Binder
         }
 
         #endregion
+
+        public override IList<BindableObject> GetChildren()
+        {
+            var list = new List<BindableObject>();
+            list.Add(templateItem);
+            return list;
+        }
+
         protected override void OnBindingContextChanged()
         {
 
@@ -201,7 +209,7 @@ namespace Hugula.Databinding.Binder
             ClearItems();
             base.OnBindingContextChanged();
 
-            if(items!=null)
+            if (items != null)
                 UpdateView(0, items.Count);
         }
 

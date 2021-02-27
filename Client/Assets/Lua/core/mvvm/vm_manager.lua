@@ -11,6 +11,7 @@ local string_match = string.match
 local table = table
 local lua_binding = lua_binding
 local lua_unbinding = lua_unbinding
+local lua_distribute = lua_distribute
 
 local table_insert = table.insert
 local table_indexof = table.indexof
@@ -28,26 +29,9 @@ local VMGenerate = require("core.mvvm.vm_generate")
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
 local BindingUtility = Hugula.Databinding.BindingUtility
 
+local vm_manager = {}
+
 --------------------state 相关----------------------------
-local _state_changed = {} --记录有on_state_changed的viewmodel lua
-
-local function add_state_changed(vm_base)
-    if table_indexof(_state_changed, vm_base) == nil then
-        table_insert(_state_changed, vm_base)
-    end
-end
-
-local function remove_state_changed(vm_base)
-    table_remove_item(_state_changed, vm_base)
-end
-
----@overload fun(view_base:VMBase)
-local function _call_on_state_changed(self, arg)
-    -- Logger.Log("_call_on_state_changed",#_state_changed)
-    for k, v in ipairs(_state_changed) do
-        v:on_state_changed(arg)
-    end
-end
 
 local function _binding_rpc(vm)
     local listener = vm.msg
@@ -77,9 +61,18 @@ local function check_vm_base_all_done(vm_base)
             end
         end
     end
+
+    -- Logger.Log(" check_vm_base_all_done", vm_base)
+
     vm_base._isloading = false
     vm_base.is_res_ready = true
     vm_base.is_active = true
+
+    --on_state_changed
+    if vm_base._is_group == true then
+        vm_manager._vm_state:_check_on_state_changed(vm_base)
+    end
+
     if vm_base._is_push == true then
         vm_base:on_push()
     else
@@ -87,6 +80,23 @@ local function check_vm_base_all_done(vm_base)
     end
     _binding_rpc(vm_base)
     vm_base:on_active()
+
+    if views then
+        for k, view_base in ipairs(views) do
+            if vm_base.auto_context then
+                view_base:set_child_context(vm_base)
+            end
+            view_base:set_active(true)
+        end
+    end
+
+    ---@type VMState
+    -- local _vm_state = vm_manager._vm_state
+    -- if _vm_state:_check_top_group_is_active() then --当所有模块都激活后才触发on_state_changed事件。
+    --     local last_group_name = _vm_state.last_group_name
+    --     _vm_state:call_last_top_func(DISTYPE_STATE_CHANGED, last_group_name)
+    --     _vm_state:call_top_func(DISTYPE_STATE_CHANGED, last_group_name)
+    -- end
     return true
 end
 
@@ -100,27 +110,19 @@ local function set_view_child(gobj, view_base)
 end
 
 ---初始化视图和viewmode并设置他们的关系
----@overload fun(gobj:GameObject,view_base:ViewBase)
----@param gobj GameObject
+---@overload fun(view_base:ViewBase,viewmodel:VMBase)
 ---@param view_base ViewBase
+---@param viewmodel VMBase
 local function init_view(view_base, viewmodel)
     -- body
     local on_asset_load = view_base.on_asset_load
     if on_asset_load then
         on_asset_load(view_base, view_base._child)
     end
-    view_base:set_active(true)
+    -- view_base:set_active(true)
     view_base:initialized() --标记初始化
+
     local vm_base = view_base._vm_base or viewmodel
-    if vm_base.auto_context then
-        view_base:set_child_context(vm_base)
-    end
-
-    --记录on_state_changed
-    if vm_base.on_state_changed ~= nil then
-        add_state_changed(vm_base)
-    end
-
     check_vm_base_all_done(vm_base)
 end
 
@@ -205,32 +207,30 @@ end
 local function active_view(self, vm_name)
     ---@type VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
-    if curr_vm.is_res_ready == true then --已经加载过
-        if not curr_vm.is_active then
-            local views = curr_vm.views
-            local _auto_context = curr_vm.auto_context
-            if views then
-                for k, v in ipairs(views) do
-                    v:set_active(true)
-                    if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
-                        v:set_child_context(curr_vm)
-                    end
+    if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过
+        local views = curr_vm.views
+        local _auto_context = curr_vm.auto_context
+        if views then
+            for k, v in ipairs(views) do
+                v:set_active(true)
+                if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
+                    v:set_child_context(curr_vm)
                 end
             end
-
-            curr_vm.is_active = true
-            if curr_vm._is_push == true then
-                curr_vm:on_push()
-            else
-                curr_vm:on_back()
-            end
-            _binding_rpc(curr_vm)
-            curr_vm:on_active()
         end
+
+        curr_vm.is_active = true
+        if curr_vm._is_push == true then
+            curr_vm:on_push()
+        else
+            curr_vm:on_back()
+        end
+        _binding_rpc(curr_vm)
+        curr_vm:on_active()
     end
 end
 
-local function deactive_view(self, vm_name)
+local function deactive(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm.is_res_ready == true then --已经加载过
         if curr_vm.is_active then
@@ -251,28 +251,14 @@ end
 --- 销毁vm关联的所有view的资源
 ---@overload fun(vm_name:string)
 ---@param vm_name string
-local function destroy_view(self, vm_name)
+local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
-    -- if curr_vm.is_res_ready == true then --已经加载过
-    if curr_vm.on_state_changed then
-        remove_state_changed(curr_vm)
-    end
     curr_vm.is_active = false
     curr_vm.is_res_ready = false
     curr_vm:on_deactive()
     _unbinding_rpc(curr_vm)
     curr_vm:on_destroy()
-
-    local views = curr_vm.views
-    if views then
-        for k, v in ipairs(views) do
-            v:clear()
-        end
-    end
-
-    -- else
-    --     Logger.Log(vm_name," is not ready")
-    -- end
+    curr_vm:clear()
 end
 
 ---加载配置的资源
@@ -347,10 +333,12 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_name string
 ---@param arg any
-local function load(self, vm_name, arg, is_push)
+local function load(self, vm_name, arg, is_push, is_group)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm:on_push_arg(arg) --有参数
+    curr_vm._push_arg = arg
     curr_vm._is_push = is_push --是否是push到栈上的
+    curr_vm._is_group = is_group --是否是组
     local views = curr_vm.views
 
     if views == nil or #views == 0 then
@@ -380,10 +368,11 @@ end
 ---激活vm 加载资源或者激活ui
 ---当vm为string单个
 ---vm table 时候多个
----@overload fun(vm_name:any,arg:any)
----@param vm_name any
+---@overload fun(vm_name:string,arg:any)
+---@param vm_name string
 ---@param arg any
-local function active(self, vm_name, arg, is_push)
+---@param is_group bool
+local function active(self, vm_name, arg, is_push, is_group)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
@@ -391,7 +380,7 @@ local function active(self, vm_name, arg, is_push)
         load(self, vm_name, arg, is_push)
     else
         for k, v in ipairs(vm_name) do --多个
-            load(self, v, arg, is_push)
+            load(self, v, arg, is_push, is_group)
         end
     end
 end
@@ -417,20 +406,51 @@ local function pre_load(self, vm_name)
     end
 end
 
-local vm_manager = {}
-vm_manager._call_on_state_changed = _call_on_state_changed
+---热重载 vm
+---当vm为string单个
+---@overload fun(vm_name:string)
+---@param vm_name string
+local function re_load(self, vm_name)
+    local curr_vm = VMGenerate[vm_name] --获取旧vm实例
+    local views = curr_vm.views
+    local is_res_ready = curr_vm.is_res_ready
+    local arg = curr_vm._push_arg --保存变量
+
+    VMGenerate:reload_vm(vm_name, true) --热重载模块
+    curr_vm = VMGenerate[vm_name] --新的模块
+    curr_vm:on_push_arg(arg)
+    curr_vm._is_push = true --是否是push到栈上的
+
+    if views and is_res_ready then --如果资源已经加载需要重新刷新
+        local res_name, scene_name
+        local new_views = curr_vm.views
+        for k, v in ipairs(new_views) do
+            v:set_child(views[k]._child) -- set view BindableContainer
+            init_view(v)
+        end
+
+        --clear
+        for k, v in ipairs(views) do
+            v._child = nil
+            v._vm_base = nil
+            v._initialized = false
+        end
+    end
+end
+
+vm_manager.re_load = re_load
 vm_manager.pre_load = pre_load
 vm_manager.load = load
 vm_manager.active = active
-vm_manager.destroy_view = destroy_view
-vm_manager.deactive_view = deactive_view
+vm_manager.destroy = destroy
+vm_manager.deactive = deactive
 
 ---vm的激活与失活管理
 ---@class VMManager
 ---@field active function
 ---@field pre_load function
 ---@field load function
----@field destroy_view function
----@field deactive_view function
+---@field destroy function
+---@field deactive function
 -- VMManager = vm_manager
 return vm_manager

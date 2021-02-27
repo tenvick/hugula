@@ -3,6 +3,9 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.Networking;
+using System.Collections;
+using UnityEngine.AddressableAssets;
 
 [DisplayName("Sync Bundle Provider")]
 public class SyncBundleProvider : AssetBundleProvider
@@ -11,18 +14,34 @@ public class SyncBundleProvider : AssetBundleProvider
     class SyncAssetBundleResource : IAssetBundleResource
     {
         AssetBundle m_AssetBundle;
+        string bundleLoadPath = "";
+        Func<IResourceLocation, string> func = Addressables.InternalIdTransformFunc;
         public AssetBundle GetAssetBundle()
         {
             return m_AssetBundle;
         }
 
-        internal void Start(ProvideHandle provideHandle)
+        internal void Start(ProvideHandle provideHandle, out bool result)
         {
-            Debug.LogFormat("SyncAssetBundleResource({0})",provideHandle.Location.InternalId);
-            m_AssetBundle = AssetBundle.LoadFromFile(provideHandle.Location.InternalId);
-            if(m_AssetBundle == null)
-                Debug.LogError("the bundle failed " + provideHandle.Location.InternalId);
-            provideHandle.Complete(this, m_AssetBundle != null, null);
+            if(func != null)
+            {
+                bundleLoadPath = func(provideHandle.Location);
+            }
+           else
+            {
+                bundleLoadPath = provideHandle.Location.InternalId;
+            }
+            m_AssetBundle = AssetBundle.LoadFromFile(bundleLoadPath);
+            if (m_AssetBundle == null)
+            {
+                Debug.LogError("try load bundle sync failed " + bundleLoadPath); //同步加载失败
+                result = false;
+            }
+            else
+            {
+                provideHandle.Complete(this, m_AssetBundle != null, null);
+                result = true;
+            }
         }
 
         internal void Unload()
@@ -37,7 +56,12 @@ public class SyncBundleProvider : AssetBundleProvider
     
     public override void Provide(ProvideHandle providerInterface)
     {
-        new SyncAssetBundleResource().Start(providerInterface);
+        bool syncLoadSuccess = false;
+        new SyncAssetBundleResource().Start(providerInterface, out syncLoadSuccess);
+        if(!syncLoadSuccess)
+        {
+            base.Provide(providerInterface);
+        }
     }
 
     public override void Release(IResourceLocation location, object asset)

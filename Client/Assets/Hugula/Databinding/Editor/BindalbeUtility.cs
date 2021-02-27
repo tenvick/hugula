@@ -90,6 +90,19 @@ namespace HugulaEditor.Databinding
             propertyName = propertes[selectIndex];
             return propertyName;
         }
+
+        /// <summary>
+        /// 根据组件类型查找对应的binder
+        /// </summary>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
+        public static Type FindBinderType(Type componentType)
+        {
+            string typName = componentType.Name;
+            string binderType = string.Format("Hugula.Databinding.Binder.{0}Binder", typName);
+            var reType = Hugula.Utils.LuaHelper.GetClassType(binderType);
+            return reType;
+        }
     }
 
 

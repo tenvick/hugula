@@ -9,7 +9,7 @@ using Hugula;
 namespace Hugula.Databinding
 {
 
-    public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged
+    public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged, IClearBingding
     {
 
         public const string EnabledProperty = "enabled";
@@ -149,6 +149,14 @@ namespace Hugula.Databinding
             SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
         }
 
+        public virtual void ClearBinding()
+        {
+            foreach (var binding in bindings)
+                binding.Dispose();
+
+            bindings.Clear();
+        }
+
         protected virtual void OnInheritedContextChanged()
         {
 
@@ -217,18 +225,13 @@ namespace Hugula.Databinding
 
         #endregion
 
-        // protected virtual void Awake()
-        // {
-        //     InitBindingsDic();
-        //     Debug.LogWarningFormat(" Awake {0}  frameCount:{1}",this,Time.frameCount);
-        // }
+        protected virtual void Awake()
+        {
+        }
 
         protected virtual void OnDestroy()
         {
-            foreach (var binding in bindings)
-                binding.Dispose();
-
-            bindings.Clear();
+            ClearBinding();
             m_Context = null;
             m_InheritedContext = null;
         }

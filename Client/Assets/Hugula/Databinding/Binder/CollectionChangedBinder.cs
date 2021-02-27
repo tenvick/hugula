@@ -6,71 +6,93 @@ using Hugula.UIComponents;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hugula.Databinding.Binder {
+namespace Hugula.Databinding.Binder
+{
 
-    public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T> where T :UnityEngine.Object
-     {
+    public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T>, ICollectionBinder where T : UnityEngine.Object
+    {
         [Tooltip("Whether context changed, force refresh binding. ")]
         [SerializeField] protected bool m_forceBinding = true;
 
         private INotifyCollectionChanged notify;
         #region  集合数据变更
 
-        protected virtual void OnCollectionAdd (object sender, NotifyCollectionChangedEventArgs args) {
+        protected virtual void OnCollectionAdd(object sender, NotifyCollectionChangedEventArgs args)
+        {
 
         }
 
-        protected virtual void OnCollectionRemove (object sender, NotifyCollectionChangedEventArgs args) {
+        protected virtual void OnCollectionRemove(object sender, NotifyCollectionChangedEventArgs args)
+        {
 
         }
 
-        protected virtual void OnCollectionRepalce (object sender, NotifyCollectionChangedEventArgs args) {
+        protected virtual void OnCollectionRepalce(object sender, NotifyCollectionChangedEventArgs args)
+        {
 
         }
 
-        protected virtual void OnCollectionMove (object sender, NotifyCollectionChangedEventArgs args) {
+        protected virtual void OnCollectionMove(object sender, NotifyCollectionChangedEventArgs args)
+        {
 
         }
 
-        protected virtual void OnCollectionReSet (object sender, NotifyCollectionChangedEventArgs args) {
+        protected virtual void OnCollectionReSet(object sender, NotifyCollectionChangedEventArgs args)
+        {
 
         }
 
-        protected void OnCollectionChanged (object sender, NotifyCollectionChangedEventArgs args) {
-            if (args.Action == NotifyCollectionChangedAction.Add) {
-                OnCollectionAdd (sender, args);
-            } else if (args.Action == NotifyCollectionChangedAction.Remove) {
-                OnCollectionRemove (sender, args);
-            } else if (args.Action == NotifyCollectionChangedAction.Replace) {
-                OnCollectionRepalce (sender, args);
-            } else if (args.Action == NotifyCollectionChangedAction.Move) {
-                OnCollectionMove (sender, args);
-            } else if (args.Action == NotifyCollectionChangedAction.Reset) {
-                OnCollectionReSet (sender, args);
+        protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        {
+            if (args.Action == NotifyCollectionChangedAction.Add)
+            {
+                OnCollectionAdd(sender, args);
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Remove)
+            {
+                OnCollectionRemove(sender, args);
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Replace)
+            {
+                OnCollectionRepalce(sender, args);
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Move)
+            {
+                OnCollectionMove(sender, args);
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                OnCollectionReSet(sender, args);
             }
         }
         #endregion
 
-        protected override void OnBindingContextChanging () {
-            base.OnBindingContextChanging ();
-            if (context is INotifyCollectionChanged) {
-                notify = ((INotifyCollectionChanged) context);
+        public abstract IList<BindableObject> GetChildren();
+        protected override void OnBindingContextChanging()
+        {
+            base.OnBindingContextChanging();
+            if (context is INotifyCollectionChanged)
+            {
+                notify = ((INotifyCollectionChanged)context);
                 notify.CollectionChanged -= OnCollectionChanged;
             }
         }
-        protected override void OnBindingContextChanged () {
-            base.OnBindingContextChanged ();
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
 
-            if (context is INotifyCollectionChanged) {
-                notify = ((INotifyCollectionChanged) context);
+            if (context is INotifyCollectionChanged)
+            {
+                notify = ((INotifyCollectionChanged)context);
                 notify.CollectionChanged += OnCollectionChanged;
             }
         }
 
-        protected override void OnDestroy () {
+        protected override void OnDestroy()
+        {
             if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
             notify = null;
-            base.OnDestroy ();
+            base.OnDestroy();
         }
 
     }

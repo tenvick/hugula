@@ -10,12 +10,16 @@ namespace Hugula.Framework
     ///<summary>
     /// 全局事件派发
     ///</summary>
-    public class GlobalDispatcher : Singleton<GlobalDispatcher>,IDisposable
+    public class GlobalDispatcher : Singleton<GlobalDispatcher>, IDisposable
     {
         private Dictionary<DispatcherEvent, List<object>> m_Dispatcher = new Dictionary<DispatcherEvent, List<object>>();
          
         public override void Dispose()
         {
+            foreach (var i in m_Dispatcher)
+            {
+                i.Value.Clear();
+            }
             m_Dispatcher.Clear();
             base.Dispose();
         }
@@ -80,11 +84,11 @@ namespace Hugula.Framework
                 {
                     if (events.Count > i) // for events.Clear()
                     {
-                    e = events[i];
-                    if (e is System.Action<T>)
-                        ((System.Action<T>)e)(arg);
-					else if (e is System.Action<object>)
-						 ((System.Action<object>)e)(arg);
+                        e = events[i];
+                        if (e is System.Action<T>)
+                            ((System.Action<T>)e)(arg);
+                        else if (e is System.Action<object>)
+                            ((System.Action<object>)e)(arg);
                     }
                 }
 
@@ -112,6 +116,21 @@ namespace Hugula.Framework
         public static void DispatchVector3(this GlobalDispatcher self, DispatcherEvent key, Vector3 arg)
         {
             self.Dispatch<Vector3>(key, arg);
+        }
+
+        public static void AddListenerVector2(this GlobalDispatcher self, DispatcherEvent key, System.Action<Vector2> action)
+        {
+            self.AddListener<Vector2>(key, action);
+        }
+
+        public static void RemoveListenerVector2(this GlobalDispatcher self, DispatcherEvent key, System.Action<Vector2> action)
+        {
+            self.RemoveListener<Vector2>(key, action);
+        }
+
+        public static void DispatchVector2(this GlobalDispatcher self, DispatcherEvent key, Vector2 arg)
+        {
+            self.Dispatch<Vector2>(key, arg);
         }
 
         public static void AddListenerBool(this GlobalDispatcher self, DispatcherEvent key, System.Action<bool> action)
@@ -144,7 +163,7 @@ namespace Hugula.Framework
             self.Dispatch<int>(key, arg);
         }
 
-         public static void AddListenerFloat(this GlobalDispatcher self, DispatcherEvent key, System.Action<float> action)
+        public static void AddListenerFloat(this GlobalDispatcher self, DispatcherEvent key, System.Action<float> action)
         {
             self.AddListener<float>(key, action);
         }

@@ -62,6 +62,8 @@ namespace Hugula {
 #if UNITY_EDITOR || UNITY_STANDALONE
             if (Input.GetKeyUp (KeyCode.F5)) {
                 GlobalDispatcher.instance.Dispatch (DispatcherEvent.F5, null);
+            }else if(Input.GetKeyUp(KeyCode.F6)) {
+                GlobalDispatcher.instance.Dispatch (DispatcherEvent.F6, null);
             }
 
 #endif

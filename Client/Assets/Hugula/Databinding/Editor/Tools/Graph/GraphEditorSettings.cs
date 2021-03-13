@@ -1,5 +1,5 @@
 ﻿
-namespace Hugula.Databinding.Editor
+namespace HugulaEditor.Databinding.Editor
 {
     public static class GraphEditorSettings
     {

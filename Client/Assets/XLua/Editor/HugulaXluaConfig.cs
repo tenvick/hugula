@@ -125,7 +125,7 @@ namespace XLua.Editor
             new List<string> () { "Hugula.Loader.ResourcesLoader", "SimulateAssetBundleInEditor" },
             new List<string> () { "Hugula.Databinding.BindableObject", "AddBinding","Hugula.Databinding.Binding" },
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindings" },
-            new List<string> () { "Hugula.Databinding.BindableObject", "GetBindingAt","System.Int32" },
+            new List<string> () { "Hugula.Databinding.BindableObject", "GetBindingByName","System.String" },
 
             new List<string> () { "UnityEngine.AnimatorControllerParameter", "name" },
             new List<string> () { "UnityEngine.AudioSettings", "GetSpatializerPluginNames" },

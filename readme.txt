@@ -1,6 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.3.13
+1 code gen代码模板生成工具与教程
+
 2021.2.27
 1 databinding graph 工具。
 2 编辑器热重载，打开界面F5刷新代码(无需关闭界面直接刷新)。

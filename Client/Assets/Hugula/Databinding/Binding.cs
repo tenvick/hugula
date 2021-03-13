@@ -324,7 +324,7 @@ namespace Hugula.Databinding
                 return m_Parts;
             }
         }
-        void ParsePath()
+        public void ParsePath()
         {
 
             string p = path.Trim();
@@ -332,6 +332,7 @@ namespace Hugula.Databinding
             if (!string.IsNullOrEmpty(converter))
                 convert = ValueConverterRegister.instance.Get(converter);
 
+            m_Parts.Clear();
             var last = new BindingPathPart(this, SelfPath);
             m_Parts.Add(last);
 

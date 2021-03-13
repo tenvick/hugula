@@ -6,5 +6,6 @@ namespace Hugula.Framework {
 
     public enum DispatcherEvent {
         F5,
+        F6
     }
 }

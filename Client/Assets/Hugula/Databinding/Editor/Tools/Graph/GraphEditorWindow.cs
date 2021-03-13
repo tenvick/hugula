@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Hugula.Databinding;
 
-namespace Hugula.Databinding.Editor
+namespace HugulaEditor.Databinding.Editor
 {
     public class GraphEditorWindow : EditorWindow
     {
@@ -500,7 +501,7 @@ namespace Hugula.Databinding.Editor
         }
 
 
-        private string GetGameObjectPath(Transform transform)
+        public static string GetGameObjectPath(Transform transform)
         {
             string path = transform.name;
             while (transform.parent != null)

@@ -248,9 +248,14 @@ namespace Hugula.Databinding
             return bindings;
         }
 
-        public Binding GetBindingAt(int i)
+        public Binding GetBindingByName(string i)
         {
-            return bindings[i];
+            foreach(var binding in bindings)
+            {
+                if(binding.propertyName == i)
+                    return binding;
+            }
+            return null;
         }
 #endif
     }

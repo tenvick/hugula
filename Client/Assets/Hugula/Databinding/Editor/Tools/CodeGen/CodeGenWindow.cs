@@ -44,10 +44,11 @@ namespace HugulaEditor.Databinding.Editor
 
         #region  template
         public string template = string.Empty;
-
+        public static string templateNotifyTableAddUPRemove = string.Empty;
         void ReadTemplate()
         {
             template = System.IO.File.ReadAllText("Assets/Hugula/Databinding/Editor/Tools/CodeGen/template_viewmodel.lua");
+            templateNotifyTableAddUPRemove = System.IO.File.ReadAllText("Assets/Hugula/Databinding/Editor/Tools/CodeGen/template_notifytable_add_up_remove.lua");
         }
 
         #endregion
@@ -69,7 +70,7 @@ namespace HugulaEditor.Databinding.Editor
                 end
         return  {1}._{0}
     end
-    ", propNode.methName,propNode.upvalue);
+    ", propNode.methName, propNode.upvalue);
             }
             else if (typeof(int) == propertyType || typeof(float) == propertyType)
             {
@@ -90,14 +91,20 @@ namespace HugulaEditor.Databinding.Editor
             else if (typeof(string) == propertyType)
             {
                 return @"""""";
-            }else if(typeof(object) == propertyType)
+            }
+            else if (typeof(object) == propertyType)
             {
                 return "{}";
+            }
+            else if (typeof(bool) == propertyType)
+            {
+                return "false";
             }
 
             return propertyType.ToString();
 
         }
+
         static string NewContextByType(ContextType cType)
         {
             switch (cType)
@@ -122,6 +129,15 @@ namespace HugulaEditor.Databinding.Editor
             {
                 return true;
             }
+        }
+
+        enum TemplateType
+        {
+            name,
+            property,
+            message,
+            method,
+            command
         }
 
         enum ContextType
@@ -163,18 +179,31 @@ namespace HugulaEditor.Databinding.Editor
             public List<ContextNode> children = new List<ContextNode>();
             public PropertyNode AddProperty(string propertyName, System.Type propertyType, bool isListProperty)
             {
-                var prop = new PropertyNode()
+                var prop = peroperties.Find((PropertyNode t) =>
                 {
-                    isMethod = propertyName.IndexOf('(') != -1,
-                    propertyName = propertyName,
-                    propertyType = propertyType,
-                    isListProperty = isListProperty,
-                };
-                peroperties.Add(prop);
-                peroperties.Sort((a, b) =>
-                {
-                    return b.propertyType.GetHashCode() - a.propertyType.GetHashCode();
+                    if (propertyName == t.propertyName)
+                        return true;
+                    else
+                    {
+                        return false;
+                    }
                 });
+
+                if (prop == null)
+                {
+                    prop = new PropertyNode()
+                    {
+                        isMethod = propertyName.IndexOf('(') != -1,
+                        propertyName = propertyName,
+                        propertyType = propertyType,
+                        isListProperty = isListProperty,
+                    };
+                    peroperties.Add(prop);
+                    peroperties.Sort((a, b) =>
+                    {
+                        return b.propertyType.GetHashCode() - a.propertyType.GetHashCode();
+                    });
+                }
                 return prop;
             }
 
@@ -257,13 +286,62 @@ namespace HugulaEditor.Databinding.Editor
                     templateDic.Add(propName, sb);
                 }
                 return sb;
-
             }
+
+            StringBuilder GetSBTemplate(TemplateType templateType)
+            {
+                StringBuilder sb = null;
+                string propName = templateType.ToString();
+                if (!templateDic.TryGetValue(propName, out sb))
+                {
+                    sb = new StringBuilder();
+                    templateDic.Add(propName, sb);
+                }
+                return sb;
+            }
+
             void AppendLine(string line, System.Type propertyType)
             {
                 var sb = GetSBTemplate(IsProperty(propertyType));
                 sb.AppendLine(line);
             }
+
+            void AppendLineMethod(string line)
+            {
+                var sb = GetSBTemplate(TemplateType.method);
+                sb.AppendLine();
+                sb.AppendLine(line);
+            }
+
+            void AppendLineProperty(PropertyNode prop)
+            {
+
+                if (prop.isListProperty)
+                {
+                    AppendLine(string.Format("-- {0}.{1}", name + "_item", prop.ToTemplateString(name)), prop.propertyType);
+                }
+                else if (prop.isListProperty && prop.isMethod)
+                {
+                    AppendLineMethod(string.Format("--[[ {0}.{1} ]]--", name + "_item", prop.ToTemplateString(name)));
+                }
+                else if (prop.isMethod)
+                {
+                    AppendLineMethod(string.Format("{0}.{1}", name, prop.ToTemplateString(name)));
+                }
+                else
+                {
+                    AppendLine(string.Format("{0}.{1}", name, prop.ToTemplateString(name)), prop.propertyType);
+                }
+            }
+
+            string GenNotifyTableAddUpRemove(string name, string childName)
+            {
+                var templateOut = templateNotifyTableAddUPRemove;
+                templateOut = templateOut.Replace("{name}", name);
+                templateOut = templateOut.Replace("{0}", childName);
+                return templateOut;
+            }
+
             private System.Text.StringBuilder sb = new System.Text.StringBuilder();
             public void GenTemplateString()
             {
@@ -272,18 +350,15 @@ namespace HugulaEditor.Databinding.Editor
                 {
                     AppendLine(string.Format("local {0}={1}", child.name, NewContextByType(child.contextType)), typeof(object));
                     AppendLine(string.Format("{0}.{1}={1}", name, child.name), typeof(object));
+                    if (child.contextType == ContextType.NotifyTable) // notify table add remove update
+                    {
+                        AppendLineMethod(GenNotifyTableAddUpRemove(name, child.name));
+                    }
                 }
 
                 foreach (var prop in peroperties)
                 {
-                    if (prop.isListProperty)
-                    {
-                        AppendLine(string.Format("-- {0}.{1}", name + "_item", prop.ToTemplateString(name)), prop.propertyType);
-                    }
-                    else
-                    {
-                        AppendLine(string.Format("{0}.{1}", name, prop.ToTemplateString(name)), prop.propertyType);
-                    }
+                    AppendLineProperty(prop);
                 }
 
                 foreach (var child in children)
@@ -320,7 +395,7 @@ namespace HugulaEditor.Databinding.Editor
                     SaveFile();
                 }
             }
- 
+
         }
 
 
@@ -339,7 +414,7 @@ namespace HugulaEditor.Databinding.Editor
                 Debug.Log(string.Format("Create binding graph for {0}", transformPath), selectedTransform);
             }
             ReadTemplate();
-
+            templateOut = string.Empty;
             var container = selectedTransform.GetComponent<Hugula.Databinding.BindableObject>();
             ContextNode.templateDic.Clear();
             ContextNode.templateDic["name"] = new StringBuilder().Append(container.name);
@@ -356,11 +431,22 @@ namespace HugulaEditor.Databinding.Editor
 
             var tempOut = template;
             string key = string.Empty;
-            foreach (var kv in ContextNode.templateDic)
+            string content = string.Empty;
+            var templateTypes = System.Enum.GetValues(typeof(TemplateType));
+            System.Text.StringBuilder sb = new StringBuilder();
+            foreach (var en in templateTypes)
             {
-                key = "{" + kv.Key + "}";
-                tempOut = tempOut.Replace(key, kv.Value.ToString());
+                key = System.Enum.GetName(typeof(TemplateType), en);//获取名称
+                content = string.Empty;
+                if (ContextNode.templateDic.TryGetValue(key, out sb))
+                {
+                    content = sb.ToString();
+                }
+
+                key = "{" + key + "}";
+                tempOut = tempOut.Replace(key, content);
             }
+
             Debug.Log(tempOut);
             templateOut = tempOut;
         }
@@ -376,6 +462,16 @@ namespace HugulaEditor.Databinding.Editor
                 BeginWindows();
                 GUILayout.TextArea(templateOut);
                 EndWindows();
+            }
+
+            if (Event.current.type == EventType.Repaint)
+            {
+                var newRect = GUILayoutUtility.GetLastRect();
+                if (newRect != graphRegion)
+                {
+                    graphRegion = newRect;
+                    Repaint();
+                }
             }
         }
 

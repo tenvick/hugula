@@ -39,7 +39,7 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        void OnClick()
+        protected void OnClick()
         {
             if (m_OnClickCommand != null && m_OnClickCommand.CanExecute(m_commandParameter))
                 m_OnClickCommand.Execute(m_commandParameter);

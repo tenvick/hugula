@@ -188,15 +188,15 @@ namespace Hugula {
 
         public static void StopDelay (object arg) {
             var ins = Manager.Get<EnterLua> ();
-            if (ins != null && arg is IEnumerator)
-                ins.StopCoroutine ((IEnumerator) arg);
+            if (ins != null && arg is Coroutine)
+                ins.StopCoroutine((Coroutine)arg);
         }
 
-        public static IEnumerator Delay (LuaFunction luafun, float time, object args) {
-            var ins = Manager.Get<EnterLua> ();
-            var _corout = DelayDo (luafun, time, args);
-            ins.StartCoroutine (_corout);
-            return _corout;
+        public static Coroutine Delay(LuaFunction luafun, float time, object args) {
+            var ins = Manager.Get<EnterLua>();
+            var _corout = DelayDo(luafun, time, args);
+            var cor = ins.StartCoroutine(_corout);
+            return cor;
         }
 
         private static IEnumerator DelayDo (LuaFunction luafun, float time, object args) {
@@ -204,11 +204,11 @@ namespace Hugula {
             luafun.Call (args);
         }
 
-        public static IEnumerator DelayFrame (LuaFunction luafun, int frame, object args) {
-            var ins = Manager.Get<EnterLua> ();
-            var _corout = DelayFrameDo (luafun, frame, args);
-            ins.StartCoroutine (_corout);
-            return _corout;
+        public static Coroutine DelayFrame(LuaFunction luafun, int frame, object args) {
+            var ins = Manager.Get<EnterLua>();
+            var _corout = DelayFrameDo(luafun, frame, args);
+            var cor = ins.StartCoroutine(_corout);
+            return cor;
         }
 
         private static IEnumerator DelayFrameDo (LuaFunction luafun, int frame, object args) {

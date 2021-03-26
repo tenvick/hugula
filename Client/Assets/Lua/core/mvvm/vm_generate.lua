@@ -34,19 +34,12 @@ end
 
 --@overload fun(self:VMBase,key:string,hold_child:boolean)
 local function _reload_vm(t, k, hold_child)
-    --@type ViewBase
+    --@type VMBase
     local raw = rawget(t, k)
     if raw ~= nil then --
         local conf = VMConfig[k]
         if conf and conf.vm then
-            local on_deactive = raw.on_deactive
-            local on_destroy = raw.on_destroy
-            if on_deactive then
-                on_deactive(raw)
-            end
-            if on_destroy then
-                on_destroy(raw)
-            end
+            require("core.mvvm.vm_manager"):deactive(k)
 
             package.loaded[conf.vm] = nil
             local re = require(conf.vm) --重新require lua

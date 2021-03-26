@@ -1,6 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.3.26
+1 子模块示例demo。
+2 滚动列表LoopScrollRect编辑器预览功能。
+3 Profiler功能。
+4 BindableContainer显示自身可绑定属性。
+6 F6刷新所有当前激活lua模块代码。
+
 2021.3.13
 1 code gen代码模板生成工具与教程
 

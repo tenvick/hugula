@@ -37,7 +37,7 @@ local TYPE_TABLE = "table"
 local ON_STATE_CHANGING = "on_state_changing"
 local DISTYPE_STATE_CHANGED = "on_state_changed"
 
----
+---@type VMState
 local vm_state = {}
 local _stack = {} --记录栈
 local _root_index = 0 --当前group root的stack索引
@@ -193,7 +193,7 @@ local function hide_group(curr)
 
             if log_enable == false then --如果不需要记录root log栈
                 table_remove(_stack, i)
-            debug_stack()
+            -- debug_stack()
             end
             return
         else
@@ -400,7 +400,7 @@ local function get_vm_manager(self)
     return VMManager
 end
 
-local function _reload_top(self)
+local function _reload_top_one(self)
     local top = _stack[#_stack] -- top 栈顶
 
     local function do_reload(vm_name)
@@ -419,6 +419,29 @@ local function _reload_top(self)
     end
 end
 
+local function _reload_top_active(self)
+    -- local top = _stack[#_stack] -- top 栈顶
+
+    local function do_reload(vm_name)
+        Logger.Log("hot reload viewmodel：", vm_name)
+        VMManager:re_load(vm_name)
+    end
+
+    --刷新当前所有激活的模块
+    local item
+    for i = #_stack, 1, -1 do
+        item = _stack[i]
+        if type(item) == TYPE_TABLE then --如果是root group
+            for k, v in ipairs(item) do
+                do_reload(v)
+            end
+            return
+        else
+            do_reload(item)
+        end
+    end
+end
+
 VMManager._vm_state = vm_state
 vm_state.get_member = get_member
 vm_state.call_func = call_func
@@ -433,7 +456,8 @@ vm_state.init_viewmodel = init_viewmodel -- 初始化viewmodel并激活用于组
 vm_state.destroy_viewmodel = destroy_viewmodel
 vm_state.get_vm_manager = get_vm_manager --
 vm_state._check_on_state_changed = _check_on_state_changed --检查当前顶上的group是否全部激活
-vm_state._reload_top = _reload_top
+vm_state._reload_top_one = _reload_top_one
+vm_state._reload_top_active = _reload_top_active
 vm_state.top_group_is = top_group_is
 --- view model 的显示隐藏管理
 ---@class VMState
@@ -450,6 +474,8 @@ vm_state.top_group_is = top_group_is
 ---@field destroymodel fun(self:VMState, vm_name:string)
 ---@field get_vm_manager fun(self:VMState):VMManager
 ---@field _check_on_state_changed fun(self:VMState,vm_base:VMBase)
----@field _reload_top fun(self:VMState) reload 栈顶的模块
+---@field _reload_top_one fun(self:VMState) reload 栈顶的一个模块
+---@field _reload_top_active fun(self:VMState) reload 栈顶的所有模块
+
 ---@field top_group_is fun(self:VMState,vm_group_name:string) 判断顶部的group
 VMState = vm_state

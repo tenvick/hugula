@@ -172,7 +172,7 @@ ViewBase = view_base
 ---@param arg any
 ---@param view_path string
 View = function(vm_base, arg, view_path)
-    ---@class ViewBase
+    ---@type ViewBase
     local view_inst
     local arg_is_string = type(arg) == "string"
     if arg_is_string then

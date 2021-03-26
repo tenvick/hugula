@@ -13,7 +13,6 @@ namespace Hugula.UIComponents
         protected override void ScrollLoopItem()
         {
             bool tween = isTweening;
-
             if (columns == 0 && (IsHorizontalScroll || tween))
             {
                 m_HeadDataIndex = Mathf.FloorToInt(-m_ViewPointRect.x / (itemSize.x + this.halfPadding)); //头
@@ -79,38 +78,17 @@ namespace Hugula.UIComponents
 
             RectTransform rectTran = loopItem.transform;
             int index = loopItem.index;
-            // LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran);
             var rect = rectTran.rect;
             rect.height = -Mathf.Abs(rect.height);
             Vector2 pos = Vector2.zero;
             if (this.columns == 0) //单行
             {
                 pos.x = (rect.width + this.halfPadding) * index + this.halfPadding; // + rect.width * .5f;
-                if (rectTran.anchorMax.y - rectTran.anchorMin.y >= 0.99f) //表示高度适配
-                {
-                    var offsetMin = rectTran.offsetMin;
-                    var offsetMax = rectTran.offsetMax;
-                    offsetMin.y = halfPadding;
-                    offsetMax.y = -halfPadding;
-                    rectTran.offsetMin = offsetMin;
-                    rectTran.offsetMax = offsetMax;
-                }
-                else
-                    pos.y = -halfPadding;
+                pos.y = -halfPadding;
             }
             else if (columns == 1) //单列 需要宽度适配
             {
-                if (rectTran.anchorMax.x - rectTran.anchorMin.x >= 0.99f) //表示宽度适配
-                {
-                    var offsetMin = rectTran.offsetMin;
-                    var offsetMax = rectTran.offsetMax;
-                    offsetMin.x = halfPadding;
-                    offsetMax.x = -halfPadding;
-                    rectTran.offsetMin = offsetMin;
-                    rectTran.offsetMax = offsetMax;
-                }
-                else
-                    pos.x = halfPadding;
+                pos.x = halfPadding;
                 pos.y = (rect.height - this.halfPadding) * index - this.halfPadding; // rect.height * .5f ;
             }
             else // 多行
@@ -124,8 +102,11 @@ namespace Hugula.UIComponents
             pos = pos + m_ContentLocalStart; //开始位置
 
             loopItem.rect = rect;
-            rectTran.anchoredPosition3D = Vector3.zero;
-            rectTran.anchoredPosition = pos;
+
+            // Debug.LogFormat("SetInsetAndSizeFromParentEdge pos={0},width={1} ", pos, rectTran.rect.width);
+            rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+            rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+
         }
 
         protected override void CalcBounds()
@@ -133,11 +114,11 @@ namespace Hugula.UIComponents
 
             if (content != null)
             {
-                var delt = content.sizeDelta;
+                var rect = content.rect;
+                Vector2 delt = new Vector2(rect.width, rect.height);
                 if (columns <= 0) //只有一行，为了高度适配不设置sieDelta.y
                 {
                     delt.x = dataLength * (itemSize.x + this.halfPadding) + this.halfPadding;
-                    // delt.y = ItemSize.y + this.Padding;
                 }
                 else if (columns == 1) //只有一列的时候为了 宽度适配不设置sieDelta.x
                 {
@@ -149,7 +130,9 @@ namespace Hugula.UIComponents
                     int y = (int)Mathf.Ceil((float)dataLength / (float)columns);
                     delt.y = (itemSize.y + this.halfPadding) * y + this.halfPadding;
                 }
-                content.sizeDelta = delt;
+
+                content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, delt.x);
+                content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, delt.y);
             }
         }
 
@@ -250,5 +233,18 @@ namespace Hugula.UIComponents
         }
         protected Coroutine m_Coroutine = null;
 
+    }
+
+    public static class RectTransformExtension
+    {
+        /// <summary>
+        /// 判断宽度适配还是高度适配 0 宽度x水平  1 高度y竖直
+        /// </summary>
+        /// <param name="axis">The axis to set: 0 for horizontal, 1 for vertical.</param>
+        public static bool IsMatchOffset(this RectTransform transform, RectTransform.Axis axis)
+        {
+            var a = (int)axis;
+            return transform.offsetMin[a] != transform.offsetMax[a];
+        }
     }
 }

@@ -245,6 +245,7 @@ namespace Hugula.UIComponents
 
         protected override void Awake()
         {
+            m_HalfPadding = float.NaN;
             base.Awake();
             InitPages();
             InitTemplatePool();
@@ -255,7 +256,7 @@ namespace Hugula.UIComponents
         protected override void LateUpdate()
         {
             if (m_RenderPerFrames < 1) m_RenderPerFrames = 1;
-            for (int i = 0; i < this.renderPerFrames; i++)
+            for (int i = 0; i < this.m_RenderPerFrames; i++)
             {
                 QueueToRender();
                 if ((m_RenderQueue.Count == 0)) break;
@@ -374,7 +375,18 @@ namespace Hugula.UIComponents
             }
         }
 
+        [Tooltip("whether auto scroll to bottom")]
+        [SerializeField]
+        bool m_AutoScrollToBottom = true;
         bool m_autoScrollFloor = false; //自动滚动到底部
+
+        bool needScrollToBottom
+        {
+            get
+            {
+                return m_AutoScrollToBottom && m_autoScrollFloor;
+            }
+        }
         /// <summary>
         /// 改变数据长度 <br/> 后刷新显示
         /// </summary>
@@ -444,7 +456,7 @@ namespace Hugula.UIComponents
 
                 bIdx = index > min ? index : min; //最小开始位置索引 
 
-                if (m_autoScrollFloor)
+                if (needScrollToBottom)//m_autoScrollFloor)
                 {
                     if (max < 0) max = 0;
                     // Debug.LogFormat("m_FloorDataIndex={0},max={1},m_DataLength={2},count={3}", min, max, dataLength, count);
@@ -813,7 +825,6 @@ namespace Hugula.UIComponents
                 loopItem.index = idx;
             }
 
-
             var gObj = loopItem?.item.gameObject;
             if (idx >= dataLength)
             {
@@ -837,7 +848,7 @@ namespace Hugula.UIComponents
             }
 
             AddShowList(idx);
-            onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+            if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             //
             CalcItemBound(loopItem);
             // CalcBounds (loopItem, oldIdx, oldRect);
@@ -921,7 +932,8 @@ namespace Hugula.UIComponents
                 m_ContentBounds.yMax = -m_CalcBoundyMax;
             }
 
-            if (m_autoScrollFloor && m_RenderQueue.Count == 0)
+            // if (m_autoScrollFloor && m_RenderQueue.Count == 0)
+            if (needScrollToBottom && m_RenderQueue.Count == 0)
             {
                 Vector2 curr = content.anchoredPosition;
                 curr.y = m_ContentBounds.yMax - m_ViewBounds.height; //如果标记了需要滚动到末尾

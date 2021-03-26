@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace HugulaEditor.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     public class ConnectionGUI
     {

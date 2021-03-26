@@ -16,16 +16,19 @@ namespace Hugula.UIComponents
 
         [SerializeField]
         int m_Columns = 0; //显示的列数
+
+        int m_RealColumns = 0;
         /// <summary>
         /// 显示列数 排版方式 </br>
         /// Columns == 0 显示一行 </br>
         /// Columns == 1 显示一列 </br>
         /// Columns = n n>1  按照格子方式显示n列的数据 </br>
         /// </summary>
-        public int columns { get { return m_Columns; } set { m_Columns = value; } } //显示列数 
+        public int columns { get { return m_RealColumns; } set { m_RealColumns = value; } } //显示列数 
 
         int m_PageSize = 1;
-        [SerializeField]
+        // [SerializeField]
+
         /// <summary>
         /// 项目池的大小 </br>
         /// 自动计算
@@ -40,10 +43,12 @@ namespace Hugula.UIComponents
 
         [SerializeField]
         Vector2 m_ItemSize = Vector2.zero;
+        Vector2 m_RuntimeItemSize = Vector2.zero;
+
         /// <summary>
         /// ItemClone的默认size 当不为0的时候强制使用当前size
         /// </summary>
-        public Vector2 itemSize { get { return m_ItemSize; } set { m_ItemSize = value; } } //默认size
+        public Vector2 itemSize { get { return m_RuntimeItemSize; } set { m_RuntimeItemSize = value; } } //默认size
 
         [SerializeField]
         float m_Padding = 0;
@@ -246,12 +251,12 @@ namespace Hugula.UIComponents
         protected override void Awake()
         {
             base.Awake();
-            m_ContentLocalStart = content.anchoredPosition;
+            m_HalfPadding = float.NaN;
+            //m_ContentLocalStart = content.anchoredPosition;
             m_LastSelectedIndex = m_SelectedIndex;
             m_HeadDataIndex = 0;
             m_FootDataIndex = 0;
             CalcPageSize();
-            InitPages();
             // if (m_RenderPerFrames == 0) m_RenderPerFrames = pageSize;
         }
 
@@ -295,6 +300,7 @@ namespace Hugula.UIComponents
                 }
                 loopItem.item = null;
             }
+            m_Pages.Clear();
             base.OnDestroy();
         }
 
@@ -691,33 +697,49 @@ namespace Hugula.UIComponents
 
         #region 模板项目
 
-        protected List<LoopItem> m_Pages = new List<LoopItem>();
+        List<LoopItem> m_Pages = new List<LoopItem>();
         protected int m_HeadDataIndex;
         protected int m_FootDataIndex;
 
         protected void CalcPageSize()
         {
-            var vSize = rectTransform.rect; //
             if (m_ItemSource != null)
             {
                 var rect = m_ItemSource.GetComponent<RectTransform>().rect;
-                if (m_ItemSize.x == 0) SetItemSize(Mathf.Abs(rect.width), 0);
-                if (m_ItemSize.y == 0) SetItemSize(Mathf.Abs(rect.height), 1);
+                if (m_ItemSize.x == 0)
+                    SetItemSize(Mathf.Abs(rect.width), 0);
+                else
+                    SetItemSize(m_ItemSize.x, 0);
+
+                if (m_ItemSize.y == 0)
+                    SetItemSize(Mathf.Abs(rect.height), 1);
+                else
+                    SetItemSize(m_ItemSize.y, 1);
             }
 
-            if (!horizontal && columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
+            InitColumns();
+            InitPages();
+        }
+
+        void InitColumns()
+        {
+            var vSize = rectTransform.rect; //
+            m_RealColumns = m_Columns;
+            if (!horizontal && m_Columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
             {
-                columns = Mathf.FloorToInt(Mathf.Abs(vSize.width) / (m_ItemSize.x + this.halfPadding));
+                columns = Mathf.FloorToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding));
             }
 
             if (columns == 0)
             {
-                m_PageSize = Mathf.CeilToInt(Mathf.Abs(vSize.width) / (m_ItemSize.x + this.halfPadding)) + 1;
+                m_PageSize = Mathf.CeilToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding)) + 1;
             }
             else
             {
-                m_PageSize = columns * (Mathf.CeilToInt(Mathf.Abs(vSize.height) / (m_ItemSize.y + this.halfPadding)) + 1);
+                m_PageSize = columns * (Mathf.CeilToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.halfPadding)) + 1);
             }
+
+            // Debug.LogFormat("vSize：{0},m_PageSize：{1} ", vSize, m_PageSize);
         }
 
         void InitPages()
@@ -776,7 +798,7 @@ namespace Hugula.UIComponents
             var oldRect = loopItem.rect;
             var oldIdx = loopItem.index;
             loopItem.index = idx;
-            // Debug.LogFormat ("RenderItem({1},{0})", loopItem.item, idx);
+
             if (loopItem.item == null && onGetItem == null)
             {
                 var trans = itemSource.GetComponent<RectTransform>();
@@ -829,13 +851,14 @@ namespace Hugula.UIComponents
                     m_SelecteStyle.CancelStyle();
             }
 
-            onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+            if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             LayOut(loopItem);
 
             if (dispatchOnSelectedEvent)
             {
                 OnSelect(m_SelecteStyle);
             }
+
         }
 
         protected void UpdateViewPointBounds()
@@ -881,10 +904,10 @@ namespace Hugula.UIComponents
 
         protected void SetItemSize(float size, int axis)
         {
-#if UNITY_EDITOR
-            if (Application.isPlaying)
-#endif
-                m_ItemSize[axis] = size;
+            // #if UNITY_EDITOR
+            //             if (Application.isPlaying)
+            // #endif
+            m_RuntimeItemSize[axis] = size;
         }
         #endregion
 
@@ -898,6 +921,7 @@ namespace Hugula.UIComponents
                 item.index = -1;
             }
         }
+
         #endregion
 
         #region  static

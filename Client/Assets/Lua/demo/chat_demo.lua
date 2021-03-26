@@ -120,7 +120,7 @@ chat_data.on_system_click =  {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("dropped_cmd", table.tojson(self), "arg=",arg,".")
+        Logger.Log("on_system_click", table.tojson(self), "arg=",arg,".")
         -- if arg.y > 0 then
             add_chat_data(1, 1)
         -- end

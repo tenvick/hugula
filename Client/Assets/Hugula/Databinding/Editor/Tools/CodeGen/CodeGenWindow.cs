@@ -6,7 +6,7 @@ using UnityEditor;
 using System.Reflection;
 using Hugula.Databinding;
 
-namespace HugulaEditor.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     public class CodeGenWindow : EditorWindow
     {
@@ -56,6 +56,11 @@ namespace HugulaEditor.Databinding.Editor
 
         #region viewmodel tree
 
+        /// <summary>
+        /// 根据属性type类型生成对应模板代码
+        /// </summary>
+        /// <param name="propNode"></param>
+        /// <returns></returns>
         static string TemplateByPropertyType(PropertyNode propNode)
         {
             System.Type propertyType = propNode.propertyType;
@@ -88,6 +93,10 @@ namespace HugulaEditor.Databinding.Editor
 }
 ";
             }
+            else if (typeof(INotifyTable) == propertyType)
+            {
+                return @"NotifyTable()";
+            }
             else if (typeof(string) == propertyType)
             {
                 return @"""""";
@@ -99,6 +108,22 @@ namespace HugulaEditor.Databinding.Editor
             else if (typeof(bool) == propertyType)
             {
                 return "false";
+            }
+            else if (typeof(UnityEngine.Events.UnityAction<int>) == propertyType ||
+           typeof(System.Action<int>) == propertyType)
+            {
+                return @"function(i)
+            --
+end
+";
+            }
+            else if (typeof(UnityEngine.Events.UnityAction<string>) == propertyType ||
+          typeof(System.Action<string>) == propertyType)
+            {
+                return @"function(str)
+            --
+end
+";
             }
 
             return propertyType.ToString();
@@ -123,7 +148,11 @@ namespace HugulaEditor.Databinding.Editor
         }
         static bool IsProperty(System.Type propertyType)
         {
-            if (propertyType.IsInterface || propertyType.IsGenericType)
+            if (typeof(INotifyTable) == propertyType ||
+            typeof(IList) == propertyType
+            )
+                return true;
+            else if (propertyType.IsInterface || propertyType.IsGenericType)
                 return false;
             else
             {
@@ -211,6 +240,8 @@ namespace HugulaEditor.Databinding.Editor
             {
                 if (children.IndexOf(child) < 0)
                 {
+                    child.m_TabStr = null;
+                    child.parent = this;
                     children.Add(child);
                 }
             }
@@ -270,6 +301,30 @@ namespace HugulaEditor.Databinding.Editor
                 }
             }
 
+            internal int m_Depth = -1;
+            public int depth
+            {
+                get
+                {
+
+                    // if (m_Depth == -1)
+                    {
+
+                        int i = 0;
+                        var curr = this;
+                        while (curr != null && curr.parent != null)
+                        {
+                            i++;
+                            curr = curr.parent;
+                        }
+                        m_Depth = i;
+                    }
+
+                    return m_Depth;
+                }
+
+            }
+
             public static Dictionary<string, StringBuilder> templateDic = new Dictionary<string, StringBuilder>();
             StringBuilder GetSBTemplate(bool isProperty)
             {
@@ -300,6 +355,23 @@ namespace HugulaEditor.Databinding.Editor
                 return sb;
             }
 
+            internal string m_TabStr = null;
+            string GetTabByDepth()
+            {
+                if (m_TabStr == null)
+                {
+                    int d = depth;
+                    m_TabStr = string.Empty;
+                    while (d > 0)
+                    {
+                        m_TabStr += "    ";
+                        d--;
+                    }
+                }
+
+                return m_TabStr;
+            }
+
             void AppendLine(string line, System.Type propertyType)
             {
                 var sb = GetSBTemplate(IsProperty(propertyType));
@@ -318,7 +390,7 @@ namespace HugulaEditor.Databinding.Editor
 
                 if (prop.isListProperty)
                 {
-                    AppendLine(string.Format("-- {0}.{1}", name + "_item", prop.ToTemplateString(name)), prop.propertyType);
+                    AppendLine(string.Format(GetTabByDepth() + "-- {0}.{1}", name + "_item", prop.ToTemplateString(name)), prop.propertyType);
                 }
                 else if (prop.isListProperty && prop.isMethod)
                 {
@@ -330,7 +402,7 @@ namespace HugulaEditor.Databinding.Editor
                 }
                 else
                 {
-                    AppendLine(string.Format("{0}.{1}", name, prop.ToTemplateString(name)), prop.propertyType);
+                    AppendLine(string.Format(GetTabByDepth() + "{0}.{1}", name, prop.ToTemplateString(name)), prop.propertyType);
                 }
             }
 
@@ -345,26 +417,32 @@ namespace HugulaEditor.Databinding.Editor
             private System.Text.StringBuilder sb = new System.Text.StringBuilder();
             public void GenTemplateString()
             {
+                AppendLine(GetTabByDepth() + string.Format("----  {0}  ----", name), typeof(object));
 
                 foreach (var child in children)
                 {
-                    AppendLine(string.Format("local {0}={1}", child.name, NewContextByType(child.contextType)), typeof(object));
-                    AppendLine(string.Format("{0}.{1}={1}", name, child.name), typeof(object));
+                    AppendLine("", typeof(object));
+                    AppendLine(string.Format(GetTabByDepth() + "local {0}={1}", child.name, NewContextByType(child.contextType)), typeof(object));
+                    AppendLine(string.Format(GetTabByDepth() + "{0}.{1}={1}", name, child.name), typeof(object));
                     if (child.contextType == ContextType.NotifyTable) // notify table add remove update
                     {
-                        AppendLineMethod(GenNotifyTableAddUpRemove(name, child.name));
+                        AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, child.name));
                     }
+                    child.GenTemplateString();
                 }
 
+                // AppendLine(string.Format("\r\n---- {0} property   --", name), typeof(object));
+                if (children.Count > 0)
+                    AppendLine("\r\n", typeof(object));
                 foreach (var prop in peroperties)
                 {
                     AppendLineProperty(prop);
+                    if (prop.propertyType == typeof(INotifyTable)) //notify
+                    {
+                        AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, prop.propertyName));
+                    }
                 }
-
-                foreach (var child in children)
-                {
-                    child.GenTemplateString();
-                }
+                AppendLine(GetTabByDepth() + string.Format("----  {0} end  --", name), typeof(object));
 
             }
         }
@@ -389,6 +467,7 @@ namespace HugulaEditor.Databinding.Editor
                 }
 
                 EditorGUILayout.LabelField(string.Format("Binder: {0}", binderCount), GUILayout.Width(100), toolbarHeight);
+                EditorGUILayout.LabelField(string.Format("BindableContainer: {0}", bindableContainerCount), GUILayout.Width(150), toolbarHeight);
 
                 if (!string.IsNullOrEmpty(templateOut) && GUILayout.Button("Save File", EditorStyles.toolbarButton, GUILayout.Width(200), toolbarHeight))
                 {
@@ -416,13 +495,14 @@ namespace HugulaEditor.Databinding.Editor
             ReadTemplate();
             templateOut = string.Empty;
             var container = selectedTransform.GetComponent<Hugula.Databinding.BindableObject>();
+            var name = GetSafeName(container.name);
             ContextNode.templateDic.Clear();
-            ContextNode.templateDic["name"] = new StringBuilder().Append(container.name);
+            ContextNode.templateDic["name"] = new StringBuilder().Append(name);
             ContextNode.templateDic["property"] = new StringBuilder();
             ContextNode.templateDic["command"] = new StringBuilder();
 
 
-            var root = new ContextNode() { name = container.name, contextType = ContextType.ViewModel };
+            var root = new ContextNode() { name = name, contextType = ContextType.ViewModel };
             Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext = new Dictionary<BindableObject, ContextNode>();
             BuildContextTree(container, root, sourceContext);
             Debug.Log(root.name);
@@ -487,6 +567,17 @@ namespace HugulaEditor.Databinding.Editor
         private void AddPropertyToContext(object target, Binding binder, bool isSelf, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
         {
             var tp = target.GetType();
+
+            if (tp == typeof(Hugula.Databinding.Binder.CustomBinder))
+            {
+                var prop_target = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                if (prop_target != null)
+                {
+                    var real_target = prop_target.GetValue(target);
+                    if (real_target != null)
+                        tp = real_target.GetType();
+                }
+            }
             var prop = tp.GetProperty(binder.propertyName);
             bool isListProp = false;
             if (!isSelf && context.contextType == ContextType.NotifyTable) isListProp = true;
@@ -511,12 +602,17 @@ namespace HugulaEditor.Databinding.Editor
         {
             // Debug.LogFormat("BuildContextTree({0}) ", root);
             binderCount += root.GetBindings().Count;
+            if (root is BindableContainer) bindableContainerCount += 1;
+
             ContextNode currContext = context;
             var contextBinding = root.GetBindingByName("context");
             if (contextBinding != null)
             {
                 var ctype = ContextType.NotifyObject;
-                if (root is BindableContainer) ctype = ContextType.NotifyObject;
+                if (root is BindableContainer)
+                {
+                    ctype = ContextType.NotifyObject;
+                }
                 else if (root is ICollectionBinder)
                 {
                     ctype = ContextType.NotifyTable;
@@ -548,7 +644,7 @@ namespace HugulaEditor.Databinding.Editor
                 var children = container.GetChildren();
                 foreach (var item in children)
                 {
-                    // NodeGUI node = null;
+
                     if (item is ICollectionBinder) //如果是容器
                     {
                         BuildContextTree(item, currContext, sourceContext);
@@ -572,5 +668,13 @@ namespace HugulaEditor.Databinding.Editor
 
         }
 
+        private string GetSafeName(string name)
+        {
+            int i = name.IndexOf("@");
+            int j = name.IndexOf("(");
+            if (i < j) i = j;
+            if (i < 0) i = name.Length;
+            return name.Substring(0, i);
+        }
     }
 }

@@ -23,6 +23,7 @@ local CS = CS
 local GameObject = CS.UnityEngine.GameObject
 local Hugula = CS.Hugula
 local ResLoader = Hugula.ResLoader
+local ProfilerFactory = Hugula.Profiler.ProfilerFactory
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
 
@@ -63,7 +64,7 @@ local function check_vm_base_all_done(vm_base)
     end
 
     -- Logger.Log(" check_vm_base_all_done", vm_base)
-
+    local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.check_vm_base_all_done ", vm_base.name)
     vm_base._isloading = false
     vm_base.is_res_ready = true
     vm_base.is_active = true
@@ -90,13 +91,9 @@ local function check_vm_base_all_done(vm_base)
         end
     end
 
-    ---@type VMState
-    -- local _vm_state = vm_manager._vm_state
-    -- if _vm_state:_check_top_group_is_active() then --当所有模块都激活后才触发on_state_changed事件。
-    --     local last_group_name = _vm_state.last_group_name
-    --     _vm_state:call_last_top_func(DISTYPE_STATE_CHANGED, last_group_name)
-    --     _vm_state:call_top_func(DISTYPE_STATE_CHANGED, last_group_name)
-    -- end
+    if profiler then
+        profiler:Stop()
+    end
     return true
 end
 
@@ -138,7 +135,7 @@ local function on_res_comp(data, view_base)
     end
 
     init_view(view_base)
-    -- Logger.Log(string.format("init_view_wm:%s\r\n",inst.name), profiler.report())
+    -- Logger.Log(string.format("init_view_wm:%s\r\n", data.name), profiler.report())
     -- profiler.stop()
 end
 
@@ -207,7 +204,10 @@ end
 local function active_view(self, vm_name)
     ---@type VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
+    -- Logger.Log("active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
     if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过
+        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.active_view ", vm_name)
+
         local views = curr_vm.views
         local _auto_context = curr_vm.auto_context
         if views then
@@ -227,6 +227,10 @@ local function active_view(self, vm_name)
         end
         _binding_rpc(curr_vm)
         curr_vm:on_active()
+
+        if profiler then
+            profiler:Stop()
+        end
     end
 end
 
@@ -419,9 +423,15 @@ local function re_load(self, vm_name)
     VMGenerate:reload_vm(vm_name, true) --热重载模块
     curr_vm = VMGenerate[vm_name] --新的模块
     curr_vm:on_push_arg(arg)
+    curr_vm._push_arg = arg
     curr_vm._is_push = true --是否是push到栈上的
 
-    if views and is_res_ready then --如果资源已经加载需要重新刷新
+    if views == nil or #views == 0 then
+        is_res_ready = true
+        curr_vm.is_res_ready = true
+    end
+
+    if views and #views > 0 and is_res_ready then --如果资源已经加载需要重新刷新
         local res_name, scene_name
         local new_views = curr_vm.views
         for k, v in ipairs(new_views) do
@@ -435,6 +445,9 @@ local function re_load(self, vm_name)
             v._vm_base = nil
             v._initialized = false
         end
+    elseif is_res_ready then
+        -- Logger.Log(" re_load no view", vm_name)
+        active_view(self, vm_name)
     end
 end
 

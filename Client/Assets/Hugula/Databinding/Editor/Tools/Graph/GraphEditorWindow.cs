@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding;
 
-namespace HugulaEditor.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     public class GraphEditorWindow : EditorWindow
     {
@@ -57,8 +57,8 @@ namespace HugulaEditor.Databinding.Editor
 
         public enum NodeTypeFilter
         {
-            BindableContainer,
-            Binder,
+            NodeName,
+            BindingInfo,
             All,
         }
 
@@ -125,7 +125,11 @@ namespace HugulaEditor.Databinding.Editor
                 {
                     CheckError();
                 }
-                EditorGUILayout.LabelField("Find what", GUILayout.Width(70), toolbarHeight);
+                if (GUILayout.Button("Refresh BindableContainer", EditorStyles.toolbarButton, GUILayout.Width(170), toolbarHeight))
+                {
+                    RefreshBindableContainerChildren();
+                }
+                EditorGUILayout.LabelField("Find", GUILayout.Width(40), toolbarHeight);
 
                 EditorGUI.BeginChangeCheck();
                 {
@@ -147,7 +151,7 @@ namespace HugulaEditor.Databinding.Editor
                     Find();
                 }
 
-                enableExtraInfo = GUILayout.Toggle(enableExtraInfo, "Enable Extra Info", EditorStyles.toolbarButton, GUILayout.Width(150), toolbarHeight);
+                enableExtraInfo = GUILayout.Toggle(enableExtraInfo, "Enable Binding Info", EditorStyles.toolbarButton, GUILayout.Width(150), toolbarHeight);
                 GraphEditorSettings.enableDrag = GUILayout.Toggle(GraphEditorSettings.enableDrag, "Enable Drag", EditorStyles.toolbarButton, GUILayout.Width(120), toolbarHeight);
 
                 GUILayout.FlexibleSpace();
@@ -324,7 +328,107 @@ namespace HugulaEditor.Databinding.Editor
 
             var container = selectedTransform.GetComponent<Hugula.Databinding.BindableObject>();
             //todo
+            //check binddings
+            var bindings = container.GetBindings();
+            foreach (var binding in bindings)
+            {
+                // binding.target
+            }
 
+            //check child
+            var bcontainer = container as BindableContainer;
+            if (bcontainer != null)
+            {
+                CheckChildren(bcontainer);
+            }
+
+
+
+        }
+
+        public void CheckChildren(BindableContainer container)
+        {
+
+            var children = container.children;
+            if (children == null)
+            {
+                return;
+            }
+            bool isSelf = false;
+            BindableObject child;
+            for (int i = 0; i < children.Count;)
+            {
+                child = children[i];
+                isSelf = System.Object.Equals(child, container);
+                if (child == null || isSelf)
+                {
+                    children.RemoveAt(i);
+                    Debug.LogWarningFormat("Check {0} index {1} is null({2})", container, i, child);
+                }
+                // else if(child!= null && child.ta)
+                else
+                {
+                    i++;
+                    //check target
+                    var tp = child.GetType();
+                    var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                    if (prop != null)
+                    {
+                        var target = prop.GetValue(child);
+                        if (target == null)
+                        {
+                            tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
+                            Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
+                        }
+                        // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
+                    }
+                }
+
+            }
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                child = children[i];
+                if (child is BindableContainer)
+                {
+                    CheckChildren((BindableContainer)child);
+                }
+
+            }
+
+
+            // if (needDeep)
+            // {
+            //     for (int i = 0; i < transform.childCount; i++)
+            //     {
+            //         AddHierarchyChildren(transform.GetChild(i), container);
+            //     }
+            // }
+
+        }
+
+        public void RefreshBindableContainerChildren()
+        {
+            var selectedTransform = Selection.activeTransform;
+
+            if (selectedTransform == null)
+            {
+                Debug.LogError("No transform is selected");
+                return;
+            }
+
+            var transformPath = GetGameObjectPath(selectedTransform);
+            var bc = selectedTransform.gameObject.GetComponent<BindableContainer>();
+            if (bc != null)
+            {
+                Debug.LogFormat("Refresh BindableContainer  Children for {0}", transformPath);
+                BindableContainerEditor.AddHierarchyChildren(selectedTransform, bc, true);
+            }
+            else
+            {
+                Debug.LogFormat("No BindableContainer  found for {0}", transformPath);
+
+            }
         }
 
         public void CreateGraph()
@@ -365,14 +469,14 @@ namespace HugulaEditor.Databinding.Editor
 
             foreach (var item in nodeList)
             {
-                if (searchType != NodeTypeFilter.All)
-                {
-                    // filter node type
-                    if ((int)item.NodeType != (int)searchType)
-                    {
-                        continue;
-                    }
-                }
+                // if (searchType != NodeTypeFilter.All)
+                // {
+                //     // filter node type
+                //     if ((int)item.NodeType != (int)searchType)
+                //     {
+                //         continue;
+                //     }
+                // }
 
                 if (item.ExtraInfo == null)
                 {
@@ -429,18 +533,17 @@ namespace HugulaEditor.Databinding.Editor
             SelectNode(currentNode);
         }
 
-        private void BuildTree(Hugula.Databinding.BindableObject root, TreeNode treeNode)
+        private void BuildTree(Hugula.Databinding.BindableObject root, TreeNode treeNode, int index = 0)
         {
             var depth = treeNode.Depth() + 1;
             binderCount += root.GetBindings().Count;
             // 构建自身节点
             var rootNode = CreateNode(NodeType.Style1);
-            rootNode.name = string.Format("{0}({1})", root.name, root.GetType().Name);
+            rootNode.name = string.Format("{0} {1}({2})", index, root.name, root.GetType().Name);
             rootNode.target = root;
             if (enableExtraInfo)
             {
-                var sourceList = GetBindingSourceList(root);
-                rootNode.ExtraInfo = CollectSourceInfo(sourceList);
+                rootNode.ExtraInfo = CollectSourceInfo(root.GetBindingSourceList());
             }
             rootNode.depth = depth - 1;
             treeNode.AddNode(rootNode);
@@ -461,6 +564,7 @@ namespace HugulaEditor.Databinding.Editor
             {
                 var container = root as Hugula.Databinding.ICollectionBinder;
                 var children = container.GetChildren();
+                int idx = 0;
                 foreach (var item in children)
                 {
                     NodeGUI node = null;
@@ -468,7 +572,7 @@ namespace HugulaEditor.Databinding.Editor
                     {
                         var childTreeNode = new TreeNode();
                         treeNode.AddChild(childTreeNode);
-                        BuildTree(item, childTreeNode);
+                        BuildTree(item, childTreeNode, idx);
                     }
                     else if (item != null)
                     {
@@ -476,8 +580,7 @@ namespace HugulaEditor.Databinding.Editor
                         node = CreateNode(NodeType.Style2);
                         if (enableExtraInfo)
                         {
-                            var sourceList = GetBindingSourceList(item);
-                            node.ExtraInfo = CollectSourceInfo(sourceList);
+                            node.ExtraInfo = CollectSourceInfo(item.GetBindingSourceList());
                         }
 
                         var connection = CreateConnection();
@@ -485,13 +588,13 @@ namespace HugulaEditor.Databinding.Editor
                         connection.endNode = node;
                         AddConnection(connection, true);
 
-                        node.name = string.Format("{0}({1})", item.name, item.GetType().Name);
+                        node.name = string.Format("{0} {1}({2})", idx, item.name, item.GetType().Name);
                         node.target = item;
                         node.depth = depth;
 
                         treeNode.AddNode(node);
                     }
-
+                    idx++;
 
                 }
 
@@ -608,45 +711,45 @@ namespace HugulaEditor.Databinding.Editor
 
         static System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-        private string BindingToString(Hugula.Databinding.Binding binding)
-        {
-            sb.Clear();
-            var property = binding.propertyName;
-            var path = binding.path;
-            var format = binding.format;
-            BindingMode mode = binding.mode;
-            var converter = binding.converter;
-            var source = binding.source;
-            if (!string.IsNullOrEmpty(path))
-                sb.AppendFormat(".{0}=({1}) ", property, path);
-            if (!string.IsNullOrEmpty(format))
-                sb.AppendFormat("format({0}) ", format);
-            if (mode != BindingMode.OneWay)
-                sb.AppendFormat("mode({0}) ", mode);
-            if (!string.IsNullOrEmpty(converter))
-                sb.AppendFormat("converter({0}) ", converter);
-            if (source)
-            {
-                //sb.AppendLine();
-                sb.AppendFormat("source={0}", source.name);
-            }
+        // private string BindingToString(Hugula.Databinding.Binding binding)
+        // {
+        //     sb.Clear();
+        //     var property = binding.propertyName;
+        //     var path = binding.path;
+        //     var format = binding.format;
+        //     BindingMode mode = binding.mode;
+        //     var converter = binding.converter;
+        //     var source = binding.source;
+        //     if (!string.IsNullOrEmpty(path))
+        //         sb.AppendFormat(".{0}=({1}) ", property, path);
+        //     if (!string.IsNullOrEmpty(format))
+        //         sb.AppendFormat("format({0}) ", format);
+        //     if (mode != BindingMode.OneWay)
+        //         sb.AppendFormat("mode({0}) ", mode);
+        //     if (!string.IsNullOrEmpty(converter))
+        //         sb.AppendFormat("converter({0}) ", converter);
+        //     if (source)
+        //     {
+        //         //sb.AppendLine();
+        //         sb.AppendFormat("source={0}", source.name);
+        //     }
 
-            return sb.ToString();
-        }
+        //     return sb.ToString();
+        // }
 
-        private List<string> GetBindingSourceList(Hugula.Databinding.BindableObject bindableObject)
-        {
-            var list = new List<string>();
-            var bindings = bindableObject.GetBindings();
+        // private List<string> GetBindingSourceList(Hugula.Databinding.BindableObject bindableObject)
+        // {
+        //     var list = new List<string>();
+        //     var bindings = bindableObject.GetBindings();
 
 
-            foreach (var binding in bindings)
-            {
-                list.Add(BindingToString(binding));
-            }
+        //     foreach (var binding in bindings)
+        //     {
+        //         list.Add(BindingToString(binding));
+        //     }
 
-            return list;
-        }
+        //     return list;
+        // }
 
         private string CollectSourceInfo(List<string> sourceList)
         {

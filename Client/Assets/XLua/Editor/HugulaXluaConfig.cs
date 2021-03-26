@@ -99,7 +99,9 @@ namespace XLua.Editor
             "WWWAudioExtensions",
             "UnityEngine.Experimental",
             "UnityEngine.CanvasRenderer.OnRequestRebuild",
-            "Hugula.Loader.AssetOperationSimulation"
+            "Hugula.Loader.AssetOperationSimulation",
+            "UnityEngine.InputRegistering",
+            "UnityEngine.InputManagerEntry",
         };
 
         static bool isExcluded(Type type)
@@ -126,6 +128,7 @@ namespace XLua.Editor
             new List<string> () { "Hugula.Databinding.BindableObject", "AddBinding","Hugula.Databinding.Binding" },
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindings" },
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindingByName","System.String" },
+            new List<string> () { "Hugula.Databinding.BindableObject", "RemoveBindingAt","System.Int32" },
 
             new List<string> () { "UnityEngine.AnimatorControllerParameter", "name" },
             new List<string> () { "UnityEngine.AudioSettings", "GetSpatializerPluginNames" },

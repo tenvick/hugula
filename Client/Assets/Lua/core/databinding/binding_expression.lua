@@ -61,13 +61,14 @@ local function update_target(target, property, source, part, format, converter)
 
     -- Logger.Log(
     --     string.format(
-    --         "set_target_value target=%s,property=%s,current=%s,path=%s,converter=%s,val=%s",
+    --         "set_target_value target=%s,property=%s,current=%s,path=%s,converter=%s,val=%s,ConvertVal=%s",
     --         target,
     --         property,
     --         current,
     --         path,
     --         converter,
-    --         val
+    --         val,
+    --         converter and converter:Convert(val, val_type) or ""
     --     )
     -- )
 
@@ -79,7 +80,19 @@ local function update_target(target, property, source, part, format, converter)
     if converter ~= nil then
         val = converter:Convert(val, val_type)
     end
-    -- Logger.Log("val=",val)
+
+    if target == nil then
+        Logger.LogErrorFormat(
+            "binding error ,target is nil ,info(property=%s,source=%s,%s.%s=%s ) ",
+            property,
+            source,
+            current,
+            path,
+            val
+        )
+        return
+    end
+    -- Logger.Log("val=", val)
     if property == context_property and val ~= nil then ---如果是设置的context
         set_target_context(target, val)
     else

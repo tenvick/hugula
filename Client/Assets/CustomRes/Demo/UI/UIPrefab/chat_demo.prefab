@@ -62,6 +62,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -160,6 +161,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0.5}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -238,6 +240,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -307,7 +310,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -95.86487}
+  m_AnchoredPosition: {x: 200, y: -93.77779}
   m_SizeDelta: {x: 372, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8221429780082308905
@@ -333,6 +336,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -401,20 +405,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1938a333f6cda9409963f3d19f2edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 8455078644677520966}
   bindings:
   - propertyName: onClickCommand
-    path: on_system_click
+    path: context.on_system_click
     format: 
     converter: 
     mode: 0
-    source: {fileID: 0}
+    source: {fileID: 8676800360938283181}
   - propertyName: commandParameter
     path: .
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 8455078644677520966}
 --- !u!1 &3707053566729257651
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,6 +481,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -585,8 +590,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 5894523373853275121}
   - {fileID: 283831098912398720}
@@ -659,7 +664,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 188.80309, y: 16.216215}
+  m_SizeDelta: {x: 188.8889, y: 15.555556}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3707053566760711577
 CanvasRenderer:
@@ -684,6 +689,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -742,7 +748,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053566760711578}
   bindings:
   - propertyName: text
     path: chat_content
@@ -750,6 +755,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053566760711578}
 --- !u!1 &3707053566812980145
 GameObject:
   m_ObjectHideFlags: 0
@@ -786,8 +792,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 386, y: -46.43243}
-  m_SizeDelta: {x: 27.799227, y: 16.216215}
+  m_AnchoredPosition: {x: 386, y: -45.111115}
+  m_SizeDelta: {x: 27.222223, y: 15.555556}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &3707053566812980141
 CanvasRenderer:
@@ -812,6 +818,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -855,7 +862,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053566812980142}
   bindings:
   - propertyName: text
     path: chat_time
@@ -863,6 +869,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053566812980142}
 --- !u!1 &3707053566814859153
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,6 +930,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.051886797, g: 0.10409593, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -975,7 +983,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -100, y: -30}
-  m_SizeDelta: {x: 400, y: 60.432434}
+  m_SizeDelta: {x: 400, y: 59.111115}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &3707053566867111058
 CanvasRenderer:
@@ -1000,6 +1008,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 0.21176471}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1167,8 +1176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 8676800360938283181}
   - {fileID: 8189441946464837578}
@@ -1209,8 +1218,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 386, y: -86.86487}
-  m_SizeDelta: {x: 27.799227, y: 16.216215}
+  m_AnchoredPosition: {x: 386, y: -84.77779}
+  m_SizeDelta: {x: 27.222223, y: 15.555556}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &3707053567174967271
 CanvasRenderer:
@@ -1235,6 +1244,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1278,7 +1288,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053567174967272}
   bindings:
   - propertyName: text
     path: chat_time
@@ -1286,6 +1295,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053567174967272}
 --- !u!1 &3707053567202934491
 GameObject:
   m_ObjectHideFlags: 0
@@ -1346,6 +1356,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1448,8 +1459,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 7884552382114815365}
   - {fileID: 1303566577158346022}
@@ -1536,6 +1547,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1659,6 +1671,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 0.5019608}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1725,6 +1738,7 @@ MonoBehaviour:
   m_CeilBar: {fileID: 1411610088492406762}
   m_FloorBar: {fileID: 6026068689224444703}
   m_DragOffsetShow: 100
+  m_AutoScrollToBottom: 1
 --- !u!114 &8676800360938283181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1737,7 +1751,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d2308716b6092a44929a01fafa9938c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053567328350667}
   bindings:
   - propertyName: context
     path: chat_data
@@ -1757,6 +1770,8 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053567328350667}
+  m_forceBinding: 1
 --- !u!1 &3707053567411415129
 GameObject:
   m_ObjectHideFlags: 0
@@ -1811,8 +1826,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 195251379198038686}
   - {fileID: 652055015737386986}
@@ -1854,6 +1869,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 0.16470589}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1928,7 +1944,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 108.86487}
+  m_SizeDelta: {x: 400, y: 106.77779}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3707053567579440509
 CanvasRenderer:
@@ -1953,6 +1969,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 0.4627451}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2044,7 +2061,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 100, y: -30}
-  m_SizeDelta: {x: 400, y: 73.64864}
+  m_SizeDelta: {x: 400, y: 72.22222}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3707053567608154857
 CanvasRenderer:
@@ -2069,6 +2086,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 0.27058825}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2181,6 +2199,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2230,8 +2249,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6, y: -11.108108}
-  m_SizeDelta: {x: 112.35521, y: 16.216215}
+  m_AnchoredPosition: {x: 6, y: -10.777779}
+  m_SizeDelta: {x: 120.55556, y: 15.555556}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053567656480724
 CanvasRenderer:
@@ -2256,6 +2275,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2299,7 +2319,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053567656480725}
   bindings:
   - propertyName: text
     path: user_name
@@ -2307,6 +2326,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053567656480725}
 --- !u!1 &3707053567759236497
 GameObject:
   m_ObjectHideFlags: 0
@@ -2380,8 +2400,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 14, y: -30.216215}
-  m_SizeDelta: {x: 372, y: 32.43243}
+  m_AnchoredPosition: {x: 14, y: -29.833334}
+  m_SizeDelta: {x: 372, y: 31.666668}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053567880239194
 CanvasRenderer:
@@ -2406,6 +2426,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2481,7 +2502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053567880239195}
   bindings:
   - propertyName: text
     path: chat_content
@@ -2489,6 +2509,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053567880239195}
 --- !u!1 &3707053567906619205
 GameObject:
   m_ObjectHideFlags: 0
@@ -2549,6 +2570,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2622,6 +2644,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2677,7 +2700,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -104.26, y: 35}
-  m_SizeDelta: {x: 124.35521, y: 25}
+  m_SizeDelta: {x: 132.55556, y: 25}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &3707053568118876452
 CanvasRenderer:
@@ -2702,6 +2725,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2790,8 +2814,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 386, y: -63.648643}
-  m_SizeDelta: {x: 27.799227, y: 16.216215}
+  m_AnchoredPosition: {x: 386, y: -62.222225}
+  m_SizeDelta: {x: 27.222223, y: 15.555556}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &3707053568174558690
 CanvasRenderer:
@@ -2816,6 +2840,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2859,7 +2884,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053568174558691}
   bindings:
   - propertyName: text
     path: chat_time
@@ -2867,6 +2891,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053568174558691}
 --- !u!1 &3707053568176500214
 GameObject:
   m_ObjectHideFlags: 0
@@ -2902,8 +2927,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 14, y: -30.216215}
-  m_SizeDelta: {x: 46.332047, y: 16.216215}
+  m_AnchoredPosition: {x: 14, y: -29.555557}
+  m_SizeDelta: {x: 47.222225, y: 15.555556}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &3707053568176500210
 CanvasRenderer:
@@ -2928,6 +2953,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2997,8 +3023,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 14, y: -22.108109}
-  m_SizeDelta: {x: 372, y: 16.216215}
+  m_AnchoredPosition: {x: 14, y: -21.777779}
+  m_SizeDelta: {x: 372, y: 15.555556}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053568183615084
 CanvasRenderer:
@@ -3023,6 +3049,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3097,7 +3124,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053568183615085}
   bindings:
   - propertyName: text
     path: chat_content
@@ -3105,6 +3131,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053568183615085}
 --- !u!1 &3707053568196748509
 GameObject:
   m_ObjectHideFlags: 0
@@ -3141,8 +3168,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6, y: -11.108108}
-  m_SizeDelta: {x: 112.35521, y: 16.216215}
+  m_AnchoredPosition: {x: 6, y: -10.777779}
+  m_SizeDelta: {x: 120.55556, y: 15.555556}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053568196748506
 CanvasRenderer:
@@ -3167,6 +3194,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3210,7 +3238,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053568196748507}
   bindings:
   - propertyName: text
     path: user_name
@@ -3218,6 +3245,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053568196748507}
 --- !u!1 &3707053568221391249
 GameObject:
   m_ObjectHideFlags: 0
@@ -3294,8 +3322,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 14, y: -50.432434}
-  m_SizeDelta: {x: 372, y: 32.43243}
+  m_AnchoredPosition: {x: 14, y: -49.388893}
+  m_SizeDelta: {x: 372, y: 31.666668}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053568506618785
 CanvasRenderer:
@@ -3320,6 +3348,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.6650944, b: 0.6650944, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3395,7 +3424,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 3707053568506618786}
   bindings:
   - propertyName: text
     path: chat_content
@@ -3403,6 +3431,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 3707053568506618786}
 --- !u!1 &3707053568620049393
 GameObject:
   m_ObjectHideFlags: 0
@@ -3479,7 +3508,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 103.9, y: 35}
-  m_SizeDelta: {x: 124.35521, y: 25}
+  m_SizeDelta: {x: 132.55556, y: 25}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3707053568763592066
 CanvasRenderer:
@@ -3504,6 +3533,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
   m_RaycastTarget: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3616,6 +3646,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3683,8 +3714,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 0}
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 4706482700152397676}
 --- !u!222 &196273038595779222
@@ -3756,6 +3787,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3911,6 +3943,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3989,6 +4022,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4081,6 +4115,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4158,6 +4193,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4239,6 +4275,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4330,7 +4367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1938a333f6cda9409963f3d19f2edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 5383638329458632227}
   bindings:
   - propertyName: onClickCommand
     path: chat_btn_send
@@ -4344,6 +4380,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 8189441946464837578}
+  m_Target: {fileID: 5383638329458632227}
 --- !u!1 &8072173425934940200
 GameObject:
   m_ObjectHideFlags: 0
@@ -4404,6 +4441,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4481,6 +4519,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4569,7 +4608,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f087a4fcb69b6478f927a24be2153d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 4471579444471323041}
   bindings:
   - propertyName: text
     path: chat_input_txt(1)
@@ -4577,3 +4615,4 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_Target: {fileID: 4471579444471323041}

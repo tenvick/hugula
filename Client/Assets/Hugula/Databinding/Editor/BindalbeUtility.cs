@@ -323,5 +323,47 @@ namespace HugulaEditor.Databinding
 
             }
         }
+
+        public static List<string> GetBindingSourceList(this Hugula.Databinding.BindableObject bindableObject)
+        {
+            var list = new List<string>();
+            var bindings = bindableObject.GetBindings();
+
+
+            foreach (var binding in bindings)
+            {
+                list.Add(binding.BindingToString());
+            }
+
+            return list;
+        }
+
+        static System.Text.StringBuilder sb = new StringBuilder();
+        public static string BindingToString(this Hugula.Databinding.Binding binding)
+        {
+            sb.Clear();
+            var property = binding.propertyName;
+            var path = binding.path;
+            var format = binding.format;
+            BindingMode mode = binding.mode;
+            var converter = binding.converter;
+            var source = binding.source;
+            if (!string.IsNullOrEmpty(path))
+                sb.AppendFormat(".{0}=({1}) ", property, path);
+            if (!string.IsNullOrEmpty(format))
+                sb.AppendFormat("format({0}) ", format);
+            if (mode != BindingMode.OneWay)
+                sb.AppendFormat("mode({0}) ", mode);
+            if (!string.IsNullOrEmpty(converter))
+                sb.AppendFormat("converter({0}) ", converter);
+            if (source)
+            {
+                //sb.AppendLine();
+                sb.AppendFormat("source={0}", source.name);
+            }
+
+            return sb.ToString();
+        }
+
     }
 }

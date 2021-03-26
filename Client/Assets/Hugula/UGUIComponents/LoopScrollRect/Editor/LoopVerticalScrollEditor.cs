@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hugula.Databinding;
+using Hugula.UIComponents;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
 using UnityEngine;
 using UnityEngine.UI;
-using Hugula.UIComponents;
 
 namespace HugulaEditor.UIComponents
 {
@@ -86,7 +86,7 @@ namespace HugulaEditor.UIComponents
         protected SerializedProperty m_VerticalScrollbarSpacing;
 
         // protected SerializedProperty m_OnValueChanged;
-
+        protected SerializedProperty m_AutoScrollToBottom;
         protected SerializedProperty m_CeilBar;
         protected SerializedProperty m_FloorBar;
         protected SerializedProperty m_DragOffsetShow;
@@ -119,6 +119,7 @@ namespace HugulaEditor.UIComponents
             m_OnDragChanged = serializedObject.FindProperty("m_OnDragChanged");
             m_OnEndDragChanged = serializedObject.FindProperty("m_OnEndDragChanged");
 
+            m_AutoScrollToBottom = serializedObject.FindProperty("m_AutoScrollToBottom");
             m_CeilBar = serializedObject.FindProperty("m_CeilBar");
             m_FloorBar = serializedObject.FindProperty("m_FloorBar");
             m_DragOffsetShow = serializedObject.FindProperty("m_DragOffsetShow");
@@ -272,6 +273,7 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_Content);
             EditorGUILayout.PropertyField(m_CeilBar);
             EditorGUILayout.PropertyField(m_FloorBar);
+            EditorGUILayout.PropertyField(m_AutoScrollToBottom);
             PropertyFieldChooseMono(m_Templates);
             GUILayout.Space(10);
             GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
@@ -336,7 +338,10 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_OnDragChanged);
             EditorGUILayout.PropertyField(m_OnEndDragChanged);
 
+            EditorGUILayout.LabelField("Layout ", GUILayout.Width(200));
+
             serializedObject.ApplyModifiedProperties();
+            SimulateLayout();
         }
 
         void PropertyFieldChooseMono(SerializedProperty prop)
@@ -384,5 +389,46 @@ namespace HugulaEditor.UIComponents
             }
 
         }
+
+        protected void SimulateLayout()
+        {
+            var temp = target as LoopVerticalScrollRect;
+
+            if (GUILayout.Button("Simulate Layout"))
+            {
+                temp.CallMethod("Awake");
+                temp.CallMethod("Start");
+                var len = temp.templates.Length;
+                temp.onGetItemTemplateType = (object obj, int idx) =>
+                  {
+                      return UnityEngine.Random.RandomRange(0, len - 1);
+                  };
+
+                temp.dataLength = 50;
+
+                temp.CallMethod("Refresh");
+                for (int i = 0; i < temp.pageSize; i++)
+                    temp.CallMethod("LateUpdate");
+
+                Debug.LogFormat("Simulate Layout {0}.dataLength= {1} ", temp, temp.dataLength);
+            }
+
+            if (GUILayout.Button("Clear Simulate"))
+            {
+                temp.dataLength = 0;
+                var content = temp.content;
+                for (int i = content.childCount - 1; i >= 0; i--)
+                {
+                    GameObject.DestroyImmediate(content.GetChild(i).gameObject);
+                }
+                Debug.Log("Clear Simulate");
+                AssetDatabase.Refresh();
+                AssetDatabase.SaveAssets();
+
+            }
+
+
+        }
+
     }
 }

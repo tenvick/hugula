@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Hugula;
+using Hugula.Atlas;
 using Hugula.Utils;
 using UnityEngine;
 using UnityEngine.UI;
-using Hugula;
-using Hugula.Atlas;
 
 namespace Hugula.Databinding.Binder
 {
@@ -41,6 +41,21 @@ namespace Hugula.Databinding.Binder
             }
         }
 
+        private float m_alpha;
+
+        public float alpha
+        {
+            get
+            {
+                return target.color.a;
+            }
+            set
+            {
+                var color = target.color;
+                color.a = value;
+                target.color = color;
+            }
+        }
         #endregion
 
         #region  protected method

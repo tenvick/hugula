@@ -4,15 +4,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Hugula.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.Profiling;
-using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.Profiling;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 
 namespace Hugula
 {
@@ -98,7 +99,6 @@ namespace Hugula
 
         #endregion
 
-
         #region  asset 加载
         /// <summary>
         /// 以同步方式加载ab资源
@@ -111,7 +111,6 @@ namespace Hugula
                 throw new Exception("Whoa there friend!  We haven't init'd yet!");
 
             var op = Addressables.LoadAssetAsync<T>(key);
-
 
             if (!op.IsDone)
                 throw new Exception("Sync LoadAsset failed to load in a sync way! " + key);
@@ -153,7 +152,12 @@ namespace Hugula
 
         static public UnityEngine.GameObject Instantiate(string key, Transform parent = null, bool instantiateInWorldSpace = false)
         {
-            var op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
+            AsyncOperationHandle<GameObject> op;
+
+            using (var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.Instantiate ", key))
+            {
+                op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
+            }
 
             if (!op.IsDone)
                 throw new Exception("Sync Instantiate failed to load in a sync way! " + key);
@@ -248,10 +252,10 @@ namespace Hugula
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
-
+            // var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync ", key);
             var task = Addressables.InstantiateAsync(key, parent, false).Task;
             await task;
-
+            // if (profiler != null) profiler.Stop();
             if (task.Result != null)
             {
                 if (onComplete != null) onComplete(task.Result, userData);

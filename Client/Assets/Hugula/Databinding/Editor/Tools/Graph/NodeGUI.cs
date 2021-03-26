@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace HugulaEditor.Databinding.Editor
+namespace HugulaEditor.Databinding
 {
     public enum NodeType
     {

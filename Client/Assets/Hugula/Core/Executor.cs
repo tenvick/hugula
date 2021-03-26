@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using UnityEngine;
 using Hugula.Framework;
+using UnityEngine;
 
 namespace Hugula
 {
@@ -13,7 +13,9 @@ namespace Hugula
 
         private static List<object> m_Tasks = new List<object>(); //lock
         private static List<object> m_CancelQueue = new List<object>(); //lock
+#if UNITY_EDITOR && !HUGULA_PROFILER_DEBUG
         private static Stopwatch watch = new Stopwatch();
+#endif
 
         #region  mono
         void LateUpdate()
@@ -32,33 +34,35 @@ namespace Hugula
                 }
                 m_CancelQueue.Clear();
             }
-
+#if UNITY_EDITOR && !HUGULA_PROFILER_DEBUG
             watch.Restart();
+#endif
             for (int i = 0; i < m_Tasks.Count; i++)
             {
                 object act = m_Tasks[i];
                 if (act is Action)
                 {
-#if HUGULA_PROFILER_DEBUG
-                    UnityEngine.Profiling.Profiler.BeginSample("action" + act.GetHashCode());
+#if HUGULA_PROFILER_DEBUG 
+                    var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("Executor.action {0}", act.GetHashCode().ToString());
                     ((Action)act)();
-                    UnityEngine.Profiling.Profiler.EndSample();
+                    if (profiler != null) profiler.Stop();
 #else
                     ((Action)act)();
 
 #endif
-                    // Debug.LogFormat ("m_Task.action = {0} ", act);
                 }
                 else if (act is IEnumerator)
                 {
                     StartCoroutine((IEnumerator)act);
                 }
             }
+
+#if UNITY_EDITOR && !HUGULA_PROFILER_DEBUG
             watch.Stop();
             long time = watch.ElapsedMilliseconds;
             if (time > 10)
                 UnityEngine.Debug.LogWarningFormat("the executor's binding cost too long.  it  take {0} milliseconds. task count = {1}.", time, m_Tasks.Count);
-
+#endif
             m_Tasks.Clear();
         }
 

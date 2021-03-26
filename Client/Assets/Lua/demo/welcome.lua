@@ -45,8 +45,9 @@ eg_data:InsertRange(
             -- click_enable = false
         },
         {id = 3, title = "聊天", name = btn_tips1, state = "chat_demo"},
-        {id = 4, title = "加载游戏场景", name = btn_tips1, state = "demo_loading", arg = "game_scene", bgcolor = Color.blue},
-        {id = 5, title = "登录(rpc 示例)", name = btn_tips1, state = "demo_login", bgcolor = Color.blue}
+        {id = 4, title = "邮件(子模块)", name = btn_tips1, state = "demo_subui"},
+        {id = 5, title = "加载游戏场景", name = btn_tips1, state = "demo_loading", arg = "game_scene", bgcolor = Color.blue},
+        {id = 6, title = "登录(rpc 示例)", name = btn_tips1, state = "demo_login", bgcolor = Color.blue}
     }
 )
 ---按钮点击事件

@@ -163,6 +163,7 @@ namespace HugulaEditor.UIComponents
             Init();
         }
 
+
         protected virtual void OnDisable()
         {
             m_ShowElasticity.valueChanged.RemoveListener(Repaint);
@@ -181,6 +182,38 @@ namespace HugulaEditor.UIComponents
                 a.value = value;
             else
                 a.target = value;
+        }
+
+        protected void SimulateLayout()
+        {
+            var temp = target as LoopScrollRect;
+
+            if (GUILayout.Button("Simulate Layout"))
+            {
+                temp.CallMethod("Awake");
+                temp.CallMethod("Start");
+
+                temp.dataLength = 50;
+                Debug.LogFormat("pagesize={0} ", temp.pageSize);
+                temp.CallMethod("Refresh");
+                temp.CallMethod("LateUpdate");
+
+                Debug.LogFormat("Simulate Layout {0}.dataLength= {1} ", temp, temp.dataLength);
+            }
+
+            if (GUILayout.Button("Clear Simulate"))
+            {
+                temp.dataLength = 0;
+                var content = temp.content;
+                for (int i = content.childCount - 1; i >= 0; i--)
+                {
+                    GameObject.DestroyImmediate(content.GetChild(i).gameObject);
+                }
+                Debug.Log("Clear Simulate");
+                AssetDatabase.Refresh();
+            }
+
+
         }
 
         protected virtual void Init()
@@ -392,6 +425,10 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_OnValueChanged);
 
             serializedObject.ApplyModifiedProperties();
+
+            EditorGUILayout.LabelField("Layout ", GUILayout.Width(200));
+            SimulateLayout();
+
         }
 
         static List<string> allowTypes = new List<string>();

@@ -133,7 +133,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-    return string_format("VMBase(name=%s).views=%s ", self.views, self.name)
+    return string_format("VMBase(name=%s).views=%s ", self.name, self.views)
 end
 
 ---注销的时候

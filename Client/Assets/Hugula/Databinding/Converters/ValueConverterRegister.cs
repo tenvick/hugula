@@ -39,9 +39,9 @@ namespace Hugula.Databinding {
             object outConvts = null;
             if(!m_Converter.TryGetValue (name, out outConvts))
             {
-                #if UNITY_EDITOR
-                    Debug.LogWarningFormat("there is no converter named {0}",name);
-                #endif
+#if UNITY_EDITOR
+                Debug.LogErrorFormat("there is no converter named {0}", name);
+#endif
             }
             return outConvts;
         }

@@ -519,7 +519,7 @@ namespace Hugula.UIComponents
             if (idx < min) idx = min;
             int end_idx = idx + count;
             int movIdx = 0;
-            if (m_Columns != 0) movIdx = min % columns; //如果顶部没有对齐。
+            if (columns != 0) movIdx = min % columns; //如果顶部没有对齐。
             int max_idx = min + m_PageSize - 1 + movIdx;
             if (end_idx > max_idx) end_idx = max_idx;
 

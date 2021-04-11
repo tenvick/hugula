@@ -62,6 +62,7 @@ local function create_item(i)
     it.quality = tostring(math.random(0, 10))
     it.count = tostring(math.random(1, 5))
     it.selected = false
+    it.id = i
     return it
 end
 
@@ -91,10 +92,16 @@ bag.items = items
 --         )
 --     end
 -- )
+
+function bag:on_deactive()
+    -- lua_unbinding(DIS_TYPE.NET_CONNECT_SUCCESS, login.on_connection)
+    -- lua_unbinding(DIS_TYPE.LOGIN_PACKET_ACK, login.on_login_act)
+    --close tips
+    VMState:popup_item("demo_click_tips")
+end
 ---------------------------------点击事件处理------------------------------------
 bag.selected_item = nil
 bag.selected_trigger = "fadeIn"
-
 
 bag.on_item_select = {
     CanExecute = function(self, arg)

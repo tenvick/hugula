@@ -59,6 +59,7 @@ vm_config.demo_loading = {vm = "demo.demo_loading", gc_type = VM_GC_TYPE.STATE_C
 vm_config.demo_login = {vm = "demo.demo_login"}
 vm_config.demo_subui = {vm = "demo.demo_subui"}
 vm_config.demo_subui1 = {vm = "demo.demo_subui1"}
+vm_config.demo_click_tips = {vm = "demo.demo_click_tips"}
 
 ----------------------------------------------------------------------------------demo end-----
 

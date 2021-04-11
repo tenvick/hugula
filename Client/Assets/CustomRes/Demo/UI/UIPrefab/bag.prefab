@@ -711,6 +711,7 @@ MonoBehaviour:
     mode: 1
     source: {fileID: 7076665907005035501}
   m_Target: {fileID: 7076665907005035501}
+  m_forceBinding: 1
 --- !u!1 &7076665907116739544
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,6 +1089,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  m_BindingOnEnable: 1
   children:
   - {fileID: 7076665907938245314}
   - {fileID: 7076665907693501846}
@@ -1385,6 +1387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 8665898392276877597}
   - {fileID: 9113580412719260416}
@@ -1574,6 +1577,7 @@ GameObject:
   - component: {fileID: 7076665908509375226}
   - component: {fileID: 7076665908509375225}
   - component: {fileID: 7076665908509375224}
+  - component: {fileID: 5767658270734264589}
   m_Layer: 5
   m_Name: ItemSource
   m_TagString: Untagged
@@ -1617,10 +1621,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 7076665908172257984}
   - {fileID: 7076665906960771333}
   - {fileID: 7076665908813975177}
+  - {fileID: 5767658270734264589}
 --- !u!222 &7076665908509375227
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1717,6 +1723,27 @@ MonoBehaviour:
   selected:
   - {fileID: 7076665908441038185}
   selectedAnimation: {fileID: 0}
+--- !u!114 &5767658270734264589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7076665908509375231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df24aa898e45b27428fc6dc1bf21a47b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindings:
+  - propertyName: arg
+    path: .
+    format: 
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+  tipsFollow: {fileID: 7076665908172257989}
+  vmName: demo_click_tips
 --- !u!1 &7076665908621779125
 GameObject:
   m_ObjectHideFlags: 0
@@ -1824,7 +1851,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: -420, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &7076665908813975179
 GameObject:

@@ -56,3 +56,16 @@ local number_to_string = {
 ValueConverterRegister:AddConverter("StringToNumber", string_to_number)
 ValueConverterRegister:AddConverter("NumberToString", number_to_string)
 
+---------------------得到当前点击ui--------------------------
+
+local EventSystem = CS.UnityEngine.EventSystems.EventSystem
+local get_firsts_gameobject_convert = {
+    Convert = function(self, target_value, type)
+        local s_obj = EventSystem.current.currentSelectedGameObject
+        return s_obj.transform
+    end,
+    ConvertBack = function(self, source_value, type)
+    end
+}
+
+ValueConverterRegister:AddConverter("FirstSelectedGameObject", get_firsts_gameobject_convert)

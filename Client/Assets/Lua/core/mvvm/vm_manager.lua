@@ -12,6 +12,9 @@ local table = table
 local lua_binding = lua_binding
 local lua_unbinding = lua_unbinding
 local lua_distribute = lua_distribute
+local xpcall = xpcall
+local debug = debug
+local string_format = string.format
 
 local table_insert = table.insert
 local table_indexof = table.indexof
@@ -26,11 +29,21 @@ local ResLoader = Hugula.ResLoader
 local ProfilerFactory = Hugula.Profiler.ProfilerFactory
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
+local CUtils = Hugula.Utils.CUtils
+local Debug = CS.UnityEngine.Debug
 
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
 local BindingUtility = Hugula.Databinding.BindingUtility
 
 local vm_manager = {}
+
+local function error_hander(h)
+    Debug.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+end
+
+local function safe_call(f, arg1)
+    xpcall(f, error_hander, arg1)
+end
 
 --------------------state 相关----------------------------
 
@@ -63,7 +76,6 @@ local function check_vm_base_all_done(vm_base)
         end
     end
 
-    -- Logger.Log(" check_vm_base_all_done", vm_base)
     local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.check_vm_base_all_done ", vm_base.name)
     vm_base._isloading = false
     vm_base.is_res_ready = true
@@ -75,19 +87,25 @@ local function check_vm_base_all_done(vm_base)
     end
 
     if vm_base._is_push == true then
-        vm_base:on_push()
+        -- vm_base:on_push()
+        safe_call(vm_base.on_push, vm_base)
     else
-        vm_base:on_back()
+        -- vm_base:on_back()
+        safe_call(vm_base.on_back, vm_base)
     end
+
     _binding_rpc(vm_base)
-    vm_base:on_active()
+
+    safe_call(vm_base.on_active, vm_base)
+    -- vm_base:on_active() --popup_item?
 
     if views then
+        local is_active = vm_base.is_active
         for k, view_base in ipairs(views) do
             if vm_base.auto_context then
                 view_base:set_child_context(vm_base)
             end
-            view_base:set_active(true)
+            view_base:set_active(is_active)
         end
     end
 
@@ -135,7 +153,6 @@ local function on_res_comp(data, view_base)
     end
 
     init_view(view_base)
-    -- Logger.Log(string.format("init_view_wm:%s\r\n", data.name), profiler.report())
     -- profiler.stop()
 end
 
@@ -221,12 +238,15 @@ local function active_view(self, vm_name)
 
         curr_vm.is_active = true
         if curr_vm._is_push == true then
-            curr_vm:on_push()
+            -- curr_vm:on_push()
+            safe_call(curr_vm.on_push, curr_vm)
         else
-            curr_vm:on_back()
+            -- curr_vm:on_back()
+            safe_call(curr_vm.on_back, curr_vm)
         end
         _binding_rpc(curr_vm)
-        curr_vm:on_active()
+
+        safe_call(curr_vm.on_active, curr_vm)
 
         if profiler then
             profiler:Stop()
@@ -236,9 +256,10 @@ end
 
 local function deactive(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
+
     if curr_vm.is_res_ready == true then --已经加载过
         if curr_vm.is_active then
-            curr_vm:on_deactive()
+            safe_call(curr_vm.on_deactive, curr_vm)
             _unbinding_rpc(curr_vm)
             local views = curr_vm.views
             if views then
@@ -259,10 +280,10 @@ local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     curr_vm.is_active = false
     curr_vm.is_res_ready = false
-    curr_vm:on_deactive()
+    safe_call(curr_vm.on_deactive, curr_vm)
     _unbinding_rpc(curr_vm)
-    curr_vm:on_destroy()
-    curr_vm:clear()
+    safe_call(curr_vm.on_destroy, curr_vm)
+    safe_call(curr_vm.clear, curr_vm)
 end
 
 ---加载配置的资源
@@ -339,6 +360,9 @@ end
 ---@param arg any
 local function load(self, vm_name, arg, is_push, is_group)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
+    if not is_push then --is back
+        arg = curr_vm._push_arg
+    end
     curr_vm:on_push_arg(arg) --有参数
     curr_vm._push_arg = arg
     curr_vm._is_push = is_push --是否是push到栈上的

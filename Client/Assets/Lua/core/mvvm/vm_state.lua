@@ -56,7 +56,7 @@ local function debug_stack()
             str = str .. "\r\n{" .. tb_str .. "}"
         end
     end
-    -- Logger.LogerWYY("debug_stack", str)
+    Logger.Log("debug_stack", str)
 end
 
 local function call_func(self, vm_name, fun_name, ...)
@@ -65,7 +65,7 @@ local function call_func(self, vm_name, fun_name, ...)
     if curr_vm then
         local fun = curr_vm[fun_name]
         if fun ~= nil then
-            fun(curr_vm, ...)
+            return fun(curr_vm, ...)
         end
     end
 end
@@ -148,9 +148,9 @@ local function strategy_view_gc(vm_name, is_state_change, stack_index)
             VMManager:deactive(vm_name)
         end
     else --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
-        local curr_vm = VMGenerate[vm_name] --获取vm实例
-        curr_vm.is_active = false
-        curr_vm:on_deactive()
+        -- local curr_vm = VMGenerate[vm_name] --获取vm实例
+        -- curr_vm.is_active = false
+        -- curr_vm:on_deactive()
     end
 end
 
@@ -217,7 +217,7 @@ local function push_item(self, vm_name, arg)
 
     table_insert(_stack, vm_name) --- 进入显示stack
     VMManager:active(vm_name, arg, true, false) ---激活组
-    debug_stack()
+    -- debug_stack()
 end
 
 ---移除view model追加项目,只有追加项目才需要手动移除
@@ -245,7 +245,7 @@ local function popup_item(self, vm)
     if del > 0 then
         table_remove(_stack, del)
         strategy_view_gc(vm, false)
-        debug_stack()
+        -- debug_stack()
         return true
     end
 
@@ -270,7 +270,7 @@ local function push(self, vm_group_name, arg)
 
     set_top_group(self, vm_group)
     VMManager:active(vm_group, arg, true, true) ---激活组
-    debug_stack()
+    -- debug_stack()
 end
 
 ---获取顶部的group
@@ -378,7 +378,7 @@ local function back(self)
         VMManager:load(v) --重新激活
     end
 
-    debug_stack()
+    -- debug_stack()
 end
 
 local function init_viewmodel(self, vm_name, container)
@@ -459,6 +459,7 @@ vm_state._check_on_state_changed = _check_on_state_changed --检查当前顶上�
 vm_state._reload_top_one = _reload_top_one
 vm_state._reload_top_active = _reload_top_active
 vm_state.top_group_is = top_group_is
+vm_state.debug_stack = debug_stack
 --- view model 的显示隐藏管理
 ---@class VMState
 ---@field get_member fun(self:VMState, vm_name:string)

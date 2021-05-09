@@ -43,6 +43,32 @@ function string.concat(...)
     return s
 end
 
+---@overload fun(str:string,...:table):string
+--- 顺序化格式化
+---@param str string 原始窜
+---@param ... table 参数
+function string.format_order(str, ...)
+    if str == nil then
+        return ""
+    end
+    local args, order = {...}, {}
+    if #args == 0 then
+        return str
+    end
+    str =
+        str:gsub(
+        "%%(%d+)%$",
+        function(i)
+            table.insert(order, args[tonumber(i)])
+            return "%"
+        end
+    )
+    if #order == 0 then
+        order = args
+    end
+    return string.format(str, table.unpack(order))
+end
+
 local function tojson(tbl, indent)
     assert(tbl ~= nil)
     if not indent then
@@ -58,14 +84,14 @@ local function tojson(tbl, indent)
             if type(v) == "table" then
                 havetable = true
                 if (indent == 0) then
-                    str = str .. sp .. "\r\n  " .. tostring(k) .. ":" .. tojson(v, indent + 1)
+                    str = str .. sp .. "\r\n  " .. tostring(k) .. " = " .. tojson(v, indent + 1)
                 else
-                    str = str .. sp .. "\r\n" .. tab .. tostring(k) .. ":" .. tojson(v, indent + 1)
+                    str = str .. sp .. "\r\n" .. tab .. tostring(k) .. " = " .. tojson(v, indent + 1)
                 end
             else
-                str = str .. sp .. tostring(k) .. ":" .. tostring(v)
+                str = str .. sp .. tostring(k) .. " = " .. tostring(v)
             end
-            sp = ";"
+            sp = "; "
         end
     end
 
@@ -85,7 +111,7 @@ table.tojson = tojson
 ---@param tb table
 ---@param item any
 ---@return int
-function table.indexof(table,item)
+function table.indexof(table, item)
     local idx
     for k, v in ipairs(table) do
         if v == item then
@@ -102,7 +128,7 @@ end
 ---@param item any
 ---@return int
 function table.remove_item(tb, item)
-    local idx = table.indexof(tb,item)
+    local idx = table.indexof(tb, item)
     if idx ~= nil then
         table.remove(tb, idx)
         return idx

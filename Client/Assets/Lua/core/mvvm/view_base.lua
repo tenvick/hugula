@@ -3,8 +3,8 @@
 --
 --  author pu
 ------------------------------------------------
-local require = require
-local class = class
+-- local require = require
+-- local class = class
 local table = table
 local pairs = pairs
 local type = type
@@ -77,7 +77,7 @@ end
 ---@param context any
 local function set_child_context(self, context)
     local child = self._child
-    self._context = context or self._context
+    self._context = context --or self._context
 
     if not self:is_scene() then
         set_target_context(child, context)

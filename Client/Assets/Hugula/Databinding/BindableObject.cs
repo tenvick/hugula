@@ -149,12 +149,24 @@ namespace Hugula.Databinding
             SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
         }
 
+        ///<summary>
+        /// 销毁之前清理所有绑定表达式
+        ///<summary>
         public virtual void ClearBinding()
         {
             foreach (var binding in bindings)
                 binding.Dispose();
 
             bindings.Clear();
+        }
+
+        ///<summary>
+        /// 解绑源绑定，不销毁对象
+        ///<summary>
+        public virtual void Unapply()
+        {
+            foreach (var binding in bindings)
+                binding.Unapply();
         }
 
         protected virtual void OnInheritedContextChanged()
@@ -172,9 +184,12 @@ namespace Hugula.Databinding
                 if (contextBinding != null && contextBinding.path != Binding.SelfPath)
                 {
                     contextBinding.target = this;
-                    System.Action act = () => contextBinding.Apply(context); //contextBinding.Apply (context, this);
-                                                                             // act();
-                    Executor.Execute(act);
+                    contextBinding.ApplyContext(context);
+#if HUGULA_ASYNC_APPLY
+                        Executor.Execute(contextBinding.Apply);
+#else
+                    contextBinding.Apply();
+#endif
                 }
                 else
                     OnBindingContextChanged();
@@ -192,7 +207,8 @@ namespace Hugula.Databinding
                 var binding = bindings[i];
                 if (!ContextProperty.Equals(binding.propertyName))
                 { //context需要触发自己，由inherited触发
-                    binding.Apply(context);
+                    binding.ApplyContext(context);
+                    binding.Apply();
                 }
             }
         }
@@ -250,9 +266,9 @@ namespace Hugula.Databinding
 
         public Binding GetBindingByName(string i)
         {
-            foreach(var binding in bindings)
+            foreach (var binding in bindings)
             {
-                if(binding.propertyName == i)
+                if (binding.propertyName == i)
                     return binding;
             }
             return null;

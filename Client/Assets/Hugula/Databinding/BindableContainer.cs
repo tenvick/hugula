@@ -76,6 +76,14 @@ namespace Hugula.Databinding
             children.Clear();
         }
 
+        //Unapply binding listenler
+        public override void Unapply()
+        {
+            base.Unapply();
+            foreach (var child in children)
+                child.Unapply();
+        }
+
         #region mono
 
         protected override void Awake()

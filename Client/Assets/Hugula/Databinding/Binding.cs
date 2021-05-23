@@ -64,6 +64,7 @@ namespace Hugula.Databinding
 
         #endregion
 
+        bool m_IsDisposed = false;//销毁标记
 #if LUA_PROFILER_DEBUG
         string ProfilerName = "";
         string GetProfilerName()
@@ -100,7 +101,7 @@ namespace Hugula.Databinding
         public void UpdateTarget()
         {
             //set target value
-            if (!isBound)
+            if (!isBound || m_IsDisposed)
             {
                 Debug.LogErrorFormat("invalide source {0}", this.path);
                 return;
@@ -117,7 +118,7 @@ namespace Hugula.Databinding
         //更新源
         public void UpdateSource()
         {
-            if (!isBound)
+            if (!isBound || m_IsDisposed)
             {
 #if UNITY_EDITOR
                 Debug.LogWarningFormat("invalide source {0}.{1}", this.m_Context, this.path);
@@ -133,9 +134,31 @@ namespace Hugula.Databinding
 #endif
         }
 
-        //绑定目标
-        public void Apply(object context, bool invoke = true)
+        private object m_ApplyContext;
+        public void ApplyContext(object context)
         {
+#if UNITY_EDITOR
+            if (m_ApplyContext != null) //跳过？
+            {
+                Debug.LogWarningFormat("Binding(perpertyName={0}).ApplyContext(context={1})  m_ApplyContext is't null  ", propertyName, context);
+            }
+#endif
+            m_ApplyContext = context;
+        }
+
+        //绑定目标
+        public void Apply()
+        {
+            var context = m_ApplyContext;
+            m_ApplyContext = null;
+            if (m_IsDisposed)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarningFormat("Binding(target={0},perpertyName={1},path={2}) is Disposed , Apply(context={3}).  ", target, propertyName, path, context);
+#endif
+                return;
+            }
+
             if (!m_IsApplied)
             {
 #if LUA_PROFILER_DEBUG
@@ -172,8 +195,8 @@ namespace Hugula.Databinding
 
             if (m_Context == null)
             {
-                // Unapply();
-                convert = null;
+                convert = null; //需要解绑
+
                 return;
             }
 
@@ -215,17 +238,17 @@ namespace Hugula.Databinding
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
-            if (invoke)
-            {
+            //if ( invoke)
+            // {
 #if LUA_PROFILER_DEBUG
                 UnityEngine.Profiling.Profiler.BeginSample("Binding.InitValue");
 #endif
-                //初始化值
-                InitValue();
+            //初始化值
+            InitValue();
 #if LUA_PROFILER_DEBUG
                 UnityEngine.Profiling.Profiler.EndSample();
 #endif
-            }
+            // }
 #endif
         }
 
@@ -423,9 +446,12 @@ namespace Hugula.Databinding
                 BindingPathPart part = m_Parts[i];
                 part.Dispose();
             }
+            m_IsDisposed = true; //标记销毁
+            m_IsApplied = false;
             convert = null;
             target = null;
             source = null;
+            m_ApplyContext = null;
             m_Context = null;
             m_LastPart = null;
             m_Parts.Clear();

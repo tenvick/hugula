@@ -23,6 +23,12 @@ namespace Hugula.Utils
         public const bool printLog = true;
 #endif
 
+#if UNITY_EDITOR
+        public const bool isEditor = true;
+#else
+        public const bool isEditor = false;
+
+#endif
 
         /// <summary>
         /// string EndWith

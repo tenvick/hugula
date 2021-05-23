@@ -456,7 +456,7 @@ namespace Hugula.UIComponents
 
                 bIdx = index > min ? index : min; //最小开始位置索引 
 
-                if (needScrollToBottom)//m_autoScrollFloor)
+                if (needScrollToBottom) //m_autoScrollFloor)
                 {
                     if (max < 0) max = 0;
                     // Debug.LogFormat("m_FloorDataIndex={0},max={1},m_DataLength={2},count={3}", min, max, dataLength, count);
@@ -784,13 +784,14 @@ namespace Hugula.UIComponents
                 //还对象到缓存池
                 m_Pool.Release(loopItem.templateType, (BindableObject)item);
                 bool isNew = false;
-                item = m_Pool.Get(templateId, out isNew); //创建或者从缓存中获取
+                item = m_Pool.Get(templateId, content, out isNew); //创建或者从缓存中获取
                 loopItem.templateType = templateId;
                 if (isNew)
                 {
                     var sourceRT = templates[templateId].GetComponent<RectTransform>();
                     var itemTrans = item.transform;
-                    itemTrans.SetParent(content);
+                    // itemTrans.SetParent(content);
+                    // itemTrans.SetAsLastSibling();
                     itemTrans.localScale = sourceRT.localScale;
                     itemTrans.localRotation = sourceRT.localRotation;
                     itemTrans.localPosition = sourceRT.localPosition;
@@ -1180,7 +1181,11 @@ namespace Hugula.UIComponents
         {
             foreach (var item in m_Pages)
             {
-                if (item.transform) item.transform.gameObject.SetActive(false);
+                if (item.transform)
+                {
+                    item.transform.gameObject.SetActive(false);
+                    item.transform.GetComponent<BindableObject>()?.Unapply();
+                } 
                 item.index = -1;
             }
         }

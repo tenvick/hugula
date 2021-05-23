@@ -118,6 +118,7 @@ namespace Hugula.Databinding.Binder
                 }
                 else
                 {
+                    item.Unapply();
                     item.gameObject.SetActive(false);
                 }
             }
@@ -149,6 +150,7 @@ namespace Hugula.Databinding.Binder
                 int idx = viewItems.IndexOf(view);
                 viewItems.RemoveAt(idx);
                 view.transform.SetSiblingIndex(viewItems.Count - 1);
+                view.Unapply();
                 view.gameObject.SetActive(false);
                 viewItems.Add(view);
             }

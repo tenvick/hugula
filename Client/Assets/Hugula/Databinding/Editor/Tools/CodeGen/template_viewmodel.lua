@@ -13,9 +13,9 @@ local DIS_TYPE = DIS_TYPE
 -- local lua_unbinding = lua_unbinding
 local Rpc = Rpc
 --C#
-local CS = CS
-local GlobalDispatcher = GlobalDispatcher
-local DispatcherEvent = DispatcherEvent
+-- local CS = CS
+-- local GlobalDispatcher = GlobalDispatcher
+-- local DispatcherEvent = DispatcherEvent
 
 ---@class {name}:VMBase
 ---@type {name}
@@ -79,3 +79,11 @@ end
 -- end
 
 return {name}
+
+--[[
+
+vm_config.{name} = {vm = "viewmodels.{name}", gc_type = VM_GC_TYPE.ALWAYS} 
+
+vm_group.{name} = {"{name}"}
+
+---]]

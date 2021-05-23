@@ -62,6 +62,7 @@ vm_config.demo_subui1 = {vm = "demo.demo_subui1"}
 vm_config.demo_click_tips = {vm = "demo.demo_click_tips"}
 
 ----------------------------------------------------------------------------------demo end-----
+vm_config.ui_login = {vm = "viewmodels.ui_login", gc_type = VM_GC_TYPE.ALWAYS} 
 
 --------------------------------------------------------------------------
 ------------------------viewmodel group 配置-------------------------------
@@ -77,6 +78,7 @@ vm_group.demo_loading = {"demo_loading",log_enable = false} --loading不需要�
 vm_group.gamescene = {"asset_loader","scene_loader","back_tips"}
 vm_group.demo_login = {"demo_login","back_tips"}
 
+vm_group.ui_login = {"ui_login","back_tips"}
 
 -- VMGroupSource = vm_group
 return {vm_config,vm_group}

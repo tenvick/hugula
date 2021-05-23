@@ -1,6 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.5.23
+1 psdtougui插件整合，完善ui导出到模板生成全流程。
+2 psd to ugui 文档与示例。
+3 BindableObject 绑定清理功能。
+4 TextMeshPro 插件导入。
+
 2021.3.26
 1 子模块示例demo。
 2 滚动列表LoopScrollRect编辑器预览功能。

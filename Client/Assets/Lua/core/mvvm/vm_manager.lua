@@ -12,6 +12,7 @@ local table = table
 local lua_binding = lua_binding
 local lua_unbinding = lua_unbinding
 local lua_distribute = lua_distribute
+local DIS_TYPE = DIS_TYPE
 local xpcall = xpcall
 local debug = debug
 local string_format = string.format
@@ -47,14 +48,14 @@ end
 
 --------------------state 相关----------------------------
 
-local function _binding_rpc(vm)
+local function _binding_msg(vm)
     local listener = vm.msg
     for k, v in pairs(listener) do
         lua_binding(k, v)
     end
 end
 
-local function _unbinding_rpc(vm)
+local function _unbinding_msg(vm)
     local listener = vm.msg
     for k, v in pairs(listener) do
         lua_unbinding(k, v)
@@ -94,10 +95,8 @@ local function check_vm_base_all_done(vm_base)
         safe_call(vm_base.on_back, vm_base)
     end
 
-    _binding_rpc(vm_base)
-
+    _binding_msg(vm_base)
     safe_call(vm_base.on_active, vm_base)
-    -- vm_base:on_active() --popup_item?
 
     if views then
         local is_active = vm_base.is_active
@@ -108,6 +107,8 @@ local function check_vm_base_all_done(vm_base)
             view_base:set_active(is_active)
         end
     end
+
+    lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base.name) --触发界面打开消息
 
     if profiler then
         profiler:Stop()
@@ -224,29 +225,36 @@ local function active_view(self, vm_name)
     -- Logger.Log("active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
     if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过
         local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.active_view ", vm_name)
+        curr_vm.is_active = true
 
         local views = curr_vm.views
+
+        --on_state_changed 没有资源的模块也需要检测state changed 事件
+        if (views == nil or #views == 0) and curr_vm._is_group == true then
+            vm_manager._vm_state:_check_on_state_changed(curr_vm)
+        end
+
+        if curr_vm._is_push == true then
+            safe_call(curr_vm.on_push, curr_vm)
+        else
+            safe_call(curr_vm.on_back, curr_vm)
+        end
+
+        _binding_msg(curr_vm)
+
+        safe_call(curr_vm.on_active, curr_vm)
+
         local _auto_context = curr_vm.auto_context
         if views then
             for k, v in ipairs(views) do
-                v:set_active(true)
                 if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
                     v:set_child_context(curr_vm)
                 end
+                v:set_active(true)
             end
         end
 
-        curr_vm.is_active = true
-        if curr_vm._is_push == true then
-            -- curr_vm:on_push()
-            safe_call(curr_vm.on_push, curr_vm)
-        else
-            -- curr_vm:on_back()
-            safe_call(curr_vm.on_back, curr_vm)
-        end
-        _binding_rpc(curr_vm)
-
-        safe_call(curr_vm.on_active, curr_vm)
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
 
         if profiler then
             profiler:Stop()
@@ -260,7 +268,7 @@ local function deactive(self, vm_name)
     if curr_vm.is_res_ready == true then --已经加载过
         if curr_vm.is_active then
             safe_call(curr_vm.on_deactive, curr_vm)
-            _unbinding_rpc(curr_vm)
+            _unbinding_msg(curr_vm)
             local views = curr_vm.views
             if views then
                 for k, v in ipairs(views) do
@@ -281,7 +289,7 @@ local function destroy(self, vm_name)
     curr_vm.is_active = false
     curr_vm.is_res_ready = false
     safe_call(curr_vm.on_deactive, curr_vm)
-    _unbinding_rpc(curr_vm)
+    _unbinding_msg(curr_vm)
     safe_call(curr_vm.on_destroy, curr_vm)
     safe_call(curr_vm.clear, curr_vm)
 end

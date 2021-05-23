@@ -8,7 +8,7 @@ namespace Hugula.Databinding
     public interface IBinding
     {
         void UpdateTarget();
-        void Apply(object context, bool invoke = true);
+        void Apply();
         void Unapply();
         void UpdateSource();
     }

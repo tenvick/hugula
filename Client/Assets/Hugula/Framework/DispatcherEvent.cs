@@ -6,6 +6,7 @@ namespace Hugula.Framework {
 
     public enum DispatcherEvent {
         F5,
-        F6
+        F6,
+        GuideBtnClick,
     }
 }

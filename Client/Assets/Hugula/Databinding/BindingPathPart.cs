@@ -62,9 +62,10 @@ namespace Hugula.Databinding {
                 m_NotifyPropertyChanged.PropertyChanged -= m_ChangeHandler;
             }
             m_NotifyPropertyChanged = null;
+            m_Source = null;
         }
 
-        public Type SetterType { get; set; }
+        // public Type SetterType { get; set; }
 
         public void PropertyChanged (object sender, string propertyName) {
             BindingPathPart part = nextPart ?? this;

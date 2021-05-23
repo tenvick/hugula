@@ -13,6 +13,8 @@ local class = class
 local Object = CS.System.Object
 local GetSetObject = GetSetObject
 
+local empty_tab = {}
+
 local vm_base =
     class(
     function(self)
@@ -111,6 +113,24 @@ local function on_destroy(self)
     -- body
 end
 
+---绑定view的context到当前VMBase
+---@overload fun()
+local function bind_view(self)
+    local views = self.views or empty_tab
+    for k, view_base in ipairs(views) do
+        view_base:set_child_context(vm_base)
+    end
+end
+
+---绑定view的context到当前VMBase
+---@overload fun()
+local function unbind_view(self)
+    local views = self.views or empty_tab
+    for k, view_base in ipairs(views) do
+        view_base:set_child_context(nil)
+    end
+end
+
 ---清理View的资源
 ---@overload fun()
 local function clear(self)
@@ -165,7 +185,7 @@ vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase
----@field OnPropertyChanged fun(self:table, op:string, delegate:function)
+---@field OnPropertyChanged fun(property_name:string)
 ---@field SetProperty fun(self:table, property_name:string, value:any)
 ---@field on_push_arg fun(arg:any) 入栈资源加载之前调用 由VMState:push() 触发
 ---@field on_push fun() 入栈资源加载完成后调用在on_active之前

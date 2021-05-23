@@ -9,7 +9,7 @@ namespace Hugula
     /// </summary>
     public class Version
     {
-        
+
         public const uint VERSION = 0x005002;
 
     }
@@ -19,9 +19,7 @@ namespace Hugula
  * 预编译命名说明
  * HUGULA_RELEASE                   release模式
  * HUGULA_NO_LOG                    取消log打印
- * HUGULA_SPLITE_ASSETBUNDLE        启用分离assetbundle功能。
- * HUGULA_COMPRESS_STREAMINGASSETS  压缩streamingAssets为一个zip包
- * HUGULA_APPEND_CRC                更新文件带crc后缀    
+ * HUGULA_ASYNC_APPLY               异步绑定功能。
  *
  * 编辑器辅助
  * HUGULA_ASSETBUNDLE_LOG           记录assetbundle加载日志与包体

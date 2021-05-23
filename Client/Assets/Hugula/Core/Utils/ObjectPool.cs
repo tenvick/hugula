@@ -137,7 +137,7 @@ namespace Hugula.Utils
             m_StackDic.Add(key, new Stack<T>());
         }
 
-        public T Get(int key, out bool isNew)
+        public T Get(int key, Transform parent, out bool isNew)
         {
             isNew = false;
             Stack<T> m_Stack;
@@ -151,32 +151,6 @@ namespace Hugula.Utils
                 if (m_Source.TryGetValue(key, out source))
                 {
                     isNew = true;
-                    var obj = GameObject.Instantiate(source.gameObject);
-                    element = obj.GetComponent<T>();
-                }
-                // countAll++;
-            }
-            else
-            {
-                element = m_Stack.Pop();
-            }
-            if (m_ActionOnGet != null)
-                m_ActionOnGet(element);
-            return element;
-        }
-
-        public T Get(int key, Transform parent = null)
-        {
-            Stack<T> m_Stack;
-            if (!m_StackDic.TryGetValue(key, out m_Stack)) return null;
-
-            T element = null;
-
-            if (m_Stack.Count == 0)
-            {
-                T source = null;
-                if (m_Source.TryGetValue(key, out source))
-                {
                     var obj = GameObject.Instantiate(source.gameObject, parent);
                     element = obj.GetComponent<T>();
                 }
@@ -188,9 +162,35 @@ namespace Hugula.Utils
             }
             if (m_ActionOnGet != null)
                 m_ActionOnGet(element);
-            element.gameObject.SetActive(true);
             return element;
         }
+
+        // public T Get(int key, Transform parent = null)
+        // {
+        //     Stack<T> m_Stack;
+        //     if (!m_StackDic.TryGetValue(key, out m_Stack)) return null;
+
+        //     T element = null;
+
+        //     if (m_Stack.Count == 0)
+        //     {
+        //         T source = null;
+        //         if (m_Source.TryGetValue(key, out source))
+        //         {
+        //             var obj = GameObject.Instantiate(source.gameObject, parent);
+        //             element = obj.GetComponent<T>();
+        //         }
+        //         // countAll++;
+        //     }
+        //     else
+        //     {
+        //         element = m_Stack.Pop();
+        //     }
+        //     if (m_ActionOnGet != null)
+        //         m_ActionOnGet(element);
+        //     element.gameObject.SetActive(true);
+        //     return element;
+        // }
 
         public void Release(int key, T element)
         {

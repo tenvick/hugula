@@ -93,8 +93,10 @@ MonoBehaviour:
     m_Address: login
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
+    m_MainAsset: {fileID: 7966387584292911710, guid: 6ec29884f9078364388b832cf74cb9ca,
+      type: 3}
+    m_TargetAsset: {fileID: 7966387584292911710, guid: 6ec29884f9078364388b832cf74cb9ca,
+      type: 3}
   - m_GUID: c9c9f36adc8397442b9a5bd43c0e40f6
     m_Address: welcome
     m_ReadOnly: 0
@@ -117,9 +119,15 @@ MonoBehaviour:
     m_Address: demo_click_tips
     m_ReadOnly: 0
     m_SerializedLabels: []
-    m_MainAsset: {fileID: 7890835968284041453, guid: 1ac6f2c40cc85684994ba7adfbc9f234,
+    m_MainAsset: {fileID: 0}
+    m_TargetAsset: {fileID: 0}
+  - m_GUID: 9005672ad23bdc04c96f243bf22d4233
+    m_Address: ui_login
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    m_MainAsset: {fileID: 6524762544855871684, guid: 9005672ad23bdc04c96f243bf22d4233,
       type: 3}
-    m_TargetAsset: {fileID: 7890835968284041453, guid: 1ac6f2c40cc85684994ba7adfbc9f234,
+    m_TargetAsset: {fileID: 6524762544855871684, guid: 9005672ad23bdc04c96f243bf22d4233,
       type: 3}
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}

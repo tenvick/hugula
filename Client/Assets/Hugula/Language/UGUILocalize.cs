@@ -20,6 +20,11 @@ namespace Hugula {
 
         public string key;
 
+        [Tooltip("从Luafunction中获取值")]
+        public bool luaFunction = true;
+
+        public static System.Func<string,string> LocaltionFun;
+
         /// <summary>
         /// Manually change the value of whatever the localization component is attached to.
         /// </summary>
@@ -84,7 +89,18 @@ namespace Hugula {
             }
 
             // If we still don't have a key, leave the value as blank
-            if (!string.IsNullOrEmpty (key)) value = Localization.Get (key);
+            if (!string.IsNullOrEmpty (key))
+            {
+
+               if(luaFunction && LocaltionFun!=null)
+               {
+                    value = LocaltionFun.Invoke(key);
+               }
+               else
+               {
+                    value = Localization.Get (key);
+               }
+            } 
         }
     }
 }

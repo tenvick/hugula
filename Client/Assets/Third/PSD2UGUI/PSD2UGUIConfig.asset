@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 11500000, guid: fe765dcf892709b4b9967b2544378ac7, type: 3}
+  m_Name: PSD2UGUIConfig
+  m_EditorClassIdentifier: 
+  m_commonAtlasPath: Assets/CustomRes/ui2021/ui_atlas/common
+  m_commonAtlasName: common
+  m_fontPath: Assets/CustomRes/Font/
+  m_staticFontPath: Assets/Third/TextMesh Pro/Resources/Fonts & Materials/
+  m_psduiTemplatePath: Assets/Third/PSD2UGUI/Template/UI/

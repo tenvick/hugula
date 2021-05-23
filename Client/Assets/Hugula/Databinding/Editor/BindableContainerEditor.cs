@@ -44,15 +44,16 @@ namespace HugulaEditor.Databinding
             if (GUILayout.Button("auto add hierarchy  children"))
             {
                 //清理
-                var children = temp.children;
-                for (int i = 0; i < children.Count;)
-                {
-                    if (children[i] != null)
-                        i++;
-                    else
-                        children.RemoveAt(i);
-                }
-                AddHierarchyChildren(temp.transform, temp, true);
+                // var children = temp.children;
+                // for (int i = 0; i < children.Count;)
+                // {
+                //     if (children[i] != null)
+                //         i++;
+                //     else
+                //         children.RemoveAt(i);
+                // }
+                // AddHierarchyChildren(temp.transform, temp, true);
+                AutoAddHierarchyChildren(temp);
                 EditorUtility.SetDirty(target);
             }
             EditorGUILayout.Separator();
@@ -121,15 +122,15 @@ namespace HugulaEditor.Databinding
                     {
 
                         selectedList.Sort((int a, int b) =>
-                            {
-                                if (a < b) return 1;
-                                else if (a == b) return 0;
-                                else
-                                    return -1;
-                            });
+                        {
+                            if (a < b) return 1;
+                            else if (a == b) return 0;
+                            else
+                                return -1;
+                        });
 
                         foreach (var i in selectedList)
-                            m_Property_bindings.RemoveElement(i);// DeleteArrayElementAtIndex(i);
+                            m_Property_bindings.RemoveElement(i); // DeleteArrayElementAtIndex(i);
                     }
                     EditorGUILayout.Separator();
                     EditorGUILayout.EndHorizontal();
@@ -196,7 +197,7 @@ namespace HugulaEditor.Databinding
                             }
 
                         }
-                        if (childName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0 || has)// item.ExtraInfo.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        if (childName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0 || has) // item.ExtraInfo.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0)
                         {
                             EditorGUILayout.PropertyField(bindableProperty, false);
                         }
@@ -375,6 +376,20 @@ namespace HugulaEditor.Databinding
         //     children.RemoveAt(index);
         // }
 
+        public static void AutoAddHierarchyChildren(BindableContainer container)
+        {
+            var children = container.children;
+            for (int i = 0; i < children.Count;)
+            {
+                if (children[i] != null)
+                    i++;
+                else
+                    children.RemoveAt(i);
+            }
+
+            AddHierarchyChildren(container.transform, container, true);
+        }
+
         public static void AddHierarchyChildren(Transform transform, BindableContainer container, bool checkChildren = false)
         {
 
@@ -403,7 +418,6 @@ namespace HugulaEditor.Databinding
                     AddHierarchyChildren(childTrans, container);
                 }
             }
-
 
             //var oldChildren = container.children;
             //if (oldChildren == null)

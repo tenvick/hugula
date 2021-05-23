@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Hugula;
 using Hugula.Utils;
+using UnityEngine;
 
 namespace Hugula.Databinding.Binder
 {
@@ -23,29 +23,19 @@ namespace Hugula.Databinding.Binder
                     if (m_Instance || string.Empty.Equals(value)) //清空
                     {
                         Unload();
+                        m_AssetName = string.Empty;
                     }
 
-                    m_AssetName = value;
-                    LoadPrefab(m_AssetName);
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        m_AssetName = value;
+                        LoadPrefab(m_AssetName);
+                    }
                 }
 
             }
         }
 
-        // private string m_AssetBundleName;
-        // public string assetBundleName
-        // {
-        //     get
-        //     {
-        //         if (string.IsNullOrEmpty(m_AssetBundleName) && !string.IsNullOrEmpty(assetName))
-        //             return assetName.ToLower() + Common.CHECK_ASSETBUNDLE_SUFFIX;
-        //         else
-        //             return m_AssetBundleName;
-        //     }
-        //     set { m_AssetBundleName = value; }
-        // }
-
-        // public Transform 
         #region  protected method
 
         private GameObject m_Instance;
@@ -56,20 +46,25 @@ namespace Hugula.Databinding.Binder
             {
                 // var abName = assetBundleName;
                 m_LoadId = 0;
-                ResLoader.InstantiateAsync(assetName, OnCompleted, OnEnd,null,this.GetComponent<Transform>());
+                ResLoader.InstantiateAsync(assetName, OnCompleted, OnEnd, assetName, this.GetComponent<Transform>());
             }
         }
 
         void OnCompleted(GameObject data, object arg)
         {
             m_LoadId = -1;
+            if (!assetName.Equals(arg))
+            {
+                ResLoader.ReleaseInstance(data);
+                return;
+            }
             m_Instance = data;
             // if (data is GameObject)
             // {
             //     m_Instance = GameObject.Instantiate<GameObject>((GameObject)data, this.GetComponent<Transform>(), false);
-                var transform = m_Instance.GetComponent<Transform>();
-                transform.localScale = Vector3.one;
-                transform.localPosition = Vector3.zero;
+            var transform = m_Instance.GetComponent<Transform>();
+            transform.localScale = Vector3.one;
+            transform.localPosition = Vector3.zero;
             // }
         }
 

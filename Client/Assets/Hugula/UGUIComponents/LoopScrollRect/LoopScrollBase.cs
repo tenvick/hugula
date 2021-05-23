@@ -723,7 +723,9 @@ namespace Hugula.UIComponents
 
         void InitColumns()
         {
-            var vSize = rectTransform.rect; //
+            //var vSize = rectTransform.rect; //
+            var vSize = viewport.rect; //  content.rect;
+            //Debug.LogErrorFormat("rectTransform=({0},sizeDelta={1}),viewport=({2},{3} size={4} ", rectTransform.rect, rectTransform.sizeDelta, vSize, viewport.sizeDelta, m_RuntimeItemSize);
             m_RealColumns = m_Columns;
             if (!horizontal && m_Columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
             {
@@ -917,7 +919,11 @@ namespace Hugula.UIComponents
             content.anchoredPosition = m_ContentLocalStart;
             foreach (var item in m_Pages)
             {
-                if (item.transform) item.transform.gameObject.SetActive(false);
+                if (item.transform)
+                {
+                    item.transform.gameObject.SetActive(false);
+                    item.transform.GetComponent<BindableObject>()?.Unapply();
+                } 
                 item.index = -1;
             }
         }

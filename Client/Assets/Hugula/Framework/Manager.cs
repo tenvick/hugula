@@ -165,4 +165,28 @@ namespace Hugula.Framework
         }
     }
 
+
+    /// <summary>
+    ///Manager  MonoBehaviour base
+    /// </summary>
+    public abstract class MonoBehaviourManager:MonoBehaviour,IManager
+    {
+        #region  imanger
+        public abstract void Initialize();
+
+        public abstract void Terminate();
+        #endregion
+
+        protected virtual void Awake()
+        {
+            if(Application.isPlaying)
+                Manager.Add(this.GetType(), this);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            Manager.Remove(this.GetType());
+        }
+    }
+
 }

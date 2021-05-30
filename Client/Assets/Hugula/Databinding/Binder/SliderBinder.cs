@@ -9,7 +9,6 @@ namespace Hugula.Databinding.Binder
     public class SliderBinder : SelectableBinder<Slider>
     {
 
-        public const string OnClickExcuteProperty = "onValueChangedExcute";
         public const string ValueProperty = "value";
 
 

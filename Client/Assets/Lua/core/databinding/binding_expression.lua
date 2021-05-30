@@ -23,35 +23,39 @@ local context_property = "context"
 ---@param bindable_object BindableObject
 ---@param context any
 local function set_target_context(bindable_object, context)
-    if context and context.CollectionChanged and context.get_Item ~= nil then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
-        BindingUtility.SetContextByINotifyTable(bindable_object, context)
-    elseif context and context.get_Item then ---chekc IList
-        BindingUtility.SetContextByIList(bindable_object, context)
-    elseif context and context.PropertyChanged then --check INotifyPropertyChanged
-        BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
-    else
-        bindable_object[context_property] = context
+    if context then
+         if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
+            BindingUtility.SetContextByINotifyTable(bindable_object, context)
+            return
+        elseif context and context.get_Item then ---chekc IList
+            BindingUtility.SetContextByIList(bindable_object, context)
+            return
+        elseif context and context.PropertyChanged then --check INotifyPropertyChanged
+            BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
+            return
+        end
     end
+    bindable_object[context_property] = context
 end
 
 local function tostring(self)
     return "BindingExpression()"
 end
 
-local function update_target(target, property, source, part, format, converter)
-    local val = nil
-    local val_type = nil
+local val = nil
+local val_type = nil
+local function update_target(target, property, source, last_part, format, converter)
 
-    local format = format
-    local property = property
-    local path = part.path
-    local is_method = part.isMethod
-    local current = part.source
-    if part.isIndexer == true then
+    -- local format = format
+    -- local property = property
+    local path = last_part.path
+    local is_method = last_part.isMethod
+    local current = last_part.source
+    if last_part.isIndexer == true then
         path = tonumber(path)
     end
 
-    if part.isSelf then
+    if last_part.isSelf then
         val = current
     elseif is_method then
         val = current[path]()
@@ -81,19 +85,19 @@ local function update_target(target, property, source, part, format, converter)
         val = converter:Convert(val, val_type)
     end
 
-    if target == nil then
-        Logger.LogErrorFormat(
-            "binding error ,target is nil ,info(property=%s,source=%s,%s.%s=%s ) ",
-            property,
-            source,
-            current,
-            path,
-            val
-        )
-        return
-    end
+    -- if target == nil then
+    --     Logger.LogErrorFormat(
+    --         "binding error ,target is nil ,info(property=%s,source=%s,%s.%s=%s ) ",
+    --         property,
+    --         source,
+    --         current,
+    --         path,
+    --         val
+    --     )
+    --     return
+    -- end
     -- Logger.Log("val=", val)
-    if property == context_property and val ~= nil then ---如果是设置的context
+    if property == context_property then ---如果是设置的context
         set_target_context(target, val)
     else
         -- end

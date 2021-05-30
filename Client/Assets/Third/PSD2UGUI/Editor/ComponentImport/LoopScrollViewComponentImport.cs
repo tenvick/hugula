@@ -2,14 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Hugula.Databinding;
+using Hugula.UIComponents;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Hugula.UIComponents;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class LoopScrollViewComponentImport : BaseComponentImport<LoopScrollRect>
     {
@@ -19,7 +19,7 @@ namespace PSDUIImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, LoopScrollRect target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(Layer layer, LoopScrollRect target, GameObject parent, int posSizeLayerIndex)
         {
             RectTransform rectTransform = target.GetComponent<RectTransform>();
             rectTransform.offsetMin = Vector2.zero;
@@ -28,9 +28,9 @@ namespace PSDUIImporter
             rectTransform.anchorMax = Vector2.one;
 
             var bgImg = target.GetComponent<Image>();
-            DrawBackgroundImage(layer,bgImg,target.gameObject);
-    
+            var bgIdx = DrawBackgroundImage(layer, bgImg, target.gameObject);
 
+            if (bgIdx == -1) bgImg.enabled = false;
             // if (TryGetSizePostion(layer, out size, out position, out var index))
             // {
             //     //设置剪裁区域
@@ -71,7 +71,7 @@ namespace PSDUIImporter
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
         }
 
-        protected override  void CheckAddBinder(Layer layer, Hugula.UIComponents.LoopScrollRect loopScrollRect)
+        protected override void CheckAddBinder(Layer layer, Hugula.UIComponents.LoopScrollRect loopScrollRect)
         {
             var binder = PSDImportUtility.AddMissingComponent<Hugula.Databinding.Binder.LoopScrollRectBinder>(loopScrollRect.gameObject);
             if (binder != null)
@@ -84,7 +84,7 @@ namespace PSDUIImporter
 
         }
 
-         protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent)
+        protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent)
         {
             var txt = PSDImportUtility.LoadAndInstant<LoopScrollRect>(PSDImporterConst.ASSET_PATH_LOOP_SCROLLVIEW, layer.name, parent);
             return txt;

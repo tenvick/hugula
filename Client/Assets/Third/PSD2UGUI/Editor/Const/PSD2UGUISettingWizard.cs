@@ -1,12 +1,16 @@
-using PSDUIImporter;
+using PSDUINewImporter;
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+namespace PSDUINewImporter
+{
+
+
 public class PSD2UGUISettingWizard : ScriptableWizard
 {
-    [MenuItem("QuickTool/PSD2UGUISettingWizard")]
+    [MenuItem("QuickTool/PSD2NewUGUISettingWizard")]
     private static void CreateWizard()
     {
         ScriptableWizard.DisplayWizard<PSD2UGUISettingWizard>("Create Light", "Create");
@@ -157,4 +161,5 @@ public class PSD2UGUISettingWizard : ScriptableWizard
         return _path;
     }
 
+}
 }

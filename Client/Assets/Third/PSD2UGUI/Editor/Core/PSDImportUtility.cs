@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using UnityEditor;
 using UnityEngine;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public static class PSDImportUtility
     {
@@ -140,6 +140,15 @@ namespace PSDUIImporter
             return obj;
         }
         **/
+
+        public static string FindFileInDirectory(string baseDirectory,string fileName)
+        {
+            System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo(baseDirectory);
+            var files = dirInfo.GetFiles(fileName,System.IO.SearchOption.AllDirectories);
+            if (files.Length > 0) return files[0].FullName.Replace("\\","/").Replace(Application.dataPath, "Assets");
+            return string.Empty;
+        }
+        
         public static RectTransform GetRectTransform(this GameObject source)
         {
             return source.GetComponent<RectTransform>();

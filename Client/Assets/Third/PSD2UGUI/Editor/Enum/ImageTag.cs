@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public class ImageTag
     {
-        public const string SliceTag = "9S";
+        public const string SliceTag = "slice";
         public const string BackGround = "Bg";
 
         public const string NormalTag = "Normal";

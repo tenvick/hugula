@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public class PSDImporterConst
     {

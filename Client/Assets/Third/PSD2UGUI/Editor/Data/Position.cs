@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public class Position
     {

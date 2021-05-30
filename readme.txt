@@ -1,6 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.5.30
+1 psd to ugui 命名空间修改。
+2 增加Slider控件导入支持。
+3 psd to ugui 导入坐标以localPosition计算。
+
 2021.5.23
 1 psdtougui插件整合，完善ui导出到模板生成全流程。
 2 psd to ugui 文档与示例。

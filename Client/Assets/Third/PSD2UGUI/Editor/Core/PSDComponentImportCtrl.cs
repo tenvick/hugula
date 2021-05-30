@@ -3,12 +3,13 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 #if UNITY_5_3
 using UnityEditor.SceneManagement;
 #endif
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public class PSDComponentImportCtrl
     {
@@ -158,13 +159,14 @@ namespace PSDUIImporter
         //--------------------------------------------------------------------------
         // private methods,按texture或image的要求导入图片到unity可加载的状态
         //-------------------------------------------------------------------------
+      
 
         private void ImportLayer(Layer layer, string baseDirectory)
         {
             if ("Image" == layer.type)
             {
                 {
-                    string texturePathName = PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
+                    string texturePathName = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);// PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
 
                     Debug.Log(texturePathName);
                     // modify the importer settings
@@ -175,6 +177,7 @@ namespace PSDUIImporter
                         textureImporter.textureType = TextureImporterType.Sprite;
                         textureImporter.spriteImportMode = SpriteImportMode.Single;
                         textureImporter.mipmapEnabled = false; //默认关闭mipmap
+                        // textureImporter.sRGBTexture = false;
                         // if(image.imageSource == ImageSource.Global)
                         // {
                         //     textureImporter.spritePackingTag = PSDImporterConst.Globle_FOLDER_NAME;

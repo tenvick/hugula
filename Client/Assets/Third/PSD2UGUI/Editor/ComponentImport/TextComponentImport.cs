@@ -5,7 +5,7 @@ using UnityEditor;
 using System.IO;
 using TMPro;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class TextComponentImport : BaseComponentImport<TMPro.TextMeshProUGUI>
     {
@@ -248,16 +248,10 @@ namespace PSDUIImporter
             #endregion
 
             rectTransform.sizeDelta = new Vector2(layer.size.width*1.2f, layer.size.height*1.1f);
-            rectTransform.anchoredPosition = GetLocalAnchoredPosition(layer.position, rectTransform);  //layer.position - parentAnchoredPosition;
+            rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);  //layer.position - parentAnchoredPosition;
 
             // UnityEngine.Debug.LogFormat("name = {0},size={1},position={2} ",layer.name, layer.size,layer.position);
         }
-
-        // protected override TextMeshProUGUI LoadAndInstant(Layer layer, GameObject parent)
-        // {
-        //     var txt = PSDImportUtility.LoadAndInstant<TextMeshProUGUI>(PSDImporterConst.ASSET_PATH_TEXT, layer.name, parent);
-        //     return txt;
-        // }
 
         protected override  void CheckAddBinder(Layer layer, TextMeshProUGUI text)
         {

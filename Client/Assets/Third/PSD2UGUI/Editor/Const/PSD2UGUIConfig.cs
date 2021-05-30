@@ -1,11 +1,11 @@
-using PSDUIImporter;
+using PSDUINewImporter;
 using UnityEngine;
+namespace PSDUINewImporter {
 
-[CreateAssetMenu(fileName = "PSD2UGUIConfig", menuName = "Creat PSD2UGUIConfig Asset")]
-public class PSD2UGUIConfig : ScriptableObject
-{
-    [Header("通用图集路径")]
-    public string m_commonAtlasPath = PSDImporterConst.Globle_BASE_FOLDER;
+    [CreateAssetMenu (fileName = "PSD2UGUIConfig", menuName = "Creat PSD2NewUGUIConfig Asset")]
+    public class PSD2UGUIConfig : ScriptableObject {
+        [Header ("通用图集路径")]
+        public string m_commonAtlasPath = PSDImporterConst.Globle_BASE_FOLDER;
 
     [Space(10)]
     [Header("图集名")]
@@ -29,8 +29,8 @@ public class PSD2UGUIConfig : ScriptableObject
         m_config.m_psduiTemplatePath = m_psduiTemplatePath;
     }
 
-    public override string ToString()
-    {
-        return string.Format("m_commonAtlasPath={0},\nm_commonAtlasName={1},\nm_fontPath={2},\nm_staticFontPath={3},\nm_psduiTemplatePath={4} ",m_commonAtlasPath,m_commonAtlasName,m_fontPath,m_staticFontPath,m_psduiTemplatePath);
+        public override string ToString () {
+            return string.Format ("m_commonAtlasPath={0},\nm_commonAtlasName={1},\nm_fontPath={2},\nm_staticFontPath={3},\nm_psduiTemplatePath={4} ", m_commonAtlasPath, m_commonAtlasName, m_fontPath, m_staticFontPath, m_psduiTemplatePath);
+        }
     }
 }

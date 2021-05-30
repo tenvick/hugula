@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class ButtonComponentImport : SelectableComponentImport<UnityEngine.UI.Button>
     {
@@ -23,7 +23,7 @@ namespace PSDUIImporter
             var text = target.GetComponentInChildren<TMPro.TextMeshProUGUI>();
     
             int normalIdx = DrawBackgroundImage(layer,normalImage,target.gameObject); //背景图覆盖size
-            base.DrawTargetLayer(layer,target,parent,posSizeLayerIndex);
+            base.DrawSpriteState(layer,target,parent,posSizeLayerIndex,true);
 
             //第一个文本
             foreach (var l1 in layer.layers)
@@ -35,7 +35,8 @@ namespace PSDUIImporter
                         RectTransform rectTransform = target.GetComponent<RectTransform>();
                         PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                         rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                        rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform); 
+                        rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+                        // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform); 
                     }
 
                     ctrl.DrawLayer(l1, text.gameObject, target.gameObject);

@@ -14,7 +14,7 @@ using UnityEngine.UI;
 /// note:
 /// 
 /// </summary>
-namespace UGUI.Effects
+namespace UGUI.EffectsNew
 {
     [CustomEditor(typeof(Mirror), true)]
     [CanEditMultipleObjects]

@@ -6,9 +6,9 @@ using UnityEngine.Sprites;
 using UnityEngine.UI;
 using UGUI.Collections;
 
-namespace UGUI.Effects
+namespace UGUI.EffectsNew
 {
-    [AddComponentMenu("UI/Effects/Mirror", 20)]
+    [AddComponentMenu("UI/Effects/MirrorNew", 20)]
     [RequireComponent(typeof(Graphic))]
     public class Mirror : BaseMeshEffect
     {

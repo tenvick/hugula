@@ -5,8 +5,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Linq;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public abstract class BaseComponentImport<T> : IComponentImport where T : UnityEngine.Component
     {
@@ -44,13 +45,22 @@ namespace PSDUIImporter
                 var rectTransform = target.GetComponent<RectTransform>();
                 PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                 rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position,rectTransform);
+                // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position,rectTransform);
+                rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
                 return bgIdx;
             } 
             return -1;
         }
-
-        protected virtual int DrawBackgroundImage(Layer layer,Image image, GameObject target)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="image"></param>
+        /// <param name="target"></param>
+        /// <param name="overrideTarget">重新覆盖目标对象大小和位置</param>
+        /// <param name="autoImagePosition">是否设置图片位置</param>
+        /// <returns></returns>
+        protected virtual int DrawBackgroundImage(Layer layer,Image image, GameObject overrideTarget = null,bool autoImagePosition = true)
         {
             int bgIdx;
             if (TryGetBackgroundImage(layer,out bgIdx))
@@ -59,11 +69,26 @@ namespace PSDUIImporter
                 image.sprite = LoadSpriteRes(l1, null);
                 l1.target = image;
                 SetImageProperties(image, l1);
-                var rectTransform = target.GetComponent<RectTransform>();
-                // lsvRect = new Rect(l1.position.x, l1.position.y, l1.size.width, l1.size.height);
-                PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                var rectTransform = image.GetComponent<RectTransform>();
+                if(autoImagePosition)
+                {
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform);
+                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+
+                }
                 rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform);
+
+                if(overrideTarget!=null)
+                {
+                   rectTransform =  overrideTarget.GetComponent<RectTransform>();
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
+                    // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform);
+                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+
+                }
+
                 if (image.sprite == null)
                     image.enabled = false;
                 else
@@ -74,9 +99,74 @@ namespace PSDUIImporter
             return -1;
         }
 
+        /// <summary>
+        /// 绘制带特定TAG的图片，如果TAG不存在以repIndex替换 顺序。
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="image"></param>
+        /// <param name="tag"></param>
+        /// <param name="repIndex"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected virtual int DrawTagText(Layer layer, Component text, string tag, int repIndex, GameObject target)
+        {
+            int tagIdx;
+            if (TryGetTagText(layer, tag, repIndex, out tagIdx))
+            {
+                var l1 = layer.layers[tagIdx];
+                ctrl.DrawLayer(l1, text.gameObject, target.gameObject);
+                return tagIdx;
+            }
+            return -1;
+        }
+
+
+        /// <summary>
+        /// 绘制带特定TAG的图片，如果TAG不存在以repIndex替换 顺序。
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="image"></param>
+        /// <param name="tag"></param>
+        /// <param name="repIndex"></param>
+        /// <param name="target"></param>
+        /// <param name="autoSetPosition">设置image位置</param>
+        /// <param name="autoSetSize">设置imagesizeDelta</param>
+        /// <returns></returns>
+        protected virtual int DrawTagImage(Layer layer,Image image, string tag, int repIndex ,GameObject target, bool autoSetPosition = true, bool autoSetSize = true)
+        {
+            int tagIdx;
+            if (TryGetTagImage(layer, tag, repIndex,out tagIdx))
+            {
+                var l1 = layer.layers[tagIdx];
+                image.sprite = LoadSpriteRes(l1, null);
+                l1.target = image;
+                SetImageProperties(image, l1);
+                var rectTransform = target?.GetComponent<RectTransform>();
+                if(autoSetPosition)
+                {
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+                }
+                if(autoSetSize)rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
+                if (image.sprite == null)
+                    image.enabled = false;
+                else
+                    image.enabled = true;
+                    
+                return tagIdx;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="defaultSprite"></param>
+        /// <returns></returns>
         protected Sprite LoadSpriteRes(Layer layer, Sprite defaultSprite)
         {
-            string assetPath = PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
+            var assetPath = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
             Sprite sprite = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Sprite)) as Sprite;
             if (sprite == null)
             {
@@ -90,6 +180,7 @@ namespace PSDUIImporter
         /// <summary>
         /// 按照psd中图层倒序（从下往上）遍历
         /// </summary>
+        /// 
         protected int ForeachLayersDesc(Layer layer, System.Func<Layer, int, bool> func)
         {
             var layers = layer.layers;
@@ -129,6 +220,117 @@ namespace PSDUIImporter
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// 首先匹配tag
+        /// 然后寻找可以用的replaceIndex
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="tag"></param>
+        /// <param name="replaceIndex"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        protected bool TryGetTagText(Layer layer, string tag, int replaceIndex, out int index)
+        {
+            //寻找tag
+            var tagIdx = ForeachLayersDesc(layer, (li, i) =>
+            {
+                if (!string.IsNullOrEmpty(tag) && ctrl.CompareLayerType(li.type, ComponentType.Text) &&
+                    li.TagContains(tag) && PSDImportUtility.NeedDraw(li))
+                {
+                    return true;
+                }
+                return false;
+            });
+
+            if (tagIdx != -1)
+            {
+                index = tagIdx;
+                return true;
+            }
+
+            int imgIdx = -1;
+            tagIdx = ForeachLayers(layer, (li, i) =>
+            {
+                if (ctrl.CompareLayerType(li.type, ComponentType.Text)
+                    && !li.TagContains(PSDImportUtility.NewTag)
+                    && PSDImportUtility.NeedDraw(li)
+                   )
+                {
+                    imgIdx++;
+                    if (imgIdx == replaceIndex)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (tagIdx != -1)
+            {
+                index = tagIdx;
+                return true;
+            }
+            index = -1;
+            return false;
+
+        }
+
+        /// <summary>
+        /// 首先匹配tag
+        /// 然后寻找可以用的replaceIndex
+        /// </summary>
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="tag"></param>
+        /// <param name="replaceIndex"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        protected bool TryGetTagImage(Layer layer,string tag,int replaceIndex,out int index)
+        {
+            //寻找tag
+            var tagIdx = ForeachLayersDesc(layer, (li, i) =>
+            {
+                if (!string.IsNullOrEmpty(tag)  && ctrl.CompareLayerType(li.type, ComponentType.Image) && 
+                    li.TagContains(tag) && PSDImportUtility.NeedDraw(li))
+                {
+                    return true;
+                }
+                return false;
+            });
+
+            if (tagIdx != -1)
+            {
+                index = tagIdx;
+                return true;
+            }
+            
+            int imgIdx=-1;
+            tagIdx = ForeachLayers(layer, (li, i) =>
+            {
+                if (ctrl.CompareLayerType(li.type, ComponentType.Image) 
+                    && !li.TagContains(PSDImportUtility.NewTag) 
+                    && PSDImportUtility.NeedDraw(li)
+                   )
+                {
+                    imgIdx ++;
+                    if(imgIdx == replaceIndex)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (tagIdx != -1)
+            {
+                index = tagIdx;
+                return true;
+            }
+            index = -1;
+            return false;
+            
         }
 
         /// <summary>
@@ -209,16 +411,17 @@ namespace PSDUIImporter
         /// <summary>
         /// 得到本地 AnchoredPosition
         /// </summary>
-        protected Vector2 GetLocalAnchoredPosition(Position worldPos, RectTransform selfTrans)
+        protected Vector3 GetLocalPosition(Position worldPos, RectTransform selfTrans)
         {
-            var worldPosition = new Vector2(worldPos.x, worldPos.y);
+            Vector3 anchoredPosition = new Vector3(worldPos.x, worldPos.y,0);
             RectTransform parent = (RectTransform)selfTrans.parent;
-            Vector2 anchoredPosition = worldPosition;
-            Vector2 parentAnchoredPosition = parent.GetComponent<RectTransform>().anchoredPosition;
-
+            Vector3 parentAnchoredPosition ;//= parent.GetComponent<RectTransform>().anchoredPosition;
+                
+            RectTransform pRectTrans;
             while (parent != null)
             {
-                parentAnchoredPosition = parent.GetComponent<RectTransform>().anchoredPosition;
+                pRectTrans = parent.GetComponent<RectTransform>();
+                parentAnchoredPosition = parent.GetComponent<RectTransform>().localPosition;
                 anchoredPosition = anchoredPosition - parentAnchoredPosition;
                 //Debug.LogFormat("p={0},ppos={1},anpos={2} ,worldPos={3}",parent.name,parentAnchoredPosition,anchoredPosition,worldPos);
                 parent = (RectTransform)parent.parent;

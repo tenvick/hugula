@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class InputFieldComponentImport : BaseComponentImport<TMP_InputField>
     {
@@ -37,12 +37,12 @@ namespace PSDUIImporter
                 {
                     if(textComp !=null )
                     {
-                        if (normalIdx == -1) //没有找到normal图片
+                        if (normalIdx == -1 && posSizeLayerIndex == -1) //没有找到normal图片
                         {
                             RectTransform rectTransform = target.GetComponent<RectTransform>();
                             PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                             rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                            rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform); //layer.position - parentAnchoredPosition;
+                            rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform); //layer.position - parentAnchoredPosition;
                         }
 
                         ctrl.DrawLayer(l1, textComp.gameObject, target.gameObject);

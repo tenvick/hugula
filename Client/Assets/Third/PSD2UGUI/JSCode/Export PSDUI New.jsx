@@ -409,7 +409,7 @@ function exportImage(obj,validFileName,depth)
         writeNewLine( "<imageSource>" + "Custom" + "</imageSource>",depth);      
     }
 
-	if (oriName.search("_9S") >= 0 || oriName.search("_9s") >= 0)
+	if (oriName.toLowerCase().search("_9s") >= 0 )
 	{
         setLayerSizeAndPos(obj,depth);
 	  obj.visible = true;
@@ -417,7 +417,7 @@ function exportImage(obj,validFileName,depth)
 	  obj.visible = false;
 	  return;
 	}
-    else if(oriName.search("_LeftHalf") > 0 || oriName.search("_lhalf") > 0)       //左右对称的图片切左边一半
+    else if(oriName.toLowerCase().search("_lefthalf") > 0 || oriName.toLowerCase().search("_lhalf") > 0)       //左右对称的图片切左边一半
     {
   
         setLayerSizeAndPos(obj, depth);
@@ -426,7 +426,7 @@ function exportImage(obj,validFileName,depth)
         obj.visible = false;
         return;
     }
-    else if(obj.name.search("_BottomHalf") > 0 || obj.name.search("_bhalf") > 0)     //上下对称的图片切底部一半
+    else if(oriName.toLowerCase().search("_bottomhalf") > 0 || oriName.toLowerCase().search("_bhalf") > 0)     //上下对称的图片切底部一半
     {
             setLayerSizeAndPos(obj, depth);
         obj.visible = true;
@@ -434,7 +434,7 @@ function exportImage(obj,validFileName,depth)
         obj.visible = false;
         return;
     }
-    else if(obj.name.search("_Quarter") > 0  || obj.name.search("_quarter") > 0)     //上下左右均对称的图片切左下四分之一
+    else if(oriName.toLowerCase().search("_quarter") > 0 )     //上下左右均对称的图片切左下四分之一
     {
      
         setLayerSizeAndPos(obj, depth);
@@ -565,7 +565,6 @@ function saveScenePng(psd, fileName, writeToDisk,depth,notMerge)
     // alert(" saveScenePng.name = "+psd.name+" length= "+psd.layers.length )
     // we should now have a single art layer if all went well
     var canMerge = checkCanMerge(psd);
-
     if(!notMerge && canMerge)
     {
         psd.mergeVisibleLayers();
@@ -626,6 +625,7 @@ function saveScenePng(psd, fileName, writeToDisk,depth,notMerge)
         pngSaveOptions.format = SaveDocumentType.PNG;
         pngSaveOptions.PNG8 = false;
         psd.exportDocument(pngFile,ExportType.SAVEFORWEB,pngSaveOptions);
+
     }
     psd.close(SaveOptions.DONOTSAVECHANGES);
 
@@ -647,7 +647,7 @@ function makeValidFileName(fileName)
     validName = validName.replace(/\s*_([A-Z]+).+/g,"");
 	
     validName = validName.replace(/[\\\*\/\?:"\|<>]/g, ''); // remove characters not allowed in a file name
-    validName = validName.replace(/[ ]/g, '_'); // replace spaces with underscores, since some programs still may have troubles with them
+    // validName = validName.replace(/[ ]/g, '_'); // replace spaces with underscores, since some programs still may have troubles with them
 	
     if (validName.match("Common") || 
 		validName.match("Global") ||
@@ -707,9 +707,14 @@ function getTagList(fileName)
         if (array.length > 0)
         {
             var str = "";
+            var item ;
             for(var i=0;i<array.length;i++)
             {
-                str+= "<string>"+array[i]+"</string>";
+                item = array[i];
+                str+= "<string>"+item+"</string>";
+                if(item.toLowerCase().lastIndexOf("9s")>=0)
+                    str+= "<string>Slice</string>";
+
             }
             return str;
         }
@@ -745,9 +750,9 @@ function checkShouldExport(fileName){
 function checkShouldSavePng(fileName){
    var idx = fileName.lastIndexOf("@");
    var hIdx = fileName.toLowerCase().lastIndexOf("hide");
-//    var hIdx1 = fileName.lastIndexOf("Size");
-//    hIdx = hIdx>hIdx1?hIdx:hIdx1;
-   return hIdx<idx || idx==-1;
+   var hIdx1 = fileName.toLowerCase().lastIndexOf("ref");
+   hIdx = hIdx>hIdx1?hIdx:hIdx1;
+   return hIdx<idx || idx==-1 ;
 }
 
 //************************************

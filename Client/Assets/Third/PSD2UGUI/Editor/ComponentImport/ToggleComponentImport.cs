@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class ToggleComponentImport : SelectableComponentImport<Toggle>
     {
@@ -20,26 +20,13 @@ namespace PSDUIImporter
         protected override void DrawTargetLayer(Layer layer, Toggle target, GameObject parent,int posSizeLayerIndex)
         {
             var normalImage = (Image)target.targetGraphic;
-            int normalIdx = DrawBackgroundImage(layer,normalImage,target.gameObject); //背景图覆盖size
+            int normalIdx = DrawBackgroundImage(layer,normalImage,target.gameObject,false); //背景图覆盖size
             normalImage.GetComponent<RectTransform>().sizeDelta = target.GetComponent<RectTransform>().sizeDelta;
             //寻找check mark Image
             var checkImage = (Image)target.graphic;
-            ForeachLayers(layer,(li,i)=>
-            {
-                if (checkImage != null
-                    && PSDImportUtility.NeedDraw(li)
-                    && !li.TagContains("New") 
-                    &&  ctrl.CompareLayerType(li.type, ComponentType.Image) 
-                   )
-                   {
-                        ctrl.DrawLayer(li,checkImage.gameObject,parent);
-                        checkImage = null;
-                        return true;
-                   }
-                   return false;
-            });
-
-            base.DrawTargetLayer(layer,target,target.gameObject,posSizeLayerIndex);
+            base.DrawTagImage(layer,checkImage,"",0,checkImage.gameObject);
+  
+            base.DrawSpriteState(layer,target,target.gameObject,posSizeLayerIndex);
             
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
 

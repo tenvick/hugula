@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public abstract class SelectableComponentImport <T> :BaseComponentImport<T>  where T : UnityEngine.UI.Selectable
     {
@@ -20,7 +20,7 @@ namespace PSDUIImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, T target, GameObject parent,int posSizeLayerIndex)
+        protected virtual void DrawSpriteState(Layer layer, T target, GameObject parent,int posSizeLayerIndex,bool findByOrder = false)
         {
             var btnState = target.spriteState;
 
@@ -61,46 +61,49 @@ namespace PSDUIImporter
                 }
             }
         
-            //按照顺序设置状态
-            UnityEngine.Sprite defaultSprite = null;//normalImage.sprite;
-
-            //寻找 highlightedSprite pressedSprite selectedSprite disabledSprite图片
-            for (var i = 0; i < layer.layers.Length; i++)
+            if(findByOrder)
             {
-                var l1 = layer.layers[i];
-                if (!PSDImportUtility.NeedDraw(l1) || l1.TagContains(PSDImportUtility.NewTag) || !ctrl.CompareLayerType(l1.type,ComponentType.Image)) continue;
+                //按照顺序设置状态
+                UnityEngine.Sprite defaultSprite = null;//normalImage.sprite;
 
-                //Debug.LogFormat("Button name={0},i={1},target={2} ", l1.name, i, l1.target);
-                //按照属性设置btnState
-                if (highlightedIdx == -1 && (pressedIdx != i && selectedIdx != i && disabledIdx != i)) //如果有设置关键字
-                    highlightedIdx = i;
-                else if (pressedIdx == -1 && (highlightedIdx != i && selectedIdx != i && disabledIdx != i))
-                    pressedIdx = i;
-                else if (selectedIdx == -1 && (highlightedIdx != i && pressedIdx != i && disabledIdx != i))
-                    selectedIdx = i;
-                else if (disabledIdx == -1 && (highlightedIdx != i && pressedIdx != -1 && selectedIdx != i))
-                    disabledIdx = i;
+                //寻找 highlightedSprite pressedSprite selectedSprite disabledSprite图片
+                for (var i = 0; i < layer.layers.Length; i++)
+                {
+                    var l1 = layer.layers[i];
+                    if (!PSDImportUtility.NeedDraw(l1) || l1.TagContains(PSDImportUtility.NewTag) || !ctrl.CompareLayerType(l1.type,ComponentType.Image)) continue;
 
-                if (highlightedIdx == i) //高亮按照顺序来渲染
-                {
-                    btnState.highlightedSprite = LoadSpriteRes(l1, defaultSprite);
-                    l1.target = btnState.highlightedSprite;
-                }
-                else if (pressedIdx == i)
-                {
-                    btnState.pressedSprite = LoadSpriteRes(l1, defaultSprite);
-                    l1.target = btnState.highlightedSprite;
-                }
-                else if (selectedIdx == i)
-                {
-                    btnState.selectedSprite = LoadSpriteRes(l1, defaultSprite);
-                    l1.target = btnState.highlightedSprite;
-                }
-                else if (disabledIdx == i)
-                {
-                    disabledIdx = i;
-                    btnState.disabledSprite = LoadSpriteRes(l1, defaultSprite);
-                    l1.target = btnState.highlightedSprite;
+                    //Debug.LogFormat("Button name={0},i={1},target={2} ", l1.name, i, l1.target);
+                    //按照属性设置btnState
+                    if (highlightedIdx == -1 && (pressedIdx != i && selectedIdx != i && disabledIdx != i)) //如果有设置关键字
+                        highlightedIdx = i;
+                    else if (pressedIdx == -1 && (highlightedIdx != i && selectedIdx != i && disabledIdx != i))
+                        pressedIdx = i;
+                    else if (selectedIdx == -1 && (highlightedIdx != i && pressedIdx != i && disabledIdx != i))
+                        selectedIdx = i;
+                    else if (disabledIdx == -1 && (highlightedIdx != i && pressedIdx != -1 && selectedIdx != i))
+                        disabledIdx = i;
+
+                    if (highlightedIdx == i) //高亮按照顺序来渲染
+                    {
+                        btnState.highlightedSprite = LoadSpriteRes(l1, defaultSprite);
+                        l1.target = btnState.highlightedSprite;
+                    }
+                    else if (pressedIdx == i)
+                    {
+                        btnState.pressedSprite = LoadSpriteRes(l1, defaultSprite);
+                        l1.target = btnState.highlightedSprite;
+                    }
+                    else if (selectedIdx == i)
+                    {
+                        btnState.selectedSprite = LoadSpriteRes(l1, defaultSprite);
+                        l1.target = btnState.highlightedSprite;
+                    }
+                    else if (disabledIdx == i)
+                    {
+                        disabledIdx = i;
+                        btnState.disabledSprite = LoadSpriteRes(l1, defaultSprite);
+                        l1.target = btnState.highlightedSprite;
+                    }
                 }
             }
 
@@ -111,6 +114,10 @@ namespace PSDUIImporter
                 target.transition = Selectable.Transition.SpriteSwap;
             }
         }
+        // protected override void DrawTargetLayer(Layer layer, T target, GameObject parent,int posSizeLayerIndex)
+        // {
+         
+        // }
 
     }
 }

@@ -9,7 +9,7 @@ using System.Reflection;
 using UnityEditor.SceneManagement;
 #endif
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public class PSDUtils
     {
@@ -27,7 +27,7 @@ namespace PSDUIImporter
 
         private static Type FindComponentImportType(string typeName)
         {
-            string binderType = string.Format("PSDUIImporter.{0}ComponentImport", typeName); 
+            string binderType = string.Format("PSDUINewImporter.{0}ComponentImport", typeName); 
             var reType = Hugula.Utils.LuaHelper.GetClassType(binderType);
             if(reType == null)
                 Debug.LogErrorFormat("ImportType {0} isn't find. ",binderType);

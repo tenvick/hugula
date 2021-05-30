@@ -93,6 +93,15 @@ namespace HugulaEditor.Databinding
 }
 ";
             }
+            else if(typeof(IExecute) == propertyType)
+            {
+                return @" {
+    Execute = function(self, arg)
+
+    end
+}
+";
+            }
             else if (typeof(INotifyTable) == propertyType)
             {
                 return @"NotifyTable()";
@@ -224,7 +233,7 @@ end
                     {
                         isMethod = propertyName.IndexOf('(') != -1,
                         propertyName = propertyName,
-                        propertyType = propertyType,
+                        propertyType = propertyType??typeof(object),
                         isListProperty = isListProperty,
                     };
                     peroperties.Add(prop);
@@ -500,6 +509,7 @@ end
             ContextNode.templateDic["name"] = new StringBuilder().Append(name);
             ContextNode.templateDic["property"] = new StringBuilder();
             ContextNode.templateDic["command"] = new StringBuilder();
+            // ContextNode.templateDic["other"] = new StringBuilder();
 
 
             var root = new ContextNode() { name = name, contextType = ContextType.ViewModel };

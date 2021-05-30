@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class ImageComponentImport : BaseComponentImport<Image>
     {
@@ -28,7 +28,8 @@ namespace PSDUIImporter
             SetImageProperties(targetComp, layer);
 
             rectTransform.sizeDelta = new Vector2(layer.size.width, layer.size.height);
-            rectTransform.anchoredPosition = GetLocalAnchoredPosition(layer.position, rectTransform); //layer.position - parentAnchoredPosition;
+            // rectTransform.anchoredPosition = GetLocalAnchoredPosition(layer.position, rectTransform); //layer.position - parentAnchoredPosition;
+            rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);
 
             // ctrl.DrawLayers(layer.layers, null, target.gameObject);
         }

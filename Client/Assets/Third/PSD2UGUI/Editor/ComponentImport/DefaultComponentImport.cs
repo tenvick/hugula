@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.UI;
 using TMPro;
 
-namespace PSDUIImporter
+namespace PSDUINewImporter
 {
     public sealed class DefaultComponentImport : BaseComponentImport<RectTransform>
     {
@@ -17,6 +17,14 @@ namespace PSDUIImporter
 
         protected override void DrawTargetLayer(Layer layer, RectTransform target, GameObject parent,int posSizeLayerIndex)
         {
+             if(posSizeLayerIndex==-1)
+            {
+                RectTransform rectTransform = target.GetComponent<RectTransform>();
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+            }
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
         }
 

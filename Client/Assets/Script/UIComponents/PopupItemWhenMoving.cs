@@ -15,6 +15,19 @@ namespace Hugula.UI
         Vector3 pos;
         Transform m_Transform;
 
+        Transform getTransform
+        {
+            get
+            {
+
+                if(m_Transform==null)
+                {
+                    m_Transform = this.GetComponent<Transform>();
+                }
+                return m_Transform;
+            }
+        }
+
         void Start()
         {
             m_Transform = transform;
@@ -32,7 +45,7 @@ namespace Hugula.UI
 
         void Follow()
         {
-            pos = m_Transform.position;
+            pos = getTransform.position;
             check = true;
         }
     }

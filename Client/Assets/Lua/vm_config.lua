@@ -5,6 +5,8 @@
 ------------------------------------------------
 local string_format = string.format
 local setmetatable = setmetatable
+local rawget = rawget
+local rawset = rawset
 local pairs = pairs
 local VM_GC_TYPE = VM_GC_TYPE
 ------------------------------------------------------------------------
@@ -25,23 +27,72 @@ setmetatable(vm_config, mt)
 
 local vm_group = {name = "ViewModelGroup  file: vm_config.lua"}
 setmetatable(vm_group, mt)
---- vm配置组，为了增加模块独立性，使用一组vm模块来切换功能。
----@class VMGroup
----@field welcome table
----@field source_demo table
----@field scroll_rect_table table
--- _VMGroup = vm_group
 
+--VMGroup item的meta table
+-- 用于vmgroup 配置的append table 管理
+local vm_group_item_mt = {}
+vm_group_item_mt.__index = function(t, k)
+    if k == "__append" then
+        local __ap = {}
+        rawset(t, "__append", __ap)
+        return __ap
+    else
+        return rawget(vm_group_item_mt, k)
+    end
+end
+
+vm_group_item_mt.get_append_items = function(t)
+    return t.__append
+end
+
+vm_group_item_mt.append_item = function(t, item)
+    local _append = t.__append
+    _append[item] = true
+end
+
+vm_group_item_mt.contains_append_item = function(t, item)
+    local _append = t.__append
+    return _append[item]
+end
+
+vm_group_item_mt.remove_append_item = function(t, item)
+    local _append = t.__append
+    _append[item] = nil
+end
+
+vm_group_item_mt.clear_append = function(t, item)
+    local _append = t.__append
+    for key, value in pairs(_append) do
+        _append[key] = nil
+    end
+end
+
+--用于设置VMGroup的配置metatable
+local _vm_group_get_mt = {}
+_vm_group_get_mt.__index = function(t, k)
+    local group_conf = vm_group[k] --(vm_group, k)
+    if group_conf then
+        setmetatable(group_conf, vm_group_item_mt)
+        rawset(group_conf, "name", k)
+        rawset(t, k, group_conf)
+        return group_conf
+    else
+        return k
+    end
+end
+
+local _VMGroupGet = setmetatable({}, _vm_group_get_mt)
+
+-- 用于获取_VMGroup配置索引的key
 local vmgroup_name = {}
 vmgroup_name.__index = function(t, k)
     return k
 end
--- for k,v in pairs(vm_group) do
---     vmgroup_name[k] = k
--- end
-local vm_g = {}
-setmetatable(vm_g, vmgroup_name)
+local vm_g = setmetatable({}, vmgroup_name)
+
+---@type vm_group
 VMGroup = vm_g
+
 --------------------------------------------------------------------------
 -------------------------------viewmodel配置-------------------------------
 ---------------------------------------------------------------------------
@@ -81,4 +132,4 @@ vm_group.demo_login = {"demo_login","back_tips"}
 vm_group.ui_login = {"ui_login","back_tips"}
 
 -- VMGroupSource = vm_group
-return {vm_config,vm_group}
+return {vm_config, _VMGroupGet}

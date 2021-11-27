@@ -161,7 +161,7 @@ namespace Hugula.Databinding.Binder
 
         #region  集合数据变更
 
-        protected override void OnCollectionAdd(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             int count = 1;
@@ -173,7 +173,7 @@ namespace Hugula.Databinding.Binder
             // Debug.LogFormat ("OnCollectionAdd(index={0},count={1},datalen={2},items.count={3}) ", index, count,target.dataLength,items.Count);
         }
 
-        protected override void OnCollectionRemove(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             int count = 1;
@@ -188,7 +188,7 @@ namespace Hugula.Databinding.Binder
 
         }
 
-        protected override void OnCollectionRepalce(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionRepalce(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             int count = 1;
@@ -200,14 +200,14 @@ namespace Hugula.Databinding.Binder
 
         }
 
-        protected override void OnCollectionMove(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionMove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             var oldIndex = args.OldStartingIndex;
             target.UpdateBegin(index);
         }
 
-        protected override void OnCollectionReSet(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionReSet(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             target.dataLength = 0;
             target.Refresh();
@@ -240,11 +240,14 @@ namespace Hugula.Databinding.Binder
             if (GetBinding(OnItemRenderProperty) == null)
                 target.onItemRender = OnItemRender;
 
-            items = (IList)context;
+            if (context is IList)
+                items = (IList)context;
+            else
+                items = null;
 
             base.OnBindingContextChanged();
 
-            target.dataLength = items.Count;
+            target.dataLength = items?.Count ?? 0;
             target.Refresh();
 
         }

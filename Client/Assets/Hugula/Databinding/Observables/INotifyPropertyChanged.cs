@@ -16,7 +16,7 @@ namespace Hugula.Databinding {
 
 	[XLua.LuaCallCSharp]
 	[XLua.CSharpCallLua]
-	public delegate void NotifyCollectionChangedEventHandler (object sender, NotifyCollectionChangedEventArgs args);
+	public delegate void NotifyCollectionChangedEventHandler (object sender, HugulaNotifyCollectionChangedEventArgs args);
 
 	[XLua.LuaCallCSharp]
 	[XLua.CSharpCallLua]

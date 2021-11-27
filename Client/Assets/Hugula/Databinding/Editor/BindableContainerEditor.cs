@@ -400,6 +400,11 @@ namespace HugulaEditor.Databinding
                 bool needDeep = true;
                 bool isSelf = false;
                 var oldChildren = container.children;
+                var ignorePeerBinder = childTrans.GetComponents<IIgnorePeerBinder>();
+                if (ignorePeerBinder != null && ignorePeerBinder.Length > 0)
+                    return;
+                //
+
                 foreach (var child in children)
                 {
                     isSelf = System.Object.Equals(child, container);

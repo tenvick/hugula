@@ -11,77 +11,62 @@ namespace Hugula.Databinding
     [XLua.CSharpCallLua]
     public class ExpressionUtility : Singleton<ExpressionUtility>, IDisposable
     {
-        public void Initialize()
+        public void Initialize(BindPathPartGetValueUnpack getSourceValue, UpdateValueUnpack updateTargetValueUnpack, UpdateValueUnpack UpdateSourceValueUnpack)
         {
-            if (m_GetSourceValue == null)
-                m_GetSourceValue = EnterLua.luaenv.Global.GetInPath<BindPathPartGetValue>("BindingExpression.get_property");
-            if (m_UpdateTargetValue == null)
-                m_UpdateTargetValue = EnterLua.luaenv.Global.GetInPath<UpdateValue>("BindingExpression.update_target");
-            if (m_UpdateSourceValue == null)
-                m_UpdateSourceValue = EnterLua.luaenv.Global.GetInPath<UpdateValue>("BindingExpression.update_source");
+            m_GetSourceValue = getSourceValue;
+            m_UpdateTargetValueUnpack = updateTargetValueUnpack;
+            m_UpdateSourceValueUnpack = UpdateSourceValueUnpack;
         }
 
         #region  获取source的值
 
-        private BindPathPartGetValue m_GetSourceValue;
+        private BindPathPartGetValueUnpack m_GetSourceValue;
         //返回对象的属性值
         public static object GetSourcePropertyValue(object source, BindingPathPart part, bool needSubscribe)
         {
-            if (instance.m_GetSourceValue == null)
-                instance.m_GetSourceValue = EnterLua.luaenv.Global.GetInPath<BindPathPartGetValue>("BindingExpression.get_property");
-
-            return instance.m_GetSourceValue(source, part, needSubscribe);
+            return instance.m_GetSourceValue(source, part, part.path, part.isSelf, part.isMethod, part.isIndexer, needSubscribe);
         }
 
 
         #endregion
 
         #region 获取值并设置到目标对象中
-        private UpdateValue m_UpdateTargetValue;
-        //利用lua更新目标属性
+
+        private UpdateValueUnpack m_UpdateTargetValueUnpack;
+        //object target, string property, object source, string path, bool isself, bool isMethod, bool is_index, string format, object converter
         public static void UpdateTargetValue(object target, string property, object source, BindingPathPart part, string format, object converter)
         {
-            if (instance.m_UpdateTargetValue == null)
-                instance.m_UpdateTargetValue = EnterLua.luaenv.Global.GetInPath<UpdateValue>("BindingExpression.update_target");
-
-            instance.m_UpdateTargetValue(target, property, source, part, format, converter);
+            instance.m_UpdateTargetValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
         }
 
-        private UpdateValue m_UpdateSourceValue;
-        //利用lua更新源属性
+        private UpdateValueUnpack m_UpdateSourceValueUnpack;
         public static void UpdateSourceValue(object target, string property, object source, BindingPathPart part, string format, object converter)
         {
-            if (instance.m_UpdateSourceValue == null)
-                instance.m_UpdateSourceValue = EnterLua.luaenv.Global.GetInPath<UpdateValue>("BindingExpression.update_source");
-
-            instance.m_UpdateSourceValue(target, property, source, part, format, converter);
+            instance.m_UpdateSourceValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
         }
 
         #endregion
 
-
-
-        #region  lua table 寻值
-        private ApplyActual m_ApplyActual;
-        public static void ApplyByLua(Binding binding, object source)
+        public override void Reset()
         {
-            if (instance.m_ApplyActual == null)
-                instance.m_ApplyActual = EnterLua.luaenv.Global.GetInPath<ApplyActual>("BindingExpression.apply_actual_by_lua");
-            instance.m_ApplyActual(binding, source);
+            m_GetSourceValue = null;
+            m_UpdateTargetValueUnpack = null;
+            m_UpdateSourceValueUnpack = null;
+
         }
-        #endregion
 
         public override void Dispose()
         {
             base.Dispose();
             m_GetSourceValue = null;
-            m_ApplyActual = null;
-            m_UpdateSourceValue = null;
+            m_UpdateTargetValueUnpack = null;
+            m_UpdateSourceValueUnpack = null;
         }
     }
 
-    public delegate object BindPathPartGetValue(object obj, BindingPathPart property, bool needSubscribe);
-    public delegate void UpdateValue(object target, string property, object source, BindingPathPart part, string format, object converter);
-    public delegate void ApplyActual(Binding binding, object source);
+    public delegate object BindPathPartGetValueUnpack(object obj, BindingPathPart part, string path, bool isSelf, bool isMethod, bool isIndex, bool needSubscribe);
+
+    public delegate void UpdateValueUnpack(object target, string property, object source, string path, bool isSelf, bool isMethod, bool isIndex, string format, object converter);
+
 
 }

@@ -32,13 +32,20 @@ namespace Hugula.Framework
             {
                 get
                 {
-                    return (cycle !=-1) && (currCycle >= cycle);
+                    return (cycle != -1) && (currCycle >= cycle);
                 }
+            }
+
+            public void OnDestroy()
+            {
+                action = null;
+                arg = null;
+
             }
         }
         private static ObjectPool<TimerInfo> m_pool = new ObjectPool<TimerInfo>(null, ActionOnRelease);
         private static List<TimerInfo> m_Timers = new List<TimerInfo>(16);
-        private static int m_ActID = 0;
+        private static int m_ActID = 1;
 
         public static int Add(float delay, System.Action<object> action, object arg)
         {
@@ -83,6 +90,18 @@ namespace Hugula.Framework
 
         }
 
+        /// <summary>
+        /// 清理所有的对象
+        /// </summary>
+        public static void Clear()
+        {
+            foreach (var t in m_Timers)
+            {
+                t.OnDestroy();
+            }
+            m_Timers.Clear();
+        }
+
         static void ActionOnRelease(TimerInfo timerInfo)
         {
             timerInfo.id = 0;
@@ -102,8 +121,9 @@ namespace Hugula.Framework
             for (int i = 0; i < m_Timers.Count;)
             {
                 timerInfo = m_Timers[i];
-                if (timerInfo.time <= time)
+                if (timerInfo.begin + timerInfo.delay <= time)
                 {
+                    timerInfo.begin = time;
                     action = timerInfo.action;
                     arg = timerInfo.arg;
                     if (timerInfo.isDone)
@@ -122,6 +142,17 @@ namespace Hugula.Framework
                     i++;
                 }
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            foreach (var t in m_Timers)
+                t.OnDestroy();
+
+            m_Timers.Clear();
+
+            base.OnDestroy();
+
         }
     }
 }

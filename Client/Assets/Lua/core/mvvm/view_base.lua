@@ -3,7 +3,7 @@
 --
 --  author pu
 ------------------------------------------------
--- local require = require
+local require = require
 -- local class = class
 local table = table
 local pairs = pairs
@@ -45,7 +45,7 @@ local function set_active(self, enable)
         if enable then
             LuaHelper.Active(child)
         else
-            LuaHelper.DelayDeActive(child.gameObject)
+            LuaHelper.DelayDeActive(child)
         end
     end
     -- Logger.Log(string.format("set_active %s ,scene_name=%s,self._child=%s,self._context=%s",enable,self.scene_name,self._child,self._context));
@@ -105,13 +105,13 @@ local function clear(self)
     local scene_name = self.scene_name
     local child = self._child
     if child then
+        -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",scene_name,self._child,self._context));
         if scene_name ~= nil then
             LuaHelper.UnloadScene(scene_name)
         else
-            LuaHelper.DelayDestroy(child.gameObject)
+            LuaHelper.DelayDestroy(child)
         end
     end
-    -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil
     self._context = nil
     self._initialized = false

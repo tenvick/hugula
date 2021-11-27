@@ -46,14 +46,29 @@ namespace Hugula.Databinding {
             return outConvts;
         }
 
-        public IValueConverter<S, T> Get<S, T> (string name) {
+        public IValueConverter GetIValueConverter(string name)
+        {
+            object outConvts = null;
+            m_Converter.TryGetValue(name, out outConvts);
+            return (IValueConverter)outConvts;
+        }
+
+        public IValueConverter<S, T> Get<S, T>(string name)
+        {
             object outConvts = null;
             m_Converter.TryGetValue (name, out outConvts);
             return (IValueConverter<S, T>) outConvts;
         }
 
-        public override void Dispose () {
-            m_Converter.Clear ();
+        public override void Reset()
+        {
+            m_Converter.Clear();
+            AddConverter("Default", m_DefaultConverter);
+        }
+
+        public override void Dispose()
+        {
+            m_Converter.Clear();
             m_DefaultConverter = null;
             base.Dispose();
         }

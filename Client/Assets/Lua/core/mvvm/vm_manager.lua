@@ -7,7 +7,7 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local require = require
-local string_match = string.match
+-- local string_match = string.match
 local table = table
 local lua_binding = lua_binding
 local lua_unbinding = lua_unbinding
@@ -17,11 +17,11 @@ local xpcall = xpcall
 local debug = debug
 local string_format = string.format
 
-local table_insert = table.insert
-local table_indexof = table.indexof
-local table_remove_item = table.remove_item
-local table_remove_at = table.remove
-local profiler = require("perf.profiler")
+-- local table_insert = table.insert
+-- local table_indexof = table.indexof
+-- local table_remove_item = table.remove_item
+-- local table_remove_at = table.remove
+-- local profiler = require("perf.profiler")
 
 local CS = CS
 local GameObject = CS.UnityEngine.GameObject
@@ -30,7 +30,7 @@ local ResLoader = Hugula.ResLoader
 local ProfilerFactory = Hugula.Profiler.ProfilerFactory
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
-local CUtils = Hugula.Utils.CUtils
+-- local CUtils = Hugula.Utils.CUtils
 local Debug = CS.UnityEngine.Debug
 
 local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
@@ -64,6 +64,56 @@ end
 
 ------------------------------------------------
 
+local function deactive(self, vm_name, view_active)
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
+    if view_active == nil then
+        view_active = true
+    end
+    -- Logger.Log("vm_manager.deactive ", vm_name)
+    if curr_vm.is_res_ready == true and curr_vm.is_active then --已经加载过并且已经激活
+        -- Logger.Log("real vm_manager.deactive ", vm_name)
+        safe_call(curr_vm.on_deactive, curr_vm)
+        _unbinding_msg(curr_vm)
+        curr_vm.is_active = false --标记状态
+        if view_active then
+            local views = curr_vm.views
+            if views then
+                for k, v in ipairs(views) do
+                    v:set_active(false)
+                end
+            end
+        end
+
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "deactive", name = vm_name})
+    else
+        -- Logger.Log("make vm_manager.deactive is_active=false", vm_name)
+        curr_vm.is_active = false --标记状态
+    end
+end
+
+--- 销毁vm关联的所有view的资源
+---@overload fun(vm_name:string)
+---@param vm_name string
+local function destroy(self, vm_name)
+    local curr_vm = VMGenerate[vm_name] --获取vm实例
+    -- Logger.Log("vm_manager.destroy ", vm_name)
+    if curr_vm.is_res_ready == true then --如果资源加载完成
+        -- Logger.Log("real vm_manager.destroy ", vm_name)
+        curr_vm.is_active = false
+        curr_vm.is_res_ready = false
+        curr_vm._is_destory = nil
+        safe_call(curr_vm.on_deactive, curr_vm)
+        _unbinding_msg(curr_vm)
+        safe_call(curr_vm.on_destroy, curr_vm)
+        safe_call(curr_vm.clear, curr_vm)
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "destroy", name = vm_name})
+    else
+        -- Logger.Log("mark vm_manager.destroy _is_destory=true", vm_name)
+        curr_vm._is_destory = true --标记销毁
+    end
+end
+
+------------------------------------------------
 ---检查view_base的所有资源是否都加载完成
 ---@overload fun(view_base:VMBase)
 ---@param view_base VMBase
@@ -80,35 +130,48 @@ local function check_vm_base_all_done(vm_base)
     local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.check_vm_base_all_done ", vm_base.name)
     vm_base._isloading = false
     vm_base.is_res_ready = true
-    vm_base.is_active = true
 
+    local is_active = vm_base.is_active --当前的状态
+    -- Logger.Log("vm_manager.check_vm_base_all_done. vm_base.is_active = ", is_active, vm_base)
+    if vm_base._is_push == true then
+        -- safe_call(vm_base.on_push, vm_base)
+    else
+        safe_call(vm_base.on_back, vm_base)
+    end
+
+    _binding_msg(vm_base)
+
+    if views then
+        for k, view_base in ipairs(views) do
+            view_base:set_active(is_active)
+        end
+    end
+
+    safe_call(vm_base.on_active, vm_base)
+    -- Logger.Log("check_vm_base_all_done", vm_base)
+    if views then
+        for k, view_base in ipairs(views) do
+            if vm_base.auto_context then
+                -- Logger.Log(k, view_base)
+                view_base:set_child_context(vm_base)
+            end
+        end
+    end
     --on_state_changed
     if vm_base._is_group == true then
         vm_manager._vm_state:_check_on_state_changed(vm_base)
     end
 
-    if vm_base._is_push == true then
-        -- vm_base:on_push()
-        safe_call(vm_base.on_push, vm_base)
-    else
-        -- vm_base:on_back()
-        safe_call(vm_base.on_back, vm_base)
+    if is_active then
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base.name) --触发界面打开消息
     end
 
-    _binding_msg(vm_base)
-    safe_call(vm_base.on_active, vm_base)
-
-    if views then
-        local is_active = vm_base.is_active
-        for k, view_base in ipairs(views) do
-            if vm_base.auto_context then
-                view_base:set_child_context(vm_base)
-            end
-            view_base:set_active(is_active)
-        end
+    if vm_base._is_destory then --如果标记了销毁
+        destroy(vm_manager, vm_base.name)
+    elseif is_active == false then --非激活状态需要执行deactive逻辑
+        vm_base.is_active = true --强行设置为true确保正确的deactive流程
+        deactive(vm_manager, vm_base.name)
     end
-
-    lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base.name) --触发界面打开消息
 
     if profiler then
         profiler:Stop()
@@ -139,6 +202,10 @@ local function init_view(view_base, viewmodel)
     view_base:initialized() --标记初始化
 
     local vm_base = view_base._vm_base or viewmodel
+
+    -- local is_active = vm_base.is_active --设置当前view状态
+    -- view_base:set_active(is_active)
+
     check_vm_base_all_done(vm_base)
 end
 
@@ -215,83 +282,58 @@ local function find_gameobject(name, view_base)
     -- profiler.stop()
 end
 
---- 将vm关联的所有view 状态设置为参数enable的值
----@overload fun(vm_name:string,enable:boolean)
+--- 将vm关联的所有view激活
+---@overload fun(vm_name:string)
 ---@param vm_name string
----@param enable boolean
 local function active_view(self, vm_name)
     ---@type VMBase
     local curr_vm = VMGenerate[vm_name] --获取vm实例
-    -- Logger.Log("active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
-    if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过
+    -- Logger.Log("vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
+    if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过并且未被激活
         local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.active_view ", vm_name)
+        -- Logger.Log("real vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
+
         curr_vm.is_active = true
 
         local views = curr_vm.views
 
-        --on_state_changed 没有资源的模块也需要检测state changed 事件
-        if (views == nil or #views == 0) and curr_vm._is_group == true then
-            vm_manager._vm_state:_check_on_state_changed(curr_vm)
-        end
-
         if curr_vm._is_push == true then
-            safe_call(curr_vm.on_push, curr_vm)
+            -- safe_call(curr_vm.on_push, curr_vm)
         else
             safe_call(curr_vm.on_back, curr_vm)
         end
 
         _binding_msg(curr_vm)
 
+        local _auto_context = curr_vm.auto_context
+        if views then
+            for k, v in ipairs(views) do
+                v:set_active(true)
+            end
+        end
+
         safe_call(curr_vm.on_active, curr_vm)
 
-        local _auto_context = curr_vm.auto_context
         if views then
             for k, v in ipairs(views) do
                 if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
                     v:set_child_context(curr_vm)
                 end
-                v:set_active(true)
             end
         end
 
-        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
+        --on_state_changed 没有资源的模块也需要检测state changed 事件
+        -- if (views == nil or #views == 0) and curr_vm._is_group == true then
+        if curr_vm._is_group == true then
+            vm_manager._vm_state:_check_on_state_changed(curr_vm)
+        end
 
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
+        
         if profiler then
             profiler:Stop()
         end
     end
-end
-
-local function deactive(self, vm_name)
-    local curr_vm = VMGenerate[vm_name] --获取vm实例
-
-    if curr_vm.is_res_ready == true then --已经加载过
-        if curr_vm.is_active then
-            safe_call(curr_vm.on_deactive, curr_vm)
-            _unbinding_msg(curr_vm)
-            local views = curr_vm.views
-            if views then
-                for k, v in ipairs(views) do
-                    v:set_active(false)
-                end
-            end
-
-            curr_vm.is_active = false
-        end
-    end
-end
-
---- 销毁vm关联的所有view的资源
----@overload fun(vm_name:string)
----@param vm_name string
-local function destroy(self, vm_name)
-    local curr_vm = VMGenerate[vm_name] --获取vm实例
-    curr_vm.is_active = false
-    curr_vm.is_res_ready = false
-    safe_call(curr_vm.on_deactive, curr_vm)
-    _unbinding_msg(curr_vm)
-    safe_call(curr_vm.on_destroy, curr_vm)
-    safe_call(curr_vm.clear, curr_vm)
 end
 
 ---加载配置的资源
@@ -380,10 +422,12 @@ local function load(self, vm_name, arg, is_push, is_group)
     if views == nil or #views == 0 then
         curr_vm.is_res_ready = true
     end
-
+    -- Logger.Log("vm_mamanger.load ", curr_vm, curr_vm.is_active, "_isloading=", curr_vm._isloading)
     if curr_vm.is_res_ready == true then --已经加载过
         active_view(self, vm_name)
     else
+        curr_vm.is_active = true --需要重新加载，设置本身为激活状态
+        curr_vm._is_destory = nil --清理销毁标记
         if views and curr_vm._isloading ~= true then
             curr_vm._isloading = true
             local find_path, res_name, scene_name
@@ -412,6 +456,7 @@ local function active(self, vm_name, arg, is_push, is_group)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
+    -- Logger.Log("vm_manager.active(", vm_name.name or vm_name)
     if type(vm_name) == "string" then --单个
         load(self, vm_name, arg, is_push)
     else
@@ -464,7 +509,7 @@ local function re_load(self, vm_name)
     end
 
     if views and #views > 0 and is_res_ready then --如果资源已经加载需要重新刷新
-        local res_name, scene_name
+        -- local res_name, scene_name
         local new_views = curr_vm.views
         for k, v in ipairs(new_views) do
             v:set_child(views[k]._child) -- set view BindableContainer

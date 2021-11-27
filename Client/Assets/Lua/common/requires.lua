@@ -19,7 +19,7 @@ require("core.databinding.binding_expression") ---表达式与寻值
 require("net.lua_dispatcher_type") --派发事件类型
 require("net.lua_dispatcher")
 
--- require("models.model")
+models = require("models.models_manager") --全局模型管理
 
 require("core.mvvm.view_base")
 require("core.mvvm.vm_state")

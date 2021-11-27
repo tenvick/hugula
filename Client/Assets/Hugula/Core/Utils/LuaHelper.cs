@@ -44,8 +44,20 @@ namespace Hugula.Utils
             GameObject.DestroyImmediate(original, allowDestroyingAssets);
         }
 
-        public static void DelayDestroy(GameObject gobj)
+        public static void DelayDestroy(Object obj)
         {
+
+            GameObject gobj = null;
+            if (obj is GameObject)
+            {
+                gobj = (GameObject)obj;
+            }
+            else if (obj is Component)
+            {
+                gobj = ((Component)obj).gameObject;
+            }
+            if (gobj == null) return;
+
             var delay = gobj.GetComponent<Hugula.Framework.IDelayDestory>();
             if (delay != null)
             {
@@ -61,26 +73,54 @@ namespace Hugula.Utils
             }
         }
 
-        public static void Active(Component comp)
+        public static void DontDestroyOnLoad(Object target)
         {
-            Active(comp.gameObject);
+            Object.DontDestroyOnLoad(target);
         }
 
-        public static void Active(GameObject gameObject)
+        // public static void Active(Component comp)
+        // {
+        //     Active(comp.gameObject);
+        // }
+
+        public static void Active(Object obj)
         {
-            // gameObject.SetActive (active);
-            var delay = gameObject.GetComponents<Hugula.Framework.IDelayCancel>();
+            GameObject gobj = null;
+            if (obj is GameObject)
+            {
+                gobj = (GameObject)obj;
+            }
+            else if (obj is Component)
+            {
+                gobj = ((Component)obj).gameObject;
+            }
+
+            if (gobj == null) return;
+
+            var delay = gobj.GetComponents<Hugula.Framework.IDelayCancel>();
             if (delay != null && delay.Length > 0)
             {
                 foreach (var dela in delay)
                     dela.CancelDelay();
             }
 
-            gameObject.SetActive(true);
+            gobj.SetActive(true);
         }
 
-        public static void DelayDeActive(GameObject gobj)
+        public static void DelayDeActive(Object obj)
         {
+            GameObject gobj = null;
+            if (obj is GameObject)
+            {
+                gobj = (GameObject)obj;
+            }
+            else if (obj is Component)
+            {
+                gobj = ((Component)obj).gameObject;
+            }
+
+            if (gobj == null) return;
+
             var delay = gobj.GetComponents<Hugula.Framework.IDelayDeactive>();
             if (delay != null && delay.Length > 0)
             {

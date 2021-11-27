@@ -15,6 +15,10 @@ namespace Hugula.Mvvm
             m_VMState = EnterLua.luaenv?.Global.GetInPath<IVMState>(VM_NAME);
         }
 
+        public override void Reset()
+        {
+            m_VMState = null;
+        }
         public override void Dispose()
         {
             base.Dispose();

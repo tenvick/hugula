@@ -4,19 +4,19 @@
 --  author pu
 ------------------------------------------------
 local table = table
-local type = type
+-- local type = type
 local table_insert = table.insert
 local table_remove = table.remove
-local table_remove_item = table.remove_item
+-- local table_remove_item = table.remove_item
 local string_format = string.format
-local ipairs = ipairs
-local pairs = pairs
+-- local ipairs = ipairs
+-- local pairs = pairs
 local class = class
 
 local ilist_table =
     class(
     function(self, items)
-        self.items =  items or {}
+        self.items = items or {}
         self.Count = #self.items
         self.IsReadOnly = false
         self.IsFixedSize = false
@@ -46,7 +46,7 @@ local function set_item(self, index, item)
         error("Argument index Out of Range")
     end
 
-    local old = items[index]
+    -- local old = items[index]
     items[index] = item
 end
 

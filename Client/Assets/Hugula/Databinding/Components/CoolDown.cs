@@ -61,8 +61,8 @@ namespace Hugula.UIComponents
 
         //private
         private bool m_BeginCD = false;
-        private float m_Dt = 0;
         private float m_PassedTime = 0;
+        private float m_StartTime = 0;
         private StringBuilder sb = new StringBuilder();
 
         // Start is called before the first frame update
@@ -76,10 +76,9 @@ namespace Hugula.UIComponents
         {
             if (m_BeginCD)
             {
-                m_Dt += Time.deltaTime;
-                m_PassedTime += Time.deltaTime;
+                m_PassedTime += Time.realtimeSinceStartup - m_StartTime;
                 int remain = m_RemainTime - (int)m_PassedTime;
-                if (m_Dt >= 1)
+                if (m_PassedTime >= 1)
                 {
                     SetText(remain);
                 }
@@ -100,7 +99,7 @@ namespace Hugula.UIComponents
         void BeginCD()
         {
             m_BeginCD = true;
-            m_Dt = 0;
+            m_StartTime = Time.realtimeSinceStartup;
             m_PassedTime = 0;
         }
 

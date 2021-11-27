@@ -13,14 +13,40 @@ namespace Hugula.Framework
     public class GlobalDispatcher : Singleton<GlobalDispatcher>, IDisposable
     {
         private Dictionary<DispatcherEvent, List<object>> m_Dispatcher = new Dictionary<DispatcherEvent, List<object>>();
-         
+        // public void Initialize()
+        // {
+
+        // }
+
+        // public void Terminate()
+        // {
+        //     m_Dispatcher.Clear();
+        // }
+
+        public void Clear()
+        {
+            foreach (var dis in m_Dispatcher)
+            {
+                for (int i = 0; i < dis.Value.Count; i++)
+                {
+                    dis.Value[i] = null; //清空lua引用
+                }
+
+                dis.Value.Clear();
+            }
+
+            m_Dispatcher.Clear();
+        }
+
+
+        public override void Reset()
+        {
+            Clear();
+        }
+
         public override void Dispose()
         {
-            foreach (var i in m_Dispatcher)
-            {
-                i.Value.Clear();
-            }
-            m_Dispatcher.Clear();
+            Clear();
             base.Dispose();
         }
 
@@ -79,18 +105,34 @@ namespace Hugula.Framework
             if (m_Dispatcher.TryGetValue(key, out events))
             {
                 object e = null;
-                // for (int i = events.Count - 1; i >= 0; i--)
-                for (int i = 0; i < events.Count; i++)
+                int i = 0;
+                int count = events.Count;
+                while (i < count)
                 {
-                    if (events.Count > i) // for events.Clear()
+                    e = events[i];
+                    if (e is System.Action<T>)
+                        ((System.Action<T>)e)(arg);
+                    else if (e is System.Action<object>)
+                        ((System.Action<object>)e)(arg);
+
+                    if (count > events.Count) count = events.Count;
+                    else
                     {
-                        e = events[i];
-                        if (e is System.Action<T>)
-                            ((System.Action<T>)e)(arg);
-                        else if (e is System.Action<object>)
-                            ((System.Action<object>)e)(arg);
+                        i++;
                     }
                 }
+
+                // for (int i = 0; i < events.Count; i++)
+                // {
+                //     if (events.Count > i) // for events.Clear()
+                //     {
+                //         e = events[i];
+                //         if (e is System.Action<T>)
+                //             ((System.Action<T>)e)(arg);
+                //         else if (e is System.Action<object>)
+                //             ((System.Action<object>)e)(arg);
+                //     }
+                // }
 
             }
         }

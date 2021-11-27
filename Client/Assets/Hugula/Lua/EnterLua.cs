@@ -9,6 +9,7 @@ using Hugula.Databinding;
 using Hugula.Framework;
 using Hugula.Utils;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 using XLua;
 #if UNITY_EDITOR
@@ -17,7 +18,8 @@ using UnityEditor;
 namespace Hugula {
 
     [XLua.LuaCallCSharp]
-    public class EnterLua : MonoBehaviour, IManager {
+    public class EnterLua : MonoBehaviour
+    {
 
 #if UNITY_EDITOR
         const string KeyDebugString = "_Plua_Debug_string";
@@ -32,18 +34,25 @@ namespace Hugula {
             }
         }
 #endif
-
+        /// <summary>
+        /// 一次释放的asset数量
+        /// </summary>
+        public static int RELEASE_COUNT = 50;
         [SerializeField] string enterLua = "begin"; //main
 
         internal static LuaEnv luaenv;
-
+        internal static EnterLua instance; //特别单例
         // Start is called before the first frame update
-        void Awake () {
-            DontDestroyOnLoad (this.gameObject);
+        void Awake()
+        {
+            instance = this;
             var ins = Executor.instance;
             ins = null;
-            ReloadLua ();
-            Manager.Add (this.GetType (), this);
+            ReloadLua();
+            DontDestroyOnLoad(this.gameObject);
+            BehaviourSingletonManager.CanCreateInstance();
+            SingletonManager.CanCreateInstance();
+
         }
 
         IEnumerator Start () {
@@ -61,33 +70,54 @@ namespace Hugula {
             }
 #if UNITY_EDITOR || UNITY_STANDALONE
             if (Input.GetKeyUp (KeyCode.F5)) {
-                GlobalDispatcher.instance.Dispatch (DispatcherEvent.F5, null);
+                GlobalDispatcher.instance?.Dispatch (DispatcherEvent.F5, null);
             }else if(Input.GetKeyUp(KeyCode.F6)) {
-                GlobalDispatcher.instance.Dispatch (DispatcherEvent.F6, null);
+                GlobalDispatcher.instance?.Dispatch (DispatcherEvent.F6, null);
             }
 
 #endif
+            //if(Time.frameCount %10 ==0)
+            ResLoader.DoReleaseNext(Time.frameCount, RELEASE_COUNT);
         }
 
-        void OnDestroy () {
-            Manager.Remove (this.GetType ());
-
-            luaenv?.DoString (@"
-                local util = require 'xlua.util'
-        util.print_func_ref_by_csharp()");
-            // if (luaenv != null) luaenv.Dispose ();
+        void OnDestroy()
+        {
+            // #if UNITY_EDITOR
+            ClearLuaRef();
+            // #endif
         }
 
         void OnApplicationQuit () {
             Debug.Log ("OnApplicationQuit");
         }
 
-        private void BeforeLuaDispose () {
-            // Manager.Terminate();
+        internal static void BeforeLuaDispose()
+        {
+			GlobalDispatcher.instance?.Dispose ();
+            ExpressionUtility.instance?.Dispose();
+            Hugula.Framework.SingletonManager.DisposeAll();
+            Hugula.Framework.BehaviourSingletonManager.DisposeAll();
+            // luaenv.DoString(@"print('')");
         }
 
-        private void ClearLuaRef () {
-            BeforeLuaDispose ();
+        internal static void DisposeLua()
+        {
+            luaenv?.GC();
+            luaenv?.DoString(@"
+                    local util = require 'xlua.util'
+            util.print_func_ref_by_csharp()");
+
+            if (luaenv != null)
+            {
+                luaenv.Dispose();
+                luaenv = null;
+            }
+            // if (luaenv != null) luaenv.Dispose ();
+        }
+
+        private void ClearLuaRef()
+        {
+            BeforeLuaDispose();
         }
 
         private void ReloadLua () {
@@ -109,7 +139,7 @@ namespace Hugula {
         private byte[] Loader (ref string name) {
             byte[] str = null;
 
-#if UNITY_EDITOR && !USE_CDN
+#if UNITY_EDITOR
             string path = Application.dataPath + "/Lua/" + name.Replace ('.', '/') + ".lua";
             bool exist = File.Exists (path);
             if (isDebug && exist) {
@@ -163,19 +193,11 @@ namespace Hugula {
             var txt = ResLoader.LoadAsset<TextAsset> (name);
             if (txt != null) {
                 ret = txt.bytes;
-                // ResLoader.Release(txt);
+                ResLoader.Release(txt);
             }
 
             return ret;
 
-        }
-
-        public void Initialize () {
-            // luaenv.DoString ("require('" + enterLua + "')");
-        }
-        public void Terminate () {
-            GlobalDispatcher.instance.Dispose ();
-            ExpressionUtility.instance.Dispose ();
         }
 
         //重启动游戏
@@ -186,26 +208,30 @@ namespace Hugula {
 
         #region delay
 
-        public static void StopDelay (object arg) {
-            var ins = Manager.Get<EnterLua> ();
+        public static void StopDelay(object arg)
+        {
+            var ins = instance;
             if (ins != null && arg is Coroutine)
                 ins.StopCoroutine((Coroutine)arg);
         }
 
-        public static Coroutine Delay(LuaFunction luafun, float time, object args) {
-            var ins = Manager.Get<EnterLua>();
+        public static Coroutine Delay(LuaFunction luafun, float time, object args)
+        {
+            var ins = instance;
             var _corout = DelayDo(luafun, time, args);
             var cor = ins.StartCoroutine(_corout);
             return cor;
         }
 
-        private static IEnumerator DelayDo (LuaFunction luafun, float time, object args) {
-            yield return new WaitForSeconds (time);
-            luafun.Call (args);
+        private static IEnumerator DelayDo(LuaFunction luafun, float time, object args)
+        {
+            yield return new WaitForSeconds(time);
+            luafun.Call(args);
         }
 
-        public static Coroutine DelayFrame(LuaFunction luafun, int frame, object args) {
-            var ins = Manager.Get<EnterLua>();
+        public static Coroutine DelayFrame(LuaFunction luafun, int frame, object args)
+        {
+            var ins = instance;
             var _corout = DelayFrameDo(luafun, frame, args);
             var cor = ins.StartCoroutine(_corout);
             return cor;

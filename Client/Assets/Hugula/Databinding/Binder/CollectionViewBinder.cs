@@ -22,7 +22,7 @@ namespace Hugula.Databinding.Binder
         IList items;
         List<BindableObject> viewItems = new List<BindableObject>();
 
-        protected override void OnCollectionAdd(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             int count = 1;
@@ -34,7 +34,7 @@ namespace Hugula.Databinding.Binder
             InsertItems(index, count);
         }
 
-        protected override void OnCollectionRemove(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.OldStartingIndex;
             int count = 1;
@@ -49,7 +49,7 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        protected override void OnCollectionRepalce(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionRepalce(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             int count = 1;
@@ -59,14 +59,14 @@ namespace Hugula.Databinding.Binder
             UpdateView(index, count);
         }
 
-        protected override void OnCollectionMove(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionMove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
             var oldIndex = args.OldStartingIndex;
             MoveItems(index, oldIndex);
         }
 
-        protected override void OnCollectionReSet(object sender, NotifyCollectionChangedEventArgs args)
+        protected override void OnCollectionReSet(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             ClearItems();
         }
@@ -207,7 +207,24 @@ namespace Hugula.Databinding.Binder
         protected override void OnBindingContextChanged()
         {
 
-            items = (IList)context;
+#if !HUGULA_RELEASE || UNITY_EDITOR
+            if (context != null && !(context is IList))
+            {
+                var t = this.transform;
+                var path = this.ToString();
+                while (t.parent != null)
+                {
+                    path = t.parent.name + "." + path;
+                    t = t.parent;
+                }
+                Debug.LogWarningFormat("{0} context is not IList ({1}) ", path, context);
+            }
+#endif
+            if (context is IList)
+                items = (IList)context;
+            else
+                items = null;
+
             ClearItems();
             base.OnBindingContextChanged();
 

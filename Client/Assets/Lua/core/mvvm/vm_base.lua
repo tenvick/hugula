@@ -185,10 +185,9 @@ vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase
----@field OnPropertyChanged fun(property_name:string)
+---@field OnPropertyChanged fun(self:table, property_name:string)
 ---@field SetProperty fun(self:table, property_name:string, value:any)
 ---@field on_push_arg fun(arg:any) 入栈资源加载之前调用 由VMState:push() 触发
----@field on_push fun() 入栈资源加载完成后调用在on_active之前
 ---@field on_back fun() 从回退栈激活资源加载完成后调用在on_active之前
 ---@field on_active fun(self:table)
 ---@field on_deactive fun(self:table)

@@ -22,5 +22,9 @@ setmetatable(dispatcher_type, mt)
 ---@field     RPC_LOGIN_PACKET_ACK function 登录确认信息
 ---@field     RPC_NET_CERTIFY function 验证成功后回调
 
+------------------------------------------------
+---@field ON_STATE_CHANGED function on_state_changed状态切完成后
+---@field ON_STATE_CHANGING function on_state_changing状态切换前
+---------------------------------------------------
 DIS_TYPE = dispatcher_type
 -- return dispatcher_type

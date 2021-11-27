@@ -65,10 +65,14 @@ namespace Hugula
         #endregion
 
 
-
+        public override void Reset()
+        {
+            m_MappingAsset = null;
+        }
         public override void Dispose()
         {
             m_MappingAsset = null;
+            base.Dispose();
         }
     }
 }

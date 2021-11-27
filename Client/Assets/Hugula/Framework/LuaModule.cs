@@ -7,7 +7,7 @@ using Hugula.Mvvm;
 namespace Hugula.Framework
 {
     //将lua viewmodel以模块的形式挂接在GameObject上
-    public class LuaModule : MonoBehaviour
+    public class LuaModule : MonoBehaviour, IIgnorePeerBinder
     {
         internal const string PUSH_FUN_NAME = "on_push";
 
@@ -28,7 +28,8 @@ namespace Hugula.Framework
         {
             // var vm = EnterLua.luaenv.Global.GetInPath<INotifyPropertyChanged>("VMgenerate." + vmConfigName);
             // container.context = vm;
-            VMStateHelper.instance?.InitViewmodel(vmConfigName, container);
+            VMStateHelper.instance?.InitViewmodel(vmConfigName
+                , container);
             m_IsInited = true;
         }
 
@@ -46,6 +47,8 @@ namespace Hugula.Framework
         private void OnDestroy()
         {
             VMStateHelper.instance?.DestroyViewmodel(vmConfigName);
+            container.ClearBinding();
+            container.context = null;
 
         }
 

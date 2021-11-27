@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
 using System.IO;
-using System.Text;
 using System.Linq;
-using UnityEngine.U2D;
-using UnityEditor.U2D;
+using System.Text;
+using Hugula;
 using Hugula.Atlas;
 using Hugula.Utils;
-using Hugula;
+using UnityEditor;
+using UnityEditor.U2D;
+using UnityEngine;
+using UnityEngine.U2D;
 
 namespace HugulaEditor
 {
@@ -21,8 +21,92 @@ namespace HugulaEditor
 
     public class AtlasMenu
     {
-        [MenuItem("Hugula/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
-        [MenuItem("Assets/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
+
+        [MenuItem("Assets/Atlas/1.Create(Refresh) Atlas Asset from Folder", true, 101)]
+        private static bool ValidateCreateAtlasByFolder()
+        {
+            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            {
+                if (Directory.Exists(AssetDatabase.GetAssetPath(obj)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        [MenuItem("Hugula/Atlas/1.Create(Refresh) Atlas Asset from Folder", false, 101)]
+        [MenuItem("Assets/Atlas/1.Create(Refresh) Atlas Asset from Folder")]
+        public static void CreateAtlasByFolder()
+        {
+            // string path = string.Empty;
+            StringBuilder sb = new StringBuilder();
+            string tagName = string.Empty;
+
+            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            {
+                var assPath = AssetDatabase.GetAssetPath(obj);
+                var objName = obj.name.ToLower();
+                // 如果是文件夹
+                if (Directory.Exists(assPath))
+                {
+
+                    var ragName = objName + "_atlas.spriteatlas";
+                    string atlasPath = Path.Combine(assPath, ragName);
+                    tagName = objName + "_atlas";
+
+                    if (!File.Exists(atlasPath))
+                    {
+
+                        SpriteAtlas atlas = new SpriteAtlas();
+                        SpriteAtlasPackingSettings packSetting = new SpriteAtlasPackingSettings()
+                        {
+                            enableRotation = false,
+                            enableTightPacking = false,
+                            padding = 4,
+                        };
+                        SpriteAtlasTextureSettings textureSet = new SpriteAtlasTextureSettings()
+                        {
+                            readable = false,
+                            generateMipMaps = false,
+                            sRGB = true,
+                            filterMode = FilterMode.Bilinear,
+                        };
+                        atlas.SetTextureSettings(textureSet);
+                        atlas.SetPackingSettings(packSetting);
+                        atlas.Add(new[] { obj });
+                        AssetDatabase.CreateAsset(atlas, atlasPath);
+
+                        sb.Append("Crate atlas Asset :");
+                        sb.Append(atlasPath);
+                        sb.Append("\r\n");
+                    }
+                    else
+                    {
+                        sb.Append("Atlas asset already exists :");
+                        sb.Append(atlasPath);
+                        sb.Append("\r\n");
+                    }
+                }
+            }
+
+            // var selection = Selection.objects;
+
+            // foreach (Object s in selection)
+            // {
+            //     if (s is DefaultAsset && (path = AssetDatabase.GetAssetPath(s)) != null && Directory.Exists(path))
+            //     {
+
+            //     }
+            // }
+
+            sb.AppendLine("\r\nall completed");
+            Debug.Log(sb.ToString());
+            EditorUtils.WriteToTmpFile(tagName + ".txt", sb.ToString());
+        }
+
+        // [MenuItem("Hugula/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
+        // [MenuItem("Assets/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
         public static void CreateAtlasAsset()
         {
             var selection = Selection.objects;
@@ -86,12 +170,11 @@ namespace HugulaEditor
                         };
                         atlas.SetPackingSettings(packSet);
 
-
                         SpriteAtlasTextureSettings textureSet = new SpriteAtlasTextureSettings()
                         {
                             readable = false,
                             generateMipMaps = false,
-                            sRGB = false,
+                            sRGB = true,
                             filterMode = FilterMode.Bilinear,
                         };
                         atlas.SetTextureSettings(textureSet);
@@ -116,7 +199,7 @@ namespace HugulaEditor
         }
 
         [MenuItem("Hugula/Atlas/2.Generate All Atlas Mapping", false, 103)]
-        [MenuItem("Assets/Atlas/2.Generate All Atlas Mapping", false, 103)]
+        [MenuItem("Assets/Atlas/2.Generate All Atlas Mapping")]
         public static void GenerateAllAtlasMapping()
         {
             StringBuilder sb = new StringBuilder();
@@ -124,7 +207,7 @@ namespace HugulaEditor
             List<string> atlasNames = new List<string>();
 
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
-                p.EndsWith(".spriteatlas")
+              p.EndsWith(".spriteatlas")
             ).ToArray();
 
             for (int i = 0; i < files.Length; i++)

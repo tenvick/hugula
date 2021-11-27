@@ -73,6 +73,14 @@ namespace Hugula
             m_CancelQueue.Clear();
             // Destroy(this.gameObject);
         }
+
+        protected override void OnDestroy()
+        {
+            m_Tasks.Clear();
+            m_CancelQueue.Clear();
+            base.OnDestroy();
+        }
+
         #endregion
 
         /// <summary>

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Hugula;
 using Hugula.Utils;
 using UnityEditor;
 using UnityEngine;
-using Hugula;
 namespace HugulaEditor
 {
     //编辑器工具类
@@ -233,6 +233,12 @@ namespace HugulaEditor
             return re.ToArray();
         }
 
+        public static void SetFieldValue(object obj, string name, object value)
+        {
+            System.Type tp = obj.GetType();
+            var field = tp.GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Instance);
+            field.SetValue(obj, value);
+        }
 
         [MenuItem("Assets/Hugula/打开开始场景  %g")]
         static public void OpenBeginSence()

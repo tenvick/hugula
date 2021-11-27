@@ -14,7 +14,7 @@ namespace Tests {
             // ObservableCollection items;
             IList items;
             ObservableCollection<int> myarray = new ObservableCollection<int> ();
-            myarray.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs args) => {
+            myarray.CollectionChanged += (object sender, HugulaNotifyCollectionChangedEventArgs args) => {
                 Debug.LogFormat ("Action={4},NewItems={0},OldItems={1},NewStartingIndex={2},OldStartingIndex={3}", args.NewItems, args.OldItems, args.NewStartingIndex, args.OldStartingIndex, args.Action);
             };
 

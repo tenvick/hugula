@@ -66,10 +66,16 @@ end
 function lua_dispatcher:callHandle(api, ...)
     local funTable = tables[api]
     if funTable then
-        for k, v in ipairs(funTable) do
-            -- if type(v) == "function" then
-            k(...)
-            -- end
+        local len = #funTable
+        local i = 1
+        while (i <= len) do
+            funTable[i](...)
+            --     --check delete
+            if len > #funTable then
+                len = #funTable
+            else
+                i = i + 1
+            end
         end
     end
 end
@@ -101,8 +107,16 @@ end
 function lua_distribute(api, ...)
     local funTable = tables[api]
     if funTable then
-        for k, v in ipairs(funTable) do
-            v(...)
+        local len = #funTable
+        local i = 1
+        while (i <= len) do
+            funTable[i](...)
+            --     --check delete
+            if len > #funTable then
+                len = #funTable
+            else
+                i = i + 1
+            end
         end
     end
 end

@@ -10,7 +10,7 @@ namespace Hugula.Utils
     /// <typeparam name="T"></typeparam>
     public class ObjectPool<T> where T : new()
     {
-        private readonly Stack<T> m_Stack = new Stack<T>();
+        private readonly Stack<T> m_Stack ;
         private readonly System.Action<T> m_ActionOnGet;
         private readonly System.Action<T> m_ActionOnRelease;
 
@@ -22,7 +22,24 @@ namespace Hugula.Utils
         {
             m_ActionOnGet = actionOnGet;
             m_ActionOnRelease = actionOnRelease;
+            m_Stack = new Stack<T>();
         }
+
+        public ObjectPool(Action<T> actionOnGet, Action<T> actionOnRelease, int capacity, int initial = 0)
+        {
+            m_ActionOnGet = actionOnGet;
+            m_ActionOnRelease = actionOnRelease;
+            if (capacity <= 0)
+                m_Stack = new Stack<T>();
+            else
+                m_Stack = new Stack<T>(capacity);
+
+            for (int i = 0; i < initial; i++)
+            {
+                m_Stack.Push(new T());
+            }
+        }
+
 
         public T Get()
         {
@@ -105,8 +122,8 @@ namespace Hugula.Utils
     {
 
         private Dictionary<int, Stack<T>> m_StackDic = new Dictionary<int, Stack<T>>();
-        private readonly System.Action<T> m_ActionOnGet;
-        private readonly System.Action<T> m_ActionOnRelease;
+        private System.Action<T> m_ActionOnGet;
+        private System.Action<T> m_ActionOnRelease;
         public Dictionary<int, T> m_Source = new Dictionary<int, T>();
 
         // public int countAll { get; private set; }
@@ -204,6 +221,24 @@ namespace Hugula.Utils
             if (m_ActionOnRelease != null)
                 m_ActionOnRelease(element);
             m_Stack.Push(element);
+        }
+
+        public void Dispose()
+        {
+            foreach (var kv in m_StackDic)
+            {
+                // foreach (var gobj in kv.Value)
+                // {
+                //     GameObject.Destroy(gobj?.gameObject, 0.01f);
+                // }
+                kv.Value.Clear();
+            }
+
+            m_StackDic.Clear();
+            m_Source.Clear();
+            m_ActionOnGet = null;
+            m_ActionOnRelease = null;
+
         }
     }
 }

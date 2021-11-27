@@ -1,6 +1,16 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2021.11.27
+1 数据绑定引入对象池与引用清空。
+2 资源延时回收。
+3 重启时候清理单例与各种Manager。
+4 vm栈管理与异步加载相关bug修复。
+5 lua require优化。
+6 models.models_manager 统一模型管理。
+
+
+
 2021.5.30
 1 psd to ugui 命名空间修改。
 2 增加Slider控件导入支持。

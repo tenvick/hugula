@@ -86,19 +86,66 @@ namespace HugulaEditor
             AssetDatabase.Refresh();
 
             //addressables
-            var setting = AASEditorUtility.LoadAASSetting();
-            var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
-            var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama);//setting.FindGroup(LUA_GROUP_NAME);
-            AASEditorUtility.ClearGroup(LUA_GROUP_NAME); //清空
-            foreach (var str in dests)
+           
+            try
             {
-                var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
-                var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
-                entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
-                entry.SetLabel("lua_script", true);
-            }
-        }
+                var setting = AASEditorUtility.LoadAASSetting();
+                var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
+                var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama); //setting.FindGroup(LUA_GROUP_NAME);
+                AASEditorUtility.ClearGroup(LUA_GROUP_NAME); //清空
+                EditorUtility.DisplayProgressBar("load lua group", group.name, 1);
+                //sync load
+                var packing = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+                if (packing == null)
+                {
+                    packing = group.AddSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+                }
 
+                packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
+                packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
+                packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
+
+                var abProviderType = packing.AssetBundleProviderType;
+                var assetProviderType = packing.BundledAssetProviderType;
+
+                var syncABPType = typeof(LuaBundleProvider);
+                var syncAssetPType = typeof(LuaBundledAssetProvider);
+
+                if (!syncABPType.Equals(abProviderType.Value))
+                {
+                    var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                    targetType.Value = syncABPType;
+                    EditorUtils.SetFieldValue(packing, "m_AssetBundleProviderType", targetType);
+                    Debug.Log($"set  AssetBundleProviderType={packing.AssetBundleProviderType.Value}");
+                }
+
+                if (!syncAssetPType.Equals(assetProviderType.Value))
+                {
+                    var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                    targetType.Value = syncAssetPType;
+                    EditorUtils.SetFieldValue(packing, "m_BundledAssetProviderType", targetType);
+                    Debug.Log($"set  BundledAssetProviderType={targetType.Value} ,target={syncAssetPType}");
+                }
+
+                for (int i = 0; i < dests.Length; i++)
+                {
+                    var str = dests[i];
+                    var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
+                    var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
+                    entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
+                    entry.SetLabel("lua_script", true);
+                    EditorUtility.DisplayProgressBar("load group SetAddress", str, (float)i / files.Length);
+
+                }
+                EditorUtility.ClearProgressBar();
+                AssetDatabase.Refresh();
+            }
+            catch (System.Exception ex)
+            {
+
+            }       
+
+        }
 
         public static string GetLuaBytesResourcesPath()
         {

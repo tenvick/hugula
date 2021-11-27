@@ -18,7 +18,7 @@ local IListTable = IListTable
 local CS = CS
 local Object = CS.System.Object
 local Specialized = CS.System.Collections.Specialized
-local BindingUtility = CS.Hugula.Databinding.BindingUtility
+local BindingUtility = CS.Hugula.Databinding.CollectionChangedEventArgsUtility
 --- 为了与C#一致，这里的索引都是从0开始
 ---集合改变通知事件
 ---@class NotifyCollectionChangedAction
@@ -78,6 +78,8 @@ local function on_collection_changed(self, arg)
     for i = 1, #changed do
         changed[i](self, arg)
     end
+
+    BindingUtility.Release(arg)
 end
 
 ---改变属性
@@ -550,7 +552,7 @@ notify_table.RemoveAt = remove_at --void RemoveAt(int index);
 notify_table.FindIndex = find_index --- filter_fun(int,item) return index
 -- notify_table.Count = Count --int Count { get; }
 ---集合改变
-notify_table.OnCollectionChanged = on_collection_changed
+-- notify_table.OnCollectionChanged = on_collection_changed
 notify_table.InsertRange = insert_range
 notify_table.RemoveRange = remove_range
 notify_table.ReplaceRange = replace_range
@@ -584,7 +586,6 @@ notify_table.__tostring = tostring
 ---@field set_Item fun(self:table, index:number, item:table)
 ---@field get_Item fun(self:table, index:number):table
 ---@field CollectionChanged fun(self:table, op:string, delegate:fun())
----@field OnCollectionChanged fun(self:table, arg:any}))
 ---@field OnPropertyChanged fun(self:table, property_name:string)
 ---@field SetProperty fun(self:table, property_name:string, value:any)
 NotifyTable = notify_table

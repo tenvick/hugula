@@ -42,10 +42,6 @@ local {name} = VMBase()
 function {name}:on_push_arg(arg)
 end
 
---push到stack上时候调用
-function {name}:on_push()
-end
-
 --从stack里返回激活调用
 function {name}:on_back()
 end

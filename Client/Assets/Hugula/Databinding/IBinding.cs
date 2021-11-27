@@ -19,6 +19,12 @@ namespace Hugula.Databinding
         IList<BindableObject> GetChildren();
     }
 
+    //自动绑定忽略当前的所有同辈组件
+    public interface IIgnorePeerBinder
+    {
+
+    }
+
     public interface IClearBingding
     {
         /// <summary>

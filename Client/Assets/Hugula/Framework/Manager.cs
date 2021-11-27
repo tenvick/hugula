@@ -18,12 +18,12 @@ namespace Hugula.Framework
     {
         #region  static
         static bool m_Initialize = false;
-        static Manager m_Instance;
-        static Manager instance
+        internal static Manager m_Instance;
+        public static Manager instance
         {
             get
             {
-                if (m_Instance == null)
+                if (m_Instance == null && BehaviourSingletonManager.m_CanCreateInstance)
                 {
                     var gObj = new GameObject("Manager");
                     GameObject.DontDestroyOnLoad(gObj);
@@ -119,12 +119,30 @@ namespace Hugula.Framework
         public static void Terminate()
         {
             var kv = m_Initialized.Values;
-            foreach (var v in kv)
+            int i = 0;
+            List<IManager> all = new List<IManager>(kv);
+            int count = all.Count;
+            IManager v = null;
+            while (i < count)
             {
-                v.Terminate();
-                if (v.GetType().IsAssignableFrom(typeof(MonoBehaviour)))
+                v = all[i];
+                i++;
+#if UNITY_EDITOR
+                Debug.LogFormat("Manager.Terminate {0}", v != null ? v.GetType().Name : "");
+#endif
+                if (v != null && v is MonoBehaviour)
                 {
-                    GameObject.Destroy((MonoBehaviour)v);
+                    var mono = (MonoBehaviour)v;
+                    if (mono)
+                    {
+                        var gobj = mono.gameObject;
+                        if (gobj)
+                            GameObject.Destroy(gobj);
+                    }
+                }
+                else if (v != null)
+                {
+                    v.Terminate();
                 }
             }
 
@@ -169,7 +187,7 @@ namespace Hugula.Framework
     /// <summary>
     ///Manager  MonoBehaviour base
     /// </summary>
-    public abstract class MonoBehaviourManager:MonoBehaviour,IManager
+    public abstract class MonoBehaviourManager : MonoBehaviour, IManager
     {
         #region  imanger
         public abstract void Initialize();
@@ -179,7 +197,7 @@ namespace Hugula.Framework
 
         protected virtual void Awake()
         {
-            if(Application.isPlaying)
+            if (Application.isPlaying)
                 Manager.Add(this.GetType(), this);
         }
 

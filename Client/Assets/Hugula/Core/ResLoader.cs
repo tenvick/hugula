@@ -154,11 +154,14 @@ namespace Hugula
         {
             AsyncOperationHandle<GameObject> op;
 
-            using (var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.Instantiate ", key))
+#if !HUGULA_RELEASE
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.Instantiate ", key))
             {
+#endif
                 op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
+#if !HUGULA_RELEASE
             }
-
+#endif
             if (!op.IsDone)
                 throw new Exception("Sync Instantiate failed to load in a sync way! " + key);
 
@@ -214,26 +217,78 @@ namespace Hugula
             }
         }
 
-        static async public void LoadAssetAsync<T>(string key, System.Action<T, object> onComplete, System.Action<object, object> onEnd, object userData = null)
+        static async public void LoadAssetAsync<T, R>(string key, System.Action<T, R> onComplete, System.Action<object, R> onEnd, R userData = default(R))
         {
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
+            Task<T> task;
+#if !HUGULA_RELEASE
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T> ", key))
+            {
+#endif
+                task = Addressables.LoadAssetAsync<T>(key).Task;
+                await task;
+#if !HUGULA_RELEASE
+            }
 
-            var task = Addressables.LoadAssetAsync<T>(key).Task;
-            await task;
-            if (task.Result != null)
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T>.onComplete ", key))
             {
-                onComplete(task.Result, userData);
-            }
-            else
-            {
-                if (onEnd != null) onEnd(null, userData);
-            }
+#endif
+                if (task.Result != null)
+                {
+                    onComplete(task.Result, userData);
+                }
+                else
+                {
+                    if (onEnd != null) onEnd(null, userData);
+                }
 
             OnItemLoaded(key);
+#if !HUGULA_RELEASE
+            }
+
+#endif
+        }
+
+        static async public void LoadAssetAsync<T>(string key, System.Action<T, object> onComplete, System.Action<object, object> onEnd, object userData = null)
+        {
+
+            if (m_MarkGroup)
+            {
+                m_Groupes.Add(key);
+                m_TotalGroupCount++;
+            }
+            Task<T> task;
+#if !HUGULA_RELEASE
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T> ", key))
+            {
+#endif
+                task = Addressables.LoadAssetAsync<T>(key).Task;
+                await task;
+#if !HUGULA_RELEASE
+            }
+
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T>.onComplete ", key))
+            {
+#endif
+                if (task.Result != null)
+                {
+                    onComplete(task.Result, userData);
+                }
+                else
+                {
+                    if (onEnd != null) onEnd(null, userData);
+                }
+
+                OnItemLoaded(key);
+
+#if !HUGULA_RELEASE
+            }
+
+#endif
         }
 
         static public Task<T> LoadAssetAsyncTask<T>(string key)
@@ -245,6 +300,12 @@ namespace Hugula
         #endregion
 
         #region  GameObject 实例化
+        public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
+        {
+            var task = Addressables.InstantiateAsync(key, parent, false);
+            return task;
+        }
+
         static async public void InstantiateAsync(string key, System.Action<GameObject, object> onComplete, System.Action<object, object> onEnd, object userData = null, Transform parent = null)
         {
             if (m_MarkGroup)
@@ -252,19 +313,35 @@ namespace Hugula
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
-            // var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync ", key);
-            var task = Addressables.InstantiateAsync(key, parent, false).Task;
-            await task;
-            // if (profiler != null) profiler.Stop();
-            if (task.Result != null)
+
+            Task<GameObject> task;
+
+#if !HUGULA_RELEASE
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync ", key))
             {
-                if (onComplete != null) onComplete(task.Result, userData);
+#endif
+                task = Addressables.InstantiateAsync(key, parent, false).Task;
+                await task;
+
+#if !HUGULA_RELEASE
             }
-            else
+
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync.onComplete ", key))
             {
-                if (onEnd != null) onEnd(key, userData);
+#endif
+                if (task.Result != null)
+                {
+                    if (onComplete != null) onComplete(task.Result, userData);
+                }
+                else
+                {
+                    if (onEnd != null) onEnd(key, userData);
+                }
+                OnItemLoaded(key);
+#if !HUGULA_RELEASE
             }
-            OnItemLoaded(key);
+
+#endif
         }
 
         #endregion
@@ -282,7 +359,7 @@ namespace Hugula
         static async public void LoadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool activateOnLoad = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
         {
 
-            if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
+           if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
             {
                 Executor.Execute(ActiveExistsSceneAsync(sceneInstance, onComplete, userData));
             }
@@ -331,7 +408,7 @@ namespace Hugula
         /// <returns></returns>
         static async public void UnloadSceneAsync(SceneInstance loadedScene, System.Action<SceneInstance, object> onComplete, System.Action<SceneInstance, object> onEnd, object userData = null)
         {
-            var task = Addressables.UnloadSceneAsync(loadedScene).Task;
+           var task = Addressables.UnloadSceneAsync(loadedScene).Task;
             await task;
             if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
             {
@@ -355,7 +432,6 @@ namespace Hugula
                 Debug.LogError("Failed to unload scene : " + loadedScene);
 #endif
             }
-
         }
 
         static public void UnloadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<SceneInstance, object> onEnd, object userData = null)
@@ -392,11 +468,52 @@ namespace Hugula
 
         static public void Release<T>(T obj)
         {
-            Addressables.Release<T>(obj);
+            // Addressables.Release<T>(obj);
+            s_NextFrameObjects.Add(obj);
+            s_LastReleaseFrame = Time.frameCount;
+        }
+        static public void Release(GameObject obj)
+        {
+            Addressables.Release<GameObject>(obj);
         }
 
+        #region 延时释放 asset for "Addressables was not previously aware of"
+        internal static List<object> s_NextFrameObjects = new List<object>(128);
+        static int s_LastReleaseFrame;
+        /// <summary>
+        /// 释放列表中待释放的资源
+        /// </summary>
+        /// <param name="count"></param>
+        static internal void DoReleaseNext(int frameCount, int count = 0)
+        {
+            if (frameCount > s_LastReleaseFrame + 2)
+            {
+                int len = s_NextFrameObjects.Count;
+                if (count <= 0)
+                    count = len;
+                else
+                    count = count >= len ? len : count;
 
+                int i = 0;
+                object res = null;
 
+                //if(count>0)
+                //    Debug.Log($" DoReleaseNext frame={Time.frameCount};  count={len}. ");
+
+                while (i < count)
+                {
+                    res = s_NextFrameObjects[i];
+                    Addressables.Release(res);
+                    i++;
+                }
+
+                if (count > 0)
+                    s_NextFrameObjects.RemoveRange(0, count);
+            }
+
+        }
+
+        #endregion
     }
 
     public class LoadingEventArg : System.ComponentModel.ProgressChangedEventArgs

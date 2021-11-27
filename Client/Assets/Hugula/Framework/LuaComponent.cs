@@ -33,6 +33,8 @@ namespace Hugula.Framework
 
         void OnDestroy()
         {
+            container.ClearBinding();
+            container.context = null;
             luaViewModel = null;
         }
 

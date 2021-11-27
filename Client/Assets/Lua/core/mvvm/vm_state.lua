@@ -10,9 +10,12 @@ local table_remove_item = table.remove_item
 local table_indexof = table.indexof
 local unpack = table.unpack
 local ipairs = ipairs
+local pairs = pairs
 local type = type
 local require = require
 
+local lua_distribute = lua_distribute
+local DIS_TYPE = DIS_TYPE
 local set_target_context = BindingExpression.set_target_context
 local VM_GC_TYPE = VM_GC_TYPE
 local VMConfig, _VMGroup = unpack(require("vm_config"))
@@ -112,6 +115,7 @@ local function set_top_group(self, vm_group)
     self.top_group = vm_group --记录当前顶
     self.last_group_name = self.top_group_name
     self.top_group_name = vm_group.name
+    -- Logger.Log("last_group_name ", self.last_group_name, "top_group_name ", self.top_group_name)
 end
 
 ---根据策略判断回收view
@@ -147,10 +151,9 @@ local function strategy_view_gc(vm_name, is_state_change, stack_index)
         else
             VMManager:deactive(vm_name)
         end
-    else --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
-        -- local curr_vm = VMGenerate[vm_name] --获取vm实例
-        -- curr_vm.is_active = false
-        -- curr_vm:on_deactive()
+    elseif vm_gc == VM_GC_TYPE.MANUAL then --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
+        VMManager:deactive(vm_name, false) --不隐藏ui
+    else
     end
 end
 
@@ -171,8 +174,10 @@ local function _check_on_state_changed(self, vm_base)
 
         if check_isin_top then
             local last_group_name = self.last_group_name
-            call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name)
-            call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name)
+            local top_group_name = self.top_group_name
+            call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
+            call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
+            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name) --状态改变完成后触发
         end
     end
 end
@@ -183,8 +188,9 @@ local function hide_group(curr)
     local item
     for i = #_stack, 1, -1 do
         item = _stack[i]
-        if type(item) == TYPE_TABLE then --如果是root group
+        if type(item) == TYPE_TABLE then --如果是 group
             local log_enable = item.log_enable
+            item:clear_append() --清理附加
             for k, v in ipairs(item) do
                 if table_indexof(curr, v) == nil then --马上要使用的item不需要回收
                     strategy_view_gc(v, true) --在group里不需要对item做栈操作
@@ -202,6 +208,23 @@ local function hide_group(curr)
             end
         end
     end
+end
+
+---追加单个模块到当前group与group一起返回
+---@overload fun(vm_name:string,arg:any)
+---@param vm_config.name string
+local function append_item(self, vm_name, arg)
+    for i = #_stack, _root_index, -1 do
+        if _stack[i] == vm_name then
+            table_remove(_stack, i) --移除
+            break
+        end
+    end
+
+    table_insert(_stack, vm_name) --- 进入显示stack
+    self.top_group:append_item(vm_name)
+    VMManager:active(vm_name, arg, true, false) ---激活组
+    -- debug_stack()
 end
 
 ---入栈单个模块
@@ -245,6 +268,7 @@ local function popup_item(self, vm)
     if del > 0 then
         table_remove(_stack, del)
         strategy_view_gc(vm, false)
+        self.top_group:remove_append_item(vm)
         -- debug_stack()
         return true
     end
@@ -260,7 +284,7 @@ local function push(self, vm_group_name, arg)
         return
     end
     local vm_group = _VMGroup[vm_group_name]
-    vm_group.name = vm_group_name
+    -- vm_group.name = vm_group_name
     local tp = type(vm_group)
     if tp == TYPE_TABLE then ---如果是加入的是root 需要隐藏到上一个root的所有栈内容
         hide_group(vm_group)
@@ -294,55 +318,28 @@ local function deactive_vm(self, vm_name)
     strategy_view_gc(vm_name, false)
 end
 
-local remove, active = {}, {}
-
---移除最顶上的项目
-local function remove_pop(self)
-    local curr = table_remove(_stack, #_stack) ---移除最顶上的
-
-    if type(curr) == TYPE_TABLE then --如果当前最顶上的是vm group 则要找到下一个vm group
-        table_clear(active)
-        local item
-        --激活项
-        for i = #_stack, 1, -1 do
-            item = _stack[i]
-            if type(item) == TYPE_TABLE then
-                for k, v in ipairs(item) do
-                    table_insert(active, v)
-                end
-                _root_index = i --记录root
-                set_top_group(self, item)
-                break
-            else
-                table_insert(active, item)
-            end
-        end
-
-        --deactive
-        for k, v in ipairs(curr) do
-            if table_indexof(active, v) == nil then --在激活名单的不用激活
-                strategy_view_gc(v, true)
-            end
-        end
-
-        --active
-        for k, v in ipairs(active) do
-            VMManager:load(v) --重新激活
-        end
-    else
-        strategy_view_gc(curr, false)
-    end
+---设置root组，返回的时候到这里就停止
+---@overload fun(self:VMState,root:{Group})
+---@param vm_name string
+local function set_root(self, root)
+    self._root = _VMGroup[root]
 end
 
---- 返回上个状态
+local remove, active = {}, {}
+
+--- 返回上个组状态
 ---@overload fun()
 ---
 local function back(self)
     local item
+    local group_changed = false
     table_clear(remove)
     table_clear(active)
     for i = #_stack, _root_index, -1 do
         item = _stack[i]
+        if item == self._root then --如果是根模块不需要移除
+            return true
+        end
         if i == _root_index then
             for k, v in ipairs(item) do
                 table_insert(remove, v)
@@ -362,6 +359,7 @@ local function back(self)
             end
             _root_index = i --记录root
             set_top_group(self, item)
+            group_changed = true
             break
         else
             table_insert(active, item)
@@ -379,6 +377,88 @@ local function back(self)
     end
 
     -- debug_stack()
+    if group_changed then
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGED, self.last_group_name, self.top_group_name, true) --状态改变完成后触发
+    end
+    return false
+end
+
+--- 弹出顶上模块或者组
+---@overload fun()
+---
+local function popup_top(self)
+    local item
+    table_clear(remove)
+    table_clear(active)
+
+    local log_enable
+    --hide
+    local group_changed = false
+    local top_group = self.top_group
+    local append_items = {}
+    for i = #_stack, 1, -1 do --寻找可以弹出的模块
+        item = _stack[i]
+        if type(item) == TYPE_TABLE then
+            if item == self._root then --如果是根模块不需要移除
+                return true
+            end
+            for k, v in ipairs(item) do
+                table_insert(remove, v)
+                -- Logger.Log("移除当前组模块", k, v)
+            end
+
+            for k, v in ipairs(append_items) do
+                table_insert(remove, _stack[v])
+                -- Logger.Log("移除追加模块", _stack[v], v)
+                table_remove(_stack, v) --
+            end
+
+            item:clear_append()
+            group_changed = true
+            table_remove(_stack, i) --移除当前栈
+            break
+        elseif (not top_group:contains_append_item(item)) then --非追加项目需要弹出
+            -- log_enable = VMConfig[item].log_enable
+            table_insert(remove, item)
+            table_remove(_stack, i) --移除当前栈
+            break
+        else
+            table_insert(append_items, i)
+        end
+    end
+
+    -- --激活项
+    if group_changed == true then --如果上一个root被隐藏了
+        for i = #_stack, 1, -1 do
+            item = _stack[i]
+            if type(item) == TYPE_TABLE then --一直要寻找到下一个root
+                for k, v in ipairs(item) do
+                    table_insert(active, v)
+                end
+                _root_index = i --记录root
+                set_top_group(self, item)
+                break
+            else
+                table_insert(active, item)
+            end
+        end
+    end
+
+    for k, v in ipairs(remove) do
+        if table_indexof(active, v) == nil then --在激活名单不需要deactive
+            strategy_view_gc(v, true)
+        end
+    end
+
+    for k, v in ipairs(active) do
+        VMManager:load(v) --重新激活
+    end
+
+    -- debug_stack()
+    if group_changed then
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGED, self.last_group_name, self.top_group_name, true) --状态改变完成后触发
+    end
+    return false
 end
 
 local function init_viewmodel(self, vm_name, container)
@@ -446,10 +526,15 @@ VMManager._vm_state = vm_state
 vm_state.get_member = get_member
 vm_state.call_func = call_func
 vm_state.push = push
+vm_state.append_item = append_item
 vm_state.push_item = push_item
 vm_state.popup_item = popup_item
 vm_state.back = back
-vm_state.remove_pop = remove_pop
+vm_state.back_group = back
+
+vm_state.popup_top = popup_top
+vm_state.set_root = set_root
+
 vm_state.active = active_vm --激活当前viewmodel 不入栈
 vm_state.deactive = deactive_vm --失活当前viewmodel与上面配对。
 vm_state.init_viewmodel = init_viewmodel -- 初始化viewmodel并激活用于组件初始化
@@ -467,8 +552,8 @@ vm_state.debug_stack = debug_stack
 ---@field push fun(self:VMState, vm_group_name:string, arg:any)
 ---@field push_item   fun(self:VMState, vm_name:string, arg:any)
 ---@field popup_item fun(self:VMState, vm:string)
----@field back  fun(self:VMState)
----@field remove_pop fun()
+---@field back  fun(self:VMState) 返回上个组
+---@field popup_top fun(self:VMState) 弹出最顶上的模块或者组
 ---@field active fun(self:VMState, vm_name:string, arg:any)
 ---@field deactive fun(self:VMState, vm_name:string)
 ---@field init_viewmodel fun(self:VMState, vm_name:string, container:BindableContainer)

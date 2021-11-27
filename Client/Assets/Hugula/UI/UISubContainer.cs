@@ -37,6 +37,11 @@ namespace Hugula.UI
 
         }
 
+        public override void Reset()
+        {
+            mContainers.Clear();
+        }
+
         Dictionary<string, Transform> mContainers = new Dictionary<string, Transform>();
         public void AddContainer(string name, Transform transform)
         {

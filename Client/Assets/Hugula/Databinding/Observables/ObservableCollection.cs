@@ -303,7 +303,7 @@ namespace Hugula.Databinding
             CheckReentrancy();
             m_Items.Clear();
             OnPropertyChanged("Item[]");
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         protected virtual void RemoveItem(int index)
@@ -318,7 +318,7 @@ namespace Hugula.Databinding
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
 
         }
 
@@ -331,7 +331,7 @@ namespace Hugula.Databinding
             m_Items.Insert(index, item);
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
         protected virtual void SetItem(int index, T item)
@@ -344,7 +344,7 @@ namespace Hugula.Databinding
             m_Items[index] = item;
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, originalItem, index));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, originalItem, index));
         }
 
         protected virtual void MoveItem(int oldIndex, int newIndex)
@@ -369,10 +369,10 @@ namespace Hugula.Databinding
             OnPropertyChanged(string.Format("Item[{0}]", oldIndex));
             OnPropertyChanged(string.Format("Item[{0}]", newIndex));
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, newItem, newIndex, oldIndex));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, newItem, newIndex, oldIndex));
         }
 
-        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(HugulaNotifyCollectionChangedEventArgs e)
         {
             CollectionChanged?.Invoke(this, e);
         }
@@ -395,7 +395,7 @@ namespace Hugula.Databinding
             foreach (T item in items)
                 m_Items.Insert(index++, item);
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, originalIndex));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, originalIndex));
         }
 
         public void RemoveRange(IEnumerable<T> range)
@@ -407,7 +407,7 @@ namespace Hugula.Databinding
             foreach (T item in items)
                 m_Items.Remove(item);
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
         }
 
         public void ReplaceRange(int startIndex, IEnumerable<T> items)
@@ -427,7 +427,7 @@ namespace Hugula.Databinding
                 m_Items[i + startIndex] = ritems[i];
             }
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, ritems, oldItems, startIndex));
+            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, ritems, oldItems, startIndex));
         }
 
         [Serializable]

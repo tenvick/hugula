@@ -3,17 +3,17 @@
 --
 --  author pu
 ------------------------------------------------
-local table = table
-local string_sub = string.sub
+-- local table = table
+-- local string_sub = string.sub
 local string_format = string.format
 local tonumber = tonumber
-local ipairs = ipairs
-local setmetatable = setmetatable
+-- local ipairs = ipairs
+-- local setmetatable = setmetatable
 
-local class = class
+-- local class = class
 local CS = CS
-local BindingPathPart = BindingPathPart
-local BindingMode = CS.Hugula.Databinding.BindingMode
+-- local BindingPathPart = BindingPathPart
+-- local BindingMode = CS.Hugula.Databinding.BindingMode
 local BindingUtility = CS.Hugula.Databinding.BindingUtility
 
 local context_property = "context"
@@ -24,13 +24,13 @@ local context_property = "context"
 ---@param context any
 local function set_target_context(bindable_object, context)
     if context then
-         if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
+        if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
             BindingUtility.SetContextByINotifyTable(bindable_object, context)
             return
-        elseif context and context.get_Item then ---chekc IList
+        elseif context.get_Item then ---chekc IList
             BindingUtility.SetContextByIList(bindable_object, context)
             return
-        elseif context and context.PropertyChanged then --check INotifyPropertyChanged
+        elseif context.PropertyChanged then --check INotifyPropertyChanged
             BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
             return
         end
@@ -38,24 +38,36 @@ local function set_target_context(bindable_object, context)
     bindable_object[context_property] = context
 end
 
-local function tostring(self)
-    return "BindingExpression()"
-end
+-- local function tostring(self)
+--     return "BindingExpression()"
+-- end
 
 local val = nil
 local val_type = nil
-local function update_target(target, property, source, last_part, format, converter)
 
-    -- local format = format
-    -- local property = property
-    local path = last_part.path
-    local is_method = last_part.isMethod
-    local current = last_part.source
-    if last_part.isIndexer == true then
+local function update_target_unpack(target, property, source, path, is_self, is_method, is_indexer, format, converter)
+    local current = source --last_part.source
+    if current == nil then
+        -- Logger.Log(
+        --     string.format(
+        --         "set_target_value target=%s,property=%s,current=%s,path=%s,converter=%s,val=%s,ConvertVal=%s",
+        --         target,
+        --         property,
+        --         current,
+        --         path,
+        --         converter,
+        --         val,
+        --         converter and converter:Convert(val, val_type) or ""
+        --     )
+        -- )
+        return
+    end
+
+    if is_indexer == true then
         path = tonumber(path)
     end
 
-    if last_part.isSelf then
+    if is_self then
         val = current
     elseif is_method then
         val = current[path]()
@@ -63,20 +75,6 @@ local function update_target(target, property, source, last_part, format, conver
         val = current[path]
     end
 
-    -- Logger.Log(
-    --     string.format(
-    --         "set_target_value target=%s,property=%s,current=%s,path=%s,converter=%s,val=%s,ConvertVal=%s",
-    --         target,
-    --         property,
-    --         current,
-    --         path,
-    --         converter,
-    --         val,
-    --         converter and converter:Convert(val, val_type) or ""
-    --     )
-    -- )
-
-    -- val_type = val.GetType()
     if format ~= "" then
         val = string_format(format, val)
     end
@@ -85,40 +83,21 @@ local function update_target(target, property, source, last_part, format, conver
         val = converter:Convert(val, val_type)
     end
 
-    -- if target == nil then
-    --     Logger.LogErrorFormat(
-    --         "binding error ,target is nil ,info(property=%s,source=%s,%s.%s=%s ) ",
-    --         property,
-    --         source,
-    --         current,
-    --         path,
-    --         val
-    --     )
-    --     return
-    -- end
-    -- Logger.Log("val=", val)
     if property == context_property then ---如果是设置的context
         set_target_context(target, val)
     else
-        -- end
-        -- local old = target[property]
-        -- if old ~= val then
         target[property] = val
     end
 end
 
-local function update_source(target, property, source, part, format, converter)
-    local is_index = part.isIndexer
-    local path = part.path
-    local property = property
-    local is_method = part.isMethod
-    local format = format
-    if is_index == true then
+-- (target, property, source, path, is_self, is_method, is_indexer, format, converter)
+local function update_source_unpack(target, property, source, path, is_self, is_method, is_indexer, format, converter)
+    if is_indexer == true then
         path = tonumber(path)
     end
 
     local val = target[property]
-    local current = part.source
+    local current = source
     if converter then
         val = converter:ConvertBack(val)
     end
@@ -133,75 +112,16 @@ local function update_source(target, property, source, part, format, converter)
     --         val
     --     )
     -- )
-    if part.isSelf then
-        source = val
-    elseif is_method then
+
+    if is_method then
         current[path](val)
     else
         current[path] = val
     end
 
-    if source.on_property_set then --触发改变
-        source:on_property_set(path)
-    end
-end
-
---- apply actual
----@overload fun(binding:Binding)
----@param sourceObject object
----@param target BindableObject
----@param property string
----@param _parts List<BindingPathPart>
----@param needsGetter bool
----@param needsSetter bool
----@param needSubscribe bool
-local function apply_actual_by_lua(binding, source)
-    local current = source
-    local needSubscribe = binding.needSubscribe
-    local part = nil
-    local _parts = binding.parts
-
-    for i = 0, _parts.Count - 1 do
-        part = _parts[i]
-        part:SetSource(current)
-        if not part.isSelf and current ~= nil then
-            if i < _parts.Count - 1 then
-                if part.isMethod then
-                    current = current[part.path]()
-                else
-                    current = current[part.path]
-                end
-            end
-        end
-
-        -- Logger.LogErrorFormat(
-        --     "ApplyActual.current=%s,property=%s,m_Path=%s,parts.Count=%s,part=%s,i=%s",
-        --     current,
-        --     property,
-        --     "m_Path",
-        --     _parts.Count,
-        --     part,
-        --     i
-        -- )
-        if not part.isSelf and current == nil then
-            break
-        end
-
-        if part.nextPart ~= nil and needSubscribe and current.PropertyChanged then
-            part:Subscribe(current)
-        end
-    end
-
-    if part == nil then
-        return
-    end
-    binding:SetLastPart()
-    local mode = binding.mode
-    if mode == BindingMode.OneWay or BindingMode.TwoWay then
-        update_target(binding.target, binding.propertyName, source, part, binding.format, binding.convert)
-    elseif mode == BindingMode.OneWayToSource then
-        update_source(binding.target, binding.propertyName, source, part, binding.format, binding.convert)
-    end
+    -- if source.on_property_set then --触发改变
+    --     source:on_property_set(path)
+    -- end
 end
 
 ---invoke source property
@@ -210,10 +130,12 @@ end
 ---@param part BindingPathPart
 ---@param needSubscribe boolean
 ---@return any
-local function get_property(source, part, needSubscribe)
-    local property = part.path
-    local is_method = part.isMethod
-    if part.isIndexer then
+local function get_property_unpack(source, part, property, is_self, is_method, is_index, needSubscribe)
+    if is_self then
+        return source
+    end
+
+    if is_index then
         property = tonumber(property)
     end
     local val = nil
@@ -231,19 +153,22 @@ end
 local binding_expression = {}
 
 binding_expression.set_target_context = set_target_context
-binding_expression.get_property = get_property
-binding_expression.apply_actual_by_lua = apply_actual_by_lua
-binding_expression.update_target = update_target
-binding_expression.update_source = update_source
+binding_expression.get_property_unpack = get_property_unpack
+binding_expression.update_target_unpack = update_target_unpack
+binding_expression.update_source_unpack = update_source_unpack
 -- binding_expression
 ---绑定信息
 ---@class BindingExpression
 ---@overload fun():BindingExpression
 ---@return BindingExpression
 ---@field set_target_context function
----@field set_source_value function
----@field set_target_value function
----@field invoke_source function
----@field get_property function
----@field apply_actual_by_lua function
+---@field get_property_unpack function
+---@field update_target_unpack function
+---@field update_source_unpack function
 BindingExpression = binding_expression
+
+CS.Hugula.Databinding.ExpressionUtility.instance:Initialize(
+    get_property_unpack,
+    update_target_unpack,
+    update_source_unpack
+)

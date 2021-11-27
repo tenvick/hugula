@@ -17,32 +17,32 @@ namespace Hugula.Databinding.Binder
         private INotifyCollectionChanged notify;
         #region  集合数据变更
 
-        protected virtual void OnCollectionAdd(object sender, NotifyCollectionChangedEventArgs args)
+        protected virtual void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
 
         }
 
-        protected virtual void OnCollectionRemove(object sender, NotifyCollectionChangedEventArgs args)
+        protected virtual void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
 
         }
 
-        protected virtual void OnCollectionRepalce(object sender, NotifyCollectionChangedEventArgs args)
+        protected virtual void OnCollectionRepalce(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
 
         }
 
-        protected virtual void OnCollectionMove(object sender, NotifyCollectionChangedEventArgs args)
+        protected virtual void OnCollectionMove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
 
         }
 
-        protected virtual void OnCollectionReSet(object sender, NotifyCollectionChangedEventArgs args)
+        protected virtual void OnCollectionReSet(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
 
         }
 
-        protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        protected void OnCollectionChanged(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             if (args.Action == NotifyCollectionChangedAction.Add)
             {
@@ -93,6 +93,13 @@ namespace Hugula.Databinding.Binder
             if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
             notify = null;
             base.OnDestroy();
+        }
+
+        public override void ClearBinding()
+        {
+            base.ClearBinding();
+            if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
+
         }
 
     }

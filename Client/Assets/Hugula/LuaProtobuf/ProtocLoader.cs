@@ -16,6 +16,11 @@ namespace Hugula
 
         }
 
+        public override void  Reset()
+        {
+
+        }
+
         public string Load(string name)
         {
             string str = string.Empty;
@@ -56,7 +61,7 @@ namespace Hugula
             if (textAsset != null)
             {
                 var ret = textAsset.text;
-                // Resources.UnloadAsset(textAsset);
+                Resources.UnloadAsset(textAsset);
                 return ret;
             }
             else

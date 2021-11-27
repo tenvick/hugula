@@ -80,7 +80,7 @@ namespace XLua.Editor
             "Cursor",
             "Flash",
             "ActionScript",
-            "OnRequestRebuild",
+            //"OnRequestRebuild",
             "Ping",
             "ShaderVariantCollection",
             "SimpleJson.Reflection",
@@ -98,10 +98,15 @@ namespace XLua.Editor
             "NativeLeakDetectionMode",
             "WWWAudioExtensions",
             "UnityEngine.Experimental",
-            "UnityEngine.CanvasRenderer.OnRequestRebuild",
+            "UnityEngine.CanvasRenderer",
             "Hugula.Loader.AssetOperationSimulation",
             "UnityEngine.InputRegistering",
             "UnityEngine.InputManagerEntry",
+            "UnityEngine.LocationService",
+            "UnityEngine.BuildCompression",
+            "UnityEngine.AssetBundle",
+            "UnityEngine.WheelCollider",
+            "UnityEngine.LightProbes",
         };
 
         static bool isExcluded(Type type)
@@ -121,8 +126,9 @@ namespace XLua.Editor
         public static List<List<string>> HugulaBlackList = new List<List<string>>() {
             new List<string> () { "UnityEngine.GameObject", "networkView" },
             new List<string> () { "System.IO.FileInfo", "GetAccessControl", "System.Security.AccessControl.AccessControlSections" },
-            new List<string> () { "UnityEngine.CanvasRenderer", "OnRequestRebuild" },
-            new List<string> () { "UnityEngine.CanvasRenderer", "OnRequestRebuild", "delegate" },
+            //new List<string> () { "UnityEngine.CanvasRenderer", "OnRequestRebuild" },
+            //new List<string> () { "UnityEngine.CanvasRenderer", "OnRequestRebuild", "delegate" },
+            new List<string> () { "UnityEngine.Canvas", "renderingDisplaySize"},
 
             new List<string> () { "Hugula.Loader.ResourcesLoader", "SimulateAssetBundleInEditor" },
             new List<string> () { "Hugula.Databinding.BindableObject", "AddBinding","Hugula.Databinding.Binding" },
@@ -203,10 +209,11 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 customlist.Add(typeof(Hugula.Databinding.IExecute));
                 customlist.Add(typeof(Func<object, int, int>));
                 customlist.Add(typeof(Action<object, Component, int>));
-                customlist.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
-                customlist.Add(typeof(Hugula.Databinding.UpdateValue));
-                customlist.Add(typeof(Hugula.Databinding.ApplyActual));
-                
+                customlist.Add(typeof(Hugula.Databinding.BindPathPartGetValueUnpack));
+                // customlist.Add(typeof(Hugula.Databinding.UpdateValue));
+                customlist.Add(typeof(Hugula.Databinding.UpdateValueUnpack));
+                // customlist.Add(typeof(Hugula.Databinding.ApplyActual));
+
                 customlist.Add(typeof(Hugula.Audio.AudioManager));
 
                 customlist.Add(typeof(Action<Vector2>));
@@ -298,9 +305,10 @@ type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
                 types.Add(typeof(Hugula.Databinding.IExecute));
                 types.Add(typeof(Func<object, int, int>));
                 types.Add(typeof(Action<object, Component, int>));
-                types.Add(typeof(Hugula.Databinding.BindPathPartGetValue));
-                types.Add(typeof(Hugula.Databinding.UpdateValue));
-                types.Add(typeof(Hugula.Databinding.ApplyActual));
+                types.Add(typeof(Hugula.Databinding.BindPathPartGetValueUnpack));
+                // types.Add(typeof(Hugula.Databinding.UpdateValue));
+                types.Add(typeof(Hugula.Databinding.UpdateValueUnpack));
+                // types.Add(typeof(Hugula.Databinding.ApplyActual));
                 types.Add(typeof(Hugula.Mvvm.VMStateHelper.IVMState));
 
                 types.Add(typeof(Action<Vector2>));

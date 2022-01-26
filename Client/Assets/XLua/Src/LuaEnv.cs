@@ -111,7 +111,7 @@ namespace XLua
                 DoString(init_xlua, "Init");
                 init_xlua = null;
 
-#if !UNITY_SWITCH || UNITY_EDITOR
+#if (!UNITY_SWITCH && !UNITY_WEBGL) || UNITY_EDITOR
                 AddBuildin("socket.core", StaticLuaCallbacks.LoadSocketCore);
                 AddBuildin("socket", StaticLuaCallbacks.LoadSocketCore);
 #endif
@@ -363,7 +363,7 @@ namespace XLua
 #endif
         }
 
-        //����API
+        //兼容API
         public void GC()
         {
             Tick();
@@ -409,8 +409,8 @@ namespace XLua
             {
 #endif
             if (disposed) return;
+            translator.ClearDelegateBridgeCache();
             Tick();
-
             if (!translator.AllDelegateBridgeReleased())
             {
                 throw new InvalidOperationException("try to dispose a LuaEnv with C# callback!");
@@ -604,8 +604,8 @@ namespace XLua
 
         internal List<CustomLoader> customLoaders = new List<CustomLoader>();
 
-        //loader : CustomLoader�� filepath��������ref���ͣ�������require�Ĳ����������Ҫ֧�ֵ��ԣ���Ҫ�����ʵ·����
-        //                        ����ֵ���������null���������ظ�Դ���޺��ʵ��ļ������򷵻�UTF8�����byte[]
+        //loader : CustomLoader， filepath参数：（ref类型）输入是require的参数，如果需要支持调试，需要输出真实路径。
+        //                        返回值：如果返回null，代表加载该源下无合适的文件，否则返回UTF8编码的byte[]
         public void AddLoader(CustomLoader loader)
         {
             customLoaders.Add(loader);

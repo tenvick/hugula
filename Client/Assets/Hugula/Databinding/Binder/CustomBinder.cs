@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Hugula.Utils;
 
 namespace Hugula.Databinding.Binder
 {
@@ -8,17 +9,21 @@ namespace Hugula.Databinding.Binder
     ///直接绑定UnityEngine.Object对象
     ///</summary>
     [RequireComponent(typeof(UnityEngine.Component))]
+    [XLua.LuaCallCSharp]
     public sealed class CustomBinder : UIBehaviourBinder<Component>
     {
 
-        protected override void InitBindingsDic()
+        protected override void InitBindings()
         {
-            m_IsbindingsDictionary = true;
-            foreach (var item in bindings)
+            m_InitBindings = true;
+            if (m_BindingsDic == null)
+                m_BindingsDic = DictionaryPool<string, Binding>.Get();
+            Binding binding = null;
+            for (int i = 0; i < bindings.Count; i++)
             {
-                item.target = target;
-                m_BindingsDic[item.propertyName] = item;
-                // Debug.LogWarningFormat("InitBindingsDic({0},{1},{2}) frameCount={3} ", item.propertyName, item, binderTarget,Time.frameCount);
+                binding = bindings[i];
+                binding.target = target;
+                m_BindingsDic.Add(binding.propertyName, binding);
             }
         }
 

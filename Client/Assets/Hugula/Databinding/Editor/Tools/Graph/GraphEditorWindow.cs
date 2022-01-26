@@ -329,11 +329,12 @@ namespace HugulaEditor.Databinding
             var container = selectedTransform.GetComponent<Hugula.Databinding.BindableObject>();
             //todo
             //check binddings
-            var bindings = container.GetBindings();
-            foreach (var binding in bindings)
-            {
-                // binding.target
-            }
+            // var context_binding = container.GetBinding("context");
+            // foreach (var binding in bindings)
+            // {
+            //     // binding.target
+            // }
+            CheckBingdings(container);
 
             //check child
             var bcontainer = container as BindableContainer;
@@ -360,6 +361,8 @@ namespace HugulaEditor.Databinding
             {
                 child = children[i];
                 isSelf = System.Object.Equals(child, container);
+                // var context_binding = child.GetBinding("context");
+                CheckBingdings(child);
                 if (child == null || isSelf)
                 {
                     children.RemoveAt(i);
@@ -389,22 +392,31 @@ namespace HugulaEditor.Databinding
             for (int i = 0; i < children.Count; i++)
             {
                 child = children[i];
+                CheckBingdings(child);
                 if (child is BindableContainer)
                 {
                     CheckChildren((BindableContainer)child);
                 }
 
             }
+        }
 
+        void CheckBingdings(BindableObject bindableObject)
+        {
+           var bindings = bindableObject.GetBindings();
+           var dic = new Dictionary<string,Binding>();
+           foreach(var binding in bindings)
+           {
+               if(dic.TryGetValue(binding.propertyName,out var   oldBinding ))
+               {
+                   Debug.LogErrorFormat("check binding {0}, 已经包含{1} old={2},new={3}",GetGameObjectPath(bindableObject.transform),binding.propertyName,oldBinding,binding);
+               }
+               else
+               {
+                   dic.Add(binding.propertyName,binding);
+               }
 
-            // if (needDeep)
-            // {
-            //     for (int i = 0; i < transform.childCount; i++)
-            //     {
-            //         AddHierarchyChildren(transform.GetChild(i), container);
-            //     }
-            // }
-
+           }
         }
 
         public void RefreshBindableContainerChildren()

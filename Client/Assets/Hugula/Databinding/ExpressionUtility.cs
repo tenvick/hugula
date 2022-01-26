@@ -36,13 +36,34 @@ namespace Hugula.Databinding
         //object target, string property, object source, string path, bool isself, bool isMethod, bool is_index, string format, object converter
         public static void UpdateTargetValue(object target, string property, object source, BindingPathPart part, string format, object converter)
         {
-            instance.m_UpdateTargetValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
+            try
+            {
+                instance.m_UpdateTargetValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
+            }
+            catch (Exception ex)
+            {
+                string fullPath = target.ToString();
+                if (target is UnityEngine.Component)
+                {
+                    fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + " :" + fullPath;
+                }
+
+                UnityEngine.Debug.LogError($"Update target.property [{fullPath}].[{property}] error. \r\nC#:{ex.ToString()}");
+            }
         }
 
         private UpdateValueUnpack m_UpdateSourceValueUnpack;
         public static void UpdateSourceValue(object target, string property, object source, BindingPathPart part, string format, object converter)
         {
-            instance.m_UpdateSourceValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
+            try
+            {
+                instance.m_UpdateSourceValueUnpack(target, property, part.source, part.path, part.isSelf, part.isMethod, part.isIndexer, format, converter);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Update source.path [{source}].[{part.path}] error. \r\nC#:{ex.ToString()}");
+            }
+
         }
 
         #endregion

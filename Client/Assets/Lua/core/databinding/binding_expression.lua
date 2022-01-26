@@ -7,7 +7,7 @@
 -- local string_sub = string.sub
 local string_format = string.format
 local tonumber = tonumber
--- local ipairs = ipairs
+local type = type
 -- local setmetatable = setmetatable
 
 -- local class = class
@@ -23,18 +23,20 @@ local context_property = "context"
 ---@param bindable_object BindableObject
 ---@param context any
 local function set_target_context(bindable_object, context)
-    if context then
-        if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
-            BindingUtility.SetContextByINotifyTable(bindable_object, context)
-            return
-        elseif context.get_Item then ---chekc IList
-            BindingUtility.SetContextByIList(bindable_object, context)
-            return
-        elseif context.PropertyChanged then --check INotifyPropertyChanged
-            BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
-            return
-        end
+    --check type
+    -- local ty = type(context)
+    -- if ty == "table" then
+    if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
+        BindingUtility.SetContextByINotifyTable(bindable_object, context)
+        return
+    elseif context.get_Item then ---chekc IList
+        BindingUtility.SetContextByIList(bindable_object, context)
+        return
+    elseif context.PropertyChanged then --check INotifyPropertyChanged
+        BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
+        return
     end
+    -- end
     bindable_object[context_property] = context
 end
 
@@ -83,7 +85,7 @@ local function update_target_unpack(target, property, source, path, is_self, is_
         val = converter:Convert(val, val_type)
     end
 
-    if property == context_property then ---如果是设置的context
+    if property == context_property and type(val) == "table" then ---如果是context是lua table
         set_target_context(target, val)
     else
         target[property] = val

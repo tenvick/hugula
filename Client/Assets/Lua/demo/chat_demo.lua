@@ -52,7 +52,7 @@ local function create_talk_data(i)
     if d.type == 3 then ---表示分割线
         d.chat_content = tostring(os.date())
     else
-        d.user_name = string.format("ap_%s_%s", create_str(3), i)
+        d.user_name = string.format("name_%s_%s", create_str(3), i)
         local tick = os.time()
         local clen = math.random(50, 300)
         d.chat_content = create_str(clen)
@@ -108,7 +108,7 @@ chat_data.dropped_cmd = {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("dropped_cmd", table.tojson(self), "arg=",arg,".")
+        -- Logger.Log("dropped_cmd", table.tojson(self), "arg=",arg,".")
         if arg.y > 0 then
             add_chat_data(8, 10,0)
         end

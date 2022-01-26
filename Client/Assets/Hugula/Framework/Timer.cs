@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace Hugula.Framework
 {
+    [XLua.LuaCallCSharp]
+    [XLua.CSharpCallLua]
 
     public class Timer : BehaviourSingleton<Timer>
     {
@@ -47,10 +49,36 @@ namespace Hugula.Framework
         private static List<TimerInfo> m_Timers = new List<TimerInfo>(16);
         private static int m_ActID = 1;
 
+        public static int Delay(System.Action<object> action, float time, object arg)
+        {
+#if DEBUG_TIMER
+            Debug.LogFormat("Delay({0},{1},{2}) \r\n:{3}", action.GetHashCode(), time, arg, EnterLua.LuaTraceback());
+#endif
+            return Add(time, action, arg);
+        }
+
+        public static int DelayFrame(System.Action<object> action, int frame, object arg)
+        {
+#if DEBUG_TIMER
+            Debug.LogFormat("DelayFrame({0},{1},{2}) \r\n:{3}", action.GetHashCode(), frame, arg, EnterLua.LuaTraceback());
+#endif
+            return Add(frame * Time.deltaTime, action, arg);
+        }
+
+        public static void StopDelay(int id)
+        {
+            Remove(id);
+        }
+
+
         public static int Add(float delay, System.Action<object> action, object arg)
         {
             if (action == null)
                 throw new System.ArgumentNullException("action");
+
+#if DEBUG_TIMER
+            Debug.LogFormat("Add({0},{1},{2}) \r\n:{3}", action.GetHashCode(), delay, arg, EnterLua.LuaTraceback());
+#endif
             var timerInfo = m_pool.Get();
             timerInfo.id = m_ActID++;
             timerInfo.action = action;
@@ -67,6 +95,10 @@ namespace Hugula.Framework
         {
             if (action == null)
                 throw new System.ArgumentNullException("action");
+
+#if DEBUG_TIMER
+            Debug.LogFormat("Add({0},{1},{2},{3}) \r\n:{4}", action.GetHashCode(), delay, cycle, arg, EnterLua.LuaTraceback());
+#endif
             var timerInfo = m_pool.Get();
             timerInfo.id = m_ActID++;
             timerInfo.action = action;
@@ -130,12 +162,18 @@ namespace Hugula.Framework
                     {
                         m_Timers.RemoveAt(i);
                         m_pool.Release(timerInfo);
+#if DEBUG_TIMER
+                        Debug.Log($"remove Delay({action.GetHashCode()}");
+#endif
                     }
                     else
                     {
                         timerInfo.currCycle++;
                     }
                     action(arg);
+#if DEBUG_TIMER
+                    Debug.Log($"do Delay({action.GetHashCode()}");
+#endif
                 }
                 else
                 {

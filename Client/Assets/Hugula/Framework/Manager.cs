@@ -14,6 +14,7 @@ namespace Hugula.Framework
     ///<summary>
     ///manager 对各种manager的生命周期管理
     ///</summary>
+    [XLua.LuaCallCSharp]
     public class Manager : MonoBehaviour
     {
         #region  static
@@ -128,7 +129,7 @@ namespace Hugula.Framework
                 v = all[i];
                 i++;
 #if UNITY_EDITOR
-                Debug.LogFormat("Manager.Terminate {0}", v != null ? v.GetType().Name : "");
+                Debug.LogFormat("Manager.Terminate {0} frame:{1} ", v != null ? v.GetType().Name : "", Time.frameCount);
 #endif
                 if (v != null && v is MonoBehaviour)
                 {
@@ -137,7 +138,12 @@ namespace Hugula.Framework
                     {
                         var gobj = mono.gameObject;
                         if (gobj)
+                        {
+#if UNITY_EDITOR
+                            Debug.LogFormat("Manager.Terminate.Destroy {0} frame:{1}", gobj, Time.frameCount);
+#endif
                             GameObject.Destroy(gobj);
+                        }
                     }
                 }
                 else if (v != null)

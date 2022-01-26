@@ -56,12 +56,12 @@ namespace Hugula.Converter
 
         void Awake()
         {
-            ValueConverterRegister.instance.AddConverter(this.GetType().Name, this);
+            ValueConverterRegister.instance?.AddConverter(this.GetType().Name, this);
         }
 
         void OnDestroy()
         {
-            ValueConverterRegister.instance.RemoveConverter(this.GetType().Name);
+            ValueConverterRegister.instance?.RemoveConverter(this.GetType().Name);
 
             if (m_Map != null)
                 m_Map.Clear();

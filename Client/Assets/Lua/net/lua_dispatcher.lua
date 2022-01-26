@@ -4,10 +4,22 @@ local pairs = pairs
 local ipairs = ipairs
 local type = type
 local assert = assert
+local xpcall = xpcall
+local unpack = unpack
+local string_format = string.format
 
 local lua_dispatcher = {}
 local tables = {} --存储所有函数
 local errorTables = {}
+local Debug = CS.UnityEngine.Debug
+
+local function error_hander(h)
+    Debug.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+end
+
+local function safe_call(f, ...)
+    xpcall(f, error_hander, ...)
+end
 
 function lua_dispatcher:binding(api, fun)
     -- assert(fun ~= nil, api .. ":lua_dispatcher:binding fun is null")
@@ -69,7 +81,7 @@ function lua_dispatcher:callHandle(api, ...)
         local len = #funTable
         local i = 1
         while (i <= len) do
-            funTable[i](...)
+            safe_call(funTable[i], ...)
             --     --check delete
             if len > #funTable then
                 len = #funTable
@@ -88,13 +100,11 @@ function lua_dispatcher:unbindingError(code, fun)
     self.errorTables[code .. ""] = nil
 end
 
---发送消息到服务端
-function lua_dispatcher:send(api, content)
-    -- local msg=Msg()
-    -- msg:set_Type(api.Code)
-    -- NetProtocalPaser:formatMessage(msg,api.Code,content)
-    -- Net:Send(msg)
+function lua_dispatcher:clear_all()
+    table.clear(tables)
 end
+
+lua_dispatcher.destructor = lua_dispatcher.clear_all
 
 function lua_binding(api, fun)
     lua_dispatcher:binding(api, fun)
@@ -110,7 +120,7 @@ function lua_distribute(api, ...)
         local len = #funTable
         local i = 1
         while (i <= len) do
-            funTable[i](...)
+            safe_call(funTable[i], ...)
             --     --check delete
             if len > #funTable then
                 len = #funTable

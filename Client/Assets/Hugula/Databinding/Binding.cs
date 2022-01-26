@@ -27,7 +27,7 @@ namespace Hugula.Databinding
         ///<summary>
         /// The type of the property
         ///</summary>
-        public Type returnType;
+        // public Type returnType;
 
         ///<summary>
         /// The name of the BindableProperty
@@ -158,7 +158,7 @@ namespace Hugula.Databinding
             if (m_IsDisposed)
             {
 #if UNITY_EDITOR
-                Debug.LogWarningFormat("Binding(target={0},perpertyName={1},path={2}) is Disposed , Apply(context={3}).  ", target, propertyName, path, context);
+                Debug.LogWarningFormat("Binding(target={0},perpertyName={1},path={2}) is Disposed , Apply(context={3}). \r\n lua:{4} ", target, propertyName, path, context, Hugula.EnterLua.LuaTraceback());
 #endif
                 return;
             }

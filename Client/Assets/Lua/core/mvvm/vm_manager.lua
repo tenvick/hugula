@@ -30,10 +30,14 @@ local ResLoader = Hugula.ResLoader
 local ProfilerFactory = Hugula.Profiler.ProfilerFactory
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
--- local CUtils = Hugula.Utils.CUtils
+local Timer = Hugula.Framework.Timer
 local Debug = CS.UnityEngine.Debug
 
-local LoadSceneMode = CS.UnityEngine.SceneManagement.LoadSceneMode
+local LoadSceneMode = {
+    --CS.UnityEngine.SceneManagement.LoadSceneMode
+    Single = 0,
+    Additive = 1
+}
 local BindingUtility = Hugula.Databinding.BindingUtility
 
 local vm_manager = {}
@@ -69,9 +73,8 @@ local function deactive(self, vm_name, view_active)
     if view_active == nil then
         view_active = true
     end
-    -- Logger.Log("vm_manager.deactive ", vm_name)
     if curr_vm.is_res_ready == true and curr_vm.is_active then --已经加载过并且已经激活
-        -- Logger.Log("real vm_manager.deactive ", vm_name)
+        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.deactive ", curr_vm.name)
         safe_call(curr_vm.on_deactive, curr_vm)
         _unbinding_msg(curr_vm)
         curr_vm.is_active = false --标记状态
@@ -85,6 +88,9 @@ local function deactive(self, vm_name, view_active)
         end
 
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "deactive", name = vm_name})
+        if profiler then
+            profiler:Stop()
+        end
     else
         -- Logger.Log("make vm_manager.deactive is_active=false", vm_name)
         curr_vm.is_active = false --标记状态
@@ -98,7 +104,7 @@ local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- Logger.Log("vm_manager.destroy ", vm_name)
     if curr_vm.is_res_ready == true then --如果资源加载完成
-        -- Logger.Log("real vm_manager.destroy ", vm_name)
+        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.destroy ", curr_vm.name)
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
         curr_vm._is_destory = nil
@@ -107,6 +113,17 @@ local function destroy(self, vm_name)
         safe_call(curr_vm.on_destroy, curr_vm)
         safe_call(curr_vm.clear, curr_vm)
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "destroy", name = vm_name})
+
+        if curr_vm._need_destructor then --如果是标记了析构
+            local destructor = curr_vm.destructor
+            if destructor then
+                destructor(curr_vm)
+            end
+        end
+
+        if profiler then
+            profiler:Stop()
+        end
     else
         -- Logger.Log("mark vm_manager.destroy _is_destory=true", vm_name)
         curr_vm._is_destory = true --标记销毁
@@ -146,6 +163,7 @@ local function check_vm_base_all_done(vm_base)
             view_base:set_active(is_active)
         end
     end
+    safe_call(vm_base.on_assets_load,vm_base)
 
     safe_call(vm_base.on_active, vm_base)
     -- Logger.Log("check_vm_base_all_done", vm_base)
@@ -329,7 +347,7 @@ local function active_view(self, vm_name)
         end
 
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
-        
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active_view", name = vm_name})
         if profiler then
             profiler:Stop()
         end
@@ -464,6 +482,7 @@ local function active(self, vm_name, arg, is_push, is_group)
             load(self, v, arg, is_push, is_group)
         end
     end
+    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_name})
 end
 
 ---预加载vm资源
@@ -496,18 +515,24 @@ local function re_load(self, vm_name)
     local views = curr_vm.views
     local is_res_ready = curr_vm.is_res_ready
     local arg = curr_vm._push_arg --保存变量
+    local is_active = curr_vm.is_active
+    local _is_push = curr_vm._is_push
+
+    if is_active ~= true then
+        deactive(self, vm_name)
+    end
 
     VMGenerate:reload_vm(vm_name, true) --热重载模块
     curr_vm = VMGenerate[vm_name] --新的模块
     curr_vm:on_push_arg(arg)
     curr_vm._push_arg = arg
-    curr_vm._is_push = true --是否是push到栈上的
+    curr_vm._is_push = _is_push --是否是push到栈上的
+    curr_vm.is_active = is_active
 
     if views == nil or #views == 0 then
         is_res_ready = true
         curr_vm.is_res_ready = true
     end
-
     if views and #views > 0 and is_res_ready then --如果资源已经加载需要重新刷新
         -- local res_name, scene_name
         local new_views = curr_vm.views
@@ -528,12 +553,17 @@ local function re_load(self, vm_name)
     end
 end
 
+local function release(self, vm_name)
+    VMGenerate:release_vm(vm_name) --彻底释放
+end
+
 vm_manager.re_load = re_load
 vm_manager.pre_load = pre_load
 vm_manager.load = load
 vm_manager.active = active
 vm_manager.destroy = destroy
 vm_manager.deactive = deactive
+vm_manager.release = release
 
 ---vm的激活与失活管理
 ---@class VMManager

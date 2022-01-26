@@ -73,10 +73,21 @@ local function call_func(self, vm_name, fun_name, ...)
     end
 end
 
+local function call_rawget_func(self, vm_name, fun_name, ...)
+    -- Logger.Log("call_func",vm_name,fun_name,...)
+    local curr_vm = VMGenerate:rawget(vm_name) --获取vm实例
+    if curr_vm then
+        local fun = curr_vm[fun_name]
+        if fun ~= nil then
+            return fun(curr_vm, ...)
+        end
+    end
+end
+
 local function _call_group_func(self, group, fun_name, ...)
     for k, vm_name in ipairs(group) do
         -- if k ~= "log_enable" then
-        local curr_vm = VMGenerate[vm_name] --获取vm实例
+        local curr_vm = VMGenerate:rawget(vm_name) --获取vm实例
         if curr_vm then
             local fun = curr_vm[fun_name]
             if fun ~= nil then
@@ -135,7 +146,7 @@ local function strategy_view_gc(vm_name, is_state_change, stack_index)
     end
 
     if is_state_change then --
-        call_func(nil, vm_name, ON_STATE_CHANGING)
+        call_rawget_func(nil, vm_name, ON_STATE_CHANGING)
     end
 
     if vm_gc == VM_GC_TYPE.AUTO then --内存不够的时候回收
@@ -153,7 +164,8 @@ local function strategy_view_gc(vm_name, is_state_change, stack_index)
         end
     elseif vm_gc == VM_GC_TYPE.MANUAL then --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
         VMManager:deactive(vm_name, false) --不隐藏ui
-    else
+    elseif vm_gc == VM_GC_TYPE.RELEASE then
+        VMManager:release(vm_name)
     end
 end
 

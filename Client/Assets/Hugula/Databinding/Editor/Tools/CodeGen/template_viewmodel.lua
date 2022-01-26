@@ -46,6 +46,11 @@ end
 function {name}:on_back()
 end
 
+--view资源全部加载完成时候调用
+function {name}:on_assets_load()
+    Logger.Log("{name}:on_assets_load")
+end
+
 --view激活时候调用
 function {name}:on_active()
     Logger.Log("{name}:on_active")

@@ -78,7 +78,7 @@ end
 local function set_child_context(self, context)
     local child = self._child
     self._context = context --or self._context
-
+    -- Logger.Log("set_child_context", child)
     if not self:is_scene() then
         set_target_context(child, context)
     end
@@ -105,13 +105,13 @@ local function clear(self)
     local scene_name = self.scene_name
     local child = self._child
     if child then
-        -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",scene_name,self._child,self._context));
         if scene_name ~= nil then
             LuaHelper.UnloadScene(scene_name)
         else
             LuaHelper.DelayDestroy(child)
         end
     end
+    -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil
     self._context = nil
     self._initialized = false

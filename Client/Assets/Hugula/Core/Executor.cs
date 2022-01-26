@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Hugula
 {
+    [XLua.LuaCallCSharp]
     public class Executor : BehaviourSingleton<Executor>
     {
 
@@ -22,8 +23,10 @@ namespace Hugula
         {
             if (m_CancelQueue.Count > 0)
             {
-                foreach (var act in m_CancelQueue)
+                object act;
+                for (int i = 0; i < m_CancelQueue.Count; i++)
                 {
+                    act = m_CancelQueue[i];
                     if (act is IEnumerator)
                     {
                         StopCoroutine((IEnumerator)act);
@@ -42,13 +45,22 @@ namespace Hugula
                 object act = m_Tasks[i];
                 if (act is Action)
                 {
-#if HUGULA_PROFILER_DEBUG 
-                    var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("Executor.action {0}", act.GetHashCode().ToString());
-                    ((Action)act)();
-                    if (profiler != null) profiler.Stop();
-#else
-                    ((Action)act)();
-
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample("System.Collections.Generic.List<System.Type>.Add");
+#endif
+                    try
+                    {
+                        ((Action)act)();
+                    }
+                    catch (System.Exception gen_e)
+                    {
+                        UnityEngine.Debug.LogError($"action exception {gen_e}");
+                        return;//LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+                    }
+#if LUA_PROFILER_DEBUG
+                        finally {
+                            UnityEngine.Profiling.Profiler.EndSample();
+                        }
 #endif
                 }
                 else if (act is IEnumerator)

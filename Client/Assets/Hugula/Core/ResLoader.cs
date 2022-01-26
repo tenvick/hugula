@@ -356,7 +356,7 @@ namespace Hugula
         /// <param name="userData"></param>
         /// <param name="loadSceneMode"></param>
         /// <returns></returns>
-        static async public void LoadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool activateOnLoad = true, LoadSceneMode loadSceneMode = LoadSceneMode.Additive)
+        static async public void LoadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool activateOnLoad = true, int loadSceneMode = 1)
         {
 
            if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
@@ -371,7 +371,7 @@ namespace Hugula
                     m_TotalGroupCount++;
                 }
 
-                var task = Addressables.LoadSceneAsync(key, LoadSceneMode.Additive, activateOnLoad).Task;
+                var task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
                 await task;
 
                 if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
@@ -468,13 +468,16 @@ namespace Hugula
 
         static public void Release<T>(T obj)
         {
-            // Addressables.Release<T>(obj);
+#if !HUGULA_RELEASE
+            if (obj == null)
+                Debug.LogWarningFormat("try to release null obj \r\n trace:{1}", Hugula.EnterLua.LuaTraceback());
+#endif
             s_NextFrameObjects.Add(obj);
             s_LastReleaseFrame = Time.frameCount;
         }
-        static public void Release(GameObject obj)
+        static public void Release(object obj)
         {
-            Addressables.Release<GameObject>(obj);
+            Release<object>(obj);
         }
 
         #region 延时释放 asset for "Addressables was not previously aware of"

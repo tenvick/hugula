@@ -9,6 +9,7 @@ local class = class
 local string_format = string.format
 local Object = CS.System.Object
 local GetSetObject = GetSetObject
+local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
 
 --实现public interface INotifyPropertyChanged {
 -- event PropertyChangedEventHandler PropertyChanged;
@@ -18,7 +19,7 @@ local notify_object =
     class(
     function(self, get_set)
         ---属性改变事件监听
-        self._property_changed = {}
+        self._property_changed = PropertyChangedEvent()
         -- if get_set == true then
         self.property = GetSetObject(self) --设置property getset
         -- end
@@ -26,23 +27,11 @@ local notify_object =
 )
 
 local add_property_changed = function(self, delegate)
-    if self._property_changed == nil then
-        self._property_changed = {}
-    end
-    table.insert(self._property_changed, delegate)
-    -- Logger.LogErrorFormat("object add_property_changed=%s,%s;",#self._property_changed,delegate)
+    self._property_changed:Add(delegate)
 end
 
 local remove_property_changed = function(self, delegate)
-    -- Logger.LogErrorFormat("object remove_property_changed=%s,%s;",self,delegate)
-    local _property_changed = self._property_changed
-    for i = 1, #_property_changed do
-        if Object.Equals(_property_changed[i], delegate) then
-            table.remove(_property_changed, i)
-            -- Logger.LogErrorFormat("object remove_property_changed=%s,%s; ",i, delegate)
-            break
-        end
-    end
+    self._property_changed:Remove(delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -57,19 +46,14 @@ end
 ---@overload fun(property_name:string)
 ---@return void
 local function on_Property_changed(self, property_name)
-    local changed = self._property_changed
-    -- Logger.Log(" on_Property_changed#=", property_name, #changed)
-    for i = 1, #changed do
-        changed[i](self, property_name)
-    end
+    self._property_changed:Dispatch(self,property_name)
 end
 
 ---改变属性
 ---@overload fun(property_name:string,value:any)
 ---@return void
-local function set_property(self, property_name, value)
-    local old = self[property_name]
-    if old ~= value then
+local function set_property(self, property_name, value, force_refresh)
+    if force_refresh or self[property_name] ~= value then
         self[property_name] = value
         on_Property_changed(self, property_name)
     end
@@ -96,5 +80,5 @@ notify_object.__tostring = tostring
 ---@field add_PropertyChanged fun(self:table, delegate:fun())
 ---@field remove_PropertyChanged fun(self:table, delegate:fun())
 ---@field OnPropertyChanged fun(self:table, property_name:string)
----@field SetProperty fun(self:table, property_name:string, value:any)
+---@field SetProperty fun(self:table, property_name:string, value:any, force_refresh:boolean)
 NotifyObject = notify_object

@@ -98,9 +98,6 @@ namespace CSObjectWrapEditor
         public XLuaTemplate LuaDelegateWrap;
         public XLuaTemplate LuaEnumWrap;
         public XLuaTemplate LuaInterfaceBridge;
-
-        public XLuaTemplate LuaRegisterWrap;
-
         public XLuaTemplate LuaRegister;
         public XLuaTemplate LuaWrapPusher;
         public XLuaTemplate PackUnpack;
@@ -139,7 +136,6 @@ namespace CSObjectWrapEditor
 #else
                 LuaRegister = { name = template_ref.LuaRegister.name, text = template_ref.LuaRegister.text },
 #endif
-                LuaRegisterWrap = { name = template_ref.LuaRegisterWrap.name, text = template_ref.LuaRegisterWrap.text },
                 LuaWrapPusher = { name = template_ref.LuaWrapPusher.name, text = template_ref.LuaWrapPusher.text },
                 PackUnpack = { name = template_ref.PackUnpack.name, text = template_ref.PackUnpack.text },
                 TemplateCommon = { name = template_ref.TemplateCommon.name, text = template_ref.TemplateCommon.text },
@@ -909,20 +905,6 @@ namespace CSObjectWrapEditor
             string filePath = save_path + "DelegatesGensBridge.cs";
             StreamWriter textWriter = new StreamWriter(filePath, false, Encoding.UTF8);
             types = types.Where(type => !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter));
-            types = types.Where(type =>
-            {
-                if (type is MemberInfo)
-                {
-                    var f = (MemberInfo)type;
-                    if (f.DeclaringType != null)
-                        return !isMemberInBlackList((MemberInfo)type);
-                    else
-                        return true;
-                }
-                else
-                    return true;
-            });
-           
             var hotfxDelegates = new List<MethodInfoSimulation>();
             var comparer = new MethodInfoSimulationComparer();
 
@@ -958,6 +940,8 @@ namespace CSObjectWrapEditor
                     .Where(method => !ignoreCompilerGenerated || !isDefined(method, typeof(CompilerGeneratedAttribute)))
                     .Where(method => !ignoreNotPublic || method.IsPublic)
                     .Where(method => !ignoreProperty || !method.IsSpecialName || (!method.Name.StartsWith("get_") && !method.Name.StartsWith("set_")))
+                    .Where(method => !method.GetParameters().Any(pInfo => pInfo.ParameterType.IsPointer))
+                    .Where(method => !method.ReturnType.IsPointer)
                     .Cast<MethodBase>()
                     .Concat(kv.Key.GetConstructors(bindingAttrOfConstructor).Cast<MethodBase>())
                     .Where(method => !injectByGeneric(method, kv.Value))
@@ -1180,63 +1164,6 @@ namespace CSObjectWrapEditor
             }, templateRef.LuaRegister, textWriter);
             textWriter.Close();
         }
-
-        public static void GenLuaRegisterWarp(bool minimum = false)
-        {
-            var wraps = minimum ? new List<Type>() : LuaCallCSharp;
-
-            var itf_bridges = CSharpCallLua.Where(t => t.IsInterface);
-
-            string filePath = GeneratorConfig.common_path + "XLuaGenAutoWrap.cs";
-            StreamWriter textWriter = new StreamWriter(filePath, false, Encoding.UTF8);
-
-            var lookup = LuaCallCSharp.Distinct().ToDictionary(t => t);
-
-            var extension_methods_from_lcs = (from t in LuaCallCSharp
-                                              where isDefined(t, typeof(ExtensionAttribute))
-                                              from method in t.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                              where isDefined(method, typeof(ExtensionAttribute)) && !isObsolete(method)
-                                              where !method.ContainsGenericParameters || isSupportedGenericMethod(method)
-                                              select makeGenericMethodIfNeeded(method))
-                                    .Where(method => !lookup.ContainsKey(method.GetParameters()[0].ParameterType));
-
-            var extension_methods = (from t in ReflectionUse
-                                     where isDefined(t, typeof(ExtensionAttribute))
-                                     from method in t.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                     where isDefined(method, typeof(ExtensionAttribute)) && !isObsolete(method)
-                                     where !method.ContainsGenericParameters || isSupportedGenericMethod(method)
-                                     select makeGenericMethodIfNeeded(method)).Concat(extension_methods_from_lcs);
-            GenOne(typeof(DelegateBridgeBase), (type, type_info) =>
-            {
-#if GENERIC_SHARING
-                type_info.Set("wraps", wraps.Where(t=>!t.IsGenericType).ToList());
-                var genericTypeGroups = wraps.Where(t => t.IsGenericType).GroupBy(t => t.GetGenericTypeDefinition());
-
-                var typeToArgsList = luaenv.NewTable();
-                foreach (var genericTypeGroup in genericTypeGroups)
-                {
-                    var argsList = luaenv.NewTable();
-                    int i = 1;
-                    foreach(var genericType in genericTypeGroup)
-                    {
-                        argsList.Set(i++, genericType.GetGenericArguments());
-                    }
-                    typeToArgsList.Set(genericTypeGroup.Key, argsList);
-                    argsList.Dispose();
-                }
-
-                type_info.Set("generic_wraps", typeToArgsList);
-                typeToArgsList.Dispose();
-#else
-                type_info.Set("wraps", wraps.ToList());
-#endif
-
-                type_info.Set("itf_bridges", itf_bridges.ToList());
-                type_info.Set("extension_methods", extension_methods.ToList());
-            }, templateRef.LuaRegisterWrap, textWriter);
-            textWriter.Close();
-        }
-        
 
         public static void AllSubStruct(Type type, Action<Type> cb)
         {
@@ -1742,10 +1669,33 @@ namespace CSObjectWrapEditor
             GenEnumWraps();
             GenCodeForClass();
             GenLuaRegister();
-            GenLuaRegisterWarp();
             callCustomGen();
             Debug.Log("finished! use " + (DateTime.Now - start).TotalMilliseconds + " ms");
             AssetDatabase.Refresh();
+        }
+        public static void GenAllNoRefresh()
+        {
+#if UNITY_2018 && (UNITY_EDITOR_WIN || UNITY_EDITOR_OSX)
+            if (File.Exists("./Tools/MonoBleedingEdge/bin/mono.exe"))
+            {
+                GenUsingCLI();
+                return;
+            }
+#endif
+            var start = DateTime.Now;
+            Directory.CreateDirectory(GeneratorConfig.common_path);
+            GetGenConfig(XLua.Utils.GetAllTypes());
+            luaenv.DoString("require 'TemplateCommon'");
+            var gen_push_types_setter = luaenv.Global.Get<LuaFunction>("SetGenPushAndUpdateTypes");
+            gen_push_types_setter.Call(GCOptimizeList.Where(t => !t.IsPrimitive && SizeOf(t) != -1).Concat(LuaCallCSharp.Where(t => t.IsEnum)).Distinct().ToList());
+            var xlua_classes_setter = luaenv.Global.Get<LuaFunction>("SetXLuaClasses");
+            xlua_classes_setter.Call(XLua.Utils.GetAllTypes().Where(t => t.Namespace == "XLua").ToList());
+            GenDelegateBridges(XLua.Utils.GetAllTypes(false));
+            GenEnumWraps();
+            GenCodeForClass();
+            GenLuaRegister();
+            callCustomGen();
+            Debug.Log("finished! use " + (DateTime.Now - start).TotalMilliseconds + " ms");
         }
 
 #if UNITY_EDITOR_OSX || UNITY_EDITOR_WIN
@@ -1900,7 +1850,7 @@ namespace CSObjectWrapEditor
             }
             if (!DelegateBridge.Gen_Flag)
             {
-                throw new InvalidOperationException("Code has not been genrated, may be not work in phone!");
+                throw new InvalidOperationException("Code has not been generated, may be not work in phone!");
             }
         }
 #endif

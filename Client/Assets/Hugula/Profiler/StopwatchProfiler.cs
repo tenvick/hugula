@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
@@ -45,9 +45,11 @@ namespace Hugula.Profiler
         {
             get { return maxSingleElapsedTime; }
         }
+
+        double m_ElapsedMilliseconds = 0;
         public double ElapsedMilliseconds
         {
-            get { return stopWatch.Elapsed.TotalMilliseconds; }
+            get { return m_ElapsedMilliseconds; }
         }
 
         public double ElapsedMillisecondsSelf
@@ -61,11 +63,19 @@ namespace Hugula.Profiler
 
         #endregion Properties
 
+        private void SetElapsedMilliseconds()
+        {
+            m_ElapsedMilliseconds = stopWatch.Elapsed.TotalMilliseconds;
+        }
+
         public void Start()
         {
-            UnityEngine.Profiling.Profiler.BeginSample(stopName);
-#if UWATEST
-				UWAEngine.PushSample (stopName);
+#if LUA_PROFILER_DEBUG
+            // UnityEngine.Debug.Log($"watchProfiler:Start({stopName}) nestingLevel={nestingLevel}++");
+            // UnityEngine.Profiling.Profiler.BeginSample(stopName);
+#endif
+#if UWATEST || UWA_SDK_ENABLE
+            UWAEngine.PushSample (stopName);
 #endif
             StopwatchProfiler lastProfiler = ProfilerStack.Peek();
             if (lastProfiler != this) ProfilerStack.Push(this);
@@ -82,19 +92,25 @@ namespace Hugula.Profiler
 
         public void Stop()
         {
-            UnityEngine.Profiling.Profiler.EndSample();
-#if UWATEST
-				UWAEngine.PopSample ();
+#if LUA_PROFILER_DEBUG
+            // UnityEngine.Profiling.Profiler.EndSample();
+#endif
+
+#if UWATEST || UWA_SDK_ENABLE
+            UWAEngine.PopSample ();
 #endif
             if (nestingLevel == 1)
             {
                 stopWatch.Stop();
-
+                SetElapsedMilliseconds();
                 StopwatchProfiler previousProfiler = ProfilerStack.Peek();
                 if (previousProfiler == this) { ProfilerStack.Pop(); }
 
                 previousProfiler = ProfilerStack.Peek();
-                if (previousProfiler != null) previousProfiler.childrenElapsedMilliseconds += (ElapsedMilliseconds - lastElapsedMilliseconds);
+                if (previousProfiler != null)
+                {
+                    previousProfiler.childrenElapsedMilliseconds += (ElapsedMilliseconds - lastElapsedMilliseconds);
+                }
 
                 double lastFrameTime = ElapsedMilliseconds - lastElapsedMilliseconds;
                 lastElapsedMilliseconds = ElapsedMilliseconds;
@@ -105,6 +121,9 @@ namespace Hugula.Profiler
                 }
                 if (lastFrameTime > maxSingleElapsedTime)
                     maxSingleElapsedTime = lastFrameTime;
+#if LUA_PROFILER_DEBUG
+                // UnityEngine.Debug.Log($"watchProfiler:Stop({stopName}),nestingLevel={nestingLevel},ElapsedMilliseconds={ElapsedMilliseconds},maxSingleElapsedTime={maxSingleElapsedTime},{nestingLevel}--,ElapsedMillisecondsSelf:{ElapsedMillisecondsSelf}");
+#endif
             }
             nestingLevel--;
         }

@@ -15,8 +15,9 @@ local function _require_vm(t, k)
     local raw = rawget(t, k)
     if raw == nil then --require
         local conf = VMConfig[k]
-        if conf and conf.vm then
-            local re = require(conf.vm)
+        local vm_name = conf and conf.vm
+        if vm_name then
+            local re = require(vm_name)
             local initialize = re.initialize
             rawset(t, k, re)
             rawset(re, "name", k) ---设置view model的 name
@@ -38,11 +39,19 @@ local function _reload_vm(t, k, hold_child)
     local raw = rawget(t, k)
     if raw ~= nil then --
         local conf = VMConfig[k]
-        if conf and conf.vm then
-            require("core.mvvm.vm_manager"):deactive(k)
-
-            package.loaded[conf.vm] = nil
-            local re = require(conf.vm) --重新require lua
+        local vm_name = conf and conf.vm
+        if vm_name then
+            -- require("core.mvvm.vm_manager"):deactive(k)
+            local old = package.loaded[vm_name]
+            if old then
+                local destructor = old.destructor
+                if destructor then
+                    destructor(old)
+                end
+            end
+            package.loaded[vm_name] = nil
+            -- print("reload vm", vm_name)
+            local re = require(vm_name) --重新require lua
             local initialize = re.initialize
             rawset(t, k, re)
             rawset(re, "name", k) ---设置view model的 name
@@ -58,6 +67,32 @@ local function _reload_vm(t, k, hold_child)
     end
 end
 
+--@overload fun(self:VMBase,key:string,hold_child:boolean)
+local function _release_vm(t, k)
+    --@type VMBase
+    local raw = rawget(t, k)
+    if raw ~= nil then --
+        local conf = VMConfig[k]
+        local vm_name = conf and conf.vm
+        if vm_name then
+            local old = package.loaded[vm_name]
+            old._need_destructor = true --标记析构
+            package.loaded[vm_name] = nil
+            require("core.mvvm.vm_manager"):destroy(k) --销毁资源
+
+            rawset(t, k, nil)
+            return nil
+        else
+            error(string.format("/vm_config.lua does't contains vm_config.%s", k))
+        end
+    end
+end
+
+local function _rawget(t, k)
+    local raw = rawget(t, k)
+    return raw
+end
+
 local mt = {}
 mt.__index = _require_vm
 
@@ -66,6 +101,9 @@ mt.__index = _require_vm
 local vm_generate = {}
 setmetatable(vm_generate, mt)
 vm_generate.reload_vm = _reload_vm
+vm_generate.release_vm = _release_vm
+vm_generate.rawget = _rawget
+
 VMGenerate = vm_generate --增加全局访问
 --- 保持对所有view models的实例引用 __index回自动require vm_config 对应路径的viewmodel lua文件
 ---@class VMGenerate

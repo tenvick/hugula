@@ -35,7 +35,7 @@ namespace Hugula.Audio
         {
             if (!string.IsNullOrEmpty(clipname))
             {
-                AudioManager.instance.PlaySound(clipname);
+                AudioManager.instance?.PlaySound(clipname);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Hugula.Audio
         void OnDestroy()
         {
             
-            AudioManager.instance.Substract(audioClip);
+            AudioManager.instance?.Substract(audioClip);
         }
 
         public void Play()

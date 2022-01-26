@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using Hugula.Databinding;
-using Hugula.Databinding.Binder;
+using Hugula.Profiler;
 using Hugula.Utils;
+using XLua;
 
 namespace Hugula.Databinding
 {
@@ -11,14 +12,76 @@ namespace Hugula.Databinding
     [XLua.CSharpCallLua]
     public static class BindingUtility
     {
+
+        public static void SetContext(BindableObject bindable, object data)
+        {
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContext"))
+            {
+#endif
+                if (data is LuaTable)
+                {
+                    var lua = data as LuaTable;
+                    if (lua.ContainsKey<string>("PropertyChanged")) //ºÏ≤‚ Ù–‘
+                    {
+#if LUA_PROFILER_DEBUG
+                        UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContext_LuaCast:" + bindable ?? "");
+#endif
+                        bindable.context = lua.Cast<INotifyPropertyChanged>();
+#if LUA_PROFILER_DEBUG
+                        UnityEngine.Profiling.Profiler.EndSample();
+#endif
+                        return;
+                    }
+                }
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContext:" + bindable ?? "");
+#endif
+                bindable.context = data;
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            }
+#endif
+
+
+        }
+
         public static void SetContextByINotifyTable(BindableObject bindable, INotifyTable notify)
         {
-            bindable.context = notify;
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable"))
+            {
+#endif
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByINotifyTable:" + bindable ?? "");
+#endif
+                bindable.context = notify;
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            }
+#endif
         }
 
         public static void SetContextByIList(BindableObject bindable, IList list)
         {
-            bindable.context = list;
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList"))
+            {
+#endif
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByIList:" + bindable ?? "");
+#endif
+                bindable.context = list;
+#if LUA_PROFILER_DEBUG
+                UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            }
+#endif
         }
         public static void SetContextByINotifyPropertyChanged(BindableObject bindable, INotifyPropertyChanged notify)
         {
@@ -27,7 +90,22 @@ namespace Hugula.Databinding
                 UnityEngine.Debug.LogWarningFormat("SetContextByINotifyPropertyChanged arg({0}) is null", bindable);
             }
             else
-                bindable.context = notify;
+            {
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged"))
+                {
+#endif
+#if LUA_PROFILER_DEBUG
+                    UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByINotifyPropertyChanged:" + bindable ?? "");
+#endif
+                    bindable.context = notify;
+#if LUA_PROFILER_DEBUG
+                    UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                }
+#endif
+            }
         }
 
         public static BindableContainer GetBindableContainer(UnityEngine.GameObject obj)
@@ -57,7 +135,7 @@ namespace Hugula.Databinding
 
         #region pool
 
-        internal static Hugula.Utils.ObjectPool<HugulaNotifyCollectionChangedEventArgs> m_EventArgsPool = new ObjectPool<HugulaNotifyCollectionChangedEventArgs>(m_ActionOnGet, m_ActionOnRelease,64);
+        internal static Hugula.Utils.ObjectPool<HugulaNotifyCollectionChangedEventArgs> m_EventArgsPool = new ObjectPool<HugulaNotifyCollectionChangedEventArgs>(m_ActionOnGet, m_ActionOnRelease, 64);
 
         internal static void m_ActionOnGet(HugulaNotifyCollectionChangedEventArgs arg)
         {

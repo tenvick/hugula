@@ -10,6 +10,7 @@ namespace Hugula.Framework
     ///<summary>
     /// 全局事件派发
     ///</summary>
+    [XLua.LuaCallCSharp]
     public class GlobalDispatcher : Singleton<GlobalDispatcher>, IDisposable
     {
         private Dictionary<DispatcherEvent, List<object>> m_Dispatcher = new Dictionary<DispatcherEvent, List<object>>();

@@ -16,11 +16,10 @@ namespace Hugula.Utils
 #else
         public const bool isRelease = false;
 #endif
-
 #if HUGULA_NO_LOG
-        public const bool printLog = false;
+        public static bool printLog = false;
 #else
-        public const bool printLog = true;
+        public static bool printLog = true;
 #endif
 
 #if UNITY_EDITOR
@@ -75,6 +74,22 @@ namespace Hugula.Utils
             return true;
         }
 
+        /// <summary>
+        ///  获取当前gameobject的全路径
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string GetGameObjectFullPath(GameObject obj)
+        {
+            string path = "/" + obj.name;
+            while (obj.transform.parent != null)
+            {
+                obj = obj.transform.parent.gameObject;
+                path = "/" + obj.name + path;
+            }
+            path = path.Substring(1);
+            return path;
+        }
 
         /// <summary>
         /// Gets the assetname of the URL file.

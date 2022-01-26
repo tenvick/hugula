@@ -11,7 +11,8 @@ namespace Hugula.Databinding.Binder
     ///<summary>
     /// 普通集合绑定view
     ///</summary>
-    public sealed class CollectionViewBinder : CollectionChangedBinder<Transform>
+    [XLua.LuaCallCSharp]
+    public class CollectionViewBinder : CollectionChangedBinder<Transform>
     {
         #region  数据绑定相关
         [Tooltip("template for clone")]
@@ -191,7 +192,8 @@ namespace Hugula.Databinding.Binder
 
                 itemData = items[i];
                 item.forceContextChanged = m_forceBinding;
-                item.context = itemData;
+                // item.context = itemData;
+                BindingUtility.SetContext(item, itemData);
             }
         }
 

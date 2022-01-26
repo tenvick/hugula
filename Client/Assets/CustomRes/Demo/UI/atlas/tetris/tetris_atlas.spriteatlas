@@ -7,6 +7,7 @@ SpriteAtlas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: tetris_atlas
+  serializedVersion: 2
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -53,7 +54,6 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 6944b2d2ad2e9a74d88d287027360b84, type: 3}
     - {fileID: 21300000, guid: 1edbc71dc86b40c4790cdb5987f8bde1, type: 3}
     - {fileID: 21300000, guid: 3aa5a615c9b52d4468413072df4ec59e, type: 3}
-    totalSpriteSurfaceArea: 140290
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -106,3 +106,4 @@ SpriteAtlas:
   - button_back2
   m_Tag: tetris_atlas
   m_IsVariant: 0
+  m_IsPlaceholder: 0

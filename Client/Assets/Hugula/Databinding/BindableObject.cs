@@ -4,17 +4,13 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using Hugula;
+using Hugula.Utils;
 
 namespace Hugula.Databinding
 {
 
     public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged, IClearBingding
     {
-
-        public const string EnabledProperty = "enabled";
-        public const string TagProperty = "tag";
-
         public const string ContextProperty = "context";
 
         #region  重写属性
@@ -67,7 +63,7 @@ namespace Hugula.Databinding
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
-                    if (!m_IsbindingsDictionary) InitBindingsDic();
+                    if (!m_InitBindings) InitBindings();
                     OnBindingContextChanging();
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
@@ -86,7 +82,7 @@ namespace Hugula.Databinding
                 if (!Object.Equals(m_InheritedContext, value))
                 {
                     SetProperty<object>(ref m_InheritedContext, value);
-                    OnInheritedContextChanged();
+                    // OnInheritedContextChanged();
                 }
             }
         }
@@ -99,33 +95,37 @@ namespace Hugula.Databinding
         // [BindingsAttribute]
         protected List<Binding> bindings = new List<Binding>();
 
-        protected bool m_IsbindingsDictionary = false;
-        protected Dictionary<string, Binding> m_BindingsDic = new Dictionary<string, Binding>();
-
-        protected virtual void InitBindingsDic()
+        protected bool m_InitBindings = false;
+        protected Dictionary<string, Binding> m_BindingsDic;// = new Dictionary<string, Binding>();
+        protected virtual void InitBindings()
         {
-            m_IsbindingsDictionary = true;
-            foreach (var item in bindings)
+            m_InitBindings = true;
+            Binding binding = null;
+            if (m_BindingsDic == null)
+                m_BindingsDic = DictionaryPool<string, Binding>.Get();
+            for (int i = 0; i < bindings.Count; i++)
             {
-                item.target = this;
-                m_BindingsDic[item.propertyName] = item;
+                binding = bindings[i];
+                binding.target = this;
+                m_BindingsDic.Add(binding.propertyName, binding);
             }
         }
 
         public Binding GetBinding(string property)
         {
-            if (!m_IsbindingsDictionary) InitBindingsDic();
-
+            if (!m_InitBindings) InitBindings();
             Binding binding = null;
             m_BindingsDic.TryGetValue(property, out binding);
             return binding;
         }
 
+
         public void SetBinding(string sourcePath, object target, string property, BindingMode mode, string format, string converter)
         {
-            if (!m_IsbindingsDictionary) InitBindingsDic();
+
             if (target == null) target = this;
             Binding binding = null;
+            if (!m_InitBindings) InitBindings();
             if (m_BindingsDic.TryGetValue(property, out binding))
             {
                 binding.Dispose();
@@ -135,19 +135,17 @@ namespace Hugula.Databinding
 
             binding = new Binding(sourcePath, target, property, mode, format, converter);
             bindings.Add(binding);
-            m_BindingsDic.Add(property, binding);
-
         }
 
-        public void SetBinding(string sourcePath, object target, string property, BindingMode mode)
-        {
-            SetBinding(sourcePath, target, property, mode, string.Empty, string.Empty);
-        }
+        // public void SetBinding(string sourcePath, object target, string property, BindingMode mode)
+        // {
+        //     SetBinding(sourcePath, target, property, mode, string.Empty, string.Empty);
+        // }
 
-        public void SetBinding(string sourcePath, string property, BindingMode mode)
-        {
-            SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
-        }
+        // public void SetBinding(string sourcePath, string property, BindingMode mode)
+        // {
+        //     SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
+        // }
 
         ///<summary>
         /// 销毁之前清理所有绑定表达式
@@ -158,8 +156,8 @@ namespace Hugula.Databinding
                 binding.Dispose();
 
             bindings.Clear();
-        }
 
+        }
         ///<summary>
         /// 解绑源绑定，不销毁对象
         ///<summary>
@@ -169,13 +167,14 @@ namespace Hugula.Databinding
                 binding.Unapply();
         }
 
-        protected virtual void OnInheritedContextChanged()
-        {
+        // protected virtual void OnInheritedContextChanged()
+        // {
 
-        }
+        // }
 
         internal virtual void SetInheritedContext(object value, bool force)
         {
+            if (!m_InitBindings) InitBindings();
             if (!Object.Equals(m_InheritedContext, value) || force)
             {
                 m_InheritedContext = value;
@@ -186,7 +185,7 @@ namespace Hugula.Databinding
                     contextBinding.target = this;
                     contextBinding.ApplyContext(context);
 #if HUGULA_ASYNC_APPLY
-                        Executor.Execute(contextBinding.Apply);
+                    Executor.Execute(contextBinding.Apply);
 #else
                     contextBinding.Apply();
 #endif
@@ -248,31 +247,24 @@ namespace Hugula.Databinding
         protected virtual void OnDestroy()
         {
             ClearBinding();
+            if (m_BindingsDic != null)
+                DictionaryPool<string, Binding>.Release(m_BindingsDic);
             m_Context = null;
             m_InheritedContext = null;
         }
 
 #if UNITY_EDITOR
-        // [XLua.BlackList]
+        [XLua.DoNotGen]
         public void AddBinding(Binding expression)
         {
             bindings.Add(expression);
         }
 
+        [XLua.DoNotGen]
         public List<Binding> GetBindings()
         {
             return bindings;
-        }
-
-        public Binding GetBindingByName(string i)
-        {
-            foreach (var binding in bindings)
-            {
-                if (binding.propertyName == i)
-                    return binding;
-            }
-            return null;
-        }
+        }     
 #endif
     }
 

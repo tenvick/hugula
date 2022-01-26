@@ -72,7 +72,7 @@ namespace Hugula.Databinding
         {
             base.ClearBinding();
             foreach (var child in children)
-                child.ClearBinding();
+                child?.ClearBinding();
             children.Clear();
         }
 

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Hugula.Databinding.Binder
 {
-
+    [XLua.LuaCallCSharp]
     public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T>, ICollectionBinder where T : UnityEngine.Object
     {
         [Tooltip("Whether context changed, force refresh binding. ")]

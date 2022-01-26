@@ -12,14 +12,14 @@ local table_remove = table.remove
 local class = class
 local Object = CS.System.Object
 local GetSetObject = GetSetObject
-
+local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
 local empty_tab = {}
 
 local vm_base =
     class(
     function(self)
         ---属性改变事件监听
-        self._property_changed = {}
+        self._property_changed = PropertyChangedEvent()
         self.msg = {} --消息监听
         self.property = GetSetObject(self) --设置property getset
         self.is_active = false ---是否激活。
@@ -29,24 +29,11 @@ local vm_base =
 )
 
 local add_property_changed = function(self, delegate)
-    if self._property_changed == nil then
-        self._property_changed = {}
-    end
-    table_insert(self._property_changed, delegate)
-    -- Logger.Log("object add_property_changed", delegate, tostring(self), #self._property_changed)
+    self._property_changed:Add(delegate)
 end
 
 local remove_property_changed = function(self, delegate)
-    local _property_changed = self._property_changed
-    -- Logger.Log("object begin remove_property_changed ", delegate, tostring(self))
-    -- Logger.LogTable(_property_changed)
-    for i = 1, #_property_changed do
-        if Object.Equals(_property_changed[i], delegate) then
-            table_remove(_property_changed, i)
-            -- Logger.Log("object remove_property_changed ", delegate, i, tostring(self))
-            return
-        end
-    end
+    self._property_changed:Remove(delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -61,15 +48,8 @@ end
 ---@overload fun(property_name:string)
 ---@return void
 local function on_Property_changed(self, property_name)
-    local changed = self._property_changed
-    local act
-    for i = 1, #changed do
-        act = changed[i]
-        if act then
-            -- Logger.Log(" for",i,act)
-            act(self, property_name)
-        end
-    end
+    -- Logger.LogSys("vm_base on_Property_changed#=", property_name, self._property_changed.count)       
+    self._property_changed:Dispatch(self,property_name)
 end
 
 ---改变属性
@@ -79,6 +59,7 @@ local function set_property(self, property_name, value)
     local old = self[property_name]
     if old ~= value then
         self[property_name] = value
+
         on_Property_changed(self, property_name)
     end
 end
@@ -92,6 +73,10 @@ local function on_push()
 end
 
 local function on_back()
+    -- body
+end
+
+local function on_assets_load()
     -- body
 end
 
@@ -140,7 +125,7 @@ local function clear(self)
             v:clear()
         end
     end
-    table.clear(self._property_changed)
+    self._property_changed:Clear()
     self.is_res_ready = false
 end
 
@@ -148,7 +133,8 @@ end
 ---@overload fun()
 local function dispose(self)
     -- body
-    table.clear(self._property_changed)
+    self._property_changed:Clear()
+    self._property_changed = nil
     self._push_arg = nil
 end
 
@@ -159,9 +145,9 @@ end
 ---注销的时候
 ---@overload fun()
 local function debug_property_changed(self)
-    local changed = self._property_changed
-    Logger.Log(string.format("debug_property_changed(%s) (%s) ", #changed, tostring(self)))
-    Logger.LogTable(changed)
+    local changed = self._property_changed.count
+    Logger.Log(string.format("debug_property_changed(%s) (%s) ", changed, tostring(self)))
+    -- Logger.LogTable(changed)
 end
 
 ---INotifyPropertyChanged接口实现
@@ -175,6 +161,7 @@ vm_base.SetProperty = set_property
 vm_base.on_push_arg = on_push_arg
 vm_base.on_push = on_push
 vm_base.on_back = on_back
+vm_base.on_assets_load = on_assets_load
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
 vm_base.on_destroy = on_destroy
@@ -189,6 +176,7 @@ vm_base.__tostring = tostring
 ---@field SetProperty fun(self:table, property_name:string, value:any)
 ---@field on_push_arg fun(arg:any) 入栈资源加载之前调用 由VMState:push() 触发
 ---@field on_back fun() 从回退栈激活资源加载完成后调用在on_active之前
+---@field on_assets_load fun(self:table) 所有资源加载完成
 ---@field on_active fun(self:table)
 ---@field on_deactive fun(self:table)
 ---@field clear fun(self:table) 清理view

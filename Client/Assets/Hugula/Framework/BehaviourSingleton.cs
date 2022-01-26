@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Hugula.Framework
 {
+    [XLua.LuaCallCSharp]
     public abstract class BehaviourSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T m_Instance;

@@ -615,7 +615,7 @@ end
             if (root is BindableContainer) bindableContainerCount += 1;
 
             ContextNode currContext = context;
-            var contextBinding = root.GetBindingByName("context");
+            var contextBinding = root.GetBinding("context");
             if (contextBinding != null)
             {
                 var ctype = ContextType.NotifyObject;

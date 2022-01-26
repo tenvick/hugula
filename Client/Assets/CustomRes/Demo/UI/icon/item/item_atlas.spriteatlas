@@ -7,6 +7,7 @@ SpriteAtlas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: item_atlas
+  serializedVersion: 2
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -100,7 +101,6 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 12888384e8d6b004091876ad13b114d8, type: 3}
     - {fileID: 21300000, guid: 96e53335731cf42f2b1bd49c9fae0c94, type: 3}
     - {fileID: 21300000, guid: 002a4fbfd3a5f9a4aac2df0d18127119, type: 3}
-    totalSpriteSurfaceArea: 277891
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -247,3 +247,4 @@ SpriteAtlas:
   - icon_sword
   m_Tag: item_atlas
   m_IsVariant: 0
+  m_IsPlaceholder: 0

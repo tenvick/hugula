@@ -200,10 +200,28 @@ namespace Hugula {
 
         }
 
+        private static bool m_StopAllCoroutines = false;
+        public static void MarkStopAllCoroutines()
+        {
+            m_StopAllCoroutines = true;
+            instance?.StopAllCoroutines();
+        }
         //重启动游戏
-        public static void ReOpen (float sconds) {
-            UnityEngine.SceneManagement.SceneManager.LoadScene (0);
-            Debug.LogFormat ("ReOpen !");
+        public static void ReOpen(float sconds)
+        {
+            // System.GC.Collect();
+            // luaenv?.GC();
+            // var ins = Manager.Get<EnterLua>();
+            // GameObject.Destroy(ins?.gameObject);
+            // await Task.Delay((int)(sconds * 1000));
+            // BeforeLuaDispose();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("re_loading");
+            Debug.LogFormat("ReOpen !");
+        }
+
+        static internal string LuaTraceback()
+        {
+            return Hugula.EnterLua.luaenv?.DoString("return debug.traceback('')")[0].ToString();
         }
 
         #region delay
@@ -217,6 +235,7 @@ namespace Hugula {
 
         public static Coroutine Delay(LuaFunction luafun, float time, object args)
         {
+            if (m_StopAllCoroutines) return null;
             var ins = instance;
             var _corout = DelayDo(luafun, time, args);
             var cor = ins.StartCoroutine(_corout);
@@ -231,6 +250,7 @@ namespace Hugula {
 
         public static Coroutine DelayFrame(LuaFunction luafun, int frame, object args)
         {
+            if (m_StopAllCoroutines) return null;
             var ins = instance;
             var _corout = DelayFrameDo(luafun, frame, args);
             var cor = ins.StartCoroutine(_corout);

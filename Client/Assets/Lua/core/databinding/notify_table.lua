@@ -19,6 +19,8 @@ local CS = CS
 local Object = CS.System.Object
 local Specialized = CS.System.Collections.Specialized
 local BindingUtility = CS.Hugula.Databinding.CollectionChangedEventArgsUtility
+local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
+local CollectionChangedEvent = CS.Hugula.Databinding.CollectionChangedEvent
 --- 为了与C#一致，这里的索引都是从0开始
 ---集合改变通知事件
 ---@class NotifyCollectionChangedAction
@@ -32,9 +34,9 @@ local notify_table =
     class(
     function(self, items)
         ---集合改变事件监听
-        self._collection_changed = {}
+        self._collection_changed =  CollectionChangedEvent()
         ---属性改变监听
-        self._property_changed = {}
+        self._property_changed = PropertyChangedEvent()
         ---
         self.items = items or {}
         self.Count = #self.items
@@ -47,10 +49,7 @@ local notify_table =
 ---@overload fun(property_name:string)
 ---@return void
 local function on_property_changed(self, property_name)
-    local changed = self._property_changed
-    for i = 1, #changed do
-        changed[i](self, property_name)
-    end
+    self._property_changed:Dispatch(self,property_name)
 end
 
 ---获取table或者list的长度
@@ -74,11 +73,11 @@ end
 ---@param ... any
 ---@return void
 local function on_collection_changed(self, arg)
-    local changed = self._collection_changed
-    for i = 1, #changed do
-        changed[i](self, arg)
-    end
-
+    -- local changed = self._collection_changed
+    -- for i = 1, #changed do
+    --     changed[i](self, arg)
+    -- end
+    self._collection_changed:Dispatch(self,arg)
     BindingUtility.Release(arg)
 end
 
@@ -94,22 +93,11 @@ local function set_property(self, property_name, value)
 end
 
 local add_property_changed = function(self, delegate)
-    if self._property_changed == nil then
-        self._property_changed = {}
-    end
-    table_insert(self._property_changed, delegate)
-    -- Logger.Log("add_property_changed", delegate)
+    self._property_changed:Add(delegate)
 end
 
 local remove_property_changed = function(self, delegate)
-    local _property_changed = self._property_changed
-    for i = 1, #_property_changed do
-        if Object.Equals(_property_changed[i], delegate) then
-            table_remove(_property_changed, i)
-            break
-        end
-    end
-    -- Logger.Log("remove_property_changed", delegate)
+    self._property_changed:Remove(delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -160,19 +148,11 @@ local function set_item(self, index, item)
 end
 
 local add_collection_changed = function(self, delegate)
-    table_insert(self._collection_changed, delegate)
-    -- Logger.Log("add_collection_changed", delegate)
+    self._collection_changed:Add(delegate)
 end
 
 local remove_collection_changed = function(self, delegate)
-    local changed = self._collection_changed
-    for i = 1, #changed do
-        if Object.Equals(changed[i], delegate) then
-            table_remove(changed, i)
-            break
-        end
-    end
-    -- Logger.Log("remove_collection_changed", delegate)
+    self._collection_changed:Remove(delegate)
 end
 
 local function collection_changed(self, op, delegate)

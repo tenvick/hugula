@@ -8,6 +8,7 @@ namespace Hugula.Framework
     ///<summary>
     ///单例模式
     ///</summary>
+    [XLua.LuaCallCSharp]
     public abstract class Singleton<T> where T : class, IDisposable
     {
         protected static T m_Instance;

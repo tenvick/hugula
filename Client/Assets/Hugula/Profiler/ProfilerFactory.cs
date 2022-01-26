@@ -22,17 +22,17 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string LogFormat = "Profiler {0} - Total: {1}ms | Self - {2}ms | Number of calls - {3} | Max Single Call - {4}ms | Number of SingleCallTime>3ms - {5}\n";
+        private const string TitleFormat = "\nProfiler | Total ms | Self ms | Number of calls  | Max Single Call ms | Avg Except Max Call ms | Number of SingleCallTime>3ms ";
+        private const string LogFormat = "\n{0} | {1} | {2} | {3} | {4} | {5} | {6}";
 
         #endregion
 
         #region Static
 
         private static Dictionary<string, StopwatchProfiler> profilers = new Dictionary<string, StopwatchProfiler>();
-
-#if HUGULA_RELEASE
-		public static readonly bool DoNotProfile = true;
-#elif PROFILER_NO_DUMP
+#if PROFILER_DUMP
+        public static readonly bool DoNotProfile = false;
+#elif HUGULA_RELEASE
         public static readonly bool DoNotProfile = true;
 #else
         public static readonly bool DoNotProfile = false;
@@ -56,6 +56,19 @@ namespace Hugula.Profiler
                 profilers.Add(name, profiler);
             }
 
+            return profiler;
+        }
+
+        public static StopwatchProfiler GetAndStartComponentProfiler(Component target, string args = "")
+        {
+            if (DoNotProfile) return null;
+            string fullPath = " :" + args ?? "";
+            if (target != null)
+            {
+                fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + fullPath;
+            }
+            StopwatchProfiler profiler = GetProfiler(fullPath);
+            profiler.Start();
             return profiler;
         }
 
@@ -96,8 +109,9 @@ namespace Hugula.Profiler
                 {
                     kFile = File.Create(kLogFileName);
                 }
-                WriteToStream(kFile, string.Format("\n------------------------------------------  {0}    ------------------------------------------------------------\n", DateTime.Now.ToString()));
-                Debug.LogFormat("DumpProfilerInfo in path = {0} ", kLogFileName);
+                WriteToStream(kFile, string.Format("\r\n\r\n\r\n\r\n------------------------------------------  {0}[{1};{2}] - {3}   ------------------------------------------------------------\r\n", UnityEngine.SystemInfo.deviceModel, UnityEngine.SystemInfo.deviceType, SystemInfo.deviceUniqueIdentifier, DateTime.Now.ToString()));
+                WriteToStream(kFile, TitleFormat);
+                Debug.LogFormat("\r\nDumpProfilerInfo in path = {0} ", kLogFileName);
             }
 
             foreach (var pair in profilers)
@@ -120,24 +134,31 @@ namespace Hugula.Profiler
                 double time = pair.Value.ElapsedMillisecondsSelf;
                 if (time < 0)
                 {
-                    UnityEngine.Debug.LogWarning("found negative value, check profiler code " + pair.Key);
+                    UnityEngine.Debug.LogWarning($"found negative value, check profiler code {pair.Key};ElapsedMillisecondsSelf={time}");
+                    time = 1;
                 }
                 fullTime += time;
                 if (pair.Value.NumberOfCalls > 0 && time > timeThresholdToLog)
                 {
-                    string kLine = string.Format(LogFormat, pair.Key, pair.Value.ElapsedMilliseconds, pair.Value.ElapsedMillisecondsSelf.ToString("0.00"), pair.Value.NumberOfCalls, pair.Value.MaxSingleFrameTimeInMs.ToString("0.00"), pair.Value.NumberOfCallsGreaterThan3ms);
+                    var itemValue = pair.Value;
+                    var avgExceptMaxMilliseconds = 0f;
+                    if (itemValue.NumberOfCalls > 1)
+                    {
+                        avgExceptMaxMilliseconds = (float)(itemValue.ElapsedMilliseconds - itemValue.MaxSingleFrameTimeInMs) / (float)(itemValue.NumberOfCalls - 1);
+                    }
+                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms);
                     if (bWriteToFile)
                     {
                         WriteToStream(kFile, kLine);
                     }
-                    UnityEngine.Debug.Log(kLine);
+                    // UnityEngine.Debug.Log(kLine);
                 }
                 if (resetProfilers) pair.Value.Reset();
             }
 
             if (fullTime > timeThresholdToLog)
             {
-                string kLine = "Profiler Full stopwatch measured(ms): " + fullTime;
+                string kLine = "\r\nProfiler Full stopwatch measured(ms): " + fullTime;
                 UnityEngine.Debug.Log(kLine);
                 if (bWriteToFile)
                 {

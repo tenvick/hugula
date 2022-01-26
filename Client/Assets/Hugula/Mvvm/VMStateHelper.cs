@@ -6,6 +6,7 @@ using System;
 
 namespace Hugula.Mvvm
 {
+    [XLua.LuaCallCSharp]
     public class VMStateHelper : Singleton<VMStateHelper>, IDisposable
     {
         private IVMState m_VMState;

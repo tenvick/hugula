@@ -28,9 +28,15 @@ namespace Hugula.Framework
         {
             // var vm = EnterLua.luaenv.Global.GetInPath<INotifyPropertyChanged>("VMgenerate." + vmConfigName);
             // container.context = vm;
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample("LuaModule.Start" + vmConfigName);
+#endif
             VMStateHelper.instance?.InitViewmodel(vmConfigName
                 , container);
             m_IsInited = true;
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
         }
 
         private void OnEnable()

@@ -186,14 +186,41 @@ namespace XLua.Editor
                                   where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
                                   from type in assembly.GetExportedTypes()
                                   where type.Namespace != null && namespaces.Contains(type.Namespace) && !isExcluded(type) &&
-type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
+                                type.BaseType != typeof(MulticastDelegate) && !type.IsInterface
                                   select type);
 
-                // string[] customAssemblys = new string[] {
-                //     "Assembly-CSharp",
-                // };
-                // var customTypes = (from assembly in customAssemblys.Select (s => Assembly.Load (s)) from type in assembly.GetExportedTypes () where type.Namespace == null || !type.Namespace.StartsWith ("XLua") &&
-                //     type.BaseType != typeof (MulticastDelegate) && !type.IsInterface && !type.IsEnum select type);
+                string[] customAssemblys = new string[] {
+                    "Assembly-CSharp",
+                };
+
+                var genericTypes = new HashSet<Type>();
+                Action<Type> findParentType = (Type t) =>
+                {
+                    while (t != null && t.BaseType != null && t.BaseType.FullName != null && (t.IsGenericType || t.BaseType.IsGenericType))
+                    {
+                        genericTypes.Add(t);
+                        t = t.BaseType;
+                    }
+                };
+
+                foreach (var cuAsse in customAssemblys)
+                {
+                    var types = Assembly.Load(cuAsse).GetExportedTypes();
+                    foreach (var type in types)
+                    {
+                        if (namespaces.Contains(type.Namespace) && type.BaseType != null && type.BaseType.FullName != null && type.BaseType.IsGenericType)
+                        {
+                            genericTypes.Add(type.BaseType);
+                            findParentType(type.BaseType.BaseType);
+                        }
+                    }
+                }
+
+                foreach (var t in genericTypes)
+                {
+                    Debug.Log($"genericTypes :{t}");
+                }
+
                 var customlist = new List<Type>();
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 customlist.Add(typeof(Action<object, object, int>));

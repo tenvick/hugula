@@ -164,7 +164,7 @@ namespace XLua
                 if (udata != -1)
                 {
                     ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-                    if ( translator != null )
+                    if (translator != null)
                     {
                         translator.collectObject(udata);
                     }
@@ -850,6 +850,7 @@ namespace XLua
         {
             try
             {
+
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
                 string className = LuaAPI.lua_tostring(L, 1);
                 Type type = translator.FindType(className);
@@ -894,7 +895,7 @@ namespace XLua
                 else
                 {
                     Type[] typeArguments = new Type[top - 1];
-                    for(int i = 2; i <= top; i++)
+                    for (int i = 2; i <= top; i++)
                     {
 
                         typeArguments[i - 2] = getType(L, translator, i);
@@ -1043,7 +1044,7 @@ namespace XLua
                     return LuaAPI.luaL_error(L, "xlua.private_accessible, can not find c# type");
                 }
 
-                while(type != null)
+                while (type != null)
                 {
                     translator.PrivateAccessible(L, type);
                     type = type.BaseType();
@@ -1152,7 +1153,7 @@ namespace XLua
                 translator.Get(L, LuaAPI.xlua_upvalueindex(1), out genericMethod);
                 int n = LuaAPI.lua_gettop(L);
                 Type[] typeArguments = new Type[n];
-                for(int i = 0; i < n; i++)
+                for (int i = 0; i < n; i++)
                 {
                     Type type = getType(L, translator, i + 1);
                     if (type == null)
@@ -1190,7 +1191,7 @@ namespace XLua
                 }
                 System.Collections.Generic.List<MethodInfo> matchMethods = new System.Collections.Generic.List<MethodInfo>();
                 var allMethods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
-                for(int i = 0; i < allMethods.Length; i++)
+                for (int i = 0; i < allMethods.Length; i++)
                 {
                     var method = allMethods[i];
                     if (method.Name == methodName && method.IsGenericMethodDefinition)

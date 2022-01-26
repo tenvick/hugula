@@ -136,18 +136,39 @@ namespace Hugula.UIComponents
             }
         }
 
+        [SerializeField]
+        float m_ScrollTime = 0.4f;
+        /// <summary>
+        /// 滚动时间</br>
+        /// </summary>
+        public float scrollTime { get { return m_ScrollTime; } set { m_ScrollTime = value; } }
+
+        [Tooltip("每次滚动移动的单位距离，需要取消Inertia选项")]
+        [SerializeField] int m_ScrollDataSize = 0;
+        public int scrollDataSize
+        {
+            get { return this.m_ScrollDataSize; }
+            set
+            {
+                m_ScrollDataSize = value;
+            }
+        }
+
+        private int m_ScrollToIndex = 0;
         ///<summary>
         /// 通过属性的方式指定滚动到制定索引 
         /// 为了数据绑定
         ///</summary>
         public int setScrollIndex
         {
-            get { return this.selectedIndex; }
+            get { return this.m_ScrollToIndex; }
             set
             {
                 ScrollToIndex(value);
             }
         }
+
+        public System.Action<object, int, int> onScrollIndexChanged;
 
         ///<summary>
         /// 滚动到指定索引
@@ -159,22 +180,31 @@ namespace Hugula.UIComponents
             if (idx < 0) idx = 0;
             if (idx >= dataLength) idx = dataLength - 1;
             if (idx < 0) return;
+            var oldIdx = m_ScrollToIndex;
+            m_ScrollToIndex = idx;
 
             var cpos = Vector2.zero; //开始位置
             Vector2 curr = content.anchoredPosition;
+            var contentSize = content.rect;
+            var viewPortSize = viewRect.rect;
 
             int columns = base.columns;
             if (columns == 0) //x轴 
             {
-                cpos.x = -(itemSize.x + this.halfPadding) * idx - m_ContentLocalStart.x; //开始位置
+                var minX = Mathf.Min(0, viewPortSize.width - contentSize.width);
+                cpos.x = Mathf.Max(minX, -(itemSize.x + this.halfPadding) * idx - m_ContentLocalStart.x); //开始位置
             }
             else
             {
+                var maxY = Mathf.Max(0, contentSize.height - viewPortSize.height);
                 int row = idx / columns;
-                cpos.y = (itemSize.y + this.halfPadding) * row + m_ContentLocalStart.y; //开始位置
+                cpos.y = Mathf.Min(maxY, (itemSize.y + this.halfPadding) * row + m_ContentLocalStart.y); //开始位置
             }
 
-            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, cpos, 0.5f));
+            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, cpos, scrollTime));
+
+            if (onScrollIndexChanged != null)
+                onScrollIndexChanged(this.parameter, m_ScrollToIndex, oldIdx);
 
         }
 
@@ -192,7 +222,7 @@ namespace Hugula.UIComponents
         {
             get
             {
-                return velocity.y != 0 || scrollBarDragging;
+                return velocity.y != 0 || scrollBarDragging || m_IsOnDrag;
             }
 
         }
@@ -201,13 +231,12 @@ namespace Hugula.UIComponents
         {
             get
             {
-                return velocity.x != 0 || scrollBarDragging;
+                return velocity.x != 0 || scrollBarDragging || m_IsOnDrag;
             }
         }
-
+        private WaitForEndOfFrame waitForend = new WaitForEndOfFrame();
         protected IEnumerator TweenMoveToPos(Vector2 pos, Vector2 v2Pos, float delay)
         {
-            var waitForend = new WaitForEndOfFrame();
             float passedTime = 0f;
             tweenDir = (v2Pos - pos).normalized;
 
@@ -219,6 +248,9 @@ namespace Hugula.UIComponents
                 if (passedTime >= delay)
                 {
                     vCur = v2Pos;
+                    content.anchoredPosition = v2Pos;
+                    UpdateViewPointBounds();
+                    ScrollLoopItem();
                     tweenDir = Vector2.zero;
                     StopCoroutine(m_Coroutine);
                     m_Coroutine = null;
@@ -233,6 +265,38 @@ namespace Hugula.UIComponents
         }
         protected Coroutine m_Coroutine = null;
 
+        #region  drag
+        private int m_CurrHeadIdx;
+        public override void OnBeginDrag(PointerEventData eventData)
+        {
+            m_CurrHeadIdx = m_HeadDataIndex;
+            base.OnBeginDrag(eventData);
+
+        }
+
+        public override void OnEndDrag(PointerEventData eventData)
+        {
+            base.OnEndDrag(eventData);
+
+            if (m_ScrollDataSize > 0 && columns == 0)
+            {
+                var idx = m_CurrHeadIdx;//// Mathf.FloorToInt(-m_ViewPointRect.x / (itemSize.x + this.halfPadding)); //头
+                if (m_DragVelocity.x > 0)
+                {
+                    idx = idx - m_ScrollDataSize;
+                }
+                else if (m_DragVelocity.x < 0)
+                {
+                    idx = idx + m_ScrollDataSize;
+                }
+
+                // Debug.LogFormat("drag end {0} ,idx = {1}", m_DragVelocity, idx);
+                // ScrollToIndex(idx);
+                setScrollIndex = idx;
+            }
+            //滚动到
+        }
+        #endregion
     }
 
     public static class RectTransformExtension

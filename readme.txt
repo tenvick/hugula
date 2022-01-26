@@ -1,6 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2022.1.26
+1 lua notify优化
+2 profiler输出格式优化，打点增加。
+3 框架稳定性优化。
+4 xlua 更新。
+
+
 2021.11.27
 1 数据绑定引入对象池与引用清空。
 2 资源延时回收。

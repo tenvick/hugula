@@ -923,17 +923,33 @@ namespace Hugula.UIComponents
                 {
                     item.transform.gameObject.SetActive(false);
                     item.transform.GetComponent<BindableObject>()?.Unapply();
-                } 
+                }
                 item.index = -1;
             }
         }
 
         #endregion
 
-        #region  static
+        #region  drag
+        protected bool m_IsOnDrag = false;
+        protected Vector3 m_DragVelocity;
+        public override void OnBeginDrag(PointerEventData eventData)
+        {
+            m_IsOnDrag = true;
+            base.OnBeginDrag(eventData);
+        }
 
+        public override void OnEndDrag(PointerEventData eventData)
+        {
+            m_DragVelocity = content.anchoredPosition - m_ContentStartPosition;
+
+            m_IsOnDrag = false;
+            base.OnEndDrag(eventData);
+
+
+            //滚动到
+        }
         #endregion
-
     }
 
 #if UNITY_EDITOR

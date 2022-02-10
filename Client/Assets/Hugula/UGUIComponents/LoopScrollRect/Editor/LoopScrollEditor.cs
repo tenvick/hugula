@@ -106,6 +106,9 @@ namespace HugulaEditor.UIComponents
         protected SerializedProperty m_Padding;
 
         protected SerializedProperty m_SelectedIndex;
+        protected SerializedProperty m_ScrollTime;
+        protected SerializedProperty m_ScrollDataSize;
+
         protected SerializedProperty m_Content;
         protected SerializedProperty m_Horizontal;
         protected SerializedProperty m_Vertical;
@@ -147,6 +150,8 @@ namespace HugulaEditor.UIComponents
             m_VerticalScrollbarSpacing = serializedObject.FindProperty("m_VerticalScrollbarSpacing");
             m_OnValueChanged = serializedObject.FindProperty("m_OnValueChanged");
             m_SelectedIndex = serializedObject.FindProperty("m_SelectedIndex");
+            m_ScrollTime = serializedObject.FindProperty("m_ScrollTime");
+            m_ScrollDataSize = serializedObject.FindProperty("m_ScrollDataSize");
 
             m_ShowElasticity = new AnimBool(Repaint);
             m_ShowDecelerationRate = new AnimBool(Repaint);
@@ -359,6 +364,8 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_Columns);
             EditorGUILayout.PropertyField(m_RenderPerFrames);
             EditorGUILayout.PropertyField(m_SelectedIndex);
+            EditorGUILayout.PropertyField(m_ScrollTime);
+            EditorGUILayout.PropertyField(m_ScrollDataSize);
             EditorGUILayout.PropertyField(m_Horizontal);
             EditorGUILayout.PropertyField(m_Vertical);
 

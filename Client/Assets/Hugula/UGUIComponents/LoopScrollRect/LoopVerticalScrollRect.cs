@@ -241,6 +241,8 @@ namespace Hugula.UIComponents
         /// </summary>
         public ICommand droppedCommand { get; set; }
 
+        private bool m_CanLayout = false;
+
         #endregion
 
         protected override void Awake()
@@ -253,25 +255,30 @@ namespace Hugula.UIComponents
             onEndDragChanged.AddListener(OnEndDrag);
         }
 
-        // void Update()
-        // {
-        //     if (m_RenderPerFrames < 1) m_RenderPerFrames = 1;
-        //     for (int i = 0; i < this.m_RenderPerFrames; i++)
-        //     {
-        //         QueueToRender();
-        //         if ((m_RenderQueue.Count == 0)) break;
-        //     }
-        // }
         void Update()
         {
-            RenderWaitQueue();
-            ScrollLoopVerticalItem();
+            if (m_RenderPerFrames < 1) m_RenderPerFrames = 1;
+            for (int i = 0; i < this.m_RenderPerFrames; i++)
+            {
+                QueueToRender();
+                if ((m_RenderQueue.Count == 0)) break;
+            }
         }
 
         protected override void LateUpdate()
         {
-            Layout();
+            ScrollLoopVerticalItem(); 
             base.LateUpdate();
+            m_CanLayout = true;
+        }
+
+        private void FixedUpdate()
+        {
+            if (m_CanLayout)
+            {
+                m_CanLayout = false;
+                Layout();
+            }
         }
 
         protected override void OnDestroy()
@@ -288,7 +295,7 @@ namespace Hugula.UIComponents
             m_SelecteStyle = null;
             for (int i = 0; i < m_Templates.Length; i++)
             {
-                m_Pool?.Clear(i);
+                m_Pool.Clear(i);
             }
             m_Pool = null;
             foreach (var loopItem in m_Pages)
@@ -419,7 +426,7 @@ namespace Hugula.UIComponents
         /// </example>
         public void InsertRange(int index, int count) //批量插入
         {
-            Debug.Log($"{this} Layout InsertRange({index},{count}) frame：{Time.frameCount}");
+
             //数据变更范围
             // int dataBIdx = index, dataEIdx = index + count; //数据变更范围 dataBIdx~dataEIdx
             //当前数据范围 m_DataLength
@@ -540,8 +547,6 @@ namespace Hugula.UIComponents
         /// </example>
         public void UpdateBegin(int idx)
         {
-            // Debug.Log($"{this} Layout UpdateBegin({idx} frame：{Time.frameCount}");
-
             int min = int.MaxValue, max = int.MinValue;
             foreach (var item1 in m_Pages)
             {
@@ -610,25 +615,21 @@ namespace Hugula.UIComponents
             if (min == int.MaxValue) min = 0;
             int eIdx = min + m_PageSize - 1; //本来应该的最大索引
             if (eIdx >= m_DataLength) eIdx = m_DataLength - 1; //最大索引不能超过datalength
-            // Debug.Log($"{this} Layout Refresh({min},{eIdx}) frame：{Time.frameCount}");
 
             if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
             {
                 int bi = min - (max - eIdx);
                 if (bi < 0) bi = 0;
-                Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, m_DataLength);
+                // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
                 for (int i = min; i >= bi; i--)
                     m_RenderQueue.Enqueue(i);
             }
             else //从idx到end刷新
             {
-                Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, m_DataLength);
+                // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, DataLength);
                 for (int i = min; i <= eIdx; i++)
                     m_RenderQueue.Enqueue(i);
             }
-
-            // m_HeadDataIndex = min;
-            // m_FootDataIndex = eIdx;
 
         }
 
@@ -694,10 +695,6 @@ namespace Hugula.UIComponents
         #region 模板项目
 
         protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem>();
-        protected int m_HeadDataIndex;
-        protected int m_FootDataIndex;
-        //真实数据
-        // protected List<LoopVerticalItem> m_SortPages = new List<LoopVerticalItem>();
 
         protected Hugula.Utils.GameObjectPool<BindableObject> m_Pool;
         void OnPoolGet(BindableObject comp)
@@ -724,23 +721,20 @@ namespace Hugula.UIComponents
         {
             for (int i = m_Pages.Count; i < m_PageSize; i++)
             {
-                var item = new LoopVerticalItem();
-                m_Pages.Add(item);
+                m_Pages.Add(new LoopVerticalItem());
             }
         }
 
-        protected LoopVerticalItem GetLoopVerticalItemAt(int idx,out int pageIndex)
+        protected LoopVerticalItem GetLoopVerticalItemAt(int idx)
         {
             int i = idx % pageSize;
-            pageIndex = i;
             return m_Pages[i];
         }
 
         public Component GetItemAt(int idx)
         {
             if (idx < 0) return null;
-            int pIdx =0;
-            var loopItem = GetLoopVerticalItemAt(idx,out pIdx);
+            var loopItem = GetLoopVerticalItemAt(idx);
             if (loopItem.index == idx)
                 return loopItem.item;
 
@@ -770,29 +764,28 @@ namespace Hugula.UIComponents
 
         protected Queue<int> m_RenderQueue = new Queue<int>(); //渲染队列
 
-        // void AddShowList(int index)
-        // {
-        //     m_ShowList.Add(index);
-        // }
+        void AddShowList(int index)
+        {
+            m_ShowList.Add(index);
+        }
 
-        // protected void QueueToRender()
-        // {
-        //     if (m_RenderQueue.Count > 0)
-        //     {
-        //         int idx = m_RenderQueue.Dequeue();
-        //         var item = GetLoopVerticalItemAt(idx);
-        //         RenderItem(item, idx);
-        //     }
-        // }
+        protected void QueueToRender()
+        {
+            if (m_RenderQueue.Count > 0)
+            {
+                int idx = m_RenderQueue.Dequeue();
+                var item = GetLoopVerticalItemAt(idx);
+                RenderItem(item, idx);
+            }
+        }
 
         //立即完成等待队列
         protected void RenderWaitQueue()
         {
-            int pIdx=0;
             while (m_RenderQueue.Count > 0)
             {
                 int idx = m_RenderQueue.Dequeue();
-                var item = GetLoopVerticalItemAt(idx,out pIdx);
+                var item = GetLoopVerticalItemAt(idx);
                 RenderItem(item, idx);
             }
         }
@@ -831,7 +824,7 @@ namespace Hugula.UIComponents
         {
             var oldRect = loopItem.rect;
             var oldIdx = loopItem.index;
-            m_NeedRefresh = true;
+
             if (idx < dataLength)
             {
                 var templateId = 0;
@@ -869,66 +862,48 @@ namespace Hugula.UIComponents
                     m_SelecteStyle.CancelStyle();
             }
 
-            // AddShowList(idx);
+            AddShowList(idx);
             if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             //
             CalcItemBound(loopItem);
-            // Debug.Log($"{this} Layout addshow list:{idx} frame:{Time.frameCount}");
             // CalcBounds (loopItem, oldIdx, oldRect);
         }
 
-        bool m_NeedRefresh = false;
-        float m_LastYMax =0;
         ///<summary>
         /// 内容滚动
         ///</summary>
         protected void ScrollLoopVerticalItem()
         {
             if (velocity.y == 0 && !isTweening) return; //没有移动不需要计算
-           
-            // int min = m_SortPages[0].index;
-            // int size = m_SortPages.Count -1;
-            // int max = m_SortPages[size].index;
-            // if(min == -1 || max == -1) return;//无需滚动
-            int max1 = 0;// m_FootDataIndex;  //= GetBottomItem ();
-            int min1 = int.MaxValue;//m_HeadDataIndex; //= GetTopItem ();
+            int min = int.MaxValue, max = int.MinValue;
+            int max1; //= GetBottomItem ();
+            int min1; //= GetTopItem ();
             LoopVerticalItem itemToRender = null;
-
-
-            for(int i=0;i<m_Pages.Count;i++)
+            for (int i = 0; i < m_Pages.Count; i++)
             {
                 var item = m_Pages[i];
-                if(item!=null)
-                {
-                    max1 = Math.Max(max1,item.index);
-                    if(item.index != -1)
-                        min1 = Math.Min(min1,item.index);
-                }
+                if (item.index == -1)
+                    return;
+                else
+                    min = Math.Min(item.index, min);
+
+                max = Math.Max(item.index, max);
             }
 
-            
-            int pageIdx=0;
-
-            if (velocity.y > 0 || tweenDir.y > 0) //top to down
+            if (velocity.y > 0 || tweenDir.y > 0)
             {
                 UpdateBounds();
-                // max1 = max;
-                // min1 = min;
+                // RenderWaitQueue ();
+                max1 = max;
+                min1 = min;
                 // Debug.LogFormat ("m_ViewBounds={0},m_ViewBounds.yMin{1},m_ViewBounds.yMax{2},(min1).yMax={3},(min1).yMax<m_ViewBounds.yMin:{4}",m_ViewBounds, m_ViewBounds.yMin,m_ViewBounds.yMax,GetLoopVerticalItemAt (min1).yMax,Mathf.Abs(GetLoopVerticalItemAt (min1).yMax) < Mathf.Abs (m_ViewBounds.yMin));
-                //m_ViewBounds
-                Debug.Log($"Layout.Down min1:{min1}  ({GetLoopVerticalItemAt(min1,out pageIdx).yMin}-{GetLoopVerticalItemAt(min1,out pageIdx).yMax})  {m_ViewBounds}-yMin:{-m_ViewBounds.yMin}  frame:{Time.frameCount} ");
-                while (m_DataLength > max1 && GetLoopVerticalItemAt(min1,out pageIdx).yMax < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top to down
+                while (m_DataLength > max1 && GetLoopVerticalItemAt(min1).yMax < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
                 {
                     max1 = max1 + 1;
-                    // m_FootDataIndex = max1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMax:{2}>m_ViewBounds.yMin{3} ", min1, max1, GetLoopVerticalItemAt (min1).yMax, m_ViewBounds.yMin);
-                    if (m_DataLength > max1 && (itemToRender = GetLoopVerticalItemAt(max1,out pageIdx)) != null && itemToRender.index != max1)
+                    if (m_DataLength > max1 && (itemToRender = GetLoopVerticalItemAt(max1)) != null && itemToRender.index != max1)
                     {
                         min1 = min1 + 1;
-                        // m_HeadDataIndex = min1;
-                        m_HeadDataIndex = min1;
-                        m_FootDataIndex = max1;
-                        Debug.Log($"Layout.Down  min-max:({min1}-{max1})  itemToRender:({itemToRender.index} to {max1})   frame:{Time.frameCount} ");
                         RenderItem(itemToRender, max1);
                     }
                     else
@@ -937,23 +912,19 @@ namespace Hugula.UIComponents
                     }
                 }
             }
-            else if (velocity.y < 0 || tweenDir.y < 0)//down to top
+            else if (velocity.y < 0 || tweenDir.y < 0)
             {
                 UpdateBounds();
-                Debug.Log($"Layout.Up max1:{max1}   ({GetLoopVerticalItemAt(max1,out pageIdx).yMin}-{GetLoopVerticalItemAt(max1,out pageIdx).yMax})  {m_ViewBounds}-yMax:{-m_ViewBounds.yMax}  frame:{Time.frameCount} ");
-                while (min1 >= 0 && GetLoopVerticalItemAt(max1,out pageIdx).yMax < -m_ViewBounds.yMax + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
+                // RenderWaitQueue ();
+                max1 = max;
+                min1 = min;
+                while (min1 >= 0 && GetLoopVerticalItemAt(max1).yMin > -m_ViewBounds.yMin + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
                 {
                     min1 = min1 - 1;
-                    // m_HeadDataIndex = min1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMin:{2}>m_ViewBounds.yMax{3} ", min1, max1, GetLoopVerticalItemAt (max1).yMin, m_ViewBounds.yMax);
-                    if (min1 >= 0 && (itemToRender = GetLoopVerticalItemAt(min1,out pageIdx)) != null && itemToRender.index != min1)
+                    if (min1 >= 0 && (itemToRender = GetLoopVerticalItemAt(min1)) != null && itemToRender.index != min1)
                     {
                         max1 = max1 - 1;
-                        // m_FootDataIndex = max1;
-                        Debug.Log($"Layout.Up  min-max:({min1}-{max1})  itemToRender:({itemToRender.index} to {min1})   frame:{Time.frameCount} ");
-                        m_HeadDataIndex = min1;
-                        m_FootDataIndex = max1;
-
                         RenderItem(itemToRender, min1);
                     }
                     else
@@ -977,7 +948,7 @@ namespace Hugula.UIComponents
             }
 
             // if (m_autoScrollFloor && m_RenderQueue.Count == 0)
-            if (needScrollToBottom )
+            if (needScrollToBottom && m_RenderQueue.Count == 0)
             {
                 Vector2 curr = content.anchoredPosition;
                 curr.y = m_ContentBounds.yMax - m_ViewBounds.height; //如果标记了需要滚动到末尾
@@ -1012,115 +983,87 @@ namespace Hugula.UIComponents
                 rectTran.offsetMin = offsetMin;
                 rectTran.offsetMax = offsetMax;
             }
+        }
 
-           loopItem.isDirty = true;
+        bool GetItemYMax(int index, bool isYmax, out float posY)
+        {
+            posY = 0;
+            Vector2 lastBound;
+            if (m_DataBounds.TryGetValue(index, out lastBound))
+            {
+                if (isYmax)
+                    posY = lastBound.x + lastBound.y;
+                else
+                    posY = lastBound.x;
+                return true;
+            }
+            return false;
+        }
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran);
+        void SetItemBound(int index, Vector2 bound)
+        {
+            m_DataBounds[index] = bound;
         }
 
         ///<summary>
         /// 布局
         ///</summary>
-        internal void Layout()
+        public void Layout()
         {
-           
-            if(m_NeedRefresh)
+            LoopVerticalItem item;
+            float lastPosY = halfPadding;
+            int index = 0;
+            for (int i = 0; i < m_ShowList.Count; i++)
             {
-                m_NeedRefresh = false;
-                int pageIdx=0;
-                int index;
-                LoopVerticalItem item = null;
-                bool isDirty = false;
-                float n_UpYMax =0;
-                int count = m_HeadDataIndex + m_Pages.Count;
-
-                if(count>dataLength)count = dataLength;
-
-                Debug.Log($"  m_HeadDataIndex = {m_HeadDataIndex}");
-
-                for(int i=m_HeadDataIndex;i<count;i++)
+                index = m_ShowList[i];
+                item = GetLoopVerticalItemAt(index);
+                // LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran); //立马计算布局
+                var layoutEle = item.item.GetComponent<LayoutElement>();
+                Vector2 bound = Vector2.zero;
+                bound.x = halfPadding;
+                if (layoutEle != null)
                 {
-                    item = GetLoopVerticalItemAt(i,out pageIdx);
-                    index = item.index; 
+                    bound.y = layoutEle.preferredHeight + halfPadding; //高度
+                }
+                else
+                {
+                    bound.y = Mathf.Abs(item.transform.rect.height) + halfPadding;
+                }
+                item.SetHeight(bound.y);
 
-                    if(i==0) //如果是第一条
+                // if (item.isDirty)
+                {
+                    if (!GetItemYMax(index - 1, true, out lastPosY))
+                        if (GetItemYMax(index + 1, false, out lastPosY))
+                            lastPosY = lastPosY - item.bound.y - padding;
+                    item.SetPos(lastPosY + halfPadding);
+                    // Debug.LogFormat (" index={0},lastPosY={1},item.bound={2}", index, lastPosY, item.bound);
+                    SetItemBound(index, item.bound);
+
+                    var rectTran = item.transform;
+                    Vector2 pos = rectTran.anchoredPosition;
+                    pos.y = -item.yMin; // rect.height * .5f ;
+                    pos = pos + m_ContentInitializePosition; //开始位置
+                    rectTran.anchoredPosition3D = Vector3.zero;
+                    rectTran.anchoredPosition = pos;
+                    item.isDirty = false;
+                    m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, item.yMin - halfPadding);
+                    if (index == 0)
                     {
-                        n_UpYMax = m_LastYMax;
+                        m_CalcBoundyMin = item.yMin - halfPadding;
+                        m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
                     }
-                    else //寻找上一个
+                    m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, item.yMax);
+                    if (index == m_DataLength - 1)
                     {
-                        m_LastYMax = GetLoopVerticalItemAt(i-1,out pageIdx).yMax;
-                    }
-
-                     if(index ==0 )
-                            n_UpYMax = 0;
-
-                    if(item.isDirty || isDirty)
-                    {
-                        isDirty = true;
-                        float min, preferred, flexible;
-                        //The axis to handle. 0 is horizontal and 1 is vertical
-                        GetChildSizes(item.transform,1,item.item.GetComponent<LayoutElement>()!=null,false,out min ,out preferred,out flexible);
-                        item.SetHeight(preferred + halfPadding);
-                        item.SetPos(m_LastYMax + halfPadding);
-                        m_LastYMax = item.yMax;
-                        // Debug.Log($"Layout.Position {index} {item.item} {preferred} {item.yMin}+{item.yMax} frame:{Time.frameCount} ");
-                        var rectTran = item.transform;
-                        Vector2 pos = rectTran.anchoredPosition;
-                        pos.y = -item.yMin; // rect.height * .5f ;
-                        pos = pos + m_ContentInitializePosition; //开始位置
-                        rectTran.anchoredPosition3D = Vector3.zero;
-                        rectTran.anchoredPosition = pos;
-                        item.isDirty = false;
-                        // if (index == 0)
-                        // {
-                        //     // m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, item.yMin - halfPadding);
-                        //     m_CalcBoundyMin = item.yMin - halfPadding;
-                        //     m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
-                        // }
-
-                        var yMin = item.yMin - halfPadding;
-
-                        if(m_CalcBoundyMin >= yMin )
-                        {
-                            // m_CalcBoundyMin = yMin;
-                            // m_ContentBounds.yMin = -m_CalcBoundyMin;
-                        }
-
-                        // if (index == m_DataLength - 1)
-                        {
-                            // m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, item.yMax);
-                            if( m_CalcBoundyMax < item.yMax)
-                            {
-                                m_CalcBoundyMax = item.yMax;
-                                m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
-                            }
-                        }
+                        m_CalcBoundyMax = item.yMax;
+                        m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
                     }
                 }
             }
+            m_ShowList.Clear();
 
             CalcBounds();
-        }
-
-        private void GetChildSizes(RectTransform child, int axis, bool controlSize, bool childForceExpand,
-            out float min, out float preferred, out float flexible)
-        {
-            if (!controlSize)
-            {
-                min = child.sizeDelta[axis];
-                preferred = min;
-                flexible = 0;
-            }
-            else
-            {
-                min = LayoutUtility.GetMinSize(child, axis);
-                preferred = LayoutUtility.GetPreferredSize(child, axis);
-                flexible = LayoutUtility.GetFlexibleSize(child, axis);
-            }
-
-            if (childForceExpand)
-                flexible = Mathf.Max(flexible, 1);
         }
 
         #endregion
@@ -1210,48 +1153,15 @@ namespace Hugula.UIComponents
         #region  tool
         protected void ClearItems()
         {
-            m_DataBounds.Clear();
             foreach (var item in m_Pages)
             {
-                if (item.transform) item.transform.gameObject.SetActive(false);
+                if (item.transform)
+                {
+                    item.transform.gameObject.SetActive(false);
+                    item.transform.GetComponent<BindableObject>()?.Unapply();
+                } 
                 item.index = -1;
             }
-        }
-        #endregion
-
-        #region 
-        private void OnDrawGizmos()
-        {
-
-            Gizmos.color = Color.yellow;
-            var center = m_ContentBounds.center;
-            // center.y = -center.y;
-            var size = m_ContentBounds.size;
-            // size.y = -size.y;
-
-            Gizmos.DrawWireCube(center, size);
-
-            center = m_ViewBounds.center;
-            // center.y = -center.y;
-            size = m_ViewBounds.size;
-            // size.y = -size.y;
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(center, size);
-            Gizmos.color = Color.green;
-            var x = m_ViewBounds.center.x;
-            foreach (var item in m_Pages)
-            {
-
-                var rect = new Rect(x,-item.bound.x - item.bound.y,size.x,item.bound.y);
-                center = rect.center;
-                size.y = item.bound.y;
-                // center.y 
-                if(item.item && item.item.gameObject.activeInHierarchy)
-                    Gizmos.DrawWireCube(center, size);
-                // if (item.transform) item.transform.gameObject.SetActive(false);
-                // item.index = -1;
-            }
-            
         }
         #endregion
 

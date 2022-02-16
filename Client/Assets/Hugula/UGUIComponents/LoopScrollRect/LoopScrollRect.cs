@@ -101,8 +101,6 @@ namespace Hugula.UIComponents
             rect.position = pos;
             pos = pos + m_ContentLocalStart; //开始位置
 
-            loopItem.rect = rect;
-
             // Debug.LogFormat("SetInsetAndSizeFromParentEdge pos={0},width={1} ", pos, rectTran.rect.width);
             rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
             rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);

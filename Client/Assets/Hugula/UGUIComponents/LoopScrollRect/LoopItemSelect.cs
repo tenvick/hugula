@@ -67,34 +67,7 @@ namespace Hugula.UIComponents {
         public int index = -1; //对应data的索引
         public Component item; //clone的模板项
         public RectTransform transform; //
-        public Rect rect; //当前位置
 
-    }
-
-    public class LoopVerticalItem : LoopItem {
-        public Vector2 bound; //高度范围
-        public void SetPos (float y) {
-            bound.x = y;
-        }
-
-        public bool isDirty { set; get; }
-
-        public void SetHeight (float height) {
-            bound.y = height;
-            isDirty = true;
-        }
-
-        public float yMin {
-            get {
-                return bound.x;
-            }
-        }
-
-        public float yMax {
-            get {
-                return bound.x + bound.y;
-            }
-        }
     }
 
     public interface ILoopSelect {
@@ -109,5 +82,17 @@ namespace Hugula.UIComponents {
 
         void SelectedStyle ();
         void CancelStyle ();
+    }
+
+
+    public interface IScrollLayoutChange {
+        void OnItemLayoutChange (int id);
+    }
+
+    public interface INotifyLayoutElement 
+    {
+        void Init(LoopItem loopItem, IScrollLayoutChange loopScrollBase);
+
+        void OnDirty();
     }
 }

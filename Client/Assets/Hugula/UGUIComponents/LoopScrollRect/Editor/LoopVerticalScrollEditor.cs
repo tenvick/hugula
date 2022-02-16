@@ -346,7 +346,7 @@ namespace HugulaEditor.UIComponents
 
         void PropertyFieldChooseMono(SerializedProperty prop)
         {
-            EditorGUILayout.LabelField("Template item type must is BindableContainer", GUILayout.MaxWidth(300));
+            EditorGUILayout.LabelField("Template item type must is BindableObject", GUILayout.MaxWidth(300));
 
             // EditorGUILayout.PropertyField (prop);
 
@@ -371,9 +371,10 @@ namespace HugulaEditor.UIComponents
                     var item = prop.GetArrayElementAtIndex(i);
                     EditorGUILayout.PropertyField(item);
                     var obj = item.objectReferenceValue as Component;
-                    if (obj && !(obj is BindableContainer))
+                    if (obj && !(obj is BindableObject))
                     {
-                        var bindable = obj.GetComponent<BindableContainer>();
+                        var bindable = obj.GetComponent<BindableContainer>()?? obj.GetComponent<BindableObject>();
+
                         item.objectReferenceValue = bindable;
                         if (bindable == null)
                         {

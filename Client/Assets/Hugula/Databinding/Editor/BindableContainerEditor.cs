@@ -403,13 +403,13 @@ namespace HugulaEditor.Databinding
                 if(childTrans.name.ToLower().EndsWith(":ignore"))
                 {
                     Debug.LogWarning($"{childTrans} 不会添加到容器{container} ");
-                    return;
+                    continue;
                 }
                 var ignorePeerBinder = childTrans.GetComponents<IIgnorePeerBinder>();
                 if (ignorePeerBinder != null && ignorePeerBinder.Length > 0)
                 {
                     Debug.LogWarning($"{childTrans} 不会添加到容器{container} ");
-                    return;
+                    continue;
                 }
                 //
 

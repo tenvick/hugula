@@ -797,7 +797,6 @@ namespace Hugula.UIComponents
         protected void RenderItem(LoopItem loopItem, int idx)
         {
             bool dispatchOnSelectedEvent = false;
-            var oldRect = loopItem.rect;
             var oldIdx = loopItem.index;
             loopItem.index = idx;
 

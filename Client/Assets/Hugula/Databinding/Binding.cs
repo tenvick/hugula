@@ -262,7 +262,7 @@ namespace Hugula.Databinding
             for (var i = 0; i < m_Parts.Count - 1; i++)
             {
                 BindingPathPart part = m_Parts[i];
-                part.Unsubscribe();
+                part?.Unsubscribe();
             }
         }
 
@@ -449,11 +449,6 @@ namespace Hugula.Databinding
 
         public void Dispose()
         {
-            for (var i = 0; i < m_Parts.Count - 1; i++)
-            {
-                BindingPathPart part = m_Parts[i];
-                part.ReleaseToPool();
-            }
             m_IsDisposed = true; //标记销毁
             m_IsApplied = false;
             convert = null;
@@ -462,7 +457,11 @@ namespace Hugula.Databinding
             m_ApplyContext = null;
             m_Context = null;
             m_LastPart = null;
-            // m_Parts.Clear();
+            for (var i = 0; i < m_Parts.Count - 1; i++)
+            {
+                BindingPathPart part = m_Parts[i];
+                part?.ReleaseToPool();
+            }
             ListPool<BindingPathPart>.Release(m_Parts);
         }
 

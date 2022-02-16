@@ -227,7 +227,8 @@ namespace Hugula.Databinding.Binder
             if (item != null)
             {
                 item.forceContextChanged = m_forceBinding;
-                item.context = items[index];
+                // item.context = items[index];
+                BindingUtility.SetContext(item, items[index]);
             }
         }
 

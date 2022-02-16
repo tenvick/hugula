@@ -16,7 +16,7 @@ namespace Hugula.UIComponents
     ///  2 末尾插入数据自动滚动</br>
     ///  3 跳转到头部或者尾部  </br>
     /// </summary>
-    public class LoopVerticalScrollRect : VerticalScrollBase, ILoopSelect
+    public class LoopVerticalScrollRect : VerticalScrollBase, ILoopSelect,IScrollLayoutChange
     {
         #region  rect属性
         [SerializeField]
@@ -31,7 +31,15 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 间距
         /// </summary>
-        public float padding { get { return m_Padding; } set { m_Padding = value; m_HalfPadding = float.NaN; } } //间隔
+        public float padding { 
+            get { return m_Padding; } 
+        
+            set { 
+                m_Padding = value; 
+                m_HalfPadding = float.NaN;             
+                virtualVertical.padding = padding; 
+            } 
+        } //间隔
 
         [SerializeField]
         int m_RenderPerFrames = 1;
@@ -80,118 +88,21 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         myScrollRect.OnInstantiated = (object o, int idx) => //o是ItemSource(Clone) ,idx是数据索引
-        ///         {
-        ///             var gobj = (Transform)o;
-        ///             gobj.name = "item" + idx.ToString();
-        ///             var btn = gobj.GetComponentInChildren<Button>();
-        ///             btn.OnClick.AddListener(() =>
-        ///              {
-        ///                    print("Click "+mData.ToString());
-        ///               });
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public Action<object, object, int> onInstantiated { get; set; } //实例化
 
         /// <summary>
         /// 此函数会接管 默认的item Clone
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///     public Transform text;
-        ///     public Transform button;
-        ///     void Awake()
-        ///     {
-        ///                                                         
-        ///         myScrollRect.OnGetItemTemplateType = (int idx/*当前索引 */) =>
-        ///         {
-        ///             var typeid = source[idx]; //从索引找到数据的模板类型
-        ///             return typeid
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public Func<object, int, int> onGetItemTemplateType { get; set; } //
 
         /// <summary>
         /// 填充数据显示项目
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         myScrollRect.onItemRender = (object o, int idx) => //o是ItemSource(Clone) ,idx是数据索引
-        ///         {
-        ///             var gobj = (Transform)o;
-        ///             gobj.name = "item" + idx.ToString();
-        ///             Text txt = gobj.GetComponentInChildren<Text>();
-        ///             string test = testData[idx];
-        ///             txt.text = test;
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public Action<object, Component, int> onItemRender { get; set; } //渲染
 
         /// <summary>
         /// 选中某个项
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         myScrollRect.OnSelected = (object o, int idx,int last idx) => //o是ItemSource(Clone) ,idx是数据索引
-        ///         {
-        ///             var gobj = (Transform)o;
-        ///             gobj.name = "item" + idx.ToString();
-        ///             Text txt = gobj.GetComponentInChildren<Text>();
-        ///             string test = testData[idx];
-        ///             txt.text = test;
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public Action<object, object, int, int> onSelected { get; set; }
 
         /// <summary>
@@ -208,40 +119,12 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 当在顶部或者底部释放的时候触发。
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         myScrollRect.OnDroped = (Vector2 offest) =>
-        ///         {
-        ///             
-        ///             if(offest.y > 0 ) //ceil   
-        ///             {
-        ///                 print("end drag in ceil") ;   
-        ///             }else //if(offest.y < 0) { //floor
-        ///                 print("end drag in floor") ; 
-        ///             }
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public Action<Vector2> onDropped { get; set; }
 
         /// <summary>
         /// 当在顶部或者底部释放的时候触发。
         /// </summary>
         public ICommand droppedCommand { get; set; }
-
-        private bool m_CanLayout = false;
 
         #endregion
 
@@ -251,34 +134,27 @@ namespace Hugula.UIComponents
             base.Awake();
             InitPages();
             InitTemplatePool();
+            virtualVertical.padding = padding;
             onDragChanged.AddListener(OnDraging);
             onEndDragChanged.AddListener(OnEndDrag);
         }
 
-        void Update()
+        protected void Update()
         {
-            if (m_RenderPerFrames < 1) m_RenderPerFrames = 1;
-            for (int i = 0; i < this.m_RenderPerFrames; i++)
+            if (m_RenderQueue.Count > 0)
             {
-                QueueToRender();
-                if ((m_RenderQueue.Count == 0)) break;
+                int idx = m_RenderQueue.Dequeue();
+                var item = GetLoopVerticalItemAt(idx);
+                RenderItem(item, idx);
             }
+
+            ScrollLoopVerticalItem();
         }
 
         protected override void LateUpdate()
         {
-            ScrollLoopVerticalItem(); 
+            Layout();
             base.LateUpdate();
-            m_CanLayout = true;
-        }
-
-        private void FixedUpdate()
-        {
-            if (m_CanLayout)
-            {
-                m_CanLayout = false;
-                Layout();
-            }
         }
 
         protected override void OnDestroy()
@@ -351,31 +227,11 @@ namespace Hugula.UIComponents
         #endregion
 
         #region  数据操作相关
-        //索引后面的项目都需要重新刷新
-        // private int m_DirtyIndex = 0;
-
         private int m_DataLength;
 
         /// <summary>
         /// 设置数据长度
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         myScrollRect.DataLength = testData.Count;
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public int dataLength
         {
             get
@@ -404,26 +260,6 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 改变数据长度 <br/> 后刷新显示
         /// </summary>
-        /// 
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         //增加6条数据后从当前位置刷新显示
-        ///         myScrollRect.InsertRange(0,6);
-        ///
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public void InsertRange(int index, int count) //批量插入
         {
 
@@ -499,24 +335,6 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 删除数据
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         //删除位置0的数据,会触发OnRemoveFunction代理方法
-        ///         myScrollRect.RemoveAt(0); 
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public void RemoveAt(int index, int count = 1)
         {
             m_DataLength -= count;
@@ -527,24 +345,6 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 从指定位置开始刷新直到显示范围尾
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         //从索引3位置到PageSize结束的所有项目。
-        ///         myScrollRect.UpdateBegin(3); 
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public void UpdateBegin(int idx)
         {
             int min = int.MaxValue, max = int.MinValue;
@@ -581,27 +381,10 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 显示数据
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         //显示数据
-        ///         myScrollRect.Refresh(); 
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public void Refresh()
         {
             StopMovement();
+
             int min = int.MaxValue, max = int.MinValue;
             foreach (var item1 in m_Pages)
             {
@@ -636,31 +419,11 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 清理数据
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///
-        ///     void Awake()
-        ///     {
-        ///         //清理数据
-        ///         myScrollRect.Clear(); 
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
         public void Clear()
         {
             StopMovement();
             BackToStart();
             m_DataLength = 0;
-            m_DataBounds.Clear();
-            m_ShowList.Clear();
             m_RenderQueue.Clear();
             ClearItems();
             InitContentBounds();
@@ -694,7 +457,7 @@ namespace Hugula.UIComponents
 
         #region 模板项目
 
-        protected List<LoopVerticalItem> m_Pages = new List<LoopVerticalItem>();
+        protected List<LoopItem> m_Pages = new List<LoopItem>();
 
         protected Hugula.Utils.GameObjectPool<BindableObject> m_Pool;
         void OnPoolGet(BindableObject comp)
@@ -721,22 +484,22 @@ namespace Hugula.UIComponents
         {
             for (int i = m_Pages.Count; i < m_PageSize; i++)
             {
-                m_Pages.Add(new LoopVerticalItem());
+                m_Pages.Add(new LoopItem());
             }
         }
 
-        protected LoopVerticalItem GetLoopVerticalItemAt(int idx)
+        protected LoopItem GetLoopVerticalItemAt(int idx)
         {
             int i = idx % pageSize;
             return m_Pages[i];
         }
 
-        public Component GetItemAt(int idx)
+        public LoopItem GetRealItemAt(int idx)
         {
             if (idx < 0) return null;
             var loopItem = GetLoopVerticalItemAt(idx);
             if (loopItem.index == idx)
-                return loopItem.item;
+                return loopItem;
 
             return null;
         }
@@ -746,9 +509,10 @@ namespace Hugula.UIComponents
         #region 渲染与布局        
 
         //每一项目的位置
-        Dictionary<int, Vector2> m_DataBounds = new Dictionary<int, Vector2>();
+        VirtualVerticalList virtualVertical = new VirtualVerticalList();
+        //已经绑定需要刷新的项
+        List<int> m_LayoutList = new List<int>();
         //显示的列表索引
-        List<int> m_ShowList = new List<int>();
         float m_CalcBoundyMin;
         float m_CalcBoundyMax;
         private float m_HalfPadding = float.NaN;
@@ -764,33 +528,7 @@ namespace Hugula.UIComponents
 
         protected Queue<int> m_RenderQueue = new Queue<int>(); //渲染队列
 
-        void AddShowList(int index)
-        {
-            m_ShowList.Add(index);
-        }
-
-        protected void QueueToRender()
-        {
-            if (m_RenderQueue.Count > 0)
-            {
-                int idx = m_RenderQueue.Dequeue();
-                var item = GetLoopVerticalItemAt(idx);
-                RenderItem(item, idx);
-            }
-        }
-
-        //立即完成等待队列
-        protected void RenderWaitQueue()
-        {
-            while (m_RenderQueue.Count > 0)
-            {
-                int idx = m_RenderQueue.Dequeue();
-                var item = GetLoopVerticalItemAt(idx);
-                RenderItem(item, idx);
-            }
-        }
-
-        Component OnCreateOrGetItem(int idx, int templateId, LoopVerticalItem loopItem, RectTransform content)
+        Component OnCreateOrGetItem(int idx, int templateId, LoopItem loopItem, RectTransform content)
         {
             Component item = loopItem.item;
             if (item == null || loopItem.templateType != templateId)
@@ -815,14 +553,16 @@ namespace Hugula.UIComponents
                 }
                 var selecteStyle = item.GetComponent<ILoopSelectStyle>();
                 if (selecteStyle != null) selecteStyle.InitSytle(loopItem, this);
+
+                var notifyLayoutElement = item.GetComponent<NotifyLayoutElement>();
+                if(notifyLayoutElement!=null) notifyLayoutElement.Init(loopItem,this);
             }
 
             return item;
         }
 
-        protected void RenderItem(LoopVerticalItem loopItem, int idx)
+        protected void RenderItem(LoopItem loopItem, int idx)
         {
-            var oldRect = loopItem.rect;
             var oldIdx = loopItem.index;
 
             if (idx < dataLength)
@@ -840,15 +580,14 @@ namespace Hugula.UIComponents
                 loopItem.index = idx;
             }
 
-            var gObj = loopItem?.item?.gameObject;
+            var gObj = loopItem?.item.gameObject;
             if (idx >= dataLength)
             {
-                // CalcBounds (loopItem, oldIdx, oldRect); //删除时候需要计算bounds
                 if (gObj) gObj.SetActive(false);
                 loopItem.index = -1;
                 return;
             }
-            else if (gObj &&!gObj.activeSelf)
+            else if (!gObj.activeSelf)
             {
                 gObj.SetActive(true);
             }
@@ -862,11 +601,16 @@ namespace Hugula.UIComponents
                     m_SelecteStyle.CancelStyle();
             }
 
-            AddShowList(idx);
+            AddLayoutList(idx);
             if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
             //
             CalcItemBound(loopItem);
-            // CalcBounds (loopItem, oldIdx, oldRect);
+        }
+
+        protected void RenderItemByIdx(int idx)
+        {
+            var loopItem = GetLoopVerticalItemAt(idx);
+            if(loopItem!=null) RenderItem(loopItem,idx);
         }
 
         ///<summary>
@@ -878,7 +622,7 @@ namespace Hugula.UIComponents
             int min = int.MaxValue, max = int.MinValue;
             int max1; //= GetBottomItem ();
             int min1; //= GetTopItem ();
-            LoopVerticalItem itemToRender = null;
+            LoopItem itemToRender = null;
             for (int i = 0; i < m_Pages.Count; i++)
             {
                 var item = m_Pages[i];
@@ -893,11 +637,10 @@ namespace Hugula.UIComponents
             if (velocity.y > 0 || tweenDir.y > 0)
             {
                 UpdateBounds();
-                // RenderWaitQueue ();
                 max1 = max;
                 min1 = min;
                 // Debug.LogFormat ("m_ViewBounds={0},m_ViewBounds.yMin{1},m_ViewBounds.yMax{2},(min1).yMax={3},(min1).yMax<m_ViewBounds.yMin:{4}",m_ViewBounds, m_ViewBounds.yMin,m_ViewBounds.yMax,GetLoopVerticalItemAt (min1).yMax,Mathf.Abs(GetLoopVerticalItemAt (min1).yMax) < Mathf.Abs (m_ViewBounds.yMin));
-                while (m_DataLength > max1 && GetLoopVerticalItemAt(min1).yMax < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
+                while (m_DataLength > max1 && GetLoopVerticalItemSize(min1).y < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
                 {
                     max1 = max1 + 1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMax:{2}>m_ViewBounds.yMin{3} ", min1, max1, GetLoopVerticalItemAt (min1).yMax, m_ViewBounds.yMin);
@@ -915,10 +658,9 @@ namespace Hugula.UIComponents
             else if (velocity.y < 0 || tweenDir.y < 0)
             {
                 UpdateBounds();
-                // RenderWaitQueue ();
                 max1 = max;
                 min1 = min;
-                while (min1 >= 0 && GetLoopVerticalItemAt(max1).yMin > -m_ViewBounds.yMin + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
+                while (min1 >= 0 && GetLoopVerticalItemSize(max1).x > -m_ViewBounds.yMin + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
                 {
                     min1 = min1 - 1;
                     // Debug.LogFormat ("min1={0},max1:{1} yMin:{2}>m_ViewBounds.yMax{3} ", min1, max1, GetLoopVerticalItemAt (max1).yMin, m_ViewBounds.yMax);
@@ -971,7 +713,7 @@ namespace Hugula.UIComponents
         ///<summary>
         /// 计算bound 高度
         ///</summary>
-        protected void CalcItemBound(LoopVerticalItem loopItem)
+        protected float CalcItemBound(LoopItem loopItem)
         {
             RectTransform rectTran = loopItem.transform;
             if (rectTran.anchorMin != rectTran.anchorMax) //表示宽度适配
@@ -983,87 +725,87 @@ namespace Hugula.UIComponents
                 rectTran.offsetMin = offsetMin;
                 rectTran.offsetMax = offsetMax;
             }
-        }
 
-        bool GetItemYMax(int index, bool isYmax, out float posY)
-        {
-            posY = 0;
-            Vector2 lastBound;
-            if (m_DataBounds.TryGetValue(index, out lastBound))
+            // LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran); //立马计算布局
+            var layoutEle = loopItem.item.GetComponent<LayoutElement>();
+
+            var height = 0f;
+            if (layoutEle != null)
             {
-                if (isYmax)
-                    posY = lastBound.x + lastBound.y;
-                else
-                    posY = lastBound.x;
-                return true;
+                height = layoutEle.preferredHeight + halfPadding; //高度
             }
-            return false;
+            else
+            {
+                height = Mathf.Abs(rectTran.rect.height) + halfPadding;
+            }
+
+            virtualVertical.SetCellSize(loopItem.index,height);
+            return height;
         }
 
-        void SetItemBound(int index, Vector2 bound)
+        public void OnItemLayoutChange (int id)
         {
-            m_DataBounds[index] = bound;
+            // Debug.Log($" OnItemLayoutChange {id}");
+            var item = GetRealItemAt(id);
+            if (item!=null)
+                CalcItemBound(item);
+
+            m_LayoutList.Add(id);
+            Layout();
+
         }
 
+        protected Vector2 GetLoopVerticalItemSize(int idx)
+        {
+           return virtualVertical.GetCellSize(idx);
+        }
         ///<summary>
         /// 布局
         ///</summary>
         public void Layout()
         {
-            LoopVerticalItem item;
-            float lastPosY = halfPadding;
-            int index = 0;
-            for (int i = 0; i < m_ShowList.Count; i++)
+            if(m_LayoutList.Count>0)
             {
-                index = m_ShowList[i];
-                item = GetLoopVerticalItemAt(index);
-                // LayoutRebuilder.ForceRebuildLayoutImmediate(rectTran); //立马计算布局
-                var layoutEle = item.item.GetComponent<LayoutElement>();
-                Vector2 bound = Vector2.zero;
-                bound.x = halfPadding;
-                if (layoutEle != null)
+                LoopItem item;
+                int index = -1;
+                for(int i=0;i<m_Pages.Count;i++)
                 {
-                    bound.y = layoutEle.preferredHeight + halfPadding; //高度
-                }
-                else
-                {
-                    bound.y = Mathf.Abs(item.transform.rect.height) + halfPadding;
-                }
-                item.SetHeight(bound.y);
-
-                // if (item.isDirty)
-                {
-                    if (!GetItemYMax(index - 1, true, out lastPosY))
-                        if (GetItemYMax(index + 1, false, out lastPosY))
-                            lastPosY = lastPosY - item.bound.y - padding;
-                    item.SetPos(lastPosY + halfPadding);
-                    // Debug.LogFormat (" index={0},lastPosY={1},item.bound={2}", index, lastPosY, item.bound);
-                    SetItemBound(index, item.bound);
-
-                    var rectTran = item.transform;
-                    Vector2 pos = rectTran.anchoredPosition;
-                    pos.y = -item.yMin; // rect.height * .5f ;
-                    pos = pos + m_ContentInitializePosition; //开始位置
-                    rectTran.anchoredPosition3D = Vector3.zero;
-                    rectTran.anchoredPosition = pos;
-                    item.isDirty = false;
-                    m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, item.yMin - halfPadding);
-                    if (index == 0)
+                    item = m_Pages[i];
+                    index = item.index;
+                    if(index>=0)
                     {
-                        m_CalcBoundyMin = item.yMin - halfPadding;
-                        m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
-                    }
-                    m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, item.yMax);
-                    if (index == m_DataLength - 1)
-                    {
-                        m_CalcBoundyMax = item.yMax;
-                        m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
+                        var size = virtualVertical.GetCellSize(index);
+                        var rectTran = item.transform;
+                        Vector2 pos = rectTran.anchoredPosition;
+                        pos.y = -size.x; // rect.height * .5f ;
+                        pos = pos + m_ContentInitializePosition; //开始位置
+                        rectTran.anchoredPosition3D = Vector3.zero;
+                        rectTran.anchoredPosition = pos;
+                        
+                        m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, size.x - halfPadding);
+                        if (index == 0)
+                        {
+                            m_CalcBoundyMin = size.x - halfPadding;
+                            m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
+                        }
+                        m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, size.y);
+                        if (index == m_DataLength - 1)
+                        {
+                            m_CalcBoundyMax = size.y;
+                            m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
+                        }
                     }
                 }
             }
-            m_ShowList.Clear();
+
+            m_LayoutList.Clear();
 
             CalcBounds();
+        }
+
+        void AddLayoutList(int id)
+        {
+            m_LayoutList.Add(id);
         }
 
         #endregion
@@ -1153,6 +895,7 @@ namespace Hugula.UIComponents
         #region  tool
         protected void ClearItems()
         {
+
             foreach (var item in m_Pages)
             {
                 if (item.transform)

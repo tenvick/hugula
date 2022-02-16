@@ -7,6 +7,7 @@ local View = View
 local VMState = VMState
 local VMGroup = VMGroup
 local NotifyTable = NotifyTable
+local NotifyObject = NotifyObject
 local math = math
 local string = string
 local tostring = tostring
@@ -44,25 +45,50 @@ local function create_str(len)
     return str
 end
 
+local function create_bag_item(i)
+    local it = {}
+    it.name = "item " .. i
+    it.icon = string.format("icon_equip_%04d", i % 39 + 1)
+    it.quality = tostring(math.random(0, 10))
+    it.count = tostring(math.random(1, 5))
+    it.selected = false
+    it.idx = i
+    return it
+end
+
+local function create_tmp_data()
+    local datas = {}
+    local count = math.random(3, 16)
+    for i = 1, count do
+        table.insert(datas, create_bag_item(i))
+    end
+    return datas
+end
+
+
 local gInt = 0
 
 local function create_talk_data(i)
-    local d = {}
-    d.type = math.random(0, 3)
+    local d = NotifyObject()
+    d.type = math.random(0, 4)
     if d.type == 3 then ---表示分割线
         d.chat_content = tostring(os.date())
+    elseif d.type == 4 then
+        d.tips = "bag："..create_str(math.random(40, 60))
+        d.bag_data = NotifyTable() --点击后生成数据
     else
-        d.user_name = string.format("name_%s_%s", create_str(3), i)
+        d.user_name = string.format("%s_%s", create_str(3), i)
         local tick = os.time()
         local clen = math.random(50, 300)
         d.chat_content = create_str(clen)
         d.chat_time = tostring(os.date("%H:%M:%S"))
-        d.id = gInt
         if d.type == 2 then
             d.name = "system"
         end
-        gInt = gInt + 1
     end
+    d.id = gInt
+
+    gInt = gInt + 1
     return d
 end
 
@@ -120,10 +146,24 @@ chat_data.on_system_click =  {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("on_system_click", table.tojson(self), "arg=",arg,".")
         -- if arg.y > 0 then
-            add_chat_data(1, 1)
+            -- add_chat_data(1, 1)
         -- end
+        
+        local clen = math.random(150, 600)
+        arg.property.chat_content = create_str(clen)
+        
+        Logger.Log("on_system_click", arg, "arg=",arg.chat_content,".")
+    end
+}
+
+chat_data.on_bag_click =  {
+    CanExecute = function(self, arg)
+        return true
+    end,
+    Execute = function(self, arg)
+        arg.bag_data:InsertRange(create_tmp_data())
+        Logger.Log("on_bag_click", arg, "arg=",arg.tips)
     end
 }
 

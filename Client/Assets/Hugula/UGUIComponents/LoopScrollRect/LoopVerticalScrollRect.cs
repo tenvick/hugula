@@ -372,6 +372,8 @@ namespace Hugula.UIComponents
                 if (range_end >= dataLength) range_end = dataLength - 1;
             }
 
+            m_StartIdx = min;
+            m_EndIdx = range_end;
             // Debug.LogFormat("range_begin{0},range_end:{1},min:{2},idx:{3},max:{4},max_idx:{5},m_PageSize={6},Datalength:{7} ", range_begin, range_end, min, idx, max, max_idx, m_PageSize, dataLength);
             for (int i = range_begin; i <= range_end; i++)
                 m_RenderQueue.Enqueue(i);
@@ -385,34 +387,49 @@ namespace Hugula.UIComponents
         {
             StopMovement();
 
-            int min = int.MaxValue, max = int.MinValue;
-            foreach (var item1 in m_Pages)
+            var sIdx = m_StartIdx;
+            for (int i = 0 ; i < pageSize; i++)
             {
-                if (item1.index != -1)
+                m_EndIdx = sIdx + i;
+                m_RenderQueue.Enqueue(m_EndIdx);
+                if(m_EndIdx >= m_DataLength -1)
                 {
-                    min = Math.Min(item1.index, min);
-                    max = Math.Max(item1.index, max);
+                    break;
                 }
             }
 
-            if (min == int.MaxValue) min = 0;
-            int eIdx = min + m_PageSize - 1; //本来应该的最大索引
-            if (eIdx >= m_DataLength) eIdx = m_DataLength - 1; //最大索引不能超过datalength
+            // int min = int.MaxValue, max = int.MinValue;
+            // foreach (var item1 in m_Pages)
+            // {
+            //     if (item1.index != -1)
+            //     {
+            //         min = Math.Min(item1.index, min);
+            //         max = Math.Max(item1.index, max);
+            //     }
+            // }
 
-            if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
-            {
-                int bi = min - (max - eIdx);
-                if (bi < 0) bi = 0;
-                // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
-                for (int i = min; i >= bi; i--)
-                    m_RenderQueue.Enqueue(i);
-            }
-            else //从idx到end刷新
-            {
-                // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, DataLength);
-                for (int i = min; i <= eIdx; i++)
-                    m_RenderQueue.Enqueue(i);
-            }
+            // if (min == int.MaxValue) min = 0;
+            // int eIdx = min + m_PageSize - 1; //本来应该的最大索引
+            // if (eIdx >= m_DataLength) eIdx = m_DataLength - 1; //最大索引不能超过datalength
+
+            // if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
+            // {
+            //     int bi = min - (max - eIdx);
+            //     if (bi < 0) bi = 0;
+            //     m_StartIdx = bi;
+            //     m_EndIdx = eIdx;
+            //     // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
+            //     for (int i = min; i >= bi; i--)
+            //         m_RenderQueue.Enqueue(i);
+            // }
+            // else //从idx到end刷新
+            // {
+            //     // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, DataLength);
+            //     m_StartIdx = min;
+            //     m_EndIdx = eIdx;
+            //     for (int i = min; i <= eIdx; i++)
+            //         m_RenderQueue.Enqueue(i);
+            // }
 
         }
 
@@ -507,7 +524,14 @@ namespace Hugula.UIComponents
         #endregion
 
         #region 渲染与布局        
-
+        #if UNITY_EDITOR
+        //  [SerializeField]    
+         #endif
+        int m_StartIdx=0;
+        #if UNITY_EDITOR
+        //  [SerializeField]    
+         #endif
+         int m_EndIdx =0;
         //每一项目的位置
         VirtualVerticalList virtualVertical = new VirtualVerticalList();
         //已经绑定需要刷新的项
@@ -570,9 +594,10 @@ namespace Hugula.UIComponents
                 var templateId = 0;
                 if (onGetItemTemplateType != null) templateId = onGetItemTemplateType(this.parameter, idx);
                 var item = OnCreateOrGetItem(idx, templateId, loopItem, content); //
-                // item.name = string.Format("item {0} {1}", idx, templateId);
+                #if UNITY_EDITOR
+                 item.name = string.Format("{0}-{1}", idx, templateId);
+                 #endif
 
-                // Debug.LogFormat("RenderItem oldIdx={0},item={1},loopItem={2},idx={3},templateId={4} ", oldIdx, item, loopItem.item, idx, templateId);
 
                 var rent = item.GetComponent<RectTransform>();
                 loopItem.transform = rent;
@@ -618,61 +643,45 @@ namespace Hugula.UIComponents
         ///</summary>
         protected void ScrollLoopVerticalItem()
         {
-            if (velocity.y == 0 && !isTweening) return; //没有移动不需要计算
-            int min = int.MaxValue, max = int.MinValue;
-            int max1; //= GetBottomItem ();
-            int min1; //= GetTopItem ();
+            if(m_DataLength <= m_PageSize) return;
+            UpdateBounds();
+            var yViewMin = -m_ViewBounds.yMin;
+            var yViewMax = -m_ViewBounds.yMax;
             LoopItem itemToRender = null;
-            for (int i = 0; i < m_Pages.Count; i++)
-            {
-                var item = m_Pages[i];
-                if (item.index == -1)
-                    return;
-                else
-                    min = Math.Min(item.index, min);
+            int check =0;
 
-                max = Math.Max(item.index, max);
-            }
+            var startSize = GetLoopVerticalItemSize(m_StartIdx);
+            var endSize = GetLoopVerticalItemSize(m_EndIdx);
 
-            if (velocity.y > 0 || tweenDir.y > 0)
+            if(startSize.y < yViewMin &&  endSize.x > yViewMax) //contains view bounds
             {
-                UpdateBounds();
-                max1 = max;
-                min1 = min;
-                // Debug.LogFormat ("m_ViewBounds={0},m_ViewBounds.yMin{1},m_ViewBounds.yMax{2},(min1).yMax={3},(min1).yMax<m_ViewBounds.yMin:{4}",m_ViewBounds, m_ViewBounds.yMin,m_ViewBounds.yMax,GetLoopVerticalItemAt (min1).yMax,Mathf.Abs(GetLoopVerticalItemAt (min1).yMax) < Mathf.Abs (m_ViewBounds.yMin));
-                while (m_DataLength > max1 && GetLoopVerticalItemSize(min1).y < -m_ViewBounds.yMin) //!m_ViewBounds.Overlaps (m_Pages[min1 % pageSize].rect, true)) // move top do down
+
+            }            
+            else if(startSize.x  >= yViewMin && endSize.y >  yViewMax)
+            {
+                while(GetLoopVerticalItemSize(m_StartIdx).x  >= yViewMin && GetLoopVerticalItemSize(m_EndIdx).x > yViewMax  && m_StartIdx > 0) //向前start方向渲染
                 {
-                    max1 = max1 + 1;
-                    // Debug.LogFormat ("min1={0},max1:{1} yMax:{2}>m_ViewBounds.yMin{3} ", min1, max1, GetLoopVerticalItemAt (min1).yMax, m_ViewBounds.yMin);
-                    if (m_DataLength > max1 && (itemToRender = GetLoopVerticalItemAt(max1)) != null && itemToRender.index != max1)
-                    {
-                        min1 = min1 + 1;
-                        RenderItem(itemToRender, max1);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    itemToRender = GetLoopVerticalItemAt(m_StartIdx - 1);
+                    m_StartIdx--;
+                    m_EndIdx --;
+                    //  Debug.Log($" scroll loop vertical start:Render({m_StartIdx}) from {itemToRender.index} end:{m_EndIdx} ");
+                    RenderItem(itemToRender, m_StartIdx);
+                    if(check++>=pageSize) break;
+
                 }
+
             }
-            else if (velocity.y < 0 || tweenDir.y < 0)
+            else if(endSize.y <=  yViewMax)
             {
-                UpdateBounds();
-                max1 = max;
-                min1 = min;
-                while (min1 >= 0 && GetLoopVerticalItemSize(max1).x > -m_ViewBounds.yMin + Mathf.Abs(m_ViewBounds.height)) //!m_ViewBounds.Overlaps (m_Pages[max1 % pageSize].rect, true)) //move bottom item to top
+                 while(GetLoopVerticalItemSize(m_EndIdx).y <= yViewMax &&  GetLoopVerticalItemSize(m_StartIdx).x  < yViewMin  && m_EndIdx < m_DataLength -1) //向end方向渲染
                 {
-                    min1 = min1 - 1;
-                    // Debug.LogFormat ("min1={0},max1:{1} yMin:{2}>m_ViewBounds.yMax{3} ", min1, max1, GetLoopVerticalItemAt (max1).yMin, m_ViewBounds.yMax);
-                    if (min1 >= 0 && (itemToRender = GetLoopVerticalItemAt(min1)) != null && itemToRender.index != min1)
-                    {
-                        max1 = max1 - 1;
-                        RenderItem(itemToRender, min1);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    itemToRender = GetLoopVerticalItemAt(m_EndIdx + 1);
+                    m_StartIdx ++;
+                    m_EndIdx ++;
+                    // Debug.Log($" scroll loop vertical end:Render({m_EndIdx}) from {itemToRender.index} start:{m_StartIdx} ");
+                    RenderItem(itemToRender, m_EndIdx);
+                    if(check++>=pageSize) break;
+
                 }
             }
 
@@ -689,7 +698,6 @@ namespace Hugula.UIComponents
                 m_ContentBounds.yMax = -m_CalcBoundyMax;
             }
 
-            // if (m_autoScrollFloor && m_RenderQueue.Count == 0)
             if (needScrollToBottom && m_RenderQueue.Count == 0)
             {
                 Vector2 curr = content.anchoredPosition;
@@ -703,11 +711,9 @@ namespace Hugula.UIComponents
 
             if (m_CalcBoundyMin < m_ContentBounds.yMin) m_ContentBounds.yMin = -m_CalcBoundyMin;
 
-            // Debug.LogFormat ("{0},ymax{1}.ymin={2},height={5}m_CalcBoundyMin={3},m_CalcBoundyMax={4}", m_ContentBounds, m_ContentBounds.yMax, m_ContentBounds.yMin, m_CalcBoundyMin, m_CalcBoundyMax,m_ContentBounds.height);
             var size = content.sizeDelta;
             size.y = Mathf.Abs(m_ContentBounds.height);
             content.sizeDelta = size;
-            // Debug.LogFormat ("content.sizeDelta={0} ", content.sizeDelta);
         }
 
         ///<summary>
@@ -895,6 +901,9 @@ namespace Hugula.UIComponents
         #region  tool
         protected void ClearItems()
         {
+
+            m_StartIdx =0;
+            m_EndIdx =0;
 
             foreach (var item in m_Pages)
             {

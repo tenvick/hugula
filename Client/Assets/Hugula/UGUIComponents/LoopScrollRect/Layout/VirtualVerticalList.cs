@@ -27,7 +27,7 @@ namespace Hugula.UIComponents {
 
         public Vector2 GetCellSize(int index)
         {
-            if(index>m_CellPos.Count) 
+            if(index>=m_CellPos.Count) 
                 return Vector2.zero;
             else
             {

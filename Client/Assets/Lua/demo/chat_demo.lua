@@ -79,7 +79,7 @@ local function create_talk_data(i)
     else
         d.user_name = string.format("%s_%s", create_str(3), i)
         local tick = os.time()
-        local clen = math.random(50, 300)
+        local clen = math.random(6, 300)
         d.chat_content = create_str(clen)
         d.chat_time = tostring(os.date("%H:%M:%S"))
         if d.type == 2 then
@@ -122,10 +122,15 @@ end
 -----------------------------------------------------
 chat_demo.chat_data = chat_data
 
+---属性直接绑定方法 有参数的时候表示设置值，没有的时候表示获取值
+function chat_demo.chat_input_txt(arg)
+    -- Logger.Log("chat_input_txt", arg)
+    return ""
+end
+
 ---模板类型查找函数
 function chat_data.on_get_item_template_type(comp, index)
     local d = chat_data.items[index + 1]
-    -- Logger.Log("on_get_item_template_type idx=%s,type=%s ",index,d.type)
     return d.type or 0
 end
 
@@ -134,44 +139,33 @@ chat_data.dropped_cmd = {
         return true
     end,
     Execute = function(self, arg)
-        -- Logger.Log("dropped_cmd", table.tojson(self), "arg=",arg,".")
-        if arg.y > 0 then
+        if arg.y > 0 then --下拉插入数据
             add_chat_data(8, 10,0)
         end
     end
 }
 
-chat_data.on_system_click =  {
+
+chat_data.on_system_click =  { 
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
-        -- if arg.y > 0 then
-            -- add_chat_data(1, 1)
-        -- end
         
         local clen = math.random(150, 600)
-        arg.property.chat_content = create_str(clen)
-        
-        Logger.Log("on_system_click", arg, "arg=",arg.chat_content,".")
+        arg.property.chat_content = create_str(clen) --系统按钮点自适应内容高度
     end
 }
 
+--点击背包响应事件
 chat_data.on_bag_click =  {
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
-        arg.bag_data:InsertRange(create_tmp_data())
-        Logger.Log("on_bag_click", arg, "arg=",arg.tips)
+        arg.bag_data:InsertRange(create_tmp_data()) --绑定背包数据
     end
 }
-
----属性直接绑定方法 有参数的时候表示设置值，没有的时候表示获取值
-function chat_demo.chat_input_txt(arg)
-    -- Logger.Log("chat_input_txt", arg)
-    return ""
-end
 
 ---发送按钮
 chat_demo.chat_btn_send = {
@@ -184,8 +178,7 @@ chat_demo.chat_btn_send = {
         end
     end,
     Execute = function(self, arg)
-        Logger.Log("chat_btn_send", table.tojson(self), "arg=",arg,".")
-        add_my_chat(arg)
+        add_my_chat(arg) --显示自定义发送数据
         chat_demo:OnPropertyChanged(property_chat_input_txt) ---清空聊天内容
     end
 }

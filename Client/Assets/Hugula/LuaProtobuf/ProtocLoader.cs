@@ -32,11 +32,11 @@ namespace Hugula
             }
             else
             {
-                name = name.Replace(".", "+");
+                // name = name.Replace(".", "+");
                 str = LoadResource(name);
             }
 #else
-            name = name.Replace(".", "+");
+            // name = name.Replace(".", "+");
             str =  LoadResource(name);
 #endif
 

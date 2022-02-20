@@ -10,12 +10,26 @@ Delay = EnterLua.Delay
 DelayFrame = EnterLua.DelayFrame
 StopDelay = EnterLua.StopDelay
 Timer = Hugula.Framework.Timer
+local timer = Timer
+local tins = timer.instance
+Delay = timer.Delay
+DelayFrame = timer.DelayFrame
+StopDelay = timer.StopDelay
+
 Manager = manager
+
+LoadSceneMode = {
+    Single = 0,
+    -- Adds the Scene to the current loaded Scenes.
+    Additive = 1
+}
 ---------------------unityEngine--------------------------------
 local GameObject = UnityEngine.GameObject
 local Transform = UnityEngine.Transform
 local Animation = UnityEngine.Animation
 local Animator = UnityEngine.Animator
+local Application = UnityEngine.Application
+local SystemInfo = UnityEngine.SystemInfo
 
 --------------Hugula.Databinding------
 local Databinding = Hugula.Databinding
@@ -25,7 +39,8 @@ local Binding = Databinding.Binding
 local BindingPathPart = Databinding.BindingPathPart
 local BindingUtility = Databinding.BindingUtility
 local ExpressionUtility = Databinding.ExpressionUtility
-local IBindingExpression = Databinding.IBindingExpression
+
+local HugulaNotifyCollectionChangedEventArgs = Databinding.HugulaNotifyCollectionChangedEventArgs
 
 ExpressionUtility.instance:Initialize()
 
@@ -54,4 +69,6 @@ local CoolDown = UIComponents.CoolDown
 local GroupSelector = UIComponents.GroupSelector
 --------------hugula------------------
 AudioManager = Hugula.Audio.AudioManager
-
+local StopwatchProfiler = Hugula.Profiler.StopwatchProfiler
+local CUtils = CS.Hugula.Utils.CUtils
+local CodeVersion = CS.Hugula.CodeVersion

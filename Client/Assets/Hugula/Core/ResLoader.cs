@@ -36,11 +36,17 @@ namespace Hugula
             m_LoadedScenes = new Dictionary<string, SceneInstance>();
             m_LoadingEvent = new LoadingEventArg();
             Addressables.InitializeAsync().Completed += InitDone;
+            #if UNITY_EDITOR
+            Debug.Log("Addressables.InitializeAsync()");
+            #endif
         }
 
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
         {
             s_Initialized = true;
+            #if UNITY_EDITOR
+            Debug.Log("Addressables.InitializeAsync() InitDone");
+            #endif
         }
 
         #endregion

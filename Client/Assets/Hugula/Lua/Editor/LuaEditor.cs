@@ -62,7 +62,7 @@ namespace HugulaEditor
             for (int i = 0; i < files.Length; i++)
             {
                 string xfile = files[i].Remove(0, rootPath.Length + 1);
-                xfile = "lua_" + xfile.Replace("\\", "+").Replace("/", "+");
+                xfile = xfile.Replace("\\", ".").Replace("/", ".");
                 string file = files[i].Replace("\\", "/");
                 string dest = OutLuaBytesPath + "/" + CUtils.GetRightFileName(xfile);
                 string destName = dest.Substring(0, dest.Length - 3) + "bytes";
@@ -101,9 +101,9 @@ namespace HugulaEditor
                     packing = group.AddSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
                 }
 
-                //packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
+                packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
                 packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
-                //packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
+                packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
 
                 var abProviderType = packing.AssetBundleProviderType;
                 var assetProviderType = packing.BundledAssetProviderType;
@@ -133,7 +133,7 @@ namespace HugulaEditor
                     var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
                     var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
                     entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
-                    entry.SetLabel("lua_script", true);
+                    // entry.SetLabel("lua_script", true);
                     EditorUtility.DisplayProgressBar("load group SetAddress", str, (float)i / files.Length);
 
                 }

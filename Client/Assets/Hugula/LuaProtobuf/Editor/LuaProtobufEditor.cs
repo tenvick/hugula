@@ -62,7 +62,7 @@ namespace HugulaEditor
             {
                 string xfile = System.IO.Path.GetFileName(files[i]);//.Remove(0, rootPath.Length + 1);
                 string file = files[i].Replace("\\", "/");
-                string dest = OutLuaProtobufPath + "/" + CUtils.GetRightFileName(xfile).Replace(".", "+");
+                string dest = OutLuaProtobufPath + "/" + CUtils.GetRightFileName(xfile);//.Replace(".", ".");
                 string destName = dest + ".bytes";
                 dests[i] = destName;
                 Debug.LogFormat("Copy({0},{1})", file, destName);
@@ -87,12 +87,46 @@ namespace HugulaEditor
             var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
             var group = AASEditorUtility.FindGroup(LUA_PROTO_GROUP_NAME, groupSchama);//setting.FindGroup(LUA_GROUP_NAME);
 
+             //sync load
+            var packing = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+            if (packing == null)
+            {
+                packing = group.AddSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+            }
+
+            packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
+            packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
+            packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
+
+            var abProviderType = packing.AssetBundleProviderType;
+            var assetProviderType = packing.BundledAssetProviderType;
+
+            var syncABPType = typeof(SyncBundleProvider);
+            var syncAssetPType = typeof(SyncBundledAssetProvider);
+
+            if (!syncABPType.Equals(abProviderType.Value))
+            {
+                var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                targetType.Value = syncABPType;
+                EditorUtils.SetFieldValue(packing, "m_AssetBundleProviderType", targetType);
+                Debug.Log($"set  AssetBundleProviderType={packing.AssetBundleProviderType.Value}");
+            }
+
+            if (!syncAssetPType.Equals(assetProviderType.Value))
+            {
+                var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                targetType.Value = syncAssetPType;
+                EditorUtils.SetFieldValue(packing, "m_BundledAssetProviderType", targetType);
+                Debug.Log($"set  BundledAssetProviderType={targetType.Value} ,target={syncAssetPType}");
+            }
+
+
             foreach (var str in dests)
             {
                 var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
                 var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
                 entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
-                entry.SetLabel("lua_protobuf", true);
+                // entry.SetLabel("lua_protobuf", true);
             }
         }
 

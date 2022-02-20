@@ -57,6 +57,7 @@ namespace Hugula {
 
         IEnumerator Start () {
             yield return ResLoader.Ready;
+            yield return null;
             luaenv.DoString ("require('" + enterLua + "')");
 #if UNITY_EDITOR
             Debug.LogFormat ("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
@@ -146,7 +147,7 @@ namespace Hugula {
                 str = File.ReadAllBytes (path); //LuaState.CleanUTF8Bom(
             } else {
                 if (!exist) Debug.LogErrorFormat ("file {0} does't exists. ", path);
-                str = LoadLuaBytes (Common.LUA_PREFIX + name.Replace ('.', '+'));
+                    str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace('.', '+'));
             }
 #elif UNITY_STANDALONE && !HUGULA_RELEASE
 
@@ -154,7 +155,7 @@ namespace Hugula {
             if (File.Exists (path)) {
                 str = File.ReadAllBytes (path);
             } else {
-                str = LoadLuaBytes (Common.LUA_PREFIX + name.Replace ('.', '+'));
+                str = LoadLuaBytes(name);//(Common.LUA_PREFIX + name.Replace ('.', '+'));
             }
             if (str == null) Debug.LogErrorFormat ("lua({0}) path={1} not exists.", name, path);
 #else
@@ -165,7 +166,7 @@ namespace Hugula {
             } else
 #endif  
             {
-                str = LoadLuaBytes (Common.LUA_PREFIX + name.Replace ('.', '+'));
+                str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace ('.', '+'));
             }
 #endif
 
@@ -190,10 +191,12 @@ namespace Hugula {
         /// <returns></returns>
         private byte[] LoadLuaBytes (string name) {
             byte[] ret = null;
-            var txt = ResLoader.LoadAsset<TextAsset> (name);
-            if (txt != null) {
+            var txt = ResLoader.LoadAsset<TextAsset>(name);
+            if (txt != null)
+            {
                 ret = txt.bytes;
-                ResLoader.Release(txt);
+                if (name != enterLua)    //保持begin.lua的引用不会释放lua bundle
+                    ResLoader.Release(txt);
             }
 
             return ret;

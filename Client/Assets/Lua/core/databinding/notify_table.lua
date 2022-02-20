@@ -14,6 +14,7 @@ local pairs = pairs
 local math_min = math.min
 
 local class = class
+local GetSetObject = GetSetObject
 local IListTable = IListTable
 local CS = CS
 local Object = CS.System.Object
@@ -42,6 +43,8 @@ local notify_table =
         self.Count = #self.items
         self.IsReadOnly = false
         self.IsFixedSize = false
+        self.property = GetSetObject(self) --设置property getset
+
     end
 )
 

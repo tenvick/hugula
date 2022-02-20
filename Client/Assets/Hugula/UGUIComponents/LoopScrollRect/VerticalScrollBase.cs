@@ -326,6 +326,9 @@ namespace Hugula.UIComponents {
 
         protected Rect m_ViewBounds;
 
+        
+        protected Vector2 m_ContentInitializeOffset = Vector2.zero;
+
         private Vector2 m_Velocity;
         /// <summary>
         /// The current velocity of the content.
@@ -452,7 +455,8 @@ namespace Hugula.UIComponents {
             UpdateBounds ();
             float deltaTime = Time.unscaledDeltaTime;
             Vector2 offset = CalculateOffset (Vector2.zero);
-            if (!m_Dragging && (offset != Vector2.zero || m_Velocity != Vector2.zero)) {
+            if (!m_Dragging &&  (offset != Vector2.zero || m_Velocity != Vector2.zero)) //(offset != Vector2.zero || m_Velocity != Vector2.zero)) {
+            {
                 Vector2 position = m_Content.anchoredPosition;
                 for (int axis = 1; axis < 2; axis++) {
                     // Apply spring physics if movement is elastic and content has an offset from the view.
@@ -580,7 +584,7 @@ namespace Hugula.UIComponents {
         /// </summary>
         protected void UpdateBounds () {
             Vector2 localp = content.anchoredPosition;
-            var cpos = localp - m_ContentInitializePosition; //开始位置
+            var cpos = localp - m_ContentInitializePosition + m_ContentInitializeOffset; //开始位置
             m_ViewBounds = rectTransform.rect;
             // Debug.LogFormat ("m_ViewBounds {0}", m_ViewBounds);
             m_ViewBounds.height = -m_ViewBounds.height;

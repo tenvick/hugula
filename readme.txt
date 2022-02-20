@@ -1,6 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 
 更新日志:
+2022.2.20
+1 NotifyTable支持property。
+2 LoopVerticalScrollRect支持动态高度，loading状态等。
+3 聊天demo支持lv滚动控件新特性。
+
 2022.1.26
 1 lua notify优化
 2 profiler输出格式优化，打点增加。

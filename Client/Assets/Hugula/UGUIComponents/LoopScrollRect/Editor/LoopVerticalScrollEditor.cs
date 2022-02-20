@@ -88,6 +88,7 @@ namespace HugulaEditor.UIComponents
         // protected SerializedProperty m_OnValueChanged;
         protected SerializedProperty m_AutoScrollToBottom;
         protected SerializedProperty m_CeilBar;
+        protected SerializedProperty m_LoadingBar;        
         protected SerializedProperty m_FloorBar;
         protected SerializedProperty m_DragOffsetShow;
         protected SerializedProperty m_OnEndDragChanged;
@@ -121,6 +122,7 @@ namespace HugulaEditor.UIComponents
 
             m_AutoScrollToBottom = serializedObject.FindProperty("m_AutoScrollToBottom");
             m_CeilBar = serializedObject.FindProperty("m_CeilBar");
+            m_LoadingBar = serializedObject.FindProperty("m_LoadingBar");
             m_FloorBar = serializedObject.FindProperty("m_FloorBar");
             m_DragOffsetShow = serializedObject.FindProperty("m_DragOffsetShow");
 
@@ -272,6 +274,7 @@ namespace HugulaEditor.UIComponents
 
             EditorGUILayout.PropertyField(m_Content);
             EditorGUILayout.PropertyField(m_CeilBar);
+            EditorGUILayout.PropertyField(m_LoadingBar);
             EditorGUILayout.PropertyField(m_FloorBar);
             EditorGUILayout.PropertyField(m_AutoScrollToBottom);
             PropertyFieldChooseMono(m_Templates);
@@ -279,13 +282,8 @@ namespace HugulaEditor.UIComponents
             GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
             EditorGUILayout.PropertyField(m_PageSize);
             EditorGUILayout.PropertyField(m_Padding);
-            // EditorGUILayout.PropertyField(m_Columns);
             EditorGUILayout.PropertyField(m_RenderPerFrames);
             EditorGUILayout.PropertyField(m_DragOffsetShow);
-
-            // EditorGUILayout.PropertyField(m_Horizontal);
-            // EditorGUILayout.PropertyField(m_Vertical);
-            // EditorGUILayout.PropertyField(m_MovementType);
 
             if (EditorGUILayout.BeginFadeGroup(m_ShowElasticity.faded))
             {
@@ -307,8 +305,6 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_ScrollSensitivity);
 
             EditorGUILayout.Space();
-
-            // EditorGUILayout.PropertyField(m_Viewport);
 
             EditorGUILayout.PropertyField(m_VerticalScrollbar);
             if (m_VerticalScrollbar.objectReferenceValue && !m_VerticalScrollbar.hasMultipleDifferentValues)

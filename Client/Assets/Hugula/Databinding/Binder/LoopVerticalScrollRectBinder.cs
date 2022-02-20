@@ -67,6 +67,16 @@ namespace Hugula.Databinding.Binder
             get { return target.selectedIndex; }
         }
 
+        public bool isLoadingData
+        {
+            get { return target.isLoadingData; }
+            set
+            {
+                target.isLoadingData = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Action<object, object, int> onInstantiated
         {
             get { return target.onInstantiated; }

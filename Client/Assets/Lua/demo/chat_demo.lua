@@ -117,10 +117,16 @@ local function add_chat_tips(tips)
     chat_data:InsertRange({d})
 end
 
+
+local function add_chat_random_data()
+    chat_data.property.loading_data = false --取消加载状态
+    add_chat_data(8, 10,0)
+end
 -----------------------------------------------------
 -------------------------绑定属性---------------------
 -----------------------------------------------------
 chat_demo.chat_data = chat_data
+chat_data.loading_data = false --加载状态
 
 ---属性直接绑定方法 有参数的时候表示设置值，没有的时候表示获取值
 function chat_demo.chat_input_txt(arg)
@@ -140,7 +146,8 @@ chat_data.dropped_cmd = {
     end,
     Execute = function(self, arg)
         if arg.y > 0 then --下拉插入数据
-            add_chat_data(8, 10,0)
+            chat_data.property.loading_data = true --标记为加载状态
+            Delay(add_chat_random_data,math.random(1, 3))
         end
     end
 }
@@ -185,7 +192,7 @@ chat_demo.chat_btn_send = {
 
 function chat_demo:on_active()
     chat_demo.user_name = "on_active " .. create_str(6)
-    add_chat_data(10, 50) --随机显示聊天记录
+    add_chat_data(5, 15) --随机显示聊天记录
 end
 
 return chat_demo

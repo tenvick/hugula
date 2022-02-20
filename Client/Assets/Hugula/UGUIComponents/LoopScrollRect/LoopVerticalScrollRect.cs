@@ -61,14 +61,21 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 拖拽到顶部提示条</br>
         /// </summary>
-        public GameObject ceilBar { get { return m_CeilBar; } set { m_CeilBar = value; } } //clone的项目
+        public GameObject ceilBar { get { return m_CeilBar; } set { m_CeilBar = value; } } //
 
         [SerializeField]
         GameObject m_FloorBar;
         /// <summary>
         /// 拖拽到底部提示条</br>
         /// </summary>
-        public GameObject floorBar { get { return m_FloorBar; } set { m_FloorBar = value; } } //clone的项目
+        public GameObject floorBar { get { return m_FloorBar; } set { m_FloorBar = value; } } //
+
+         [SerializeField]
+        RectTransform m_LoadingBar;
+        /// <summary>
+        /// 加载时候的提示</br>
+        /// </summary>
+        public RectTransform loadingBar { get { return m_LoadingBar; } set { m_LoadingBar = value; } } //
 
         [SerializeField]
         int m_DragOffsetShow = 100;
@@ -76,13 +83,35 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 拖拽显示距离</br>
         /// </summary>
-        public int dragOffsetShow { get { return m_DragOffsetShow; } set { m_DragOffsetShow = value; } } //clone的项目
+        public int dragOffsetShow { get { return m_DragOffsetShow; } set { m_DragOffsetShow = value; } } //
 
         int m_SelectedIndex = -1;
         /// <summary>
         /// 通过OnSelected方法 选中项目的索引</br>
         /// </summary>
         public int selectedIndex { get { return m_SelectedIndex; } }
+
+        bool m_ISLoadingData = false;
+        public bool isLoadingData
+        {
+            get{
+                return m_ISLoadingData;
+            }
+            set
+            {
+                m_ISLoadingData = value;
+                if(m_LoadingBar)
+                {
+                    m_LoadingBar.gameObject.SetActive(m_ISLoadingData);
+                    if(m_ISLoadingData)
+                    {
+                        m_ContentInitializeOffset = m_LoadingBar.anchoredPosition;
+                    }
+                    else
+                        m_ContentInitializeOffset = Vector2.zero;
+                }
+            }
+        }
 
         ILoopSelectStyle m_SelecteStyle;
         /// <summary>
@@ -397,40 +426,6 @@ namespace Hugula.UIComponents
                     break;
                 }
             }
-
-            // int min = int.MaxValue, max = int.MinValue;
-            // foreach (var item1 in m_Pages)
-            // {
-            //     if (item1.index != -1)
-            //     {
-            //         min = Math.Min(item1.index, min);
-            //         max = Math.Max(item1.index, max);
-            //     }
-            // }
-
-            // if (min == int.MaxValue) min = 0;
-            // int eIdx = min + m_PageSize - 1; //本来应该的最大索引
-            // if (eIdx >= m_DataLength) eIdx = m_DataLength - 1; //最大索引不能超过datalength
-
-            // if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
-            // {
-            //     int bi = min - (max - eIdx);
-            //     if (bi < 0) bi = 0;
-            //     m_StartIdx = bi;
-            //     m_EndIdx = eIdx;
-            //     // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, DataLength);
-            //     for (int i = min; i >= bi; i--)
-            //         m_RenderQueue.Enqueue(i);
-            // }
-            // else //从idx到end刷新
-            // {
-            //     // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, DataLength);
-            //     m_StartIdx = min;
-            //     m_EndIdx = eIdx;
-            //     for (int i = min; i <= eIdx; i++)
-            //         m_RenderQueue.Enqueue(i);
-            // }
-
         }
 
         /// <summary>

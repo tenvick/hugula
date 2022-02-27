@@ -121,8 +121,10 @@ namespace PSDUINewImporter
             if (!string.IsNullOrEmpty(name))
             {
                 path = string.Format("{0}{1}{2}.mat", PSDImporterConst.FONT_FOLDER, myText.font.name, name);
-                if (!File.Exists(path))
+                var fileInfo = new FileInfo(path);
+                if (!fileInfo.Exists)
                 {
+                    if (!fileInfo.Directory.Exists)fileInfo.Directory.Create();
                     material = new Material(myText.fontMaterial);
                     myText.fontMaterial = material;
                     AssetDatabase.CreateAsset(material, path);

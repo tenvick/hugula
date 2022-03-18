@@ -5,37 +5,47 @@
 ------------------------------------------------
 local CUtils = CS.Hugula.Utils.CUtils
 local serpent = require("serpent")
-
+local TLogger = CS.TLogger
+local debug = debug
+local unpack = unpack or table.unpack
+local string_format = string.format
+local table_insert = table.insert
+local print = print
 --- 日志打印
 ---@class Logger
-Logger = {}
-local Debug = CS.UnityEngine.Debug
-function Logger.Log(...)
+local logger = {}
+function logger.Log(...)
     if CUtils.printLog then
         local tab = {...}
-        table.insert(tab, debug.traceback("", 2))
+        table_insert(tab, debug.traceback("", 2))
         print(unpack(tab))
     end
 end
 
-function Logger.LogTable(tb)
+function logger.LogTable(tb)
     if CUtils.printLog then
         print(serpent.block(tb))
     end
 end
 
-function Logger.LogFormat(format, ...)
+function logger.LogFormat(format, ...)
     if CUtils.printLog then
-        local msg = string.format(format, ...)
-        Debug.Log(msg .. debug.traceback("", 2))
+        local msg = string_format(format, ...)
+        TLogger.Log(msg .. debug.traceback("", 2))
     end
 end
 
-function Logger.LogError(msg)
-    Debug.LogError(msg .. debug.traceback("", 2))
+function logger.LogSys(msg)
+    TLogger.LogSys(msg .. debug.traceback("", 2))
+end 
+
+function logger.LogError(msg)
+    TLogger.LogError(msg .. debug.traceback("", 2))
 end
 
-function Logger.LogErrorFormat(format, ...)
-    local msg = string.format(format, ...)
-    Debug.LogError(msg .. debug.traceback("", 2))
+function logger.LogErrorFormat(format, ...)
+    local msg = string_format(format, ...)
+    TLogger.LogError(msg .. debug.traceback("", 2))
 end
+
+Logger = logger

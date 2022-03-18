@@ -1,13 +1,22 @@
 ﻿<linker>
        <assembly fullname="mscorlib">
-         	<type fullname="System.Security.Cryptography.SHA1CryptoServiceProvider" preserve="all"/>
-          <type fullname ="System.Net.HttpWebRequest" preserve ="all"/>
-          <type fullname ="System.Net.WebRequest" preserve ="all"/>
+              <type fullname="System.Security.Cryptography.SHA1CryptoServiceProvider" preserve="all"/>
+              <type fullname ="System.Net.HttpWebRequest" preserve ="all"/>
+              <type fullname ="System.Net.WebRequest" preserve ="all"/>
        </assembly>
        <assembly fullname="UnityEngine">
          	<namespace fullname="UnityEngine" preserve="all"/>
        </assembly>
        <assembly fullname="UnityEngine.UI">
          	<namespace fullname="UnityEngine.UI" preserve="all"/>
+       </assembly>
+       <assembly fullname="ICSharpCode.SharpZipLib">
+         	<namespace fullname="ICSharpCode.SharpZipLib" preserve="all"/>
+       </assembly>
+       <assembly fullname="I18N">
+              <type fullname="I18N.Common.Manager" preserve="all"/>
+       </assembly>
+       <assembly fullname="I18N.CJK">
+              <type fullname="I18N.CJK.CP936" preserve="all"/>
        </assembly>
 </linker>

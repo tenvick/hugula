@@ -4,7 +4,6 @@
 using UnityEngine;
 using System.IO;
 using System;
-using XLua;
 
 namespace Hugula.Utils
 {
@@ -46,7 +45,7 @@ namespace Hugula.Utils
         /// <param name="fileName">File name.</param>
         public static void SavePersistentFile(string context, string fileName)
         {
-            byte[] cont = LuaHelper.GetBytes(context);
+            byte[] cont = System.Text.Encoding.UTF8.GetBytes(context);
             SavePersistentFile(cont, fileName);
         }
 
@@ -197,6 +196,15 @@ namespace Hugula.Utils
         {
             FileInfo finfo = new FileInfo(filePath);
             if (!finfo.Directory.Exists) finfo.Directory.Create();
+        }
+
+        /// <summary>
+        /// 检测创建文件夹路径
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        public static void CheckCreateDirectory(string directoryPath)
+        {
+            if(!Directory.Exists(directoryPath))Directory.CreateDirectory(directoryPath);
         }
 
         /// <summary>

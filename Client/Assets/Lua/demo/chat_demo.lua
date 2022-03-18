@@ -187,6 +187,8 @@ chat_demo.chat_btn_send = {
     Execute = function(self, arg)
         add_my_chat(arg) --显示自定义发送数据
         chat_demo:OnPropertyChanged(property_chat_input_txt) ---清空聊天内容
+        print("hot update test 111")
+
     end
 }
 

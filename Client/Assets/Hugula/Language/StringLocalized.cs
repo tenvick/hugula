@@ -21,12 +21,12 @@ namespace Hugula
 
         public static void Register()
         {
-            ValueConverterRegister.instance.AddConverter(typeof(StringLocalized).Name,new StringLocalized());
+            ValueConverterRegister.instance?.AddConverter(typeof(StringLocalized).Name, new StringLocalized());
         }
 
         public static void UnRegister()
         {
-            ValueConverterRegister.instance.RemoveConverter(typeof(StringLocalized).Name);
+            ValueConverterRegister.instance?.RemoveConverter(typeof(StringLocalized).Name);
         }
     }
 }

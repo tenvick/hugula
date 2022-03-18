@@ -1,8 +1,6 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
-// using CustomLuaClass = SLua.CustomLuaClass;
-// using DoNotToLua = SLua.DoNotToLua;
 
 namespace Hugula.Utils
 {
@@ -25,27 +23,22 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua out path
         /// </summary>
-        
         public const string LUACFOLDER = "LuaBytes";
-
-        public const string LUA_BUNDLE_NAME_X86="luabytesAsset32";
-        public const string LUA_BUNDLE_NAME_X64="luabytesAsset64";
 
         /// <summary>
         /// lua 编译零时目录
         /// </summary>
-        
         public const string LUA_TMP_FOLDER = "PW";
 
         /// <summary>
-        /// crc32 file list
+        /// streamingAsset下面的所有folderManifest文件列表打成的bunlde 名字
         /// </summary>
-        public const string CRC32_FILELIST_NAME = "filemanifest.u3d";
+        public const string STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME = "streaming_all"+CHECK_ASSETBUNDLE_SUFFIX;
 
         /// <summary>
         /// 
         /// </summary>
-        public const string CRC32_VER_FILENAME = "crc32_ver.u";
+        public const string CRC32_VER_FILENAME = "version.json";
 
         /// <summary>
         ///  配置
@@ -70,12 +63,6 @@ namespace Hugula.Utils
         /// The Https STAR.
         /// </summary>
         public const string HTTPS_STRING = "https://";
-
-        /// <summary>
-        /// 首包路径
-        /// </summary>
-        
-        public const string FirstOutPath = "FirstPackage";
 
         /// <summary>
         /// jar前坠

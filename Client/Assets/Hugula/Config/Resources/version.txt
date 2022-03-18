@@ -1,0 +1,1 @@
+{"code":5000,"time":1647525155,"version":"0.5.3","cdn_host":["http://10.23.27.216/android/0.5.3"],"update_url":"http://10.23.27.216/android/dev","manifest_name":"streaming_all_717848365.u3d","fast":0}

@@ -1,3 +1,0 @@
-"cdn_host":["http://192.168.2.104/release/ios/%s/res"]
-"update_url":"http://192.168.2.104/release/ios"
-"model":"dev"

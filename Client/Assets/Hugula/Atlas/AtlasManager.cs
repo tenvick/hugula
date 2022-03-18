@@ -34,7 +34,7 @@ namespace Hugula.Atlas
             return ATLAS_MAPPING_ROOT_NAME;
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        // [RuntimeInitializeOnLoadMethod]
         static void Init()
         {
             var ins = AtlasManager.instance;

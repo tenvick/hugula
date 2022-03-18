@@ -5,7 +5,6 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Collections.Generic;
-using XLua;
 
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.GZip;

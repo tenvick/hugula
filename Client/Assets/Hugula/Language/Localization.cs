@@ -70,7 +70,7 @@ namespace Hugula
                 if (!localizationHasBeenSet)
                 {
 #if UNITY_EDITOR
-                    LoadDictionaryInEditor(PlayerPrefs.GetString(KEY_LAN, Application.systemLanguage.ToString()));
+                    LoadDictionary(PlayerPrefs.GetString(KEY_LAN, Application.systemLanguage.ToString()));
 #endif
                 }
                 return mDictionary;
@@ -133,16 +133,14 @@ namespace Hugula
         /// <summary>
         /// Load the specified localization dictionary.
         /// </summary>
-        static async void LoadDictionary(string value)
+        static void LoadDictionary(string value)
         {
             if (value.Equals(SystemLanguage.ChineseSimplified.ToString()))
                 value = SystemLanguage.Chinese.ToString();
 
             string assetName = Common.LANGUAGE_PREFIX + value.ToLower();
 
-            var task = ResLoader.LoadAssetAsyncTask<BytesAsset>(assetName);
-            await task;
-            var main = task.Result;
+            var main = Resources.Load<TextAsset>(assetName);
             if (main != null)
             {
                 byte[] txt = main.bytes;
@@ -150,8 +148,6 @@ namespace Hugula
                 Debug.Log(mLanguage + " is loaded " + txt.Length + " " + Time.frameCount);
 #endif
                 if (txt != null) Load(txt);
-                // CacheManager.Subtract(abName);
-                // ResLoader.Subtract(abName);
                 localizationHasBeenSet = true;
             }
             else
@@ -159,34 +155,7 @@ namespace Hugula
                 if (!value.ToLower().Equals(SystemLanguage.English.ToString().ToLower()))
                     language = SystemLanguage.English.ToString();
             }
-
-            // return false;
         }
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        static void LoadDictionaryInEditor(string value)
-        {
-            string url = "Assets/Config/Lan/" + Common.LANGUAGE_PREFIX + value.ToLower() + ".csv";
-            Debug.Log(url);
-            Object m = UnityEditor.AssetDatabase.LoadAssetAtPath(url, typeof(TextAsset));
-
-            var main = m as TextAsset;
-            if (main)
-            {
-                byte[] txt = main.bytes;
-                // mLanguage = value;
-                Debug.Log(mLanguage + "   Editor is loaded " + txt.Length);
-                // Debug.Log(System.Text.Encoding.UTF8.GetString(txt));
-                if (txt != null) Load(txt);
-            }
-            localizationHasBeenSet = true;
-        }
-#endif
 
         /// <summary>
         /// Load the specified language.
@@ -196,14 +165,7 @@ namespace Hugula
         {
             if (!string.IsNullOrEmpty(value))
             {
-#if UNITY_EDITOR
-                // if (Hugula.Loader.ManifestManager.SimulateAssetBundleInEditor)
-                LoadDictionaryInEditor(value);
-                // else
-                //     LoadDictionary(value);
-#else
                 LoadDictionary (value);
-#endif
                 return true;
             }
             return false;
@@ -237,10 +199,6 @@ namespace Hugula
         {
             // Ensure we have a language to work with
             string val;
-            //#if UNITY_IPHONE || UNITY_ANDROID
-            //            //key + " Mobile"
-            //            if (mDictionary.TryGetValue(key, out val)) return val;
-            //#endif
 
 #if UNITY_EDITOR
             if (mDictionary.TryGetValue(key, out val)) return val;

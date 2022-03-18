@@ -205,6 +205,16 @@ namespace Hugula.Utils
         }
 
         /// <summary>
+        /// check full url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static bool CheckFullUrl(string url)
+        {
+            return url.IndexOf("://") >=0 || url.IndexOf(":\\\\") >=0;
+        }
+
+        /// <summary>
         /// check Resolve host error
         /// </summary>
         /// <param name="url"></param>

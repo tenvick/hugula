@@ -1,6 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
-
 更新日志:
+2022.3.18
+1 支持分包加载的热更新功能
+
 2022.2.20
 1 NotifyTable支持property。
 2 LoopVerticalScrollRect支持动态高度，loading状态等。

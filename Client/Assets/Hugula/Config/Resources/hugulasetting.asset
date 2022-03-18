@@ -12,7 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e439ba7f10a63c48b9c8a1d43c1e015, type: 3}
   m_Name: hugulasetting
   m_EditorClassIdentifier: 
-  httpVerHostRelease: 
-  httpVerHostDev: 
-  inclusionVariants: []
-  allVariants: []
+  httpVerHostRelease: http://10.23.27.216/{0}/version.json
+  httpVerHostDev: http://10.23.27.216/{0}/version_dev.json

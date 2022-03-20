@@ -18,9 +18,9 @@ namespace Hugula.ResUpdate
             folderManifest.version = Hugula.CodeVersion.APP_VERSION;
             folderManifest.folderName = folderName;
             return folderManifest;
-        }  
+        }
 
-            /// <summary>
+        /// <summary>
         /// 标记zip文件下载完成
         /// </summary>
         public static void MarkZipDone(this FolderManifest self)
@@ -36,8 +36,8 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static string GetZipOutFolderPath(this FolderManifest self)
         {
-          return  CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),string.Format("{0}_{1}",self.folderName,Application.version));
+            return CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), string.Format("{0}_{1}", self.folderName, Application.version));
         }
     }
-    
+
 }

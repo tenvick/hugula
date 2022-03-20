@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Hugula.Databinding;
-using Hugula.Databinding.Binder;
 using UnityEditor;
 using UnityEngine;
+using UnityEditorInternal;
 
 namespace HugulaEditor.Databinding
 {
@@ -20,6 +20,9 @@ namespace HugulaEditor.Databinding
         string propertyName = string.Empty;
         string searchText = string.Empty;
         bool searchResultDirty;
+        ReorderableList reorderableList_bindings;
+        ReorderableList reorderableList_children;
+
         void OnEnable()
         {
             m_Property_bindings = serializedObject.FindProperty("bindings");
@@ -27,14 +30,48 @@ namespace HugulaEditor.Databinding
             searchResultDirty = false;
             // searchText = string.Empty;
             propertyName = string.Empty;
+
+            reorderableList_bindings = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings,
+            target, true, true, true, true, OnAddClick, OnFilter);
+
+            reorderableList_children = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, property_children, target, true, true, false, true, null, OnFilter);
+
+            reorderableList_children.onRemoveCallback = (ReorderableList orderlist) =>
+                      {
+                          Debug.Log(orderlist);
+                          if (UnityEditor.EditorUtility.DisplayDialog("warnning", "Do you want to remove this element?", "remove", "canel"))
+                          {
+                              ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                          }
+                      };
+
+        }
+
+        bool OnFilter(SerializedProperty property, string searchText)
+        {
+            var displayName = property.displayName;
+            if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
+            {
+                return true;
+            }
+            else
+                return false;
+
+        }
+
+        void OnAddClick(object args)
+        {
+            var arr = (object[])args;
+            var per = (PropertyInfo)arr[0];
+            var bindable = ((BindableObject)target);
+            var property = per.Name;
+            BindalbeObjectUtilty.AddEmptyBinding(bindable, property);
         }
 
         public override void OnInspectorGUI()
         {
-            // base.OnInspectorGUI();
             EditorGUILayout.Separator();
             var temp = target as BindableContainer;
-
             var rect = EditorGUILayout.BeginVertical(GUILayout.Height(100));
             EditorGUI.HelpBox(rect, "", MessageType.None);
 
@@ -70,188 +107,19 @@ namespace HugulaEditor.Databinding
             var rect1 = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
             EditorGUI.HelpBox(rect1, "", MessageType.None);
 
-            rect1.height -= BindableObjectStyle.kExtraSpacing * 2;
-            rect1.x += BindableObjectStyle.kExtraSpacing;
-            rect1.y += BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .4f;
-            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .4f;
-
-            propertyName = BindalbeObjectUtilty.PopupComponentsProperty(rect1, temp, propertyName); //绑定属性
-
-            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .2f - BindableObjectStyle.kExtraSpacing * 4;
-            if (GUI.Button(rect1, "add"))
-            {
-                if (string.Equals(propertyName, BindableObjectStyle.FIRST_PROPERTY_NAME))
-                {
-                    Debug.LogWarningFormat("please choose a property to binding");
-                    return;
-                }
-                Binding expression = new Binding();
-                expression.propertyName = propertyName;
-                temp.AddBinding(expression);
-            }
             EditorGUILayout.Separator();
             EditorGUILayout.EndHorizontal();
             //show databindings
-            if (m_Property_bindings.isArray)
-            {
-                selectedList.Clear();
-                serializedObject.Update();
+            serializedObject.Update();
+            reorderableList_bindings.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
 
-                var len = temp.GetBindings().Count;
-                SerializedProperty bindingProperty;
-                for (int i = 0; i < len; i++)
-                {
-                    bindingProperty = m_Property_bindings.GetArrayElementAtIndex(i);
-                    EditorGUILayout.PropertyField(bindingProperty, true);
-                    if (bindingProperty.isExpanded)
-                    {
-                        selectedList.Add(i);
-                    }
-                }
-
-                //删除数据
-                if (selectedList.Count > 0)
-                {
-                    rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
-                    rect.x = rect.xMax - 100;
-                    rect.width = 100;
-                    if (GUI.Button(rect, "del property " + selectedList.Count))
-                    {
-
-                        selectedList.Sort((int a, int b) =>
-                        {
-                            if (a < b) return 1;
-                            else if (a == b) return 0;
-                            else
-                                return -1;
-                        });
-
-                        foreach (var i in selectedList)
-                            m_Property_bindings.RemoveElement(i); // DeleteArrayElementAtIndex(i);
-                    }
-                    EditorGUILayout.Separator();
-                    EditorGUILayout.EndHorizontal();
-                }
-                else
-                {
-                    // GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
-                }
-                serializedObject.ApplyModifiedProperties();
-
-            }
 
             EditorGUILayout.Space();
 
-            //
-            if (property_children.isArray)
-            {
-                selectedList.Clear();
-                serializedObject.Update();
-                var len = property_children.arraySize;
-                toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
-
-                using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
-                {
-                    GUILayout.Label("Children: " + len, GUILayout.Width(100), toolbarHeight);
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        searchText = EditorGUILayout.TextField(string.Empty, searchText, new GUIStyle("ToolbarSeachTextField"), GUILayout.Width(160), toolbarHeight);
-                        if (GUILayout.Button("Close", "ToolbarSeachCancelButtonEmpty"))
-                        {
-                            // reset text
-                            searchText = null;
-                        }
-                    }
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        searchResultDirty = true;
-                    }
-                }
-
-                SerializedProperty bindableProperty;
-                string childName;
-                List<string> childBindingInfo;
-                for (int i = 0; i < len; i++)
-                {
-                    bindableProperty = property_children.GetArrayElementAtIndex(i);
-                    if (!string.IsNullOrEmpty(searchText))
-                    {
-                        var childBindable = (BindableObject)bindableProperty.objectReferenceValue;
-
-                        childName = childBindable?.name;
-                        childBindingInfo = childBindable?.GetBindingSourceList();
-                        //check 绑定表达式
-                        bool has = false;
-                        if (childBindingInfo != null)
-                        {
-                            foreach (var s in childBindingInfo)
-                            {
-                                if (s.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0)
-                                {
-                                    has = true;
-                                    break;
-                                }
-                            }
-
-                        }
-                        if (childName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0 || has) // item.ExtraInfo.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0)
-                        {
-                            EditorGUILayout.PropertyField(bindableProperty, false);
-                        }
-                        else
-                        {
-                            bindableProperty.isExpanded = false;
-                        }
-
-                    }
-                    else
-                        EditorGUILayout.PropertyField(bindableProperty, false);
-
-                    if (bindableProperty.isExpanded)
-                    {
-                        selectedList.Add(i);
-                    }
-                }
-
-                //删除数据
-                float width = 0;
-                rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
-                rect.y += BindableObjectStyle.kExtraSpacing;
-                if (selectedList.Count > 0)
-                {
-                    width = 260;
-                    rect.x = rect.xMax - width;
-                    rect.width = width;
-                    if (GUI.Button(rect, "del BindalbeObject " + selectedList.Count))
-                    {
-                        selectedList.Sort((int a, int b) =>
-                        {
-                            if (a < b) return 1;
-                            else if (a == b) return 0;
-                            else
-                                return -1;
-                        });
-                        foreach (var i in selectedList)
-                            temp.children.RemoveAt(i);
-                        // property_children.RemoveElement(i);
-                    }
-                }
-                else
-                {
-                    width = DELETE_TIPS.Length * BindableObjectStyle.kExtraSpacing;
-                    rect.x = rect.xMax - width;
-                    rect.width = width;
-                    GUI.Box(rect, DELETE_TIPS);
-                }
-
-                serializedObject.ApplyModifiedProperties();
-
-                EditorGUILayout.Separator();
-                EditorGUILayout.EndHorizontal();
-            }
+            serializedObject.Update();
+            reorderableList_children.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space();
@@ -262,61 +130,9 @@ namespace HugulaEditor.Databinding
             EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
 
-            //EditorUtility.SetDirty (target);
-        }
-
-        List<string> allowTypes = new List<string>();
-        List<Type> allowTypeProperty = new List<Type>();
-        List<bool> allowIsMethod = new List<bool>();
-
-        UnityEngine.Object PopupGameObjectComponents(UnityEngine.Object obj, int i)
-        {
-            UnityEngine.Object selected = null;
-
-            int selectIndex = 0;
-            allowTypes.Clear();
-            if (obj != null)
-            {
-
-                Type currentType = obj.GetType();
-                GameObject go = null;
-                if (currentType == typeof(GameObject))
-                    go = (GameObject)obj;
-                else if (currentType.IsSubclassOf(typeof(Component)))
-                    go = ((Component)obj).gameObject;
-
-                allowTypes.Add(string.Format("{0}({1})", go.GetType().Name, go.name));
-
-                if (go != null)
-                {
-                    Component[] comps = go.GetComponents(typeof(Component)); //GetComponents<Component>();
-                    Component item = null;
-                    for (int j = 0; j < comps.Length; j++)
-                    {
-                        item = comps[j];
-                        if (item)
-                            allowTypes.Add(string.Format("{0}({1})", item.GetType().Name, item.name));
-                        if (obj == item)
-                            selectIndex = j + 1;
-                    }
-                    selectIndex = EditorGUILayout.Popup(selectIndex, allowTypes.ToArray());
-                    if (selectIndex == 0)
-                        selected = go;
-                    else
-                        selected = comps[selectIndex - 1];
-                }
-
-            }
-            return selected;
         }
 
         GUIStyle BindingPropertiesStyle = new GUIStyle();
-        void SetBindingProperties(BindableContainer refer, int i)
-        {
-            BindingPropertiesStyle.fontStyle = FontStyle.Italic;
-            BindingPropertiesStyle.fontSize = 10;
-            BindingPropertiesStyle.alignment = TextAnchor.UpperLeft;
-        }
 
         public void AddbindableObjects(BindableContainer refer, UnityEngine.Component obj)
         {
@@ -370,12 +186,6 @@ namespace HugulaEditor.Databinding
             }
         }
 
-        // public void RemoveAtbindableObjects(BindableContainer refer, int index)
-        // {
-        //     var children = refer.children;
-        //     children.RemoveAt(index);
-        // }
-
         public static void AutoAddHierarchyChildren(BindableContainer container)
         {
             var children = container.children;
@@ -400,7 +210,7 @@ namespace HugulaEditor.Databinding
                 bool needDeep = true;
                 bool isSelf = false;
                 var oldChildren = container.children;
-                if(childTrans.name.ToLower().EndsWith(":ignore"))
+                if (childTrans.name.ToLower().EndsWith(":ignore"))
                 {
                     Debug.LogWarning($"{childTrans} 不会添加到容器{container} ");
                     continue;

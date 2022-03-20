@@ -5,9 +5,7 @@ using Hugula.Databinding.Binder;
 using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding;
-using UnityEngine.UI;
 using UnityEditorInternal;
-using Hugula.Databinding.Binder;
 
 
 namespace HugulaEditor.Databinding
@@ -22,10 +20,37 @@ namespace HugulaEditor.Databinding
 
         List<int> selectedList = new List<int>();
 
+        ReorderableList reorderableList_bindings;
+
         void OnEnable()
         {
             m_Property_bindings = serializedObject.FindProperty("bindings");
             m_Property_m_Target = serializedObject.FindProperty("m_Target");
+
+            #region bindings
+            reorderableList_bindings = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings, GetRealTarget(),
+            true, false, true, true, OnAddClick, OnFilter);
+            
+            #endregion
+        }
+
+        bool OnFilter(SerializedProperty property,string searchText)
+        {
+            var displayName = property.displayName;
+            if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
+                return true;
+
+            return false;
+
+        }
+
+        void OnAddClick(object args)
+        {
+            var arr = (object[])args;
+            var per = (PropertyInfo)arr[0];
+            var bindable = (BindableObject)arr[1];
+            var property = per.Name;
+            BindalbeObjectUtilty.AddEmptyBinding(bindable, property);
         }
 
         public override void OnInspectorGUI()
@@ -52,13 +77,12 @@ namespace HugulaEditor.Databinding
             var rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
             var rect1 = rect;
             float w = rect.width;
-            EditorGUI.HelpBox(rect, "", MessageType.None);
+            // EditorGUI.HelpBox(rect, "", MessageType.None);
 
             rect1.height -= BindableObjectStyle.kExtraSpacing * 2;
             rect1.x += BindableObjectStyle.kExtraSpacing;
             rect1.y += BindableObjectStyle.kExtraSpacing;
             rect1.width = w * .4f;
-
             //
             CustomBinder customer = null;
             if (temp is CustomBinder)
@@ -74,95 +98,26 @@ namespace HugulaEditor.Databinding
             rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
             rect1.width = w * .4f;
 
-            if (customer != null)
-            {
-                propertyName = BindalbeObjectUtilty.PopupComponentsProperty(rect1, customer.target, propertyName); //绑定属性
-            }
-            else
-                propertyName = BindalbeObjectUtilty.PopupComponentsProperty(rect1, temp, propertyName); //绑定属性
+            var len = m_Property_bindings.arraySize;
+            var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
 
-            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .2f - BindableObjectStyle.kExtraSpacing * 4;
-            if (GUI.Button(rect1, "add"))
-            {
-                if (string.Equals(propertyName, BindableObjectStyle.FIRST_PROPERTY_NAME))
-                {
-                    Debug.LogWarningFormat("please choose a property to binding");
-                    return;
-                }
-                Binding expression = new Binding();
-                expression.propertyName = propertyName;
-                temp.AddBinding(expression);
-            }
             EditorGUILayout.Separator();
             EditorGUILayout.EndHorizontal();
-
             //显示列表
-            if (m_Property_bindings.isArray)
-            {
-                selectedList.Clear();
-                serializedObject.Update();
+            reorderableList_bindings.DoLayoutList();
 
-                var len = temp.GetBindings().Count;
-                SerializedProperty bindingProperty;
-                for (int i = 0; i < len; i++)
-                {
-                    bindingProperty = m_Property_bindings.GetArrayElementAtIndex(i);
-                    EditorGUILayout.PropertyField(bindingProperty, true);
-                    if (bindingProperty.isExpanded)
-                    {
-                        selectedList.Add(i);
-                    }
-                }
-
-                //删除数据
-                if (selectedList.Count > 0)
-                {
-                    rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
-                    rect.x = rect.xMax - 100;
-                    rect.width = 100;
-                    if (GUI.Button(rect, "del property " + selectedList.Count))
-                    {
-
-                        selectedList.Sort((int a, int b) =>
-                            {
-                                if (a < b) return 1;
-                                else if (a == b) return 0;
-                                else
-                                    return -1;
-                            });
-
-                        foreach (var i in selectedList)
-                            m_Property_bindings.RemoveElement(i);// DeleteArrayElementAtIndex(i);
-                    }
-                    EditorGUILayout.Separator();
-                    EditorGUILayout.EndHorizontal();
-                }
-                else
-                {
-                    // GUILayout.Box(BindableObjectStyle.PROPPERTY_CHOOSE_TIPS);
-                }
-                serializedObject.ApplyModifiedProperties();
-
-            }
+            serializedObject.ApplyModifiedProperties();
         }
 
-        private static void DisplayTypeInfo(Type t)
+        UnityEngine.Object GetRealTarget()
         {
-            Debug.LogFormat("\r\n{0}", t);
-
-            Debug.LogFormat("\tIs this a generic type definition? {0}",
-               t.IsGenericTypeDefinition);
-
-            Debug.LogFormat("\tIs it a generic type? {0}",
-               t.IsGenericType);
-
-            Type[] typeArguments = t.GetGenericArguments();
-            Debug.LogFormat("\tList type arguments ({0}):", typeArguments.Length);
-            foreach (Type tParam in typeArguments)
+            if (target is CustomBinder)
             {
-                Debug.LogFormat("\t\t{0}", tParam);
+                return ((CustomBinder)target).target;
             }
+            else
+                return target;
         }
+
     }
 }

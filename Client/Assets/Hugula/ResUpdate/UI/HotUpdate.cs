@@ -16,27 +16,28 @@ namespace Hugula.ResUpdate
     /// --  Copyright © 2015-2022   Hugula: Arpg game Engine
     /// --  热更新
     /// --  author pu
-    /// --	从Ver_android or Ver_ios 中的cdn_host下载资源包。
-    /// -- 	1热更新流程
-    /// --	.1 对比本地版本号 streaming 和 persistent 的版本文件。
-    /// --	.2 加载文件列表 分别加载streaming 和 persistent的文件列表
-    /// --	.3 加载版本文件 对比最新的本地版本号
-    /// --	.4 如果不一致下载更新列表。
-    /// --	.5 对比 本地文件列表 查找变化的文件。
-    /// --	.6 下载变化文件列表。
-    /// --	.7 下载完成进入游戏。
+    /// --	1 读取本地streaming foldermanifest文件。
+    /// -- 	2 读取可持续目录foldermanifest文件并合并到 streaming foldermanifest用于后面对比热更新资源
+    /// --	3 加载远端version.json 地址在Hugula/setting中http ver host配置, version.json内容配置位于Assets/Hugula/Config/Version目录
+    /// --	4 判断是否加载fast_{appversion}.zip 包。  此处加载url配置位于Assets/Hugula/Config/Resources/version.txt中的cdn_host字段，会在发布阶段自动生成。
+    /// --	5 fast_{appversion}.zip 包解压。 所有已经下载完成的zip包中的assetbundle重定向地址配置。
+    /// --	6 对比远端版本号 判断下载远端foldermanifest文件。
+    /// --	7 对比本地与远端foldermanifest文件下载变更的文件
+    /// --	8 下载完成，保存远端foldermaifest到可持续化目录，更新变更文件的assetbundle重定向地址配置。
+    /// --	9 完成下载进入游戏。
     /// --
-    /// --	2注意事项
-    /// --	.3 BackGroundDownload 是网络加载模块，用于从网络加载URL并保存到persistent目录。
-    /// --	.4 ResVersion 版本信息，除了基本版本信息外，还可读取VerExtends_android or VerExtends_ios里面的配置字段，可以用于一些配置。
-    /// --	.5 cdn_hosts 用于从网络加载资源的url列表
+    /// --	注意事项
+    /// --  .1 hugulasetting中的http ver host可以支持多个地址配置以“.”号分割
+    /// --	.2 BackGroundDownload 是网络加载模块，用于从网络加载URL并保存到persistent目录，大于4m的资源默认开启2个线程同时下载，如果要支持断点续传服务器需要开启etag。
+    /// --	.3 version.json 版本信息，可以控制fast包的加载时机。
+    /// --	.4 cdn_hosts 可以支持多个域名加载
     /// ------------------------------------------------
     ///</summary>
     public class HotUpdate : MonoBehaviour
     {
 #if UNITY_EDITOR
         const string KeyDebugString = "_HotUpdate_Debug_string";
-
+        //编辑器模式下是否开启热更新加载测试
         [XLua.DoNotGen]
         public static bool isDebug
         {
@@ -101,8 +102,10 @@ namespace Hugula.ResUpdate
         {
             var hosts = GetVersionUrl();
             string response = null;
+            var url = string.Empty;
             foreach (var host in hosts)
             {
+                url = host;
                 UnityWebRequest req = UnityWebRequest.Get(host);
                 var async = req.SendWebRequest();
                 yield return async;
@@ -143,6 +146,7 @@ namespace Hugula.ResUpdate
                 { //强制更新提示
                     MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
                     {
+                        MessageBox.Close();
                         Application.OpenURL(remoteVer.update_url);
                     });
                 }
@@ -160,9 +164,15 @@ namespace Hugula.ResUpdate
             }
             else if (!romoteVersionTxtLoaded)
             {
-                yield return new WaitForSeconds(2);
-                StartCoroutine(LoadRemoteVersion());
-                Debug.Log("ver.txt 解析失败重新加载中。。。");
+                yield return new WaitForSeconds(1);
+
+                MessageBox.Show(url + Localization.Get("main_download_fail"), "", Localization.Get("main_check_sure"), () =>
+                    {
+                        MessageBox.Close();
+                        StartCoroutine(LoadRemoteVersion());
+                    });
+
+                Debug.Log("version.json 解析失败。。。");
             }
 
             yield return null;
@@ -208,7 +218,7 @@ namespace Hugula.ResUpdate
                     var change = BackGroundDownload.instance.AddFolderManifest(newFastManifest, onFastProccessChanged, onFastComplete);
                     if (change > 0)
                     {
-                        var is_wifi = false;// Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
+                        var is_wifi = Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
                         UnityEngine.Events.UnityAction BeginLoad = () =>
                         {
                             BackGroundDownload.MaxLoadCount = 2;
@@ -259,7 +269,7 @@ namespace Hugula.ResUpdate
             var loaded_s = string.Format("{0:0.00}", (float)arg.current / m);
             var loaded_t = string.Format("{0:0.00}", (float)arg.total / m);
             var kbs = string.Format("{0:0.00} kb/s", (float)BackGroundDownload.BytesReceivedPerSecond / 1024f);
-            var str = "fast " + Localization.GetFormat("main_downloading_tips", loaded_s, loaded_t, kbs) +System.DateTime.Now;
+            var str = "fast " + Localization.GetFormat("main_downloading_tips", loaded_s, loaded_t, kbs) + System.DateTime.Now;
             SetSliderProgress(str, (float)arg.current / (float)arg.total);
         }
 
@@ -305,7 +315,8 @@ namespace Hugula.ResUpdate
         }
         #endregion
 
-        #region  加载远端remote foldermanifest文件与热更新资源       
+        #region  加载远端remote foldermanifest文件与热更新资源  
+        string  loadRemoteVersion = string.Empty; //将要下载的远端文件    
         //加载远端FolderManifest文件
         public IEnumerator LoadRemoteFoldmanifest(VerionConfig remoteVer)
         {
@@ -345,6 +356,7 @@ namespace Hugula.ResUpdate
                 for (int i = 0; i < remoteFolderManifest.Count; i++)
                 {
                     remoteFolder = remoteFolderManifest[i];
+                    loadRemoteVersion = remoteFolder.version ;//记录要下载的远端版本号
                     for (int j = 0; j < streamingFolderManifest.Count; j++)
                     {
                         curStreaming = streamingFolderManifest[j];
@@ -363,7 +375,7 @@ namespace Hugula.ResUpdate
                         }
                     }
                     //如果没找到需要下载当前所有文件
-                    if(remoteFolder.Count>0)
+                    if (remoteFolder.Count > 0)
                     {
                         needDownload.Add(remoteFolder);
 #if !HUGULA_NO_LOG
@@ -377,7 +389,7 @@ namespace Hugula.ResUpdate
                 Debug.Log("need load file size:" + change);
                 if (change > 0)
                 {
-                    var is_wifi = false;//Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
+                    var is_wifi = Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
                     UnityEngine.Events.UnityAction BeginLoad = () =>
                     {
                         BackGroundDownload.MaxLoadCount = 4;
@@ -438,7 +450,7 @@ namespace Hugula.ResUpdate
             }
             else
             {
-                if(remoteManifest !=null && FileManifestManager.UpdateStreamingFolderManifest(remoteManifest))
+                if (remoteManifest != null && FileManifestManager.UpdateStreamingFolderManifest(remoteManifest))
                 {
                     FileManifestManager.GenUpdatePackageTransform(remoteManifest);//如果版本正确重定向地址
                 }
@@ -464,6 +476,7 @@ namespace Hugula.ResUpdate
             {
                 FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
                 FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
+                FileManifestManager.localVersion = loadRemoteVersion;
 #if !HUGULA_NO_LOG
                 Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) is_Error：{is_error} ");
 #endif
@@ -487,7 +500,7 @@ namespace Hugula.ResUpdate
         {
             view.tips.text = tips;
             view.slider.value = per;
-            Debug.Log($"Progress：{tips} {per*100}% frame:{Time.frameCount} ");
+            Debug.Log($"Progress：{tips} {per * 100}% frame:{Time.frameCount} ");
         }
 
         // void OnProgressEvent(LoadingEventArg arg)

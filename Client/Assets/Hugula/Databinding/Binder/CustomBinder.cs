@@ -15,7 +15,6 @@ namespace Hugula.Databinding.Binder
 
         protected override void InitBindings()
         {
-            m_InitBindings = true;
             if (m_BindingsDic == null)
                 m_BindingsDic = DictionaryPool<string, Binding>.Get();
             Binding binding = null;

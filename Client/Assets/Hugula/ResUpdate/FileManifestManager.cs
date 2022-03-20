@@ -25,7 +25,7 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 本地已经更新的文件列表
         /// </summary>
-        public static FolderManifest updateFolderManifest;
+        // public static FolderManifest updateFolderManifest;
 
         /// <summary>
         /// 本地更新的目录包括firstpackage下载或者其他方式下载的更新包目录
@@ -37,6 +37,8 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static List<FolderManifest> remoteFolderManifest;
 
+
+        private static string m_LocalVersion;
         /// <summary>
         /// 本地最新版本号
         /// </summary>
@@ -44,10 +46,14 @@ namespace Hugula.ResUpdate
         {
             get
             {
-                if (updateFolderManifest != null)
-                    return updateFolderManifest.version;
-                else
+                if (string.IsNullOrEmpty(m_LocalVersion))
                     return Application.version;
+                else
+                    return m_LocalVersion;
+            }
+            set
+            {
+                m_LocalVersion = value;
             }
         }
 
@@ -102,6 +108,7 @@ namespace Hugula.ResUpdate
                 FileManifestManager.streamingFolderManifest = new List<FolderManifest>(assets);
                 if (assets.Length == 0)
                     Debug.LogError("there is no streamingManifest at " + url);
+               
 #if !HUGULA_NO_LOG || UNITY_EDITOR
                 Debug.LogFormat("Load streamingManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", url, FileManifestManager.streamingFolderManifest.Count);
                 for (int i = 0; i < assets.Length; i++)
@@ -131,8 +138,6 @@ namespace Hugula.ResUpdate
             AssetBundle ab = null;
             if (FileHelper.FileExists(url) && (ab = AssetBundle.LoadFromFile(url)) != null)
             {
-                // updateFolderManifest = FolderManifestRuntionExtention.Create("update"); //每次都是新的对象
-
                 var persistentFolderManifest = new List<FolderManifest>(ab.LoadAllAssets<FolderManifest>());
                 FileManifestManager.persistentFolderManifest = persistentFolderManifest;
                 if (persistentFolderManifest.Count == 0)
@@ -142,10 +147,11 @@ namespace Hugula.ResUpdate
                 {
                     item = persistentFolderManifest[i];
                     //TODO:如果先下载热更新在下载依赖包会出现旧的依赖包覆盖新的热更新问题。
-                    if(UpdateStreamingFolderManifest(item))//更新本地版本到最新，方便接下来的热更新对比
+                    if (UpdateStreamingFolderManifest(item))//更新本地版本到最新，方便接下来的热更新对比
                     {
                         GenUpdatePackageTransform(item);//如果版本正确重定向地址
                     }
+                    localVersion = item.version; //更新到下载的版本号
                 }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR
@@ -240,10 +246,10 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static bool CheckIsUpdateFile(string abName)
         {
-            if (updateFolderManifest != null)
-            {
-                return updateFolderManifest.GetFileResInfo(abName) != null;
-            }
+            // if (updateFolderManifest != null)
+            // {
+            //     return updateFolderManifest.GetFileResInfo(abName) != null;
+            // }
             return false;
         }
 

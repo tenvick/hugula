@@ -63,7 +63,7 @@ namespace Hugula.Databinding
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
-                    if (!m_InitBindings) InitBindings();
+                    if (m_BindingsDic == null) InitBindings();
                     OnBindingContextChanging();
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
@@ -95,11 +95,11 @@ namespace Hugula.Databinding
         // [BindingsAttribute]
         protected List<Binding> bindings = new List<Binding>();
 
-        protected bool m_InitBindings = false;
+        // protected bool m_InitBindings = false;
         protected Dictionary<string, Binding> m_BindingsDic;// = new Dictionary<string, Binding>();
         protected virtual void InitBindings()
         {
-            m_InitBindings = true;
+            // m_InitBindings = true;
             Binding binding = null;
             if (m_BindingsDic == null)
                 m_BindingsDic = DictionaryPool<string, Binding>.Get();
@@ -113,7 +113,7 @@ namespace Hugula.Databinding
 
         public Binding GetBinding(string property)
         {
-            if (!m_InitBindings) InitBindings();
+            if (m_BindingsDic == null) InitBindings();
             Binding binding = null;
             m_BindingsDic.TryGetValue(property, out binding);
             return binding;
@@ -125,11 +125,12 @@ namespace Hugula.Databinding
 
             if (target == null) target = this;
             Binding binding = null;
-            if (!m_InitBindings) InitBindings();
+            if (m_BindingsDic == null) InitBindings();
             if (m_BindingsDic.TryGetValue(property, out binding))
             {
                 binding.Dispose();
                 m_BindingsDic.Remove(property);
+                bindings.Remove(binding);
                 Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
             }
 
@@ -174,7 +175,7 @@ namespace Hugula.Databinding
 
         internal virtual void SetInheritedContext(object value, bool force)
         {
-            if (!m_InitBindings) InitBindings();
+            if (m_BindingsDic == null) InitBindings();
             if (!Object.Equals(m_InheritedContext, value) || force)
             {
                 m_InheritedContext = value;
@@ -264,7 +265,7 @@ namespace Hugula.Databinding
         public List<Binding> GetBindings()
         {
             return bindings;
-        }     
+        }
 #endif
     }
 

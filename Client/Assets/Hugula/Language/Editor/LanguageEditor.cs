@@ -31,6 +31,8 @@ namespace HugulaEditor
 
         public static void ExportLanguage()
         {
+            Debug.Log("we do't need to build language because it is in Resources folder");
+            /**
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
               p.StartsWith("Assets/Config/Lan") &&
               p.EndsWith(".csv")
@@ -67,7 +69,7 @@ namespace HugulaEditor
                 entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
                 entry.SetLabel("lan_csv", true);
             }
-
+        **/
         }
     }
 

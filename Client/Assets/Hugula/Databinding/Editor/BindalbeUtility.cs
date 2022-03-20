@@ -22,73 +22,48 @@ namespace HugulaEditor.Databinding
             binding.RemoveAt(index);
         }
 
-        public static int GetObjectPropertyIndex(UnityEngine.Object target, string propertyName, out string[] properties)
+        public static void AddEmptyBinding(BindableObject target, string property)
         {
-            int selectIndex = 0;
+            var bindings = target.GetBindings();
+
+            foreach (var b in bindings)
+            {
+                if (b.propertyName == property)
+                {
+                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
+                    return;
+                }
+            }
+            var binding = new Binding();
+            binding.propertyName = property;
+            target.AddBinding(binding);
+
+        }
+
+        public static List<PropertyInfo> GetObjectProperties(UnityEngine.Object target)
+        {
+            List<PropertyInfo> propertyInfos = new List<PropertyInfo>();
             if (target)
             {
                 var obj = target; //temp
                 Type t = obj.GetType();
-                allowTypes.Clear();
-                allowTypeProperty.Clear();
-                allowIsMethod.Clear();
-                allowTypes.Add(BindableObjectStyle.FIRST_PROPERTY_NAME);
-                allowTypeProperty.Add(typeof(Nullable));
-                allowTypes.Add(BindableObject.ContextProperty);
-                allowTypeProperty.Add(typeof(object));
-                int j = 2;
 
                 var propertes = t.GetMembers(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var mi in propertes)
                 {
-                    Type parameterType = null;
-                    string name = null;
-
                     if (mi.MemberType == MemberTypes.Property)
                     {
                         var pi = (PropertyInfo)mi;
-                        name = pi.Name;
+                        if (!string.IsNullOrEmpty(pi.Name) && pi.Name != "target")
+                        {
+                            propertyInfos.Add(pi);
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        allowTypes.Add(name);
-                        allowTypeProperty.Add(parameterType);
-                        if (name.Equals(propertyName))
-                        {
-                            selectIndex = j;
-                        }
-                        j++;
-                    }
                 }
-                if (string.Equals(propertyName, BindableObject.ContextProperty))
-                {
-                    selectIndex = allowTypes.IndexOf(BindableObject.ContextProperty);
-                }
-                properties = allowTypes.ToArray();
             }
-            else
-            {
-                properties = new string[] { };
-            }
-            return selectIndex;
-        }
-        public static string PopupComponentsProperty(UnityEngine.Object target, string propertyName, params GUILayoutOption[] options)
-        {
-            string[] propertes = null;
-            int selectIndex = GetObjectPropertyIndex(target, propertyName, out propertes);
-            selectIndex = EditorGUILayout.Popup(selectIndex, propertes, options);
-            propertyName = propertes[selectIndex];
-            return propertyName;
-        }
-        public static string PopupComponentsProperty(Rect rect, UnityEngine.Object target, string propertyName)
-        {
-            string[] propertes = null;
-            if (target == null) return string.Empty;
-            int selectIndex = GetObjectPropertyIndex(target, propertyName, out propertes);
-            selectIndex = EditorGUI.Popup(rect, selectIndex, propertes);
-            propertyName = propertes[selectIndex];
-            return propertyName;
+
+            return propertyInfos;
         }
 
         /// <summary>
@@ -103,57 +78,127 @@ namespace HugulaEditor.Databinding
             var reType = Hugula.Utils.LuaHelper.GetClassType(binderType);
             return reType;
         }
+
+
+        public static ReorderableList CreateBindalbeObjectBindingsReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
+        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string,bool> onFilter)
+        {
+
+            List<PropertyInfo> properties = BindalbeObjectUtilty.GetObjectProperties(target);
+
+            FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            orderList.onFilterFunc = onFilter;
+            // if (displayHeader)
+            // {
+            orderList.drawHeaderCallback = (Rect rect) =>
+             {
+                 var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
+                 EditorGUI.LabelField(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}");
+                 var rect1 = rect;
+                 rect1.x = rect.width * 0.4f;
+                 rect1.width = rect.width * 0.6f;
+                 if (orderList.onFilterFunc != null)
+                 {
+                     EditorGUI.BeginChangeCheck();
+                     {
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                         if (GUILayout.Button("Close", "ToolbarSeachCancelButtonEmpty"))
+                         {
+                             // reset text
+                             orderList.searchText = null;
+                         }
+                     }
+                     if (EditorGUI.EndChangeCheck())
+                     {
+                        //  orderList.onFilterFunc()
+                     }
+                 }
+             };
+
+            orderList.onRemoveCallback = (ReorderableList orderlist) =>
+                      {
+                          // if(UnityEditor.EditorUtility.DisplayDialog("warnning","Do you want to remove this element?","remove","canel"))
+                          ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                      };
+
+            orderList.onFilterFunc = onFilter;
+
+            orderList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element,orderList.searchText)) //搜索
+                {
+
+                }
+                else
+                {
+                    var posRect_label = new Rect(rect)
+                    {
+                        x = rect.x + 10, //左边距
+                        height = EditorGUIUtility.singleLineHeight
+                    };
+
+                    var path = element.FindPropertyRelative("path");
+                    if (path != null)
+                        element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", true);
+                    else
+                    {
+                        element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.objectReferenceValue}  ", true);
+                    }
+
+                    if (element.isExpanded)
+                    {
+                        var posRect_prop = new Rect(rect)
+                        {
+                            x = rect.x + 10,
+                            y = rect.y + EditorGUIUtility.singleLineHeight,
+                            height = rect.height - EditorGUIUtility.singleLineHeight
+                        };
+                        EditorGUI.PropertyField(posRect_prop, element, true);
+                    }
+                }
+
+            };
+
+            if (displayAddButton)
+            {
+                orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+                {
+                    GenericMenu menu = new GenericMenu();
+                    foreach (var per in properties)
+                    {
+                        menu.AddItem(new GUIContent($"{per.Name} ({per.PropertyType.Name})"), false, onAddClick, new object[] { per, target });
+                    }
+                    menu.ShowAsContext();
+                };
+            }
+
+            orderList.elementHeightCallback = (index) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element,orderList.searchText)) //搜索
+                {
+                    return 0;
+                }
+
+                var h = EditorGUIUtility.singleLineHeight;
+                if (element.isExpanded)
+                    h += EditorGUI.GetPropertyHeight(element);
+                else
+                    h += EditorGUIUtility.singleLineHeight * 0.5f;
+                return h;
+            };
+
+            return orderList;
+        }
     }
 
 
     public class BindalbeEditorUtilty
     {
-        static List<string> m_AllComponents = new List<string>();
-        public static UnityEngine.Object DrawPopUpComponents(string title, UnityEngine.Object content, params GUILayoutOption[] options)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(new GUIContent(title), GUILayout.Width(80));
-            content = EditorGUILayout.ObjectField(content, typeof(UnityEngine.Component), true, GUILayout.MaxWidth(150)); //显示绑定对象
-            if (content is UnityEngine.Component)
-            {
-                var comps = ((UnityEngine.Component)content).GetComponents<Component>();
-                m_AllComponents.Clear();
-                int selectIndex = 0;
-                int i = 0;
-                foreach (var comp in comps)
-                {
-                    m_AllComponents.Add(comp.GetType().Name);
-                    if (comp == content) selectIndex = i;
-                    i++;
-                }
 
-                selectIndex = EditorGUILayout.Popup(selectIndex, m_AllComponents.ToArray(), options);
-                content = comps[selectIndex];
-            }
-            GUILayout.EndHorizontal();
-            return content;
-
-        }
-
-        public static string DrawEditorLabl(string title, string content, params GUILayoutOption[] options)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(new GUIContent(title), GUILayout.Width(60));
-            content = GUILayout.TextField(content, options);
-            GUILayout.EndHorizontal();
-            if (!string.IsNullOrEmpty(content)) content = content.Replace(",", "").Replace("=", "");
-            return content;
-        }
-
-        public static BindingMode DrawEume(string title, BindingMode content, params GUILayoutOption[] options)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(new GUIContent(title));
-            content = (BindingMode)EditorGUILayout.EnumPopup(content, options);
-            GUILayout.EndHorizontal();
-
-            return content;
-        }
     }
 
     public class BindableObjectStyle

@@ -50,6 +50,7 @@ public class TLogger : ILogHandler
     private static TLogger myLogger;
     static int mainThreadId = 0;
     private static object locked = new object();
+    [RuntimeInitializeOnLoadMethod]
     public static void Init()
     {
 

@@ -10,7 +10,7 @@ using UnityEditorInternal;
 
 namespace HugulaEditor.Databinding
 {
-    public static class BindalbeObjectUtilty
+    public static class BindableUtility
     {
         static List<string> allowTypes = new List<string>();
         static List<Type> allowTypeProperty = new List<Type>();
@@ -81,15 +81,11 @@ namespace HugulaEditor.Databinding
 
 
         public static ReorderableList CreateBindalbeObjectBindingsReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
-        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string,bool> onFilter)
+        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
         {
-
-            List<PropertyInfo> properties = BindalbeObjectUtilty.GetObjectProperties(target);
 
             FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
             orderList.onFilterFunc = onFilter;
-            // if (displayHeader)
-            // {
             orderList.drawHeaderCallback = (Rect rect) =>
              {
                  var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
@@ -110,24 +106,23 @@ namespace HugulaEditor.Databinding
                      }
                      if (EditorGUI.EndChangeCheck())
                      {
-                        //  orderList.onFilterFunc()
+                         //  orderList.onFilterFunc()
                      }
                  }
              };
 
             orderList.onRemoveCallback = (ReorderableList orderlist) =>
-                      {
-                          // if(UnityEditor.EditorUtility.DisplayDialog("warnning","Do you want to remove this element?","remove","canel"))
-                          ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
-                      };
+                {
+                    // if(UnityEditor.EditorUtility.DisplayDialog("warnning","Do you want to remove this element?","remove","canel"))
+                    ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                };
 
-            orderList.onFilterFunc = onFilter;
 
             orderList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) =>
             {
                 var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
 
-                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element,orderList.searchText)) //搜索
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
                 {
 
                 }
@@ -163,6 +158,8 @@ namespace HugulaEditor.Databinding
 
             if (displayAddButton)
             {
+                var properties = BindableUtility.GetObjectProperties(target);
+
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
                     GenericMenu menu = new GenericMenu();
@@ -178,7 +175,7 @@ namespace HugulaEditor.Databinding
             {
                 var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
 
-                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element,orderList.searchText)) //搜索
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
                 {
                     return 0;
                 }

@@ -118,7 +118,7 @@ namespace HugulaEditor.Databinding
             {
                 bindableObjectSerializedObject = new SerializedObject(target);
                 m_Property_bindings = bindableObjectSerializedObject.FindProperty("bindings");
-                reorderableListBindings = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(bindableObjectSerializedObject, m_Property_bindings, target, true,
+                reorderableListBindings = BindableUtility.CreateBindalbeObjectBindingsReorder(bindableObjectSerializedObject, m_Property_bindings, target, true,
                 true, true, true, OnAddClick,OnFilter);
             }
 
@@ -167,7 +167,7 @@ namespace HugulaEditor.Databinding
             var per = (PropertyInfo)arr[0];
             var bindable = (BindableObject)arr[1];
             var property = per.Name;
-            BindalbeObjectUtilty.AddEmptyBinding(bindable,property);
+            BindableUtility.AddEmptyBinding(bindable,property);
         }
     }
 

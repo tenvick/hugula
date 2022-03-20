@@ -11,15 +11,8 @@ namespace HugulaEditor.Databinding
     [CustomEditor(typeof(BindableContainer), true)]
     public class BindableContainerEditor : UnityEditor.Editor
     {
-        public const string DELETE_TIPS = "choose item for detail or  delete!";
-
-        List<int> selectedList = new List<int>();
-
         SerializedProperty property_children;
         SerializedProperty m_Property_bindings;
-        string propertyName = string.Empty;
-        string searchText = string.Empty;
-        bool searchResultDirty;
         ReorderableList reorderableList_bindings;
         ReorderableList reorderableList_children;
 
@@ -27,18 +20,15 @@ namespace HugulaEditor.Databinding
         {
             m_Property_bindings = serializedObject.FindProperty("bindings");
             property_children = serializedObject.FindProperty("children");
-            searchResultDirty = false;
-            // searchText = string.Empty;
-            propertyName = string.Empty;
 
-            reorderableList_bindings = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings,
+            reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings,
             target, true, true, true, true, OnAddClick, OnFilter);
 
-            reorderableList_children = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, property_children, target, true, true, false, true, null, OnFilter);
+            reorderableList_children = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, property_children, target, true, true, false, true, null, OnChildrenFilter);
 
             reorderableList_children.onRemoveCallback = (ReorderableList orderlist) =>
                       {
-                          Debug.Log(orderlist);
+                        //   Debug.Log(orderlist);
                           if (UnityEditor.EditorUtility.DisplayDialog("warnning", "Do you want to remove this element?", "remove", "canel"))
                           {
                               ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
@@ -56,7 +46,18 @@ namespace HugulaEditor.Databinding
             }
             else
                 return false;
+        }
 
+        bool OnChildrenFilter(SerializedProperty property, string searchText)
+        {
+            var refObj = property.objectReferenceValue;
+            var displayName = refObj.name;
+            if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
+            {
+                return true;
+            }
+            else
+                return false;
         }
 
         void OnAddClick(object args)
@@ -65,7 +66,7 @@ namespace HugulaEditor.Databinding
             var per = (PropertyInfo)arr[0];
             var bindable = ((BindableObject)target);
             var property = per.Name;
-            BindalbeObjectUtilty.AddEmptyBinding(bindable, property);
+            BindableUtility.AddEmptyBinding(bindable, property);
         }
 
         public override void OnInspectorGUI()
@@ -132,8 +133,6 @@ namespace HugulaEditor.Databinding
 
         }
 
-        GUIStyle BindingPropertiesStyle = new GUIStyle();
-
         public void AddbindableObjects(BindableContainer refer, UnityEngine.Component obj)
         {
 
@@ -166,7 +165,7 @@ namespace HugulaEditor.Databinding
                             bindable = (BindableObject)comp;
                             break;
                         }
-                        else if ((findType = BindalbeObjectUtilty.FindBinderType(comp.GetType())) != null)
+                        else if ((findType = BindableUtility.FindBinderType(comp.GetType())) != null)
                         {
                             target = comp;
                             addType = findType;

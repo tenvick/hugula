@@ -16,9 +16,6 @@ namespace HugulaEditor.Databinding
 
         SerializedProperty m_Property_bindings;
         SerializedProperty m_Property_m_Target;
-        string propertyName = string.Empty;
-
-        List<int> selectedList = new List<int>();
 
         ReorderableList reorderableList_bindings;
 
@@ -28,7 +25,7 @@ namespace HugulaEditor.Databinding
             m_Property_m_Target = serializedObject.FindProperty("m_Target");
 
             #region bindings
-            reorderableList_bindings = BindalbeObjectUtilty.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings, GetRealTarget(),
+            reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings, GetRealTarget(),
             true, false, true, true, OnAddClick, OnFilter);
             
             #endregion
@@ -50,7 +47,7 @@ namespace HugulaEditor.Databinding
             var per = (PropertyInfo)arr[0];
             var bindable = (BindableObject)arr[1];
             var property = per.Name;
-            BindalbeObjectUtilty.AddEmptyBinding(bindable, property);
+            BindableUtility.AddEmptyBinding(bindable, property);
         }
 
         public override void OnInspectorGUI()

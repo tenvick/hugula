@@ -90,18 +90,15 @@ namespace HugulaEditor.Databinding
                     prop.SetValue(target, temp.GetComponent(prop.PropertyType));
             }
 
-            if (temp is CustomBinder)
-            {
-                serializedObject.Update();
-                EditorGUILayout.PropertyField(property);
-                serializedObject.ApplyModifiedProperties();
-            }
             var rect1 = position;
             float w = position.width;
-
             rect1.height = BindableObjectStyle.kSingleLineHeight;
-            rect1.width = w * .5f;
+            rect1.width = 46;
             //
+            BindableObjectStyle.LabelFieldStyle(rect1,"target","#90BC8Cff",12);
+            rect1.x = rect1.x + 46;
+            rect1.width = w -50;
+
             CustomBinder customer = null;
             if (temp is CustomBinder)
             {
@@ -113,7 +110,7 @@ namespace HugulaEditor.Databinding
                 EditorGUI.ObjectField(rect1, temp, typeof(BindableObject), false); //显示绑定对象
             }
 
-            // EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
             if (reorderableListBindings == null)
             {
                 bindableObjectSerializedObject = new SerializedObject(target);

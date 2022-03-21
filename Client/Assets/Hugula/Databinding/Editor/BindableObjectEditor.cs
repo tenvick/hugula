@@ -64,55 +64,24 @@ namespace HugulaEditor.Databinding
 
             base.OnInspectorGUI();
 
-            if (temp is CustomBinder)
-            {
-                serializedObject.Update();
-                EditorGUILayout.PropertyField(m_Property_m_Target);
-                serializedObject.ApplyModifiedProperties();
-            }
-
-            var rect = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
-            var rect1 = rect;
-            float w = rect.width;
-            // EditorGUI.HelpBox(rect, "", MessageType.None);
-
-            rect1.height -= BindableObjectStyle.kExtraSpacing * 2;
-            rect1.x += BindableObjectStyle.kExtraSpacing;
-            rect1.y += BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .4f;
-            //
-            CustomBinder customer = null;
-            if (temp is CustomBinder)
-            {
-                customer = (CustomBinder)temp;
-                EditorGUI.ObjectField(rect1, customer.target, typeof(Component), false); //显示绑定对象
-            }
-            else
-            {
-                EditorGUI.ObjectField(rect1, temp, typeof(BindableObject), false); //显示绑定对象
-            }
-
-            rect1.x = rect1.xMax + BindableObjectStyle.kExtraSpacing;
-            rect1.width = w * .4f;
-
-            var len = m_Property_bindings.arraySize;
-            var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
-
             EditorGUILayout.Separator();
-            EditorGUILayout.EndHorizontal();
-            //显示列表
-            reorderableList_bindings.DoLayoutList();
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
 
+            //显示列表
+            serializedObject.Update();
+            reorderableList_bindings.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
         }
 
         UnityEngine.Object GetRealTarget()
         {
-            if (target is CustomBinder)
-            {
-                return ((CustomBinder)target).target;
-            }
-            else
+            // if (target is CustomBinder)
+            // {
+            //     return ((CustomBinder)target).target;
+            // }
+            // else
                 return target;
         }
 

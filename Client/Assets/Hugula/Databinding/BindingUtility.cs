@@ -22,7 +22,7 @@ namespace Hugula.Databinding
                 if (data is LuaTable)
                 {
                     var lua = data as LuaTable;
-                    if (lua.ContainsKey<string>("PropertyChanged")) //¼ì²âÊôÐÔ
+                    if (lua.ContainsKey<string>("PropertyChanged")) //æ£€æµ‹å±žæ€§
                     {
 #if LUA_PROFILER_DEBUG
                         UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContext_LuaCast:" + bindable ?? "");

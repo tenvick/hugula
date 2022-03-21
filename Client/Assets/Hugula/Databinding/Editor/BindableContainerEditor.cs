@@ -81,43 +81,22 @@ namespace HugulaEditor.Databinding
             addComponent = (UnityEngine.Component)EditorGUILayout.ObjectField(addComponent, typeof(UnityEngine.Component), true, GUILayout.Height(40));
             if (GUILayout.Button("auto add hierarchy  children"))
             {
-                //清理
-                // var children = temp.children;
-                // for (int i = 0; i < children.Count;)
-                // {
-                //     if (children[i] != null)
-                //         i++;
-                //     else
-                //         children.RemoveAt(i);
-                // }
-                // AddHierarchyChildren(temp.transform, temp, true);
                 AutoAddHierarchyChildren(temp);
                 EditorUtility.SetDirty(target);
             }
-            EditorGUILayout.Separator();
+            EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
 
-            // var rect1 = rect;
-            float w = rect.width;
-            var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
-
-            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
-            {
-                GUILayout.Label("bindings: " + m_Property_bindings.arraySize, GUILayout.Width(100), toolbarHeight);
-            }
-            var rect1 = EditorGUILayout.BeginHorizontal(GUILayout.Height(34));
-            EditorGUI.HelpBox(rect1, "", MessageType.None);
-
-            EditorGUILayout.Separator();
-            EditorGUILayout.EndHorizontal();
             //show databindings
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+            EditorGUILayout.Space();
             serializedObject.Update();
             reorderableList_bindings.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
 
-
+            //show children
             EditorGUILayout.Space();
-
             serializedObject.Update();
             reorderableList_children.DoLayoutList();
             serializedObject.ApplyModifiedProperties();

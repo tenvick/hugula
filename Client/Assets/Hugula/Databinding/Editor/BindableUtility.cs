@@ -12,9 +12,6 @@ namespace HugulaEditor.Databinding
 {
     public static class BindableUtility
     {
-        static List<string> allowTypes = new List<string>();
-        static List<Type> allowTypeProperty = new List<Type>();
-        static List<bool> allowIsMethod = new List<bool>();
 
         public static void RemoveAtbindableObjects(BindableObject target, int index)
         {
@@ -89,7 +86,8 @@ namespace HugulaEditor.Databinding
             orderList.drawHeaderCallback = (Rect rect) =>
              {
                  var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
-                 EditorGUI.LabelField(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}");
+                 BindableObjectStyle.LabelFieldStyle(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}", "#8cacbcff", 12);
+
                  var rect1 = rect;
                  rect1.x = rect.width * 0.4f;
                  rect1.width = rect.width * 0.6f;
@@ -98,15 +96,6 @@ namespace HugulaEditor.Databinding
                      EditorGUI.BeginChangeCheck();
                      {
                          orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
-                         if (GUILayout.Button("Close", "ToolbarSeachCancelButtonEmpty"))
-                         {
-                             // reset text
-                             orderList.searchText = null;
-                         }
-                     }
-                     if (EditorGUI.EndChangeCheck())
-                     {
-                         //  orderList.onFilterFunc()
                      }
                  }
              };
@@ -136,10 +125,14 @@ namespace HugulaEditor.Databinding
 
                     var path = element.FindPropertyRelative("path");
                     if (path != null)
-                        element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", true);
+                    {
+                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", "#BCB88Cff", 11);
+                        // element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", true);
+                    }
                     else
                     {
-                        element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.objectReferenceValue}  ", true);
+                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.objectReferenceValue}  ", "#8cacbcff", 12);
+                        // element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded,BindableObjectStyle.ColorText($"{index}.{element.objectReferenceValue}","#8cacbcff"), true);
                     }
 
                     if (element.isExpanded)
@@ -158,7 +151,15 @@ namespace HugulaEditor.Databinding
 
             if (displayAddButton)
             {
-                var properties = BindableUtility.GetObjectProperties(target);
+                List<PropertyInfo> properties = new List<PropertyInfo>();
+                if (target is CustomBinder)
+                {
+                    properties = BindableUtility.GetObjectProperties(((CustomBinder)target).target);
+                }
+                else
+                {
+                    properties = BindableUtility.GetObjectProperties(target);
+                }
 
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
@@ -190,12 +191,6 @@ namespace HugulaEditor.Databinding
 
             return orderList;
         }
-    }
-
-
-    public class BindalbeEditorUtilty
-    {
-
     }
 
     public class BindableObjectStyle
@@ -257,6 +252,59 @@ namespace HugulaEditor.Databinding
             return s_TextImage;
         }
 
+        #endregion
+
+        #region  color
+
+        public static string ColorText(string text, string color)
+        {
+            return $"<color={color}>{text}</color>";
+        }
+
+
+        public static void LabelFieldStyle(Rect rect, string label, string color, int fontSize = 14)
+        {
+            HtmlGUIStyle.fontSize = fontSize;
+            EditorGUI.LabelField(rect, BindableObjectStyle.ColorText(label, color), HtmlGUIStyle);
+        }
+
+        public static bool FoldoutStyle(Rect position, bool foldout, string text, string color, int fontSize = 14)
+        {
+            HtmlFoldoutGUIStyle.fontSize = fontSize;
+            return EditorGUI.Foldout(position, foldout, new GUIContent(BindableObjectStyle.ColorText(text, color)), true, HtmlFoldoutGUIStyle);
+        }
+
+        private static GUIStyle m_HtmlGUIStyle;
+        public static GUIStyle HtmlGUIStyle
+        {
+            get
+            {
+                if (m_HtmlGUIStyle == null)
+                {
+                    m_HtmlGUIStyle = new GUIStyle(EditorStyles.label);
+                    m_HtmlGUIStyle.richText = true;
+                    m_HtmlGUIStyle.fontSize = 12;
+                }
+                return m_HtmlGUIStyle;
+            }
+        }
+
+
+        private static GUIStyle m_HtmlFoldoutGUIStyle;
+        public static GUIStyle HtmlFoldoutGUIStyle
+        {
+            get
+            {
+                if (m_HtmlFoldoutGUIStyle == null)
+                {
+                    m_HtmlFoldoutGUIStyle = new GUIStyle(EditorStyles.foldout);
+                    m_HtmlFoldoutGUIStyle.richText = true;
+                    m_HtmlFoldoutGUIStyle.fontSize = 12;
+                }
+                return m_HtmlFoldoutGUIStyle;
+            }
+        }
+        // public 
         #endregion
     }
 

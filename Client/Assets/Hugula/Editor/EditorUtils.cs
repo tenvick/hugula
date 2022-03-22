@@ -253,9 +253,8 @@ namespace HugulaEditor
             var field = tp.GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Instance);
             field.SetValue(obj, value);
         }
-#if UNITY_EDITOR
+
         [MenuItem("Assets/Hugula/打开开始场景  %g")]
-#endif
         static public void OpenBeginSence()
         {
             AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath("Assets/Scenes/s_begin.unity", typeof(UnityEngine.Object)));

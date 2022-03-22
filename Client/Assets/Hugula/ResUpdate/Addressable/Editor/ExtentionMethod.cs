@@ -41,9 +41,9 @@ namespace  HugulaEditor.Addressable
                 File.Delete(path);
                 UnityEditor.AssetDatabase.Refresh();
             }
-            UnityEditor.AssetDatabase.CreateAsset(self, path);
-            Debug.Log(self.ToString());
             Debug.Log($"save to path:{path} ");
+            Debug.Log(self.ToString());
+            UnityEditor.AssetDatabase.CreateAsset(self, path);
             UnityEditor.AssetDatabase.Refresh();
         }
 

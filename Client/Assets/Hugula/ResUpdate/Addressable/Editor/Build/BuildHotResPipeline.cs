@@ -288,7 +288,7 @@ namespace HugulaEditor.ResUpdate
         {
             string verPath = BuildConfig.UpdateResOutVersionPath;//Path.Combine(BuildConfig.UpdateResOutVersionPath, BuildConfig.ResFolderName);//特定版本资源目录用于资源备份
             FileHelper.CheckCreateDirectory(verPath);
-            var aasBuildPath = Path.Combine(UnityEngine.AddressableAssets.Addressables.BuildPath, BuildConfig.BuildTarget);
+            var aasBuildPath = Path.Combine(UnityEngine.AddressableAssets.Addressables.BuildPath, BuildConfig.BuildTarget.ToString());
 
             //构建打包自定义包内容
             List<string> fileToZipFullPath = new List<string>();

@@ -49,7 +49,7 @@ namespace HugulaEditor.Addressable
             // Build AssetBundles
             TResult result = base.DoBuild<TResult>(builderInput, aaContext);
 
-            BuildConfig.BuildTarget = builderInput.Target.ToString();
+            BuildConfig.BuildTarget = builderInput.Target;
 
             Debug.Log(result.OutputPath);
             Debug.Log(result);
@@ -167,21 +167,7 @@ namespace HugulaEditor.Addressable
 
 
         #region static tool
-#if UNITY_IPHONE
-        public const BuildTarget target = BuildTarget.iOS;
-#elif UNITY_ANDROID
-        public const BuildTarget target = BuildTarget.Android;
-#elif UNITY_WP8
-        public const BuildTarget target = BuildTarget.WP8Player;
-#elif UNITY_METRO
-        public const BuildTarget target = BuildTarget.MetroPlayer;
-#elif UNITY_STANDALONE_OSX
-        public const BuildTarget target = BuildTarget.StandaloneOSXIntel;
-#elif UNITY_FACEBOOK
-        public const BuildTarget target = BuildTarget.StandaloneWindows;
-#else
-        public const BuildTarget target = BuildTarget.StandaloneWindows;
-#endif
+
         public const BuildAssetBundleOptions DefaultBuildAssetBundleOptions = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression;// | BuildAssetBundleOptions.ChunkBasedCompression;
 
         /// <summary>
@@ -198,8 +184,7 @@ namespace HugulaEditor.Addressable
 
             string tmpPath = EditorUtils.GetProjectTempPath();
             EditorUtils.CheckDirectory(tmpPath);
-
-            var assetBundleManifest = BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, target);
+            var assetBundleManifest = BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, BuildConfig.BuildTarget);
 
             var abNames = assetBundleManifest.GetAllAssetBundles();
 

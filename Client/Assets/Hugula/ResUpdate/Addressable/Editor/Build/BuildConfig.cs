@@ -58,7 +58,7 @@ namespace HugulaEditor.ResUpdate
         /// <summary>
         /// 构建目标平台，用于资源copy
         /// </summary>
-        public static string BuildTarget = "";
+        public static UnityEditor.BuildTarget BuildTarget ;
 
     }
 

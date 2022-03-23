@@ -75,10 +75,11 @@ namespace HugulaEditor.Databinding
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            EditorGUILayout.Separator();
+            // EditorGUILayout.Separator();
+            // base.OnGUI(position, property, label);
             var serializedObject = property.serializedObject;
             var target = property.objectReferenceValue;
-            if(target is null) return;
+            if (target is null) return;
 
 
             var temp = target as BindableObject;
@@ -95,9 +96,9 @@ namespace HugulaEditor.Databinding
             rect1.height = BindableObjectStyle.kSingleLineHeight;
             rect1.width = 46;
             //
-            BindableObjectStyle.LabelFieldStyle(rect1,"target","#90BC8Cff",12);
+            BindableObjectStyle.LabelFieldStyle(rect1, "target", "#90BC8Cff", 12);
             rect1.x = rect1.x + 46;
-            rect1.width = w -50;
+            rect1.width = w - 50;
 
             CustomBinder customer = null;
             if (temp is CustomBinder)
@@ -110,21 +111,21 @@ namespace HugulaEditor.Databinding
                 EditorGUI.ObjectField(rect1, temp, typeof(BindableObject), false); //显示绑定对象
             }
 
-            EditorGUILayout.Separator();
+            // EditorGUILayout.Separator();
             if (reorderableListBindings == null)
             {
                 bindableObjectSerializedObject = new SerializedObject(target);
                 m_Property_bindings = bindableObjectSerializedObject.FindProperty("bindings");
                 reorderableListBindings = BindableUtility.CreateBindalbeObjectBindingsReorder(bindableObjectSerializedObject, m_Property_bindings, target, true,
-                true, true, true, OnAddClick,OnFilter);
+                true, true, true, OnAddClick, OnFilter);
             }
 
             //显示列表
             position.y += BindableObjectStyle.kSingleLineHeight * 1.1f;
             serializedObject.Update();
-            if(bindableObjectSerializedObject !=null) bindableObjectSerializedObject.Update();
+            if (bindableObjectSerializedObject != null) bindableObjectSerializedObject.Update();
             reorderableListBindings.DoList(position);
-            if(bindableObjectSerializedObject !=null) bindableObjectSerializedObject.ApplyModifiedProperties();
+            if (bindableObjectSerializedObject != null) bindableObjectSerializedObject.ApplyModifiedProperties();
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -141,7 +142,10 @@ namespace HugulaEditor.Databinding
             }
             else
             {
-                h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 1f;
+                if (reorderableListBindings != null)
+                    h = reorderableListBindings.GetHeight() + (BindableObjectStyle.kSingleLineHeight) * 2f;
+                else
+                    h = (EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 2f;
             }
             return h;
         }
@@ -164,7 +168,7 @@ namespace HugulaEditor.Databinding
             var per = (PropertyInfo)arr[0];
             var bindable = (BindableObject)arr[1];
             var property = per.Name;
-            BindableUtility.AddEmptyBinding(bindable,property);
+            BindableUtility.AddEmptyBinding(bindable, property);
         }
     }
 
@@ -274,4 +278,22 @@ namespace HugulaEditor.Databinding
 
     }
 
+    [CustomPropertyDrawer(typeof(BindableContainer), true)]
+    public class BindableContainerDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+
+            var serializedObject = property.serializedObject;
+            var target = property.objectReferenceValue;
+            if (target is null) return;
+            var rect = position;
+            rect.width =0.45f*position.width;
+            EditorGUI.LabelField(rect,property.displayName);
+            position.x = rect.width;
+            position.width = position.width*.55f;
+            EditorGUI.ObjectField(position, target, typeof(Component), false); //显示绑定对象
+
+        }
+    }
 }

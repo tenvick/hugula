@@ -21,8 +21,15 @@ public class StringTextureConverterExample : BindableObject
     }
     public BindableContainer container;
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
+        Hugula.ResLoader.Init();
+        while (!Hugula.ResLoader.Ready)
+            yield return null;
+        yield return null;
+        yield return null;
+        yield return null;
+
         container.context = this;
     }
 

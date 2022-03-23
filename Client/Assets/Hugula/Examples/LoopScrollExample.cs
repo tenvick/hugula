@@ -7,7 +7,11 @@ public class LoopScrollExample : MonoBehaviour
     // Start is called before the first frame update
     IEnumerator Start()
     {
+        Hugula.ResLoader.Init();
+        while (!Hugula.ResLoader.Ready)
+            yield return null;
         onClick = new Command(ClickHandler);
+        yield return Hugula.ResLoader.Ready;
         yield return null;
         LoopScrollContainer.context = this;
         myList.InsertRange(0, new string[] { "hello", "welcome", "to", "hugula", "demo" });

@@ -15,7 +15,8 @@ using XLua;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-namespace Hugula {
+namespace Hugula
+{
 
     [XLua.LuaCallCSharp]
     public class EnterLua : MonoBehaviour
@@ -24,13 +25,16 @@ namespace Hugula {
 #if UNITY_EDITOR
         const string KeyDebugString = "_Plua_Debug_string";
 
-        public static bool isDebug {
-            get {
-                bool _debug = EditorPrefs.GetBool (KeyDebugString, true);
+        public static bool isDebug
+        {
+            get
+            {
+                bool _debug = EditorPrefs.GetBool(KeyDebugString, true);
                 return _debug;
             }
-            set {
-                EditorPrefs.SetBool (KeyDebugString, value);
+            set
+            {
+                EditorPrefs.SetBool(KeyDebugString, value);
             }
         }
 #endif
@@ -52,28 +56,35 @@ namespace Hugula {
             DontDestroyOnLoad(this.gameObject);
             BehaviourSingletonManager.CanCreateInstance();
             SingletonManager.CanCreateInstance();
-
+            Hugula.ResLoader.Init();
         }
 
-        IEnumerator Start () {
-            yield return ResLoader.Ready;
+        IEnumerator Start()
+        {
+            while (!ResLoader.Ready)
+                yield return null;
             yield return null;
-            luaenv.DoString ("require('" + enterLua + "')");
+            luaenv.DoString("require('" + enterLua + "')");
 #if UNITY_EDITOR
-            Debug.LogFormat ("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
+            Debug.LogFormat("<color=green>running {0} mode </color> <color=#8cacbc> change( menu Hugula->Debug Lua)</color>", isDebug ? "debug" : "release");
 #endif
         }
 
         // Update is called once per frame
-        void Update () {
-            if (luaenv != null) {
-                luaenv.Tick ();
+        void Update()
+        {
+            if (luaenv != null)
+            {
+                luaenv.Tick();
             }
 #if UNITY_EDITOR || UNITY_STANDALONE
-            if (Input.GetKeyUp (KeyCode.F5)) {
-                GlobalDispatcher.instance?.Dispatch (DispatcherEvent.F5, null);
-            }else if(Input.GetKeyUp(KeyCode.F6)) {
-                GlobalDispatcher.instance?.Dispatch (DispatcherEvent.F6, null);
+            if (Input.GetKeyUp(KeyCode.F5))
+            {
+                GlobalDispatcher.instance?.Dispatch(DispatcherEvent.F5, null);
+            }
+            else if (Input.GetKeyUp(KeyCode.F6))
+            {
+                GlobalDispatcher.instance?.Dispatch(DispatcherEvent.F6, null);
             }
 
 #endif
@@ -88,13 +99,14 @@ namespace Hugula {
             // #endif
         }
 
-        void OnApplicationQuit () {
-            Debug.Log ("OnApplicationQuit");
+        void OnApplicationQuit()
+        {
+            Debug.Log("OnApplicationQuit");
         }
 
         internal static void BeforeLuaDispose()
         {
-			GlobalDispatcher.instance?.Dispose ();
+            GlobalDispatcher.instance?.Dispose();
             ExpressionUtility.instance?.Dispose();
             Hugula.Framework.SingletonManager.DisposeAll();
             Hugula.Framework.BehaviourSingletonManager.DisposeAll();
@@ -121,15 +133,17 @@ namespace Hugula {
             BeforeLuaDispose();
         }
 
-        private void ReloadLua () {
+        private void ReloadLua()
+        {
             // LuaEntry
-            if (luaenv != null) {
-                ClearLuaRef ();
-                luaenv.Dispose ();
+            if (luaenv != null)
+            {
+                ClearLuaRef();
+                luaenv.Dispose();
                 luaenv = null;
             }
-            luaenv = new LuaEnv ();
-            luaenv.AddLoader (Loader);
+            luaenv = new LuaEnv();
+            luaenv.AddLoader(Loader);
         }
 
         /// <summary>
@@ -137,17 +151,21 @@ namespace Hugula {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private byte[] Loader (ref string name) {
+        private byte[] Loader(ref string name)
+        {
             byte[] str = null;
 
 #if UNITY_EDITOR
-            string path = Application.dataPath + "/Lua/" + name.Replace ('.', '/') + ".lua";
-            bool exist = File.Exists (path);
-            if (isDebug && exist) {
-                str = File.ReadAllBytes (path); //LuaState.CleanUTF8Bom(
-            } else {
-                if (!exist) Debug.LogErrorFormat ("file {0} does't exists. ", path);
-                    str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace('.', '+'));
+            string path = Application.dataPath + "/Lua/" + name.Replace('.', '/') + ".lua";
+            bool exist = File.Exists(path);
+            if (isDebug && exist)
+            {
+                str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
+            }
+            else
+            {
+                if (!exist) Debug.LogErrorFormat("file {0} does't exists. ", path);
+                str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace('.', '+'));
             }
 #elif UNITY_STANDALONE && !HUGULA_RELEASE
 
@@ -171,11 +189,12 @@ namespace Hugula {
 #endif
 
 #if UNITY_EDITOR
-            if (str == null) {
+            if (str == null)
+            {
                 if (isDebug)
-                    Debug.LogErrorFormat ("lua ({0}) path={1} not exists.", name, path);
+                    Debug.LogErrorFormat("lua ({0}) path={1} not exists.", name, path);
                 else
-                    Debug.LogErrorFormat ("the file(Assets/LuaBytes/lua_bundle/{0}.lua)  did't exists.", name);
+                    Debug.LogErrorFormat("the file(Assets/LuaBytes/lua_bundle/{0}.lua)  did't exists.", name);
 
             }
 
@@ -189,7 +208,8 @@ namespace Hugula {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private byte[] LoadLuaBytes (string name) {
+        private byte[] LoadLuaBytes(string name)
+        {
             byte[] ret = null;
             var txt = ResLoader.LoadAsset<TextAsset>(name);
             if (txt != null)
@@ -260,42 +280,51 @@ namespace Hugula {
             return cor;
         }
 
-        private static IEnumerator DelayFrameDo (LuaFunction luafun, int frame, object args) {
-            var waitFrame = WaitForFrameCountPool.Get ();
-            waitFrame.SetEndFrame (frame);
+        private static IEnumerator DelayFrameDo(LuaFunction luafun, int frame, object args)
+        {
+            var waitFrame = WaitForFrameCountPool.Get();
+            waitFrame.SetEndFrame(frame);
             yield return waitFrame;
-            WaitForFrameCountPool.Release (waitFrame);
-            luafun.Call (args);
+            WaitForFrameCountPool.Release(waitFrame);
+            luafun.Call(args);
         }
 
-        static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount> (null, null);
+        static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
 
         [XLua.LuaCallCSharp]
-        public class WaitForFrameCount : IEnumerator {
+        public class WaitForFrameCount : IEnumerator
+        {
             int m_EndCount;
-            public WaitForFrameCount (int frameCount) {
-                SetEndFrame (frameCount);
+            public WaitForFrameCount(int frameCount)
+            {
+                SetEndFrame(frameCount);
             }
 
-            public WaitForFrameCount () {
+            public WaitForFrameCount()
+            {
 
             }
 
-            public void SetEndFrame (int frameCount) {
+            public void SetEndFrame(int frameCount)
+            {
                 m_EndCount = Time.frameCount + frameCount;
             }
 
-            bool IEnumerator.MoveNext () {
+            bool IEnumerator.MoveNext()
+            {
                 return Time.frameCount <= m_EndCount;
             }
 
-            object IEnumerator.Current {
-                get {
+            object IEnumerator.Current
+            {
+                get
+                {
                     return null;
                 }
             }
 
-            void IEnumerator.Reset () {
+            void IEnumerator.Reset()
+            {
 
             }
         }

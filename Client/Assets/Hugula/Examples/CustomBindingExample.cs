@@ -6,7 +6,6 @@ using Hugula.Databinding;
 
 public class CustomBindingExample : MonoBehaviour
 {
-
     [SerializeField] BindableContainer container;
     [SerializeField] string m_Txt = "custom binder Text";
     [SerializeField] string m_Sprite = "0";
@@ -48,6 +47,11 @@ public class CustomBindingExample : MonoBehaviour
     IEnumerator Start()
     {
         yield return null;
+        yield return null;
+        yield return Hugula.ResLoader.Ready;
+        yield return null;
+        yield return null;
+
         m_Click.AddListener(OnBtnClick);
         container.context = this;
     }

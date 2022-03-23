@@ -49,4 +49,15 @@ namespace Hugula
         }
     }
 
+    [System.AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    public sealed class NormalAttribute : PropertyAttribute
+    {
+
+        // Attribute used to make a float or int variable in a script be restricted to a specific range.
+        public NormalAttribute()
+        {
+
+        }
+    }
+
 }

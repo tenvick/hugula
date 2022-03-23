@@ -29,20 +29,21 @@ binding_demo.enable_slider = true
 binding_demo.btntext = "拖动滑动条"
 binding_demo.slider1_value = 0 ---双向绑定
 binding_demo.btn_interactable = false
----重载方法
-function binding_demo:on_property_set(property)
-    if property == "slider1_value" then
+
+binding_demo.on_slider_value = {
+    Execute = function(self, arg)
+        ---viewmodel属性通知view 写法1
         if binding_demo.slider1_value > 0.5 then
             binding_demo.property.btn_interactable = true
             ---viewmodel属性通知view 写法1
-            binding_demo:SetProperty("btn_interactable", "现在可以点击我了")
+            binding_demo:SetProperty("btntext", "现在可以点击我了")
         else
             ---viewmodel属性通知view 写法1
             binding_demo.property.btn_interactable = false
             binding_demo.property.btntext = "拖动试试。"
         end
     end
-end
+}
 
 ---点击事件
 binding_demo.on_btn_click = {

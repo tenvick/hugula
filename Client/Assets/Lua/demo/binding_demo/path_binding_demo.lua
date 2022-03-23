@@ -22,6 +22,8 @@ oneway_path_demo.text1 = "path=text1,普通路径"
 ---数组与多路径支持双向
 local goods = NotifyObject()
 goods.name = "path=goods.name,pen"
+-- goods.color = NotifyTable()
+-- goods.color:InsertRange({"path=goods.color[1],red", "path=goods.color[2],yellow(原始属性)", "path=goods.color[3], blue"})
 goods.color = {"path=goods.color[1],red", "path=goods.color[2],yellow(原始属性)", "path=goods.color[3], blue"}
 oneway_path_demo.goods = goods
 
@@ -35,7 +37,20 @@ function oneway_path_demo.bind_text4(arg)
     return "path=bind_fun4(1) 绑定方法(1)表示参数"
 end
 
-function oneway_path_demo:on_property_set(property)
-    goods:OnPropertyChanged(property_color)
-end
+oneway_path_demo.on_input_changed = {
+    CanExecute = function(self, arg)
+        -- Logger.Log("onbtn1click,CanExecute", table.tojson(self), arg)
+        return true
+    end,
+    Execute = function(self, arg)
+        print(arg)
+        goods:OnPropertyChanged(property_color)
+        ---viewmodel属性通知view 写法1
+        -- goods:OnPropertyChanged(property_color)
+    end
+}
+
+-- function oneway_path_demo:on_property_set(property)
+--     goods:OnPropertyChanged(property_color)
+-- end
 return oneway_path_demo

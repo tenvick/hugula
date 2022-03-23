@@ -14,6 +14,9 @@ public class TextBindingExample : MonoBehaviour
     // Start is called before the first frame update
     IEnumerator Start()
     {
+        Hugula.ResLoader.Init();
+        while (!Hugula.ResLoader.Ready)
+            yield return null;
         yield return null;
         var ins = ValueConverterRegister.instance;
         //    ins.AddConverter("FloatToString",this);

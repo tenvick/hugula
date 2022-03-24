@@ -174,6 +174,7 @@ ViewBase = view_base
 View = function(vm_base, arg, view_path)
     ---@type ViewBase
     local view_inst
+    local name = ""
     local arg_is_string = type(arg) == "string"
     if arg_is_string then
         view_path = arg
@@ -183,10 +184,11 @@ View = function(vm_base, arg, view_path)
     else
         view_inst = require(view_path) ---返回是当前实例
     end
+    view_inst.name = arg["key"] or view_path or ""
     view_inst._vm_base = vm_base
     if arg_is_string ~= true then --- string 表示路径
         for k, v in pairs(arg) do
-            view_inst[k] = v
+            view_inst[k] = v           
         end
     end
     return view_inst

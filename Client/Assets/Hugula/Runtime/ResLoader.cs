@@ -36,17 +36,17 @@ namespace Hugula
             m_LoadedScenes = new Dictionary<string, SceneInstance>();
             m_LoadingEvent = new LoadingEventArg();
             Addressables.InitializeAsync().Completed += InitDone;
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             Debug.Log("Addressables.InitializeAsync()");
-            #endif
+#endif
         }
 
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
         {
             s_Initialized = true;
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             Debug.Log("Addressables.InitializeAsync() InitDone");
-            #endif
+#endif
         }
 
         #endregion
@@ -252,7 +252,7 @@ namespace Hugula
                     if (onEnd != null) onEnd(null, userData);
                 }
 
-            OnItemLoaded(key);
+                OnItemLoaded(key);
 #if !HUGULA_RELEASE
             }
 
@@ -322,31 +322,30 @@ namespace Hugula
 
             Task<GameObject> task;
 
-#if !HUGULA_RELEASE
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync ", key))
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            var pkey = "ResL.0_InsAsync:" + key;
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey, ""))
             {
 #endif
                 task = Addressables.InstantiateAsync(key, parent, false).Task;
                 await task;
 
-#if !HUGULA_RELEASE
-            }
-
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.InstantiateAsync.onComplete ", key))
-            {
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_InsAsync.onComp:", key, pkey))
+                {
 #endif
-                if (task.Result != null)
-                {
-                    if (onComplete != null) onComplete(task.Result, userData);
+                    if (task.Result != null)
+                    {
+                        if (onComplete != null) onComplete(task.Result, userData);
+                    }
+                    else
+                    {
+                        if (onEnd != null) onEnd(key, userData);
+                    }
+                    OnItemLoaded(key);
+#if PROFILER_DUMP || !HUGULA_RELEASE
                 }
-                else
-                {
-                    if (onEnd != null) onEnd(key, userData);
-                }
-                OnItemLoaded(key);
-#if !HUGULA_RELEASE
             }
-
 #endif
         }
 
@@ -365,7 +364,7 @@ namespace Hugula
         static async public void LoadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool activateOnLoad = true, int loadSceneMode = 1)
         {
 
-           if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
+            if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
             {
                 Executor.Execute(ActiveExistsSceneAsync(sceneInstance, onComplete, userData));
             }
@@ -377,25 +376,50 @@ namespace Hugula
                     m_TotalGroupCount++;
                 }
 
-                var task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
-                await task;
-
-                if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
+                Task<SceneInstance> task;
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadSceneAsync ", key))
                 {
-                    m_LoadedScenes[key] = task.Result;
-                    if (onComplete != null) onComplete(task.Result, userData);
-                }
-                else
-                {
-                    if (onEnd != null) onEnd(key, userData);
-#if UNITY_EDITOR
-                    Debug.LogError("Failed to load scene at address: " + key);
 #endif
+                    task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
+                    await task;
+
+#if PROFILER_DUMP || !HUGULA_RELEASE
                 }
 
-                OnItemLoaded(key);
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadSceneAsync.onComplete ", key))
+                {
+#endif
+                    if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
+                    {
+                        m_LoadedScenes[key] = task.Result;
+                        if (onComplete != null) onComplete(task.Result, userData);
+                    }
+                    else
+                    {
+                        if (onEnd != null) onEnd(key, userData);
+#if UNITY_EDITOR
+                        Debug.LogError("Failed to load scene at address: " + key);
+#endif
+                    }
+
+                    OnItemLoaded(key);
+
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                }
+#endif
             }
 
+        }
+
+        /// <summary>
+        /// 激活场景
+        /// </summary>
+        /// <param name="sceneInstance"></param>
+        /// <returns></returns>
+        public static bool SetActiveScene(SceneInstance sceneInstance)
+        {
+            return SceneManager.SetActiveScene(sceneInstance.Scene);
         }
 
         private static IEnumerator ActiveExistsSceneAsync(SceneInstance sceneInstance, System.Action<SceneInstance, object> onComplete, object userData = null)
@@ -414,7 +438,7 @@ namespace Hugula
         /// <returns></returns>
         static async public void UnloadSceneAsync(SceneInstance loadedScene, System.Action<SceneInstance, object> onComplete, System.Action<SceneInstance, object> onEnd, object userData = null)
         {
-           var task = Addressables.UnloadSceneAsync(loadedScene).Task;
+            var task = Addressables.UnloadSceneAsync(loadedScene).Task;
             await task;
             if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
             {

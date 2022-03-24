@@ -46,6 +46,7 @@ namespace  HugulaEditor.Addressable
             clone.allFileInfos = self.allFileInfos;
             Debug.Assert(clone!=null,$"save {path} error, target asset is null");
             Debug.Log(clone.ToString());
+
             UnityEditor.AssetDatabase.CreateAsset(clone, path);
             UnityEditor.AssetDatabase.Refresh();
         }

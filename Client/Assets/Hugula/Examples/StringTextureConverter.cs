@@ -13,7 +13,7 @@ public class StringTextureConverter : MonoBehaviour, IValueConverter {
     }
 
     void OnDestroy () {
-        ValueConverterRegister.instance.RemoveConverter (typeof (StringTextureConverter).Name);
+        ValueConverterRegister.instance?.RemoveConverter (typeof (StringTextureConverter).Name);
     }
 
     public object Convert (object target, Type targetType) {

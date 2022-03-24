@@ -9,14 +9,22 @@ namespace Hugula.Profiler
     public class StopwatchProfiler : System.IDisposable
     {
         #region Static
-        public static readonly Stack<StopwatchProfiler> ProfilerStack = new Stack<StopwatchProfiler>();
+        private List<StopwatchProfiler> m_ChildrenList;
+        public List<StopwatchProfiler> childrenList
+        {
+            get
+            {
+                if (m_ChildrenList == null) m_ChildrenList = new List<StopwatchProfiler>();
+                return m_ChildrenList;
+            }
+        }
 
         /// <summary>
         /// Initializes static profiler stack with a sentry null, allows for peeking when stack is empty.
         /// </summary>
         static StopwatchProfiler()
         {
-            ProfilerStack.Push(null);
+            // ProfilerStack.Push(null);
         }
 
         #endregion Static
@@ -49,7 +57,7 @@ namespace Hugula.Profiler
         double m_ElapsedMilliseconds = 0;
         public double ElapsedMilliseconds
         {
-            get { return m_ElapsedMilliseconds; }
+            get { return stopWatch.Elapsed.TotalMilliseconds; }
         }
 
         public double ElapsedMillisecondsSelf
@@ -63,54 +71,54 @@ namespace Hugula.Profiler
 
         #endregion Properties
 
-        private void SetElapsedMilliseconds()
+        public void AddParent(StopwatchProfiler parent)
         {
-            m_ElapsedMilliseconds = stopWatch.Elapsed.TotalMilliseconds;
+            if (parent != null)
+            {
+#if UNITY_EDITOR
+                // UnityEngine.Debug.Log($"StopwatchProfiler:({parent.stopName}) addChild({this.stopName})");
+#endif
+                parent.childrenList.Add(this);
+            }
         }
 
         public void Start()
         {
-#if LUA_PROFILER_DEBUG
-            // UnityEngine.Debug.Log($"watchProfiler:Start({stopName}) nestingLevel={nestingLevel}++");
-            // UnityEngine.Profiling.Profiler.BeginSample(stopName);
-#endif
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PushSample (stopName);
 #endif
-            StopwatchProfiler lastProfiler = ProfilerStack.Peek();
-            if (lastProfiler != this) ProfilerStack.Push(this);
-
             nestingLevel++;
             NumberOfCalls++;
 
             if (nestingLevel == 1)
             {
-
+#if UNITY_EDITOR
+                // UnityEngine.Debug.Log($"StopwatchProfiler:({this.stopName}) Start({nestingLevel},{NumberOfCalls})");
+#endif
                 stopWatch.Start();
             }
         }
 
         public void Stop()
         {
-#if LUA_PROFILER_DEBUG
-            // UnityEngine.Profiling.Profiler.EndSample();
-#endif
+
 
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PopSample ();
 #endif
             if (nestingLevel == 1)
             {
+#if UNITY_EDITOR
+            // UnityEngine.Debug.Log($"StopwatchProfiler:({this.stopName}) Stop({nestingLevel},{NumberOfCalls})");
+#endif
                 stopWatch.Stop();
-                SetElapsedMilliseconds();
-                StopwatchProfiler previousProfiler = ProfilerStack.Peek();
-                if (previousProfiler == this) { ProfilerStack.Pop(); }
 
-                previousProfiler = ProfilerStack.Peek();
-                if (previousProfiler != null)
+                childrenElapsedMilliseconds = 0;
+                foreach (var watch in childrenList)
                 {
-                    previousProfiler.childrenElapsedMilliseconds += (ElapsedMilliseconds - lastElapsedMilliseconds);
+                    childrenElapsedMilliseconds += watch.ElapsedMilliseconds;
                 }
+                
 
                 double lastFrameTime = ElapsedMilliseconds - lastElapsedMilliseconds;
                 lastElapsedMilliseconds = ElapsedMilliseconds;
@@ -121,9 +129,8 @@ namespace Hugula.Profiler
                 }
                 if (lastFrameTime > maxSingleElapsedTime)
                     maxSingleElapsedTime = lastFrameTime;
-#if LUA_PROFILER_DEBUG
-                // UnityEngine.Debug.Log($"watchProfiler:Stop({stopName}),nestingLevel={nestingLevel},ElapsedMilliseconds={ElapsedMilliseconds},maxSingleElapsedTime={maxSingleElapsedTime},{nestingLevel}--,ElapsedMillisecondsSelf:{ElapsedMillisecondsSelf}");
-#endif
+
+                childrenList.Clear();
             }
             nestingLevel--;
         }

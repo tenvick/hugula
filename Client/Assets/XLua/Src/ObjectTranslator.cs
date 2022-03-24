@@ -137,11 +137,13 @@ namespace XLua
         {
             if (loaded_types.ContainsKey(type)) return true;
 
-#if LUA_PROFILER_DEBUG
-            var name = $"ObjectTranslator.TryDelayWrapLoader= {type}";
-            var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(name);
-            UnityEngine.Profiling.Profiler.BeginSample(name);
+#if PROFILER_DUMP_DEEP
+            var profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler( $"ObjectTranslator.TryDelayWrapLoader= {type}","");
 #endif
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample($"ObjectTranslator.TryDelayWrapLoader= {type}");
+#endif
+
 
             loaded_types.Add(type, true);
 
@@ -187,6 +189,8 @@ namespace XLua
 
 #if LUA_PROFILER_DEBUG
                 UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP_DEEP
                 if (profiler != null) profiler.Stop();
 #endif
                 throw new Exception("top change, before:" + top + ", after:" + LuaAPI.lua_gettop(L));
@@ -202,6 +206,8 @@ namespace XLua
             }
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
+#endif
+#if PROFILER_DUMP_DEEP
             if (profiler != null) profiler.Stop();
 #endif
             return true;

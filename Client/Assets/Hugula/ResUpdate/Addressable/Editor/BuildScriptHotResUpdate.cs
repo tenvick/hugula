@@ -125,11 +125,17 @@ namespace HugulaEditor.Addressable
             {
                 string bundleBuildPath = AddressablesRuntimeProperties.EvaluateString(entry.BundleFileId);
                 string bundleName = Path.GetFileName(bundleBuildPath);
+                if (string.IsNullOrEmpty(bundleBuildPath))
+                {
+                    Debug.LogWarning($"address={entry.address},assetpath={entry.AssetPath},BundleFileId is empty =  {entry.BundleFileId} ");
+                    continue;
+                }
                 if (bundleIdToFolderManifest.ContainsKey(bundleName))
                     continue;
 
                 uint crc = 0;
                 uint fileLen = 0;
+                Debug.Log(bundleBuildPath);
                 crc = CrcCheck.GetLocalFileCrc(bundleBuildPath, out fileLen);
                 string parentFolder = Path.GetDirectoryName(bundleBuildPath).Replace("\\", "/");
                 folderManifest.AddFileInfo(bundleName, crc, fileLen);

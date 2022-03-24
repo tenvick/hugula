@@ -22,8 +22,8 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string TitleFormat = "\nProfiler | Total ms | Self ms | Number of calls  | Max Single Call ms | Avg Except Max Call ms | Number of SingleCallTime>3ms ";
-        private const string LogFormat = "\n{0} | {1} | {2} | {3} | {4} | {5} | {6}";
+        private const string TitleFormat = "\nProfiler|Total ms|Self ms|Number of calls|Max Single Call ms|Avg Except Max Call ms|Number of SingleCallTime>3ms";
+        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}";
 
         #endregion
 
@@ -42,7 +42,7 @@ namespace Hugula.Profiler
 
         #region Methods
 
-        public static StopwatchProfiler GetProfiler(string name)
+        public static StopwatchProfiler GetProfiler(string name, string parentName=null)
         {
             if (DoNotProfile) return null;
 
@@ -55,6 +55,11 @@ namespace Hugula.Profiler
                 profiler.stopName = name;
                 profilers.Add(name, profiler);
             }
+
+            if (!string.IsNullOrEmpty(parentName) && profilers.TryGetValue(parentName, out var parent))
+            {
+                profiler.AddParent(parent);
+            };
 
             return profiler;
         }
@@ -72,10 +77,10 @@ namespace Hugula.Profiler
             return profiler;
         }
 
-        public static StopwatchProfiler GetAndStartProfiler(string name, string args = "")
+        public static StopwatchProfiler GetAndStartProfiler(string name, string args = "", string parentName = null)
         {
             if (DoNotProfile) return null;
-            StopwatchProfiler profiler = GetProfiler(string.IsNullOrEmpty(args) ? name : name + args);
+            StopwatchProfiler profiler = GetProfiler(string.IsNullOrEmpty(args) ? name : name + args, parentName);
             profiler.Start();
             return profiler;
         }

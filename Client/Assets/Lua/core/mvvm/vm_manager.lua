@@ -74,7 +74,7 @@ local function deactive(self, vm_name, view_active)
         view_active = true
     end
     if curr_vm.is_res_ready == true and curr_vm.is_active then --已经加载过并且已经激活
-        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.deactive ", curr_vm.name)
+        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.deactive:", curr_vm.name)
         safe_call(curr_vm.on_deactive, curr_vm)
         _unbinding_msg(curr_vm)
         curr_vm.is_active = false --标记状态
@@ -104,7 +104,7 @@ local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- Logger.Log("vm_manager.destroy ", vm_name)
     if curr_vm.is_res_ready == true then --如果资源加载完成
-        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.destroy ", curr_vm.name)
+        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.destroy:", curr_vm.name)
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
         curr_vm._is_destory = nil
@@ -134,7 +134,7 @@ end
 ---检查view_base的所有资源是否都加载完成
 ---@overload fun(view_base:VMBase)
 ---@param view_base VMBase
-local function check_vm_base_all_done(vm_base)
+local function check_vm_base_all_done(vm_base, view)
     local views = vm_base.views
     if views then
         for k, v in ipairs(views) do
@@ -143,11 +143,17 @@ local function check_vm_base_all_done(vm_base)
             end
         end
     end
-
-    local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.check_vm_base_all_done ", vm_base.name)
+    local vvm_name = vm_base.name .. "-" .. view.name
+    local p_root_name = "--ResL.2_InsAsync.onComp:check_all_done:" .. vvm_name
+    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, "", "-ResL.1_InsAsync.onComp:" .. view.name)
     vm_base._isloading = false
     vm_base.is_res_ready = true
-
+    local v_profiler =
+        ProfilerFactory.GetAndStartProfiler(
+        "---ResL.3_InsAsync.onComp:check_all_done:on_active:",
+        vvm_name,
+        p_root_name
+    )
     local is_active = vm_base.is_active --当前的状态
     -- Logger.Log("vm_manager.check_vm_base_all_done. vm_base.is_active = ", is_active, vm_base)
     if vm_base._is_push == true then
@@ -163,18 +169,40 @@ local function check_vm_base_all_done(vm_base)
             view_base:set_active(is_active)
         end
     end
-    safe_call(vm_base.on_assets_load,vm_base)
+    safe_call(vm_base.on_assets_load, vm_base)
 
     safe_call(vm_base.on_active, vm_base)
+
+    if v_profiler then
+        v_profiler:Stop()
+    end
+
     -- Logger.Log("check_vm_base_all_done", vm_base)
     if views then
+        local _auto_context = vm_base.auto_context
+
         for k, view_base in ipairs(views) do
-            if vm_base.auto_context then
-                -- Logger.Log(k, view_base)
+            if _auto_context then
+                local vi_profiler =
+                    ProfilerFactory.GetAndStartProfiler(
+                    "---ResL.4_InsAsync.onComp:check_all_done:set_context:",
+                    vm_base.name .. "-" .. view_base.name,
+                    p_root_name
+                )
                 view_base:set_child_context(vm_base)
+                if vi_profiler then
+                    vi_profiler:Stop()
+                end
             end
         end
     end
+
+    v_profiler =
+        ProfilerFactory.GetAndStartProfiler(
+        "---ResL.5_InsAsync.onComp:check_all_done:context_after:",
+        vvm_name,
+        p_root_name
+    )
     --on_state_changed
     if vm_base._is_group == true then
         vm_manager._vm_state:_check_on_state_changed(vm_base)
@@ -189,6 +217,9 @@ local function check_vm_base_all_done(vm_base)
     elseif is_active == false then --非激活状态需要执行deactive逻辑
         vm_base.is_active = true --强行设置为true确保正确的deactive流程
         deactive(vm_manager, vm_base.name)
+    end
+    if v_profiler then
+        v_profiler:Stop()
     end
 
     if profiler then
@@ -224,7 +255,7 @@ local function init_view(view_base, viewmodel)
     -- local is_active = vm_base.is_active --设置当前view状态
     -- view_base:set_active(is_active)
 
-    check_vm_base_all_done(vm_base)
+    check_vm_base_all_done(vm_base, view_base)
 end
 
 ---资源加载完成

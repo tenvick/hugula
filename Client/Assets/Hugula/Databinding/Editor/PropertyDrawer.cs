@@ -71,6 +71,7 @@ namespace HugulaEditor.Databinding
         string propertyName = "";
         SerializedObject bindableObjectSerializedObject;
         ReorderableList reorderableListBindings;
+        UnityEngine.Object currTarget;
         SerializedProperty m_Property_bindings;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -80,7 +81,6 @@ namespace HugulaEditor.Databinding
             var serializedObject = property.serializedObject;
             var target = property.objectReferenceValue;
             if (target is null) return;
-
 
             var temp = target as BindableObject;
             var tp = temp.GetType();
@@ -101,9 +101,16 @@ namespace HugulaEditor.Databinding
             rect1.width = w - 50;
 
             CustomBinder customer = null;
+            bool refresh = false;
             if (temp is CustomBinder)
             {
                 customer = (CustomBinder)temp;
+                if(currTarget != customer.target)
+                {
+                    refresh = true;
+                    currTarget = customer.target;
+                }
+
                 EditorGUI.ObjectField(rect1, customer.target, typeof(Component), false); //显示绑定对象
             }
             else
@@ -112,7 +119,7 @@ namespace HugulaEditor.Databinding
             }
 
             // EditorGUILayout.Separator();
-            if (reorderableListBindings == null)
+            if (reorderableListBindings == null || refresh)
             {
                 bindableObjectSerializedObject = new SerializedObject(target);
                 m_Property_bindings = bindableObjectSerializedObject.FindProperty("bindings");

@@ -35,6 +35,7 @@ namespace Hugula
         {
             m_LoadedScenes = new Dictionary<string, SceneInstance>();
             m_LoadingEvent = new LoadingEventArg();
+			 gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
             Addressables.InitializeAsync().Completed += InitDone;
 #if UNITY_EDITOR
             Debug.Log("Addressables.InitializeAsync()");
@@ -225,22 +226,25 @@ namespace Hugula
 
         static async public void LoadAssetAsync<T, R>(string key, System.Action<T, R> onComplete, System.Action<object, R> onEnd, R userData = default(R))
         {
+
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
             Task<T> task;
-#if !HUGULA_RELEASE
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T> ", key))
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            var pkey = $"ResL.0_LoadAsset<{typeof(T)}>:" + key;
+
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
             {
 #endif
                 task = Addressables.LoadAssetAsync<T>(key).Task;
                 await task;
-#if !HUGULA_RELEASE
+#if PROFILER_DUMP || !HUGULA_RELEASE
             }
 
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T>.onComplete ", key))
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler($"ResL.0_LoadAsset<{typeof(T)}>.onComp:", key,pkey))
             {
 #endif
                 if (task.Result != null)
@@ -253,7 +257,8 @@ namespace Hugula
                 }
 
                 OnItemLoaded(key);
-#if !HUGULA_RELEASE
+
+#if PROFILER_DUMP || !HUGULA_RELEASE
             }
 
 #endif
@@ -261,23 +266,23 @@ namespace Hugula
 
         static async public void LoadAssetAsync<T>(string key, System.Action<T, object> onComplete, System.Action<object, object> onEnd, object userData = null)
         {
-
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
             Task<T> task;
-#if !HUGULA_RELEASE
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T> ", key))
+#if PROFILER_DUMP || !HUGULA_RELEASE
+            var pkey = $"ResL.0_LoadAsset<{typeof(T)}>:" + key;
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
             {
 #endif
                 task = Addressables.LoadAssetAsync<T>(key).Task;
                 await task;
-#if !HUGULA_RELEASE
+#if PROFILER_DUMP || !HUGULA_RELEASE
             }
 
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadAssetAsync<T>.onComplete ", key))
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler($"-ResL.1_LoadAsset<{typeof(T)}>:onComp:", key, pkey))
             {
 #endif
                 if (task.Result != null)
@@ -291,7 +296,7 @@ namespace Hugula
 
                 OnItemLoaded(key);
 
-#if !HUGULA_RELEASE
+#if PROFILER_DUMP || !HUGULA_RELEASE
             }
 
 #endif
@@ -306,6 +311,8 @@ namespace Hugula
         #endregion
 
         #region  GameObject 实例化
+        static Dictionary<GameObject, UnityEngine.Object> gObjInstanceRef;// = new Dictionary<GameObject, UnityEngine.Object>();
+
         public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
         {
             var task = Addressables.InstantiateAsync(key, parent, false);
@@ -327,16 +334,34 @@ namespace Hugula
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey, ""))
             {
 #endif
-                task = Addressables.InstantiateAsync(key, parent, false).Task;
+                //从缓存中读取
+                task = Addressables.LoadAssetAsync<GameObject>(key).Task;
                 await task;
+                if (task.Result == null)
+                {
+                    if (onEnd != null) onEnd(key, userData);
+                    Debug.LogError($"load gameobject({key}) fail.");
+                    return;
+                }
+                GameObject inst = null;
+#if PROFILER_DUMP || !HUGULA_RELEASE
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_InsAsync.Instantiate:", key, pkey))
+                {
+#endif
+                    //实例化
+                    var asset = task.Result;
+                    inst = GameObject.Instantiate<GameObject>(asset, parent, false);
+                    gObjInstanceRef[inst] = asset;
+
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
+                }
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_InsAsync.onComp:", key, pkey))
                 {
 #endif
-                    if (task.Result != null)
+                    if (inst != null)
                     {
-                        if (onComplete != null) onComplete(task.Result, userData);
+                        if (onComplete != null) onComplete(inst, userData);
                     }
                     else
                     {
@@ -378,17 +403,18 @@ namespace Hugula
 
                 Task<SceneInstance> task;
 #if PROFILER_DUMP || !HUGULA_RELEASE
-                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadSceneAsync ", key))
-                {
+            var pkey = "ResL.0_LoadScene:" + key;
+
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
+            {
 #endif
                     task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
                     await task;
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
-                }
-
-                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("ResLoader.LoadSceneAsync.onComplete ", key))
-                {
+            }
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.0_LoadScene.onComp:", key, pkey))
+            {
 #endif
                     if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
                     {
@@ -399,7 +425,7 @@ namespace Hugula
                     {
                         if (onEnd != null) onEnd(key, userData);
 #if UNITY_EDITOR
-                        Debug.LogError("Failed to load scene at address: " + key);
+                    Debug.LogError($"load scene{key} fail.");
 #endif
                     }
 
@@ -493,7 +519,15 @@ namespace Hugula
 
         static public void ReleaseInstance(GameObject obj)
         {
-            Addressables.ReleaseInstance(obj);
+            if (obj)
+            {
+                GameObject.Destroy(obj);
+                UnityEngine.Object asset = null;
+                if (gObjInstanceRef.TryGetValue(obj, out asset))
+                {
+                    Release<UnityEngine.Object>(asset);
+                }
+            }
         }
 
         static public void Release<T>(T obj)

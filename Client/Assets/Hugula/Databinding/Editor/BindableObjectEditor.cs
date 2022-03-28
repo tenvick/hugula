@@ -18,6 +18,7 @@ namespace HugulaEditor.Databinding
         SerializedProperty m_Property_m_Target;
 
         ReorderableList reorderableList_bindings;
+        UnityEngine.Object currTarget;
 
         void OnEnable()
         {
@@ -25,13 +26,14 @@ namespace HugulaEditor.Databinding
             m_Property_m_Target = serializedObject.FindProperty("m_Target");
 
             #region bindings
+            currTarget = target is CustomBinder ? ((CustomBinder)target).target : null;
             reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings, GetRealTarget(),
             true, false, true, true, OnAddClick, OnFilter);
-            
+
             #endregion
         }
 
-        bool OnFilter(SerializedProperty property,string searchText)
+        bool OnFilter(SerializedProperty property, string searchText)
         {
             var displayName = property.displayName;
             if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
@@ -64,6 +66,17 @@ namespace HugulaEditor.Databinding
 
             base.OnInspectorGUI();
 
+            CustomBinder customer =temp as CustomBinder;  
+            if (customer != null)
+            {
+                if (currTarget != customer.target)
+                {
+                    currTarget = customer.target;
+                    reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings, GetRealTarget(),
+                                true, false, true, true, OnAddClick, OnFilter);
+                }
+            }
+
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
@@ -82,7 +95,7 @@ namespace HugulaEditor.Databinding
             //     return ((CustomBinder)target).target;
             // }
             // else
-                return target;
+            return target;
         }
 
     }

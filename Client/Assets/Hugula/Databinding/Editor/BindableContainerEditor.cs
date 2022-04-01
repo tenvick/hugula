@@ -51,6 +51,10 @@ namespace HugulaEditor.Databinding
         bool OnChildrenFilter(SerializedProperty property, string searchText)
         {
             var refObj = property.objectReferenceValue;
+            if(refObj == null)
+            {
+                return false;
+            }
             var displayName = refObj.name;
             if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
             {

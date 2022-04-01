@@ -31,7 +31,7 @@ local ProfilerFactory = Hugula.Profiler.ProfilerFactory
 local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
 local Timer = Hugula.Framework.Timer
-local Debug = CS.UnityEngine.Debug
+local TLogger = CS.TLogger
 
 local LoadSceneMode = {
     --CS.UnityEngine.SceneManagement.LoadSceneMode
@@ -43,11 +43,12 @@ local BindingUtility = Hugula.Databinding.BindingUtility
 local vm_manager = {}
 
 local function error_hander(h)
-    Debug.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
 end
 
 local function safe_call(f, arg1)
-    xpcall(f, error_hander, arg1)
+    local status, re1, re2 = xpcall(f, error_hander, arg1)
+    return re1, re2
 end
 
 --------------------state 相关----------------------------
@@ -144,13 +145,13 @@ local function check_vm_base_all_done(vm_base, view)
         end
     end
     local vvm_name = vm_base.name .. "-" .. view.name
-    local p_root_name = "--ResL.2_InsAsync.onComp:check_all_done:" .. vvm_name
-    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, "", "-ResL.1_InsAsync.onComp:" .. view.name)
+    local p_root_name = "--ResL.1_2_0_InsAsync.onComp.check_all_done:" .. vvm_name
+    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, "", "-ResL.1_2_InsAsync.onComp:" .. view.name)
     vm_base._isloading = false
     vm_base.is_res_ready = true
     local v_profiler =
         ProfilerFactory.GetAndStartProfiler(
-        "---ResL.3_InsAsync.onComp:check_all_done:on_active:",
+        "---ResL.1_2_0_1_InsAsync.onComp.check_all_done.on_active:",
         vvm_name,
         p_root_name
     )
@@ -185,7 +186,7 @@ local function check_vm_base_all_done(vm_base, view)
             if _auto_context then
                 local vi_profiler =
                     ProfilerFactory.GetAndStartProfiler(
-                    "---ResL.4_InsAsync.onComp:check_all_done:set_context:",
+                    "---ResL.1_2_0_2_InsAsync.onComp.check_all_done.set_context:",
                     vm_base.name .. "-" .. view_base.name,
                     p_root_name
                 )
@@ -199,7 +200,7 @@ local function check_vm_base_all_done(vm_base, view)
 
     v_profiler =
         ProfilerFactory.GetAndStartProfiler(
-        "---ResL.5_InsAsync.onComp:check_all_done:context_after:",
+        "---ResL.1_2_0_3_InsAsync.onComp.check_all_done.context_after:",
         vvm_name,
         p_root_name
     )

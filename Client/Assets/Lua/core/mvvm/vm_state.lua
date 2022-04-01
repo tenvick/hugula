@@ -13,6 +13,9 @@ local ipairs = ipairs
 local pairs = pairs
 local type = type
 local require = require
+local xpcall = xpcall
+local string_format = string.format
+local debug = debug
 
 local lua_distribute = lua_distribute
 local DIS_TYPE = DIS_TYPE
@@ -23,6 +26,9 @@ local VMManager = require("core.mvvm.vm_manager")
 local VMGenerate = require("core.mvvm.vm_generate")
 
 local TYPE_TABLE = "table"
+
+local TLogger = CS.TLogger
+local Logger = Logger
 ---
 ---     下面是一个典型的vm stack示例：{}表示根m_state:状态,""表示追加状态, 根状态来控制stack上的UI显示。
 ------------------------------------------------------
@@ -44,6 +50,15 @@ local DISTYPE_STATE_CHANGED = "on_state_changed"
 local vm_state = {}
 local _stack = {} --记录栈
 local _root_index = 0 --当前group root的stack索引
+
+local function error_hander(h)
+    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+end
+
+local function safe_call(f, arg1, ...)
+    local status, re1, re2 = xpcall(f, error_hander, arg1, ...)
+    return re1, re2
+end
 
 local function debug_stack()
     local str, item = ""
@@ -68,7 +83,7 @@ local function call_func(self, vm_name, fun_name, ...)
     if curr_vm then
         local fun = curr_vm[fun_name]
         if fun ~= nil then
-            return fun(curr_vm, ...)
+            return safe_call(fun, curr_vm, ...)
         end
     end
 end
@@ -79,7 +94,7 @@ local function call_rawget_func(self, vm_name, fun_name, ...)
     if curr_vm then
         local fun = curr_vm[fun_name]
         if fun ~= nil then
-            return fun(curr_vm, ...)
+            return safe_call(fun, curr_vm, ...)
         end
     end
 end
@@ -91,7 +106,7 @@ local function _call_group_func(self, group, fun_name, ...)
         if curr_vm then
             local fun = curr_vm[fun_name]
             if fun ~= nil then
-                fun(curr_vm, ...)
+                safe_call(fun,curr_vm,...)
             end
         end
     end
@@ -237,6 +252,7 @@ local function append_item(self, vm_name, arg)
     self.top_group:append_item(vm_name)
     VMManager:active(vm_name, arg, true, false) ---激活组
     -- debug_stack()
+    Logger.Log("vm_state:append_item",vm_name,arg)
 end
 
 ---入栈单个模块
@@ -253,6 +269,7 @@ local function push_item(self, vm_name, arg)
     table_insert(_stack, vm_name) --- 进入显示stack
     VMManager:active(vm_name, arg, true, false) ---激活组
     -- debug_stack()
+    Logger.Log("vm_state:push_item",vm_name,arg)
 end
 
 ---移除view model追加项目,只有追加项目才需要手动移除
@@ -307,6 +324,8 @@ local function push(self, vm_group_name, arg)
     set_top_group(self, vm_group)
     VMManager:active(vm_group, arg, true, true) ---激活组
     -- debug_stack()
+    Logger.Log("vm_state:push",vm_group_name,arg)
+
 end
 
 ---获取顶部的group

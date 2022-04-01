@@ -330,7 +330,7 @@ namespace Hugula
             Task<GameObject> task;
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            var pkey = "ResL.0_InsAsync:" + key;
+            var pkey = "ResL.1_InsAsync:" + key;
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey, ""))
             {
 #endif
@@ -345,7 +345,7 @@ namespace Hugula
                 }
                 GameObject inst = null;
 #if PROFILER_DUMP || !HUGULA_RELEASE
-                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_InsAsync.Instantiate:", key, pkey))
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_1_InsAsync.Instantiate:", key, pkey))
                 {
 #endif
                     //实例化
@@ -356,7 +356,7 @@ namespace Hugula
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
                 }
-                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_InsAsync.onComp:", key, pkey))
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.1_2_InsAsync.onComp:", key, pkey))
                 {
 #endif
                     if (inst != null)

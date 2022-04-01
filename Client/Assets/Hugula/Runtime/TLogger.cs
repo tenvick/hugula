@@ -19,7 +19,7 @@ public class TLogger : ILogHandler
     {
         try
         {
-            LogCallback(exception.Message, exception.StackTrace, LogType.Exception);
+            LogCallback(exception);
         }
         catch (Exception e)
         {
@@ -33,6 +33,13 @@ public class TLogger : ILogHandler
         //         var content = string.Format(format, args);
         //         LogCallback(content, context == null ? "" : content.ToString(), logType);
         // #endif
+#if HUGULA_NO_LOG
+        if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
+#endif
+        {
+            var content = string.Format(format, args);
+            LogCallback(content, context == null ? "" : content.ToString(), logType);
+        }
     }
 
 
@@ -43,13 +50,15 @@ public class TLogger : ILogHandler
     static int line = 0;
 
     static bool isInit = false;
-    private static string logName = "tlog.txt";
-    private static string preLogName = "pre_tlog.txt";
+    private static string logName = CUtils.platform + "_tlog.txt";
+    private static string preLogName = CUtils.platform + "_pre_tlog.txt";
 
     private static ILogger unityLogger = Debug.unityLogger;
     private static TLogger myLogger;
     static int mainThreadId = 0;
     private static object locked = new object();
+
+    static StreamWriter logStreamWriter;
     [RuntimeInitializeOnLoadMethod]
     public static void Init()
     {
@@ -60,15 +69,22 @@ public class TLogger : ILogHandler
             if (!Directory.Exists(CUtils.realPersistentDataPath))
                 Directory.CreateDirectory(CUtils.realPersistentDataPath);
 
+
 #if UNITY_EDITOR
-            logPath = $"Assets/Tmp/{logName}";
-            preLogPath = $"Assets/Tmp/{preLogName}";
+            var path = Path.Combine(Application.dataPath, "..");
+            logPath = Path.Combine(path, logName);
+            preLogPath = Path.Combine(path, preLogName);
+#elif UNITY_STANDALONE
+            var path = Path.Combine(Application.dataPath, "..");
+            logPath = Path.Combine(path, System.DateTime.Now.ToString("MM_dd HH_mm_ss ")+logName);
+            preLogPath = Path.Combine(path, preLogName);
 #else
             logPath = Path.Combine(CUtils.realPersistentDataPath,logName);
             preLogPath = Path.Combine(CUtils.realPersistentDataPath,preLogName);
 #endif
 
-#if HUGULA_NO_LOG && HUGULA_RELEASE
+
+#if HUGULA_NO_LOG
             //不输出日志直接记录文件
             myLogger = new TLogger();
             Debug.unityLogger.logHandler = myLogger;
@@ -79,8 +95,23 @@ public class TLogger : ILogHandler
             mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
             OverrideLog(logPath, preLogPath);
+            if (logStreamWriter != null) logStreamWriter.Close();
+            logStreamWriter = new StreamWriter(logPath, true);
             isInit = true;
+            LogSysInfo();
         }
+    }
+
+    public static void Close()
+    {
+        if (isInit)
+        {
+            lock (locked)
+            {
+                if (logStreamWriter != null) logStreamWriter.Close();
+            }
+        }
+
     }
 
     //覆盖旧的log
@@ -89,39 +120,70 @@ public class TLogger : ILogHandler
         var finfo = new FileInfo(newPath);
         if (finfo.Exists) //如果本次存在
         {
-            if (File.Exists(oldPath)) File.Delete(oldPath);//删除上一个.
+            if (File.Exists(oldPath))
+            {
+                File.Delete(oldPath);//删除上一个.
+            }
             finfo.MoveTo(oldPath); //覆盖旧的
         }
     }
 
     static StringBuilder sb = new StringBuilder();
     static string[] LogTypes = { "Error", "Assert", "Warning", "Log", "Exception" };
-    static void LogCallback(string msg, string stackTrace, LogType type)
+
+    //报错提示
+    static void LogCallback(Exception exception)
+    {
+        lock (locked)
+        {
+            sb.Clear();
+            sb.Append("\r\n\r\n");
+            sb.Append(LogTypes[4]);
+            // sb.AppendLine(System.Threading.Thread.CurrentThread.ManagedThreadId.ToString());
+            sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | "));
+            sb.Append(exception.Message);
+            sb.Append("\r\n");
+            sb.Append(exception.StackTrace);
+            WriteToLogFile(sb.ToString());
+#if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
+        Firebase.Crashlytics.Crashlytics.LogException(exception);
+#endif
+        }
+    }
+
+    static void LogCallback(string msg, string stackTrace, LogType logType)
     {
         if (msg == null) return;
         lock (locked)
         {
-            // #if HUGULA_RELEASE
-            //             if (type == LogType.Error || type == LogType.Exception)
-            // #endif
+#if HUGULA_NO_LOG
+            if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
+#endif
             {
+
                 sb.Clear();
                 sb.Append("\r\n\r\n");
-                sb.AppendLine(LogTypes[(int)type]);
+                sb.Append(LogTypes[(int)logType]);
                 // sb.AppendLine(System.Threading.Thread.CurrentThread.ManagedThreadId.ToString());
-                sb.AppendLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                sb.AppendLine(msg);
+                sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | "));
+                sb.Append(msg);
+                sb.Append("\r\n");
                 sb.Append(stackTrace);
-                WriteToLogFile(sb.ToString());
+                var txt = sb.ToString();
+                WriteToLogFile(txt);
+#if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
+                Firebase.Crashlytics.Crashlytics.Log(txt);
+#endif
             }
         }
     }
 
     public static void LogError(string msg)
     {
-        LogCallback(msg, "TLogger.LogError", LogType.Log);
-#if HUGULA_NO_LOG
+#if !HUGULA_NO_LOG
         Debug.LogError(BindColor("#ffff00", "err", msg));
+#else
+        LogCallback(msg, "TLogger.LogError", LogType.Error);
 #endif
     }
 
@@ -129,11 +191,11 @@ public class TLogger : ILogHandler
     {
         if (!string.IsNullOrEmpty(msg))
         {
-            LogCallback(msg, "TLogger.LogSys", LogType.Log);
 #if !HUGULA_NO_LOG
-        Debug.Log(BindColor("#00e75c", "sys", msg));
+            Debug.Log(BindColor("#00e75c", "sys", msg));
+#else
+            LogCallback(msg, "TLogger.LogSys", LogType.Assert);
 #endif
-            // BuglyAgent.PrintLog(LogSeverity.LogInfo,"sys_cs:starup:{1},frame:{2} \r\n msg:{0}",msg,Time.realtimeSinceStartup, Time.frameCount);
         }
     }
 
@@ -144,12 +206,45 @@ public class TLogger : ILogHandler
 #endif
     }
 
+    internal static void LogSysInfo()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("platform:{0}\r\n udid:", Application.platform.ToString());
+        sb.Append(SystemInfo.deviceUniqueIdentifier);
+        sb.AppendFormat("\r\n deviceName={0};\r\n date:", SystemInfo.deviceName);
+        sb.Append(System.DateTime.Now.ToString());
+        sb.AppendFormat("\r\n systemMemorySize={0};\r\n bundleIdentifier:", SystemInfo.systemMemorySize);
+        sb.Append(Application.identifier);
+        sb.AppendFormat("\r\n internetReachability={0};\r\n deviceModel:", Application.internetReachability);
+        sb.Append(SystemInfo.deviceModel);
+        sb.AppendFormat("\r\n version={0};\r\n unityVersion:", Application.version);
+        sb.Append(Application.unityVersion);
+        sb.AppendFormat("\r\n systemLanguage={0};", Application.systemLanguage.ToString());
+#if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
+        Firebase.Crashlytics.Crashlytics.Log(sb.ToString());
+#endif
+
+#if !HUGULA_RELEASE
+        var objs = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Object));
+        sb.AppendLine("total objs length = " + objs.Length + "\n");
+        foreach (var obj in objs)
+        {
+            System.Type type = obj.GetType();
+            sb.AppendFormat("name = {0},type = {1} \n", obj.name, type);
+        }
+#endif
+        LogSys(sb.ToString());
+    }
 
     static void WriteToLogFile(string content)
     {
-        using (var sw = new StreamWriter(logPath, true))
+        if (isInit)
         {
-            sw.Write(content);
+            lock (locked)
+            {
+                logStreamWriter?.Write(content);
+                logStreamWriter.Flush();
+            }
         }
     }
 

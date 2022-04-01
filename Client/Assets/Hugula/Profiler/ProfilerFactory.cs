@@ -22,8 +22,8 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string TitleFormat = "\nProfiler|Total ms|Self ms|Number of calls|Max Single Call ms|Avg Except Max Call ms|Number of SingleCallTime>3ms";
-        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}";
+        private const string TitleFormat = "\nProfiler|Total|Self|Calls|Max Single Call|Max Self Single Call|Avg Except Max Call|Number of SingleCallTime>3ms";
+        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}";
 
         #endregion
 
@@ -114,7 +114,7 @@ namespace Hugula.Profiler
                 {
                     kFile = File.Create(kLogFileName);
                 }
-                WriteToStream(kFile, string.Format("\r\n\r\n\r\n\r\n------------------------------------------  {0}[{1};{2}] - {3}   ------------------------------------------------------------\r\n", UnityEngine.SystemInfo.deviceModel, UnityEngine.SystemInfo.deviceType, SystemInfo.deviceUniqueIdentifier, DateTime.Now.ToString()));
+                WriteToStream(kFile, string.Format("\r\n\r\n\r\n\r\n------------------------------------------  {0}[{1};{2}] - {3}  ms   ------------------------------------------------------------\r\n", UnityEngine.SystemInfo.deviceModel, UnityEngine.SystemInfo.deviceType, SystemInfo.deviceUniqueIdentifier, DateTime.Now.ToString()));
                 WriteToStream(kFile, TitleFormat);
                 Debug.LogFormat("\r\nDumpProfilerInfo in path = {0} ", kLogFileName);
             }
@@ -151,7 +151,7 @@ namespace Hugula.Profiler
                     {
                         avgExceptMaxMilliseconds = (float)(itemValue.ElapsedMilliseconds - itemValue.MaxSingleFrameTimeInMs) / (float)(itemValue.NumberOfCalls - 1);
                     }
-                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms);
+                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), itemValue.MaxSingleFrameTimeInMsSelf.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms);
                     if (bWriteToFile)
                     {
                         WriteToStream(kFile, kLine);

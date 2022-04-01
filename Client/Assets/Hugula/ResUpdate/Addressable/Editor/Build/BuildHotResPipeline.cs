@@ -72,8 +72,8 @@ namespace HugulaEditor.ResUpdate
         public void Run(HotResGenSharedData data)
         {
             string verPath = BuildConfig.UpdateResOutVersionPath;
-            Debug.Log($"清理本地热更新缓存:{verPath}");
-            EditorUtils.DirectoryDelete(verPath);
+            //Debug.Log($"清理本地热更新缓存:{verPath}");
+            //EditorUtils.DirectoryDelete(verPath);  需要保留zip文件
         }
     }
 
@@ -92,10 +92,24 @@ namespace HugulaEditor.ResUpdate
             List<string> folderManifest = new List<string>();
             foreach (var folder in folderManifestDic.Values)
             {
-                zipFilePath = Path.Combine(verPath, folder.zipName);
+                zipFilePath = Path.Combine(verPath, BuildConfig.GetTmpZipName(folder.folderName));
                 uint fileLen = 0;
-                CrcCheck.GetLocalFileCrc(zipFilePath, out fileLen); //读取zip包size
+                var zipCrc  = CrcCheck.GetLocalFileCrc(zipFilePath, out fileLen); //读取zip包size
                 folder.zipSize = fileLen;
+                folder.zipVersion = zipCrc.ToString();
+                var zipFile = new FileInfo(zipFilePath);
+                if (zipFile.Exists)
+                {
+                    folder.zipName = string.Empty;
+                    var newZipName = Path.Combine(verPath, folder.zipName);
+                    if(File.Exists(newZipName))
+                    {
+                        File.Delete(newZipName);
+                    }
+                    zipFile.MoveTo(newZipName);
+                    Debug.Log($"change filename:{zipFilePath} to:{newZipName}");
+                }
+
                 var strAsset = $"Assets/Tmp/{folder.folderName}.asset";
                 folder.WriteToFile($"Assets/Tmp/folderManifest_{folder.folderName}.txt");
                 folder.SaveAsset(strAsset);
@@ -191,6 +205,7 @@ namespace HugulaEditor.ResUpdate
                 var diffItemFolderManifest = FolderManifestRuntionExtention.Create(itemFolderManifest.folderName);
                 diffItemFolderManifest.allFileInfos = diffInfos;
                 diffItemFolderManifest.zipSize = itemFolderManifest.zipSize;
+                diffItemFolderManifest.zipVersion = itemFolderManifest.zipVersion;
                 diffFolderManifest.Add(diffItemFolderManifest);
                 if (diffInfos.Count > 0)
                     Debug.Log($"变更的文件信息:{diffItemFolderManifest.ToString()} ");
@@ -298,7 +313,7 @@ namespace HugulaEditor.ResUpdate
             foreach (var folderManifest in streamingFolderManifest)
             {
                 if (folderManifest.folderName == exception) continue; //streaming目录默认不打包
-                var zipName = folderManifest.zipName;
+                var zipName = BuildConfig.GetTmpZipName(folderManifest.folderName);//   folderManifest.zipName;
                 var zipOutPath = Path.Combine(verPath, zipName);
                 fileToZipFullPath.Clear();
                 foreach (var file in folderManifest.allFileInfos)

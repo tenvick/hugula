@@ -60,6 +60,10 @@ namespace HugulaEditor.ResUpdate
         /// </summary>
         public static UnityEditor.BuildTarget BuildTarget ;
 
+        public static string GetTmpZipName(string folderName)
+        {
+           return string.Format("{0}_{1}.zip", folderName, Application.version);
+        }
     }
 
     ///<summary>

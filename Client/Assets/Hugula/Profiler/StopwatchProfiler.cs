@@ -36,6 +36,7 @@ namespace Hugula.Profiler
         private int nestingLevel = 0;
 
         private double maxSingleElapsedTime = 0f;
+        private double maxSingleElapsedTimeSelf = 0f;
 
         private double childrenElapsedMilliseconds = 0f;
 
@@ -49,6 +50,13 @@ namespace Hugula.Profiler
         #endregion Fields
 
         #region Properties
+        //上一帧整体耗时
+        public double lastFrameTime = 0;
+        public double MaxSingleFrameTimeInMsSelf
+        {
+            get { return maxSingleElapsedTimeSelf; }
+        }
+
         public double MaxSingleFrameTimeInMs
         {
             get { return maxSingleElapsedTime; }
@@ -109,19 +117,25 @@ namespace Hugula.Profiler
             if (nestingLevel == 1)
             {
 #if UNITY_EDITOR
-            // UnityEngine.Debug.Log($"StopwatchProfiler:({this.stopName}) Stop({nestingLevel},{NumberOfCalls})");
+                // UnityEngine.Debug.Log($"StopwatchProfiler:({this.stopName}) Stop({nestingLevel},{NumberOfCalls})");
 #endif
                 stopWatch.Stop();
 
-                childrenElapsedMilliseconds = 0;
+                childrenElapsedMilliseconds = 0; //所有
+                double childrenFrameElapsedMilliseconds = 0;
                 foreach (var watch in childrenList)
                 {
                     childrenElapsedMilliseconds += watch.ElapsedMilliseconds;
+                    childrenFrameElapsedMilliseconds += watch.lastFrameTime;
                 }
-                
 
-                double lastFrameTime = ElapsedMilliseconds - lastElapsedMilliseconds;
+                lastFrameTime = ElapsedMilliseconds - lastElapsedMilliseconds; //当前帧总体消耗
                 lastElapsedMilliseconds = ElapsedMilliseconds;
+
+                double lastFrameTimeSelf = lastFrameTime - childrenFrameElapsedMilliseconds; //当前帧自身消耗
+
+                if (lastFrameTimeSelf > maxSingleElapsedTimeSelf)
+                    maxSingleElapsedTimeSelf = lastFrameTimeSelf;
 
                 if (lastFrameTime > 3.0f)
                 {

@@ -3,12 +3,8 @@ local UnityEngine = CS.UnityEngine
 local Hugula = CS.Hugula
 local manager = Hugula.Framework.Manager
 local EnterLua = CS.Hugula.EnterLua
-local timer = Hugula.Framework.Timer.instance --初始化timer
 
 ---------------
-Delay = EnterLua.Delay
-DelayFrame = EnterLua.DelayFrame
-StopDelay = EnterLua.StopDelay
 Timer = Hugula.Framework.Timer
 local timer = Timer
 local tins = timer.instance

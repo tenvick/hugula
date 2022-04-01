@@ -185,7 +185,12 @@ namespace Hugula.ResUpdate
                 {
                     finfo = allFiles[i];
                     if (!locationIdPath.ContainsKey(finfo.name))
+                    {
                         locationIdPath[finfo.name] = zipOutPath;
+#if !HUGULA_NO_LOG
+                        Debug.Log($" zip folder:{folderPackage.folderName} transform({finfo.name}={zipOutPath}) ");
+#endif
+                    }
                 }
             }
         }
@@ -201,6 +206,9 @@ namespace Hugula.ResUpdate
             {
                 finfo = allFiles[i];
                 locationIdPath[finfo.name] = CUtils.realPersistentDataPath;
+#if !HUGULA_NO_LOG
+                Debug.Log($" update folder:{folderPackage.folderName} transform({finfo.name}={CUtils.realPersistentDataPath}) ");
+#endif
             }
         }
 

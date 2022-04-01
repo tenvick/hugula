@@ -48,6 +48,12 @@ namespace Hugula.ResUpdate
         /// zip文件size
         /// </summary>
         public uint zipSize;
+
+        /// <summary>
+        /// zip版本号
+        /// </summary>
+        public string zipVersion;
+
         private string m_ZipName;
 
         /// <summary>
@@ -57,8 +63,12 @@ namespace Hugula.ResUpdate
             get
             {
                 if(string.IsNullOrEmpty(m_ZipName))
-                    m_ZipName = string.Format("{0}_{1}.zip",folderName,Application.version);
+                    m_ZipName = string.Format("{0}_{1}.zip",folderName, zipVersion);
                 return m_ZipName;
+            }
+            set
+            {
+                m_ZipName = null;
             }
         }
         
@@ -71,7 +81,7 @@ namespace Hugula.ResUpdate
             get
             {
                 if(string.IsNullOrEmpty(m_ZipMarkName))
-                    m_ZipMarkName = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),string.Format("{0}_{1}.zipd",folderName,Application.version));
+                    m_ZipMarkName = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),string.Format("{0}_{1}.zipd",folderName, zipVersion));
                 return m_ZipMarkName;
             }
         }
@@ -235,13 +245,14 @@ namespace Hugula.ResUpdate
             folderManifest.folderName = this.folderName;
             folderManifest.priority = this.priority;
             folderManifest.zipSize = this.zipSize;
+            folderManifest.zipVersion = this.zipVersion;
             return folderManifest;
         }
 
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendLine($"FolderManifest(name={folderName},count={Count},priority={priority},version={version}, AppNumber={appNumVersion},zipSize={zipSize})");
+            stringBuilder.AppendLine($"FolderManifest(name={folderName},count={Count},priority={priority},version={version}, AppNumber={appNumVersion},zipSize={zipSize},zipVersion={zipVersion})");
             stringBuilder.AppendLine("allFileInfos:");
             foreach (var info in allFileInfos)
             {

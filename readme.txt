@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.4.1
+1 扩展包(zip)加入校验版本号判断。
+2 ui流程打点分析工具细化。
+3 日志功能完善。
+4 BindableContainer 编辑器模式删除报错处理
+
 2022.3.20
 1 绑定列表编辑功能优化扩展支持属性排序与筛选。
 2 HotUpdate热更新流程注释。

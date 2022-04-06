@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.4.6
+1 LoopVerticalScrollRect控件滚动到指定索引。
+
 2022.4.1
 1 扩展包(zip)加入校验版本号判断。
 2 ui流程打点分析工具细化。

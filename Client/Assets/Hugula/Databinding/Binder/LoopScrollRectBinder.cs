@@ -26,7 +26,19 @@ namespace Hugula.Databinding.Binder
                 target.setScrollIndex = value;
                 OnPropertyChanged();
             }
-        }   
+        }
+
+
+        public float scrollTime
+        {
+            get { return target.scrollTime; }
+            set
+            {
+                target.scrollTime = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public int columns
         {
@@ -75,6 +87,16 @@ namespace Hugula.Databinding.Binder
             }
         }
 
+        public Action<object, int, int> onScrollIndexChanged
+        {
+            get { return target.onScrollIndexChanged; }
+            set
+            {
+                target.onScrollIndexChanged = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Action<object, object, int> onInstantiated
         {
             get { return target.onInstantiated; }
@@ -101,6 +123,16 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onItemRender = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Action<int> onItemRenderNotify
+        {
+            get { return target.onItemRenderNotify; }
+            set
+            {
+                target.onItemRenderNotify = value;
                 OnPropertyChanged();
             }
         }
@@ -240,6 +272,19 @@ namespace Hugula.Databinding.Binder
         }
 
         #endregion
+
+        void OnScrollIndexValueChanged(object obj, int curr, int last)
+        {
+            OnPropertyChangedBindingApply("setScrollIndex");
+
+        }
+
+        protected override void Awake()
+        {
+            target.onScrollIndexChanged += OnScrollIndexValueChanged;
+            base.Awake();
+        }
+
         public override IList<BindableObject> GetChildren()
         {
             var list = new List<BindableObject>();
@@ -253,6 +298,7 @@ namespace Hugula.Databinding.Binder
 
         protected override void OnDestroy()
         {
+            target.onScrollIndexChanged -= OnScrollIndexValueChanged;
             items = null;
             base.OnDestroy();
         }

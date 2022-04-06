@@ -279,7 +279,7 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_AutoScrollToBottom);
             PropertyFieldChooseMono(m_Templates);
             GUILayout.Space(10);
-            GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
+            //GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
             EditorGUILayout.PropertyField(m_PageSize);
             EditorGUILayout.PropertyField(m_Padding);
             EditorGUILayout.PropertyField(m_RenderPerFrames);
@@ -348,7 +348,6 @@ namespace HugulaEditor.UIComponents
 
             if (prop.isArray)
             {
-                // EditorGUILayout.PropertyField (prop);
                 var size = prop.arraySize;
                 GUILayout.Label(new GUIContent(prop.name.Replace("m_", "")), GUILayout.Width(160));
 

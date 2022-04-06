@@ -20,6 +20,8 @@ namespace Hugula.Databinding.Binder
         public BindableObject templateItem;
         [Tooltip("销毁item")]
         public bool destoryItem = false;
+        [Tooltip("是否在刷新的时候设置顺序")]
+        public bool enableSiblingIndex = true;
         IList items;
         List<BindableObject> viewItems = new List<BindableObject>();
 
@@ -101,9 +103,11 @@ namespace Hugula.Databinding.Binder
                     viewItems.Add(item);
                 }
                 if (!item.gameObject.activeSelf) item.gameObject.SetActive(true);
-                item.transform.SetSiblingIndex(i);
+                if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
                 itemData = items[i];
-                item.context = itemData;
+                // item.context = itemData;
+                BindingUtility.SetContext(item, itemData);
+
 
             }
         }

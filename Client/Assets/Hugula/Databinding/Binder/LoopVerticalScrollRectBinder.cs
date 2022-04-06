@@ -18,6 +18,35 @@ namespace Hugula.Databinding.Binder
 
         #region  重写属性
 
+        public System.Action<object, int, int> onScrollIndexChanged
+        {
+            get { return target.onScrollIndexChanged; }
+            set
+            {
+                target.onScrollIndexChanged = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public float scrollTime{
+            get { return target.scrollTime; }
+            set
+            {
+                target.scrollTime = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public int setScrollIndex
+        {
+            get { return target.setScrollIndex; }
+            set
+            {
+                target.setScrollIndex = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool scrollToBottom
         {
             get { return target.scrollToBottom; }

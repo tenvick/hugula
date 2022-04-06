@@ -48,6 +48,7 @@ namespace Hugula.UIComponents
         /// </summary>
         public int renderPerFrames { get { return m_RenderPerFrames; } set { m_RenderPerFrames = value; } } //每次渲染item数
 
+        [PopUpComponentsAttribute]
         [SerializeField]
         BindableObject[] m_Templates;
 
@@ -812,6 +813,51 @@ namespace Hugula.UIComponents
         #endregion
 
         #region  跳转
+        [SerializeField]
+        float m_ScrollTime = 0.4f;
+        /// <summary>
+        /// 滚动时间</br>
+        /// </summary>
+        public float scrollTime { get { return m_ScrollTime; } set { m_ScrollTime = value; } }
+
+        private int m_ScrollToIndex = 0;
+        ///<summary>
+        /// 通过属性的方式指定滚动到制定索引 
+        /// 为了数据绑定
+        ///</summary>
+        public int setScrollIndex
+        {
+            get { return this.m_ScrollToIndex; }
+            set
+            {
+                ScrollToIndex(value);
+            }
+        }
+
+        public System.Action<object, int, int> onScrollIndexChanged;
+
+        ///<summary>
+        /// 滚动到指定索引
+        ///</summary>
+        public void ScrollToIndex(int idx)
+        {
+            if(isTweening || idx<0|| idx >= dataLength) return;
+
+            var oldIdx = m_ScrollToIndex;
+            m_ScrollToIndex = idx;
+            Vector2 curr = content.anchoredPosition;
+            var cpos = GetLoopVerticalItemSize(idx);
+            var tpos = cpos;
+            tpos.y = tpos.x;
+            tpos.x = curr.x;
+
+            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, tpos, scrollTime));
+
+            if (onScrollIndexChanged != null)
+                onScrollIndexChanged(this.parameter, m_ScrollToIndex, oldIdx);
+
+        }
+
         ///<summary>
         /// 滚动到底部或者顶部
         /// 对方法的包装方便数据绑定

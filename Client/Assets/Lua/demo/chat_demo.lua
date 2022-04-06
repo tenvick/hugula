@@ -126,6 +126,8 @@ end
 -------------------------绑定属性---------------------
 -----------------------------------------------------
 chat_demo.chat_data = chat_data
+
+chat_data.goto_index = -1
 chat_data.loading_data = false --加载状态
 
 ---属性直接绑定方法 有参数的时候表示设置值，没有的时候表示获取值
@@ -171,6 +173,17 @@ chat_data.on_bag_click =  {
     end,
     Execute = function(self, arg)
         arg.bag_data:InsertRange(create_tmp_data()) --绑定背包数据
+    end
+}
+
+chat_demo.on_goto_click = 
+{
+    CanExecute = function(self, arg)
+        return true
+    end,
+    Execute = function(self, arg)
+        print("跳转",arg)
+        chat_data.property.goto_index = tonumber(arg)
     end
 }
 

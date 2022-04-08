@@ -94,15 +94,15 @@ namespace HugulaEditor.ResUpdate
             {
                 zipFilePath = Path.Combine(verPath, BuildConfig.GetTmpZipName(folder.folderName));
                 uint fileLen = 0;
-                var zipCrc  = CrcCheck.GetLocalFileCrc(zipFilePath, out fileLen); //读取zip包size
+                var zipCrc = CrcCheck.GetLocalFileCrc(zipFilePath, out fileLen); //读取zip包size
                 folder.zipSize = fileLen;
                 folder.zipVersion = zipCrc.ToString();
                 var zipFile = new FileInfo(zipFilePath);
                 if (zipFile.Exists)
                 {
                     folder.zipName = string.Empty;
-                    var newZipName = Path.Combine(verPath, folder.zipName);
-                    if(File.Exists(newZipName))
+                    var newZipName = Path.Combine(verPath, folder.zipName + ".zip");
+                    if (File.Exists(newZipName))
                     {
                         File.Delete(newZipName);
                     }
@@ -347,12 +347,14 @@ namespace HugulaEditor.ResUpdate
             string verPath = BuildConfig.UpdateResOutVersionPath;
             string rootPath = BuildConfig.CurrentUpdateResOutPath;
 
+
             //当前目录配置文件
             var configPath = Path.Combine(BuildConfig.VersionConfigPath, CUtils.platform + ".json");
             var configDevPath = Path.Combine(BuildConfig.VersionConfigPath, CUtils.platform + "_dev" + ".json");
             var config = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configPath));
             var configDev = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configDevPath));
-
+            FastMode fastMode = config.fast;
+            if (data.firstFolderManifest.Count > 0) fastMode = FastMode.sync;
             var versionConfig = new VerionConfig();
             versionConfig.version = CodeVersion.APP_VERSION;
             versionConfig.code = CodeVersion.CODE_VERSION;
@@ -361,7 +363,7 @@ namespace HugulaEditor.ResUpdate
             versionConfig.cdn_host = config.cdn_host;
             versionConfig.update_url = config.update_url;
             versionConfig.manifest_name = config.manifest_name;
-            versionConfig.fast = config.fast;
+            versionConfig.fast = fastMode;
             var outConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
             var savePath = Path.Combine(verPath, "version.json");
             File.WriteAllText(savePath, outConfig);
@@ -378,10 +380,12 @@ namespace HugulaEditor.ResUpdate
 #endif
 
             //dev配置
+            fastMode = configDev.fast;
+            if (data.firstFolderManifest.Count > 0) fastMode = FastMode.sync;
             versionConfig.cdn_host = configDev.cdn_host;
             versionConfig.update_url = configDev.update_url;
             versionConfig.manifest_name = configDev.manifest_name;
-            versionConfig.fast = configDev.fast;
+            versionConfig.fast = fastMode;
             var outDevConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
             savePath = Path.Combine(verPath, $"version_dev.json");
             File.WriteAllText(savePath, outDevConfig);

@@ -25,6 +25,13 @@
             //是否需要等待fasst包完成，true下载完后才进入下一步，false不需要等待逻辑
             public FastMode fast = FastMode.sync;
 
+        public override string ToString()
+        {
+           return $"code:{code},version:{version},manifest_name:{manifest_name},fast:{fast}";
+        }
+
+
+
         }
 
         public enum FastMode

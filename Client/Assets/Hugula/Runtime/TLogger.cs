@@ -71,13 +71,17 @@ public class TLogger : ILogHandler
 
 
 #if UNITY_EDITOR
-            var path = Path.Combine(Application.dataPath, "..");
+            var path = Path.Combine(Application.dataPath, "../Logs");
             logPath = Path.Combine(path, logName);
             preLogPath = Path.Combine(path, preLogName);
+             if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
 #elif UNITY_STANDALONE
-            var path = Path.Combine(Application.dataPath, "..");
+            var path = Path.Combine(Application.dataPath, "../Logs");
             logPath = Path.Combine(path, System.DateTime.Now.ToString("MM_dd HH_mm_ss ")+logName);
             preLogPath = Path.Combine(path, preLogName);
+             if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
 #else
             logPath = Path.Combine(CUtils.realPersistentDataPath,logName);
             preLogPath = Path.Combine(CUtils.realPersistentDataPath,preLogName);

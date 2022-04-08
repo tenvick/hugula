@@ -292,7 +292,7 @@ namespace Hugula.ResUpdate
                     return curr;
                 }
             }
-            return curr;
+            return null;
         }
         /**
         internal static IEnumerator StartClearOldFiles (System.Action<LoadingEventArg> onProgress, System.Action onComplete) {

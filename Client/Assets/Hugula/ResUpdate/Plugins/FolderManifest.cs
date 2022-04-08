@@ -63,7 +63,7 @@ namespace Hugula.ResUpdate
             get
             {
                 if(string.IsNullOrEmpty(m_ZipName))
-                    m_ZipName = string.Format("{0}_{1}.zip",folderName, zipVersion);
+                    m_ZipName = string.Format("{0}_{1}",folderName, zipVersion);
                 return m_ZipName;
             }
             set

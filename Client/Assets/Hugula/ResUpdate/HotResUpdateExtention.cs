@@ -36,7 +36,7 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static string GetZipOutFolderPath(this FolderManifest self)
         {
-            return CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), string.Format("{0}_{1}", self.folderName, Application.version));
+            return CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), self.zipName);
         }
     }
 

@@ -127,15 +127,15 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        public Action<int> onItemRenderNotify
-        {
-            get { return target.onItemRenderNotify; }
-            set
-            {
-                target.onItemRenderNotify = value;
-                OnPropertyChanged();
-            }
-        }
+        // public Action<int> onItemRenderNotify
+        // {
+        //     get { return target.onItemRenderNotify; }
+        //     set
+        //     {
+        //         target.onItemRenderNotify = value;
+        //         OnPropertyChanged();
+        //     }
+        // }
 
         public Action<object, object, int, int> onSelected
         {

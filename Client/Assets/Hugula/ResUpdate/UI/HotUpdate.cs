@@ -172,7 +172,7 @@ namespace Hugula.ResUpdate
                         StartCoroutine(LoadRemoteVersion());
                     });
 
-                Debug.Log("version.json 解析失败。。。");
+                Debug.LogError($" {url} json 解析失败!");
             }
 
             yield return null;
@@ -206,7 +206,7 @@ namespace Hugula.ResUpdate
 #endif
                     }
 
-                    var zipUrl = CUtils.PathCombine(localVer.cdn_host[0], fastManifest.zipName);
+                    var zipUrl = CUtils.PathCombine(localVer.cdn_host[0], fastManifest.zipName+".zip");
                     var newFastManifest = fastManifest.CloneWithOutAllFileInfos();
                     newFastManifest.Add(new FileResInfo(zipUrl, 0, fastManifest.zipSize));
 #if !HUGULA_NO_LOG
@@ -244,7 +244,7 @@ namespace Hugula.ResUpdate
                     }
                     else
                     {
-                        Debug.Log($"{fastManifest.zipName} :大小为0!");
+                        Debug.Log($"{fastManifest.zipName}.zip :大小为0!");
                     }
                 }
                 else
@@ -292,7 +292,7 @@ namespace Hugula.ResUpdate
                            BackGroundDownload.instance.Begin();
                            MessageBox.Destroy();
                        };
-                MessageBox.Show("fast 包下载失败请检测网络!", "", "", BeginLoad);
+                MessageBox.Show("fast pack download failed, please check your network!", "", "", BeginLoad);
             }
         }
 
@@ -308,6 +308,9 @@ namespace Hugula.ResUpdate
                 item = streamingFolderManifest[i];
                 if (item.isZipDone)
                 {
+#if !HUGULA_NO_LOG
+                    print($" zip folder:{item.folderName} override ");
+#endif
                     FileManifestManager.GenZipPackageTransform(item);
                     yield return null;
                 }
@@ -316,18 +319,14 @@ namespace Hugula.ResUpdate
         #endregion
 
         #region  加载远端remote foldermanifest文件与热更新资源  
-        string  loadRemoteVersion = string.Empty; //将要下载的远端文件    
+        string loadRemoteVersion = string.Empty; //将要下载的远端文件    
         //加载远端FolderManifest文件
         public IEnumerator LoadRemoteFoldmanifest(VerionConfig remoteVer)
         {
             yield return null;
-            Debug.Log("开始加载manifest");
             SetProgressTxt(Localization.Get("main_web_server_crc_list")); //--加载服务器校验列表。")
             var url = CUtils.PathCombine(remoteVer.cdn_host[0], remoteVer.manifest_name); //server_ver.cdn_host[1] .. "/" .. file_name
-
-#if !HUGULA_NO_LOG
-            print($"get remote url({url}) ");
-#endif
+            Debug.Log($"begin get url ：{url}");
 
             UnityWebRequest req = UnityWebRequest.Get(url);
             var async = req.SendWebRequest();
@@ -341,9 +340,8 @@ namespace Hugula.ResUpdate
                 var remoteFolderManifest = new List<FolderManifest>(ab.LoadAllAssets<FolderManifest>());
                 FileManifestManager.remoteFolderManifest = remoteFolderManifest;
                 ab.Unload(false);
-                print($"remote file({url}) is down");
+                Debug.Log($"remote file({url}) is down");
 #if !HUGULA_NO_LOG
-                Debug.Log("remoteFolderManifest");
                 foreach (var folder in remoteFolderManifest)
                     Debug.Log(folder.ToString());
 
@@ -356,7 +354,7 @@ namespace Hugula.ResUpdate
                 for (int i = 0; i < remoteFolderManifest.Count; i++)
                 {
                     remoteFolder = remoteFolderManifest[i];
-                    loadRemoteVersion = remoteFolder.version ;//记录要下载的远端版本号
+                    loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
                     for (int j = 0; j < streamingFolderManifest.Count; j++)
                     {
                         curStreaming = streamingFolderManifest[j];
@@ -395,6 +393,7 @@ namespace Hugula.ResUpdate
                         BackGroundDownload.MaxLoadCount = 4;
                         BackGroundDownload.instance.Begin();
                         MessageBox.Destroy();
+                        Debug.Log($"begin load file size:{change} ");
                     };
                     if (is_wifi)
                     {
@@ -417,6 +416,9 @@ namespace Hugula.ResUpdate
                         StartCoroutine(LoadRemoteFoldmanifest(remoteVer));
                     }
                 );
+
+                Debug.LogError($"load hot file fail {remoteVer.ToString()} ");
+
             }
         }
 
@@ -445,7 +447,6 @@ namespace Hugula.ResUpdate
                 {
                     sb.AppendLine(f.name);
                 }
-
                 Debug.LogError(sb.ToString());
             }
             else
@@ -471,15 +472,18 @@ namespace Hugula.ResUpdate
                     MessageBox.Destroy();
                 };
                 MessageBox.Show(tips, "", Localization.Get("main_check_sure"), ReLoad);
+                Debug.LogError($" OnBackgroundComplete Error :{tips}");
             }
             else if (queue.group.isAllDown)
             {
                 FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
                 FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
                 FileManifestManager.localVersion = loadRemoteVersion;
+                Debug.Log($"download sccuess :{loadRemoteVersion} is_Error：{is_error}");
 #if !HUGULA_NO_LOG
-                Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) is_Error：{is_error} ");
+                Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) ");
 #endif
+
                 LoadBeginScene();
             }
 
@@ -495,12 +499,13 @@ namespace Hugula.ResUpdate
             view.tips.text = tips;
         }
 
-
         void SetSliderProgress(string tips, float per)
         {
             view.tips.text = tips;
             view.slider.value = per;
+#if !HUGULA_NO_LOG
             Debug.Log($"Progress：{tips} {per * 100}% frame:{Time.frameCount} ");
+#endif
         }
 
         // void OnProgressEvent(LoadingEventArg arg)

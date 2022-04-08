@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.4.8
+1 fast包下载问题修复，构建时候自动判断fast包状态。
+2 热跟新关键日志开启。
+3 TLogger放入文件夹,BindableContainer报错打印全路径。
+
 2022.4.6
 1 LoopVerticalScrollRect控件滚动到指定索引。
 

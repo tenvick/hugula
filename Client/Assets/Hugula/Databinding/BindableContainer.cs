@@ -60,7 +60,7 @@ namespace Hugula.Databinding
                         child.SetInheritedContext(context, true);
                     else
                     {
-                        Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", this, i);
+                        Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject), i);
                     }
                 }
             }

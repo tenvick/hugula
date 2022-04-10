@@ -67,6 +67,7 @@ namespace Hugula.ResUpdate
         {
             BackGroundDownload.Init();
             TLogger.Init();
+            ResLoader.Init();
             FileManifestManager.OverrideInternalIdTransformFunc(); //重定向热更新的文件
             FileManifestManager.LoadStreamingFolderManifests(null);//读取本地文件列表
             FileManifestManager.LoadPersistentFolderManifest(null);//读取持久化目录的列表
@@ -206,7 +207,7 @@ namespace Hugula.ResUpdate
 #endif
                     }
 
-                    var zipUrl = CUtils.PathCombine(localVer.cdn_host[0], fastManifest.zipName+".zip");
+                    var zipUrl = CUtils.PathCombine(localVer.cdn_host[0], fastManifest.zipName + ".zip");
                     var newFastManifest = fastManifest.CloneWithOutAllFileInfos();
                     newFastManifest.Add(new FileResInfo(zipUrl, 0, fastManifest.zipSize));
 #if !HUGULA_NO_LOG
@@ -483,8 +484,7 @@ namespace Hugula.ResUpdate
 #if !HUGULA_NO_LOG
                 Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) ");
 #endif
-
-                LoadBeginScene();
+                StartCoroutine(RefreshPersistentCatelog());
             }
 
         }
@@ -508,15 +508,6 @@ namespace Hugula.ResUpdate
 #endif
         }
 
-        // void OnProgressEvent(LoadingEventArg arg)
-        // {
-        //     var m = 1024 * 1024;
-        //     var loaded_s = string.Format ("{0:.00}", arg.current / m);
-        //     var loaded_t = string.Format ("{0:.00}", arg.total / m);
-        //     var kbs = string.Format ("{0:.00} kb/s", BackGroundDownload.BytesReceivedPerSecond / 1024);
-        //     var str = Localization.GetFormat ("main_downloading_tips", loaded_s, loaded_t, kbs);
-        //     SetSliderProgress (str, 4, arg.current / arg.total);
-        // }
         #endregion
 
         #region  util
@@ -526,19 +517,51 @@ namespace Hugula.ResUpdate
         ///</summary>
         public void LoadBeginScene()
         {
-            // SetSliderProgress(Localization.Get("main_enter_game"), 5, 1);
-            ResLoader.Init();
-            StartCoroutine(WaitAddressableInit());
-        }
-
-        //等待初始化完成进入场景
-        private IEnumerator WaitAddressableInit()
-        {
-            while (!ResLoader.Ready)
-                yield return null;
-
+            Debug.Log("LoadBeginScene");
             UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
+
+        //刷新热更新的catelog
+        private IEnumerator RefreshPersistentCatelog()
+        {
+
+            var catelogId = UnityEngine.AddressableAssets.Initialization.ResourceManagerRuntimeData.kCatalogAddress;
+            var catelogPersistentPath = CUtils.PathCombine(CUtils.realPersistentDataPath, "catalog.bundle");
+#if !HUGULA_NO_LOG
+            Debug.Log($"RefreshPersistentCatelog:{catelogPersistentPath} !");
+#endif
+            UnityEngine.ResourceManagement.ResourceLocations.ResourceLocationBase persistentCatalogLocation = null;
+            if (!File.Exists(catelogPersistentPath) && !File.Exists(catelogPersistentPath = CUtils.PathCombine(CUtils.realPersistentDataPath, "catalog.json")))
+            {
+                LoadBeginScene();
+                yield break;
+            }
+
+            persistentCatalogLocation = new UnityEngine.ResourceManagement.ResourceLocations.ResourceLocationBase(catelogId, catelogPersistentPath, typeof(UnityEngine.AddressableAssets.ResourceProviders.ContentCatalogProvider).FullName, typeof(ContentCatalogData));
+            var localCatalogHandle = Addressables.ResourceManager.ProvideResource<ContentCatalogData>(persistentCatalogLocation);
+            yield return localCatalogHandle;
+            var data = localCatalogHandle.Result;
+#if !HUGULA_NO_LOG
+            Debug.Log($"ContentCatalogData:{data.ProviderId} !");
+#endif
+            ResourceLocationMap locMap = data.CreateLocator();  //.CreateCustomLocator(data.location.PrimaryKey, providerSuffix);
+
+            foreach (var item in Addressables.ResourceLocators)
+            {
+                if (catelogId == item.LocatorId)
+                {
+                    Addressables.RemoveResourceLocator(item);
+                    Debug.Log($"Addressables.RemoveResourceLocator({item.LocatorId}) ");
+                    break;
+                }
+            }
+            Addressables.AddResourceLocator(locMap);
+            Addressables.Release(localCatalogHandle);
+
+            LoadBeginScene();
+
+        }
+
 
         ///<summary>
         /// 从配置获取加载cdn的url地址

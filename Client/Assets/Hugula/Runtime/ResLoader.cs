@@ -33,13 +33,16 @@ namespace Hugula
         // [RuntimeInitializeOnLoadMethod]
         internal static void Init()
         {
-            m_LoadedScenes = new Dictionary<string, SceneInstance>();
-            m_LoadingEvent = new LoadingEventArg();
-			 gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
-            Addressables.InitializeAsync().Completed += InitDone;
+            if (!s_Initialized)
+            {
+                m_LoadedScenes = new Dictionary<string, SceneInstance>();
+                m_LoadingEvent = new LoadingEventArg();
+                gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
+                Addressables.InitializeAsync().Completed += InitDone;
 #if UNITY_EDITOR
-            Debug.Log("Addressables.InitializeAsync()");
+                Debug.Log("Addressables.InitializeAsync()");
 #endif
+            }
         }
 
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
@@ -244,7 +247,7 @@ namespace Hugula
 #if PROFILER_DUMP || !HUGULA_RELEASE
             }
 
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler($"ResL.0_LoadAsset<{typeof(T)}>.onComp:", key,pkey))
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler($"ResL.0_LoadAsset<{typeof(T)}>.onComp:", key, pkey))
             {
 #endif
                 if (task.Result != null)
@@ -403,18 +406,18 @@ namespace Hugula
 
                 Task<SceneInstance> task;
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            var pkey = "ResL.0_LoadScene:" + key;
+                var pkey = "ResL.0_LoadScene:" + key;
 
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
-            {
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
+                {
 #endif
                     task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
                     await task;
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            }
-            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.0_LoadScene.onComp:", key, pkey))
-            {
+                }
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("-ResL.0_LoadScene.onComp:", key, pkey))
+                {
 #endif
                     if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
                     {
@@ -425,7 +428,7 @@ namespace Hugula
                     {
                         if (onEnd != null) onEnd(key, userData);
 #if UNITY_EDITOR
-                    Debug.LogError($"load scene{key} fail.");
+                        Debug.LogError($"load scene{key} fail.");
 #endif
                     }
 

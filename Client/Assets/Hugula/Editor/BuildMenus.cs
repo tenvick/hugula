@@ -376,7 +376,7 @@ public class ProjectBuild : Editor
     static void BuildForWindows()
     {
         CUtils.DebugCastTime("begin build windows exe");
-        string path = "../release/pc/";
+        string path = $"../release/pc/{Application.version}/";
         path = Path.GetFullPath(path);
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);
@@ -389,7 +389,7 @@ public class ProjectBuild : Editor
 
     static void BuildForAndroidIL2CPP()
     {
-        string fileName = $"hugula_{System.DateTime.Now.ToString("yyyyMMdd_HH_mm")}";
+        string fileName = $"hugula_{Application.version}_{System.DateTime.Now.ToString("yyyyMMdd_HH_mm")}";
         string path = $"../release/android/{fileName}.apk";
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && EditorUserBuildSettings.buildAppBundle) //如果是aab
         {

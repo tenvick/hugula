@@ -108,7 +108,7 @@ namespace Hugula.ResUpdate
                 FileManifestManager.streamingFolderManifest = new List<FolderManifest>(assets);
                 if (assets.Length == 0)
                     Debug.LogError("there is no streamingManifest at " + url);
-               
+
 #if !HUGULA_NO_LOG || UNITY_EDITOR
                 Debug.LogFormat("Load streamingManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", url, FileManifestManager.streamingFolderManifest.Count);
                 for (int i = 0; i < assets.Length; i++)
@@ -228,7 +228,12 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static string OverrideLocationURL(IResourceLocation location)
         {
-            if (location.ResourceType == typeof(IAssetBundleResource))
+#if !HUGULA_NO_LOG
+
+      Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} "); 
+#endif
+
+            if (!location.InternalId.StartsWith("http"))
             {
                 string bundleName = Path.GetFileName(location.InternalId);
                 string path = null;

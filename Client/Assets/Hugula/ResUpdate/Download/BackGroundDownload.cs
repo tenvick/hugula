@@ -31,7 +31,7 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static string[] rootHosts;
 
-         ///<summary>
+        ///<summary>
         /// 拼接cdn与fileResinfo.name然后下载资源，注意下载文件名需要带上crc信息
         /// </summary>
         public static Func<FileResInfo, string, string, string> InternalIdTransformFunc;
@@ -423,13 +423,13 @@ namespace Hugula.ResUpdate
                 if (tryTimes <= rootHosts.Length * 3)
                 {
                     int i = tryTimes % rootHosts.Length;
-                    Debug.LogWarning(string.Format("background download error ab:{0}, tryTimes={1},host={2},error:{3}", abInfo.name, webd.tryTimes, rootHosts[i], e.Error));
+                    Debug.LogWarning(string.Format("background download error ab:{0}, tryTimes={1},host={2}\r\nerror:{3}", abInfo.name, webd.tryTimes, rootHosts[i], e.Error));
                     internalLoad(webd, abInfo, rootHosts[i], tryTimes.ToString());
                     return;
                 }
                 else
                 {
-                    Debug.LogErrorFormat("background download error message {0} \r\n trace {1}", e.Error.Message, e.Error.StackTrace);
+                    Debug.LogErrorFormat("background download file({0}) error message {1} \r\n trace {2}", abInfo.name, e.Error.Message, e.Error.StackTrace);
                     abInfo.state = FileInfoState.Fail; // none or fail?
                     loadedFiles.Add(abInfo);
                     ReleaseWebDonwLoad(webd);
@@ -451,7 +451,7 @@ namespace Hugula.ResUpdate
                         catch (Exception ex)
                         {
                             abInfo.state = FileInfoState.Fail;
-                            Debug.LogError($"{ex.Message} \r\n:{ex.StackTrace}");
+                            Debug.LogError($"zip file({abInfo.name}) \r\n error:{ex.Message} \r\n:{ex.StackTrace}");
                         }
                     }
                     loadedFiles.Add(abInfo);
@@ -524,7 +524,9 @@ namespace Hugula.ResUpdate
 
             if (!CUtils.CheckFullUrl(fileName))
             {
-                fileName = Path.Combine(host, resFolder, fileName, timestamp == "" ? "" : "?" + timestamp); //new Uri(CUtils.PathCombine(urlHost, fileName + "?" + timestamp));
+                fileName = Path.Combine(host, resFolder, fileName); //new Uri(CUtils.PathCombine(urlHost, fileName + "?" + timestamp));
+                if (!string.IsNullOrEmpty(timestamp))
+                    fileName = fileName + "?" + timestamp;
             }
 
             return fileName;

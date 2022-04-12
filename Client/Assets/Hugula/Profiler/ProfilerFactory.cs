@@ -42,7 +42,7 @@ namespace Hugula.Profiler
 
         #region Methods
 
-        public static StopwatchProfiler GetProfiler(string name, string parentName=null)
+        public static StopwatchProfiler GetProfiler(string name, string parentName = null)
         {
             if (DoNotProfile) return null;
 
@@ -99,7 +99,12 @@ namespace Hugula.Profiler
             FileStream kFile = null;
             if (bWriteToFile)
             {
-                string kDirName = Application.persistentDataPath + "/Log/";
+#if UNITY_EDITOR || UNITY_STANDALONE
+                var kDirName = Path.Combine(Application.dataPath, "../Logs/");
+#else
+                var kDirName = Hugula.Utils.CUtils.realPersistentDataPath;
+#endif
+
                 if (File.Exists(kDirName) == false)
                 {
                     Directory.CreateDirectory(kDirName);

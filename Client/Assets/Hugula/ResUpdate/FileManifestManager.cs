@@ -291,6 +291,7 @@ namespace Hugula.ResUpdate
         /// </summary>      
         public static bool UpdateStreamingFolderManifest(FolderManifest newFolderManifest)
         {
+            if(streamingFolderManifest==null) return false;
             FolderManifest curr;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {

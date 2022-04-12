@@ -7,18 +7,6 @@ namespace Hugula.ResUpdate
 
     public static class FolderManifestRuntionExtention
     {
-        ///<summary>
-        /// 创建一个新的实例
-        ///</summary>
-        public static FolderManifest Create(string folderName)
-        {
-            Hugula.CodeVersion.APP_NUMBER = 0;
-            var folderManifest = ScriptableObject.CreateInstance<FolderManifest>();
-            folderManifest.appNumVersion = Hugula.CodeVersion.APP_NUMBER;
-            folderManifest.version = Hugula.CodeVersion.APP_VERSION;
-            folderManifest.folderName = folderName;
-            return folderManifest;
-        }
 
         /// <summary>
         /// 标记zip文件下载完成

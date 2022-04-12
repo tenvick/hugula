@@ -27,9 +27,14 @@ namespace Hugula.ResUpdate
         public static int MaxLoadCount = 3;
 
         ///<summary>
-        /// 下载的cdn地址组
+        /// 下载res文件下的cdn地址组
         /// </summary>
         public static string[] rootHosts;
+
+         ///<summary>
+        /// 拼接cdn与fileResinfo.name然后下载资源，注意下载文件名需要带上crc信息
+        /// </summary>
+        public static Func<FileResInfo, string, string, string> InternalIdTransformFunc;
 
         ///<summary>
         /// zip文件处理,子线程
@@ -147,6 +152,21 @@ namespace Hugula.ResUpdate
         }
 
         ///<summary>
+        /// 下载zip文件
+        /// </summary>
+        public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onComplete)
+        {
+            var newFastManifest = folder.CloneWithOutAllFileInfos();
+            newFastManifest.Add(new FileResInfo(folder.zipName + ".zip", 0, folder.zipSize));
+#if !HUGULA_NO_LOG
+            print($"add zipName:{folder.zipName}.zip");
+            Debug.Log(folder.ToString());
+            Debug.Log(newFastManifest.ToString());
+#endif
+            return AddFolderManifest(newFastManifest, onProgress, onComplete);
+        }
+
+        ///<summary>
         /// 添加一组下载文件
         /// </summary>
         public uint AddFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onComplete)
@@ -184,7 +204,7 @@ namespace Hugula.ResUpdate
             {
                 return a.priority - b.priority;
             });
-            
+
             return (uint)group.totalBytesToReceive;
         }
 
@@ -269,10 +289,10 @@ namespace Hugula.ResUpdate
                 if (duploadingWait.TryGetValue(fileInfo.name, out var list))
                 {
                     FileGroupMap fGroup = null;
-                    for(int i=0;i<list.Count;i++)
+                    for (int i = 0; i < list.Count; i++)
                     {
                         fGroup = list[i];
-                        fGroup.groupQueue.Complete(fGroup.fileResInfo,isError);
+                        fGroup.groupQueue.Complete(fGroup.fileResInfo, isError);
                     }
                     list.Clear();
                     duploadingWait.Remove(fileInfo.name);
@@ -290,7 +310,7 @@ namespace Hugula.ResUpdate
 #if !HUGULA_NO_LOG
                 Debug.LogFormat("RunningTask file({0},state={1})  is loadingtime={2}", fileInfo.name, fileInfo.state, System.DateTime.Now);
 #endif             
-                var fGroup = new FileGroupMap(fileInfo, bQueue); 
+                var fGroup = new FileGroupMap(fileInfo, bQueue);
                 if (duploadingWait.TryGetValue(fileInfo.name, out var list))
                 {
                     list.Add(fGroup);
@@ -299,7 +319,7 @@ namespace Hugula.ResUpdate
                 {
                     list = new List<FileGroupMap>();
                     list.Add(fGroup);
-                    duploadingWait.Add(fileInfo.name,list);
+                    duploadingWait.Add(fileInfo.name, list);
                 }
                 return;
             }
@@ -351,18 +371,11 @@ namespace Hugula.ResUpdate
         void internalLoad(WebDownload download, FileResInfo fileInfo, string urlHost, string timestamp = "")
         {
             Uri url = null;
-            string fileName = fileInfo.name;
-            if (!CUtils.CheckFullUrl(fileName))
-            {
-                if (string.IsNullOrEmpty(timestamp))
-                    url = new Uri(CUtils.PathCombine(urlHost, fileName));
-                else
-                    url = new Uri(CUtils.PathCombine(urlHost, fileName + "?" + timestamp));
-            }
+
+            if (InternalIdTransformFunc != null)
+                url = new Uri(InternalIdTransformFunc(fileInfo, urlHost, timestamp));
             else
-            {
-                url = new Uri(fileName);
-            }
+                url = new Uri(OverrideFullHostURL(fileInfo, urlHost, timestamp));
 
             string path = GetPersistentFilePath(fileInfo);
             FileHelper.CheckCreateFilePathDirectory(path);
@@ -477,7 +490,7 @@ namespace Hugula.ResUpdate
 
         #endregion
 
-        #region  解压
+        #region  辅助
         ///<summary>
         /// 默认解压函数
         ///</summary>
@@ -494,6 +507,30 @@ namespace Hugula.ResUpdate
             Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
 
         }
+
+        public static string OverrideFullHostURL(FileResInfo fileInfo, string host, string timestamp = "")
+        {
+            string fileName = fileInfo.name;
+            //文件名带crc信息
+            if (fileInfo.crc32 > 0) // ==0不需要添加crc号
+            {
+                fileName = CUtils.InsertAssetBundleName(fileName, $"_{fileInfo.crc32}");
+            }
+            string resFolder = HotResConfig.RESOURCE_FOLDER_NAME;
+            if (fileInfo.name.EndsWith(".zip"))
+            {
+                resFolder = HotResConfig.PACKAGE_FOLDER_NAME;
+            }
+
+            if (!CUtils.CheckFullUrl(fileName))
+            {
+                fileName = Path.Combine(host, resFolder, fileName, timestamp == "" ? "" : "?" + timestamp); //new Uri(CUtils.PathCombine(urlHost, fileName + "?" + timestamp));
+            }
+
+            return fileName;
+        }
+
+
         #endregion
 
         #region  pool

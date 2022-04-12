@@ -31,9 +31,9 @@ namespace Hugula.ResUpdate
         /// </summary>
         public int priority;
         /// <summary>
-        /// 当前打包时候版本号
+        /// 当前打包时候资源版本号用于热更新对比
         /// </summary>
-        public int appNumVersion;
+        public int resNumber;
         /// <summary>
         /// 当前app版本号 string方式
         /// </summary>
@@ -184,7 +184,7 @@ namespace Hugula.ResUpdate
         {
             List<FileResInfo> re = new List<FileResInfo>();
             if(remote==null) return re;
-            if(appNumVersion > remote.appNumVersion) return re; //如果本地大于远端不需要更新
+            if(resNumber > remote.resNumber) return re; //如果本地大于远端不需要更新
             var compareABInfos = remote.allFileInfos;
             FileResInfo abInfo;
             for (int i = 0; i < compareABInfos.Count; i++)
@@ -205,11 +205,11 @@ namespace Hugula.ResUpdate
         public bool AppendFileManifest(FolderManifest newFolderManifest)
         {
             if(newFolderManifest == this) return false; //不能覆盖自身
-            bool canAppend = appNumVersion <= newFolderManifest.appNumVersion;
+            bool canAppend = resNumber <= newFolderManifest.resNumber;
             if(canAppend)
             {
                 version = newFolderManifest.version;
-                appNumVersion = newFolderManifest.appNumVersion;
+                resNumber = newFolderManifest.resNumber;
                 var allFileInfos = newFolderManifest.allFileInfos;
                 foreach(var finfo in allFileInfos)
                 {
@@ -240,7 +240,7 @@ namespace Hugula.ResUpdate
         public FolderManifest CloneWithOutAllFileInfos()
         {
             var folderManifest = ScriptableObject.CreateInstance<FolderManifest>();
-            folderManifest.appNumVersion = this.appNumVersion;
+            folderManifest.resNumber = this.resNumber;
             folderManifest.version = this.version;
             folderManifest.folderName = this.folderName;
             folderManifest.priority = this.priority;
@@ -252,7 +252,7 @@ namespace Hugula.ResUpdate
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendLine($"FolderManifest(name={folderName},count={Count},priority={priority},version={version}, AppNumber={appNumVersion},zipSize={zipSize},zipVersion={zipVersion})");
+            stringBuilder.AppendLine($"FolderManifest(folderName={folderName},count={Count},priority={priority},version={version}, resNumber={resNumber},zipSize={zipSize},zipVersion={zipVersion})");
             stringBuilder.AppendLine("allFileInfos:");
             foreach (var info in allFileInfos)
             {

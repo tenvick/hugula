@@ -83,6 +83,26 @@ public class ProjectBuild : Editor
     }
 
     ///<summary>
+    /// resNumber 
+    ///</summary>
+    public static int resNumber
+    {
+        get
+        {
+            foreach (string arg in System.Environment.GetCommandLineArgs())
+            {
+                if (arg.StartsWith("resNumber") && arg.Contains(":"))
+                {
+                    int re =0;
+                    int.TryParse(arg.Split(":"[0])[1],out re);
+                    return re;
+                }
+            }
+            return 0;
+        }
+    }
+
+    ///<summary>
     /// 签名team id
     ///</summary>
     public static string signingTeamId
@@ -225,7 +245,8 @@ public class ProjectBuild : Editor
     static void WriteAppVerion(string folder = "apk", string appExtension = "il2cpp")
     {
         System.Environment.SetEnvironmentVariable("APP_VERSION", Hugula.CodeVersion.APP_VERSION); //app version
-        environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);
+        environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);        
+        environmentVariable.AppendFormat("RES_NUMBER={0}\n", EditorUtils.GetResNumber());
         environmentVariable.AppendFormat("CODE_VERSION={0}\n", Hugula.CodeVersion.CODE_VERSION);
         environmentVariable.AppendFormat("APP_NUMBER={0}\n", Hugula.CodeVersion.APP_NUMBER);
         environmentVariable.AppendFormat("APP_BUNDLE_ID={0}\n", Hugula.Utils.CUtils.bundleIdentifier);
@@ -254,7 +275,7 @@ public class ProjectBuild : Editor
         StringBuilder ftpTampleta = new StringBuilder();
         ftpTampleta.Append("function foo()\n{\nlocal r\nlocal a\nr=\"$@\"\nwhile [[ \"$r\" != \"$a\" ]] ; do\na=${r%%/*}\necho \"mkdir $a\"\necho \"cd $a\"\nr=${r#*/}\ndone\n}");
         ftpTampleta.Append("\nfunction upload_ftp()\n{\necho \"current folder \"$1\necho \"upload to \"$FTP_ROOT$2\nftp -niv <<- EOF\nopen $FTP_IP\nuser $FTP_USER $FTP_PWD\nlcd $1\n$(foo \"$FTP_ROOT$2\")\ncd $FTP_ROOT$2\nbin\nhash\npwd\nprompt off\nmput *.*\nclose\nbye\nEOF\n}");
-        var codeVersion = Hugula.CodeVersion.APP_NUMBER.ToString(); //文件crc 不变路径需要改变
+        var codeVersion =  Hugula.CodeVersion.CovertVerToCodeVersion(Hugula.CodeVersion.APP_VERSION); //Hugula.CodeVersion.APP_NUMBER.ToString(); //文件crc 不变路径需要改变
         string firstPackagePath = BuildConfig.UpdateResOutVersionPath;// release/android/v9000 
         string ftpToPath = CUtils.platform + "/v" + codeVersion;
         StringBuilder content1 = new StringBuilder();
@@ -331,6 +352,15 @@ public class ProjectBuild : Editor
             PlayerSettings.productName = productName;
         if (!string.IsNullOrEmpty(version))
             PlayerSettings.bundleVersion = version;
+
+        // PrefabUtility.set
+        var resNum = resNumber;
+        if(resNum ==0 ) resNum = Hugula.CodeVersion.APP_NUMBER;
+        // EditorPrefs.SetInt("resNumber",resNum);
+        EditorUtils.SetResNumber(resNum);
+
+        Debug.Log($"resNumber:{resNum}");
+        // resNumber
 #if UNITY_ANDROID        
         if (!string.IsNullOrEmpty(bundleId))
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, bundleId);

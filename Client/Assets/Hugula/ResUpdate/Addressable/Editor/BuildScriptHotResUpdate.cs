@@ -116,7 +116,7 @@ namespace HugulaEditor.Addressable
             FolderManifest folderManifest = null;
             if (!folderManifestDic.TryGetValue(folderName, out folderManifest))
             {
-                folderManifest = FolderManifestRuntionExtention.Create(folderName);
+                folderManifest = HugulaEditor.Addressable.FolderManifestExtention.Create(folderName);
                 folderManifestDic.Add(folderName, folderManifest);
             }
             // var buildRootPath = Addressables.BuildPath.Replace("\\","/");
@@ -140,7 +140,7 @@ namespace HugulaEditor.Addressable
                 string parentFolder = Path.GetDirectoryName(bundleBuildPath).Replace("\\", "/");
                 folderManifest.AddFileInfo(bundleName, crc, fileLen);
 
-                buildBundlePathData.AddBuildBundlePath(bundleName, bundleBuildPath);
+                buildBundlePathData.AddBuildBundlePath(bundleName, bundleBuildPath,crc);
                 bundleIdToFolderManifest.Add(bundleName, folderManifest);
             }
         }
@@ -150,7 +150,7 @@ namespace HugulaEditor.Addressable
             FolderManifest folderManifest = null;
             if (!folderManifestDic.TryGetValue(folderName, out folderManifest))
             {
-                folderManifest = FolderManifestRuntionExtention.Create(folderName);
+                folderManifest = HugulaEditor.Addressable.FolderManifestExtention.Create(folderName);
                 folderManifestDic.Add(folderName, folderManifest);
             }
 
@@ -164,7 +164,7 @@ namespace HugulaEditor.Addressable
                 uint fileLen = 0;
                 crc = CrcCheck.GetLocalFileCrc(filePath, out fileLen);
                 folderManifest.AddFileInfo(bundleName, crc, fileLen, relative);
-                buildBundlePathData.AddBuildBundlePath(bundleName, filePath);
+                buildBundlePathData.AddBuildBundlePath(bundleName, filePath,crc);
                 bundleIdToFolderManifest.Add(bundleName, folderManifest);
             }
 

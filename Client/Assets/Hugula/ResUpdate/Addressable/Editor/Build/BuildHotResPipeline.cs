@@ -85,7 +85,7 @@ namespace HugulaEditor.ResUpdate
 
         public void Run(HotResGenSharedData data)
         {
-            string verPath = BuildConfig.UpdateResOutVersionPath;
+            string verPath = BuildConfig.UpdatePackagesOutVersionPath;
             var folderManifestDic = data.allFolderManifest;
             string zipFilePath = string.Empty;
 
@@ -202,7 +202,7 @@ namespace HugulaEditor.ResUpdate
                     //没有首包不需要更新文件
                     diffInfos = new List<FileResInfo>();
                 }
-                var diffItemFolderManifest = FolderManifestRuntionExtention.Create(itemFolderManifest.folderName);
+                var diffItemFolderManifest = HugulaEditor.Addressable.FolderManifestExtention.Create(itemFolderManifest.folderName);
                 diffItemFolderManifest.allFileInfos = diffInfos;
                 diffItemFolderManifest.zipSize = itemFolderManifest.zipSize;
                 diffItemFolderManifest.zipVersion = itemFolderManifest.zipVersion;
@@ -235,16 +235,25 @@ namespace HugulaEditor.ResUpdate
 
             //copy 变更的文件到更新目录
             var diffFolderManifest = data.diffFolderManifest;
-            string source, target;
+            string target;
             foreach (var folderManifest in diffFolderManifest)
             {
-                foreach (var fileList in folderManifest.allFileInfos)
+                foreach (var file in folderManifest.allFileInfos)
                 {
-                    source = buildBundlePathData.GetBundleBuildPath(fileList.name);
+                    var source = buildBundlePathData.GetBundleBuildPath(file.name);
                     if (source != null)
                     {
-                        target = Path.Combine(verPath, fileList.name);
-                        if (!CopyFileTo(source, target))
+                        if (file.crc32 == 0)
+                            target = Path.Combine(verPath, file.name); //如果不需要校验
+                        else
+                            target = Path.Combine(verPath, CUtils.InsertAssetBundleName(file.name, $"_{file.crc32}"));
+
+                        if (file.crc32 != 0 && source.crc != file.crc32)
+                        {
+                            Debug.LogError($"源文件:{source.fullBuildPath},crc:{source.crc}!=目标crc:{file.crc32},target:{target}");
+                        }
+
+                        if (!CopyFileTo(source.fullBuildPath, target))
                         {
 
                         }
@@ -301,7 +310,7 @@ namespace HugulaEditor.ResUpdate
 
         public void Run(HotResGenSharedData data)
         {
-            string verPath = BuildConfig.UpdateResOutVersionPath;//Path.Combine(BuildConfig.UpdateResOutVersionPath, BuildConfig.ResFolderName);//特定版本资源目录用于资源备份
+            string verPath = BuildConfig.UpdatePackagesOutVersionPath;//Path.Combine(BuildConfig.UpdateResOutVersionPath, BuildConfig.ResFolderName);//特定版本资源目录用于资源备份
             FileHelper.CheckCreateDirectory(verPath);
             var aasBuildPath = Path.Combine(UnityEngine.AddressableAssets.Addressables.BuildPath, BuildConfig.BuildTarget.ToString());
 
@@ -316,9 +325,11 @@ namespace HugulaEditor.ResUpdate
                 var zipName = BuildConfig.GetTmpZipName(folderManifest.folderName);//   folderManifest.zipName;
                 var zipOutPath = Path.Combine(verPath, zipName);
                 fileToZipFullPath.Clear();
+                BuildBundlePath buildBundlePath;
                 foreach (var file in folderManifest.allFileInfos)
                 {
-                    fileToZipFullPath.Add(buildBundlePathData.GetBundleBuildPath(file.name));//Path.Combine(aasBuildPath, file.name));
+                    buildBundlePath = buildBundlePathData.GetBundleBuildPath(file.name);
+                    fileToZipFullPath.Add(buildBundlePath.fullBuildPath);//Path.Combine(aasBuildPath, file.name));
                 }
                 if (File.Exists(zipOutPath)) File.Delete(zipOutPath);
                 ZipHelper.CreateZip(zipOutPath, fileToZipFullPath, aasBuildPath);
@@ -342,71 +353,69 @@ namespace HugulaEditor.ResUpdate
         public void Run(HotResGenSharedData data)
         {
             CodeVersion.CODE_VERSION = 0;
-            CodeVersion.APP_NUMBER = 0;
+            // CodeVersion.APP_NUMBER = 0;
 
             string verPath = BuildConfig.UpdateResOutVersionPath;
             string rootPath = BuildConfig.CurrentUpdateResOutPath;
+            //release 配置
+            var outConfig = SaveVersionJson(data);
 
+            //根目录review配置
+            var rootVersionPath = Path.Combine(rootPath, "version_review.json");
+            File.WriteAllText(rootVersionPath, outConfig);
+            Debug.Log($"刷新根目录配置:{rootVersionPath}");
 
-            //当前目录配置文件
-            var configPath = Path.Combine(BuildConfig.VersionConfigPath, CUtils.platform + ".json");
-            var configDevPath = Path.Combine(BuildConfig.VersionConfigPath, CUtils.platform + "_dev" + ".json");
+            //dev配置
+            SaveVersionJson(data, "_dev");
+
+        }
+
+        string SaveVersionJson(HotResGenSharedData data, string suffix = "")
+        {
+            string verPath = BuildConfig.UpdateResOutVersionPath;
+            string rootPath = BuildConfig.CurrentUpdateResOutPath;
+
+            var configName = CUtils.platform + suffix + ".json";
+            var saveFileName = $"version{suffix}.json";
+            //当前配置文件
+            var configPath = Path.Combine(BuildConfig.VersionConfigPath, configName);
             var config = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configPath));
-            var configDev = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configDevPath));
             FastMode fastMode = config.fast;
-            if (data.firstFolderManifest.Count > 0) fastMode = FastMode.sync;
             var versionConfig = new VerionConfig();
             versionConfig.version = CodeVersion.APP_VERSION;
-            versionConfig.code = CodeVersion.CODE_VERSION;
+            versionConfig.resNumber = EditorUtils.GetResNumber(); // CodeVersion.APP_NUMBER;
+            SetVersionResNumber(versionConfig);
             versionConfig.time = CUtils.ConvertDateTimeInt(System.DateTime.Now);
-            //release配置的变量
+            //
+            if (data.firstFolderManifest != null && data.firstFolderManifest.Count > 0) fastMode = FastMode.sync;
             versionConfig.cdn_host = config.cdn_host;
             versionConfig.update_url = config.update_url;
             versionConfig.manifest_name = config.manifest_name;
             versionConfig.fast = fastMode;
             var outConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
-            var savePath = Path.Combine(verPath, "version.json");
+
+            //保存单独版本文件
+            var savePath = Path.Combine(verPath, CUtils.InsertAssetBundleName(saveFileName, $"_{CodeVersion.APP_VERSION}"));
             File.WriteAllText(savePath, outConfig);
             Debug.Log($"保存当前版本:{savePath}");
-            var rootVersionPath = Path.Combine(rootPath, "version.json");
+
+            //覆盖全局配置
+            var rootVersionPath = Path.Combine(rootPath, saveFileName);
             File.WriteAllText(rootVersionPath, outConfig);
             Debug.Log($"刷新根目录配置:{rootVersionPath}");
+            return outConfig;
+        }
 
-            //保存本地配置信息
-
-#if HUGULA_RELEASE
-                var verOutPath = Path.Combine(BuildConfig.VersionLocalOutPath,"version.txt");
-                File.WriteAllText(verOutPath,outConfig);
-#endif
-
-            //dev配置
-            fastMode = configDev.fast;
-            if (data.firstFolderManifest.Count > 0) fastMode = FastMode.sync;
-            versionConfig.cdn_host = configDev.cdn_host;
-            versionConfig.update_url = configDev.update_url;
-            versionConfig.manifest_name = configDev.manifest_name;
-            versionConfig.fast = fastMode;
-            var outDevConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
-            savePath = Path.Combine(verPath, $"version_dev.json");
-            File.WriteAllText(savePath, outDevConfig);
-            Debug.Log($"保存当前版本:{savePath}");
-            rootVersionPath = Path.Combine(rootPath, "version_dev.json");
-            File.WriteAllText(rootVersionPath, outDevConfig);
-            Debug.Log($"刷新根目录配置:{rootVersionPath}");
-
-            //本地配置用于zip包下载等
-#if !HUGULA_RELEASE
-            var verOutPath = Path.Combine(BuildConfig.VersionLocalOutPath, "version.txt");
-            File.WriteAllText(verOutPath, outDevConfig);
-#endif
-
+        void SetVersionResNumber(VerionConfig versionConfig)
+        {
+            versionConfig.resNumber = EditorUtils.GetResNumber();//CodeVersion.APP_NUMBER; //从svn获取版本号信息
         }
 
         string ReplaceTemplate(string content, uint crc)
         {
             content = content.Replace("{app.platform}", CUtils.platform);
             content = content.Replace("{app.version}", CodeVersion.APP_VERSION);
-            content = content.Replace("{app.number}", CodeVersion.APP_NUMBER.ToString());
+            // content = content.Replace("{app.number}", CodeVersion.APP_NUMBER.ToString());
 
             content = content.Replace("{app.manifest_crc}", crc.ToString());
             content = content.Replace("{app.manifest_name}", Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);
@@ -454,17 +463,17 @@ namespace HugulaEditor.ResUpdate
 
             var streamingFolderManifest = data.streamingFolderManifest;
             var exception = UnityEditor.AddressableAssets.Settings.GroupSchemas.HugulaResUpdatePacking.PackingType.streaming.ToString();
-            string filePath = string.Empty;
+            // string filePath = string.Empty;
             foreach (var folderManifest in streamingFolderManifest)
             {
                 if (folderManifest.name == exception) continue; //streaming目录默认不打包
                 foreach (var file in folderManifest.allFileInfos)
                 {
-                    filePath = buildBundlePathData.GetBundleBuildPath(file.name);
-                    if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                    var buildBundlePath = buildBundlePathData.GetBundleBuildPath(file.name);
+                    if (buildBundlePath != null && File.Exists(buildBundlePath.fullBuildPath))
                     {
-                        File.Delete(filePath);
-                        Debug.Log($"delete file：{filePath}");
+                        File.Delete(buildBundlePath.fullBuildPath);
+                        Debug.Log($"delete file：{buildBundlePath.fullBuildPath}");
                     }
                 }
             }
@@ -512,7 +521,7 @@ namespace HugulaEditor.ResUpdate
 
             var streamingFolderManifest = data.streamingFolderManifest;
             var exception = UnityEditor.AddressableAssets.Settings.GroupSchemas.HugulaResUpdatePacking.PackingType.streaming.ToString();
-            string filePath = string.Empty;
+            // string filePath = string.Empty;
             string pad_build_path = string.Empty;
             foreach (var folderManifest in streamingFolderManifest)
             {
@@ -523,11 +532,11 @@ namespace HugulaEditor.ResUpdate
                     EditorUtils.DeleteFilesException(pad_build_path, ".gradle", false);
                     foreach (var file in folderManifest.allFileInfos)
                     {
-                        filePath = buildBundlePathData.GetBundleBuildPath(file.name);
-                        if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                        var buildBundlePath = buildBundlePathData.GetBundleBuildPath(file.name);
+                        if (buildBundlePath != null && File.Exists(buildBundlePath.fullBuildPath))
                         {
                             var destFile = Path.Combine(pad_build_path, file.name);
-                            File.Copy(filePath, destFile);
+                            File.Copy(buildBundlePath.fullBuildPath, destFile);
                             Debug.Log("aab copy：{filePath} to:{destFile}");
                         }
                     }

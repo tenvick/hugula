@@ -16,6 +16,8 @@ namespace Hugula
             m_APP_NUMBER = 0;
         }
         private const int BIT_SIZE = 1000;
+        private const int BIT_SIZE1 = 10000;
+
         private static int m_CODE_VERSION;
 
         /// <summary>
@@ -29,7 +31,7 @@ namespace Hugula
                 if (m_CODE_VERSION == 0)
                 {
                     var sp = SplitVersion(APP_VERSION);
-                    m_CODE_VERSION = sp[0] * BIT_SIZE * BIT_SIZE + sp[1] * BIT_SIZE;
+                    m_CODE_VERSION = sp[0] * BIT_SIZE * BIT_SIZE1 + sp[1] * BIT_SIZE1;
                 }
                 return m_CODE_VERSION;
             }
@@ -53,9 +55,9 @@ namespace Hugula
         private static int m_APP_NUMBER = 0;
 
         /// <summary>
-        /// app版本号转换成的number号，用于服务端版本号码对比
+        /// app版本号转换成的number号 作为默认资源号和bundle code
         /// 转换规则 v1.v2.v3
-        /// v1*1000*1000 + v2*1000 +v3
+        /// v1*1000*10000 + v2*10000 +v3
         /// </summary>
         public static int APP_NUMBER
         {
@@ -100,10 +102,25 @@ namespace Hugula
         private static int CovertVerToInt(string version)
         {
             var ints = SplitVersion(version);
-            var i = ints[0] * BIT_SIZE * BIT_SIZE + ints[1] * BIT_SIZE + ints[2];
+            var i = ints[0] * BIT_SIZE * BIT_SIZE1 + ints[1] * BIT_SIZE1 + ints[2];
             return i;
         }
 
+        /// <summary>
+        /// 转换规则 v1.v2.v3
+        /// v1*1000*10000 + v2*10000 
+        /// 强制更新版本号转换
+        /// </summary>
+        public static int CovertVerToCodeVersion(string version)
+        {
+            var ints = SplitVersion(version);
+            var i = ints[0] * BIT_SIZE * BIT_SIZE1 + ints[1] * BIT_SIZE1 ;
+            return i;
+        }
+
+        /// <summary>
+        /// 对比两个版本号返回差值
+        /// </summary>
         public static int Subtract(string ver1, string ver2)
         {
             var verInt1 = CovertVerToInt(ver1);

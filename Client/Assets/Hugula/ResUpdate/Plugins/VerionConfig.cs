@@ -4,8 +4,8 @@
         [System.Serializable]
         public class VerionConfig {
             
-            //强更新判断码
-            public int code;
+            //资源版本号
+            public int resNumber;
 
             //发布时间
             public int time;
@@ -23,11 +23,11 @@
             public string manifest_name;
 
             //是否需要等待fasst包完成，true下载完后才进入下一步，false不需要等待逻辑
-            public FastMode fast = FastMode.sync;
+            public FastMode fast = FastMode.async;
 
         public override string ToString()
         {
-           return $"code:{code},version:{version},manifest_name:{manifest_name},fast:{fast}";
+           return $"resNumber:{resNumber},version:{version},manifest_name:{manifest_name},fast:{fast}";
         }
 
 
@@ -49,5 +49,12 @@
             ///</summary>
             manual
 
+        }
+ 
+ 
+        public class HotResConfig
+        {
+            public const string PACKAGE_FOLDER_NAME="packages";
+            public const string RESOURCE_FOLDER_NAME="res";
         }
  }

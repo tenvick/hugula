@@ -51,6 +51,19 @@ namespace  HugulaEditor.Addressable
             UnityEditor.AssetDatabase.Refresh();
         }
 
+
+        ///<summary>
+        /// 创建一个新的实例
+        ///</summary>
+        public static FolderManifest Create(string folderName)
+        {
+            // Hugula.CodeVersion.APP_NUMBER = 0;
+            var folderManifest = ScriptableObject.CreateInstance<FolderManifest>();
+            folderManifest.resNumber = HugulaEditor.EditorUtils.GetResNumber();
+            folderManifest.version = Hugula.CodeVersion.APP_VERSION;
+            folderManifest.folderName = folderName;
+            return folderManifest;
+        }
     }
 
 

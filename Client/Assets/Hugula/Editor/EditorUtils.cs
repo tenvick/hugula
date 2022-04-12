@@ -181,21 +181,17 @@ namespace HugulaEditor
             }
         }
 
-        // //判断追加crc到文件名，editor 专用。
-        // public static string InsertAssetBundleName(string assetbundleName, string insert)
-        // {
-        //     var append = HugulaSetting.instance.appendCrcToFile;
-        //     if (append)
-        //     {
-        //         var str = CUtils.InsertAssetBundleName(assetbundleName, insert);
-        //         return str;
-        //     }
-        //     else
-        //     {
-        //         return assetbundleName;
-        //     }
+        //获取当前资源版本号
+        public static int GetResNumber()
+        {
+            return EditorPrefs.GetInt("resNumber", Hugula.CodeVersion.APP_NUMBER);
+        }
 
-        // }
+        public static void SetResNumber(int resNum)
+        {
+            if (resNum < EditorPrefs.GetInt("resNum")) Debug.LogWarning($"设置的resNum:{resNum}<原始值:{EditorPrefs.GetInt("resNum")} ");
+            EditorPrefs.SetInt("resNumber", resNum);
+        }
 
         //select objects contains folder file
         public static UnityEngine.Object[] SelectObjects(params System.Type[] args) //System.Type[] filter = null)

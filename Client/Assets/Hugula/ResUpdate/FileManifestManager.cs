@@ -23,11 +23,6 @@ namespace Hugula.ResUpdate
         public static List<FolderManifest> streamingFolderManifest;
 
         /// <summary>
-        /// 本地已经更新的文件列表
-        /// </summary>
-        // public static FolderManifest updateFolderManifest;
-
-        /// <summary>
         /// 本地更新的目录包括firstpackage下载或者其他方式下载的更新包目录
         /// </summary>
         public static List<FolderManifest> persistentFolderManifest;
@@ -37,6 +32,22 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static List<FolderManifest> remoteFolderManifest;
 
+        private static int m_LocalResNum;
+
+        /// <summary>
+        /// 本地最新数字版本号
+        /// </summary>
+        public static int localResNum
+        {
+            get
+            {
+                return m_LocalResNum;
+            }
+            set
+            {
+                m_LocalResNum = value;
+            }
+        }
 
         private static string m_LocalVersion;
         /// <summary>
@@ -108,6 +119,12 @@ namespace Hugula.ResUpdate
                 FileManifestManager.streamingFolderManifest = new List<FolderManifest>(assets);
                 if (assets.Length == 0)
                     Debug.LogError("there is no streamingManifest at " + url);
+                else
+                {
+                    var item = assets[0];
+                    localVersion = item.version; //更新到本地版本号
+                    localResNum = item.resNumber;
+                }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR
                 Debug.LogFormat("Load streamingManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", url, FileManifestManager.streamingFolderManifest.Count);
@@ -151,7 +168,11 @@ namespace Hugula.ResUpdate
                     {
                         GenUpdatePackageTransform(item);//如果版本正确重定向地址
                     }
-                    localVersion = item.version; //更新到下载的版本号
+
+                    if (CodeVersion.Subtract(CodeVersion.APP_VERSION, item.version) <= 0)
+                        localVersion = item.version; //更新到下载的版本号
+                    if (localResNum < item.resNumber)
+                        localResNum = item.resNumber;
                 }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR
@@ -229,8 +250,7 @@ namespace Hugula.ResUpdate
         public static string OverrideLocationURL(IResourceLocation location)
         {
 #if !HUGULA_NO_LOG
-
-      Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} "); 
+            // Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ");
 #endif
 
             if (!location.InternalId.StartsWith("http"))

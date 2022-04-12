@@ -130,20 +130,11 @@ namespace Hugula.ResUpdate
 #endif
                 romoteVersionTxtLoaded = true;
                 var remoteVer = JsonUtility.FromJson<VerionConfig>(response);
-                var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
 
                 var cdn_hosts = remoteVer.cdn_host;
-                for (int i = 0; i < cdn_hosts.Length; i++)
-                {
-                    remoteVer.cdn_host[i] = string.Format(cdn_hosts[i], CUtils.platform, CodeVersion.APP_VERSION);
-#if !HUGULA_NO_LOG
-                    Debug.Log("remote resource cdn host: " + remoteVer.cdn_host[i]);
-#endif
-                }
+                BackGroundDownload.rootHosts = cdn_hosts;
 
-                BackGroundDownload.rootHosts = remoteVer.cdn_host;
-
-                if (CodeVersion.CODE_VERSION < remoteVer.code)
+                if (CodeVersion.CODE_VERSION < CodeVersion.CovertVerToCodeVersion(remoteVer.version)) // remoteVer.resNumber)
                 { //强制更新提示
                     MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
                     {
@@ -157,7 +148,10 @@ namespace Hugula.ResUpdate
                     yield return CheckLoadFast(remoteVer);
                     yield return GenLoadedZipTransform();
 
-                    if (subVersion > 0)
+                    var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
+                    var subResNum = remoteVer.resNumber > FileManifestManager.localResNum;
+
+                    if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
                         yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
                     else
                         LoadBeginScene(); //直接进入
@@ -191,32 +185,7 @@ namespace Hugula.ResUpdate
                 var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
                 if (fastManifest != null && !fastManifest.isZipDone)//如果fast包没有加载
                 {
-                    var localVersion = Resources.Load<TextAsset>("version");
-                    if (localVersion == null)
-                    {
-                        UnityEngine.Debug.LogError($"local version.txt does't exists! {System.DateTime.Now}");
-                        yield break;
-                    }
-                    var localVer = JsonUtility.FromJson<VerionConfig>(localVersion.text);
-                    var cdn_hosts = localVer.cdn_host;
-                    for (int i = 0; i < cdn_hosts.Length; i++)
-                    {
-                        localVer.cdn_host[i] = string.Format(cdn_hosts[i], CUtils.platform, CodeVersion.APP_VERSION);
-#if !HUGULA_NO_LOG
-                        Debug.Log("local resource cdn host: " + localVer.cdn_host[i]);
-#endif
-                    }
-
-                    var zipUrl = CUtils.PathCombine(localVer.cdn_host[0], fastManifest.zipName + ".zip");
-                    var newFastManifest = fastManifest.CloneWithOutAllFileInfos();
-                    newFastManifest.Add(new FileResInfo(zipUrl, 0, fastManifest.zipSize));
-#if !HUGULA_NO_LOG
-                    Debug.Log(fastManifest.ToString());
-                    print($"add zipUrl:{zipUrl}");
-                    Debug.Log(newFastManifest.ToString());
-#endif
-
-                    var change = BackGroundDownload.instance.AddFolderManifest(newFastManifest, onFastProccessChanged, onFastComplete);
+                    var change = BackGroundDownload.instance.AddZipFolderManifest(fastManifest, onFastProccessChanged, onFastComplete);
                     if (change > 0)
                     {
                         var is_wifi = Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
@@ -321,12 +290,13 @@ namespace Hugula.ResUpdate
 
         #region  加载远端remote foldermanifest文件与热更新资源  
         string loadRemoteVersion = string.Empty; //将要下载的远端文件    
+        int loadRemoteAppNum = 0;//将要下载的远端文件appnum 
         //加载远端FolderManifest文件
         public IEnumerator LoadRemoteFoldmanifest(VerionConfig remoteVer)
         {
             yield return null;
             SetProgressTxt(Localization.Get("main_web_server_crc_list")); //--加载服务器校验列表。")
-            var url = CUtils.PathCombine(remoteVer.cdn_host[0], remoteVer.manifest_name); //server_ver.cdn_host[1] .. "/" .. file_name
+            var url = Path.Combine(remoteVer.cdn_host[0], remoteVer.manifest_name); //server_ver.cdn_host[1] .. "/" .. file_name
             Debug.Log($"begin get url ：{url}");
 
             UnityWebRequest req = UnityWebRequest.Get(url);
@@ -356,6 +326,7 @@ namespace Hugula.ResUpdate
                 {
                     remoteFolder = remoteFolderManifest[i];
                     loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
+                    loadRemoteAppNum = remoteFolder.resNumber;
                     for (int j = 0; j < streamingFolderManifest.Count; j++)
                     {
                         curStreaming = streamingFolderManifest[j];
@@ -480,6 +451,7 @@ namespace Hugula.ResUpdate
                 FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
                 FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
                 FileManifestManager.localVersion = loadRemoteVersion;
+                FileManifestManager.localResNum = loadRemoteAppNum;
                 Debug.Log($"download sccuess :{loadRemoteVersion} is_Error：{is_error}");
 #if !HUGULA_NO_LOG
                 Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) ");

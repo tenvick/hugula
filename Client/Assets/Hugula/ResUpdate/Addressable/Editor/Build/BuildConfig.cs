@@ -50,10 +50,23 @@ namespace HugulaEditor.ResUpdate
         {
             get
             {
-                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath, CodeVersion.APP_VERSION);
+                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,"res");//" CodeVersion.APP_VERSION");
                 return updateOutPath;
             }
         }
+
+         /// <summary>
+        /// 当前平台zip包资源存放目录
+        /// </summary>
+        public static string UpdatePackagesOutVersionPath
+        {
+            get
+            {
+                string outPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,"packages");//" CodeVersion.APP_VERSION");
+                return outPath;
+            }
+        }
+        
 
         /// <summary>
         /// 构建目标平台，用于资源copy
@@ -74,11 +87,13 @@ namespace HugulaEditor.ResUpdate
     {
         public string fileName;
         public string fullBuildPath;
+        public uint crc;
 
-        public BuildBundlePath(string name,string path)
+        public BuildBundlePath(string name,string path,uint crc)
         {
             this.fileName = name;
             this.fullBuildPath = path;
+            this.crc = crc;
         }
     }
 
@@ -87,17 +102,17 @@ namespace HugulaEditor.ResUpdate
     {
         public List<BuildBundlePath> allBuildPath = new List<BuildBundlePath>();
 
-        Dictionary<string,string> m_AllBuildPathDic;
-        private Dictionary<string,string> allBuildPathDic
+        Dictionary<string,BuildBundlePath> m_AllBuildPathDic;
+        private Dictionary<string,BuildBundlePath> allBuildPathDic
         {
             get
             {
                 if(m_AllBuildPathDic==null)
                 {
-                    m_AllBuildPathDic = new Dictionary<string, string>();
+                    m_AllBuildPathDic = new Dictionary<string, BuildBundlePath>();
                     foreach(var f in allBuildPath)
                     {
-                        m_AllBuildPathDic[f.fileName]=f.fullBuildPath;
+                        m_AllBuildPathDic[f.fileName]=f;
                     }
                 }
 
@@ -105,15 +120,16 @@ namespace HugulaEditor.ResUpdate
             }
         }
 
-        public void AddBuildBundlePath(string name,string path)
+        public void AddBuildBundlePath(string name,string path,uint crc)
         {
-            allBuildPath.Add(new BuildBundlePath(name,path));
-            allBuildPathDic[name] = path;
+            var bbp = new BuildBundlePath(name,path,crc);
+            allBuildPath.Add(bbp);
+            allBuildPathDic[name] = bbp;
         }
 
-        public string GetBundleBuildPath(string name)
+        public BuildBundlePath GetBundleBuildPath(string name)
         {
-            string path = string.Empty;
+            BuildBundlePath path ;
             if(allBuildPathDic.TryGetValue(name,out path ))
                 return path;
             else

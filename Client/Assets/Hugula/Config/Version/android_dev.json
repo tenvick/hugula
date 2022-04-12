@@ -1,1 +1,1 @@
-{"cdn_host":["http://192.168.3.2/{app.platform}/{app.version}"],"update_url":"http://192.168.3.2/android/dev","manifest_name":"{app.manifest_full_name}","fast":0}
+{"cdn_host":["http://192.168.3.2/{app.platform}/{app.version}"],"update_url":"http://192.168.3.2/android/dev","manifest_name":"res/{app.manifest_full_name}","fast":0}

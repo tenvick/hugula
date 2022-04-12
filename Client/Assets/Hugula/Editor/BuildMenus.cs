@@ -276,10 +276,10 @@ public class ProjectBuild : Editor
         ftpTampleta.Append("function foo()\n{\nlocal r\nlocal a\nr=\"$@\"\nwhile [[ \"$r\" != \"$a\" ]] ; do\na=${r%%/*}\necho \"mkdir $a\"\necho \"cd $a\"\nr=${r#*/}\ndone\n}");
         ftpTampleta.Append("\nfunction upload_ftp()\n{\necho \"current folder \"$1\necho \"upload to \"$FTP_ROOT$2\nftp -niv <<- EOF\nopen $FTP_IP\nuser $FTP_USER $FTP_PWD\nlcd $1\n$(foo \"$FTP_ROOT$2\")\ncd $FTP_ROOT$2\nbin\nhash\npwd\nprompt off\nmput *.*\nclose\nbye\nEOF\n}");
         var codeVersion =  Hugula.CodeVersion.CovertVerToCodeVersion(Hugula.CodeVersion.APP_VERSION); //Hugula.CodeVersion.APP_NUMBER.ToString(); //文件crc 不变路径需要改变
-        string firstPackagePath = BuildConfig.UpdateResOutVersionPath;// release/android/v9000 
-        string ftpToPath = CUtils.platform + "/v" + codeVersion;
+        string localHotResPath = BuildConfig.CurrentUpdateResOutPath;// UpdateRes/win
+        string ftpToPath = CUtils.platform; // /win;
         StringBuilder content1 = new StringBuilder();
-        content1.AppendFormat("\nupload_ftp {0} {1}", firstPackagePath, ftpToPath);//eg release/android/v9000 to android/v9001
+        content1.AppendFormat("\nupload_ftp {0} {1}", localHotResPath, ftpToPath);//eg release/android/v9000 to android/v9001
 
         using (StreamWriter sw = new StreamWriter(shellPath, false, new UTF8Encoding(false)))
         {
@@ -289,9 +289,9 @@ public class ProjectBuild : Editor
         Debug.Log("Create shell success " + shellPath);
 
         string ftpVerPath = Path.Combine(path, "ftp_dev_shell.sh");
-        firstPackagePath = BuildConfig.UpdateResOutVersionPath;
+        localHotResPath = BuildConfig.UpdateResOutVersionPath;
         content1 = new StringBuilder();
-        content1.AppendFormat("\nupload_ftp {0} {1}", firstPackagePath, ftpToPath);//eg dev/android/v9000 to android/v9001
+        content1.AppendFormat("\nupload_ftp {0} {1}", localHotResPath, ftpToPath);//eg dev/android/v9000 to android/v9001
         // content1.AppendFormat("\nupload_ftp {0} {1}", firstPackagePath, string.Format("{0}/v{1}", CUtils.platform, Hugula.CodeVersion.CODE_VERSION));//eg dev/android/v9000 to android/v9000
 
         using (StreamWriter sw = new StreamWriter(ftpVerPath, false, new UTF8Encoding(false)))

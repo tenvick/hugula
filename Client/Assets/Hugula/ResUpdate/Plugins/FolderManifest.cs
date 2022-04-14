@@ -20,7 +20,7 @@ namespace Hugula.ResUpdate
         /// 所有列表字典映射
         /// </summary>
         internal Dictionary<string, FileResInfo> fileInfoDict;// = new Dictionary<string, FileResInfo>(System.StringComparer.OrdinalIgnoreCase);
-        
+
         /// <summary>
         /// 序列化的所有文件列表
         /// </summary>
@@ -59,11 +59,12 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// zip文件名称,版本号为application.version
         /// </summary>
-        public string zipName{
+        public string zipName
+        {
             get
             {
-                if(string.IsNullOrEmpty(m_ZipName))
-                    m_ZipName = string.Format("{0}_{1}",folderName, zipVersion);
+                if (string.IsNullOrEmpty(m_ZipName))
+                    m_ZipName = string.Format("{0}_{1}", folderName, zipVersion);
                 return m_ZipName;
             }
             set
@@ -71,7 +72,7 @@ namespace Hugula.ResUpdate
                 m_ZipName = null;
             }
         }
-        
+
         private string m_ZipMarkName;
         /// <summary>
         /// zip标记文件名称
@@ -80,8 +81,8 @@ namespace Hugula.ResUpdate
         {
             get
             {
-                if(string.IsNullOrEmpty(m_ZipMarkName))
-                    m_ZipMarkName = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),string.Format("{0}_{1}.zipd",folderName, zipVersion));
+                if (string.IsNullOrEmpty(m_ZipMarkName))
+                    m_ZipMarkName = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), string.Format("{0}_{1}.zipd", folderName, zipVersion));
                 return m_ZipMarkName;
             }
         }
@@ -105,16 +106,20 @@ namespace Hugula.ResUpdate
         {
             get
             {
-                if(m_TotalSize == uint.MinValue)
+                if (m_TotalSize == uint.MinValue)
                 {
-                    uint s=0;
-                    for(int i=0;i<allFileInfos.Count;i++)
+                    uint s = 0;
+                    for (int i = 0; i < allFileInfos.Count; i++)
                     {
-                        s+=allFileInfos[i].size;
+                        s += allFileInfos[i].size;
                     }
                     m_TotalSize = s;
                 }
                 return m_TotalSize;
+            }
+            set
+            {
+                m_TotalSize = uint.MinValue;
             }
         }
         #endregion
@@ -126,14 +131,14 @@ namespace Hugula.ResUpdate
         {
             if (fileInfoDict == null)
             {
-                fileInfoDict = new Dictionary<string, FileResInfo>(allFileInfos.Count + 2,System.StringComparer.OrdinalIgnoreCase);
+                fileInfoDict = new Dictionary<string, FileResInfo>(allFileInfos.Count + 2, System.StringComparer.OrdinalIgnoreCase);
                 FileResInfo abinfo;
                 for (int i = 0; i < allFileInfos.Count; i++)
                 {
                     abinfo = allFileInfos[i];
                     fileInfoDict[abinfo.name] = abinfo;
                 }
-            }             
+            }
         }
 
         public void Add(FileResInfo fileInfo)
@@ -150,14 +155,15 @@ namespace Hugula.ResUpdate
             else
                 allFileInfos.Add(fileInfo);
         }
-        
+
         /// <summary>
         /// 获取单个文件信息
         /// </summary>
-        public FileResInfo GetFileResInfo (string name) {
+        public FileResInfo GetFileResInfo(string name)
+        {
             FileResInfo abInfo = null;
             if (fileInfoDict == null) OnAfterDeserialize();
-            fileInfoDict.TryGetValue(name ,out abInfo);
+            fileInfoDict.TryGetValue(name, out abInfo);
             return abInfo;
         }
 
@@ -166,15 +172,15 @@ namespace Hugula.ResUpdate
         /// </summary>
         public bool CheckFileIsChanged(FileResInfo fileResInfo)
         {
-             var localInfo = GetFileResInfo(fileResInfo.name);
-             if(localInfo == null) //如果不存在表示变更
-             {
+            var localInfo = GetFileResInfo(fileResInfo.name);
+            if (localInfo == null) //如果不存在表示变更
+            {
                 return true;
-             }
-             else
-             {
+            }
+            else
+            {
                 return localInfo.crc32 != fileResInfo.crc32;//校验码不相等表示文件变更
-             }
+            }
         }
 
         /// <summary>
@@ -183,8 +189,8 @@ namespace Hugula.ResUpdate
         public List<FileResInfo> Compare(FolderManifest remote)
         {
             List<FileResInfo> re = new List<FileResInfo>();
-            if(remote==null) return re;
-            if(resNumber > remote.resNumber) return re; //如果本地大于远端不需要更新
+            if (remote == null) return re;
+            if (resNumber > remote.resNumber) return re; //如果本地大于远端不需要更新
             var compareABInfos = remote.allFileInfos;
             FileResInfo abInfo;
             for (int i = 0; i < compareABInfos.Count; i++)
@@ -200,18 +206,73 @@ namespace Hugula.ResUpdate
         }
 
         /// <summary>
+        /// 用remote的foldermanifest对比本地 找出差异文件
+        /// </summary>
+        public List<FileResInfo> NotSafeCompare(FolderManifest remote)
+        {
+            List<FileResInfo> re = new List<FileResInfo>();
+            if (remote == null) return re;
+            var compareABInfos = remote.allFileInfos;
+            FileResInfo abInfo;
+            for (int i = 0; i < compareABInfos.Count; i++)
+            {
+                abInfo = compareABInfos[i];
+                if (CheckFileIsChanged(abInfo))
+                {
+                    re.Add(abInfo);
+                }
+            }
+
+            return re;
+        }
+
+        /// <summary>
+        /// 移除自己相同的文件信息
+        /// </summary>
+        public bool RemoveSameFileResInfoFrom(FolderManifest targetFolderManifest)
+        {
+            bool canAppend = resNumber > targetFolderManifest.resNumber;
+            if (!canAppend) return false; //判断版本号
+
+            FileResInfo fileResInfo;
+            FileResInfo fileResInfo1;
+            bool re = false;
+
+            for (int i = 0; i < allFileInfos.Count;)
+            {
+                fileResInfo = allFileInfos[i];
+                fileResInfo1 = targetFolderManifest.GetFileResInfo(fileResInfo.name);
+                if (fileResInfo1 != null && fileResInfo.crc32 == fileResInfo1.crc32) //如果相同移除自己
+                {
+                    re = true;
+                    allFileInfos.RemoveAt(i);
+                    #if HUGULA_NO_LOG
+                    UnityEngine.Debug.Log($"remove fileResInfo:({fileResInfo})");
+                    #endif
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            return re;
+        }
+
+        /**
+        /// <summary>
         /// 用remote的foldermanifest覆盖本地配置
         /// </summary>
         public bool AppendFileManifest(FolderManifest newFolderManifest)
         {
-            if(newFolderManifest == this) return false; //不能覆盖自身
-            bool canAppend = resNumber <= newFolderManifest.resNumber;
-            if(canAppend)
+            // if (newFolderManifest == this) return false; //不能覆盖自身
+            bool canAppend = resNumber < newFolderManifest.resNumber;
+            if (canAppend)
             {
-                version = newFolderManifest.version;
+                // version = newFolderManifest.version;
                 resNumber = newFolderManifest.resNumber;
                 var allFileInfos = newFolderManifest.allFileInfos;
-                foreach(var finfo in allFileInfos)
+                foreach (var finfo in allFileInfos)
                 {
                     Add(finfo);
                 }
@@ -219,7 +280,7 @@ namespace Hugula.ResUpdate
 
             return canAppend;
         }
-
+        **/
         /// <summary>
         /// zip文件是否已经下载完成,
         /// streaming包里内容无需下载
@@ -228,11 +289,26 @@ namespace Hugula.ResUpdate
         {
             get
             {
-               return File.Exists(zipMarkPathName);
+                return File.Exists(zipMarkPathName);
             }
         }
 
-    
+        public FolderManifest Clone()
+        {
+            var folderManifest = ScriptableObject.CreateInstance<FolderManifest>();
+            folderManifest.resNumber = this.resNumber;
+            folderManifest.version = this.version;
+            folderManifest.folderName = this.folderName;
+            folderManifest.priority = this.priority;
+            folderManifest.zipSize = this.zipSize;
+            folderManifest.zipVersion = this.zipVersion;
+            var allFileInfos = this.allFileInfos;
+            for (int i = 0; i < allFileInfos.Count; i++)
+            {
+                folderManifest.allFileInfos.Add(allFileInfos[i]);
+            }
+            return folderManifest;
+        }
 
         /// <summary>
         /// 简单clone folderManifest对象  (不clone  allFileInfos文件列表)
@@ -252,7 +328,7 @@ namespace Hugula.ResUpdate
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
-            stringBuilder.AppendLine($"FolderManifest(folderName={folderName},count={Count},priority={priority},version={version}, resNumber={resNumber},zipSize={zipSize},zipVersion={zipVersion})");
+            stringBuilder.AppendLine($"FolderManifest(folderName={folderName},count={Count},total={totalSize},priority={priority},version={version}, resNumber={resNumber},zipSize={zipSize},zipVersion={zipVersion})");
             stringBuilder.AppendLine("allFileInfos:");
             foreach (var info in allFileInfos)
             {
@@ -260,17 +336,17 @@ namespace Hugula.ResUpdate
             }
             return stringBuilder.ToString();
         }
-       
-       
+
+
         #endregion
 
-       
+
 
 
         #region  editor
 
         #endregion
     }
-  
+
 
 }

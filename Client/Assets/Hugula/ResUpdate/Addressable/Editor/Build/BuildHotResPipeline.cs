@@ -383,7 +383,7 @@ namespace HugulaEditor.ResUpdate
             FastMode fastMode = config.fast;
             var versionConfig = new VerionConfig();
             versionConfig.version = CodeVersion.APP_VERSION;
-            versionConfig.resNumber = EditorUtils.GetResNumber(); // CodeVersion.APP_NUMBER;
+            versionConfig.res_number = EditorUtils.GetResNumber(); // CodeVersion.APP_NUMBER;
             SetVersionResNumber(versionConfig);
             versionConfig.time = CUtils.ConvertDateTimeInt(System.DateTime.Now);
             //
@@ -408,7 +408,7 @@ namespace HugulaEditor.ResUpdate
 
         void SetVersionResNumber(VerionConfig versionConfig)
         {
-            versionConfig.resNumber = EditorUtils.GetResNumber();//CodeVersion.APP_NUMBER; //从svn获取版本号信息
+            versionConfig.res_number = EditorUtils.GetResNumber();//CodeVersion.APP_NUMBER; //从svn获取版本号信息
         }
 
         string ReplaceTemplate(string content, uint crc)

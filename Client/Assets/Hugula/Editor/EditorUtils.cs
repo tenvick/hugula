@@ -181,16 +181,25 @@ namespace HugulaEditor
             }
         }
 
+        static string RES_NUMBER_KEY
+        {
+            get
+            {
+                var key = $"{CUtils.platform}_{Application.identifier}_{Application.version}_res_number";
+                Debug.Log(key);
+                return key;
+            }
+        }
         //获取当前资源版本号
         public static int GetResNumber()
         {
-            return EditorPrefs.GetInt("resNumber", Hugula.CodeVersion.APP_NUMBER);
+            return EditorPrefs.GetInt(RES_NUMBER_KEY, 0);
         }
 
         public static void SetResNumber(int resNum)
         {
-            if (resNum < EditorPrefs.GetInt("resNum")) Debug.LogWarning($"设置的resNum:{resNum}<原始值:{EditorPrefs.GetInt("resNum")} ");
-            EditorPrefs.SetInt("resNumber", resNum);
+            if (resNum < EditorPrefs.GetInt(RES_NUMBER_KEY)) Debug.LogWarning($"设置的resNum:{resNum}<原始值:{EditorPrefs.GetInt(RES_NUMBER_KEY)} ");
+            EditorPrefs.SetInt(RES_NUMBER_KEY, resNum);
         }
 
         //select objects contains folder file

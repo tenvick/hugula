@@ -1,5 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.4.14
+1 多次热更新文件读取与重定向优化。
+2 编辑器模式下resNumber key优化，VersionConfig.cs命名规范。
+
 2022.4.8
 1 fast包下载问题修复，构建时候自动判断fast包状态。
 2 热跟新关键日志开启。

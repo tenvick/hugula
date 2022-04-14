@@ -104,7 +104,7 @@ namespace Hugula.ResUpdate
             CalcReceiveBytes(0);
 
             foreach (var bQueue in loadingTasks.Values)
-                bQueue.DispatchProgressChanged();
+                bQueue.group.DispatchProgressChanged();
 
         }
         #endregion
@@ -154,7 +154,7 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 下载zip文件
         /// </summary>
-        public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onComplete)
+        public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete,System.Action<FolderQueueGroup, bool> onAllComplete)
         {
             var newFastManifest = folder.CloneWithOutAllFileInfos();
             newFastManifest.Add(new FileResInfo(folder.zipName + ".zip", 0, folder.zipSize));
@@ -163,17 +163,18 @@ namespace Hugula.ResUpdate
             Debug.Log(folder.ToString());
             Debug.Log(newFastManifest.ToString());
 #endif
-            return AddFolderManifest(newFastManifest, onProgress, onComplete);
+            return AddFolderManifest(newFastManifest, onProgress, onItemComplete, onAllComplete);
         }
 
         ///<summary>
         /// 添加一组下载文件
         /// </summary>
-        public uint AddFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onComplete)
+        public uint AddFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete, System.Action<FolderQueueGroup, bool> onAllComplete)
         {
             if (folder.Count <= 0) return 0;
             var folderQueue = new FolderManifestQueue();
-            folderQueue.SetFolder(folder, null, onProgress, onComplete);
+            var group = new FolderQueueGroup(onProgress, onItemComplete, onAllComplete);
+            folderQueue.SetFolder(folder, group);
 
             willLoadFolders.Add(folderQueue);
             willLoadFolders.Sort((a, b) =>
@@ -186,17 +187,17 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 添加多组下载文件
         /// </summary>
-        public uint AddFolderManifests(List<FolderManifest> folders, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onComplete)
+        public uint AddFolderManifests(List<FolderManifest> folders, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete, System.Action<FolderQueueGroup, bool> onAllComplete)
         {
             FolderManifest item;
-            var group = new FolderQueueGroup();
+            var group = new FolderQueueGroup(onProgress, onItemComplete, onAllComplete);
             for (int i = 0; i < folders.Count; i++)
             {
                 var folderQueue = new FolderManifestQueue();
                 item = folders[i];
                 if (item.Count > 0)
                 {
-                    folderQueue.SetFolder(item, group, onProgress, onComplete);
+                    folderQueue.SetFolder(item, group);
                     willLoadFolders.Add(folderQueue);
                 }
             }
@@ -220,7 +221,7 @@ namespace Hugula.ResUpdate
                 queue = children[i];
                 if (queue.isError)
                 {
-                    queue.ReLoadError();
+                    queue.ReEnqueueLoadError();
                     willLoadFolders.Add(queue);
                 }
             }

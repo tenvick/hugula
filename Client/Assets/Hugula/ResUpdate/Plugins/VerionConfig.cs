@@ -5,7 +5,7 @@
         public class VerionConfig {
             
             //资源版本号
-            public int resNumber;
+            public int res_number;
 
             //发布时间
             public int time;
@@ -27,7 +27,7 @@
 
         public override string ToString()
         {
-           return $"resNumber:{resNumber},version:{version},manifest_name:{manifest_name},fast:{fast}";
+           return $"resNumber:{res_number},version:{version},manifest_name:{manifest_name},fast:{fast}";
         }
 
 

@@ -389,20 +389,21 @@ public class ProjectBuild : Editor
 
     #region 出包
 
-    [MenuItem("Hugula/Build  StandaloneWindows  (export res and buildplayer)", false, 210)]
+    [MenuItem("Hugula/Build/StandaloneWindows  (export res and buildplayer)", false, 211)]
     static void BuildForWindowsOnekey()
     {
         ExportRes();
         BuildForWindows();
     }
 
-    [MenuItem("Hugula/Build  Android  (export res and buildplayer)", false, 210)]
+    [MenuItem("Hugula/Build/Android  (export res and buildplayer)", false, 215)]
     static void BuildForAndroidOnekey()
     {
         ExportRes();
         BuildForAndroidIL2CPP();
     }
 
+    [MenuItem("Hugula/Build/StandaloneWindows  (only buildplayer)", false, 212)]
     static void BuildForWindows()
     {
         CUtils.DebugCastTime("begin build windows exe");

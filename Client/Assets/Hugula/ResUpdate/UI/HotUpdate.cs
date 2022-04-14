@@ -87,7 +87,7 @@ namespace Hugula.ResUpdate
                 yield return LoadRemoteVersion();
             else
             {
-                LoadBeginScene();
+                yield return RefreshPersistentCatalog();
             }
 #else
             yield return LoadRemoteVersion ();
@@ -146,15 +146,14 @@ namespace Hugula.ResUpdate
                 {
                     //判断是否等待fast包
                     yield return CheckLoadFast(remoteVer);
-                    yield return GenLoadedZipTransform();
 
                     var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
-                    var subResNum = remoteVer.resNumber > FileManifestManager.localResNum;
+                    var subResNum = remoteVer.res_number > FileManifestManager.localResNum;
 
                     if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
                         yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
                     else
-                        LoadBeginScene(); //直接进入
+                        yield return RefreshPersistentCatalog();
                 }
             }
             else if (!romoteVersionTxtLoaded)
@@ -185,7 +184,7 @@ namespace Hugula.ResUpdate
                 var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
                 if (fastManifest != null && !fastManifest.isZipDone)//如果fast包没有加载
                 {
-                    var change = BackGroundDownload.instance.AddZipFolderManifest(fastManifest, onFastProccessChanged, onFastComplete);
+                    var change = BackGroundDownload.instance.AddZipFolderManifest(fastManifest, onFastProccessChanged, onFastComplete, null);
                     if (change > 0)
                     {
                         var is_wifi = Application.internetReachability == UnityEngine.NetworkReachability.ReachableViaLocalAreaNetwork;
@@ -246,7 +245,9 @@ namespace Hugula.ResUpdate
         void onFastComplete(FolderManifestQueue queue, bool isError)
         {
             var folderManifest = queue.currFolder;
+#if HUGULA_NO_LOGNO_LOG
             Debug.Log($"onFastComplete {isError} zipMarkName={folderManifest.zipMarkPathName},zipName={folderManifest.zipName} {folderManifest.ToString()}");
+#endif
             if (!isError)
             {
                 var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
@@ -266,26 +267,6 @@ namespace Hugula.ResUpdate
             }
         }
 
-        ///<summary>
-        /// 统一执行下载完毕的zip的地址重定向 
-        ///</summary>
-        IEnumerator GenLoadedZipTransform()
-        {
-            var streamingFolderManifest = FileManifestManager.streamingFolderManifest;
-            FolderManifest item;
-            for (int i = 0; i < streamingFolderManifest.Count; i++)
-            {
-                item = streamingFolderManifest[i];
-                if (item.isZipDone)
-                {
-#if !HUGULA_NO_LOG
-                    print($" zip folder:{item.folderName} override ");
-#endif
-                    FileManifestManager.GenZipPackageTransform(item);
-                    yield return null;
-                }
-            }
-        }
         #endregion
 
         #region  加载远端remote foldermanifest文件与热更新资源  
@@ -309,7 +290,6 @@ namespace Hugula.ResUpdate
                 FileHelper.SavePersistentFile(bytes, UPDATED_TEMP_LIST_NAME); //--保存server端临时文件
                 var ab = LuaHelper.LoadFromMemory(bytes);
                 var remoteFolderManifest = new List<FolderManifest>(ab.LoadAllAssets<FolderManifest>());
-                FileManifestManager.remoteFolderManifest = remoteFolderManifest;
                 ab.Unload(false);
                 Debug.Log($"remote file({url}) is down");
 #if !HUGULA_NO_LOG
@@ -317,7 +297,6 @@ namespace Hugula.ResUpdate
                     Debug.Log(folder.ToString());
 
 #endif
-                var streamingFolderManifest = FileManifestManager.streamingFolderManifest;
                 FolderManifest curStreaming = null;
                 FolderManifest remoteFolder = null;
                 List<FolderManifest> needDownload = new List<FolderManifest>();
@@ -327,35 +306,43 @@ namespace Hugula.ResUpdate
                     remoteFolder = remoteFolderManifest[i];
                     loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
                     loadRemoteAppNum = remoteFolder.resNumber;
-                    for (int j = 0; j < streamingFolderManifest.Count; j++)
+                    curStreaming = FileManifestManager.FindStreamingFolderManifest(remoteFolder.folderName);
+
+                    if (curStreaming != null) //需要对比下载
                     {
-                        curStreaming = streamingFolderManifest[j];
-                        if (remoteFolder.folderName == curStreaming.folderName) //找到相同文件夹
+                        var downLoadFolder = remoteFolder.CloneWithOutAllFileInfos();
+                        remoteFolder.RemoveSameFileResInfoFrom(curStreaming); //去重本地包内内容
+                        //查找当前缓存目录
+                        var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.folderName);
+                        if (curPersistent != null)
                         {
-                            var downLoadFolder = remoteFolder.CloneWithOutAllFileInfos();
-                            downLoadFolder.allFileInfos = curStreaming.Compare(remoteFolder);
-                            if (downLoadFolder.allFileInfos.Count > 0)
-                            {
-                                needDownload.Add(downLoadFolder);
+                            downLoadFolder.allFileInfos = curPersistent.NotSafeCompare(remoteFolder);
+                        }
+                        else
+                            downLoadFolder.allFileInfos = remoteFolder.allFileInfos;
+
+
+                        FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteFolder);
+
+                        if (downLoadFolder.allFileInfos.Count > 0)
+                        {
+                            needDownload.Add(downLoadFolder);
 #if !HUGULA_NO_LOG
-                                Debug.Log($"update Folder {downLoadFolder.ToString()}\r\ncurStreaming={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
+                            Debug.Log($"need update Folder {downLoadFolder.ToString()}\r\folder={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
 #endif
-                            }
-                            continue;
                         }
                     }
-                    //如果没找到需要下载当前所有文件
-                    if (remoteFolder.Count > 0)
-                    {
-                        needDownload.Add(remoteFolder);
-#if !HUGULA_NO_LOG
-                        Debug.Log($"update Folder {remoteFolder.ToString()}\r\ncurStreaming={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
-#endif
-                    }
+                    //                     else if (remoteFolder.Count > 0)//不支持新增加文件夹
+                    //                     {
+                    //                         needDownload.Add(remoteFolder);
+                    // #if !HUGULA_NO_LOG
+                    //                         Debug.Log($"need update Folder whole: {remoteFolder}\r\folder={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
+                    // #endif
+                    //                     }
                 }
 
                 //开始加载热更新文件
-                var change = BackGroundDownload.instance.AddFolderManifests(needDownload, OnHotResProccessChanged, OnBackgroundComplete);
+                var change = BackGroundDownload.instance.AddFolderManifests(needDownload, OnHotResProccessChanged, OnBackgroundComplete, OnBackgroundAllComplete);
                 Debug.Log("need load file size:" + change);
                 if (change > 0)
                 {
@@ -405,6 +392,33 @@ namespace Hugula.ResUpdate
             SetSliderProgress(str, (float)arg.current / (float)arg.total);
         }
 
+
+        void OnBackgroundAllComplete(FolderQueueGroup group, bool is_error)
+        {
+            if (group.anyError)
+            {
+                var tips = Localization.Get("main_download_fail");
+                SetProgressTxt(tips);
+                UnityEngine.Events.UnityAction ReLoad = () =>
+                {
+                    BackGroundDownload.instance.ReLoadErrorGroup(group);
+                    BackGroundDownload.instance.Begin();
+                    MessageBox.Destroy();
+                };
+                MessageBox.Show(tips, "", Localization.Get("main_check_sure"), ReLoad);
+                Debug.LogError($" OnBackgroundComplete Error :{tips}");
+            }
+            else
+            {
+                FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
+                FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
+                FileManifestManager.localVersion = loadRemoteVersion;
+                FileManifestManager.localResNum = loadRemoteAppNum;
+                Debug.Log($"download sccuess :{loadRemoteVersion} is_Error：{is_error}");
+                StartCoroutine(RefreshPersistentCatalog());
+            }
+        }
+
         //热更新文件加载完成
         void OnBackgroundComplete(FolderManifestQueue queue, bool is_error)
         {
@@ -415,6 +429,7 @@ namespace Hugula.ResUpdate
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("thus files load fail :");
                 sb.AppendLine(System.DateTime.Now.ToString());
+                sb.AppendLine(remoteManifest.folderName);
                 foreach (var f in queue.errorFiles)
                 {
                     sb.AppendLine(f.name);
@@ -423,40 +438,13 @@ namespace Hugula.ResUpdate
             }
             else
             {
-                if (remoteManifest != null && FileManifestManager.UpdateStreamingFolderManifest(remoteManifest))
+                if (remoteManifest != null && FileManifestManager.CheckStreamingFolderManifestResNumber(remoteManifest))
                 {
-                    FileManifestManager.GenUpdatePackageTransform(remoteManifest);//如果版本正确重定向地址
+                    FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteManifest);
                 }
 #if !HUGULA_NO_LOG
-                Debug.Log($"OnBackgroundComplete({remoteManifest}) is_Error：{is_error} ");
+                Debug.Log($"OnBackgroundItemComplete({remoteManifest})");
 #endif
-                // SetSliderProgress (Localization.Get ("main_download_complete"), 4, 1); //"更新完毕，进入游戏！"
-            }
-
-            if (queue.group.anyError)
-            {
-                var tips = Localization.Get("main_download_fail");
-                SetProgressTxt(tips);
-                UnityEngine.Events.UnityAction ReLoad = () =>
-                {
-                    BackGroundDownload.instance.ReLoadErrorGroup(queue.group);
-                    BackGroundDownload.instance.Begin();
-                    MessageBox.Destroy();
-                };
-                MessageBox.Show(tips, "", Localization.Get("main_check_sure"), ReLoad);
-                Debug.LogError($" OnBackgroundComplete Error :{tips}");
-            }
-            else if (queue.group.isAllDown)
-            {
-                FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
-                FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
-                FileManifestManager.localVersion = loadRemoteVersion;
-                FileManifestManager.localResNum = loadRemoteAppNum;
-                Debug.Log($"download sccuess :{loadRemoteVersion} is_Error：{is_error}");
-#if !HUGULA_NO_LOG
-                Debug.Log($"OnBackgroundComplete isAllDown ({remoteManifest}) ");
-#endif
-                StartCoroutine(RefreshPersistentCatelog());
             }
 
         }
@@ -494,41 +482,14 @@ namespace Hugula.ResUpdate
         }
 
         //刷新热更新的catelog
-        private IEnumerator RefreshPersistentCatelog()
+        private IEnumerator RefreshPersistentCatalog()
         {
+            //zip package内容重定向
+            FileManifestManager.GenLoadedZipTransform();
+            //热更新重定向
+            FileManifestManager.GenUpdatedPackagesTransform();
 
-            var catelogId = UnityEngine.AddressableAssets.Initialization.ResourceManagerRuntimeData.kCatalogAddress;
-            var catelogPersistentPath = CUtils.PathCombine(CUtils.realPersistentDataPath, "catalog.bundle");
-#if !HUGULA_NO_LOG
-            Debug.Log($"RefreshPersistentCatelog:{catelogPersistentPath} !");
-#endif
-            UnityEngine.ResourceManagement.ResourceLocations.ResourceLocationBase persistentCatalogLocation = null;
-            if (!File.Exists(catelogPersistentPath) && !File.Exists(catelogPersistentPath = CUtils.PathCombine(CUtils.realPersistentDataPath, "catalog.json")))
-            {
-                LoadBeginScene();
-                yield break;
-            }
-
-            persistentCatalogLocation = new UnityEngine.ResourceManagement.ResourceLocations.ResourceLocationBase(catelogId, catelogPersistentPath, typeof(UnityEngine.AddressableAssets.ResourceProviders.ContentCatalogProvider).FullName, typeof(ContentCatalogData));
-            var localCatalogHandle = Addressables.ResourceManager.ProvideResource<ContentCatalogData>(persistentCatalogLocation);
-            yield return localCatalogHandle;
-            var data = localCatalogHandle.Result;
-#if !HUGULA_NO_LOG
-            Debug.Log($"ContentCatalogData:{data.ProviderId} !");
-#endif
-            ResourceLocationMap locMap = data.CreateLocator();  //.CreateCustomLocator(data.location.PrimaryKey, providerSuffix);
-
-            foreach (var item in Addressables.ResourceLocators)
-            {
-                if (catelogId == item.LocatorId)
-                {
-                    Addressables.RemoveResourceLocator(item);
-                    Debug.Log($"Addressables.RemoveResourceLocator({item.LocatorId}) ");
-                    break;
-                }
-            }
-            Addressables.AddResourceLocator(locMap);
-            Addressables.Release(localCatalogHandle);
+            yield return FileManifestManager.RefreshCatalog();
 
             LoadBeginScene();
 

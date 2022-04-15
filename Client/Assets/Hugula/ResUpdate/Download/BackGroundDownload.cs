@@ -154,7 +154,7 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 下载zip文件
         /// </summary>
-        public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete,System.Action<FolderQueueGroup, bool> onAllComplete)
+        public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete, System.Action<FolderQueueGroup, bool> onAllComplete)
         {
             var newFastManifest = folder.CloneWithOutAllFileInfos();
             newFastManifest.Add(new FileResInfo(folder.zipName + ".zip", 0, folder.zipSize));
@@ -261,7 +261,8 @@ namespace Hugula.ResUpdate
                         while (!queue.isEmpty)
                         {
                             var reqInfo = queue.Dequeue();
-                            RunningTask(reqInfo, queue);
+                            if(reqInfo.size > 0) //存在的资源才会下载
+                                RunningTask(reqInfo, queue);
                             if (loadingTasks.Count >= MaxLoadCount) return;//队列满了
                         }
                         if (queue.isEmpty)
@@ -457,6 +458,9 @@ namespace Hugula.ResUpdate
                     }
                     loadedFiles.Add(abInfo);
                     ReleaseWebDonwLoad(webd);
+#if HUGULA_NO_LOG
+                    Debug.LogWarning($"background download completed ab:{abInfo.name},crc={abInfo.crc32}, tryTimes={tryTimes},host={rootHosts[tryTimes % rootHosts.Length]}");
+#endif
                 }
                 else if (tryTimes <= rootHosts.Length * 3)
                 {

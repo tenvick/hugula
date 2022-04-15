@@ -279,55 +279,59 @@ namespace Hugula.ResUpdate
             //check file crc
             if (CheckIsUpdateFile(Path.GetFileName(catelogPersistentPath)))
             {
-
-#if !HUGULA_NO_LOG
-                var sb = new System.Text.StringBuilder();
-                IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation> locations;
-                foreach (var item in Addressables.ResourceLocators)
-                {
-                    sb.AppendLine("Addressables.ResourceLocators:(");
-                    sb.Append(item.LocatorId);
-                    sb.AppendLine("):");
-                    foreach (var key in item.Keys)
-                    {
-                        if (item.Locate(key, typeof(object), out locations))
-                        {
-                            foreach (var loc in locations)
-                            {
-                                sb.AppendLine($"     {key.ToString()}   ({loc.ResourceType}){loc.PrimaryKey}:{loc.InternalId}");
-                            }
-                        }
-                        else
-                            sb.AppendLine($"    {key.ToString()}");
-                    }
-
-                    Debug.Log(sb.ToString());
-                }
-                Debug.Log($"begin load RefreshPersistentCatelog:{catelogPersistentPath} !");
-#endif
+                // Addressables.ClearDependencyCacheAsync();
+                // Caching.ClearCache();
+                yield return null;
+                Addressables.ClearResourceLocators();
+                yield return null;
                 var op = Addressables.LoadContentCatalogAsync(catelogPersistentPath, true);
                 yield return op;
+                // var kCatalogAddress = UnityEngine.AddressableAssets.Initialization.ResourceManagerRuntimeData.kCatalogAddress;
+                //remove 
+                // List<UnityEngine.AddressableAssets.ResourceLocators.IResourceLocator> remove = new List<UnityEngine.AddressableAssets.ResourceLocators.IResourceLocator>();
+                // foreach (var item in Addressables.ResourceLocators)
+                // {
+                //     if(item.LocatorId == kCatalogAddress)
+                //     {
+                //         remove.Add(item);
+                //     }
+                // }
+
+                // foreach(var rem in remove)
+                // {
+                //     Addressables.RemoveResourceLocator(rem);
+                //     Debug.Log($"remove catalog:{rem.LocatorId}");
+                // }
 
                 Debug.Log($"refreshed catalog:{catelogPersistentPath}");
 #if !HUGULA_NO_LOG
-                sb.Clear();
+                var sb = new System.Text.StringBuilder();
+                var keys = new List<object>();
                 foreach (var item in Addressables.ResourceLocators)
                 {
-                    sb.AppendLine("Addressables.ResourceLocators:(");
+                    sb.AppendLine("/r/n new Addressables.ResourceLocators:(");
                     sb.Append(item.LocatorId);
                     sb.AppendLine("):");
-                    foreach (var key in item.Keys)
+                    keys.Clear();
+                    keys.AddRange(item.Keys);
+                    sb.AppendLine($"  -------------------------------{item.LocatorId}-Count:{keys.Count}------------------");
+
+                    foreach (var key in keys)
                     {
-                        if (item.Locate(key, typeof(object), out locations))
+                        if (item.Locate(key, typeof(object), out var locations))
                         {
+                            sb.AppendLine($"            -----{item.LocatorId}-{key.ToString()}--Count:{locations.Count}");
                             foreach (var loc in locations)
                             {
-                                sb.AppendLine($"     {key.ToString()}   ({loc.ResourceType}){loc.PrimaryKey}:{loc.InternalId}");
+                                sb.AppendLine($"                    {key.ToString()}   ({loc.ResourceType}){loc.PrimaryKey}:{loc.InternalId}");
                             }
+                            sb.AppendLine($"            end-----{item.LocatorId}-{key.ToString()}--Count:{locations.Count}");
                         }
                         else
-                            sb.AppendLine($"    {key.ToString()}");
+                            sb.AppendLine($"            -----{item.LocatorId}-{key.ToString()}--Count:0");
                     }
+                    sb.AppendLine($"  end-------------------------------{item.LocatorId}-Count:{keys.Count}-------------------");
+
                     Debug.Log(sb.ToString());
                 }
 #endif
@@ -386,6 +390,7 @@ namespace Hugula.ResUpdate
         internal static void OverrideInternalIdTransformFunc()
         {
             Addressables.InternalIdTransformFunc = OverrideLocationURL;
+            Addressables.ResourceManager.InternalIdTransformFunc = OverrideLocationURL;
         }
 
         /// <summary>
@@ -397,7 +402,7 @@ namespace Hugula.ResUpdate
             // Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
 #endif
 
-            if (!location.InternalId.StartsWith("http") && location.ResourceType == typeof(IAssetBundleResource))
+            if (!location.InternalId.StartsWith("http") ) //&& location.ResourceType == typeof(IAssetBundleResource)
             {
                 string bundleName = Path.GetFileName(location.InternalId);
                 string path = null;

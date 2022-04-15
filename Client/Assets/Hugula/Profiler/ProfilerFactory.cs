@@ -109,7 +109,7 @@ namespace Hugula.Profiler
                 {
                     Directory.CreateDirectory(kDirName);
                 }
-                string kLogFileName = kDirName + "ProfilerInfoLog.txt";
+                string kLogFileName = kDirName + "/ProfilerInfoLog.txt";
 
                 if (File.Exists(kLogFileName))
                 {

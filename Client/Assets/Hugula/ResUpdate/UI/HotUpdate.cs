@@ -87,7 +87,8 @@ namespace Hugula.ResUpdate
                 yield return LoadRemoteVersion();
             else
             {
-                yield return RefreshPersistentCatalog();
+
+                yield return InternalIdTransformFunc();
             }
 #else
             yield return LoadRemoteVersion ();
@@ -153,7 +154,7 @@ namespace Hugula.ResUpdate
                     if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
                         yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
                     else
-                        yield return RefreshPersistentCatalog();
+                        yield return InternalIdTransformFunc();
                 }
             }
             else if (!romoteVersionTxtLoaded)
@@ -414,8 +415,8 @@ namespace Hugula.ResUpdate
                 FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
                 FileManifestManager.localVersion = loadRemoteVersion;
                 FileManifestManager.localResNum = loadRemoteAppNum;
-                Debug.Log($"download sccuess :{loadRemoteVersion} is_Error：{is_error}");
-                StartCoroutine(RefreshPersistentCatalog());
+                Debug.Log($"download sccuess :{loadRemoteVersion}");
+                StartCoroutine(RefreshCatalog());
             }
         }
 
@@ -481,16 +482,22 @@ namespace Hugula.ResUpdate
             UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
 
-        //刷新热更新的catelog
-        private IEnumerator RefreshPersistentCatalog()
+        private IEnumerator RefreshCatalog()
+        {
+            yield return FileManifestManager.RefreshCatalog();
+            yield return InternalIdTransformFunc();
+        }
+
+        //重定向bundle地址
+        private IEnumerator InternalIdTransformFunc()
         {
             //zip package内容重定向
             FileManifestManager.GenLoadedZipTransform();
+            yield return null;
             //热更新重定向
             FileManifestManager.GenUpdatedPackagesTransform();
 
-            yield return FileManifestManager.RefreshCatalog();
-
+            yield return null;
             LoadBeginScene();
 
         }

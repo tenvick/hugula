@@ -176,14 +176,17 @@ namespace Hugula.ResUpdate
         protected void AddReceiveBytes(string fName, int bytesRead)
         {
             int loaded = 0;
-            if (fileReceiveBytes.TryGetValue(fName, out loaded))
+            lock (this)
             {
-                loaded += bytesRead;
-                fileReceiveBytes[fName] = loaded;
-            }
-            else
-            {
-                fileReceiveBytes.Add(fName, bytesRead);
+                if (fileReceiveBytes.TryGetValue(fName, out loaded))
+                {
+                    loaded += bytesRead;
+                    fileReceiveBytes[fName] = loaded;
+                }
+                else
+                {
+                    fileReceiveBytes.Add(fName, bytesRead);
+                }
             }
         }
         public void ReleaseToPool()
@@ -271,7 +274,7 @@ namespace Hugula.ResUpdate
                 loadingEventArg.total = value;
             }
         }
-   
+
         internal void AddChild(FolderManifestQueue child)
         {
             children.Add(child);

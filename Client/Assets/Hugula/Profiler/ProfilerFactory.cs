@@ -64,7 +64,7 @@ namespace Hugula.Profiler
             return profiler;
         }
 
-        public static StopwatchProfiler GetAndStartComponentProfiler(Component target, string args = "")
+        public static StopwatchProfiler GetAndStartComponentProfiler(Component target, string args = "", bool needUnityProfiler = false)
         {
             if (DoNotProfile) return null;
             string fullPath = " :" + args ?? "";
@@ -73,15 +73,15 @@ namespace Hugula.Profiler
                 fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + fullPath;
             }
             StopwatchProfiler profiler = GetProfiler(fullPath);
-            profiler.Start();
+            profiler.Start(needUnityProfiler);
             return profiler;
         }
 
-        public static StopwatchProfiler GetAndStartProfiler(string name, string args = "", string parentName = null)
+        public static StopwatchProfiler GetAndStartProfiler(string name, string args = "", string parentName = null, bool needUnityProfiler = false)
         {
             if (DoNotProfile) return null;
             StopwatchProfiler profiler = GetProfiler(string.IsNullOrEmpty(args) ? name : name + args, parentName);
-            profiler.Start();
+            profiler.Start(needUnityProfiler);
             return profiler;
         }
         private static System.Text.UnicodeEncoding uniEncoding = new System.Text.UnicodeEncoding();
@@ -183,15 +183,23 @@ namespace Hugula.Profiler
 
         }
 
-        // public static void BeginSample(string name)
-        // {
-        //     UnityEngine.Profiling.Profiler.BeginSample(string.Format("{0} -- {1}", name, Time.frameCount));
-        // }
+        public static void BeginSample(string name, string arg = "")
+        {
+            if(DoNotProfile) return;
+#if UWATEST || UWA_SDK_ENABLE
+            UWAEngine.PushSample (name);
+#endif
+            UnityEngine.Profiling.Profiler.BeginSample(name);
+        }
 
-        // public static void EndSample()
-        // {
-        //     UnityEngine.Profiling.Profiler.EndSample();
-        // }
+        public static void EndSample()
+        {
+            if(DoNotProfile) return;
+            UnityEngine.Profiling.Profiler.EndSample();
+#if UWATEST || UWA_SDK_ENABLE
+            UWAEngine.PopSample ();
+#endif
+        }
 
         #endregion Methods
     }

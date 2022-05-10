@@ -6493,6 +6493,7 @@ MonoBehaviour:
   m_forceBinding: 1
   templateItem: {fileID: 563221006664101008}
   destoryItem: 0
+  enableSiblingIndex: 1
 --- !u!1 &9133878714188468253
 GameObject:
   m_ObjectHideFlags: 0

@@ -1140,7 +1140,7 @@ namespace XLua
                 var members = type.GetMember(info[1], BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 foreach(var member in members)
                 {
-                    if (member.MemberType == MemberTypes.Method)
+                    if (member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Constructor)
                     {
                         var mb = member as MethodBase;
                         var parameters = mb.GetParameters();

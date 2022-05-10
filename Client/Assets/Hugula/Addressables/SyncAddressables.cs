@@ -13,7 +13,7 @@ public static class SyncAddressables
         get { return s_Initialized; }
     }
 
-    [RuntimeInitializeOnLoadMethod]
+    //[RuntimeInitializeOnLoadMethod]
     static void Init()
     {
         Addressables.InitializeAsync().Completed += InitDone;

@@ -165,9 +165,6 @@ namespace XLua.CSObjectWrap
             if constructors.Count == 0 and (not type.IsValueType)  then 
             %>return LuaAPI.luaL_error(L, "<%=CsFullTypeName(type)%> does not have a constructor!");<% 
             else %>
-             #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.__CreateInstance");
-            #endif
 			try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 				<% 
@@ -229,11 +226,6 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
             return LuaAPI.luaL_error(L, "invalid arguments to <%=CsFullTypeName(type)%> constructor!");
             <% end %>
         }
@@ -243,9 +235,6 @@ namespace XLua.CSObjectWrap
         public static int __CSIndexer(RealStatePtr L)
         {
 			<%if type.IsArray then %>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.__CSIndexer");
-            #endif
 			try {
 			    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
@@ -261,16 +250,8 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
 			<%elseif indexers.Count > 0 then
 			%>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.__CSIndexer");
-            #endif
             try {
 			    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 				<%
@@ -291,11 +272,6 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
 			<%end%>
             LuaAPI.lua_pushboolean(L, false);
 			return 1;
@@ -310,9 +286,6 @@ namespace XLua.CSObjectWrap
 			<%if type.IsArray then 
 				local elementType = type:GetElementType()
 			%>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.__NewIndexer");
-            #endif
 			try {
 				if (<%=GetCheckStatement(type, 1)%> && LuaAPI.lua_isnumber(L, 2) && <%=GetCheckStatement(elementType, 3)%>)
 				{
@@ -326,15 +299,8 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
+
 			<%elseif newindexers.Count > 0 then%>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.__NewIndexer");
-            #endif
 			try {
 				<%ForEachCsList(newindexers, function(newindexer)
 						local keyType = newindexer:GetParameters()[0].ParameterType
@@ -356,11 +322,6 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
 			<%end%>
 			LuaAPI.lua_pushboolean(L, false);
             return 1;
@@ -372,9 +333,6 @@ namespace XLua.CSObjectWrap
         static int <%=OpNameMap[operator.Name]%>(RealStatePtr L)
         {
             <% if operator.Name ~= "op_UnaryNegation" and operator.Name ~= "op_OnesComplement"  then %>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.<%=OpNameMap[operator.Name]%>");
-            #endif
 			try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
             <%ForEachCsList(operator.Overloads, function(overload)
@@ -396,16 +354,8 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
             return LuaAPI.luaL_error(L, "invalid arguments to right hand of <%=OpCallNameMap[operator.Name]%> operator, need <%=CsFullTypeName(type)%>!");
             <%else%>
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.<%=OpNameMap[operator.Name]%>");
-            #endif
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
             try {
                 <%=GetCasterStatement(type, 1, "rightside", true)%>;
@@ -413,11 +363,6 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
             return 1;
             <%end%>
         }
@@ -428,8 +373,9 @@ namespace XLua.CSObjectWrap
         static int _m_<%=method.Name%>(RealStatePtr L)
         {
             <%
-                local need_profiler = CsFullTypeName(type) ~=  "UnityEngine.Profiling.Profiler"
-                if need_profiler then 
+                local full_type_name=CsFullTypeName(type)
+                local need_profiler =  full_type_name ==  "UnityEngine.Profiling.Profiler" or  full_type_name == "Hugula.Profiler.ProfilerFactory" or full_type_name == "Hugula.Profiler.StopwatchProfiler"  
+                if not need_profiler then 
             %>
             #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.<%=method.Name%>");
@@ -536,7 +482,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             <%
-                 if need_profiler then 
+                 if not need_profiler then 
             %>
             #if LUA_PROFILER_DEBUG
             finally {
@@ -557,9 +503,6 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_<%=getter.Name%>(RealStatePtr L)
         {
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>.get_<%=getter.Name%>");
-            #endif
 		    try {
             <%if AccessorNeedTranslator(getter) then %>    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);<%end%>
 			<%if not getter.IsStatic then%>
@@ -568,11 +511,6 @@ namespace XLua.CSObjectWrap
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
             return 1;
         }
         <%end)%>
@@ -609,9 +547,6 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _e_<%=event.Name%>(RealStatePtr L)
         {
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>._e_<%=event.Name%>");
-            #endif
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			    int gen_param_count = LuaAPI.lua_gettop(L);
@@ -639,11 +574,6 @@ namespace XLua.CSObjectWrap
 			} catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
 			LuaAPI.luaL_error(L, "invalid arguments to <%=CsFullTypeName(type)%>.<%=event.Name%>!");
             return 0;
         }
@@ -653,9 +583,6 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _e_<%=event.Name%>(RealStatePtr L)
         {
-            #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("<%=CsFullTypeName(type)%>._e_<%=event.Name%>");
-            #endif
 		    try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			    int gen_param_count = LuaAPI.lua_gettop(L);
@@ -679,11 +606,6 @@ namespace XLua.CSObjectWrap
 			} catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
-            #if LUA_PROFILER_DEBUG
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            #endif
 			return LuaAPI.luaL_error(L, "invalid arguments to <%=CsFullTypeName(type)%>.<%=event.Name%>!");
         }
         <%end end)%>

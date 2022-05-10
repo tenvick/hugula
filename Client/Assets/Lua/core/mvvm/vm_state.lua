@@ -52,7 +52,7 @@ local _stack = {} --记录栈
 local _root_index = 0 --当前group root的stack索引
 
 local function error_hander(h)
-    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback("",2)))
 end
 
 local function safe_call(f, arg1, ...)

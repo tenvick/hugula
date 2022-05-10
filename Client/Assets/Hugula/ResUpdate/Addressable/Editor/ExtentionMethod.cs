@@ -44,6 +44,7 @@ namespace  HugulaEditor.Addressable
             Debug.Log($"save to path:{path} ");
             var clone = self.CloneWithOutAllFileInfos();
             clone.allFileInfos = self.allFileInfos;
+            clone.allAddressKeys = self.allAddressKeys;
             Debug.Assert(clone!=null,$"save {path} error, target asset is null");
             Debug.Log(clone.ToString());
 

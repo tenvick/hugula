@@ -334,13 +334,16 @@ namespace HugulaEditor.Databinding
             // {
             //     // binding.target
             // }
-            CheckBingdings(container);
-
-            //check child
-            var bcontainer = container as BindableContainer;
-            if (bcontainer != null)
+            if(CheckBingdings(container))
             {
-                CheckChildren(bcontainer);
+
+
+                //check child
+                var bcontainer = container as BindableContainer;
+                if (bcontainer != null)
+                {
+                    CheckChildren(bcontainer);
+                }
             }
 
 
@@ -362,46 +365,52 @@ namespace HugulaEditor.Databinding
                 child = children[i];
                 isSelf = System.Object.Equals(child, container);
                 // var context_binding = child.GetBinding("context");
-                CheckBingdings(child);
-                if (child == null || isSelf)
+                if (CheckBingdings(child))
                 {
-                    children.RemoveAt(i);
-                    Debug.LogWarningFormat("Check {0} index {1} is null({2})", container, i, child);
-                }
-                // else if(child!= null && child.ta)
-                else
-                {
-                    i++;
-                    //check target
-                    var tp = child.GetType();
-                    var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
-                    if (prop != null)
+                    if (child == null || isSelf)
                     {
-                        var target = prop.GetValue(child);
-                        if (target == null)
+                        children.RemoveAt(i);
+                        Debug.LogWarningFormat("Check {0} index {1} is null({2})", container, i, child);
+                    }
+                    // else if(child!= null && child.ta)
+                    else
+                    {
+                        i++;
+                        //check target
+                        var tp = child.GetType();
+                        var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                        if (prop != null)
                         {
-                            tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
-                            Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
+                            var target = prop.GetValue(child);
+                            if (target == null)
+                            {
+                                tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
+                                Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
+                            }
+                            // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
                         }
-                        // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
                     }
                 }
+                else
+                    return;
 
             }
 
             for (int i = 0; i < children.Count; i++)
             {
                 child = children[i];
-                CheckBingdings(child);
-                if (child is BindableContainer)
+                if(CheckBingdings(child))
                 {
-                    CheckChildren((BindableContainer)child);
+                    if (child is BindableContainer)
+                    {
+                        CheckChildren((BindableContainer)child);
+                    }
                 }
 
             }
         }
 
-        void CheckBingdings(BindableObject bindableObject)
+        bool CheckBingdings(BindableObject bindableObject)
         {
            var bindings = bindableObject.GetBindings();
            var dic = new Dictionary<string,Binding>();
@@ -410,13 +419,26 @@ namespace HugulaEditor.Databinding
                if(dic.TryGetValue(binding.propertyName,out var   oldBinding ))
                {
                    Debug.LogErrorFormat("check binding {0}, 已经包含{1} old={2},new={3}",GetGameObjectPath(bindableObject.transform),binding.propertyName,oldBinding,binding);
-               }
+                    searchText = bindableObject.name;
+                    Find();
+                    return false;
+                }
                else
                {
                    dic.Add(binding.propertyName,binding);
                }
 
+               if(string.IsNullOrEmpty(binding.path))
+                {
+                    Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).Binding({binding.propertyName}).path is empty ");
+                    searchText = bindableObject.name;
+                    Find();
+                    return false;
+                }
+
            }
+
+            return true;
         }
 
         public void RefreshBindableContainerChildren()

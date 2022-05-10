@@ -47,6 +47,7 @@ namespace Hugula.Profiler
             NumberOfCalls = 0;
         }
 
+        private bool m_NeedUnityProfiler = false;
         #endregion Fields
 
         #region Properties
@@ -90,11 +91,9 @@ namespace Hugula.Profiler
             }
         }
 
-        public void Start()
+        public void Start(bool needUnityProfiler = false)
         {
-#if UWATEST || UWA_SDK_ENABLE
-            UWAEngine.PushSample (stopName);
-#endif
+
             nestingLevel++;
             NumberOfCalls++;
 
@@ -105,15 +104,27 @@ namespace Hugula.Profiler
 #endif
                 stopWatch.Start();
             }
+
+            if (needUnityProfiler)
+            {
+                m_NeedUnityProfiler = needUnityProfiler;
+#if UWATEST || UWA_SDK_ENABLE
+            UWAEngine.PushSample (stopName);
+#endif
+                UnityEngine.Profiling.Profiler.BeginSample(stopName);
+            }
         }
 
         public void Stop()
         {
-
-
+            if (m_NeedUnityProfiler)
+            {
+                m_NeedUnityProfiler = false;
+                UnityEngine.Profiling.Profiler.EndSample();
 #if UWATEST || UWA_SDK_ENABLE
-            UWAEngine.PopSample ();
+            UWAEngine.PopSample();
 #endif
+            }
             if (nestingLevel == 1)
             {
 #if UNITY_EDITOR

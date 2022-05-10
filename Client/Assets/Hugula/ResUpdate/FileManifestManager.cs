@@ -16,6 +16,8 @@ namespace Hugula.ResUpdate
     [XLua.LuaCallCSharp]
     public static class FileManifestManager
     {
+        private static System.Type DEFAULT_TYPE = typeof(UnityEngine.Object);
+
         #region  static field
         /// <summary>
         /// 本地streamingAssets目录的manifest
@@ -44,6 +46,15 @@ namespace Hugula.ResUpdate
             }
         }
 
+        /// <summary>
+        /// 除fast包之外其他zip下载控制
+        /// </summary>
+        public static OtherZipMode otherZipMode
+        {
+            get;
+            set;
+        }
+
         private static string m_LocalVersion;
         /// <summary>
         /// 本地最新版本号
@@ -64,12 +75,18 @@ namespace Hugula.ResUpdate
         }
 
         /// <summary>
-        /// 文件地址映射
+        /// bundle 地址重定向映射
         /// </summary>
         static Dictionary<string, string> locationIdPath = new Dictionary<string, string>();
+
+        /// <summary>
+        /// address key重定向用于默认资源显示
+        /// </summary>
+        static Dictionary<string, string> addressOverridePath = new Dictionary<string, string>();
+
         #endregion
 
-        #region  public
+        #region 资源 check  相关
         /// <summary>
         /// 检测bundle是否已经下载
         /// </summary>
@@ -87,7 +104,7 @@ namespace Hugula.ResUpdate
             return false;
         }
 
-             /// <summary>
+        /// <summary>
         /// 检查持久化目录的文件crc码
         /// </summary>
         public static bool CheckPersistentCrc(FileResInfo fInfo)
@@ -135,11 +152,172 @@ namespace Hugula.ResUpdate
             return false;
         }
 
+        /// <summary>
+        /// 通过address地址判断资源是否已经下载
+        /// </summary>
+        public static bool CheckAddressIsDown(string address, System.Type type = null)
+        {
+#if UNITY_EDITOR
+            //如果非ab模式
+            List<ScriptableObject> allDataBuilders = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DataBuilders;
+            var activeIndex = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.ActivePlayModeDataBuilderIndex;
+            var curIndex = allDataBuilders.IndexOf(allDataBuilders.Find(s => s.GetType() == typeof(UnityEditor.AddressableAssets.Build.DataBuilders.BuildScriptPackedPlayMode)));
+
+            bool check =  activeIndex == curIndex;
+               
+            if (!check)
+                return true;
+
+#endif
+            var abNames = FindBundleNameByAddress(address, type);
+            var folders = FindFolderManifestByBundleName(abNames);
+            ListPool<string>.Release(abNames);
+            foreach (var f in folders)
+            {
+                if (f.folderName != Common.FOLDER_STREAMING_NAME && !f.isZipDone) return false;
+            }
+            if (folders.Count <= 0) return false;
+            ListPool<FolderManifest>.Release(folders);
+            return true;
+        }
+        /// <summary>
+        /// 检测当前是否可以覆盖stream中文件夹信息
+        /// </summary>      
+        internal static bool CheckStreamingFolderManifestResNumber(FolderManifest newFolderManifest)
+        {
+            if (streamingFolderManifest == null) return false;
+            FolderManifest curr;
+            for (int i = 0; i < streamingFolderManifest.Count; i++)
+            {
+                curr = streamingFolderManifest[i];
+                if (curr.folderName == newFolderManifest.folderName)
+                {
+                    bool canAppend = curr.resNumber < newFolderManifest.resNumber;
+                    return canAppend;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 添加或者更新PersistentManifest
+        /// </summary>
+        internal static bool CheckAddOrUpdatePersistentFolderManifest(FolderManifest persistent)
+        {
+            FolderManifest find = null;
+            for (int i = 0; i < persistentFolderManifest.Count; i++)
+            {
+                find = persistentFolderManifest[i];
+                if (find != null && find.folderName == persistent.folderName)
+                {
+                    persistentFolderManifest[i] = persistent;
+                    return true;
+                }
+            }
+            persistentFolderManifest.Add(persistent);
+            return false;
+        }
+        #endregion
+
+        #region 查找相关
+        /// <summary>
+        /// 通过address地址查找bundle Name
+        /// </summary>
+        internal static List<string> FindBundleNameByAddress(string address, System.Type type = null)
+        {
+            List<string> depStr = ListPool<string>.Get();
+            var resourceLocators = Addressables.ResourceLocators;
+            if (type == null) type = DEFAULT_TYPE;
+            foreach (var locator in resourceLocators)
+            {
+                if (locator.Locate(address, type, out var locations))
+                {
+                    var dependencies = locations[0].Dependencies;
+                    for (int i = 0; i < dependencies.Count; i++)
+                    {
+                        depStr.Add(Path.GetFileName(dependencies[i].InternalId));
+                    }
+                }
+            }
+
+            return depStr;
+        }
+
+        /// <summary>
+        /// 通过bundle name地址查找 folder manifest
+        /// </summary>
+        internal static List<FolderManifest> FindFolderManifestByBundleName(List<string> bundleName)
+        {
+            List<FolderManifest> listFolder = ListPool<FolderManifest>.Get();
+            FolderManifest find = null;
+            for (int i = 0; i < streamingFolderManifest.Count; i++)
+            {
+                find = streamingFolderManifest[i];
+                for (int j = 0; j < bundleName.Count;)
+                {
+                    if (find.GetFileResInfo(bundleName[j]) != null)
+                    {
+                        if (!listFolder.Contains(find))
+                            listFolder.Add(find);
+                        bundleName.RemoveAt(j);
+                    }
+                    else
+                        j++;
+                }
+            }
+            return listFolder;
+        }
+
+        /// <summary>
+        /// 通过address查找FolderManifest
+        /// </summary>
+        internal static List<FolderManifest> FindFolderManifestByAddress(string address, System.Type type = null)
+        {
+            var abNames = FindBundleNameByAddress(address, type);
+            var ret = FindFolderManifestByBundleName(abNames);
+            ListPool<string>.Release(abNames);
+            return ret;
+        }
+
+        /// <summary>
+        /// 查找本地folder
+        /// </summary>   
+        internal static FolderManifest FindStreamingFolderManifest(string folderName)
+        {
+            if (streamingFolderManifest == null) return null;
+            FolderManifest curr = null;
+            for (int i = 0; i < streamingFolderManifest.Count; i++)
+            {
+                curr = streamingFolderManifest[i];
+                if (curr.folderName == folderName)
+                {
+                    return curr;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 查找本地持续化目录folder,注意已经去重。
+        /// </summary>   
+        internal static FolderManifest FindPersistentFolderManifest(string folderName)
+        {
+            if (persistentFolderManifest == null) return null;
+            FolderManifest curr = null;
+            for (int i = 0; i < persistentFolderManifest.Count; i++)
+            {
+                curr = persistentFolderManifest[i];
+                if (curr.folderName == folderName)
+                {
+                    return curr;
+                }
+            }
+            return null;
+        }
 
         #endregion
 
-        #region  static method
-   
+        #region  加载相关
         /// <summary>
         /// 读取Streaming中的folderManifest
         /// </summary>
@@ -212,6 +390,8 @@ namespace Hugula.ResUpdate
 
                         CheckAddOrUpdatePersistentFolderManifest(item);
 
+                        GenUpdatePackageTransform(item);
+
                         if (CodeVersion.Subtract(CodeVersion.APP_VERSION, item.version) <= 0)
                             localVersion = item.version; //更新到下载的版本号
                         if (localResNum < item.resNumber)
@@ -235,6 +415,10 @@ namespace Hugula.ResUpdate
             }
         }
 
+        #endregion
+
+        #region  重定向
+
         ///<summary>
         /// 统一执行下载完毕的zip包文件地址重定向 
         ///</summary>
@@ -249,6 +433,81 @@ namespace Hugula.ResUpdate
                     FileManifestManager.GenZipPackageTransform(item);
                 }
             }
+        }
+
+        ///<summary>
+        /// 构建有依赖加载的资源address地址重定向
+        ///</summary>
+        public static void GenOverrideAddressTransformFunc(string folderName, string defaultKey, System.Func<string, string> onTransform = null)
+        {
+            var folder = FindStreamingFolderManifest(folderName);
+            if (folder != null)
+            {
+                var kes = folder.allAddressKeys;
+                string key, value;
+                value = defaultKey;
+                for (int i = 0; i < kes.Count; i++)
+                {
+                    key = kes[i];
+                    if (onTransform != null)
+                    {
+                        value = onTransform(key);
+                        if (string.IsNullOrEmpty(value)) value = defaultKey;
+
+                    }
+                    else
+                    {
+                        value = defaultKey;
+                    }
+
+#if !HUGULA_NO_LOG
+                    Debug.Log($"GenOverrideAddressTransformFunc:{key} = {value}");
+#endif
+                    addressOverridePath[key] = value;
+                }
+#if !HUGULA_NO_LOG
+                Debug.Log($"GenOverrideAddressTransformFunc:{folderName}");
+#endif
+            }
+
+        }
+
+        ///<summary>
+        /// 清理有依赖加载的资源address地址重定向
+        ///</summary>
+        public static void ClearOverrideAddressTransformFunc(string folderName)
+        {
+            var folder = FindStreamingFolderManifest(folderName);
+            if (folder != null)
+            {
+                var kes = folder.allAddressKeys;
+                string key;
+                for (int i = 0; i < kes.Count; i++)
+                {
+                    key = kes[i];
+                    addressOverridePath.Remove(key);
+                }
+            }
+#if !HUGULA_NO_LOG
+            Debug.Log($"ClearOverrideAddressTransformFunc:{folderName}");
+#endif
+
+        }
+
+        ///<summary>
+        /// 有依赖加载的资源address地址重定向
+        ///</summary>
+        public static string OverrideAddressTransformFunc(string address)
+        {
+            if (addressOverridePath.TryGetValue(address, out var newAddres))
+            {
+#if !HUGULA_NO_LOG
+                Debug.Log($"OverrideAddressTransformFunc:{address} to:{newAddres}");
+#endif
+                return newAddres;
+            }
+            else
+                return address;
         }
 
         ///<summary>
@@ -358,11 +617,17 @@ namespace Hugula.ResUpdate
                     if (!locationIdPath.ContainsKey(finfo.name))
                     {
                         locationIdPath[finfo.name] = zipOutPath;
-#if !HUGULA_NO_LOG
-                        Debug.Log($" zip folder:{folderPackage.folderName} transform({finfo.name}={zipOutPath}) ");
-#endif
+                        // #if !HUGULA_NO_LOG
+                        //                         Debug.Log($" zip folder:{folderPackage.folderName} transform({finfo.name}={zipOutPath}) ");
+                        // #endif
                     }
                 }
+            }
+            else
+            {
+#if !HUGULA_NO_LOG
+                Debug.LogWarning($" zip folder :{folderPackage.folderName} download fail size:{folderPackage.zipSize}) ");
+#endif
             }
         }
 
@@ -391,6 +656,7 @@ namespace Hugula.ResUpdate
         {
             Addressables.InternalIdTransformFunc = OverrideLocationURL;
             Addressables.ResourceManager.InternalIdTransformFunc = OverrideLocationURL;
+            ResLoader.AddressTransformFunc = OverrideAddressTransformFunc;
         }
 
         /// <summary>
@@ -402,7 +668,7 @@ namespace Hugula.ResUpdate
             // Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
 #endif
 
-            if (!location.InternalId.StartsWith("http") ) //&& location.ResourceType == typeof(IAssetBundleResource)
+            if (!location.InternalId.StartsWith("http")) //&& location.ResourceType == typeof(IAssetBundleResource)
             {
                 string bundleName = Path.GetFileName(location.InternalId);
                 string path = null;
@@ -427,81 +693,7 @@ namespace Hugula.ResUpdate
             }
         }
 
-        /// <summary>
-        /// 检测当前是否可以覆盖stream中文件夹信息
-        /// </summary>      
-        internal static bool CheckStreamingFolderManifestResNumber(FolderManifest newFolderManifest)
-        {
-            if (streamingFolderManifest == null) return false;
-            FolderManifest curr;
-            for (int i = 0; i < streamingFolderManifest.Count; i++)
-            {
-                curr = streamingFolderManifest[i];
-                if (curr.folderName == newFolderManifest.folderName)
-                {
-                    bool canAppend = curr.resNumber < newFolderManifest.resNumber;
-                    return canAppend;
-                }
-            }
-            return false;
-        }
 
-        /// <summary>
-        /// 查找本地folder
-        /// </summary>   
-        internal static FolderManifest FindStreamingFolderManifest(string folderName)
-        {
-            if (streamingFolderManifest == null) return null;
-            FolderManifest curr = null;
-            for (int i = 0; i < streamingFolderManifest.Count; i++)
-            {
-                curr = streamingFolderManifest[i];
-                if (curr.folderName == folderName)
-                {
-                    return curr;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// 查找本地持续化目录folder,注意已经去重。
-        /// </summary>   
-        internal static FolderManifest FindPersistentFolderManifest(string folderName)
-        {
-            if (persistentFolderManifest == null) return null;
-            FolderManifest curr = null;
-            for (int i = 0; i < persistentFolderManifest.Count; i++)
-            {
-                curr = persistentFolderManifest[i];
-                if (curr.folderName == folderName)
-                {
-                    return curr;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// 添加或者更新PersistentManifest
-        /// </summary>
-        internal static bool CheckAddOrUpdatePersistentFolderManifest(FolderManifest persistent)
-        {
-            FolderManifest find = null;
-            for (int i = 0; i < persistentFolderManifest.Count; i++)
-            {
-                find = persistentFolderManifest[i];
-                if (find != null && find.folderName == persistent.folderName)
-                {
-                    persistentFolderManifest[i] = persistent;
-                    return true;
-                }
-            }
-            persistentFolderManifest.Add(persistent);
-            return false;
-        }
-
-        
         /**
         internal static IEnumerator StartClearOldFiles (System.Action<LoadingEventArg> onProgress, System.Action onComplete) {
             string path = CUtils.GetRealPersistentDataPath ();

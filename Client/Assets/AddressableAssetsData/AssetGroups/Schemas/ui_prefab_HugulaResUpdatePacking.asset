@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ui_prefab_HugulaResUpdatePacking
   m_EditorClassIdentifier: 
   m_Group: {fileID: 11400000, guid: f335280e89596674a96a65e430f97d64, type: 2}
-  packingType: 0
+  packingType: 1
   customName: 

@@ -27,6 +27,11 @@ namespace Hugula.ResUpdate
         public List<FileResInfo> allFileInfos = new List<FileResInfo>();
 
         /// <summary>
+        /// 包含的所有key
+        /// </summary>
+        public List<string> allAddressKeys = new List<string>();
+
+        /// <summary>
         /// 当前文件夹的优先级
         /// </summary>
         public int priority;
@@ -121,6 +126,15 @@ namespace Hugula.ResUpdate
             {
                 m_TotalSize = uint.MinValue;
             }
+        }
+
+        /// <summary>
+        /// 是否要重定向到zip文件夹
+        /// </summary>
+        public bool transformZipFolder
+        {
+            get;
+            set;
         }
         #endregion
 
@@ -246,9 +260,9 @@ namespace Hugula.ResUpdate
                 {
                     re = true;
                     allFileInfos.RemoveAt(i);
-                    #if HUGULA_NO_LOG
+#if HUGULA_NO_LOG
                     UnityEngine.Debug.Log($"remove fileResInfo:({fileResInfo})");
-                    #endif
+#endif
                 }
                 else
                 {
@@ -303,10 +317,18 @@ namespace Hugula.ResUpdate
             folderManifest.zipSize = this.zipSize;
             folderManifest.zipVersion = this.zipVersion;
             var allFileInfos = this.allFileInfos;
+
             for (int i = 0; i < allFileInfos.Count; i++)
             {
                 folderManifest.allFileInfos.Add(allFileInfos[i]);
             }
+
+            var keys = this.allAddressKeys;
+            for (int i = 0; i < keys.Count; i++)
+            {
+                folderManifest.allAddressKeys.Add(keys[i]);
+            }
+
             return folderManifest;
         }
 
@@ -333,6 +355,11 @@ namespace Hugula.ResUpdate
             foreach (var info in allFileInfos)
             {
                 stringBuilder.AppendLine(info.ToString());
+            }
+            stringBuilder.AppendLine("allAddressKeys:");
+            foreach (var k in allAddressKeys)
+            {
+                stringBuilder.AppendLine(k);
             }
             return stringBuilder.ToString();
         }

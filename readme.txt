@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.5.10
+1 热更新暂停功能。
+2 address依赖zip包下载与缺失资源替换功能。 文档hot res update.docx 示例welcome.lua 155-157 ,player_load.lua
+3 profiler打点优化。
+
 2022.4.14
 1 多次热更新文件读取与重定向优化。
 2 编辑器模式下resNumber key优化，VersionConfig.cs命名规范。

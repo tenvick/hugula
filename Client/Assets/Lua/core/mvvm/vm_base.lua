@@ -14,7 +14,7 @@ local Object = CS.System.Object
 local GetSetObject = GetSetObject
 local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
 local empty_tab = {}
-
+local Timer = Timer
 local vm_base =
     class(
     function(self)
@@ -48,8 +48,8 @@ end
 ---@overload fun(property_name:string)
 ---@return void
 local function on_Property_changed(self, property_name)
-    -- Logger.LogSys("vm_base on_Property_changed#=", property_name, self._property_changed.count)       
-    self._property_changed:Dispatch(self,property_name)
+    -- Logger.LogSys("vm_base on_Property_changed#=", property_name, self._property_changed.count)
+    self._property_changed:Dispatch(self, property_name)
 end
 
 ---改变属性
@@ -90,6 +90,70 @@ end
 ---@overload fun()
 local function on_deactive(self)
     -- body
+end
+
+local function add_timer(self, timer_id)
+    local timers = self._timers
+    if timers == nil then
+        timers = {}
+        self._timers = timers
+    end
+    timers[timer_id] = timer_id
+    return timer_id
+end
+
+local function start_timer(self, delay, cycle, func, arg)
+    local t = Timer.Add(delay, cycle, func, arg)
+    local timers = self._timers
+    if timers == nil then
+        timers = {}
+        self._timers = timers
+    end
+    timers[t] = t
+    return t
+end
+
+local function start_delay(self, func, time, arg)
+    local t = Timer.Delay(func, time, arg)
+    local timers = self._timers
+    if timers == nil then
+        timers = {}
+        self._timers = timers
+    end
+    timers[t] = t
+    return t
+end
+
+local function start_delayframe(self, action, frame, arg)
+    local t = Timer.DelayFrame(action, frame, arg)
+    local timers = self._timers
+    if timers == nil then
+        timers = {}
+        self._timers = timers
+    end
+    timers[t] = t
+    return t
+end
+
+local function stop_timer(self, timer_id)
+    local timers = self._timers
+    if timers then
+        local t = timers[timer_id]
+        if t then
+            Timer.Remove(t)
+            timers[t] = nil
+        end
+    end
+end
+
+local function stop_all_timer(self)
+    local timers = self._timers
+    if timers then
+        for t, v in pairs(timers) do
+            Timer.Remove(t)
+            timers[t] = nil
+        end
+    end
 end
 
 ---view销毁的时候
@@ -164,6 +228,12 @@ vm_base.on_back = on_back
 vm_base.on_assets_load = on_assets_load
 vm_base.on_active = on_active
 vm_base.on_deactive = on_deactive
+vm_base.add_timer = add_timer
+vm_base.start_timer = start_timer
+vm_base.start_delay = start_delay
+vm_base.start_delayframe = start_delayframe
+vm_base.stop_timer = stop_timer
+vm_base.stop_all_timer = stop_all_timer
 vm_base.on_destroy = on_destroy
 vm_base.clear = clear
 vm_base.dispose = dispose
@@ -172,15 +242,21 @@ vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
 ---所有视图模型的基类
 ---@class VMBase
----@field OnPropertyChanged fun(self:table, property_name:string)
----@field SetProperty fun(self:table, property_name:string, value:any)
+---@field OnPropertyChanged fun(self:VMBase, property_name:string)
+---@field SetProperty fun(self:VMBase, property_name:string, value:any)
 ---@field on_push_arg fun(arg:any) 入栈资源加载之前调用 由VMState:push() 触发
----@field on_back fun() 从回退栈激活资源加载完成后调用在on_active之前
----@field on_assets_load fun(self:table) 所有资源加载完成
+---@field on_back fun(self:VMBase) 从回退栈激活资源加载完成后调用在on_active之前
+---@field on_assets_load fun(self:VMBase) 所有资源加载完成
 ---@field on_active fun(self:table)
----@field on_deactive fun(self:table)
----@field clear fun(self:table) 清理view
----@field dispose fun(self:table)
+---@field add_timer  fun(self:VMBase,timer_id:int) 添加定时器id到生命周期中
+---@field start_timer fun(self:VMBase,delay:number, cycle:int, func:function, arg:any) 添加定时器到生命周期中
+---@field start_delay fun(self:VMBase,action:function, time:number,arg:any)
+---@field start_delayframe fun(self:VMBase,action:function, frame:int, arg:any) 延时固定帧执行
+---@field stop_timer  fun(self:VMBase,timer_id:int)
+---@field stop_all_timer  fun(self:VMBase)
+---@field on_deactive fun(self:VMBase)
+---@field clear fun(self:VMBase) 清理view
+---@field dispose fun(self:VMBase)
 ---@field is_active boolean
 ---@field is_res_ready boolean
 VMBase = vm_base

@@ -86,7 +86,7 @@ namespace HugulaEditor.Databinding
             orderList.drawHeaderCallback = (Rect rect) =>
              {
                  var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
-                 BindableObjectStyle.LabelFieldStyle(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}", "#8cacbcff", 12);
+                 BindableObjectStyle.LabelFieldStyle(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}", "#0e6dcbff", 12);
 
                  var rect1 = rect;
                  rect1.x = rect.width * 0.4f;
@@ -126,12 +126,12 @@ namespace HugulaEditor.Databinding
                     var path = element.FindPropertyRelative("path");
                     if (path != null)
                     {
-                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", "#BCB88Cff", 11);
+                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", "#2c76adff", 11);
                         // element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded, $"{index}.{element.displayName}   path={path.stringValue}     ", true);
                     }
                     else
                     {
-                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.objectReferenceValue}  ", "#8cacbcff", 12);
+                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index}.{element.objectReferenceValue}  ", "#0e6dcbff", 12);
                         // element.isExpanded = EditorGUI.Foldout(posRect_label, element.isExpanded,BindableObjectStyle.ColorText($"{index}.{element.objectReferenceValue}","#8cacbcff"), true);
                     }
 

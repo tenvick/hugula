@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468a46d0ae32c3544b7d98094e6448a9, type: 3}
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
-  m_DefaultGroup: dfa38755e79e6dd4aa518e3acedfa148
-  m_OptimizeCatalogSize: 1
+  m_DefaultGroup: 759a793224fb1a54b96f8bfabd584948
+  m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
-  m_BundleLocalCatalog: 1
+  m_BundleLocalCatalog: 0
   m_CatalogRequestsTimeout: 0
   m_DisableCatalogUpdateOnStart: 1
   m_IgnoreUnsupportedFilesInBuild: 0
@@ -27,8 +27,8 @@ MonoBehaviour:
   m_DisableVisibleSubAssetRepresentations: 0
   m_ShaderBundleNaming: 0
   m_ShaderBundleCustomNaming: 
-  m_MonoScriptBundleNaming: 0
-  m_MonoScriptBundleCustomNaming: 
+  m_MonoScriptBundleNaming: 3
+  m_MonoScriptBundleCustomNaming: custom_mono
   m_RemoteCatalogBuildPath:
     m_Id: bc5fd0538a386264ea6614ea43cca959
   m_RemoteCatalogLoadPath:
@@ -36,7 +36,7 @@ MonoBehaviour:
   m_ContentStateBuildPath: 
   m_overridePlayerVersion: 
   m_GroupAssets:
-  - {fileID: 11400000, guid: 8e79e58efc192b941b38dc5a9d589519, type: 2}
+  - {fileID: 11400000, guid: 665b0d52322b8c04abd2d36fca5b189a, type: 2}
   - {fileID: 11400000, guid: f335280e89596674a96a65e430f97d64, type: 2}
   - {fileID: 11400000, guid: 40e89099d714534479199bd3d18fcfdb, type: 2}
   - {fileID: 11400000, guid: 94b779ddd7b4a3a41a170e11efde6657, type: 2}
@@ -50,6 +50,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9b14172256cdf346bc1b4f16ea9ba37, type: 2}
   - {fileID: 11400000, guid: 42ee69ba64c842447a92352656d4219a, type: 2}
   - {fileID: 11400000, guid: f19d0d235e475e040959c2eed5f974c4, type: 2}
+  - {fileID: 11400000, guid: 352f57cd3dbf3dc4497a33e5309a49b5, type: 2}
+  - {fileID: 11400000, guid: c00905edeb4b74247b9d5fe2caf46b3c, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -140,7 +142,7 @@ MonoBehaviour:
           m_Key: HostingServiceUploadSpeed
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.String
-          m_Data: Library/com.unity.addressables/aa/Android/Android
+          m_Data: Library/com.unity.addressables/aa/Windows/StandaloneWindows
           m_Key: ContentRoot
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.Boolean
@@ -168,7 +170,7 @@ MonoBehaviour:
           m_Key: HostingServiceUploadSpeed
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.String
-          m_Data: Library/com.unity.addressables/aa/Android/Android
+          m_Data: Library/com.unity.addressables/aa/Windows/StandaloneWindows
           m_Key: ContentRoot
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.Boolean

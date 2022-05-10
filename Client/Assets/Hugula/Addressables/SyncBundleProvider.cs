@@ -32,7 +32,6 @@ public class SyncBundleProvider : AssetBundleProvider
                 bundleLoadPath = provideHandle.Location.InternalId;
             }
             m_AssetBundle = AssetBundle.LoadFromFile(bundleLoadPath);
-            // UnityEngine.Debug.Log($"AssetBundle.LoadFromFile({bundleLoadPath})");
             if (m_AssetBundle == null)
             {
                 Debug.LogError("try load bundle sync failed " + bundleLoadPath); //同步加载失败

@@ -43,7 +43,7 @@ local BindingUtility = Hugula.Databinding.BindingUtility
 local vm_manager = {}
 
 local function error_hander(h)
-    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
+    TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback("", 2)))
 end
 
 local function safe_call(f, arg1)
@@ -75,10 +75,20 @@ local function deactive(self, vm_name, view_active)
         view_active = true
     end
     if curr_vm.is_res_ready == true and curr_vm.is_active then --已经加载过并且已经激活
-        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.deactive:", curr_vm.name)
+        local p_name = "vm_mamanger.deactive:" .. (curr_vm.name or "")
+        local profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
+
+        local profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive()", nil, p_name, true)
         safe_call(curr_vm.on_deactive, curr_vm)
         _unbinding_msg(curr_vm)
+        curr_vm:stop_all_timer()
         curr_vm.is_active = false --标记状态
+
+        if profiler1 then
+            profiler1:Stop()
+        end
+        profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":gameobject.deactive", nil, p_name, true)
+
         if view_active then
             local views = curr_vm.views
             if views then
@@ -89,6 +99,10 @@ local function deactive(self, vm_name, view_active)
         end
 
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "deactive", name = vm_name})
+
+        if profiler1 then
+            profiler1:Stop()
+        end
         if profiler then
             profiler:Stop()
         end
@@ -105,13 +119,22 @@ local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- Logger.Log("vm_manager.destroy ", vm_name)
     if curr_vm.is_res_ready == true then --如果资源加载完成
-        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.destroy:", curr_vm.name)
+        local p_name = "vm_mamanger.destroy:" .. curr_vm.name
+        local profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
+        local profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive() on_destroy()", nil, p_name, true)
+
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
         curr_vm._is_destory = nil
         safe_call(curr_vm.on_deactive, curr_vm)
         _unbinding_msg(curr_vm)
+        curr_vm:stop_all_timer()
         safe_call(curr_vm.on_destroy, curr_vm)
+        if profiler1 then
+            profiler1:Stop()
+        end
+        profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":gameobject.destory", nil, p_name, true)
+
         safe_call(curr_vm.clear, curr_vm)
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "destroy", name = vm_name})
 
@@ -120,6 +143,10 @@ local function destroy(self, vm_name)
             if destructor then
                 destructor(curr_vm)
             end
+        end
+
+        if profiler1 then
+            profiler1:Stop()
         end
 
         if profiler then
@@ -145,16 +172,12 @@ local function check_vm_base_all_done(vm_base, view)
         end
     end
     local vvm_name = vm_base.name .. "-" .. view.name
-    local p_root_name = "--ResL.1_2_0_InsAsync.onComp.check_all_done:" .. vvm_name
-    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, "", "-ResL.1_2_InsAsync.onComp:" .. view.name)
+    local parent_name = "InstantiateAsync.onComp:" .. view.name
+    local p_root_name = "check_all_done:on_active()." .. vvm_name
+    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, nil, parent_name, true)
+
     vm_base._isloading = false
     vm_base.is_res_ready = true
-    local v_profiler =
-        ProfilerFactory.GetAndStartProfiler(
-        "---ResL.1_2_0_1_InsAsync.onComp.check_all_done.on_active:",
-        vvm_name,
-        p_root_name
-    )
     local is_active = vm_base.is_active --当前的状态
     -- Logger.Log("vm_manager.check_vm_base_all_done. vm_base.is_active = ", is_active, vm_base)
     if vm_base._is_push == true then
@@ -174,8 +197,8 @@ local function check_vm_base_all_done(vm_base, view)
 
     safe_call(vm_base.on_active, vm_base)
 
-    if v_profiler then
-        v_profiler:Stop()
+    if profiler then
+        profiler:Stop()
     end
 
     -- Logger.Log("check_vm_base_all_done", vm_base)
@@ -184,26 +207,13 @@ local function check_vm_base_all_done(vm_base, view)
 
         for k, view_base in ipairs(views) do
             if _auto_context then
-                local vi_profiler =
-                    ProfilerFactory.GetAndStartProfiler(
-                    "---ResL.1_2_0_2_InsAsync.onComp.check_all_done.set_context:",
-                    vm_base.name .. "-" .. view_base.name,
-                    p_root_name
-                )
                 view_base:set_child_context(vm_base)
-                if vi_profiler then
-                    vi_profiler:Stop()
-                end
             end
         end
     end
 
-    v_profiler =
-        ProfilerFactory.GetAndStartProfiler(
-        "---ResL.1_2_0_3_InsAsync.onComp.check_all_done.context_after:",
-        vvm_name,
-        p_root_name
-    )
+    profiler = ProfilerFactory.GetAndStartProfiler(p_root_name..":after_set_context:", nil, parent_name, true)
+
     --on_state_changed
     if vm_base._is_group == true then
         vm_manager._vm_state:_check_on_state_changed(vm_base)
@@ -219,13 +229,11 @@ local function check_vm_base_all_done(vm_base, view)
         vm_base.is_active = true --强行设置为true确保正确的deactive流程
         deactive(vm_manager, vm_base.name)
     end
-    if v_profiler then
-        v_profiler:Stop()
-    end
 
     if profiler then
         profiler:Stop()
     end
+
     return true
 end
 
@@ -340,7 +348,8 @@ local function active_view(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     -- Logger.Log("vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
     if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过并且未被激活
-        local profiler = ProfilerFactory.GetAndStartProfiler("vm_mamanger.active_view ", vm_name)
+        local p_name = "vm_mamanger.active_view:" .. (vm_name or "")
+        local profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
         -- Logger.Log("real vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
 
         curr_vm.is_active = true
@@ -362,6 +371,8 @@ local function active_view(self, vm_name)
             end
         end
 
+        local profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ".set_context", nil, p_name, true)
+
         safe_call(curr_vm.on_active, curr_vm)
 
         if views then
@@ -378,8 +389,13 @@ local function active_view(self, vm_name)
             vm_manager._vm_state:_check_on_state_changed(curr_vm)
         end
 
+        if profiler1 then
+            profiler1:Stop()
+        end
+
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active_view", name = vm_name})
+
         if profiler then
             profiler:Stop()
         end

@@ -41,10 +41,9 @@ namespace Hugula.ResUpdate
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendFormat("(path={0},", name);
+            stringBuilder.AppendFormat("path={0},", name);
             stringBuilder.AppendFormat("crc32={0},", this.crc32);
             stringBuilder.AppendFormat("size={0},", this.size);
-            stringBuilder.Append(")");            
             return stringBuilder.ToString();
         }
 

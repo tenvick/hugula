@@ -16,8 +16,8 @@ MonoBehaviour:
   m_InternalBundleIdMode: 0
   m_Compression: 1
   m_IncludeAddressInCatalog: 1
-  m_IncludeGUIDInCatalog: 1
-  m_IncludeLabelsInCatalog: 1
+  m_IncludeGUIDInCatalog: 0
+  m_IncludeLabelsInCatalog: 0
   m_InternalIdNamingMode: 1
   m_CacheClearBehavior: 0
   m_IncludeInBuild: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
     m_ClassName: LuaBundledAssetProvider
   m_ForceUniqueProvider: 0
   m_UseAssetBundleCache: 1
-  m_UseAssetBundleCrc: 1
+  m_UseAssetBundleCrc: 0
   m_UseAssetBundleCrcForCachedBundles: 1
   m_UseUWRForLocalBundles: 0
   m_Timeout: 0

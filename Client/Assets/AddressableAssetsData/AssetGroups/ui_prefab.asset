@@ -53,6 +53,10 @@ MonoBehaviour:
     m_Address: welcome
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: e310e4f23e5a443469a54b2a81614f75
+    m_Address: psd_moban
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:

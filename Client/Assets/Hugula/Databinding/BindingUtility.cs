@@ -16,7 +16,7 @@ namespace Hugula.Databinding
         public static void SetContext(BindableObject bindable, object data)
         {
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContext"))
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContext", true))
             {
 #endif
                 if (data is LuaTable)
@@ -24,23 +24,13 @@ namespace Hugula.Databinding
                     var lua = data as LuaTable;
                     if (lua.ContainsKey<string>("PropertyChanged")) //检测属性
                     {
-#if LUA_PROFILER_DEBUG
-                        UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContext_LuaCast:" + bindable ?? "");
-#endif
                         bindable.context = lua.Cast<INotifyPropertyChanged>();
-#if LUA_PROFILER_DEBUG
-                        UnityEngine.Profiling.Profiler.EndSample();
-#endif
-                        return;
-                    }
+                    }else
+                        bindable.context = data;
                 }
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContext:" + bindable ?? "");
-#endif
-                bindable.context = data;
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.EndSample();
-#endif
+                else
+                    bindable.context = data;
+
 #if PROFILER_DUMP || !HUGULA_RELEASE
             }
 #endif
@@ -51,16 +41,10 @@ namespace Hugula.Databinding
         public static void SetContextByINotifyTable(BindableObject bindable, INotifyTable notify)
         {
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable"))
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable", true))
             {
 #endif
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByINotifyTable:" + bindable ?? "");
-#endif
                 bindable.context = notify;
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.EndSample();
-#endif
 #if PROFILER_DUMP || !HUGULA_RELEASE
             }
 #endif
@@ -69,16 +53,10 @@ namespace Hugula.Databinding
         public static void SetContextByIList(BindableObject bindable, IList list)
         {
 #if PROFILER_DUMP || !HUGULA_RELEASE
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList"))
+            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList", true))
             {
 #endif
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByIList:" + bindable ?? "");
-#endif
                 bindable.context = list;
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.EndSample();
-#endif
 #if PROFILER_DUMP || !HUGULA_RELEASE
             }
 #endif
@@ -92,16 +70,10 @@ namespace Hugula.Databinding
             else
             {
 #if PROFILER_DUMP || !HUGULA_RELEASE
-                using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged"))
+                using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged", true))
                 {
 #endif
-#if LUA_PROFILER_DEBUG
-                    UnityEngine.Profiling.Profiler.BeginSample("BindingUtility.SetContextByINotifyPropertyChanged:" + bindable ?? "");
-#endif
                     bindable.context = notify;
-#if LUA_PROFILER_DEBUG
-                    UnityEngine.Profiling.Profiler.EndSample();
-#endif
 #if PROFILER_DUMP || !HUGULA_RELEASE
                 }
 #endif

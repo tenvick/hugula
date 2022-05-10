@@ -67,10 +67,11 @@ namespace Hugula.ResUpdate
         {
             BackGroundDownload.Init();
             TLogger.Init();
-            ResLoader.Init();
             FileManifestManager.OverrideInternalIdTransformFunc(); //重定向热更新的文件
             FileManifestManager.LoadStreamingFolderManifests(null);//读取本地文件列表
             FileManifestManager.LoadPersistentFolderManifest(null);//读取持久化目录的列表
+
+            ResLoader.Init();
 
             yield return null;
             Hugula.Localization.language = PlayerPrefs.GetString(Hugula.Localization.KEY_LAN, Application.systemLanguage.ToString());
@@ -134,6 +135,7 @@ namespace Hugula.ResUpdate
 
                 var cdn_hosts = remoteVer.cdn_host;
                 BackGroundDownload.rootHosts = cdn_hosts;
+                FileManifestManager.otherZipMode = remoteVer.other;//使用远端下载模式
 
                 if (CodeVersion.CODE_VERSION < CodeVersion.CovertVerToCodeVersion(remoteVer.version)) // remoteVer.resNumber)
                 { //强制更新提示
@@ -251,9 +253,9 @@ namespace Hugula.ResUpdate
 #endif
             if (!isError)
             {
-                var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
-                folderManifest.MarkZipDone();
-                FileManifestManager.GenZipPackageTransform(fastManifest);
+                //default 
+                // var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
+                // FileManifestManager.GenZipPackageTransform(fastManifest);
             }
             else
             {

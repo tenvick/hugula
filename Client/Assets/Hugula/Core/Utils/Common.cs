@@ -46,6 +46,12 @@ namespace Hugula.Utils
         public const string CONFIG_CSV_NAME = "font1.u3d";
 
         /// <summary>
+        ///  PackingType
+        /// 需要排除的folder name
+        /// </summary>
+        public const string FOLDER_STREAMING_NAME =  "streaming";
+
+        /// <summary>
         /// 语言包特殊前缀
         /// </summary>
         

@@ -10,16 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Default Local Group
+  m_Name: default
   m_EditorClassIdentifier: 
-  m_GroupName: Default Local Group
+  m_GroupName: default
   m_Data:
     m_SerializedData: []
-  m_GUID: dfa38755e79e6dd4aa518e3acedfa148
-  m_SerializeEntries: []
+  m_GUID: 759a793224fb1a54b96f8bfabd584948
+  m_SerializeEntries:
+  - m_GUID: 242ad684ed418d54ebd8cec82b6a57a1
+    m_Address: moban_atlas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: db76d67194b73824c883b61841459616, type: 2}
-    - {fileID: 11400000, guid: 12e7765a5f713b1408136eeb9a961e70, type: 2}
+    - {fileID: 11400000, guid: 21d54f40bd8a86c4a99f937db4d89fbc, type: 2}
+    - {fileID: 11400000, guid: b46bef7cdd6210d42b8388006480aa53, type: 2}

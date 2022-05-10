@@ -20,6 +20,16 @@ namespace Hugula.ResUpdate
         }
 
         /// <summary>
+        /// 标记当前zip路径为完成
+        /// </summary>
+        public static void MarkZipPathDone(string zipMarkFullPathName)
+        {
+            FileHelper.CheckCreateFilePathDirectory(zipMarkFullPathName);
+
+            if (!File.Exists(zipMarkFullPathName)) File.Create(zipMarkFullPathName);
+        }
+
+        /// <summary>
         /// 获取zip文件解压后的目录
         /// </summary>
         public static string GetZipOutFolderPath(this FolderManifest self)

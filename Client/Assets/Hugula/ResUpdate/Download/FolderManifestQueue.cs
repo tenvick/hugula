@@ -34,11 +34,25 @@ namespace Hugula.ResUpdate
             internal set;
         }
 
+        private long m_BytesReceived;
         public long bytesReceived
         {
-            get;
-            internal set;
+            get
+            {
+                if (m_Dirty)
+                {
+                    m_BytesReceived = 0;
+                    foreach (var kv in fileReceiveBytes)
+                    {
+                        m_BytesReceived += kv.Value;
+                    }
+                }
+                return m_BytesReceived;
+            }
+            // internal set;
         }
+        //是否需要计算BytesReceived
+        private bool m_Dirty = false;
         // public 
         protected Queue<FileResInfo> groupRes = new Queue<FileResInfo>();
         protected List<FileResInfo> loadingRes = new List<FileResInfo>();
@@ -80,7 +94,7 @@ namespace Hugula.ResUpdate
             this.isError = false;
             group.AddChild(this);
             totalBytesToReceive = folder.totalSize;
-            bytesReceived = 0;
+            m_Dirty = true;
 #if !HUGULA_NO_LOG 
             // Debug.Log($"进度信息:{folder}  totalBytesToReceive:{this.group.totalBytesToReceive} ");
 #endif
@@ -102,17 +116,13 @@ namespace Hugula.ResUpdate
 
             this.isError = false;
             var allFileInfos = currFolder.allFileInfos;
+            m_Dirty = true;
             FileResInfo item;
-            int loaded = 0;
-
             for (int i = 0; i < errorFiles.Count; i++)
             {
                 item = errorFiles[i];
                 groupRes.Enqueue(item);
-                if (fileReceiveBytes.TryGetValue(item.name, out loaded))
-                {
-                    bytesReceived -= loaded; //减少加载错误的结果
-                }
+                fileReceiveBytes[item.name] = 0;//需要重新下载
             }
             errorFiles.Clear();
             return true;
@@ -160,8 +170,9 @@ namespace Hugula.ResUpdate
 
         public void OnDownloadProgressChanged(FileResInfo fileResInfo, DownloadingProgressChangedEventArgs e)
         {
-            bytesReceived += e.BytesRead;
-            AddReceiveBytes(fileResInfo.name, e.BytesRead);
+            // bytesReceived += e.BytesRead;
+            AddReceiveBytes(fileResInfo.name, (int)e.BytesReceived);
+            m_Dirty = true;
             group.OnDownloadProgressChanged(fileResInfo, this, e);
         }
 
@@ -175,18 +186,9 @@ namespace Hugula.ResUpdate
 
         protected void AddReceiveBytes(string fName, int bytesRead)
         {
-            int loaded = 0;
             lock (this)
             {
-                if (fileReceiveBytes.TryGetValue(fName, out loaded))
-                {
-                    loaded += bytesRead;
-                    fileReceiveBytes[fName] = loaded;
-                }
-                else
-                {
-                    fileReceiveBytes.Add(fName, bytesRead);
-                }
+                fileReceiveBytes[fName] = bytesRead;
             }
         }
         public void ReleaseToPool()
@@ -246,7 +248,18 @@ namespace Hugula.ResUpdate
 
         public void DispatchChildComplete(FolderManifestQueue child)
         {
-            if (onItemComplete != null) onItemComplete(child, child.isError);
+            if (onItemComplete != null)
+            {
+                onItemComplete(child, child.isError);
+            }
+            if (!child.isError && child.currFolder.transformZipFolder && child.currFolder.isZipDone)
+            {
+                var fastManifest = FileManifestManager.FindStreamingFolderManifest(child.currFolder.folderName);
+                if (fastManifest != null)
+                    FileManifestManager.GenZipPackageTransform(fastManifest);
+
+                FileManifestManager.ClearOverrideAddressTransformFunc(child.currFolder.folderName);
+            }
             if (isAllDown && onAllComplete != null)
             {
                 onAllComplete(this, anyError);

@@ -88,6 +88,7 @@ public class TLogger : ILogHandler
 #endif
 
 
+
 #if HUGULA_NO_LOG
             //不输出日志直接记录文件
             myLogger = new TLogger();
@@ -213,17 +214,20 @@ public class TLogger : ILogHandler
     internal static void LogSysInfo()
     {
         StringBuilder sb = new StringBuilder();
-        sb.AppendFormat("platform:{0}\r\n udid:", Application.platform.ToString());
-        sb.Append(SystemInfo.deviceUniqueIdentifier);
-        sb.AppendFormat("\r\n deviceName={0};\r\n date:", SystemInfo.deviceName);
-        sb.Append(System.DateTime.Now.ToString());
-        sb.AppendFormat("\r\n systemMemorySize={0};\r\n bundleIdentifier:", SystemInfo.systemMemorySize);
-        sb.Append(Application.identifier);
-        sb.AppendFormat("\r\n internetReachability={0};\r\n deviceModel:", Application.internetReachability);
-        sb.Append(SystemInfo.deviceModel);
-        sb.AppendFormat("\r\n version={0};\r\n unityVersion:", Application.version);
-        sb.Append(Application.unityVersion);
-        sb.AppendFormat("\r\n systemLanguage={0};", Application.systemLanguage.ToString());
+        sb.Append($"platform:{Application.platform.ToString()}");
+        sb.Append($"\r\n deviceUniqueIdentifier={SystemInfo.deviceUniqueIdentifier}");
+        sb.Append($"\r\n identifier={Application.identifier}");
+        sb.Append($"\r\n deviceName={SystemInfo.deviceName}");
+        sb.Append($"\r\n date={System.DateTime.Now.ToString()}");
+        sb.Append($"\r\n systemMemorySize={SystemInfo.systemMemorySize};");
+        sb.Append($"\r\n processorFrequency= {SystemInfo.processorFrequency}");
+        sb.Append($"\r\n processorCount= {SystemInfo.processorCount}");
+        sb.Append($"\r\n graphicsMemorySize= {SystemInfo.graphicsMemorySize}");
+        sb.Append($"\r\n internetReachability= {Application.internetReachability}");
+        sb.Append($"\r\n deviceModel= {SystemInfo.deviceModel}");
+        sb.Append($"\r\n version={Application.version};");
+        sb.Append($"\r\n unityVersion={Application.unityVersion}");
+        sb.Append($"\r\n systemLanguage={Application.systemLanguage.ToString()};");
 #if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
         Firebase.Crashlytics.Crashlytics.Log(sb.ToString());
 #endif

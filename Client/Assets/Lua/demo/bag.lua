@@ -62,7 +62,7 @@ local function create_item(i)
     it.quality = tostring(math.random(0, 10))
     it.count = tostring(math.random(1, 5))
     it.selected = false
-    it.id = i
+    it.index = i
     return it
 end
 
@@ -102,6 +102,27 @@ end
 ---------------------------------点击事件处理------------------------------------
 bag.selected_item = nil
 bag.selected_trigger = "fadeIn"
+
+bag.on_item_changed = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(self, arg)
+        local arg0 = arg[0]
+        local arg1 = arg[1]
+
+        local old_item = items:get_Item(arg0 - 1)
+        local new_item = items:get_Item(arg1 - 1)
+        if not old_item or not new_item then
+            return
+        end
+        -- if not items:get_Item(arg0) or not items:get_Item(arg1) then return end
+        old_item.index = arg1
+        new_item.index = arg0
+        items:Move(arg0 - 1, arg1 - 1)
+        Logger.LogTable(items.items)
+    end
+}
 
 bag.on_item_select = {
     CanExecute = function(self, arg)

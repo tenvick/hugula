@@ -52,7 +52,7 @@ namespace Hugula.ResUpdate
         public static OtherZipMode otherZipMode
         {
             get;
-            set;
+            internal set;
         }
 
         private static string m_LocalVersion;
@@ -220,6 +220,15 @@ namespace Hugula.ResUpdate
         #endregion
 
         #region 查找相关
+
+        /// <summary>
+        /// 返回streamingFolderManifest列表所有内容，注意不要修改里面内容。
+        /// </summary>
+        public  static List<FolderManifest> GetStreamingFolderManifests()
+        {
+            return  streamingFolderManifest;
+        }
+
         /// <summary>
         /// 通过address地址查找bundle Name
         /// </summary>

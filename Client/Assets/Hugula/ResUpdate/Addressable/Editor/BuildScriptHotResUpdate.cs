@@ -94,7 +94,7 @@ namespace HugulaEditor.Addressable
             #endregion
 
             #region other bundle eg: _mono_monoscripts  _unitybuiltinshaders
-            AddOtherToFolderManifest(streamingPack, builderInput.Registry, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
+            //AddOtherToFolderManifest(streamingPack,builderInput.Registry, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
             #endregion
 
             #region  序列化foldermanifest文件

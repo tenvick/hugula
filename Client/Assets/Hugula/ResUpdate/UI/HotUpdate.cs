@@ -486,8 +486,8 @@ namespace Hugula.ResUpdate
 
         private IEnumerator RefreshCatalog()
         {
-            yield return FileManifestManager.RefreshCatalog();
             yield return InternalIdTransformFunc();
+            yield return FileManifestManager.RefreshCatalog();
         }
 
         //重定向bundle地址

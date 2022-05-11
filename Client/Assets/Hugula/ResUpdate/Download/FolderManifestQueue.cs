@@ -35,6 +35,7 @@ namespace Hugula.ResUpdate
         }
 
         private long m_BytesReceived;
+
         public long bytesReceived
         {
             get
@@ -42,10 +43,14 @@ namespace Hugula.ResUpdate
                 if (m_Dirty)
                 {
                     m_BytesReceived = 0;
-                    foreach (var kv in fileReceiveBytes)
+                    List<int> calc = Hugula.Utils.ListPool<int>.Get();
+                    calc.Clear();
+                    calc.InsertRange(0,fileReceiveBytes.Values);
+                    foreach (var i in calc)
                     {
-                        m_BytesReceived += kv.Value;
+                        m_BytesReceived += i;
                     }
+                    Hugula.Utils.ListPool<int>.Release(calc);
                 }
                 return m_BytesReceived;
             }

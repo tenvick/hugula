@@ -607,7 +607,7 @@ namespace Hugula.ResUpdate
             if (isZipDone)
             {
 #if !HUGULA_NO_LOG
-                Debug.Log($" zip folder:{folderPackage.folderName} is down size:{folderPackage.zipSize}) ");
+                Debug.Log($"generate zip folder {folderPackage.folderName} Transform size:{folderPackage.zipSize}) ");
 #endif
                 var allFiles = folderPackage.allFileInfos;
                 var zipOutPath = folderPackage.GetZipOutFolderPath();
@@ -626,7 +626,7 @@ namespace Hugula.ResUpdate
             else
             {
 #if !HUGULA_NO_LOG
-                Debug.LogWarning($" zip folder :{folderPackage.folderName} download fail size:{folderPackage.zipSize}) ");
+                Debug.LogWarning($"generate zip folder transform fail , {folderPackage.folderName} have't loaded size:{folderPackage.zipSize}) ");
 #endif
             }
         }

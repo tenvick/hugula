@@ -129,6 +129,8 @@ namespace System.Net
         private ArrayList async_children_error;
         private bool is_busy;
         private bool async;
+        //块的合并状态防止同时合并
+        private bool blockMerge;
         //中断下载
         public bool interrupt { get; private set; }
         private string fileName;
@@ -246,6 +248,7 @@ namespace System.Net
             lock (this)
             {
                 this.interrupt = true;
+                // this.blockMerge = true;
                 if (this.async_thread != null)
                 {
                     Thread thread = this.async_thread;
@@ -378,7 +381,7 @@ namespace System.Net
                 throw new ArgumentNullException("fileName");
             }
             interrupt = false;
-
+            blockMerge = false;
             CheckFileDirectory(fileName);
 
             System.Exception ex = null;
@@ -600,6 +603,7 @@ namespace System.Net
                         }
                         if (this.interrupt)
                         {
+                            fileStream.Close();
                             webResponse.Close();
                             webRequest.Abort();
                             return;
@@ -657,6 +661,7 @@ namespace System.Net
 
                         if (this.interrupt)
                         {
+                            fileStream.Close();
                             webResponse.Close();
                             webRequest.Abort();
                             return;
@@ -685,7 +690,8 @@ namespace System.Net
                 }
             }
         }
-
+        
+        BlockTheadComparer blockTheadComparer = new BlockTheadComparer();
         private void OnBlockDownloadFileCompletedHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs args)
         {
             async_children_thread.Remove(sender);
@@ -702,15 +708,18 @@ namespace System.Net
                 async_children_error.Add(args);
             }
 
-            if (async_children_thread.Count == 0 && async_children_error.Count == 0 && async_children_finished.Count > 0)
+            if (!blockMerge && async_children_thread.Count == 0 && async_children_error.Count == 0 && async_children_finished.Count > 0)
             {
-                async_children_finished.Sort(new BlockTheadComparer());
+                blockMerge = true;
+                async_children_finished.Sort(blockTheadComparer);
                 BlockThead block = null; // (BlockThead) async_children_finished[0]; //find first
                 string tmpFileName = string.Empty;
                 int num2 = 32768; //32KB
                 byte[] array = new byte[num2];
                 FileStream tmpFs;
                 int num4 = 0;
+                // Debug.Log($" copy to file {fileName}, ManagedThreadId:{System.Threading.Thread.CurrentThread.ManagedThreadId} " );
+
                 using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
                 {
                     for (int i = 0; i < async_children_finished.Count; i++)

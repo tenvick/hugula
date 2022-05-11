@@ -65,7 +65,7 @@ namespace Hugula.ResUpdate
         // Start is called before the first frame update
         IEnumerator Start()
         {
-            BackGroundDownload.Init();
+            // BackGroundDownload.Init();
             TLogger.Init();
             FileManifestManager.OverrideInternalIdTransformFunc(); //重定向热更新的文件
             FileManifestManager.LoadStreamingFolderManifests(null);//读取本地文件列表

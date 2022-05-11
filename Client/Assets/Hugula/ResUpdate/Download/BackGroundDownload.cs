@@ -40,7 +40,7 @@ namespace Hugula.ResUpdate
         /// zip文件处理,子线程
         /// </summary>
         public static System.Action<FileGroupMap> onZipFileDownload;
-
+        [RuntimeInitializeOnLoadMethod]
         public static void Init()
         {
             onZipFileDownload = OnZipFileDownload;
@@ -613,6 +613,7 @@ namespace Hugula.ResUpdate
                 Debug.Log($"zipfile:{source} to :{targetFolder} {System.DateTime.Now}");
                 ZipHelper.UnpackZipByPath(source, targetFolder);
                 FolderManifestRuntionExtention.MarkZipPathDone(targetFolder+".zipd");
+                File.Delete(source); //删除zip文件
                 Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
             }
         }

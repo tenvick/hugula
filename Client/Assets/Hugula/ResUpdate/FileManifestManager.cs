@@ -25,6 +25,11 @@ namespace Hugula.ResUpdate
         internal static List<FolderManifest> streamingFolderManifest;
 
         /// <summary>
+        /// 本地简单clone
+        /// </summary>
+        internal static List<FolderManifest> streamingFolderManifestSimpleClone = new List<FolderManifest>();
+
+        /// <summary>
         /// 本地更新的远端配置
         /// </summary>
         internal static List<FolderManifest> persistentFolderManifest = new List<FolderManifest>();
@@ -222,11 +227,11 @@ namespace Hugula.ResUpdate
         #region 查找相关
 
         /// <summary>
-        /// 返回streamingFolderManifest列表所有内容，注意不要修改里面内容。
+        /// 返回streamingFolderManifestSimpleClone文件夹简单内容，不要修改。
         /// </summary>
         public  static List<FolderManifest> GetStreamingFolderManifests()
         {
-            return  streamingFolderManifest;
+            return  streamingFolderManifestSimpleClone;
         }
 
         /// <summary>
@@ -348,6 +353,12 @@ namespace Hugula.ResUpdate
                     var item = assets[0];
                     // localVersion = item.version; //更新到本地版本号
                     localResNum = item.resNumber;
+                }
+
+                streamingFolderManifestSimpleClone.Clear();
+                foreach(var s in assets)
+                {
+                    streamingFolderManifestSimpleClone.Add(s.CloneWithOutAllFileInfos());
                 }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR

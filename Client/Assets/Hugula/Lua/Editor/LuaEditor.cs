@@ -59,6 +59,10 @@ namespace HugulaEditor
             var files = Directory.GetFiles(rootPath, "*.lua", SearchOption.AllDirectories);
             var dests = new string[files.Length];
 
+            try
+            {
+                AssetDatabase.StartAssetEditing();
+
             for (int i = 0; i < files.Length; i++)
             {
                 string xfile = files[i].Remove(0, rootPath.Length + 1);
@@ -75,20 +79,35 @@ namespace HugulaEditor
 
             string tmpPath = EditorUtils.GetAssetTmpPath();
             EditorUtils.CheckDirectory(tmpPath);
-            string outPath = Path.Combine(tmpPath, "lua_export_log.txt");
-            Debug.Log("write to path=" + outPath);
-            using (StreamWriter sr = new StreamWriter(outPath, false))
+
+            EditorUtils.WriteToTmpFile("lua_export_log.txt",sb.ToString());
+            // string outPath = Path.Combine(tmpPath, "lua_export_log.txt");
+            // Debug.Log("write to path=" + outPath);
+            // using (StreamWriter sr = new StreamWriter(outPath, false))
+            // {
+            //     sr.Write(sb.ToString());
+            // }
+                AssetDatabase.Refresh();
+            }
+            catch (System.Exception ex)
             {
-                sr.Write(sb.ToString());
+                Debug.LogError($"{ex.Message} \r\n {ex.StackTrace} ");
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+                EditorUtility.ClearProgressBar();
             }
 
-            EditorUtility.ClearProgressBar();
-            AssetDatabase.Refresh();
+            
+            string luaBytesfile=string.Empty;
+            string luaBytesGuid = string.Empty;
+            AddressableAssetEntry luaEntry = null;
 
-            //addressables
-           
             try
             {
+                AssetDatabase.StartAssetEditing();
+
                 var setting = AASEditorUtility.LoadAASSetting();
                 var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
                 var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama); //setting.FindGroup(LUA_GROUP_NAME);
@@ -104,7 +123,8 @@ namespace HugulaEditor
                 packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
                 packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
                 packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
-
+                packing.IncludeGUIDInCatalog = false;
+                
                 var abProviderType = packing.AssetBundleProviderType;
                 var assetProviderType = packing.BundledAssetProviderType;
 
@@ -129,12 +149,12 @@ namespace HugulaEditor
 
                 for (int i = 0; i < dests.Length; i++)
                 {
-                    var str = dests[i];
-                    var guid = AssetDatabase.AssetPathToGUID(str); //获得GUID
-                    var entry = setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
-                    entry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(str));
+                    luaBytesfile = dests[i];
+                    luaBytesGuid = AssetDatabase.AssetPathToGUID(luaBytesfile); //获得GUID
+                    luaEntry = setting.CreateOrMoveEntry(luaBytesGuid, group); //通过GUID创建entry
+                    luaEntry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(luaBytesfile));
                     // entry.SetLabel("lua_script", true);
-                    EditorUtility.DisplayProgressBar("load group SetAddress", str, (float)i / files.Length);
+                    EditorUtility.DisplayProgressBar("load group SetAddress", luaBytesfile, (float)i / files.Length);
 
                 }
                 EditorUtility.ClearProgressBar();
@@ -142,14 +162,19 @@ namespace HugulaEditor
             }
             catch (System.Exception ex)
             {
-
-            }       
+                Debug.LogError($"{ex.Message}\r\n lua:{luaBytesfile},entry:{(luaEntry==null?"":luaEntry.BundleFileId)}  \r\n {ex.StackTrace} ");
+                throw ex;
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+            }
 
         }
 
         public static string GetLuaBytesResourcesPath()
         {
-            string luapath = "Assets/" + Common.LUACFOLDER + "/lua_bundle";
+            string luapath = "Assets/lua_bundle";
             DirectoryInfo p = new DirectoryInfo(luapath);
             if (!p.Exists) p.Create();
             return luapath;

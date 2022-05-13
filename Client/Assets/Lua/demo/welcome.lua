@@ -153,7 +153,7 @@ welcome.eg_data = eg_data
 check_res_funs["scene_res"] = function(arg)
 --check 依赖的hero
         if not FileManifestManager.CheckAddressIsDown("hero_bailangkaluolin_ride") then --如果依赖资源没有下载完成需要重写
-            FileManifestManager.GenOverrideAddressTransformFunc("hero","Player1")
+            FileManifestManager.GenOverrideAddressTransformFunc("hero_models","Player1")
         end
 
     return FileManifestManager.CheckAddressIsDown(arg.arg,arg.res_type)

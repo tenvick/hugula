@@ -412,8 +412,35 @@ namespace HugulaEditor.Databinding
 
         bool CheckBingdings(BindableObject bindableObject)
         {
-           var bindings = bindableObject.GetBindings();
+            //check target
+            var tp = bindableObject.GetType();
+            var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+            if (prop != null)
+            {
+                var target = prop.GetValue(bindableObject);
+                Type genericType = null;
+                    
+                if(bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments.Length>0)
+                {
+                    genericType = bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments[0];
+                    var selfTarget = bindableObject.GetComponent(genericType);
+
+                    if (target != selfTarget)
+                    {
+                        Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).target({target}) is not self({selfTarget})");
+                        searchText = bindableObject.name;
+                        Find();
+                        //return false;
+                    }
+                }
+
+            }
+
+
+            var bindings = bindableObject.GetBindings();
            var dic = new Dictionary<string,Binding>();
+
+
            foreach(var binding in bindings)
            {
                if(dic.TryGetValue(binding.propertyName,out var   oldBinding ))
@@ -436,7 +463,7 @@ namespace HugulaEditor.Databinding
                     return false;
                 }
 
-           }
+            }
 
             return true;
         }

@@ -16,11 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 759a793224fb1a54b96f8bfabd584948
-  m_SerializeEntries:
-  - m_GUID: 242ad684ed418d54ebd8cec82b6a57a1
-    m_Address: moban_atlas
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:

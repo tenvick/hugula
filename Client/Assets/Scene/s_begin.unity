@@ -165,7 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a8c511ada62b047a7db94b1f0cdf6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AudioSource: {fileID: 0}
+  m_AudioSource: {fileID: 148109147}
   type: 1
   easeTime: 1
 --- !u!82 &148109147
@@ -625,6 +625,7 @@ GameObject:
   - component: {fileID: 1239483953}
   - component: {fileID: 1239483954}
   - component: {fileID: 1239483952}
+  - component: {fileID: 1239483955}
   m_Layer: 0
   m_Name: Initialize
   m_TagString: Untagged
@@ -676,6 +677,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enterLua: begin
+--- !u!114 &1239483955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1239483951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc72d9ec25e47746af5a1cc90b554e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1553619859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1228,7 +1241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a8c511ada62b047a7db94b1f0cdf6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AudioSource: {fileID: 0}
+  m_AudioSource: {fileID: 1895052952}
   type: 1
   easeTime: 1
 --- !u!82 &1895052952

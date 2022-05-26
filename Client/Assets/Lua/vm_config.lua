@@ -112,6 +112,7 @@ vm_config.demo_subui = {vm = "demo.demo_subui"}
 vm_config.demo_subui1 = {vm = "demo.demo_subui1"}
 vm_config.demo_click_tips = {vm = "demo.demo_click_tips"}
 vm_config.player_load = {vm = "demo.player_load", gc_type = VM_GC_TYPE.ALWAYS} 
+vm_config.ui_effect_loading = {vm = "demo.ui_effect_loading", gc_type = VM_GC_TYPE.ALWAYS} 
 
 ----------------------------------------------------------------------------------demo end-----
 vm_config.ui_login = {vm = "viewmodels.ui_login", gc_type = VM_GC_TYPE.ALWAYS} 
@@ -125,7 +126,7 @@ vm_group.welcome = {"welcome"}
 vm_group.bag = {"bag","back_tips"}
 vm_group.binding_demo = {"binding_demo","back_tips"}
 vm_group.demo_subui = {"demo_subui", "back_tips"}
-vm_group.chat_demo = {"chat_demo","back_tips"}
+vm_group.chat_demo = {"chat_demo","back_tips",transition="ui_effect_loading"}
 vm_group.demo_loading = {"demo_loading",log_enable = false} --loading不需要回退
 vm_group.gamescene = {"asset_loader","scene_loader","back_tips","player_load"}
 vm_group.demo_login = {"demo_login","back_tips"}

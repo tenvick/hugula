@@ -40,7 +40,7 @@ namespace Hugula.ResUpdate
         /// zip文件处理,子线程
         /// </summary>
         public static System.Action<FileGroupMap> onZipFileDownload;
-        [RuntimeInitializeOnLoadMethod]
+
         public static void Init()
         {
             onZipFileDownload = OnZipFileDownload;
@@ -216,7 +216,7 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 下载address依赖的zip包
         /// </summary>
-        public int AddZipFolderByAddress(string address,System.Type type = null, System.Action<LoadingEventArg> onProgress = null, System.Action<FolderManifestQueue, bool> onItemComplete = null, System.Action<FolderQueueGroup, bool> onAllComplete = null)
+        public int AddZipFolderByAddress(string address, System.Type type = null, System.Action<LoadingEventArg> onProgress = null, System.Action<FolderManifestQueue, bool> onItemComplete = null, System.Action<FolderQueueGroup, bool> onAllComplete = null)
         {
             var folders = FileManifestManager.FindFolderManifestByAddress(address, type);
             if (folders == null)
@@ -260,7 +260,7 @@ namespace Hugula.ResUpdate
 
             return (uint)group.totalBytesToReceive;
         }
-       
+
 
         ///<summary>
         /// 重新加载失败的组
@@ -424,7 +424,12 @@ namespace Hugula.ResUpdate
 #endif              
             if (FileManifestManager.CheckPersistentCrc(fileInfo)) //只做了文件大小验证
             {
-                if (fileInfo.name.EndsWith("zip") && onZipFileDownload != null) //如果是zip文件自动解压
+                if (onZipFileDownload == null)
+                {
+                    onZipFileDownload = OnZipFileDownload;
+                }
+
+                if (fileInfo.name.EndsWith("zip")) //如果是zip文件自动解压
                 {
                     try
                     {
@@ -436,7 +441,7 @@ namespace Hugula.ResUpdate
                         Debug.LogError($"zip Persistent crc error:  {ex.Message} \r\n:{ex.StackTrace}");
                     }
                 }
-                // loadingTasks[fileInfo.name] = bQueue; //校验成功？
+
                 loadingTasks.Add(fileInfo.name, bQueue);
                 loadedFiles.Add(fileInfo);
 #if !HUGULA_NO_LOG
@@ -444,9 +449,9 @@ namespace Hugula.ResUpdate
 #endif    
                 return;
             }
-            else //if (!)
+            else
             {
-                // loadingTasks[fileInfo.name] = bQueue;
+
                 loadingTasks.Add(fileInfo.name, bQueue);
                 if (fileInfo.state == FileInfoState.Fail)
                     FileHelper.DeletePersistentFile(fileInfo.name);
@@ -513,6 +518,9 @@ namespace Hugula.ResUpdate
             WebDownload webd = (WebDownload)sender;
             var groupMap = (FileGroupMap)webd.userData;
             FileResInfo abInfo = groupMap.fileResInfo;
+#if !HUGULA_NO_LOG
+            Debug.Log($"OnDownloadFileCompleted({sender}),fileName:{abInfo.name},{System.DateTime.Now}\r\nerror:{e.Error}");
+#endif
             if (webd.interrupt) //如果是用户中断不处理
             {
                 Debug.LogWarningFormat("background download interrupt ab:{0}, tryTimes={1},host={2}\r\nerror:{3}", abInfo.name, webd.tryTimes, rootHosts[webd.tryTimes % rootHosts.Length], e.Error);
@@ -544,7 +552,11 @@ namespace Hugula.ResUpdate
                 if (tmpFile.Length == abInfo.size) //check size
                 {
                     abInfo.state = FileInfoState.Success;
-                    if (abInfo.name.EndsWith("zip") && onZipFileDownload != null) //如果是zip文件自动解压
+                    if (onZipFileDownload == null)
+                    {
+                        onZipFileDownload = OnZipFileDownload;
+                    }
+                    if (abInfo.name.EndsWith("zip")) //如果是zip文件自动解压
                     {
                         try
                         {
@@ -556,9 +568,10 @@ namespace Hugula.ResUpdate
                             Debug.LogError($"zip file({abInfo.name}) \r\n error:{ex.Message} \r\n:{ex.StackTrace}");
                         }
                     }
+
                     loadedFiles.Add(abInfo);
                     ReleaseWebDonwLoad(webd);
-#if HUGULA_NO_LOG
+#if !HUGULA_NO_LOG
                     Debug.LogWarning($"background download completed ab:{abInfo.name},crc={abInfo.crc32}, tryTimes={tryTimes},host={rootHosts[tryTimes % rootHosts.Length]}");
 #endif
                 }
@@ -602,7 +615,7 @@ namespace Hugula.ResUpdate
         ///</summary>
         public static void OnZipFileDownload(FileGroupMap groupMap)
         {
-            lock(groupMap)
+            lock (groupMap.fileResInfo)
             {
                 var abinfo = groupMap.fileResInfo;
                 var name = Path.GetFileName(abinfo.name);
@@ -612,7 +625,7 @@ namespace Hugula.ResUpdate
 
                 Debug.Log($"zipfile:{source} to :{targetFolder} {System.DateTime.Now}");
                 ZipHelper.UnpackZipByPath(source, targetFolder);
-                FolderManifestRuntionExtention.MarkZipPathDone(targetFolder+".zipd");
+                FolderManifestRuntionExtention.MarkZipPathDone(targetFolder + ".zipd");
                 File.Delete(source); //删除zip文件
                 Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
             }

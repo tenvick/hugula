@@ -66,7 +66,7 @@ namespace HugulaEditor.Databinding
                 {
                     titleTextStyle = new GUIStyle(EditorStyles.label);
                     titleTextStyle.richText = true;
-                    titleTextStyle.fontSize = 12;
+                    titleTextStyle.fontSize = 11;
                     titleTextStyle.alignment = TextAnchor.MiddleCenter;
 
                     if (EditorGUIUtility.isProSkin)

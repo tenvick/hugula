@@ -7,7 +7,7 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local require = require
--- local string_match = string.match
+local unpack = unpack
 local table = table
 local lua_binding = lua_binding
 local lua_unbinding = lua_unbinding
@@ -16,12 +16,6 @@ local DIS_TYPE = DIS_TYPE
 local xpcall = xpcall
 local debug = debug
 local string_format = string.format
-
--- local table_insert = table.insert
--- local table_indexof = table.indexof
--- local table_remove_item = table.remove_item
--- local table_remove_at = table.remove
--- local profiler = require("perf.profiler")
 
 local CS = CS
 local GameObject = CS.UnityEngine.GameObject
@@ -33,8 +27,8 @@ local VMGenerate = require("core.mvvm.vm_generate")
 local Timer = Hugula.Framework.Timer
 local TLogger = CS.TLogger
 
+--CS.UnityEngine.SceneManagement.LoadSceneMode
 local LoadSceneMode = {
-    --CS.UnityEngine.SceneManagement.LoadSceneMode
     Single = 0,
     Additive = 1
 }
@@ -90,12 +84,7 @@ local function deactive(self, vm_name, view_active)
         profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":gameobject.deactive", nil, p_name, true)
 
         if view_active then
-            local views = curr_vm.views
-            if views then
-                for k, v in ipairs(views) do
-                    v:set_active(false)
-                end
-            end
+            curr_vm:set_views_active(false)
         end
 
         lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "deactive", name = vm_name})
@@ -107,7 +96,6 @@ local function deactive(self, vm_name, view_active)
             profiler:Stop()
         end
     else
-        -- Logger.Log("make vm_manager.deactive is_active=false", vm_name)
         curr_vm.is_active = false --标记状态
     end
 end
@@ -117,11 +105,12 @@ end
 ---@param vm_name string
 local function destroy(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
-    -- Logger.Log("vm_manager.destroy ", vm_name)
+
     if curr_vm.is_res_ready == true then --如果资源加载完成
         local p_name = "vm_mamanger.destroy:" .. curr_vm.name
         local profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
-        local profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive() on_destroy()", nil, p_name, true)
+        local profiler1 =
+            ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive() on_destroy()", nil, p_name, true)
 
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
@@ -153,7 +142,6 @@ local function destroy(self, vm_name)
             profiler:Stop()
         end
     else
-        -- Logger.Log("mark vm_manager.destroy _is_destory=true", vm_name)
         curr_vm._is_destory = true --标记销毁
     end
 end
@@ -179,7 +167,7 @@ local function check_vm_base_all_done(vm_base, view)
     vm_base._isloading = false
     vm_base.is_res_ready = true
     local is_active = vm_base.is_active --当前的状态
-    -- Logger.Log("vm_manager.check_vm_base_all_done. vm_base.is_active = ", is_active, vm_base)
+
     if vm_base._is_push == true then
         -- safe_call(vm_base.on_push, vm_base)
     else
@@ -188,11 +176,8 @@ local function check_vm_base_all_done(vm_base, view)
 
     _binding_msg(vm_base)
 
-    if views then
-        for k, view_base in ipairs(views) do
-            view_base:set_active(is_active)
-        end
-    end
+    vm_base:set_views_active(is_active)
+
     safe_call(vm_base.on_assets_load, vm_base)
 
     safe_call(vm_base.on_active, vm_base)
@@ -201,22 +186,46 @@ local function check_vm_base_all_done(vm_base, view)
         profiler:Stop()
     end
 
-    -- Logger.Log("check_vm_base_all_done", vm_base)
-    if views then
-        local _auto_context = vm_base.auto_context
+    vm_base:set_views_context()
 
-        for k, view_base in ipairs(views) do
-            if _auto_context then
-                view_base:set_child_context(vm_base)
-            end
+    profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":after_set_context:", nil, parent_name, true)
+
+    --transition
+    local auto_transition = vm_base.auto_transition
+    if auto_transition ~= false then
+        local do_transition = vm_base.do_transition
+        if do_transition then
+            do_transition(vm_base)
         end
     end
-
-    profiler = ProfilerFactory.GetAndStartProfiler(p_root_name..":after_set_context:", nil, parent_name, true)
 
     --on_state_changed
     if vm_base._is_group == true then
         vm_manager._vm_state:_check_on_state_changed(vm_base)
+
+        --check transition
+        local _curr_group = vm_base._curr_group
+        if _curr_group and _curr_group.transition then
+            local need_close = true
+            local curr_vm
+            for k, v in ipairs(_curr_group) do --多个
+                curr_vm = VMGenerate[v]
+                if curr_vm.is_res_ready ~= true then
+                    need_close = false
+                    break
+                end
+            end
+
+            if need_close then
+                local transition = VMGenerate[_curr_group.transition]
+                local on_transition_done = transition.on_transition_done
+                if on_transition_done then
+                    on_transition_done(transition, _curr_group)
+                else
+                    deactive(vm_manager, _curr_group.transition)
+                end
+            end
+        end
     end
 
     if is_active then
@@ -256,13 +265,9 @@ local function init_view(view_base, viewmodel)
     if on_asset_load then
         on_asset_load(view_base, view_base._child)
     end
-    -- view_base:set_active(true)
     view_base:initialized() --标记初始化
 
     local vm_base = view_base._vm_base or viewmodel
-
-    -- local is_active = vm_base.is_active --设置当前view状态
-    -- view_base:set_active(is_active)
 
     check_vm_base_all_done(vm_base, view_base)
 end
@@ -288,8 +293,6 @@ end
 ---@param view_base ViewBase
 local function on_pre_load_comp(data, view_base)
     if view_base:has_child() ~= true then
-        -- data:SetActive(false)
-        -- local inst = GameObject.Instantiate(data)
         set_view_child(data, view_base)
         data:SetActive(false)
     end
@@ -301,12 +304,10 @@ end
 ---@param view_base ViewBase
 local function on_scene_comp(data, view_base)
     if view_base:has_child() ~= true then
-        -- set_view_child(data, view_base)
         view_base:set_child(data)
     end
 
     init_view(view_base)
-    -- Logger.Log(string.format("on_scene_comp : %s", view_base))
 end
 
 ---场景预加载完成
@@ -315,10 +316,8 @@ end
 ---@param view_base ViewBase
 local function on_pre_scene_comp(data, view_base)
     if view_base:has_child() ~= true then
-        -- set_view_child(data, view_base)
         view_base:set_child(data)
     end
-    -- Logger.Log(string.format("on_pre_scene_comp : %s", view_base))
 end
 
 local function on_res_end(data, view_base)
@@ -331,30 +330,23 @@ end
 ---@param vm_base VMBase
 ---@param view_base ViewBase
 local function find_gameobject(name, view_base)
-    -- profiler.start()
     local find_name = name
     local inst = GameObject.Find(find_name)
     set_view_child(inst, view_base)
     init_view(view_base)
-    -- Logger.Log("init_view_wm\r\n",profiler.report())
-    -- profiler.stop()
 end
 
 --- 将vm关联的所有view激活
----@overload fun(vm_name:string)
----@param vm_name string
-local function active_view(self, vm_name)
+---@overload fun(curr_vm:VMBase)
+---@param curr_vm VMBase
+local function active_view(self, curr_vm)
     ---@type VMBase
-    local curr_vm = VMGenerate[vm_name] --获取vm实例
-    -- Logger.Log("vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
     if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过并且未被激活
+        local vm_name = curr_vm.name
         local p_name = "vm_mamanger.active_view:" .. (vm_name or "")
         local profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
-        -- Logger.Log("real vm_manager.active_view", curr_vm.is_res_ready, curr_vm, curr_vm.is_active)
 
         curr_vm.is_active = true
-
-        local views = curr_vm.views
 
         if curr_vm._is_push == true then
             -- safe_call(curr_vm.on_push, curr_vm)
@@ -364,29 +356,50 @@ local function active_view(self, vm_name)
 
         _binding_msg(curr_vm)
 
-        local _auto_context = curr_vm.auto_context
-        if views then
-            for k, v in ipairs(views) do
-                v:set_active(true)
-            end
-        end
+        curr_vm:set_views_active(true)
 
         local profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ".set_context", nil, p_name, true)
 
         safe_call(curr_vm.on_active, curr_vm)
 
-        if views then
-            for k, v in ipairs(views) do
-                if _auto_context and not v:has_context() then --是否需要对view重新设置viewmodel
-                    v:set_child_context(curr_vm)
-                end
+        curr_vm:set_views_context()
+
+        --transition
+        local auto_transition = curr_vm.auto_transition
+        if auto_transition ~= false then
+            local do_transition = curr_vm.do_transition
+            if do_transition then
+                do_transition(curr_vm)
             end
         end
 
         --on_state_changed 没有资源的模块也需要检测state changed 事件
-        -- if (views == nil or #views == 0) and curr_vm._is_group == true then
         if curr_vm._is_group == true then
             vm_manager._vm_state:_check_on_state_changed(curr_vm)
+
+            --check transition
+            local _curr_group = curr_vm._curr_group
+            if _curr_group and _curr_group.transition then
+                local need_close = true
+                local curr_vm
+                for k, v in ipairs(_curr_group) do --多个
+                    curr_vm = VMGenerate[v]
+                    if curr_vm.is_res_ready ~= true then
+                        need_close = false
+                        break
+                    end
+                end
+
+                if need_close then
+                    local transition = VMGenerate[_curr_group.transition]
+                    local on_transition_done = transition.on_transition_done
+                    if on_transition_done then
+                        on_transition_done(transition, _curr_group)
+                    else
+                        deactive(vm_manager, _curr_group.transition)
+                    end
+                end
+            end
         end
 
         if profiler1 then
@@ -474,23 +487,22 @@ end
 ---@overload fun(vm_name:string,arg:any)
 ---@param vm_name string
 ---@param arg any
-local function load(self, vm_name, arg, is_push, is_group)
-    local curr_vm = VMGenerate[vm_name] --获取vm实例
+local function load(self, curr_vm, arg, is_push, curr_group)
     if not is_push then --is back
         arg = curr_vm._push_arg
     end
     curr_vm:on_push_arg(arg) --有参数
     curr_vm._push_arg = arg
     curr_vm._is_push = is_push --是否是push到栈上的
-    curr_vm._is_group = is_group --是否是组
+    curr_vm._is_group = curr_group ~= nil --是否是组
+    curr_vm._curr_group = curr_group
     local views = curr_vm.views
 
     if views == nil or #views == 0 then
         curr_vm.is_res_ready = true
     end
-    -- Logger.Log("vm_mamanger.load ", curr_vm, curr_vm.is_active, "_isloading=", curr_vm._isloading)
     if curr_vm.is_res_ready == true then --已经加载过
-        active_view(self, vm_name)
+        active_view(self, curr_vm)
     else
         curr_vm.is_active = true --需要重新加载，设置本身为激活状态
         curr_vm._is_destory = nil --清理销毁标记
@@ -518,19 +530,72 @@ end
 ---@param vm_name string
 ---@param arg any
 ---@param is_group bool
-local function active(self, vm_name, arg, is_push, is_group)
+local function active(self, vm_name, arg, is_push)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
-    -- Logger.Log("vm_manager.active(", vm_name.name or vm_name)
-    if type(vm_name) == "string" then --单个
-        load(self, vm_name, arg, is_push)
-    else
-        for k, v in ipairs(vm_name) do --多个
-            load(self, v, arg, is_push, is_group)
+
+    load(self, VMGenerate[vm_name], arg, is_push)
+
+    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_name})
+end
+
+local function active_group(self, vm_group, arg, is_push, vm_group)
+    for k, v in ipairs(vm_group) do --多个
+        load(self, VMGenerate[v], arg, is_push, vm_group)
+    end
+
+    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_group.name})
+end
+
+--真正开始切换
+local function do_transition(self)
+    local _change_action = self._change_action
+    if _change_action then
+        _change_action()
+    end
+    self._on_do_transition(unpack(self._on_do_transition_arg))
+    -- self.do_transition = nil --只能执行一次
+end
+
+--判断是否需要loading切换
+local function _transition_active_group(self, vm_group, is_push, _change_action, arg)
+    local transition = vm_group.transition
+    if transition then --check show loading
+        local curr_vm, views
+        local transition_item = VMGenerate[transition]
+        local always_transition = transition_item.always_transition
+        local need_trans = false
+
+        if always_transition ~= true then
+            for k, v in ipairs(vm_group) do --多个
+                curr_vm = VMGenerate[v]
+                views = curr_vm.views
+                if not (views == nil or #views == 0) and curr_vm.is_res_ready ~= true then
+                    need_trans = true
+                    break
+                end
+            end
+        else
+            need_trans = true
+        end
+        
+        if need_trans then
+            transition_item._on_do_transition = active_group
+            transition_item._on_do_transition_arg = {self, vm_group, arg, is_push, vm_group}
+            transition_item.do_transition = do_transition
+
+            transition_item._change_action = _change_action
+
+            load(self, transition_item, vm_group, true) --激活loading
+            return
         end
     end
-    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_name})
+
+    if _change_action then
+        _change_action()
+    end
+    active_group(self, vm_group, arg, is_push, vm_group)
 end
 
 ---预加载vm资源
@@ -582,7 +647,6 @@ local function re_load(self, vm_name)
         curr_vm.is_res_ready = true
     end
     if views and #views > 0 and is_res_ready then --如果资源已经加载需要重新刷新
-        -- local res_name, scene_name
         local new_views = curr_vm.views
         for k, v in ipairs(new_views) do
             v:set_child(views[k]._child) -- set view BindableContainer
@@ -596,8 +660,7 @@ local function re_load(self, vm_name)
             v._initialized = false
         end
     elseif is_res_ready then
-        -- Logger.Log(" re_load no view", vm_name)
-        active_view(self, vm_name)
+        active_view(self, curr_vm)
     end
 end
 
@@ -609,6 +672,7 @@ vm_manager.re_load = re_load
 vm_manager.pre_load = pre_load
 vm_manager.load = load
 vm_manager.active = active
+vm_manager._transition_active_group = _transition_active_group
 vm_manager.destroy = destroy
 vm_manager.deactive = deactive
 vm_manager.release = release

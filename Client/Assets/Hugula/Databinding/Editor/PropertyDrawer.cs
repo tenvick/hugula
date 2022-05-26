@@ -10,51 +10,59 @@ using Hugula;
 
 namespace HugulaEditor.Databinding
 {
-
     [CustomPropertyDrawer(typeof(PopUpComponentsAttribute), true)]
     public class PopUpComponentsDrawer : PropertyDrawer
     {
-        List<string> m_AllComponents = new List<string>();
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            float w = position.width;
-            position.width = w * .6f;
-            EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
-            UnityEngine.Object content = null;//(UnityEngine.Component)property.objectReferenceValue;
-            var obj = property.objectReferenceValue;
-            if (obj != null && obj is UnityEngine.Object)
+            if (property.hasMultipleDifferentValues)
             {
-                Component[] comps;
-                if (obj is GameObject)
-                {
-                    comps = ((GameObject)obj).GetComponents<Component>();
-                }
-                else if (obj is Component)
-                {
-                    comps = ((Component)obj).GetComponents<Component>();
-                }
-                else
-                {
-                    Debug.LogFormat("PopUpComponentsDrawer.value={0}", obj);
-                    return;
-                }
-
-                m_AllComponents.Clear();
-                int selectIndex = 0;
-                int i = 0;
-                foreach (var comp in comps)
-                {
-                    m_AllComponents.Add(comp.GetType().Name);
-                    if (comp == obj) selectIndex = i;
-                    i++;
-                }
-                position.x = position.xMax;
-                position.width = w - position.width;
-                selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
-                content = comps[selectIndex];
+                float w = position.width;
+                position.width = w * .6f;
+                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
             }
-            property.objectReferenceValue = content;
+            else
+            {
+                float w = position.width;
+                position.width = w * .6f;
+                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
+                UnityEngine.Object content = null;//(UnityEngine.Component)property.objectReferenceValue;
+                var obj = property.objectReferenceValue;
+                if (obj != null && obj is UnityEngine.Object)
+                {
+                    Component[] comps;
+                    if (obj is GameObject)
+                    {
+                        comps = ((GameObject)obj).GetComponents<Component>();
+                    }
+                    else if (obj is Component)
+                    {
+                        comps = ((Component)obj).GetComponents<Component>();
+                    }
+                    else
+                    {
+                        Debug.LogFormat("PopUpComponentsDrawer.value={0}", obj);
+                        return;
+                    }
+
+                    var m_AllComponents = Hugula.Utils.ListPool<string>.Get();
+                    int selectIndex = 0;
+                    int i = 0;
+                    foreach (var comp in comps)
+                    {
+                        m_AllComponents.Add(comp.GetType().Name);
+                        if (comp == obj) selectIndex = i;
+                        i++;
+                    }
+                    position.x = position.xMax;
+                    position.width = w - position.width;
+                    selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
+                    content = comps[selectIndex];
+                    Hugula.Utils.ListPool<string>.Release(m_AllComponents);
+                }
+                property.objectReferenceValue = content;
+            }
 
         }
 
@@ -105,7 +113,7 @@ namespace HugulaEditor.Databinding
             if (temp is CustomBinder)
             {
                 customer = (CustomBinder)temp;
-                if(currTarget != customer.target)
+                if (currTarget != customer.target)
                 {
                     refresh = true;
                     currTarget = customer.target;
@@ -295,10 +303,10 @@ namespace HugulaEditor.Databinding
             var target = property.objectReferenceValue;
             if (target is null) return;
             var rect = position;
-            rect.width =0.45f*position.width;
-            EditorGUI.LabelField(rect,property.displayName);
+            rect.width = 0.45f * position.width;
+            EditorGUI.LabelField(rect, property.displayName);
             position.x = rect.width;
-            position.width = position.width*.55f;
+            position.width = position.width * .55f;
             EditorGUI.ObjectField(position, target, typeof(Component), false); //显示绑定对象
 
         }

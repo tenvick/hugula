@@ -17,6 +17,7 @@ public class TLogger : ILogHandler
     #region  ILogHander
     public void LogException(Exception exception, UnityEngine.Object context)
     {
+        unityLogger?.LogException(exception,context);
         try
         {
             LogCallback(exception);
@@ -29,14 +30,12 @@ public class TLogger : ILogHandler
 
     public void LogFormat(LogType logType, UnityEngine.Object context, string format, params object[] args)
     {
-        // #if !HUGULA_RELEASE 
-        //         var content = string.Format(format, args);
-        //         LogCallback(content, context == null ? "" : content.ToString(), logType);
-        // #endif
+
 #if HUGULA_NO_LOG
         if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
 #endif
         {
+            unityLogger?.LogFormat(logType,context,format,args);
             var content = string.Format(format, args);
             LogCallback(content, context == null ? "" : content.ToString(), logType);
         }
@@ -53,9 +52,8 @@ public class TLogger : ILogHandler
     private static string logName = CUtils.platform + "_tlog.txt";
     private static string preLogName = CUtils.platform + "_pre_tlog.txt";
 
-    private static ILogger unityLogger = Debug.unityLogger;
+    private static ILogHandler unityLogger = Debug.unityLogger.logHandler;
     private static TLogger myLogger;
-    static int mainThreadId = 0;
     private static object locked = new object();
 
     static StreamWriter logStreamWriter;
@@ -87,17 +85,8 @@ public class TLogger : ILogHandler
             preLogPath = Path.Combine(CUtils.realPersistentDataPath,preLogName);
 #endif
 
-
-
-#if HUGULA_NO_LOG
-            //不输出日志直接记录文件
             myLogger = new TLogger();
             Debug.unityLogger.logHandler = myLogger;
-#else
-            Application.logMessageReceivedThreaded -= LogCallback;
-            Application.logMessageReceivedThreaded += LogCallback;
-#endif
-            mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
             OverrideLog(logPath, preLogPath);
             if (logStreamWriter != null) logStreamWriter.Close();

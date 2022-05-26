@@ -122,6 +122,7 @@ namespace Hugula.Framework
             timerInfo.arg = arg;
             timerInfo.delay = delay;
             timerInfo.begin = Time.unscaledTime;
+            if(cycle<0) cycle = int.MaxValue;
             timerInfo.cycle = cycle;
             timerInfo.currCycle++;
             m_Timers.Add(timerInfo);

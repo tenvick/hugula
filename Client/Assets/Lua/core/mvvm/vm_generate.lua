@@ -17,6 +17,7 @@ local function _require_vm(t, k)
         local conf = VMConfig[k]
         local vm_name = conf and conf.vm
         if vm_name then
+
             local re = require(vm_name)
             local initialize = re.initialize
             rawset(t, k, re)
@@ -24,6 +25,7 @@ local function _require_vm(t, k)
             if initialize then --调用初始化函数
                 initialize(re)
             end
+            
             return re
         else
             error(string.format("/vm_config.lua does't contains vm_config.%s", k))
@@ -36,34 +38,28 @@ end
 --@overload fun(self:VMBase,key:string,hold_child:boolean)
 local function _reload_vm(t, k, hold_child)
     --@type VMBase
-    local raw = rawget(t, k)
-    if raw ~= nil then --
-        local conf = VMConfig[k]
-        local vm_name = conf and conf.vm
-        if vm_name then
-            -- require("core.mvvm.vm_manager"):deactive(k)
-            local old = package.loaded[vm_name]
-            if old then
-                local destructor = old.destructor
-                if destructor then
-                    destructor(old)
-                end
+    local conf = VMConfig[k]
+    local vm_name = conf and conf.vm
+    if vm_name then
+        local old = package.loaded[vm_name]
+        if old then
+            local destructor = old.destructor
+            if destructor then
+                destructor(old)
             end
-            package.loaded[vm_name] = nil
-            -- print("reload vm", vm_name)
-            local re = require(vm_name) --重新require lua
-            local initialize = re.initialize
-            rawset(t, k, re)
-            rawset(re, "name", k) ---设置view model的 name
-            if initialize then --调用初始化函数
-                initialize(re)
-            end
-            return re
-        else
-            error(string.format("/vm_config.lua does't contains vm_config.%s", k))
         end
+        package.loaded[vm_name] = nil
+        -- print("reload vm", vm_name)
+        local re = require(vm_name) --重新require lua
+        local initialize = re.initialize
+        rawset(t, k, re)
+        rawset(re, "name", k) ---设置view model的 name
+        if initialize then --调用初始化函数
+            initialize(re)
+        end
+        return re
     else
-        return raw
+        error(string.format("/vm_config.lua does't contains vm_config.%s", k))
     end
 end
 

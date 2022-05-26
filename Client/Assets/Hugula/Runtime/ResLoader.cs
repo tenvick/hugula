@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2020 hugula
 // direct https://github.com/tenvick/hugula
 //
+#define ADDRESSABLES_INSTANTIATEASYNC
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,8 +39,9 @@ namespace Hugula
             {
                 m_LoadedScenes = new Dictionary<string, SceneInstance>();
                 m_LoadingEvent = new LoadingEventArg();
-                gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
-                Addressables.InitializeAsync().Completed += InitDone;
+
+                Addressables.InitializeAsync().Completed += InitDone; //AASHotUpdate 中已经初始化了，勿要重复初始化
+
 #if UNITY_EDITOR
                 Debug.Log("Addressables.InitializeAsync()");
 #endif
@@ -322,8 +324,9 @@ namespace Hugula
         #endregion
 
         #region  GameObject 实例化
-        static Dictionary<GameObject, UnityEngine.Object> gObjInstanceRef;// = new Dictionary<GameObject, UnityEngine.Object>();
-
+#if !ADDRESSABLES_INSTANTIATEASYNC
+        static Dictionary<GameObject, UnityEngine.Object> gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
+#endif
         public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
         {
             var task = Addressables.InstantiateAsync(key, parent, false);
@@ -334,6 +337,7 @@ namespace Hugula
         {
             key = GetKey(key);
 
+
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
@@ -343,6 +347,35 @@ namespace Hugula
             Task<GameObject> task;
 
             GameObject inst = null;
+#if ADDRESSABLES_INSTANTIATEASYNC
+#if PROFILER_DUMP || !HUGULA_RELEASE
+        var pkey = "InstantiateAsync:" + key;
+        using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
+        {
+#endif
+            task = Addressables.InstantiateAsync(key, parent).Task;
+            await task;
+            inst = task.Result;
+#if PROFILER_DUMP || !HUGULA_RELEASE
+        }
+        var ckey = "InstantiateAsync.onComp:" + key;
+        using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
+        {
+#endif
+
+            if (inst != null)
+            {
+                if (onComplete != null) onComplete(inst, userData);
+            }
+            else
+            {
+                if (onEnd != null) onEnd(key, userData);
+            }
+#if PROFILER_DUMP || !HUGULA_RELEASE
+        }
+#endif
+
+#else
 
 #if PROFILER_DUMP || !HUGULA_RELEASE
             var pkey = "InstantiateAsync:" + key;
@@ -386,6 +419,7 @@ namespace Hugula
                 }
 #if PROFILER_DUMP || !HUGULA_RELEASE
             }
+#endif
 #endif
             OnItemLoaded(key);
         }
@@ -561,12 +595,16 @@ namespace Hugula
         {
             if (obj)
             {
+#if ADDRESSABLES_INSTANTIATEASYNC
+                Addressables.ReleaseInstance(obj);
+#else
                 GameObject.Destroy(obj);
                 UnityEngine.Object asset = null;
                 if (gObjInstanceRef.TryGetValue(obj, out asset))
                 {
                     Release<UnityEngine.Object>(asset);
                 }
+#endif
             }
         }
 

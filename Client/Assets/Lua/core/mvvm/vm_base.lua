@@ -48,7 +48,6 @@ end
 ---@overload fun(property_name:string)
 ---@return void
 local function on_Property_changed(self, property_name)
-    -- Logger.LogSys("vm_base on_Property_changed#=", property_name, self._property_changed.count)
     self._property_changed:Dispatch(self, property_name)
 end
 
@@ -180,6 +179,26 @@ local function unbind_view(self)
     end
 end
 
+local function set_views_active(self,bl)
+    local views = self.views or empty_tab
+    for k, view_base in ipairs(views) do
+        view_base:set_active(bl)
+    end
+end
+
+local function set_views_context(self)
+    local views = self.views or empty_tab
+    local _auto_context = self.auto_context
+    if _auto_context then
+        for k, v in ipairs(views) do
+            if not v:has_context() then
+            v:set_child_context(self)
+            end
+        end
+    end
+end
+
+
 ---清理View的资源
 ---@overload fun()
 local function clear(self)
@@ -237,6 +256,8 @@ vm_base.stop_all_timer = stop_all_timer
 vm_base.on_destroy = on_destroy
 vm_base.clear = clear
 vm_base.dispose = dispose
+vm_base.set_views_context = set_views_context
+vm_base.set_views_active = set_views_active
 
 vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
@@ -256,6 +277,8 @@ vm_base.__tostring = tostring
 ---@field stop_all_timer  fun(self:VMBase)
 ---@field on_deactive fun(self:VMBase)
 ---@field clear fun(self:VMBase) 清理view
+---@field set_views_context fun(self:VMBase) 绑定数据
+---@field set_views_active fun(self:VMBase,active:boolean) 设置gameobject可见性
 ---@field dispose fun(self:VMBase)
 ---@field is_active boolean
 ---@field is_res_ready boolean

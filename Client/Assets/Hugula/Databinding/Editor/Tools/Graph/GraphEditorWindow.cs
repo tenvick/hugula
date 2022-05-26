@@ -339,7 +339,7 @@ namespace HugulaEditor.Databinding
 
 
                 //check child
-                var bcontainer = container as BindableContainer;
+                var bcontainer = container as ICollectionBinder;
                 if (bcontainer != null)
                 {
                     CheckChildren(bcontainer);
@@ -350,10 +350,10 @@ namespace HugulaEditor.Databinding
 
         }
 
-        public void CheckChildren(BindableContainer container)
+        public void CheckChildren(ICollectionBinder container)
         {
 
-            var children = container.children;
+            var children = container.GetChildren();
             if (children == null)
             {
                 return;
@@ -387,6 +387,10 @@ namespace HugulaEditor.Databinding
                                 tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
                                 Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
                             }
+                            else
+                            {
+
+                            }
                             // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
                         }
                     }
@@ -401,9 +405,9 @@ namespace HugulaEditor.Databinding
                 child = children[i];
                 if(CheckBingdings(child))
                 {
-                    if (child is BindableContainer)
+                    if (child is ICollectionBinder)
                     {
-                        CheckChildren((BindableContainer)child);
+                        CheckChildren((ICollectionBinder)child);
                     }
                 }
 
@@ -417,7 +421,7 @@ namespace HugulaEditor.Databinding
             var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
             if (prop != null)
             {
-                var target = prop.GetValue(bindableObject);
+                var target = prop.GetValue(bindableObject) as UnityEngine.Object;
                 Type genericType = null;
                     
                 if(bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments.Length>0)
@@ -432,6 +436,7 @@ namespace HugulaEditor.Databinding
                         Find();
                         //return false;
                     }
+                    // Debug.Log($"target:{target} .selfTarget:{selfTarget}");
                 }
 
             }
@@ -648,8 +653,25 @@ namespace HugulaEditor.Databinding
                         connection.startNode = rootNode;  //= FindNodeUp(treeNode, NodeType.Style1);
                         connection.endNode = node;
                         AddConnection(connection, true);
+                        UnityEngine.Object target = null;
+                        string target_name =string.Empty;
+                        var tp = item.GetType();
+                        var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                        if (prop != null)
+                        {
+                            target = prop.GetValue(item) as UnityEngine.Object;
+                        }
 
-                        node.name = string.Format("{0} {1}({2})", idx, item.name, item.GetType().Name);
+                        if (target!=null )
+                        {
+                            if(target.name != item.name)
+                                target_name = $"<color=#ff0f03>{target}</color>";
+                            else
+                                target_name = $"<color=#888888>{target}</color>";
+                        }
+
+                        node.name = string.Format("{0} {1}({2})\r\n{3}", idx, item.name, tp.Name,target_name);
+
                         node.target = item;
                         node.depth = depth;
 

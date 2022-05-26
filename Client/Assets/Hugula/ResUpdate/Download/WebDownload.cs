@@ -532,6 +532,12 @@ namespace System.Net
                             File.Move(GetTmpFileName(fname), fname);
                             this.OnDownloadFileCompleted(new System.ComponentModel.AsyncCompletedEventArgs(null, false, array[2]));
                         }
+                        else
+                        {
+#if !HUGULA_NO_LOG
+                            Debug.Log($"interrupt DownloadFileAsync:{address.AbsoluteUri},fileName:{fileName} :{System.DateTime.Now}");
+#endif
+                        }
                     }
                     catch (ThreadInterruptedException e)
                     {
@@ -783,6 +789,7 @@ namespace System.Net
         protected void OnDownloadFileCompleted(System.ComponentModel.AsyncCompletedEventArgs args)
         {
             this.CompleteAsync();
+
             if (this.DownloadFileCompleted != null)
             {
                 this.DownloadFileCompleted(this, args);

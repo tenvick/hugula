@@ -47,7 +47,7 @@ eg_data:InsertRange(
             check_res = ""
             -- click_enable = false
         },
-        {id = 3, title = "聊天", name = btn_tips1, state = "chat_demo", check_res = "chat_res",arg = "chat_demo"},
+        {id = 3, title = "聊天(带loading效果)", name = btn_tips1, state = "chat_demo", check_res = "chat_res",arg = "chat_demo"},
         {id = 4, title = "邮件(子模块)", name = btn_tips1, state = "demo_subui", check_res = ""},
         {
             id = 5,
@@ -153,7 +153,8 @@ welcome.eg_data = eg_data
 check_res_funs["scene_res"] = function(arg)
 --check 依赖的hero
         if not FileManifestManager.CheckAddressIsDown("hero_bailangkaluolin_ride") then --如果依赖资源没有下载完成需要重写
-            FileManifestManager.GenOverrideAddressTransformFunc("hero_models","Player1")
+            -- FileManifestManager.GenOverrideAddressByFolderName("hero_models","Player1")
+            FileManifestManager.GenOverrideAddressByAddress("hero_bailangkaluolin_ride",typeof(UnityEngine.GameObject),"Player1")
         end
 
     return FileManifestManager.CheckAddressIsDown(arg.arg,arg.res_type)

@@ -248,7 +248,7 @@ namespace Hugula.ResUpdate
         void onFastComplete(FolderManifestQueue queue, bool isError)
         {
             var folderManifest = queue.currFolder;
-#if HUGULA_NO_LOGNO_LOG
+#if !HUGULA_NO_LOG
             Debug.Log($"onFastComplete {isError} zipMarkName={folderManifest.zipMarkPathName},zipName={folderManifest.zipName} {folderManifest.ToString()}");
 #endif
             if (!isError)
@@ -486,8 +486,8 @@ namespace Hugula.ResUpdate
 
         private IEnumerator RefreshCatalog()
         {
-            yield return InternalIdTransformFunc();
             yield return FileManifestManager.RefreshCatalog();
+            yield return InternalIdTransformFunc();
         }
 
         //重定向bundle地址

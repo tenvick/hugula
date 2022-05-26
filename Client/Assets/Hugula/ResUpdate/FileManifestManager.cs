@@ -22,7 +22,7 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 本地streamingAssets目录的manifest
         /// </summary>
-        internal static List<FolderManifest> streamingFolderManifest;
+        internal static List<FolderManifest> streamingFolderManifest = new List<FolderManifest>();
 
         /// <summary>
         /// 本地简单clone
@@ -34,7 +34,7 @@ namespace Hugula.ResUpdate
         /// </summary>
         internal static List<FolderManifest> persistentFolderManifest = new List<FolderManifest>();
 
-        private static int m_LocalResNum;
+        private static int m_LocalResNum = Hugula.CodeVersion.APP_NUMBER;
 
         /// <summary>
         /// 本地最新数字版本号
@@ -97,6 +97,7 @@ namespace Hugula.ResUpdate
         /// </summary>
         public static bool CheckBundleIsDown(string bundleName)
         {
+
             FolderManifest find = null;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
@@ -168,12 +169,17 @@ namespace Hugula.ResUpdate
             var activeIndex = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.ActivePlayModeDataBuilderIndex;
             var curIndex = allDataBuilders.IndexOf(allDataBuilders.Find(s => s.GetType() == typeof(UnityEditor.AddressableAssets.Build.DataBuilders.BuildScriptPackedPlayMode)));
 
-            bool check =  activeIndex == curIndex;
-               
+            bool check = activeIndex == curIndex;
+
             if (!check)
                 return true;
 
 #endif
+            if (string.IsNullOrEmpty(address))
+            {
+                Debug.LogError("FileManifestManager.CheckAddressIsDown() argument address is null or Empty");
+                return false;
+            }
             var abNames = FindBundleNameByAddress(address, type);
             var folders = FindFolderManifestByBundleName(abNames);
             ListPool<string>.Release(abNames);
@@ -190,7 +196,6 @@ namespace Hugula.ResUpdate
         /// </summary>      
         internal static bool CheckStreamingFolderManifestResNumber(FolderManifest newFolderManifest)
         {
-            if (streamingFolderManifest == null) return false;
             FolderManifest curr;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
@@ -229,9 +234,9 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 返回streamingFolderManifestSimpleClone文件夹简单内容，不要修改。
         /// </summary>
-        public  static List<FolderManifest> GetStreamingFolderManifests()
+        public static List<FolderManifest> GetStreamingFolderManifests()
         {
-            return  streamingFolderManifestSimpleClone;
+            return streamingFolderManifestSimpleClone;
         }
 
         /// <summary>
@@ -262,8 +267,10 @@ namespace Hugula.ResUpdate
         /// </summary>
         internal static List<FolderManifest> FindFolderManifestByBundleName(List<string> bundleName)
         {
+
             List<FolderManifest> listFolder = ListPool<FolderManifest>.Get();
             FolderManifest find = null;
+
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
                 find = streamingFolderManifest[i];
@@ -298,7 +305,6 @@ namespace Hugula.ResUpdate
         /// </summary>   
         internal static FolderManifest FindStreamingFolderManifest(string folderName)
         {
-            if (streamingFolderManifest == null) return null;
             FolderManifest curr = null;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
@@ -340,6 +346,14 @@ namespace Hugula.ResUpdate
             var fileListName = Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
             var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), fileListName);
 
+#if UNITY_EDITOR
+            if (!FileHelper.FileExists(url))
+            {
+                Debug.LogWarning($"there is no folderManifest in {url} use (Addressabkes Groups /Build/New Build/Hot Resource Update) to build ");
+                return;
+            }
+#endif
+
             url = CUtils.GetAndroidABLoadPath(url);
             AssetBundle ab = AssetBundle.LoadFromFile(url);
             if (ab != null)
@@ -356,7 +370,7 @@ namespace Hugula.ResUpdate
                 }
 
                 streamingFolderManifestSimpleClone.Clear();
-                foreach(var s in assets)
+                foreach (var s in assets)
                 {
                     streamingFolderManifestSimpleClone.Add(s.CloneWithOutAllFileInfos());
                 }
@@ -370,10 +384,12 @@ namespace Hugula.ResUpdate
 #endif
                 ab.Unload(false);
             }
-#if UNITY_EDITOR
             else
+            {
+#if UNITY_EDITOR
                 Debug.LogWarning("there is no folderManifest in StreamingAssetsPath use (Addressabkes Groups /Build/New Build/Hot Resource Update) to build ");
 #endif
+            }
 
             if (onComplete != null)
             {
@@ -445,6 +461,7 @@ namespace Hugula.ResUpdate
         internal static void GenLoadedZipTransform()
         {
             FolderManifest item;
+
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
                 item = streamingFolderManifest[i];
@@ -456,9 +473,66 @@ namespace Hugula.ResUpdate
         }
 
         ///<summary>
+        /// 通过 address key 构建当前foldername的资源address地址重定向
+        ///</summary>
+        public static void GenOverrideAddressByAddress(string address, System.Type type, string defaultKey, System.Func<string, string> onTransform = null)
+        {
+            var folders = FindFolderManifestByAddress(address, type);
+            List<string> allAddressKeys;
+            FolderManifest folder;
+            FolderManifest found = null;
+
+            for (int i = 0; i < folders.Count; i++)
+            {
+                folder = folders[i];
+                if (folder.folderName != Common.FOLDER_STREAMING_NAME && !folder.isZipDone)
+                {
+                    allAddressKeys = folder.allAddressKeys;
+                    for (int j = 0; j < allAddressKeys.Count; j++)
+                    {
+                        if (allAddressKeys[j].Equals(address))
+                        {
+                            found = folder;
+                        }
+                    }
+                }
+            }
+
+            if (found != null)
+            {
+                var kes = found.allAddressKeys;
+                string key, value;
+                value = defaultKey;
+                for (int i = 0; i < kes.Count; i++)
+                {
+                    key = kes[i];
+                    if (onTransform != null)
+                    {
+                        value = onTransform(key);
+                        if (string.IsNullOrEmpty(value)) value = defaultKey;
+
+                    }
+                    else
+                    {
+                        value = defaultKey;
+                    }
+
+#if !HUGULA_NO_LOG
+                    Debug.Log($"GenOverrideAddressTransformFunc:{key} = {value}");
+#endif
+                    addressOverridePath[key] = value;
+                }
+#if !HUGULA_NO_LOG
+                Debug.Log($"GenOverrideAddressTransformFunc:{found}");
+#endif
+            }
+        }
+
+
+        ///<summary>
         /// 构建有依赖加载的资源address地址重定向
         ///</summary>
-        public static void GenOverrideAddressTransformFunc(string folderName, string defaultKey, System.Func<string, string> onTransform = null)
+        public static void GenOverrideAddressByFolderName(string folderName, string defaultKey, System.Func<string, string> onTransform = null)
         {
             var folder = FindStreamingFolderManifest(folderName);
             if (folder != null)
@@ -489,6 +563,10 @@ namespace Hugula.ResUpdate
                 Debug.Log($"GenOverrideAddressTransformFunc:{folderName}");
 #endif
             }
+            else
+            {
+                Debug.LogWarning($"GenOverrideAddressTransformFunc:{folderName} fail, streaming_all.u3d does't contains {folderName}");
+            }
 
         }
 
@@ -517,7 +595,7 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 有依赖加载的资源address地址重定向
         ///</summary>
-        public static string OverrideAddressTransformFunc(string address)
+        internal static string OverrideAddressTransformFunc(string address)
         {
             if (addressOverridePath.TryGetValue(address, out var newAddres))
             {

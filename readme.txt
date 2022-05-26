@@ -1,5 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.5.26
+1 扩展包资源标记功能。
+2 状态切换时候自定义loading功能。
+3 缺失包重写地址功能增加以address为key。
+4 修复zip下载太快，没有解压bug。
+5 TLogger 输出日志到控制台。
+6 数据绑定目标不匹配提示,多选编辑支持。
+
 2022.5.10
 1 热更新暂停功能。
 2 address依赖zip包下载与缺失资源替换功能。 文档hot res update.docx 示例welcome.lua 155-157 ,player_load.lua

@@ -48,7 +48,9 @@ namespace HugulaEditor.Addressable
                 var hotResGenSharedData = new HugulaEditor.ResUpdate.HotResGenSharedData();
                 var task = new HugulaEditor.ResUpdate.MoveDataToAppBundleFolder();
                 Debug.Log($"run task ({task.name})");
+                Hugula.Utils.CUtils.DebugCastTime($"Run Task ({task.name})");
                 task.Run(hotResGenSharedData);
+                Hugula.Utils.CUtils.DebugCastTime($"Run Task ({task.name}) end");
             }
             catch (Exception e)
             {

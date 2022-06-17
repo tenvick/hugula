@@ -186,7 +186,7 @@ namespace HugulaEditor
             get
             {
                 var key = $"{CUtils.platform}_{Application.identifier}_{Application.version}_res_number";
-                Debug.Log(key);
+                // Debug.Log(key);
                 return key;
             }
         }
@@ -200,6 +200,12 @@ namespace HugulaEditor
         {
             if (resNum < EditorPrefs.GetInt(RES_NUMBER_KEY)) Debug.LogWarning($"设置的resNum:{resNum}<原始值:{EditorPrefs.GetInt(RES_NUMBER_KEY)} ");
             EditorPrefs.SetInt(RES_NUMBER_KEY, resNum);
+        }
+
+        public static void ResNumberClear()
+        {
+            // EditorPrefs.SetInt(RES_NUMBER_KEY, resNum);
+            EditorPrefs.DeleteKey(RES_NUMBER_KEY);
         }
 
         //select objects contains folder file

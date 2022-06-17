@@ -26,7 +26,9 @@ local VMConfig = require("vm_config")[1]
 local VMGenerate = require("core.mvvm.vm_generate")
 local Timer = Hugula.Framework.Timer
 local TLogger = CS.TLogger
+local is_release = Hugula.Utils.CUtils.isRelease
 
+local view_load_count = 0
 --CS.UnityEngine.SceneManagement.LoadSceneMode
 local LoadSceneMode = {
     Single = 0,
@@ -62,6 +64,15 @@ local function _unbinding_msg(vm)
 end
 
 ------------------------------------------------
+local empty_tab = {}
+
+local function set_views_index(curr_vm)
+    local views = curr_vm.views or empty_tab
+    for k, view_base in ipairs(views) do
+        view_base._active_index = view_load_count
+        view_load_count = view_load_count + 1
+    end
+end
 
 local function deactive(self, vm_name, view_active)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
@@ -161,8 +172,14 @@ local function check_vm_base_all_done(vm_base, view)
     end
     local vvm_name = vm_base.name .. "-" .. view.name
     local parent_name = "InstantiateAsync.onComp:" .. view.name
-    local p_root_name = "check_all_done:on_active()." .. vvm_name
-    local profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, nil, parent_name, true)
+    local p_root_name = "check_all_done:before_set_context()." .. vvm_name
+    local profiler = nil
+
+    if not is_release then
+        profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":1.set_views_active:", nil, parent_name, true)
+    else
+        profiler = ProfilerFactory.GetAndStartProfiler(p_root_name, nil, parent_name, true)
+    end
 
     vm_base._isloading = false
     vm_base.is_res_ready = true
@@ -178,17 +195,30 @@ local function check_vm_base_all_done(vm_base, view)
 
     vm_base:set_views_active(is_active)
 
+    if not is_release and profiler then
+        profiler:Stop()
+    end
+
     safe_call(vm_base.on_assets_load, vm_base)
 
+    if not is_release then
+        profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":2.on_active:", nil, parent_name, true)
+    end
     safe_call(vm_base.on_active, vm_base)
 
     if profiler then
         profiler:Stop()
     end
 
+    if not is_release then
+        profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":3.set_views_context:", nil, parent_name, true)
+    end
+
     vm_base:set_views_context()
 
-    profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":after_set_context:", nil, parent_name, true)
+    if not is_release and profiler then
+        profiler:Stop()
+    end
 
     --transition
     local auto_transition = vm_base.auto_transition
@@ -201,7 +231,20 @@ local function check_vm_base_all_done(vm_base, view)
 
     --on_state_changed
     if vm_base._is_group == true then
+        if not is_release then
+            profiler =
+                ProfilerFactory.GetAndStartProfiler(p_root_name .. ":4._check_on_state_changed:", nil, parent_name, true)
+        end
+
         vm_manager._vm_state:_check_on_state_changed(vm_base)
+
+        if not is_release then
+            if profiler then
+                profiler:Stop()
+            end
+            profiler =
+                ProfilerFactory.GetAndStartProfiler(p_root_name .. ":5._check_transition:", nil, parent_name, true)
+        end
 
         --check transition
         local _curr_group = vm_base._curr_group
@@ -226,10 +269,32 @@ local function check_vm_base_all_done(vm_base, view)
                 end
             end
         end
+
+        if not is_release then
+            if profiler then
+                profiler:Stop()
+            end
+        end
     end
 
     if is_active then
+        profiler =
+            ProfilerFactory.GetAndStartProfiler(
+            p_root_name .. ":6.after_set_context:DIALOG_OPEN_UI:",
+            nil,
+            parent_name,
+            true
+        )
+
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base.name) --触发界面打开消息
+
+        if profiler then
+            profiler:Stop()
+        end
+    end
+
+    if not is_release then
+        profiler = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":7.end_set_context:", nil, parent_name, true)
     end
 
     if vm_base._is_destory then --如果标记了销毁
@@ -239,10 +304,11 @@ local function check_vm_base_all_done(vm_base, view)
         deactive(vm_manager, vm_base.name)
     end
 
-    if profiler then
-        profiler:Stop()
+    if not is_release then
+        if profiler then
+            profiler:Stop()
+        end
     end
-
     return true
 end
 
@@ -355,6 +421,8 @@ local function active_view(self, curr_vm)
         end
 
         _binding_msg(curr_vm)
+
+        set_views_index(curr_vm) --设置view激活索引
 
         curr_vm:set_views_active(true)
 
@@ -508,8 +576,13 @@ local function load(self, curr_vm, arg, is_push, curr_group)
         curr_vm._is_destory = nil --清理销毁标记
         if views and curr_vm._isloading ~= true then
             curr_vm._isloading = true
+
             local find_path, res_name, scene_name
             for k, v in ipairs(views) do
+                -- active index
+                v._active_index = view_load_count
+                view_load_count = view_load_count + 1
+                --
                 find_path, res_name, scene_name = v.find_path, v.key, v.scene_name
                 if res_name ~= nil then
                     load_resource(res_name, v)
@@ -579,7 +652,7 @@ local function _transition_active_group(self, vm_group, is_push, _change_action,
         else
             need_trans = true
         end
-        
+
         if need_trans then
             transition_item._on_do_transition = active_group
             transition_item._on_do_transition_arg = {self, vm_group, arg, is_push, vm_group}

@@ -643,9 +643,10 @@ namespace Hugula.Utils
         }
 
         #endregion
-        private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder(2048);
+        private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder();
         private static System.DateTime _last_time = System.DateTime.Now;
-        private static System.DateTime _begin_time = System.DateTime.Now;
+        private static readonly System.DateTime _begin_time = System.DateTime.Now;
+        //编辑器下使用
         public static double DebugCastTime(string tips)
         {
 
@@ -653,14 +654,9 @@ namespace Hugula.Utils
             var all_ds = (System.DateTime.Now - _begin_time).TotalMilliseconds;
             double cast = ds.TotalSeconds;
             _last_time = System.DateTime.Now;
-#if HUGULA_NO_LOG
-            return all_ds;
-#else
-            if (!string.IsNullOrEmpty(tips))
-                Debug.LogFormat("Cast Time \"{0}\" Cast({1}s) runtime({2}ms),frame={3}", tips, cast, all_ds, Time.frameCount);
-            return all_ds;
-#endif
 
+            Debug.LogFormat("Cast Time \"{0}\" Cast({1} s) runtime({2} s),frame={3}", tips, cast, all_ds/1000f, Time.frameCount);
+            return all_ds;
         }
     }
 }

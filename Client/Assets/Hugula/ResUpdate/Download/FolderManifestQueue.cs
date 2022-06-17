@@ -259,11 +259,11 @@ namespace Hugula.ResUpdate
             }
             if (!child.isError && child.currFolder.transformZipFolder && child.currFolder.isZipDone)
             {
-                var fastManifest = FileManifestManager.FindStreamingFolderManifest(child.currFolder.folderName);
+                var fastManifest = FileManifestManager.FindStreamingFolderManifest(child.currFolder.fileName) as FolderManifest;
                 if (fastManifest != null)
                     FileManifestManager.GenZipPackageTransform(fastManifest);
 
-                FileManifestManager.ClearOverrideAddressTransformFunc(child.currFolder.folderName);
+                FileManifestManager.ClearOverrideAddressTransformFunc(child.currFolder.fileName);
             }
             if (isAllDown && onAllComplete != null)
             {

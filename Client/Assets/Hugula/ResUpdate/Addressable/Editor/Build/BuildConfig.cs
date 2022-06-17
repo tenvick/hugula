@@ -145,7 +145,7 @@ namespace HugulaEditor.ResUpdate
             string path = Path.Combine(tmpPath, BuildConfig.BuildBundlePathDataFileName);
             File.WriteAllText(path, contents);
             Debug.Log($"序列化文件保存地址:{path}");
-            Debug.Log(contents);
+            // Debug.Log(contents);
         }
 
         public static BuildBundlePathData ReadBuildBundlePathData()

@@ -27,6 +27,7 @@ namespace HugulaEditor.ResUpdate
                 try{
                     UnityEngine.Debug.Log($"Run Task ({task.name}) time:{System.DateTime.Now}");
                     task.Run(sharedata);
+                    Hugula.Utils.CUtils.DebugCastTime($"Run Task End ({task.name})");
                     if(onProcess!=null)onProcess( (float)i/(float)count,task.name);
                 }catch(System.Exception ex)
                 {

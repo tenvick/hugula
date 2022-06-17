@@ -268,6 +268,8 @@ public class ProjectBuild : Editor
 
     static void WriteShell()
     {
+        Hugula.Utils.CUtils.DebugCastTime($"WriteShell");
+
         string path = Path.GetFullPath("shell");
         EditorUtils.DirectoryDelete(path);
         EditorUtils.CheckDirectory(path);
@@ -311,6 +313,7 @@ public class ProjectBuild : Editor
 
         environmentVariable = new StringBuilder();
         Debug.Log("Create shell success " + environmentPath);
+        Hugula.Utils.CUtils.DebugCastTime($"WriteShell end {environmentPath}");
     }
 
     static void WriteObbName()
@@ -353,9 +356,13 @@ public class ProjectBuild : Editor
         if (!string.IsNullOrEmpty(version))
             PlayerSettings.bundleVersion = version;
 
+        Hugula.CodeVersion.APP_NUMBER = 0;
         // PrefabUtility.set
         var resNum = resNumber;
-        if(resNum ==0 ) resNum = Hugula.CodeVersion.APP_NUMBER;
+        if(resNum ==0 ) 
+        {
+            resNum = Hugula.CodeVersion.APP_NUMBER;
+        }
         // EditorPrefs.SetInt("resNumber",resNum);
         EditorUtils.SetResNumber(resNum);
 
@@ -420,6 +427,7 @@ public class ProjectBuild : Editor
 
     static void BuildForAndroidIL2CPP()
     {
+        CUtils.DebugCastTime("Time buildForAndroid iL2CPP begin");
         string fileName = $"hugula_{Application.version}_{System.DateTime.Now.ToString("yyyyMMdd_HH_mm")}";
         string path = $"../release/android/{fileName}.apk";
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && EditorUserBuildSettings.buildAppBundle) //如果是aab
@@ -432,15 +440,17 @@ public class ProjectBuild : Editor
 
         Debug.Log($"build file：{path}  time:{System.DateTime.Now}");
         exportingAndroidProject = false;
-        //copy android plugins
+        CUtils.DebugCastTime("Time AndroidSettings begin");
         AndroidSettings();
+        CUtils.DebugCastTime("Time AndroidSettings begin");
+
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
         // PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.Android);
         if (setting.ToLower().Contains("development"))
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.Development);
         else
             GenericBuild(GetBuildScenes(), path, BuildTarget.Android, BuildOptions.None);
-        CUtils.DebugCastTime("Time BuildForAndroid iL2CPP End");
+        CUtils.DebugCastTime("Time buildForAndroid iL2CPP end");
 
     }
 

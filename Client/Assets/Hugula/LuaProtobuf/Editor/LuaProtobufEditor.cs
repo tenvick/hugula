@@ -65,7 +65,7 @@ namespace HugulaEditor
                 string dest = OutLuaProtobufPath + "/" + CUtils.GetRightFileName(xfile);//.Replace(".", ".");
                 string destName = dest + ".bytes";
                 dests[i] = destName;
-                Debug.LogFormat("Copy({0},{1})", file, destName);
+                // Debug.LogFormat("Copy({0},{1})", file, destName);
                 System.IO.File.Copy(file, destName, true);
                 sb.AppendFormat("\r\n {0}   ({1}) ", file, destName);
             }
@@ -74,6 +74,7 @@ namespace HugulaEditor
             EditorUtils.CheckDirectory(tmpPath);
             string outPath = Path.Combine(tmpPath, "lua_protobuf_export_log.txt");
             Debug.Log("write to path=" + outPath);
+            Debug.Log(sb.ToString());
             using (StreamWriter sr = new StreamWriter(outPath, false))
             {
                 sr.Write(sb.ToString());

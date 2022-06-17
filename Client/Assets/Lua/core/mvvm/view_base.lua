@@ -43,12 +43,12 @@ local function set_active(self, enable)
     local child = self._child
     if not self:is_scene() and child then
         if enable then
-            LuaHelper.Active(child)
+            LuaHelper.Active(child,self._active_index or 0)
         else
             LuaHelper.DelayDeActive(child)
         end
     end
-    -- Logger.Log(string.format("set_active %s ,scene_name=%s,self._child=%s,self._context=%s",enable,self.scene_name,self._child,self._context));
+    -- Logger.Log(string.format("set_active %s ,scene_name=%s,self._child=%s,self._context=%s,_active_index=%s",enable,self.scene_name,self._child,self._context,self._active_index));
 end
 
 ---添加子控件
@@ -77,9 +77,9 @@ end
 ---@param context any
 local function set_child_context(self, context)
     local child = self._child
-    self._context = context --or self._context
-    -- Logger.Log("set_child_context", child)
-    if not self:is_scene() then
+    -- Logger.Log("set_child_context", child,not self:is_scene(),self._context ~= context ,self._context)
+    if not self:is_scene() and self:has_child() and self._context ~= context then
+        self._context = context
         set_target_context(child, context)
     end
 end
@@ -127,7 +127,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-    return string.format("asset=%s,is_scene=%s,child=%s ", self.key or self.scene_name, self:is_scene(), self._child)
+    return string.format("asset=%s,is_scene=%s,child=%s,context=%s ", self.key or self.scene_name, self:is_scene(), self._child,self._context)
 end
 
 -- view_base.on_asset_load = on_asset_load

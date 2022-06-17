@@ -106,59 +106,59 @@ namespace HugulaEditor
 
             try
             {
-                AssetDatabase.StartAssetEditing();
+                // AssetDatabase.StartAssetEditing();
 
-                var setting = AASEditorUtility.LoadAASSetting();
-                var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
-                var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama); //setting.FindGroup(LUA_GROUP_NAME);
-                AASEditorUtility.ClearGroup(LUA_GROUP_NAME); //清空
-                EditorUtility.DisplayProgressBar("load lua group", group.name, 1);
-                //sync load
-                var packing = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
-                if (packing == null)
-                {
-                    packing = group.AddSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
-                }
+                // var setting = AASEditorUtility.LoadAASSetting();
+                // var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
+                // var group = AASEditorUtility.FindGroup(LUA_GROUP_NAME, groupSchama); //setting.FindGroup(LUA_GROUP_NAME);
+                // AASEditorUtility.ClearGroup(LUA_GROUP_NAME); //清空
+                // EditorUtility.DisplayProgressBar("load lua group", group.name, 1);
+                // //sync load
+                // var packing = group.GetSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+                // if (packing == null)
+                // {
+                //     packing = group.AddSchema<UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema>();
+                // }
 
-                packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
-                packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
-                packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
-                packing.IncludeGUIDInCatalog = false;
+                // packing.InternalIdNamingMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.AssetNamingMode.Filename;
+                // packing.BundleNaming = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleNamingStyle.NoHash;
+                // packing.InternalBundleIdMode = UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleInternalIdMode.GroupGuid;
+                // packing.IncludeGUIDInCatalog = false;
                 
-                var abProviderType = packing.AssetBundleProviderType;
-                var assetProviderType = packing.BundledAssetProviderType;
+                // var abProviderType = packing.AssetBundleProviderType;
+                // var assetProviderType = packing.BundledAssetProviderType;
 
-                var syncABPType = typeof(LuaBundleProvider);
-                var syncAssetPType = typeof(LuaBundledAssetProvider);
+                // var syncABPType = typeof(LuaBundleProvider);
+                // var syncAssetPType = typeof(LuaBundledAssetProvider);
 
-                if (!syncABPType.Equals(abProviderType.Value))
-                {
-                    var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
-                    targetType.Value = syncABPType;
-                    EditorUtils.SetFieldValue(packing, "m_AssetBundleProviderType", targetType);
-                    Debug.Log($"set  AssetBundleProviderType={packing.AssetBundleProviderType.Value}");
-                }
+                // if (!syncABPType.Equals(abProviderType.Value))
+                // {
+                //     var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                //     targetType.Value = syncABPType;
+                //     EditorUtils.SetFieldValue(packing, "m_AssetBundleProviderType", targetType);
+                //     Debug.Log($"set  AssetBundleProviderType={packing.AssetBundleProviderType.Value}");
+                // }
 
-                if (!syncAssetPType.Equals(assetProviderType.Value))
-                {
-                    var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
-                    targetType.Value = syncAssetPType;
-                    EditorUtils.SetFieldValue(packing, "m_BundledAssetProviderType", targetType);
-                    Debug.Log($"set  BundledAssetProviderType={targetType.Value} ,target={syncAssetPType}");
-                }
+                // if (!syncAssetPType.Equals(assetProviderType.Value))
+                // {
+                //     var targetType = new UnityEngine.ResourceManagement.Util.SerializedType();
+                //     targetType.Value = syncAssetPType;
+                //     EditorUtils.SetFieldValue(packing, "m_BundledAssetProviderType", targetType);
+                //     Debug.Log($"set  BundledAssetProviderType={targetType.Value} ,target={syncAssetPType}");
+                // }
 
-                for (int i = 0; i < dests.Length; i++)
-                {
-                    luaBytesfile = dests[i];
-                    luaBytesGuid = AssetDatabase.AssetPathToGUID(luaBytesfile); //获得GUID
-                    luaEntry = setting.CreateOrMoveEntry(luaBytesGuid, group); //通过GUID创建entry
-                    luaEntry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(luaBytesfile));
-                    // entry.SetLabel("lua_script", true);
-                    EditorUtility.DisplayProgressBar("load group SetAddress", luaBytesfile, (float)i / files.Length);
+                // for (int i = 0; i < dests.Length; i++)
+                // {
+                //     luaBytesfile = dests[i];
+                //     luaBytesGuid = AssetDatabase.AssetPathToGUID(luaBytesfile); //获得GUID
+                //     luaEntry = setting.CreateOrMoveEntry(luaBytesGuid, group); //通过GUID创建entry
+                //     luaEntry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(luaBytesfile));
+                //     // entry.SetLabel("lua_script", true);
+                //     EditorUtility.DisplayProgressBar("load group SetAddress", luaBytesfile, (float)i / files.Length);
 
-                }
+                // }
                 EditorUtility.ClearProgressBar();
-                AssetDatabase.Refresh();
+                // AssetDatabase.Refresh();
             }
             catch (System.Exception ex)
             {
@@ -167,17 +167,18 @@ namespace HugulaEditor
             }
             finally
             {
-                AssetDatabase.StopAssetEditing();
+                // AssetDatabase.StopAssetEditing();
             }
 
         }
 
         public static string GetLuaBytesResourcesPath()
         {
-            string luapath = "Assets/lua_bundle";
+            string luapath = $"Assets/{Common.LUACFOLDER}";
             DirectoryInfo p = new DirectoryInfo(luapath);
             if (!p.Exists) p.Create();
             return luapath;
         }
+        
     }
 }

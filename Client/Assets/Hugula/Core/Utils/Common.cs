@@ -23,11 +23,17 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua out path
         /// </summary>
-        public const string LUACFOLDER = "LuaBytes";
+        public const string LUACFOLDER = "lua_bundle";
+        /// <summary>
+        /// the lua bundle name
+        /// </summary>
+        public const string LUA_BUNDLE_NAME="asset_lu_.bundle";
+        public const string PROTO_BUNDLE_NAME="asset_pr_.bundle";
 
         /// <summary>
         /// lua 编译零时目录
         /// </summary>
+        
         public const string LUA_TMP_FOLDER = "PW";
 
         /// <summary>

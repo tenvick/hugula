@@ -226,7 +226,7 @@ namespace Hugula.ResUpdate
             //except stream
             for (int i = 0; i < folders.Count; i++)
             {
-                if (folders[i].folderName == Common.FOLDER_STREAMING_NAME)
+                if (folders[i].fileName == Common.FOLDER_STREAMING_NAME)
                 {
                     folders.RemoveAt(i);
                     break;

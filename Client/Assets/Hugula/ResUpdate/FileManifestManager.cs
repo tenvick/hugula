@@ -22,7 +22,7 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 本地streamingAssets目录的manifest
         /// </summary>
-        internal static List<FolderManifest> streamingFolderManifest = new List<FolderManifest>();
+        internal static List<FileManifest> streamingFolderManifest = new List<FileManifest>();
 
         /// <summary>
         /// 本地简单clone
@@ -32,7 +32,7 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 本地更新的远端配置
         /// </summary>
-        internal static List<FolderManifest> persistentFolderManifest = new List<FolderManifest>();
+        internal static List<FileManifest> persistentFolderManifest = new List<FileManifest>();
 
         private static int m_LocalResNum = Hugula.CodeVersion.APP_NUMBER;
 
@@ -92,8 +92,11 @@ namespace Hugula.ResUpdate
         #endregion
 
         #region 资源 check  相关
+
+
+
         /// <summary>
-        /// 检测bundle是否已经下载
+        /// 检测zip包里面的bundle是否已经下载
         /// </summary>
         public static bool CheckBundleIsDown(string bundleName)
         {
@@ -101,8 +104,8 @@ namespace Hugula.ResUpdate
             FolderManifest find = null;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
-                find = streamingFolderManifest[i];
-                if (find.GetFileResInfo(bundleName) != null && find.isZipDone)
+                find = streamingFolderManifest[i] as FolderManifest;
+                if (find != null && find.isZipDone && find.GetFileResInfo(bundleName) != null)
                 {
                     return true;
                 }
@@ -148,8 +151,8 @@ namespace Hugula.ResUpdate
                 FolderManifest curr;
                 for (int i = 0; i < persistentFolderManifest.Count; i++)
                 {
-                    curr = persistentFolderManifest[i];
-                    if (curr.GetFileResInfo(abName) != null)
+                    curr = persistentFolderManifest[i] as FolderManifest;
+                    if (curr != null && curr.GetFileResInfo(abName) != null)
                     {
                         return true;
                     }
@@ -185,7 +188,7 @@ namespace Hugula.ResUpdate
             ListPool<string>.Release(abNames);
             foreach (var f in folders)
             {
-                if (f.folderName != Common.FOLDER_STREAMING_NAME && !f.isZipDone) return false;
+                if (f.fileName != Common.FOLDER_STREAMING_NAME && !f.isZipDone) return false;
             }
             if (folders.Count <= 0) return false;
             ListPool<FolderManifest>.Release(folders);
@@ -199,8 +202,8 @@ namespace Hugula.ResUpdate
             FolderManifest curr;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
-                curr = streamingFolderManifest[i];
-                if (curr.folderName == newFolderManifest.folderName)
+                curr = streamingFolderManifest[i] as FolderManifest;
+                if (curr && curr.fileName == newFolderManifest.fileName)
                 {
                     bool canAppend = curr.resNumber < newFolderManifest.resNumber;
                     return canAppend;
@@ -212,13 +215,13 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 添加或者更新PersistentManifest
         /// </summary>
-        internal static bool CheckAddOrUpdatePersistentFolderManifest(FolderManifest persistent)
+        internal static bool CheckAddOrUpdatePersistentFolderManifest(FileManifest persistent)
         {
-            FolderManifest find = null;
+            FileManifest find = null;
             for (int i = 0; i < persistentFolderManifest.Count; i++)
             {
                 find = persistentFolderManifest[i];
-                if (find != null && find.folderName == persistent.folderName)
+                if (find != null && find.fileName == persistent.fileName)
                 {
                     persistentFolderManifest[i] = persistent;
                     return true;
@@ -230,6 +233,23 @@ namespace Hugula.ResUpdate
         #endregion
 
         #region 查找相关
+        /// <summary>
+        /// 查询热更新目录的BundleManifest信息，用于单bundle的增量更新，比如lua
+        /// </summary>
+        public static BundleManifest FindPersistentBundleManifest(string name)
+        {
+            if (persistentFolderManifest == null) return null;
+            BundleManifest curr = null;
+            for (int i = 0; i < persistentFolderManifest.Count; i++)
+            {
+                curr = persistentFolderManifest[i] as BundleManifest;
+                if (curr && curr.fileName == name)
+                {
+                    return curr;
+                }
+            }
+            return curr;
+        }
 
         /// <summary>
         /// 返回streamingFolderManifestSimpleClone文件夹简单内容，不要修改。
@@ -273,17 +293,20 @@ namespace Hugula.ResUpdate
 
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
-                find = streamingFolderManifest[i];
-                for (int j = 0; j < bundleName.Count;)
+                find = streamingFolderManifest[i] as FolderManifest;
+                if (find)
                 {
-                    if (find.GetFileResInfo(bundleName[j]) != null)
+                    for (int j = 0; j < bundleName.Count;)
                     {
-                        if (!listFolder.Contains(find))
-                            listFolder.Add(find);
-                        bundleName.RemoveAt(j);
+                        if (find.GetFileResInfo(bundleName[j]) != null)
+                        {
+                            if (!listFolder.Contains(find))
+                                listFolder.Add(find);
+                            bundleName.RemoveAt(j);
+                        }
+                        else
+                            j++;
                     }
-                    else
-                        j++;
                 }
             }
             return listFolder;
@@ -301,15 +324,19 @@ namespace Hugula.ResUpdate
         }
 
         /// <summary>
-        /// 查找本地folder
+        /// 查找streaming中 filemanifest
         /// </summary>   
-        internal static FolderManifest FindStreamingFolderManifest(string folderName)
+        internal static FileManifest FindStreamingFolderManifest(string fileName, bool onlyFolderManifest = true)
         {
-            FolderManifest curr = null;
+            FileManifest curr = null;
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
                 curr = streamingFolderManifest[i];
-                if (curr.folderName == folderName)
+                if (onlyFolderManifest && curr is FolderManifest && curr.fileName == fileName)
+                {
+                    return curr;
+                }
+                else if (!onlyFolderManifest && curr.fileName == fileName)
                 {
                     return curr;
                 }
@@ -326,8 +353,8 @@ namespace Hugula.ResUpdate
             FolderManifest curr = null;
             for (int i = 0; i < persistentFolderManifest.Count; i++)
             {
-                curr = persistentFolderManifest[i];
-                if (curr.folderName == folderName)
+                curr = persistentFolderManifest[i] as FolderManifest;
+                if (curr && curr.fileName == folderName)
                 {
                     return curr;
                 }
@@ -358,8 +385,8 @@ namespace Hugula.ResUpdate
             AssetBundle ab = AssetBundle.LoadFromFile(url);
             if (ab != null)
             {
-                var assets = ab.LoadAllAssets<FolderManifest>();
-                FileManifestManager.streamingFolderManifest = new List<FolderManifest>(assets);
+                var assets = ab.LoadAllAssets<FileManifest>();
+                FileManifestManager.streamingFolderManifest = new List<FileManifest>(assets);
                 if (assets.Length == 0)
                     Debug.LogError("there is no streamingManifest at " + url);
                 else
@@ -370,9 +397,12 @@ namespace Hugula.ResUpdate
                 }
 
                 streamingFolderManifestSimpleClone.Clear();
+                FolderManifest folder = null;
                 foreach (var s in assets)
                 {
-                    streamingFolderManifestSimpleClone.Add(s.CloneWithOutAllFileInfos());
+                    folder = s as FolderManifest;
+                    if (folder)
+                        streamingFolderManifestSimpleClone.Add(folder.CloneWithOutAllFileInfos());
                 }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR
@@ -406,19 +436,19 @@ namespace Hugula.ResUpdate
             AssetBundle ab = null;
             if (FileHelper.FileExists(url) && (ab = AssetBundle.LoadFromFile(url)) != null)
             {
-                var folderManifests = ab.LoadAllAssets<FolderManifest>();
+                var folderManifests = ab.LoadAllAssets<FileManifest>();
 
                 if (folderManifests.Length == 0)
                     Debug.LogError("there is no  persistentFolderManifest  at  " + url);
-                FolderManifest item;
-                FolderManifest streamingItem;
+                FileManifest item;
+                FileManifest streamingItem;
                 var cacheLocalResNum = localResNum;
                 for (int i = 0; i < folderManifests.Length; i++)
                 {
                     item = folderManifests[i];
                     if (cacheLocalResNum < item.resNumber) //新增加的folder
                     {
-                        streamingItem = FindStreamingFolderManifest(item.folderName);
+                        streamingItem = FindStreamingFolderManifest(item.fileName, false);
                         if (streamingItem != null)
                             item.RemoveSameFileResInfoFrom(streamingItem);
                         // else
@@ -426,7 +456,8 @@ namespace Hugula.ResUpdate
 
                         CheckAddOrUpdatePersistentFolderManifest(item);
 
-                        GenUpdatePackageTransform(item);
+                        if (item is FolderManifest)
+                            GenUpdatePackageTransform((FolderManifest)item);
 
                         if (CodeVersion.Subtract(CodeVersion.APP_VERSION, item.version) <= 0)
                             localVersion = item.version; //更新到下载的版本号
@@ -464,8 +495,8 @@ namespace Hugula.ResUpdate
 
             for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
-                item = streamingFolderManifest[i];
-                if (item.zipSize > 0)
+                item = streamingFolderManifest[i] as FolderManifest;
+                if (item && item.zipSize > 0)
                 {
                     FileManifestManager.GenZipPackageTransform(item);
                 }
@@ -485,7 +516,7 @@ namespace Hugula.ResUpdate
             for (int i = 0; i < folders.Count; i++)
             {
                 folder = folders[i];
-                if (folder.folderName != Common.FOLDER_STREAMING_NAME && !folder.isZipDone)
+                if (folder.fileName != Common.FOLDER_STREAMING_NAME && !folder.isZipDone)
                 {
                     allAddressKeys = folder.allAddressKeys;
                     for (int j = 0; j < allAddressKeys.Count; j++)
@@ -534,7 +565,7 @@ namespace Hugula.ResUpdate
         ///</summary>
         public static void GenOverrideAddressByFolderName(string folderName, string defaultKey, System.Func<string, string> onTransform = null)
         {
-            var folder = FindStreamingFolderManifest(folderName);
+            var folder = FindStreamingFolderManifest(folderName) as FolderManifest;
             if (folder != null)
             {
                 var kes = folder.allAddressKeys;
@@ -575,7 +606,7 @@ namespace Hugula.ResUpdate
         ///</summary>
         public static void ClearOverrideAddressTransformFunc(string folderName)
         {
-            var folder = FindStreamingFolderManifest(folderName);
+            var folder = FindStreamingFolderManifest(folderName) as FolderManifest;
             if (folder != null)
             {
                 var kes = folder.allAddressKeys;
@@ -615,7 +646,7 @@ namespace Hugula.ResUpdate
         {
             for (int i = 0; i < persistentFolderManifest.Count; i++)
             {
-                GenUpdatePackageTransform(persistentFolderManifest[i]);
+                GenUpdatePackageTransform(persistentFolderManifest[i] as FolderManifest);
             }
         }
 
@@ -705,7 +736,7 @@ namespace Hugula.ResUpdate
             if (isZipDone)
             {
 #if !HUGULA_NO_LOG
-                Debug.Log($"generate zip folder {folderPackage.folderName} Transform size:{folderPackage.zipSize}) ");
+                Debug.Log($"generate zip folder {folderPackage.fileName} Transform size:{folderPackage.zipSize}) ");
 #endif
                 var allFiles = folderPackage.allFileInfos;
                 var zipOutPath = folderPackage.GetZipOutFolderPath();
@@ -724,7 +755,7 @@ namespace Hugula.ResUpdate
             else
             {
 #if !HUGULA_NO_LOG
-                Debug.LogWarning($"generate zip folder transform fail , {folderPackage.folderName} have't loaded size:{folderPackage.zipSize}) ");
+                Debug.LogWarning($"generate zip folder transform fail , {folderPackage.fileName} have't loaded size:{folderPackage.zipSize}) ");
 #endif
             }
         }
@@ -734,15 +765,18 @@ namespace Hugula.ResUpdate
         /// </summary>
         internal static void GenUpdatePackageTransform(FolderManifest folderPackage)
         {
-            var allFiles = folderPackage.allFileInfos;
-            FileResInfo finfo;
-            for (int i = 0; i < allFiles.Count; i++)
+            if (folderPackage)
             {
-                finfo = allFiles[i];
-                locationIdPath[finfo.name] = CUtils.realPersistentDataPath;
+                var allFiles = folderPackage.allFileInfos;
+                FileResInfo finfo;
+                for (int i = 0; i < allFiles.Count; i++)
+                {
+                    finfo = allFiles[i];
+                    locationIdPath[finfo.name] = CUtils.realPersistentDataPath;
 #if !HUGULA_NO_LOG
-                Debug.Log($" update folder:{folderPackage.folderName} transform({finfo.name}={CUtils.realPersistentDataPath}) ");
+                    Debug.Log($" update folder:{folderPackage.fileName} transform({finfo.name}={CUtils.realPersistentDataPath}) ");
 #endif
+                }
             }
         }
 

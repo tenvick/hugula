@@ -126,7 +126,7 @@ public class TLogger : ILogHandler
     static string[] LogTypes = { "Error", "Assert", "Warning", "Log", "Exception" };
 
     //报错提示
-    static void LogCallback(Exception exception)
+    internal static void LogCallback(Exception exception)
     {
         lock (locked)
         {

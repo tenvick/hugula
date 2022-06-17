@@ -82,7 +82,7 @@ namespace Hugula.Utils
         //     Active(comp.gameObject);
         // }
 
-        public static void Active(Object obj)
+        public static void Active(Object obj,int activeIndex=0)
         {
             GameObject gobj = null;
             if (obj is GameObject)

@@ -187,13 +187,11 @@ local function set_views_active(self,bl)
 end
 
 local function set_views_context(self)
-    local views = self.views or empty_tab
     local _auto_context = self.auto_context
     if _auto_context then
+        local views = self.views or empty_tab
         for k, v in ipairs(views) do
-            if not v:has_context() then
             v:set_child_context(self)
-            end
         end
     end
 end

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Hugula;
+using Hugula.ResUpdate;
 using Hugula.Databinding;
 using Hugula.Framework;
 using Hugula.Utils;
@@ -58,7 +59,46 @@ namespace Hugula
             SingletonManager.CanCreateInstance();
             Hugula.ResLoader.Init();
         }
+        #region  hot update
+        private AssetBundle m_StreamingLuaBundle;
 
+        private AssetBundle GetStreamingLuaBundle()
+        {
+            if (!m_StreamingLuaBundle)
+            {
+                var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
+                url = CUtils.GetAndroidABLoadPath(url);
+                m_StreamingLuaBundle = AssetBundle.LoadFromFile(url);
+            }
+            return m_StreamingLuaBundle;
+        }
+        private AssetBundle m_PersistentLuaBundle;
+
+        private AssetBundle GetPersistentLuaBundle()
+        {
+            if (!m_PersistentLuaBundle)
+            {
+                var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), Common.LUA_BUNDLE_NAME);
+                url = CUtils.GetAndroidABLoadPath(url);
+                m_PersistentLuaBundle = AssetBundle.LoadFromFile(url);
+            }
+            return m_PersistentLuaBundle;
+        }
+
+        private BundleManifest m_LuaPersistentBundleManifest;
+        internal static bool luaPersistentBundleManifestIsDirty = true;
+        private BundleManifest GetLuaPersistentBundleManifest()
+        {
+            if (luaPersistentBundleManifestIsDirty && m_LuaPersistentBundleManifest == null)
+            {
+                m_LuaPersistentBundleManifest = FileManifestManager.FindPersistentBundleManifest(Common.LUA_BUNDLE_NAME);
+                luaPersistentBundleManifestIsDirty = false;
+            }
+
+            return m_LuaPersistentBundleManifest;
+        }
+
+        #endregion
         IEnumerator Start()
         {
             while (!ResLoader.Ready)
@@ -194,7 +234,7 @@ namespace Hugula
                 if (isDebug)
                     Debug.LogErrorFormat("lua ({0}) path={1} not exists.", name, path);
                 else
-                    Debug.LogErrorFormat("the file(Assets/LuaBytes/lua_bundle/{0}.lua)  did't exists.", name);
+                    Debug.LogErrorFormat("the file(Assets/lua_bundle/{0}.lua)  did't exists.", name);
 
             }
 
@@ -211,12 +251,23 @@ namespace Hugula
         private byte[] LoadLuaBytes(string name)
         {
             byte[] ret = null;
-            var txt = ResLoader.LoadAsset<TextAsset>(name);
-            if (txt != null)
+            var bundleManifest = GetLuaPersistentBundleManifest();
+            AssetBundle luaAb = null;
+            if (bundleManifest && bundleManifest.GetFileResInfo(name) != null)//如果有热更新走热更新
+            {
+                luaAb = GetPersistentLuaBundle();
+            }
+            else
+            {
+                luaAb = GetStreamingLuaBundle();
+            }
+
+            var txt = luaAb?.LoadAsset<TextAsset>(name);
+             if (txt != null)
             {
                 ret = txt.bytes;
-                if (name != enterLua)    //保持begin.lua的引用不会释放lua bundle
-                    ResLoader.Release(txt);
+                Resources.UnloadAsset(txt); //释放ab资源
+                luaAb?.Unload(false);
             }
 
             return ret;

@@ -184,7 +184,7 @@ namespace Hugula.ResUpdate
             if (remoteVer.fast == FastMode.sync) //需要等待fast包下载完成
             {
                 // LoadFolderManifest
-                var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast");
+                var fastManifest = FileManifestManager.FindStreamingFolderManifest("fast") as FolderManifest;
                 if (fastManifest != null && !fastManifest.isZipDone)//如果fast包没有加载
                 {
                     var change = BackGroundDownload.instance.AddZipFolderManifest(fastManifest, onFastProccessChanged, onFastComplete, null);
@@ -292,7 +292,9 @@ namespace Hugula.ResUpdate
                 var bytes = req.downloadHandler.data;
                 FileHelper.SavePersistentFile(bytes, UPDATED_TEMP_LIST_NAME); //--保存server端临时文件
                 var ab = LuaHelper.LoadFromMemory(bytes);
-                var remoteFolderManifest = new List<FolderManifest>(ab.LoadAllAssets<FolderManifest>());
+                var all = ab.LoadAllAssets<FolderManifest>();
+                var remoteFolderManifest = new List<FolderManifest>(all);
+
                 ab.Unload(false);
                 Debug.Log($"remote file({url}) is down");
 #if !HUGULA_NO_LOG
@@ -300,7 +302,7 @@ namespace Hugula.ResUpdate
                     Debug.Log(folder.ToString());
 
 #endif
-                FolderManifest curStreaming = null;
+               FolderManifest curStreaming = null;
                 FolderManifest remoteFolder = null;
                 List<FolderManifest> needDownload = new List<FolderManifest>();
 
@@ -309,14 +311,14 @@ namespace Hugula.ResUpdate
                     remoteFolder = remoteFolderManifest[i];
                     loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
                     loadRemoteAppNum = remoteFolder.resNumber;
-                    curStreaming = FileManifestManager.FindStreamingFolderManifest(remoteFolder.folderName);
+                    curStreaming = FileManifestManager.FindStreamingFolderManifest(remoteFolder.fileName) as FolderManifest;
 
                     if (curStreaming != null) //需要对比下载
                     {
                         var downLoadFolder = remoteFolder.CloneWithOutAllFileInfos();
                         remoteFolder.RemoveSameFileResInfoFrom(curStreaming); //去重本地包内内容
                         //查找当前缓存目录
-                        var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.folderName);
+                        var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.fileName);
                         if (curPersistent != null)
                         {
                             downLoadFolder.allFileInfos = curPersistent.NotSafeCompare(remoteFolder);
@@ -366,7 +368,8 @@ namespace Hugula.ResUpdate
                         var tips = Localization.GetFormat("main_download_from_webserver", string.Format("{0:.00}", (float)change / 1048576));
                         MessageBox.Show(tips, "", "", BeginLoad); //提示手动下载
                     }
-                }
+                }else
+                    OnBackgroundAllComplete(null,false); //无需下载直接完成
             }
             else
             { //加载失败重新加载
@@ -398,7 +401,7 @@ namespace Hugula.ResUpdate
 
         void OnBackgroundAllComplete(FolderQueueGroup group, bool is_error)
         {
-            if (group.anyError)
+            if (group!=null && group.anyError)
             {
                 var tips = Localization.Get("main_download_fail");
                 SetProgressTxt(tips);
@@ -432,7 +435,7 @@ namespace Hugula.ResUpdate
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("thus files load fail :");
                 sb.AppendLine(System.DateTime.Now.ToString());
-                sb.AppendLine(remoteManifest.folderName);
+                sb.AppendLine(remoteManifest.fileName);
                 foreach (var f in queue.errorFiles)
                 {
                     sb.AppendLine(f.name);

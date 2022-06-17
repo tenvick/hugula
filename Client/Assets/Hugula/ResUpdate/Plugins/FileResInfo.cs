@@ -17,9 +17,6 @@ namespace Hugula.ResUpdate
         //运行时记录crc校验结果
         public FileInfoState state = FileInfoState.None;
 
-        //Addressables.BuildPath的相对目录路径，目前用于文件build 文件的copy
-        // public string relativeDir = string.Empty;
-
         public FileResInfo(string name, uint crc32, uint size)
         {
             this.name = name;

@@ -1,14 +1,17 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 //
+using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.IO;
-using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Hugula.Cryptograph
 {
-    
+
     public class CryptographHelper
     {
         private static SHA1CryptoServiceProvider KeepClass()
@@ -74,6 +77,11 @@ namespace Hugula.Cryptograph
 
         }
 
+        public static byte[] DecryptDefault(byte[] encryptedBytes)
+        {
+            return Decrypt(encryptedBytes,DESHelper.KeyVData.KEY,DESHelper.KeyVData.IV);
+        }
+
         public static byte[] Encrypt(byte[] PlainBytes, byte[] Key, byte[] IV)
         {
             byte[] encrypted;
@@ -101,6 +109,10 @@ namespace Hugula.Cryptograph
 
             // Return the encrypted bytes from the memory stream.
             return encrypted;
+        }
+
+        public static byte[] EncryptDefault(byte[] PlainBytes){
+            return Encrypt(PlainBytes,DESHelper.KeyVData.KEY,DESHelper.KeyVData.IV);
         }
 
         #region md5
@@ -162,6 +174,30 @@ namespace Hugula.Cryptograph
             return Convert.FromBase64String(src);
         }
         #endregion
+
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("Hugula/Create CryptographAsset")]
+        static void CreateCryptographAsset()
+        {
+
+            var _instance = UnityEngine.Resources.Load<KeyVData>(DESHelper.DES_FILE_NAME);
+            if (_instance == null)
+            {
+                _instance = UnityEngine.ScriptableObject.CreateInstance<KeyVData>();
+                using (RijndaelManaged rijAlg = new RijndaelManaged())
+                {
+                    rijAlg.GenerateKey();
+                    rijAlg.GenerateIV();
+                    _instance.KEY = rijAlg.Key;
+                    _instance.IV = rijAlg.IV;
+                }
+                _instance.version = CodeVersion.APP_NUMBER;
+                var path = $"Assets/Hugula/Config/Resources/{DESHelper.DES_FILE_NAME}.asset";
+                AssetDatabase.CreateAsset(_instance, path);
+                UnityEngine.Debug.LogFormat("create cryptographAsset in path {0} ", path);
+            }
+        }
+
+#endif
     }
 }
-

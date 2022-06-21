@@ -10,6 +10,6 @@ namespace Hugula.Cryptograph
     {
         public byte[] KEY;
         public byte[] IV;
-        public string verion;
+        public int version;
     }
 }

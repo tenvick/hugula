@@ -20,6 +20,19 @@ namespace HugulaEditor.ResUpdate
         //输出的version.json在本地的存放位置
         public const string VersionLocalOutPath = "Assets/Hugula/Config/Resources";
 
+        public readonly static byte[] OFFSET_DATA =  new byte[] { 0x32, 0x0f, 0x8d, 0xe9, 0x3b, 0x24, 0xa5, 0xd3, 0xf2, 0xd3, 0x64, 0x58, 0xb7, 0xae, 0x3f, 0x28 };
+        public static byte[] GetOffsetData()
+        {
+            // var bytes = new byte[Common.BUNDLE_OFF_SET];
+            // var b = bytes[0];
+
+            // for(int i=0;i<Common.BUNDLE_OFF_SET;i++)
+            // {
+            //     bytes[i] = (byte)Random.Range(0,256);
+            // }
+            return OFFSET_DATA;
+        }
+        
         //更新资源输出目录
         private static string UpdateResOutPath
         {

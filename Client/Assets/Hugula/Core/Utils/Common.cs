@@ -29,6 +29,7 @@ namespace Hugula.Utils
         /// </summary>
         public const string LUA_BUNDLE_NAME="asset_lu_.bundle";
         public const string PROTO_BUNDLE_NAME="asset_pr_.bundle";
+        public const int BUNDLE_OFF_SET=16;
 
         /// <summary>
         /// lua 编译零时目录

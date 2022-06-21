@@ -1,49 +1,25 @@
 ﻿// Copyright (c) 2015 hugula
 // direct https://github.com/tenvick/hugula
 
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 namespace Hugula.Cryptograph
 {
-    
-    public class DESHelper : MonoBehaviour
+
+    public static class DESHelper
     {
-
-        public KeyVData KEYData;
-
-        public KeyVData IVData;
-
-
-        // Use this for initialization
-        void Awake()
-        {
-            _desHlper = this;
-        }
-
-        public byte[] Key
+        public const string DES_FILE_NAME = "K18";
+        static KeyVData m_KeyVData;
+        public static KeyVData KeyVData
         {
             get
             {
-                return KEYData.KEY;
-            }
-        }
-
-        public byte[] IV
-        {
-            get
-            {
-                return IVData.IV;
-            }
-        }
-
-        private static DESHelper _desHlper;
-
-        public static DESHelper instance
-        {
-            get
-            {
-                return _desHlper;
+                if (m_KeyVData == null)
+                {
+                    m_KeyVData = Resources.Load<KeyVData>(DES_FILE_NAME);
+                }
+                return m_KeyVData;
             }
         }
 

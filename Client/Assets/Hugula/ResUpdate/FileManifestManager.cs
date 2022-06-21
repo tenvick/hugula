@@ -382,7 +382,7 @@ namespace Hugula.ResUpdate
 #endif
 
             url = CUtils.GetAndroidABLoadPath(url);
-            AssetBundle ab = AssetBundle.LoadFromFile(url);
+            AssetBundle ab = AssetBundle.LoadFromFile(url, 0, Common.BUNDLE_OFF_SET);
             if (ab != null)
             {
                 var assets = ab.LoadAllAssets<FileManifest>();
@@ -417,6 +417,7 @@ namespace Hugula.ResUpdate
             else
             {
 #if UNITY_EDITOR
+                File.Delete(url); //版本不对删除
                 Debug.LogWarning("there is no folderManifest in StreamingAssetsPath use (Addressabkes Groups /Build/New Build/Hot Resource Update) to build ");
 #endif
             }
@@ -434,46 +435,53 @@ namespace Hugula.ResUpdate
         {
             var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//首先查找热更新目录
             AssetBundle ab = null;
-            if (FileHelper.FileExists(url) && (ab = AssetBundle.LoadFromFile(url)) != null)
+            if (FileHelper.FileExists(url))
             {
-                var folderManifests = ab.LoadAllAssets<FileManifest>();
-
-                if (folderManifests.Length == 0)
-                    Debug.LogError("there is no  persistentFolderManifest  at  " + url);
-                FileManifest item;
-                FileManifest streamingItem;
-                var cacheLocalResNum = localResNum;
-                for (int i = 0; i < folderManifests.Length; i++)
+                if ((ab = AssetBundle.LoadFromFile(url, 0, Common.BUNDLE_OFF_SET)) != null)
                 {
-                    item = folderManifests[i];
-                    if (cacheLocalResNum < item.resNumber) //新增加的folder
+                    var folderManifests = ab.LoadAllAssets<FileManifest>();
+
+                    if (folderManifests.Length == 0)
+                        Debug.LogError("there is no  persistentFolderManifest  at  " + url);
+                    FileManifest item;
+                    FileManifest streamingItem;
+                    var cacheLocalResNum = localResNum;
+                    for (int i = 0; i < folderManifests.Length; i++)
                     {
-                        streamingItem = FindStreamingFolderManifest(item.fileName, false);
-                        if (streamingItem != null)
-                            item.RemoveSameFileResInfoFrom(streamingItem);
-                        // else
-                        //     streamingFolderManifest.Add(item); //暂时不支持新增加zip包
+                        item = folderManifests[i];
+                        if (cacheLocalResNum < item.resNumber) //新增加的folder
+                        {
+                            streamingItem = FindStreamingFolderManifest(item.fileName, false);
+                            if (streamingItem != null)
+                                item.RemoveSameFileResInfoFrom(streamingItem);
+                            // else
+                            //     streamingFolderManifest.Add(item); //暂时不支持新增加zip包
 
-                        CheckAddOrUpdatePersistentFolderManifest(item);
+                            CheckAddOrUpdatePersistentFolderManifest(item);
 
-                        if (item is FolderManifest)
-                            GenUpdatePackageTransform((FolderManifest)item);
+                            if (item is FolderManifest)
+                                GenUpdatePackageTransform((FolderManifest)item);
 
-                        if (CodeVersion.Subtract(CodeVersion.APP_VERSION, item.version) <= 0)
-                            localVersion = item.version; //更新到下载的版本号
-                        if (localResNum < item.resNumber)
-                            localResNum = item.resNumber;
+                            if (CodeVersion.Subtract(CodeVersion.APP_VERSION, item.version) <= 0)
+                                localVersion = item.version; //更新到下载的版本号
+                            if (localResNum < item.resNumber)
+                                localResNum = item.resNumber;
+                        }
                     }
-                }
 
 #if !HUGULA_NO_LOG || UNITY_EDITOR
-                Debug.LogFormat("Load persistentFolderManifest {0} is done !\r\n ManifestManager.persistentFolderManifest.count = {1}", url, FileManifestManager.persistentFolderManifest.Count);
-                for (int i = 0; i < persistentFolderManifest.Count; i++)
-                {
-                    Debug.Log(persistentFolderManifest[i].ToString());
-                }
+                    Debug.LogFormat("Load persistentFolderManifest {0} is done !\r\n ManifestManager.persistentFolderManifest.count = {1}", url, FileManifestManager.persistentFolderManifest.Count);
+                    for (int i = 0; i < persistentFolderManifest.Count; i++)
+                    {
+                        Debug.Log(persistentFolderManifest[i].ToString());
+                    }
 #endif
-                ab.Unload(false);
+                    ab.Unload(false);
+                }
+                else
+                {
+                    File.Delete(url);
+                }
             }
 
             if (onComplete != null)

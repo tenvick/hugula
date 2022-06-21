@@ -27,7 +27,7 @@ namespace Hugula.ResUpdate
     /// --	9 完成下载进入游戏。
     /// --
     /// --	注意事项
-    /// --  .1 hugulasetting中的http ver host可以支持多个地址配置以“.”号分割
+    /// --  .1 hugulasetting中的http ver host可以支持多个地址配置以“,”号分割
     /// --	.2 BackGroundDownload 是网络加载模块，用于从网络加载URL并保存到persistent目录，大于4m的资源默认开启2个线程同时下载，如果要支持断点续传服务器需要开启etag。
     /// --	.3 version.json 版本信息，可以控制fast包的加载时机。
     /// --	.4 cdn_hosts 可以支持多个域名加载

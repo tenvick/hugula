@@ -702,6 +702,9 @@ namespace Hugula.Utils
         {
             Hugula.ResLoader.UnloadSceneAsync(sceneName, null, null);
             // Hugula.Loader.ResourcesLoader.UnloadScene(sceneName);
+            
+            
+            
             //UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
         }
 
@@ -737,7 +740,11 @@ namespace Hugula.Utils
             // if (!fileInfo.Exists) fileInfo.Create();
             using (var sw = fileInfo.OpenWrite())
             {
-                byte[] bytes = CryptographHelper.Encrypt(Encoding.UTF8.GetBytes(saveData), key, iv);
+#if UNITY_EDITOR
+                Debug.LogFormat("SaveLocalData(file={0}) content={1} ", fileName, saveData);
+#endif
+                var outBytes = Encoding.UTF8.GetBytes(saveData);
+                byte[] bytes = CryptographHelper.Encrypt(outBytes,key,iv);
                 sw.Write(bytes, 0, bytes.Length);
                 sw.Flush();
             }
@@ -758,14 +765,31 @@ namespace Hugula.Utils
 
                     byte[] bytes = new byte[fs.Length];
                     fs.Read(bytes, 0, bytes.Length);
+                    fs.Close();
                     try
                     {
-                        loadData = Encoding.UTF8.GetString(CryptographHelper.Decrypt(bytes, key, iv));
+                        var reBytes = CryptographHelper.Decrypt(bytes,key,iv);
+                        if (reBytes == null)
+                        {
+                            //delete file 
+                            fileInfo.Delete();
+#if UNITY_EDITOR
+                            Debug.LogFormat("delete file (file={0})", fileName);
+#endif
+                        }
+                        else
+                            loadData = Encoding.UTF8.GetString(reBytes);
                     }
                     catch (System.Exception ex)
                     {
+                        
+                        fileInfo.Delete();
                         Debug.LogError(ex);
                     }
+
+#if UNITY_EDITOR
+                    Debug.LogFormat("LoadLocalData(file={0}) content={1} ", fileName, loadData);
+#endif
                     return loadData;
                 }
             }

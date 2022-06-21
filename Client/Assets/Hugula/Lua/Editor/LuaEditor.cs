@@ -72,6 +72,7 @@ namespace HugulaEditor
                 string destName = dest.Substring(0, dest.Length - 3) + "bytes";
                 dests[i] = destName;
                 System.IO.File.Copy(file, destName, true);
+                // CopyEncrypt(file,destName);
 
                 sb.AppendFormat("\r\n {0}   ({1}) ", file, destName);
 
@@ -170,6 +171,13 @@ namespace HugulaEditor
                 // AssetDatabase.StopAssetEditing();
             }
 
+        }
+
+        static bool CopyEncrypt(string file, string destName)
+        {
+            var bytes = Hugula.Cryptograph.CryptographHelper.EncryptDefault(File.ReadAllBytes(file));
+            File.WriteAllBytes(destName,bytes);
+            return true;
         }
 
         public static string GetLuaBytesResourcesPath()

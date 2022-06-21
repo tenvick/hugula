@@ -209,7 +209,7 @@ namespace HugulaEditor.Addressable
         void AddToFolderManifest(string folderName, string filePath, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
         {
             FolderManifest folderManifest = null;
-           if (!folderManifestDic.TryGetValue(folderName, out var outFolderManifest))
+            if (!folderManifestDic.TryGetValue(folderName, out var outFolderManifest))
             {
                 folderManifest = HugulaEditor.Addressable.FolderManifestExtention.Create(folderName);
                 folderManifestDic.Add(folderName, folderManifest);
@@ -218,7 +218,7 @@ namespace HugulaEditor.Addressable
             {
                 folderManifest = outFolderManifest as FolderManifest;
             }
-                        
+
             if (folderManifest == null) return;
 
             string bundleName = Path.GetFileName(filePath);
@@ -244,7 +244,7 @@ namespace HugulaEditor.Addressable
             {
                 folderManifest = HugulaEditor.Addressable.FolderManifestExtention.Create(folderName);
                 folderManifestDic.Add(folderName, folderManifest);
-            } 
+            }
             else
             {
                 folderManifest = outfolderManifest as FolderManifest;
@@ -285,7 +285,7 @@ namespace HugulaEditor.Addressable
         /// <param name="outPath"></param>
         /// <param name="abName"></param>
         /// <param name="bbo"></param>
-        static public void BuildABs(AssetBundleBuild[] bab, string outPath, BuildAssetBundleOptions bbo)
+        static public void BuildABs(AssetBundleBuild[] bab, string outPath, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
             if (string.IsNullOrEmpty(outPath))
                 outPath = EditorUtils.GetOutPutPath();
@@ -305,10 +305,34 @@ namespace HugulaEditor.Addressable
                 FileInfo tInfo = new FileInfo(targetFileName);
                 if (tInfo.Exists) tInfo.Delete();
                 FileInfo fino = new FileInfo(tmpFileName);
-                fino.CopyTo(targetFileName);
-                Debug.LogFormat("Build assetbundle : {0} ", targetFileName);
+
+                if (offset != null && offset.Length > 0)
+                {
+                    using (var sw = tInfo.Create())
+                    {
+                        sw.Write(offset, 0, offset.Length);
+                        using (var sr = fino.OpenRead())
+                        {
+                            InternalCopyTo(sr, sw, 128);
+                        }
+                    }
+                    Debug.Log($"Build assetbundle : {targetFileName} offset:{offset.Length}");
+                }
+                else
+                {
+                    fino.CopyTo(targetFileName);
+                    Debug.LogFormat("Build assetbundle : {0} ", targetFileName);
+                }
             }
 
+        }
+
+        private static void InternalCopyTo(Stream source, Stream destination, int bufferSize)
+        {
+            byte[] buffer = new byte[bufferSize];
+            int read;
+            while ((read = source.Read(buffer, 0, buffer.Length)) != 0)
+                destination.Write(buffer, 0, read);
         }
 
         /// <summary>
@@ -336,7 +360,7 @@ namespace HugulaEditor.Addressable
         /// <summary>
         /// 将多个文件打成一个bundle
         /// </summary>
-        static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo)
+        static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
             AssetBundleBuild[] builds = new AssetBundleBuild[assets.Length];
 
@@ -349,7 +373,7 @@ namespace HugulaEditor.Addressable
                 builds[i] = curr;
             }
 
-            BuildABs(builds, outPath, bbo);
+            BuildABs(builds, outPath, bbo, offset);
         }
 
         public static void ClearTmpFolder()

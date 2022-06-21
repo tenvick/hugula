@@ -68,7 +68,7 @@ namespace Hugula
             {
                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
                 url = CUtils.GetAndroidABLoadPath(url);
-                m_StreamingLuaBundle = AssetBundle.LoadFromFile(url);
+                m_StreamingLuaBundle = AssetBundle.LoadFromFile(url,0,Common.BUNDLE_OFF_SET);
             }
             return m_StreamingLuaBundle;
         }
@@ -80,7 +80,7 @@ namespace Hugula
             {
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), Common.LUA_BUNDLE_NAME);
                 url = CUtils.GetAndroidABLoadPath(url);
-                m_PersistentLuaBundle = AssetBundle.LoadFromFile(url);
+                m_PersistentLuaBundle = AssetBundle.LoadFromFile(url,0,Common.BUNDLE_OFF_SET);
             }
             return m_PersistentLuaBundle;
         }
@@ -256,6 +256,9 @@ namespace Hugula
             if (bundleManifest && bundleManifest.GetFileResInfo(name) != null)//如果有热更新走热更新
             {
                 luaAb = GetPersistentLuaBundle();
+                #if UNITY_EDITOR || UNITY_STANDALONE
+                    Debug.Log($"load lua ({name}) from persistent: {CUtils.GetRealPersistentDataPath()}/{Common.LUA_BUNDLE_NAME}");
+                #endif
             }
             else
             {

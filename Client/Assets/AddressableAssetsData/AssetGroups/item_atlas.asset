@@ -10,16 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: lua_bundle
+  m_Name: item_atlas
   m_EditorClassIdentifier: 
-  m_GroupName: lua_bundle
+  m_GroupName: item_atlas
   m_Data:
     m_SerializedData: []
-  m_GUID: a902621171c04ac409451ac52abcb37d
-  m_SerializeEntries: []
+  m_GUID: 032c6db41c798334388419f6beaec5ea
+  m_SerializeEntries:
+  - m_GUID: 6244fafce5eab4a46a6e917b0da35b9a
+    m_Address: item_atlas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: dc55f0a7d6017a24cbc4d2d72ed40e7d, type: 2}
-    - {fileID: 11400000, guid: 63d4048e9af0a6847beb6e9d76b24fd7, type: 2}
+    - {fileID: 11400000, guid: 71fd19c5ac5038c4296d6cacc1a011e1, type: 2}
+    - {fileID: 11400000, guid: 7918b4314d9c6b64f84fb8d9af559045, type: 2}

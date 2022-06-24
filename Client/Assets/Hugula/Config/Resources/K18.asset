@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
-  m_Name: ui_bg_ContentUpdateGroupSchema
+  m_Script: {fileID: 11500000, guid: bb907d89db1d04019a56ab8f94fd10e9, type: 3}
+  m_Name: K18
   m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: 42ee69ba64c842447a92352656d4219a, type: 2}
-  m_StaticContent: 1
+  KEY: f419dbd588aeaff41e4d08176386762f9a9d2b0fef98d7bb22022878abfa1580
+  IV: f600209db6191c3b07de3390f0534108
+  version: 50012

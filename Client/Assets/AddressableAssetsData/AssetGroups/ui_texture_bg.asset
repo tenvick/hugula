@@ -10,13 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: ui_bg
+  m_Name: ui_texture_bg
   m_EditorClassIdentifier: 
-  m_GroupName: ui_bg
+  m_GroupName: ui_texture_bg
   m_Data:
     m_SerializedData: []
-  m_GUID: f332aeb826084234b84b5d112b970ebe
+  m_GUID: eaf12d60300858842a2cf90480bf920e
   m_SerializeEntries:
+  - m_GUID: cd0cbeaabcc2ffe45b0a951c62def134
+    m_Address: common_img089
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   - m_GUID: dd2702940651df6408114323b58d26bb
     m_Address: lianliankan_beijing
     m_ReadOnly: 0
@@ -25,6 +29,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: edc365e11dc5ec64888c99b84ffe4b53, type: 2}
-    - {fileID: 11400000, guid: 00978e8fd2fd6db44b5194b3287374d5, type: 2}
-    - {fileID: 11400000, guid: 998295f974ee12049a96a6777fa6da77, type: 2}
+    - {fileID: 11400000, guid: a2a2d961593b918438b0d42ff4887f36, type: 2}
+    - {fileID: 11400000, guid: a917837d61e03cd488af333ab38c4953, type: 2}

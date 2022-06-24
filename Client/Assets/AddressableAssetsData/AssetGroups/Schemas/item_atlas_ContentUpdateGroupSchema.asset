@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cde2258fbdc31b4bb41acb6f84706fa, type: 3}
-  m_Name: ui_bg_HugulaResUpdatePacking
+  m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
+  m_Name: item_atlas_ContentUpdateGroupSchema
   m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: 42ee69ba64c842447a92352656d4219a, type: 2}
-  packingType: 1
-  customName: 
+  m_Group: {fileID: 11400000, guid: 9a887461d0261ef469b8850940202aba, type: 2}
+  m_StaticContent: 0

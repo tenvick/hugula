@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
-  m_Name: lua_bundle_ContentUpdateGroupSchema
+  m_Name: ui_texture_bg_ContentUpdateGroupSchema
   m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: 6bc3f3f7a93646b49af37b513481d534, type: 2}
-  m_StaticContent: 1
+  m_Group: {fileID: 11400000, guid: 88d9358c9c2d6f041945a0697a32d25e, type: 2}
+  m_StaticContent: 0

@@ -15,12 +15,18 @@ namespace Hugula
         /// 名称
         /// </summary>
         public int[] names;
+        
         /// <summary>
-        /// 对应的key
+        /// 对应的key索引
         /// </summary>
-        public string[] keys;
+        public int[] keys;
 
-        private Dictionary<int, string> m_Map;
+        /// <summary>
+        /// 对应的key原始值
+        /// </summary>
+        public string[] sourceKeys;
+
+        private Dictionary<int, int> m_Map;
 
         /// <summary>
         /// 获取当前sprite对应的atlas key
@@ -31,29 +37,32 @@ namespace Hugula
         {
             if (m_Map == null)
             {
-                m_Map = new Dictionary<int, string>(names.Length);
+                m_Map = new Dictionary<int, int>(names.Length);
                 int m_AssetName;
-                string m_ABName;
+                // string m_ABName;
+                int index =-1;
                 for (int i = 0; i < names.Length; i++)
                 {
-                    m_ABName = keys[i];
+                    index = keys[i];
                     m_AssetName = names[i];
                     if (m_Map.ContainsKey(m_AssetName))
                         continue;
-                    m_Map.Add(m_AssetName, m_ABName);
+                    m_Map.Add(m_AssetName, index);
                 }
             }
             int idx = UnityEngine.Animator.StringToHash(name);
-            string re = null;
-            //Debug.LogFormat("StringToHash:{0} ", idx);
-            m_Map.TryGetValue(idx, out re);
-            return re;
+            if(m_Map.TryGetValue(idx,out var atlasIndex))
+            {
+                return sourceKeys[atlasIndex];
+            }
+            return null;
         }
 
         public void Dispose()
         {
             names = null;
             keys = null;
+            sourceKeys = null;
         }
     }
 

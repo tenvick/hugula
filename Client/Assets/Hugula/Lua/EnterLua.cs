@@ -58,6 +58,7 @@ namespace Hugula
             BehaviourSingletonManager.CanCreateInstance();
             SingletonManager.CanCreateInstance();
             Hugula.ResLoader.Init();
+
         }
         #region  hot update
         private AssetBundle m_StreamingLuaBundle;
@@ -103,6 +104,9 @@ namespace Hugula
         {
             while (!ResLoader.Ready)
                 yield return null;
+            
+            Hugula.Atlas.AtlasManager.instance.Init();
+
             yield return null;
             luaenv.DoString("require('" + enterLua + "')");
 #if UNITY_EDITOR

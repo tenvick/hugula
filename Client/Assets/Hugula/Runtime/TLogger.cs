@@ -213,10 +213,12 @@ public class TLogger : ILogHandler
         sb.Append($"\r\n processorCount= {SystemInfo.processorCount}");
         sb.Append($"\r\n graphicsMemorySize= {SystemInfo.graphicsMemorySize}");
         sb.Append($"\r\n internetReachability= {Application.internetReachability}");
+        sb.Append($"\r\n supports:2DArrayTextures={SystemInfo.supports2DArrayTextures},Instancing={SystemInfo.supportsInstancing},ASTC_4x4={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_4x4)},ASTC_6x6={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_6x6)},ASTC_8x8={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_8x8)};");
         sb.Append($"\r\n deviceModel= {SystemInfo.deviceModel}");
         sb.Append($"\r\n version={Application.version};");
         sb.Append($"\r\n unityVersion={Application.unityVersion}");
         sb.Append($"\r\n systemLanguage={Application.systemLanguage.ToString()};");
+
 #if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
         Firebase.Crashlytics.Crashlytics.Log(sb.ToString());
 #endif

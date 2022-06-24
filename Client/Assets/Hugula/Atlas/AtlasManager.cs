@@ -35,10 +35,9 @@ namespace Hugula.Atlas
         }
 
         // [RuntimeInitializeOnLoadMethod]
-        static void Init()
+        public void Init()
         {
-            var ins = AtlasManager.instance;
-            ins.LoadMappingAsset();
+            LoadMappingAsset();
         }
     }
 }

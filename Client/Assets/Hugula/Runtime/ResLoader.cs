@@ -277,6 +277,7 @@ namespace Hugula
             }
             catch (Exception ex)
             {
+                if (onEnd != null) onEnd(null, userData);
                 throw ex;
             }
             finally
@@ -327,6 +328,7 @@ namespace Hugula
             }
             catch (Exception ex)
             {
+                if (onEnd != null) onEnd(null, userData);
                 throw ex;
             }
             finally
@@ -449,6 +451,7 @@ namespace Hugula
             }
             catch (Exception ex)
             {
+                if (onEnd != null) onEnd(key, userData);
                 throw ex;
             }
             finally
@@ -521,6 +524,7 @@ namespace Hugula
             }
             catch (Exception ex)
             {
+                if (onEnd != null) onEnd(key, userData);
                 throw ex;
             }
             finally

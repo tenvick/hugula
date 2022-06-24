@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.U2D;
+using System.Linq;
 
 namespace HugulaEditor
 {
@@ -71,15 +72,27 @@ namespace HugulaEditor
                             generateMipMaps = false,
                             sRGB = true,
                             filterMode = FilterMode.Bilinear,
+
                         };
+                        var textureImporterFormat = new TextureImporterPlatformSettings ();
+                        textureImporterFormat.format = TextureImporterFormat.ASTC_6x6;
+                        textureImporterFormat.maxTextureSize = 2048;
+                        textureImporterFormat.overridden = true;
+                        textureImporterFormat.crunchedCompression = true;
+                        textureImporterFormat.androidETC2FallbackOverride = AndroidETC2FallbackOverride.Quality16Bit;
+
                         atlas.SetTextureSettings(textureSet);
                         atlas.SetPackingSettings(packSetting);
                         atlas.Add(new[] { obj });
+
+                        atlas.SetPlatformSettings(textureImporterFormat);
+
                         AssetDatabase.CreateAsset(atlas, atlasPath);
 
                         sb.Append("Crate atlas Asset :");
                         sb.Append(atlasPath);
                         sb.Append("\r\n");
+                    
                     }
                     else
                     {
@@ -87,109 +100,8 @@ namespace HugulaEditor
                         sb.Append(atlasPath);
                         sb.Append("\r\n");
                     }
-                }
-            }
 
-            // var selection = Selection.objects;
-
-            // foreach (Object s in selection)
-            // {
-            //     if (s is DefaultAsset && (path = AssetDatabase.GetAssetPath(s)) != null && Directory.Exists(path))
-            //     {
-
-            //     }
-            // }
-
-            sb.AppendLine("\r\nall completed");
-            Debug.Log(sb.ToString());
-            EditorUtils.WriteToTmpFile(tagName + ".txt", sb.ToString());
-        }
-
-        // [MenuItem("Hugula/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
-        // [MenuItem("Assets/Atlas/1.Create(Refresh) Atlas Asset", false, 101)]
-        public static void CreateAtlasAsset()
-        {
-            var selection = Selection.objects;
-            string path = string.Empty;
-
-            StringBuilder sb = new StringBuilder();
-            string tagName = string.Empty;
-            foreach (Object s in selection)
-            {
-                if (s is DefaultAsset && (path = AssetDatabase.GetAssetPath(s)) != null && Directory.Exists(path))
-                {
-                    var ragName = s.name.ToLower() + "_atlas.spriteatlas";
-                    string atlas_path = Path.Combine(path, ragName);
-                    tagName = s.name.ToLower() + "_atlas";
-
-                    sb.Append("Crate atlas Asset :");
-                    sb.Append(ragName);
-                    sb.Append("\r\n");
-
-                    var allchildren = EditorUtils.getAllChildFiles(path, @"\.meta$|\.manifest$|\.DS_Store$|\.u$", null, false);
-                    int count = 0;
-                    List<int> names = new List<int>();
-                    List<Sprite> allSprites = new List<Sprite>();
-                    foreach (var f in allchildren)
-                    {
-                        count++;
-                        TextureImporter ti = AssetImporter.GetAtPath(f) as TextureImporter;
-                        if (ti != null)
-                        {
-                            if (ti.textureType != TextureImporterType.Sprite) ti.textureType = TextureImporterType.Sprite;
-                            Object[] objs = AssetDatabase.LoadAllAssetRepresentationsAtPath(f);
-                            foreach (var item in objs)
-                            {
-                                if (item is Sprite)
-                                {
-                                    sb.AppendLine(item.name);
-                                    names.Add(UnityEngine.Animator.StringToHash(item.name));
-                                    allSprites.Add((Sprite)item);
-                                }
-                            }
-                            // ti.spritePackingTag = tagName;
-                            // ti.assetBundleName = tagName + Common.CHECK_ASSETBUNDLE_SUFFIX;
-                            EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + count + " / " + allchildren.Count + ")", count / allchildren.Count);
-                        }
-                        else
-                            Debug.LogWarningFormat("{0} is not Texture ", f);
-                    }
-                    EditorUtility.ClearProgressBar();
-                    //生成或者替换资源
-                    var atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(atlas_path);
-                    if (atlas == null)
-                    {
-                        atlas = new SpriteAtlas();
-                        AssetDatabase.CreateAsset(atlas, atlas_path);
-                        SpriteAtlasPackingSettings packSet = new SpriteAtlasPackingSettings()
-                        {
-                            blockOffset = 1,
-                            enableRotation = false,
-                            enableTightPacking = false,
-                            padding = 2,
-                        };
-                        atlas.SetPackingSettings(packSet);
-
-                        SpriteAtlasTextureSettings textureSet = new SpriteAtlasTextureSettings()
-                        {
-                            readable = false,
-                            generateMipMaps = false,
-                            sRGB = true,
-                            filterMode = FilterMode.Bilinear,
-                        };
-                        atlas.SetTextureSettings(textureSet);
-                    }
-
-                    SpriteAtlasExtensions.Add(atlas, allSprites.ToArray());
-                    EditorUtility.SetDirty(atlas);
-
-                    var groupAssets = new List<string>();
-                    groupAssets.Add(atlas_path);
-                    var atlasGroup = AASEditorUtility.FindGroup(tagName, AASEditorUtility.DefaltGroupSchema[0]);
-                    AASEditorUtility.SetGroupAddress(AASEditorUtility.LoadAASSetting(), atlasGroup, groupAssets);
-                    sb.AppendFormat("build {0} success  count = {1} ", ragName, names.Count);
-                    AssetDatabase.SaveAssets();
-
+                    AddToAddress(atlasPath,tagName);
                 }
             }
 
@@ -205,6 +117,7 @@ namespace HugulaEditor
             StringBuilder sb = new StringBuilder();
             List<int> allSprites = new List<int>();
             List<string> atlasNames = new List<string>();
+            List<int> atlasIndexs = new List<int>();
 
             var files = AssetDatabase.GetAllAssetPaths().Where(p =>
               p.EndsWith(".spriteatlas")
@@ -213,13 +126,10 @@ namespace HugulaEditor
             for (int i = 0; i < files.Length; i++)
             {
                 var o = AssetDatabase.LoadAssetAtPath<UnityEngine.U2D.SpriteAtlas>(files[i]);
-                var ti = AssetImporter.GetAtPath(files[i]);
                 var key = System.IO.Path.GetFileNameWithoutExtension(files[i]);
                 if (o != null)
                 {
-                    // var assetBundleName = ti.assetBundleName;
                     EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + i + " / " + files.Length + ")", (float)i / (float)files.Length);
-
                     var sps = new UnityEngine.Sprite[o.spriteCount];
 
                     int len = o.GetSprites(sps);
@@ -228,7 +138,13 @@ namespace HugulaEditor
                         string name = sps[j].name.Replace("(Clone)", "");
                         int id = UnityEngine.Animator.StringToHash(name);
                         allSprites.Add(id);
-                        atlasNames.Add(key);
+                        var idx = atlasNames.IndexOf(key);
+                        if(idx<0) 
+                        {
+                            atlasNames.Add(key);
+                            idx = atlasNames.Count -1;
+                        }
+                        atlasIndexs.Add(idx);
                         sb.AppendFormat("{0}({1})   {2}\r\n", name, id, key);
                     }
                 }
@@ -247,19 +163,33 @@ namespace HugulaEditor
             }
 
             atlas.names = allSprites.ToArray();
-            atlas.keys = atlasNames.ToArray();
+            atlas.keys = atlasIndexs.ToArray();
+            atlas.sourceKeys = atlasNames.ToArray();
             EditorUtility.SetDirty(atlas);
 
             //aas 
-            var groupAssets = new List<string>();
-            groupAssets.Add(atlas_path);
             var atlasGroup = AASEditorUtility.FindGroup(mapping_root_name, AASEditorUtility.DefaltGroupSchema[0]);
-            AASEditorUtility.SetGroupAddress(AASEditorUtility.LoadAASSetting(), atlasGroup, groupAssets);
+            var setting = AASEditorUtility.LoadAASSetting();
+            var guid = AssetDatabase.AssetPathToGUID(atlas_path); //获得GUID
+            var entry = setting.CreateOrMoveEntry(guid, atlasGroup); //通过GUID创建entry
+            entry.SetAddress(mapping_root_name);
             AssetDatabase.SaveAssets();
             Debug.LogFormat(" save {0}  count = {1} ", atlas_path, atlasNames.Count);
             EditorUtils.WriteToTmpFile(mapping_root_name + ".txt", sb.ToString());
 
         }
 
+        private static void AddToAddress(string assetPath,string groupName)
+        {
+            var setting = AASEditorUtility.LoadAASSetting();
+            var groupSchama = AASEditorUtility.DefaltGroupSchema[0];
+            var group = AASEditorUtility.FindGroup(groupName, groupSchama);
+            var guid = AssetDatabase.AssetPathToGUID(assetPath);
+            var altasEntry = group.GetAssetEntry(guid);
+            if(altasEntry == null)
+                altasEntry =  setting.CreateOrMoveEntry(guid, group); //通过GUID创建entry
+            altasEntry.SetAddress(System.IO.Path.GetFileNameWithoutExtension(assetPath));
+
+        }
     }
 }

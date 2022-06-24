@@ -51,6 +51,23 @@ namespace Hugula.ResUpdate
             }
         }
 
+        private static int m_LocalStreamingResNum = Hugula.CodeVersion.APP_NUMBER;
+
+        /// <summary>
+        /// 本地最新数字版本号
+        /// </summary>
+        public static int localStreamingResNum
+        {
+            get
+            {
+                return m_LocalStreamingResNum;
+            }
+            set
+            {
+                m_LocalStreamingResNum = value;
+            }
+        }
+
         /// <summary>
         /// 除fast包之外其他zip下载控制
         /// </summary>
@@ -394,6 +411,7 @@ namespace Hugula.ResUpdate
                     var item = assets[0];
                     // localVersion = item.version; //更新到本地版本号
                     localResNum = item.resNumber;
+                    localStreamingResNum = localResNum;
                 }
 
                 streamingFolderManifestSimpleClone.Clear();
@@ -445,7 +463,8 @@ namespace Hugula.ResUpdate
                         Debug.LogError("there is no  persistentFolderManifest  at  " + url);
                     FileManifest item;
                     FileManifest streamingItem;
-                    var cacheLocalResNum = localResNum;
+                    var cacheLocalResNum = localStreamingResNum;
+
                     for (int i = 0; i < folderManifests.Length; i++)
                     {
                         item = folderManifests[i];

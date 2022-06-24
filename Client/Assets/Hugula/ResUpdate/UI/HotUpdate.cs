@@ -72,7 +72,6 @@ namespace Hugula.ResUpdate
             FileManifestManager.LoadPersistentFolderManifest(null);//读取持久化目录的列表
 
             ResLoader.Init();
-
             yield return null;
             Hugula.Localization.language = PlayerPrefs.GetString(Hugula.Localization.KEY_LAN, Application.systemLanguage.ToString());
             yield return new WaitForLanguageHasBeenSet();
@@ -284,14 +283,14 @@ namespace Hugula.ResUpdate
             Debug.Log($"begin get url ：{url}");
 
             UnityWebRequest req = UnityWebRequest.Get(url);
+            string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),UPDATED_TEMP_LIST_NAME);
+            req.downloadHandler = new DownloadHandlerFile(path);
             var async = req.SendWebRequest();
             yield return async;
             if (req.responseCode == 200)
             {
                 SetProgressTxt(Localization.Get("main_compare_crc_list")); //校验列表对比中。"
-                var bytes = req.downloadHandler.data;
-                FileHelper.SavePersistentFile(bytes, UPDATED_TEMP_LIST_NAME); //--保存server端临时文件
-                var ab = LuaHelper.LoadFromMemory(bytes);
+                var ab = AssetBundle.LoadFromFile(path,0,Common.BUNDLE_OFF_SET);
                 var all = ab.LoadAllAssets<FolderManifest>();
                 var remoteFolderManifest = new List<FolderManifest>(all);
 
@@ -327,7 +326,7 @@ namespace Hugula.ResUpdate
                             downLoadFolder.allFileInfos = remoteFolder.allFileInfos;
 
 
-                        FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteFolder);
+                        // FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteFolder);
 
                         if (downLoadFolder.allFileInfos.Count > 0)
                         {
@@ -420,7 +419,8 @@ namespace Hugula.ResUpdate
                 FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
                 FileManifestManager.localVersion = loadRemoteVersion;
                 FileManifestManager.localResNum = loadRemoteAppNum;
-                Debug.Log($"download sccuess :{loadRemoteVersion}");
+                Debug.Log($"download sccuess :{loadRemoteVersion}");                
+                FileManifestManager.LoadPersistentFolderManifest(null); //刷新列表
                 StartCoroutine(RefreshCatalog());
             }
         }

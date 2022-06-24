@@ -34,9 +34,8 @@ namespace Hugula.Databinding.Binder
                 if (!string.Equals(value, m_spriteName))
                 {
                     UnloadSprite();
-
-                    LoadSprite(value);
                     m_spriteName = value;
+                    LoadSprite(value);
                 }
             }
         }
@@ -61,15 +60,20 @@ namespace Hugula.Databinding.Binder
         #region  protected method
         void LoadSprite(string spriteName)
         {
-            if (target && !string.IsNullOrEmpty(spriteName))
+            if (null != target && !string.IsNullOrEmpty(spriteName))
             {
                 target.enabled = false;
-                ResLoader.LoadAssetAsync<Sprite>(AtlasManager.GetAtlasKey(spriteName), OnSpriteCompleted, null);
+                ResLoader.LoadAssetAsync<Sprite>(AtlasManager.GetAtlasKey(spriteName), OnSpriteCompleted, null,spriteName);
             }
         }
 
         void OnSpriteCompleted(Sprite sprite, object arg)
         {
+            if (null == target || null == sprite || null == spriteName || !spriteName.Equals(arg))
+            {
+                ResLoader.Release(sprite);
+                return;
+            }
             addressSprite = sprite;
             target.sprite = sprite;
             target.enabled = true;

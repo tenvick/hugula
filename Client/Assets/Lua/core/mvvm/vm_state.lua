@@ -135,6 +135,10 @@ local function get_member(self, vm_name, member_name)
     return nil
 end
 
+local function get_viewmodel(self, vm_name)
+    return VMGenerate[vm_name] --获取vm实例
+end
+
 local function set_top_group(self, vm_group)
     self.last_group = self.top_group --上一次记录
     self.top_group = vm_group --记录当前顶
@@ -592,6 +596,7 @@ end
 
 VMManager._vm_state = vm_state
 vm_state.get_member = get_member
+vm_state.get_viewmodel = get_viewmodel
 vm_state.call_func = call_func
 vm_state.push = push
 vm_state.append_item = append_item
@@ -617,6 +622,7 @@ vm_state.debug_stack = debug_stack
 --- view model 的显示隐藏管理
 ---@class VMState
 ---@field get_member fun(self:VMState, vm_name:string)
+---@field get_viewmodel fun(self:VMState, vm_name:string)
 ---@field call_func fun(self:VMState, vm_name:string, fun_name:string, arg:any)
 ---@field push fun(self:VMState, vm_group_name:string, arg:any)
 ---@field push_item   fun(self:VMState, vm_name:string, arg:any)

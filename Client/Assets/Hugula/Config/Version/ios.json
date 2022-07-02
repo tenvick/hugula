@@ -1,1 +1,1 @@
-{"cdn_host":["http://192.168.2.104/{app.platform}"],"update_url":"http://192.168.2.104/hugula/ios","manifest_name":"res/{app.manifest_full_name}","fast":0}
+{"cdn_host":["http://192.168.2.104/{app.platform}"],"update_url":"http://192.168.2.104/hugula/ios","manifest_name":"{app.res_ver_folder}/{app.manifest_full_name}","fast":0}

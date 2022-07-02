@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.7.2
+1 增加提示更新功能 文档(hot res update.docx)。
+2 远端ver.json加载失败也能进入游戏。
+3 GameInitialize统一控制启动流程。
+
 2022.6.17
 1 增量更新支持(lua)。
 2 运行阶段，发布阶段打点分析功能。

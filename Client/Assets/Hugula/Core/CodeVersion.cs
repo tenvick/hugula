@@ -16,7 +16,7 @@ namespace Hugula
             m_APP_NUMBER = 0;
         }
         private const int BIT_SIZE = 1000;
-        private const int BIT_SIZE1 = 10000;
+        private const int BIT_SIZE1 = 1000;
 
         private static int m_CODE_VERSION;
 
@@ -31,7 +31,7 @@ namespace Hugula
                 if (m_CODE_VERSION == 0)
                 {
                     var sp = SplitVersion(APP_VERSION);
-                    m_CODE_VERSION = sp[0] * BIT_SIZE * BIT_SIZE1 + sp[1] * BIT_SIZE1;
+                    m_CODE_VERSION = sp[0] * BIT_SIZE + sp[1] ;
                 }
                 return m_CODE_VERSION;
             }
@@ -57,7 +57,7 @@ namespace Hugula
         /// <summary>
         /// app版本号转换成的number号 作为默认资源号和bundle code
         /// 转换规则 v1.v2.v3
-        /// v1*1000*10000 + v2*10000 +v3
+        /// v1*1000*1000 + v2*10000 +v3
         /// </summary>
         public static int APP_NUMBER
         {
@@ -84,7 +84,8 @@ namespace Hugula
 #if UNITY_EDITOR
             if (sp.Length < 3)
             {
-                throw new System.Exception("Application.version set wrong ,it must be like 0.1.1");
+                //throw new System.Exception("Application.version set wrong ,it must be like 0.1.1");
+                Debug.LogError("Application.version set wrong, it must be like 0.1.1");
             }
 #endif
             int[] ints = new int[3];

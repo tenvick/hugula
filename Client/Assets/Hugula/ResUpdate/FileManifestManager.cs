@@ -211,6 +211,22 @@ namespace Hugula.ResUpdate
             ListPool<FolderManifest>.Release(folders);
             return true;
         }
+        
+        /// <summary>
+        /// 通过文件列表判断zip扩展包是否下载完成
+        /// </summary>
+        public static bool CheckZipFolderManifestsIsDown(List<FolderManifest> folderManifests)
+        {
+            foreach (var f in folderManifests)
+            {
+                if (f.zipSize > 0 && !f.isZipDone) //如果有zip文件并且没有下载完成
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
         /// <summary>
         /// 检测当前是否可以覆盖stream中文件夹信息
         /// </summary>      

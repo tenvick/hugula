@@ -43,7 +43,7 @@ namespace Hugula
         /// 一次释放的asset数量
         /// </summary>
         public static int RELEASE_COUNT = 50;
-        [SerializeField] string enterLua = "begin"; //main
+        internal string enterLua = "begin"; //main
 
         internal static LuaEnv luaenv;
         internal static EnterLua instance; //特别单例
@@ -53,12 +53,7 @@ namespace Hugula
             instance = this;
             var ins = Executor.instance;
             ins = null;
-            ReloadLua();
             DontDestroyOnLoad(this.gameObject);
-            BehaviourSingletonManager.CanCreateInstance();
-            SingletonManager.CanCreateInstance();
-            Hugula.ResLoader.Init();
-
         }
         #region  hot update
         private AssetBundle m_StreamingLuaBundle;
@@ -100,10 +95,12 @@ namespace Hugula
         }
 
         #endregion
+        //启动lua
         IEnumerator Start()
         {
-            while (!ResLoader.Ready)
-                yield return null;
+            ReloadLua();
+            BehaviourSingletonManager.CanCreateInstance();
+            SingletonManager.CanCreateInstance();
             
             Hugula.Atlas.AtlasManager.instance.Init();
 
@@ -334,7 +331,7 @@ namespace Hugula
             if (m_StopAllCoroutines) return null;
             var ins = instance;
             var _corout = DelayFrameDo(luafun, frame, args);
-            var cor = ins.StartCoroutine(_corout);
+            var cor = ins?.StartCoroutine(_corout);
             return cor;
         }
 

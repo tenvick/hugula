@@ -164,8 +164,16 @@ namespace Hugula.Audio
         protected override void Awake()
         {
             base.Awake();
+        }
+
+        IEnumerator Start()
+        {
+            while (!ResLoader.Ready)
+                yield return null;
+
             InitAudioClipAsset();
         }
+
         #region dnot public
         /// <summary>
         /// system music audioclip 

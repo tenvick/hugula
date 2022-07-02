@@ -361,12 +361,12 @@ public class ProjectBuild : Editor
         var resNum = resNumber;
         if(resNum ==0 ) 
         {
-            resNum = Hugula.CodeVersion.APP_NUMBER;
+            resNum = EditorUtils.GetResNumber();
         }
         // EditorPrefs.SetInt("resNumber",resNum);
-        EditorUtils.SetResNumber(resNum);
+        EditorUtils.SetResNumber(resNum+1);//自动加1
 
-        Debug.Log($"resNumber:{resNum}");
+        Debug.Log($"resNumber:{EditorUtils.GetResNumber()}");
         // resNumber
 #if UNITY_ANDROID        
         if (!string.IsNullOrEmpty(bundleId))

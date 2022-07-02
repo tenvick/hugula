@@ -149,6 +149,7 @@ namespace Hugula
 #endif
                 if (txt != null) Load(txt);
                 localizationHasBeenSet = true;
+                Resources.UnloadAsset(main);
             }
             else
             {

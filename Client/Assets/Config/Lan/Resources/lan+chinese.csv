@@ -12,6 +12,7 @@ main_web_server_crc_list=加载服务器校验列表。
 main_download_complete=更新完毕，进入游戏！
 main_download_fail=文件下载失败,请检查网络后重试。
 main_downloading_tips=网络资源加载中(消耗流量) {0} m/ {1} m {2}。
+main_check_update=有新版本是否要更新？
 main_refresh_script=刷新脚本。
 main_enter_game=进入游戏......
 main_quit_game=确认离开游戏?

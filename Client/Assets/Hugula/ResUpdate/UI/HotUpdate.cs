@@ -55,9 +55,13 @@ namespace Hugula.ResUpdate
         public HotUpdateView view;
 
         bool romoteVersionTxtLoaded = false;
-        const float MAX_STEP = 6;
-        const string UPDATED_LIST_NAME = Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
-        const string UPDATED_TEMP_LIST_NAME = UPDATED_LIST_NAME + ".tmp";
+        string UPDATED_TEMP_LIST_NAME
+        {
+            get
+            {
+                return Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME + ".tmp";
+            }
+        }
         const string SCENE_NAME = "s_begin";
 
         #region  mono
@@ -69,12 +73,10 @@ namespace Hugula.ResUpdate
             TLogger.Init();
             FileManifestManager.OverrideInternalIdTransformFunc(); //重定向热更新的文件
             FileManifestManager.LoadStreamingFolderManifests(null);//读取本地文件列表
+            yield return null;
             FileManifestManager.LoadPersistentFolderManifest(null);//读取持久化目录的列表
-
-            ResLoader.Init();
             yield return null;
             Hugula.Localization.language = PlayerPrefs.GetString(Hugula.Localization.KEY_LAN, Application.systemLanguage.ToString());
-            yield return new WaitForLanguageHasBeenSet();
 
 #if  UNITY_ANDROID && !UNITY_EDITOR
             if (FileManifestManager.streamingFolderManifest == null) {
@@ -100,7 +102,7 @@ namespace Hugula.ResUpdate
 
         #region  hot update logic
         //加载远程版本文件
-        public IEnumerator LoadRemoteVersion()
+        public IEnumerator LoadRemoteVersion(int count = 0)
         {
             var hosts = GetVersionUrl();
             string response = null;
@@ -123,55 +125,109 @@ namespace Hugula.ResUpdate
                 }
             }
 
-            //解析数据
             if (!string.IsNullOrEmpty(response))
             {
-#if !HUGULA_NO_LOG
-                Debug.Log(response);
-#endif
-                romoteVersionTxtLoaded = true;
-                var remoteVer = JsonUtility.FromJson<VerionConfig>(response);
-
-                var cdn_hosts = remoteVer.cdn_host;
-                BackGroundDownload.rootHosts = cdn_hosts;
-                FileManifestManager.otherZipMode = remoteVer.other;//使用远端下载模式
-
-                if (CodeVersion.CODE_VERSION < CodeVersion.CovertVerToCodeVersion(remoteVer.version)) // remoteVer.resNumber)
-                { //强制更新提示
-                    MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
-                    {
-                        MessageBox.Close();
-                        Application.OpenURL(remoteVer.update_url);
-                    });
-                }
-                else
-                {
-                    //判断是否等待fast包
-                    yield return CheckLoadFast(remoteVer);
-
-                    var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
-                    var subResNum = remoteVer.res_number > FileManifestManager.localResNum;
-
-                    if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
-                        yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
-                    else
-                        yield return InternalIdTransformFunc();
-                }
+                yield return ParseVerionConfigAndCheckUpdate(response);
             }
             else if (!romoteVersionTxtLoaded)
             {
                 yield return new WaitForSeconds(1);
 
-                MessageBox.Show(url + Localization.Get("main_download_fail"), "", Localization.Get("main_check_sure"), () =>
-                    {
-                        MessageBox.Close();
-                        StartCoroutine(LoadRemoteVersion());
-                    });
+                if (count == 0)
+                {
+                    MessageBox.Show(url + Localization.Get("main_download_fail"), "", Localization.Get("main_check_sure"), () =>
+                        {
+                            MessageBox.Close();
+                            StartCoroutine(LoadRemoteVersion(1));
+                        });
+                    Debug.LogError($" {url} json 解析失败!");
 
-                Debug.LogError($" {url} json 解析失败!");
+                }
+                else
+                {
+                    //读取本地缓存
+                    string versionName = Path.GetFileNameWithoutExtension(Common.CRC32_VER_FILENAME);
+#if !HUGULA_RELEASE
+                    versionName = "dev_"+ versionName;
+#endif
+
+                    var versionTxt = Resources.Load<TextAsset>(versionName);
+                    if (versionTxt)
+                    {
+                        Debug.LogWarning($" {url} json parse error! Resources({versionName}) load success!");
+                        StartCoroutine(ParseVerionConfigAndCheckUpdate(versionTxt.text));
+                    }
+                    else
+                    {
+                        MessageBox.Show(url + Localization.Get("main_download_fail"), "", Localization.Get("main_check_sure"), () =>
+                        {
+                            MessageBox.Close();
+                            StartCoroutine(LoadRemoteVersion());
+                        });
+
+                        Debug.LogError($"Resources({versionName}) load fail, {url} json parse error!");
+                    }
+
+                }
+
             }
 
             yield return null;
+        }
+
+        /// <summary>
+        /// 解析VerionConfig 判断提示热跟新
+        /// </summary>
+        IEnumerator ParseVerionConfigAndCheckUpdate(string response)
+        {
+            TLogger.LogSys(response);
+            romoteVersionTxtLoaded = true;
+            var remoteVer = JsonUtility.FromJson<VerionConfig>(response);
+
+            var cdn_hosts = remoteVer.cdn_host;
+            BackGroundDownload.rootHosts = cdn_hosts;
+            FileManifestManager.otherZipMode = remoteVer.other;//使用远端下载模式
+            //check force download full app
+            if (CodeVersion.Subtract(remoteVer.force_ver, CodeVersion.APP_VERSION) > 0) //强制更新版本号大于本地版本号
+            { //强制更新提示
+                MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
+                {
+                    MessageBox.Close();
+                    Application.OpenURL(remoteVer.update_url);
+                });
+            }
+            else
+            {
+                //提示更新 远端 notice_ver提示更新版本号 》大于本地热更新版本号 提示更新
+                if (CodeVersion.Subtract(remoteVer.notice_ver, FileManifestManager.localVersion) > 0)
+                {
+                    MessageBox.Show(Localization.Get("main_check_update"), "", Localization.Get("main_check_sure"), () =>
+                    {
+                        MessageBox.Close();
+                        Application.OpenURL(remoteVer.update_url);
+                    },
+                    Localization.Get("main_check_cancel"), () =>
+                     {
+                         StartCoroutine(CheckHotUpdate(remoteVer));
+                     }
+                    );
+
+                }
+                else
+                    yield return CheckHotUpdate(remoteVer);
+            }
+        }
+
+        IEnumerator CheckHotUpdate(VerionConfig remoteVer)
+        {
+            //判断是否等待fast包
+            yield return CheckLoadFast(remoteVer);
+            var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
+            var subResNum = remoteVer.res_number > FileManifestManager.localResNum;
+            if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
+                yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
+            else
+                yield return InternalIdTransformFunc();
         }
 
         #region  加载fast包
@@ -283,14 +339,14 @@ namespace Hugula.ResUpdate
             Debug.Log($"begin get url ：{url}");
 
             UnityWebRequest req = UnityWebRequest.Get(url);
-            string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(),UPDATED_TEMP_LIST_NAME);
+            string path = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), UPDATED_TEMP_LIST_NAME);
             req.downloadHandler = new DownloadHandlerFile(path);
             var async = req.SendWebRequest();
             yield return async;
             if (req.responseCode == 200)
             {
                 SetProgressTxt(Localization.Get("main_compare_crc_list")); //校验列表对比中。"
-                var ab = AssetBundle.LoadFromFile(path,0,Common.BUNDLE_OFF_SET);
+                var ab = AssetBundle.LoadFromFile(path, 0, Common.BUNDLE_OFF_SET);
                 var all = ab.LoadAllAssets<FolderManifest>();
                 var remoteFolderManifest = new List<FolderManifest>(all);
 
@@ -301,7 +357,7 @@ namespace Hugula.ResUpdate
                     Debug.Log(folder.ToString());
 
 #endif
-               FolderManifest curStreaming = null;
+                FolderManifest curStreaming = null;
                 FolderManifest remoteFolder = null;
                 List<FolderManifest> needDownload = new List<FolderManifest>();
 
@@ -367,8 +423,9 @@ namespace Hugula.ResUpdate
                         var tips = Localization.GetFormat("main_download_from_webserver", string.Format("{0:.00}", (float)change / 1048576));
                         MessageBox.Show(tips, "", "", BeginLoad); //提示手动下载
                     }
-                }else
-                    OnBackgroundAllComplete(null,false); //无需下载直接完成
+                }
+                else
+                    OnBackgroundAllComplete(null, false); //无需下载直接完成
             }
             else
             { //加载失败重新加载
@@ -400,7 +457,7 @@ namespace Hugula.ResUpdate
 
         void OnBackgroundAllComplete(FolderQueueGroup group, bool is_error)
         {
-            if (group!=null && group.anyError)
+            if (group != null && group.anyError)
             {
                 var tips = Localization.Get("main_download_fail");
                 SetProgressTxt(tips);
@@ -415,11 +472,11 @@ namespace Hugula.ResUpdate
             }
             else
             {
-                FileHelper.DeletePersistentFile(UPDATED_LIST_NAME); //删除旧文件
-                FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, UPDATED_LIST_NAME);
+                FileHelper.DeletePersistentFile(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME); //删除旧文件
+                FileHelper.ChangePersistentFileName(UPDATED_TEMP_LIST_NAME, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);
                 FileManifestManager.localVersion = loadRemoteVersion;
                 FileManifestManager.localResNum = loadRemoteAppNum;
-                Debug.Log($"download sccuess :{loadRemoteVersion}");                
+                Debug.Log($"download sccuess :{loadRemoteVersion}");
                 FileManifestManager.LoadPersistentFolderManifest(null); //刷新列表
                 StartCoroutine(RefreshCatalog());
             }
@@ -489,7 +546,7 @@ namespace Hugula.ResUpdate
 
         private IEnumerator RefreshCatalog()
         {
-            yield return FileManifestManager.RefreshCatalog();
+            // yield return FileManifestManager.RefreshCatalog();
             yield return InternalIdTransformFunc();
         }
 
@@ -516,11 +573,15 @@ namespace Hugula.ResUpdate
             List<string> urlGroup = new List<string>();
             var udid = UnityEngine.SystemInfo.deviceUniqueIdentifier;
             var http_ver_hosts = Hugula.HugulaSetting.instance.httpVerHost;
+            var ver_name = CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME, $"_{CodeVersion.APP_VERSION}");
             var hosts = http_ver_hosts.Split(',');
+            var timeline = CUtils.ConvertDateTimeInt(System.DateTime.Now).ToString();
             string verUrl;
             foreach (var host in hosts)
             {
-                verUrl = string.Format(host, CUtils.platform, CodeVersion.APP_VERSION, udid, CUtils.ConvertDateTimeInt(System.DateTime.Now));
+                verUrl = host.Replace("{udid}",udid);
+                verUrl = verUrl.Replace("{timeline}",timeline);
+                verUrl = string.Format(verUrl, CUtils.platform,Common.RES_VER_FOLDER,ver_name,CodeVersion.APP_VERSION);
                 urlGroup.Add(verUrl);
 #if !HUGULA_NO_LOG
                 Debug.LogFormat("version host = {0} ", verUrl);

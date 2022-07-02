@@ -575,26 +575,31 @@ namespace HugulaEditor.ResUpdate
 
             string verPath = BuildConfig.UpdateResOutVersionPath;
             string rootPath = BuildConfig.CurrentUpdateResOutPath;
+
             //release 配置
             var outConfig = SaveVersionJson(data);
 
             //根目录review配置
-            var rootVersionPath = Path.Combine(rootPath, "version_review.json");
+            var rootVersionPath = Path.Combine(rootPath,$"review_{Common.CRC32_VER_FILENAME}");//Path.Combine(rootPath, CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,"_review"));
             File.WriteAllText(rootVersionPath, outConfig);
             Debug.Log($"刷新根目录配置:{rootVersionPath}");
 
             //dev配置
-            SaveVersionJson(data, "_dev");
+            SaveVersionJson(data, "dev_");
 
         }
 
-        string SaveVersionJson(HotResGenSharedData data, string suffix = "")
+        string SaveVersionJson(HotResGenSharedData data, string prefix = "")
         {
             string verPath = BuildConfig.UpdateResOutVersionPath;
             string rootPath = BuildConfig.CurrentUpdateResOutPath;
+            string resourcesPath = BuildConfig.LocalResourcesUpdateResOutPath;
+            FileHelper.CheckCreateDirectory(verPath);
+            FileHelper.CheckCreateDirectory(rootPath);
+            FileHelper.CheckCreateDirectory(resourcesPath);
 
-            var configName = CUtils.platform + suffix + ".json";
-            var saveFileName = $"version{suffix}.json";
+            var configName = prefix+ CUtils.platform + ".json";
+            var saveFileName =  prefix + Common.CRC32_VER_FILENAME; //CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,prefix);
             //当前配置文件
             var configPath = Path.Combine(BuildConfig.VersionConfigPath, configName);
             var config = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configPath));
@@ -612,10 +617,16 @@ namespace HugulaEditor.ResUpdate
             versionConfig.fast = fastMode;
             var outConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
 
+            string versionFileName =  CUtils.InsertAssetBundleName(saveFileName, $"_{CodeVersion.APP_VERSION}");
             //保存单独版本文件
-            var savePath = Path.Combine(verPath, CUtils.InsertAssetBundleName(saveFileName, $"_{CodeVersion.APP_VERSION}"));
+            var savePath = Path.Combine(verPath,versionFileName);
             File.WriteAllText(savePath, outConfig);
             Debug.Log($"保存当前版本:{savePath}");
+            //本地缓存
+            savePath = Path.Combine(resourcesPath,saveFileName);
+            File.WriteAllText(savePath, outConfig);
+            Debug.Log($"本地缓存Resrouces 目录:{savePath}");
+
 
             //覆盖全局配置
             var rootVersionPath = Path.Combine(rootPath, saveFileName);
@@ -633,7 +644,7 @@ namespace HugulaEditor.ResUpdate
         {
             content = content.Replace("{app.platform}", CUtils.platform);
             content = content.Replace("{app.version}", CodeVersion.APP_VERSION);
-            // content = content.Replace("{app.number}", CodeVersion.APP_NUMBER.ToString());
+            content = content.Replace("{app.res_ver_folder}", Common.RES_VER_FOLDER);
 
             content = content.Replace("{app.manifest_crc}", crc.ToString());
             content = content.Replace("{app.manifest_name}", Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);

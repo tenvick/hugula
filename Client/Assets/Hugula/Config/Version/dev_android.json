@@ -1,0 +1,1 @@
+{"cdn_host":["http://10.23.27.216/{app.platform}"],"update_url":"http://10.23.27.216/android/dev","manifest_name":"{app.res_ver_folder}/{app.manifest_full_name}","fast":0}

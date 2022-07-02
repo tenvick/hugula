@@ -1,1 +1,0 @@
-{"cdn_host":["http://192.168.3.2/release/{app.platform}"],"update_url":"http://192.168.3.2/release/ios","manifest_name":"res/{app.manifest_full_name}","fast":0}

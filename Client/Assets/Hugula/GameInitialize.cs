@@ -2,17 +2,31 @@
 using System.Collections.Generic;
 using Hugula.Framework;
 using UnityEngine;
-using Hugula.Mvvm;
+using Hugula.Utils;
 using Hugula.UI;
+using Hugula;
 
 ///<summary>
 ///游戏初始化
 ///</summary>
-public class GameInitialize : MonoBehaviour {
-    void Awake () {
-        
-        Manager.Initialize ();
+public class GameInitialize : MonoBehaviour
+{
+    [SerializeField] string enterLua = "begin"; //main
 
-        Hugula.Databinding.ValueConverterRegister.instance.AddConverter(typeof(ClickTipsConvert).Name,new ClickTipsConvert());
+    void Awake()
+    {
+        Hugula.Databinding.ValueConverterRegister.instance.AddConverter(typeof(ClickTipsConvert).Name, new ClickTipsConvert());
+    }
+
+    IEnumerator Start()
+    {
+        ResLoader.Init();
+
+        while (!ResLoader.Ready)
+            yield return null;
+
+        var LuaBeha = this.gameObject.CheckAddComponent<EnterLua>();
+        LuaBeha.enterLua = enterLua;
+
     }
 }

@@ -15,7 +15,7 @@ namespace Hugula.Databinding
 
         public static void SetContext(BindableObject bindable, object data)
         {
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContext", true))
             {
 #endif
@@ -31,7 +31,7 @@ namespace Hugula.Databinding
                 else
                     bindable.context = data;
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             }
 #endif
 
@@ -40,24 +40,24 @@ namespace Hugula.Databinding
 
         public static void SetContextByINotifyTable(BindableObject bindable, INotifyTable notify)
         {
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable", true))
             {
 #endif
                 bindable.context = notify;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             }
 #endif
         }
 
         public static void SetContextByIList(BindableObject bindable, IList list)
         {
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList", true))
             {
 #endif
                 bindable.context = list;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
             }
 #endif
         }
@@ -69,12 +69,12 @@ namespace Hugula.Databinding
             }
             else
             {
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP 
                 using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged", true))
                 {
 #endif
                     bindable.context = notify;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if BINDING_PROFILER_DUMP
                 }
 #endif
             }

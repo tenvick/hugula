@@ -120,10 +120,13 @@ namespace Hugula
         /// <returns></returns>
         static public T LoadAsset<T>(string key)
         {
-            key = GetKey(key);
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAsset({typeof(T)}) key is null");
 
             if (!s_Initialized)
-                throw new Exception("Whoa there friend!  We haven't init'd yet!");
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! ");
+
+            key = GetKey(key);
 
             var op = Addressables.LoadAssetAsync<T>(key);
 
@@ -167,6 +170,12 @@ namespace Hugula
 
         static public UnityEngine.GameObject Instantiate(string key, Transform parent = null, bool instantiateInWorldSpace = false)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException("Instantiate key is null");
+
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! "+ key);
+
             AsyncOperationHandle<GameObject> op;
             key = GetKey(key);
 
@@ -204,6 +213,9 @@ namespace Hugula
         /// <returns ></returns>
         static public void LoadAssetAsync(string key, System.Type type, System.Action<object, object> onComplete, System.Action<object, object> onEnd, object userData = null)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAssetAsync({type}) key is null");
+
             if (type == null) type = TypeHelper.Object;
 
             if (type.Equals(TypeHelper.GameObject))
@@ -235,6 +247,9 @@ namespace Hugula
 
         static async public void LoadAssetAsync<T, R>(string key, System.Action<T, R> onComplete, System.Action<object, R> onEnd, R userData = default(R))
         {
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
             key = GetKey(key);
 
             if (m_MarkGroup)
@@ -289,6 +304,12 @@ namespace Hugula
 
         static async public void LoadAssetAsync<T>(string key, System.Action<T, object> onComplete, System.Action<object, object> onEnd, object userData = null)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAssetAsync({typeof(T)}) key is null");
+
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
             key = GetKey(key);
 
             if (m_MarkGroup)
@@ -340,6 +361,12 @@ namespace Hugula
 
         static public Task<T> LoadAssetAsyncTask<T>(string key)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAssetAsyncTask({typeof(T)}) key is null");
+
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
             key = GetKey(key);
             var task = Addressables.LoadAssetAsync<T>(key).Task;
             return task;
@@ -353,14 +380,22 @@ namespace Hugula
 #endif
         public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
         {
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
             var task = Addressables.InstantiateAsync(key, parent, false);
             return task;
         }
 
         static async public void InstantiateAsync(string key, System.Action<GameObject, object> onComplete, System.Action<object, object> onEnd, object userData = null, Transform parent = null)
         {
-            key = GetKey(key);
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAssetAsyncTask(GameObject) key is null");
 
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
+            key = GetKey(key);
 
             if (m_MarkGroup)
             {
@@ -474,6 +509,12 @@ namespace Hugula
         /// <returns></returns>
         static async public void LoadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<object, object> onEnd, object userData = null, bool activateOnLoad = true, int loadSceneMode = 1)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new NullReferenceException($"LoadAssetAsyncTask(GameObject) key is null");
+
+            if (!s_Initialized)
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
+
             key = GetKey(key);
             if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
             {
@@ -663,7 +704,7 @@ namespace Hugula
                 Debug.LogWarningFormat("try to release null obj \r\n trace:{1}", Hugula.EnterLua.LuaTraceback());
 #endif
             s_NextFrameObjects.Add(obj);
-            s_LastReleaseFrame = Time.frameCount + 1;
+            s_LastReleaseFrame = Time.frameCount + 2;
         }
         static public void Release(object obj)
         {

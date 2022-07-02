@@ -12,6 +12,7 @@ main_web_server_crc_list=加載服務器校驗列表
 main_download_complete=更新完畢，進入遊戲！
 main_download_fail=文件下載失敗
 main_downloading_tips=網絡資源加載中(消耗流量) {0}  m/ {1} m {2}
+main_check_update=刷新腳本
 main_refresh_script=刷新腳本
 main_enter_game=進入遊戲......
 main_quit_game=確認離開遊戲?

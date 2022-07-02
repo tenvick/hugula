@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e439ba7f10a63c48b9c8a1d43c1e015, type: 3}
   m_Name: hugulasetting
   m_EditorClassIdentifier: 
-  httpVerHostRelease: http://192.168.3.2/{0}/version.json
-  httpVerHostDev: http://192.168.3.2/{0}/version_dev.json
+  httpVerHostRelease: http://10.23.27.216/{0}/{1}/{2}
+  httpVerHostDev: http://10.23.27.216/{0}/{1}/dev_{2}
   aabFastEnable: 0

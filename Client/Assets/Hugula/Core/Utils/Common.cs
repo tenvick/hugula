@@ -7,9 +7,15 @@ namespace Hugula.Utils
     /// <summary>
     /// 一些公用常量
     /// </summary>
-    
+
     public class Common
     {
+
+        static Common()
+        {
+            _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME = null;
+            _RES_VER_FOLDER = null;
+        }
 
         /// <summary>
         /// export assetbundle suffix
@@ -27,44 +33,71 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua bundle name
         /// </summary>
-        public const string LUA_BUNDLE_NAME="asset_lu_.bundle";
-        public const string PROTO_BUNDLE_NAME="asset_pr_.bundle";
-        public const int BUNDLE_OFF_SET=16;
+        public const string LUA_BUNDLE_NAME = "asset_lu_.bundle";
+        public const string PROTO_BUNDLE_NAME = "asset_pr_.bundle";
+        public const int BUNDLE_OFF_SET = 16;
 
-        /// <summary>
-        /// lua 编译零时目录
-        /// </summary>
-        
-        public const string LUA_TMP_FOLDER = "PW";
+        static string _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
 
         /// <summary>
         /// streamingAsset下面的所有folderManifest文件列表打成的bunlde 名字
         /// </summary>
-        public const string STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME = "streaming_all"+CHECK_ASSETBUNDLE_SUFFIX;
+        public static string STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME //= "streaming_all"+CHECK_ASSETBUNDLE_SUFFIX;
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME))
+                {
+                    _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME = $"list_v{CodeVersion.CODE_VERSION}{CHECK_ASSETBUNDLE_SUFFIX}";
+                }
+                return _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
+            }
+            set
+            {
+                _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME = string.Empty;
+            }
+        }
+
+        static string _RES_VER_FOLDER;
 
         /// <summary>
-        /// 
+        /// 当前版本资源目录
         /// </summary>
-        public const string CRC32_VER_FILENAME = "version.json";
+        public static string RES_VER_FOLDER
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_RES_VER_FOLDER))
+                {
+                    _RES_VER_FOLDER = $"v{CodeVersion.CODE_VERSION}";
+                }
+
+                return _RES_VER_FOLDER;
+            }
+            set
+            {
+                _RES_VER_FOLDER = string.Empty;
+            }
+        }
 
         /// <summary>
-        ///  配置
+        /// 版本文件
         /// </summary>
-        public const string CONFIG_CSV_NAME = "font1.u3d";
+        public const string CRC32_VER_FILENAME = "ver.json";
 
         /// <summary>
         ///  PackingType
         /// 需要排除的folder name
         /// </summary>
-        public const string FOLDER_STREAMING_NAME =  "streaming";
+        public const string FOLDER_STREAMING_NAME = "streaming";
 
         /// <summary>
         /// 语言包特殊前缀
         /// </summary>
-        
+
         public const string LANGUAGE_PREFIX = "lan+";
 
-        public const string  LUA_PREFIX = "lua_";
+        public const string LUA_PREFIX = "lua_";
 
 
         /// <summary>
@@ -82,14 +115,6 @@ namespace Hugula.Utils
         /// </summary>
         public const string JAR_FILE = "jar:file://";
 
-        /// <summary>
-        /// is web mode
-        /// </summary>
-#if HUGULA_WEB_MODE
-            public const bool IS_WEB_MODE = true;
-#else
-        public const bool IS_WEB_MODE = false;
-#endif
     }
 
 }

@@ -38,7 +38,6 @@ namespace HugulaEditor.ResUpdate
         {
             get
             {
-
                 DirectoryInfo firstDir = new DirectoryInfo(Application.dataPath);
                 string firstPath = Path.Combine(firstDir.Parent.Parent.FullName, UpdateResOutFolderName);
                 return firstPath;
@@ -57,13 +56,24 @@ namespace HugulaEditor.ResUpdate
         }
 
         /// <summary>
+        /// 本地缓存热更新资源存放总目录
+        /// </summary>
+        public static string LocalResourcesUpdateResOutPath
+        {
+            get{
+                return "Assets/Config/Version/Resources";
+                // return Path.Combine(UpdateResOutPath, CUtils.platform);
+            }
+        }
+
+        /// <summary>
         /// 当前平台带版本号信息的热更新资源存放目录
         /// </summary>
         public static string UpdateResOutVersionPath
         {
             get
             {
-                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,"res");//" CodeVersion.APP_VERSION");
+                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,Common.RES_VER_FOLDER);//" CodeVersion.APP_VERSION");
                 return updateOutPath;
             }
         }

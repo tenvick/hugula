@@ -162,15 +162,22 @@ namespace Hugula.ResUpdate
         /// </summary>
         public uint AddZipFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete, System.Action<FolderQueueGroup, bool> onAllComplete)
         {
-            var newFastManifest = folder.CloneWithOutAllFileInfos();
-            newFastManifest.transformZipFolder = true;
-            newFastManifest.Add(new FileResInfo(folder.zipName + ".zip", 0, folder.zipSize));
+            if (folder.zipSize > 0)
+            {
+                var newFastManifest = folder.CloneWithOutAllFileInfos();
+                newFastManifest.transformZipFolder = true;
+                newFastManifest.Add(new FileResInfo(folder.zipName + ".zip", 0, folder.zipSize));
 #if !HUGULA_NO_LOG
-            print($"add zipName:{folder.zipName}.zip");
-            Debug.Log(folder.ToString());
-            Debug.Log(newFastManifest.ToString());
+                print($"add zipName:{folder.zipName}.zip");
+                Debug.Log(folder.ToString());
+                Debug.Log(newFastManifest.ToString());
 #endif
-            return AddFolderManifest(newFastManifest, onProgress, onItemComplete, onAllComplete);
+                return AddFolderManifest(newFastManifest, onProgress, onItemComplete, onAllComplete);
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         ///<summary>
@@ -181,15 +188,18 @@ namespace Hugula.ResUpdate
             List<FolderManifest> newFolders = new List<FolderManifest>();
             foreach (var f in folders)
             {
-                var newFastManifest = f.CloneWithOutAllFileInfos();
-                newFastManifest.transformZipFolder = true;
-                newFastManifest.Add(new FileResInfo(f.zipName + ".zip", 0, f.zipSize));
-                newFolders.Add(newFastManifest);
+                if (f.zipSize > 0)
+                {
+                    var newFastManifest = f.CloneWithOutAllFileInfos();
+                    newFastManifest.transformZipFolder = true;
+                    newFastManifest.Add(new FileResInfo(f.zipName + ".zip", 0, f.zipSize));
+                    newFolders.Add(newFastManifest);
 #if !HUGULA_NO_LOG
-                print($"add zipName:{f.zipName}.zip");
-                Debug.Log(f.ToString());
-                Debug.Log(newFastManifest.ToString());
+                    print($"add zipName:{f.zipName}.zip");
+                    Debug.Log(f.ToString());
+                    Debug.Log(newFastManifest.ToString());
 #endif
+                }
             }
 
             return AddFolderManifests(newFolders, onProgress, onItemComplete, onAllComplete);
@@ -639,7 +649,7 @@ namespace Hugula.ResUpdate
             {
                 fileName = CUtils.InsertAssetBundleName(fileName, $"_{fileInfo.crc32}");
             }
-            string resFolder = HotResConfig.RESOURCE_FOLDER_NAME;
+            string resFolder =  Common.RES_VER_FOLDER; // HotResConfig.RESOURCE_FOLDER_NAME;
             if (fileInfo.name.EndsWith(".zip"))
             {
                 resFolder = HotResConfig.PACKAGE_FOLDER_NAME;

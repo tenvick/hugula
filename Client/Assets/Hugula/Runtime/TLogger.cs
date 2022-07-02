@@ -57,7 +57,7 @@ public class TLogger : ILogHandler
     private static object locked = new object();
 
     static StreamWriter logStreamWriter;
-    [RuntimeInitializeOnLoadMethod]
+    // [RuntimeInitializeOnLoadMethod]
     public static void Init()
     {
 
@@ -212,8 +212,9 @@ public class TLogger : ILogHandler
         sb.Append($"\r\n processorFrequency= {SystemInfo.processorFrequency}");
         sb.Append($"\r\n processorCount= {SystemInfo.processorCount}");
         sb.Append($"\r\n graphicsMemorySize= {SystemInfo.graphicsMemorySize}");
+        sb.Append($"\r\n graphicsDeviceVersion= {SystemInfo.graphicsDeviceVersion}");
+        sb.Append($"\r\n supports:2DArrayTextures={SystemInfo.supports2DArrayTextures},Instancing={SystemInfo.supportsInstancing},ASTC_6x6={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_6x6)},ETC2_RGBA8Crunched={SystemInfo.SupportsTextureFormat(TextureFormat.ETC2_RGBA8Crunched)};");
         sb.Append($"\r\n internetReachability= {Application.internetReachability}");
-        sb.Append($"\r\n supports:2DArrayTextures={SystemInfo.supports2DArrayTextures},Instancing={SystemInfo.supportsInstancing},ASTC_4x4={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_4x4)},ASTC_6x6={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_6x6)},ASTC_8x8={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_8x8)};");
         sb.Append($"\r\n deviceModel= {SystemInfo.deviceModel}");
         sb.Append($"\r\n version={Application.version};");
         sb.Append($"\r\n unityVersion={Application.unityVersion}");

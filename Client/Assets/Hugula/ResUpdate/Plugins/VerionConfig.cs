@@ -13,6 +13,10 @@ namespace Hugula.ResUpdate
 
         //当前版本号
         public string version;
+        //强制更新版本号
+        public string force_ver;
+        //提示更新版本号
+        public string notice_ver;
 
         //资源下载地址多个以“,”号分割
         public string[] cdn_host;
@@ -70,6 +74,6 @@ namespace Hugula.ResUpdate
     public class HotResConfig
     {
         public const string PACKAGE_FOLDER_NAME = "packages";
-        public const string RESOURCE_FOLDER_NAME = "res";
+        // public const string RESOURCE_FOLDER_NAME = "res";
     }
 }

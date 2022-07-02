@@ -55,7 +55,13 @@ namespace Hugula.UI
                         btn.gameObject.SetActive(true);
                         btn.onClick.RemoveAllListeners();
                         var msgBoxBtn = btnContents[i];
-                        if (msgBoxBtn.onClick != null) btn.onClick.AddListener(msgBoxBtn.onClick);
+                        if (msgBoxBtn.onClick != null) btn.onClick.AddListener(
+                            ()=>
+                            {
+                                msgBoxBtn.onClick();
+                                Close();
+                            }
+                            );
                         if (!string.IsNullOrEmpty(msgBoxBtn.btnText))
                         {
                             var txt = btn.GetComponentInChildren<Text>(true);

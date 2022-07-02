@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 1898566435255580335}
   - {fileID: 1898566436120551734}
@@ -579,6 +580,8 @@ MonoBehaviour:
   m_RenderPerFrames: 0
   m_ItemSource: {fileID: 1898566434948006685}
   m_SelectedIndex: 1
+  m_ScrollTime: 0.4
+  m_ScrollDataSize: 0
 --- !u!114 &1898566436092732780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -850,7 +853,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 760}
+  m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -887,6 +890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_BindingOnEnable: 1
   children:
   - {fileID: 1898566436092732780}
 --- !u!1 &1898566436712216697

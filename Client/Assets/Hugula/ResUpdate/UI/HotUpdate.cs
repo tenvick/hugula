@@ -192,7 +192,7 @@ namespace Hugula.ResUpdate
             { //强制更新提示
                 MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
                 {
-                    MessageBox.Close();
+                    MessageBox.Destroy();
                     Application.OpenURL(remoteVer.update_url);
                 });
             }
@@ -203,12 +203,13 @@ namespace Hugula.ResUpdate
                 {
                     MessageBox.Show(Localization.Get("main_check_update"), "", Localization.Get("main_check_sure"), () =>
                     {
-                        MessageBox.Close();
+                        MessageBox.Destroy();
                         Application.OpenURL(remoteVer.update_url);
                     },
                     Localization.Get("main_check_cancel"), () =>
                      {
-                         StartCoroutine(CheckHotUpdate(remoteVer));
+                        MessageBox.Destroy();
+                        StartCoroutine(CheckHotUpdate(remoteVer));
                      }
                     );
 

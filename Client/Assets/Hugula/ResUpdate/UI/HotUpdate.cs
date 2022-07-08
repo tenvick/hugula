@@ -85,7 +85,13 @@ namespace Hugula.ResUpdate
 #endif
 #if UNITY_EDITOR
             yield return null;
-            if (isDebug)
+                     //如果非ab模式
+            List<ScriptableObject> allDataBuilders = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DataBuilders;
+            var activeIndex = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.ActivePlayModeDataBuilderIndex;
+            var curIndex = allDataBuilders.IndexOf(allDataBuilders.Find(s => s.GetType() == typeof(UnityEditor.AddressableAssets.Build.DataBuilders.BuildScriptPackedPlayMode)));
+
+            bool check = activeIndex == curIndex;
+            if (isDebug && check)
                 yield return LoadRemoteVersion();
             else
             {
@@ -552,7 +558,7 @@ namespace Hugula.ResUpdate
         }
 
         //重定向bundle地址
-        private IEnumerator InternalIdTransformFunc()
+        internal IEnumerator InternalIdTransformFunc()
         {
             //zip package内容重定向
             FileManifestManager.GenLoadedZipTransform();

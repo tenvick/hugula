@@ -45,6 +45,8 @@ namespace HugulaEditor.ResUpdate
                 }
             }
 
+            Debug.Log(sb.ToString());
+
            var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
 
             sb.AppendLine("AddressableAssetGroup:");
@@ -55,6 +57,9 @@ namespace HugulaEditor.ResUpdate
             float c;
             i = 0;
             c = allGroups.Count;
+            try
+            {
+
             foreach (AddressableAssetGroup group in allGroups)
             {
                 i++;
@@ -84,48 +89,62 @@ namespace HugulaEditor.ResUpdate
                         continue;
                     }
 
-                    if ( addressPackingName.TryGetValue(entry.address,out var objs) && (targetType.IsSubclassOf((System.Type)objs[1]) || targetType.Equals((System.Type)objs[1])) )
+                    Debug.Log($"{entry.address}");
+                    if ( addressPackingName.TryGetValue(entry.address,out var objs))
                     {
-                        var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
-                        if (resupPacking == null)
+                        var type = objs[1];
+                        if ( targetType.IsSubclassOf((System.Type)type) || targetType.Equals((System.Type)type))
                         {
-                            resupPacking = group.AddSchema<HugulaResUpdatePacking>();
-                        }
-                        else
-                        {
-                            if(resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+
+                            var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                            if (resupPacking == null)
                             {
-                                var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
-                                Debug.LogWarning(str);
-                                sb.AppendLine(str);
+                                resupPacking = group.AddSchema<HugulaResUpdatePacking>();
                             }
+                            else
+                            {
+                                if(resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+                                {
+                                    var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
+                                    Debug.LogWarning(str);
+                                    sb.AppendLine(str);
+                                }
+                            }
+
+                            resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
+                            resupPacking.customName = objs[0].ToString();
+                            EditorUtility.SetDirty(resupPacking);
+                            AssetDatabase.SaveAssets();
+
+                            sb.AppendLine($"[{group.Name}]:  \r\n               zipFolderName:{objs[0].ToString()}     found:[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n");
+                            //debug info
+                            foreach(var g in group.entries)
+                            {
+                                if (g == null) continue;
+                                sb.AppendLine($"                [{g.address}], ({g.TargetAsset.GetType()}), {g.AssetPath}");
+                            }
+
+                            break;
                         }
 
-                        resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
-                        resupPacking.customName = objs[0].ToString();
-                        EditorUtility.SetDirty(resupPacking);
-                        AssetDatabase.SaveAssets();
-
-                        sb.AppendLine($"[{group.Name}]:  \r\n               zipFolderName:{objs[0].ToString()}     found:[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n");
-                        //debug info
-                        foreach(var g in group.entries)
-                        {
-                            if (g == null) continue;
-                            sb.AppendLine($"                [{g.address}], ({g.TargetAsset.GetType()}), {g.AssetPath}");
-                        }
-
-                        break;
                     }
-                    
+
                 }
 
             }
 
+            }
+            catch(System.Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
             EditorUtility.ClearProgressBar();
-
             Debug.Log(sb.ToString());
             EditorUtils.WriteToTmpFile("Update_AddressablesGroup_HugulaResUpdatePacking.txt",sb.ToString());
             AssetDatabase.Refresh();
+            }
 
         }
        }

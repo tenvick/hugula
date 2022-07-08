@@ -108,6 +108,36 @@ namespace Hugula.ResUpdate
 
         #endregion
 
+        #region mem cache
+        /// <summary>
+        /// 检测扩展包的资源是否已经下载
+        /// </summary>
+        static Dictionary<string, bool> addressIsDownDic = new Dictionary<string, bool>();
+
+        /// <summary>
+        /// 设置扩展包里加载address key的完成状态
+        /// </summary>
+        internal static void SetFolderAddressIsDown(FolderManifest folder, bool isAllDown)
+        {
+            var keys = folder.allAddressKeys;
+            if (keys == null) return;
+
+            var key = string.Empty;
+            for(var i=0;i<keys.Count;i++)
+            {
+                key = keys[i];
+                
+                if(isAllDown)
+                    addressIsDownDic.Remove(key);
+                else 
+                {
+                    addressIsDownDic[key] = isAllDown;
+                }
+            }
+        }
+
+        #endregion
+
         #region 资源 check  相关
 
 
@@ -197,21 +227,24 @@ namespace Hugula.ResUpdate
 #endif
             if (string.IsNullOrEmpty(address))
             {
+#if !HUGULA_NO_LOG
                 Debug.LogError("FileManifestManager.CheckAddressIsDown() argument address is null or Empty");
+#endif
                 return false;
             }
-            var abNames = FindBundleNameByAddress(address, type);
-            var folders = FindFolderManifestByBundleName(abNames);
-            ListPool<string>.Release(abNames);
-            foreach (var f in folders)
+
+            if (type == null) type = DEFAULT_TYPE;
+
+            if (addressIsDownDic.TryGetValue(address, out var isDown))
             {
-                if (f.fileName != Common.FOLDER_STREAMING_NAME && !f.isZipDone) return false;
+                return isDown;
             }
-            if (folders.Count <= 0) return false;
-            ListPool<FolderManifest>.Release(folders);
-            return true;
+            else
+            {
+                return true;
+            }
         }
-        
+
         /// <summary>
         /// 通过文件列表判断zip扩展包是否下载完成
         /// </summary>
@@ -671,7 +704,7 @@ namespace Hugula.ResUpdate
         ///</summary>
         internal static string OverrideAddressTransformFunc(string address)
         {
-            if (addressOverridePath.TryGetValue(address, out var newAddres))
+            if (address != null && addressOverridePath.TryGetValue(address, out var newAddres))
             {
 #if !HUGULA_NO_LOG
                 Debug.Log($"OverrideAddressTransformFunc:{address} to:{newAddres}");
@@ -794,9 +827,13 @@ namespace Hugula.ResUpdate
                         // #endif
                     }
                 }
+
+                //清理address状态
+                SetFolderAddressIsDown(folderPackage,true);
             }
             else
             {
+                SetFolderAddressIsDown(folderPackage,false);
 #if !HUGULA_NO_LOG
                 Debug.LogWarning($"generate zip folder transform fail , {folderPackage.fileName} have't loaded size:{folderPackage.zipSize}) ");
 #endif

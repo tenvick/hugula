@@ -820,7 +820,7 @@ namespace System.Net
 
         #endregion
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             this.DownloadProgressChanged = null;
             this.DownloadFileCompleted = null;
@@ -863,6 +863,14 @@ namespace Hugula.Loader
                 request.ReadWriteTimeout = timeout;
             }
             return request;
+        }
+
+        public override void Dispose()
+        {
+            error = null;
+            tryTimes = 0;
+            userData = null;
+            base.Dispose();
         }
 
         #region ObjectPool 

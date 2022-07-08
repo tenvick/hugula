@@ -658,7 +658,7 @@ namespace Hugula
         /// <summary>
         /// 获取真实的address 地址用于缺失资源默认显示
         /// </summary>
-        static string GetKey(string key)
+        internal static string GetKey(string key)
         {
             if (AddressTransformFunc != null)
             {

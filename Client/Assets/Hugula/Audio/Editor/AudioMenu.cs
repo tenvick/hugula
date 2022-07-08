@@ -27,7 +27,7 @@ namespace HugulaEditor
                 if (s is DefaultAsset && (path = AssetDatabase.GetAssetPath(s)) != null && Directory.Exists(path))
                 {
                     var ragName = s.name.ToLower() + "_audio.asset";
-                    var tagName = s.name.ToLower() + "_atlas";
+                    // var tagName = s.name.ToLower() + "_atlas";
 
                     string res_path = Path.Combine(path, ragName);
 
@@ -42,16 +42,16 @@ namespace HugulaEditor
                     for (int i = 0; i < allchildren.Count; i++)
                     {
                         var itemPath = allchildren[i];
-                        var ti = AssetImporter.GetAtPath(itemPath);
+                        // var ti = AssetImporter.GetAtPath(itemPath);
                         var aclip = AssetDatabase.LoadAssetAtPath<AudioClip>(itemPath);
                         if (aclip)
                         {
                             audioClips.Add(aclip);
                             names.Add(LuaHelper.StringToHash(aclip.name));
-                            if (ti != null)
-                            {
-                                ti.assetBundleName = tagName + Common.CHECK_ASSETBUNDLE_SUFFIX;
-                            }
+                            // if (ti != null)
+                            // {
+                            //     ti.assetBundleName = tagName + Common.CHECK_ASSETBUNDLE_SUFFIX;
+                            // }
                         }
 
                         EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + (i + 1) + " / " + allchildren.Count + ")", (i + 1) / allchildren.Count);

@@ -30,12 +30,14 @@ namespace Hugula.Profiler
         #region Static
 
         private static Dictionary<string, StopwatchProfiler> profilers = new Dictionary<string, StopwatchProfiler>();
-#if PROFILER_DUMP
+#if PROFILER_NO_DUMP
+        public static readonly bool DoNotProfile = true;
+#elif PROFILER_DUMP
         public static readonly bool DoNotProfile = false;
 #elif HUGULA_RELEASE
         public static readonly bool DoNotProfile = true;
 #else
-        public static readonly bool DoNotProfile = false;
+        public static readonly bool DoNotProfile = true;
 #endif
 
         #endregion Static
@@ -185,20 +187,28 @@ namespace Hugula.Profiler
 
         public static void BeginSample(string name, string arg = "")
         {
-            if(DoNotProfile) return;
+// #if !HUGULA_RELEASE
+            // if(DoNotProfile) return;
+            if(!string.IsNullOrEmpty(arg))
+            {
+                name = name +":"+ arg;
+            }
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PushSample (name);
 #endif
             UnityEngine.Profiling.Profiler.BeginSample(name);
+// #endif
         }
 
         public static void EndSample()
         {
-            if(DoNotProfile) return;
+// #if !HUGULA_RELEASE
+            // if(DoNotProfile) return;
             UnityEngine.Profiling.Profiler.EndSample();
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PopSample ();
 #endif
+// #endif
         }
 
         #endregion Methods

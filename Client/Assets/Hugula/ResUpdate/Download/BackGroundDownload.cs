@@ -465,7 +465,7 @@ namespace Hugula.ResUpdate
                 loadingTasks.Add(fileInfo.name, bQueue);
                 if (fileInfo.state == FileInfoState.Fail)
                     FileHelper.DeletePersistentFile(fileInfo.name);
-                var download = WebDownload.Get();
+                var download = new  WebDownload();//  WebDownload.Get();
                 var fileGroupMap = fileGroupMapPool.Get();
                 fileGroupMap.SetMap(fileInfo, bQueue);
                 download.userData = fileGroupMap;
@@ -612,8 +612,9 @@ namespace Hugula.ResUpdate
                 {
                     fileGroupMapPool.Release((FileGroupMap)webd.userData);
                 }
-                WebDownload.Release(webd);
+                // WebDownload.Release(webd);
                 loadingWebDownload.Remove(webd);
+                webd.Dispose();
             }
         }
 

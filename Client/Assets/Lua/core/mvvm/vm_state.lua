@@ -139,6 +139,15 @@ local function get_viewmodel(self, vm_name)
     return VMGenerate[vm_name] --获取vm实例
 end
 
+local function is_open(self, vm_name)
+    local vm_base = VMGenerate[vm_name] --获取vm实例
+    if vm_base then 
+        return vm_base:is_open() 
+    else
+        return false
+    end
+end
+
 local function set_top_group(self, vm_group)
     self.last_group = self.top_group --上一次记录
     self.top_group = vm_group --记录当前顶
@@ -202,7 +211,7 @@ local function _check_on_state_changed(self, vm_base)
             local top_group_name = self.top_group_name
             call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
             call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
-            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name) --状态改变完成后触发
+            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name,not vm_base._is_push) --状态改变完成后触发
         end
     end
 end
@@ -443,9 +452,6 @@ local function back(self)
     VMManager:_transition_active_group(item, false, _change_back_group)
 
     debug_stack()
-    if group_changed then
-        lua_distribute(DIS_TYPE.ON_STATE_CHANGED, self.last_group_name, self.top_group_name, true) --状态改变完成后触发
-    end
     return false
 end
 
@@ -529,9 +535,7 @@ local function popup_top(self)
     VMManager:_transition_active_group(item, false, _change_back_group)
 
     debug_stack()
-    if group_changed then
-        lua_distribute(DIS_TYPE.ON_STATE_CHANGED, self.last_group_name, self.top_group_name, true) --状态改变完成后触发
-    end
+
     return false
 end
 
@@ -597,6 +601,7 @@ end
 VMManager._vm_state = vm_state
 vm_state.get_member = get_member
 vm_state.get_viewmodel = get_viewmodel
+vm_state.is_open = is_open
 vm_state.call_func = call_func
 vm_state.push = push
 vm_state.append_item = append_item
@@ -623,6 +628,7 @@ vm_state.debug_stack = debug_stack
 ---@class VMState
 ---@field get_member fun(self:VMState, vm_name:string)
 ---@field get_viewmodel fun(self:VMState, vm_name:string)
+---@field is_open fun(self:VMState,vm_name:string):boolean 是否打开
 ---@field call_func fun(self:VMState, vm_name:string, fun_name:string, arg:any)
 ---@field push fun(self:VMState, vm_group_name:string, arg:any)
 ---@field push_item   fun(self:VMState, vm_name:string, arg:any)
@@ -632,7 +638,7 @@ vm_state.debug_stack = debug_stack
 ---@field active fun(self:VMState, vm_name:string, arg:any)
 ---@field deactive fun(self:VMState, vm_name:string)
 ---@field init_viewmodel fun(self:VMState, vm_name:string, container:BindableContainer)
----@field destroymodel fun(self:VMState, vm_name:string)
+---@field destroy_viewmodel fun(self:VMState, vm_name:string)
 ---@field get_vm_manager fun(self:VMState):VMManager
 ---@field _check_on_state_changed fun(self:VMState,vm_base:VMBase)
 ---@field _reload_top_one fun(self:VMState) reload 栈顶的一个模块

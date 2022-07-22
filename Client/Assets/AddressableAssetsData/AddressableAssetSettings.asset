@@ -42,7 +42,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94b779ddd7b4a3a41a170e11efde6657, type: 2}
   - {fileID: 11400000, guid: 02b184ddc027dd54fbee694c7adaef24, type: 2}
   - {fileID: 11400000, guid: d714697e3a00b214e8d5b91114950025, type: 2}
-  - {fileID: 11400000, guid: 7267ef141db91204681991ae44451206, type: 2}
   - {fileID: 11400000, guid: f3ff9ce180ce12544b94beb0c650ee23, type: 2}
   - {fileID: 11400000, guid: 4d5896732ae1c2f48b107225a93e0381, type: 2}
   - {fileID: 11400000, guid: b9b14172256cdf346bc1b4f16ea9ba37, type: 2}
@@ -50,6 +49,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c00905edeb4b74247b9d5fe2caf46b3c, type: 2}
   - {fileID: 11400000, guid: 9a887461d0261ef469b8850940202aba, type: 2}
   - {fileID: 11400000, guid: 88d9358c9c2d6f041945a0697a32d25e, type: 2}
+  - {fileID: 11400000, guid: d41b43483f2ba1540957f20cbf4ec61a, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -107,6 +107,7 @@ MonoBehaviour:
     - icon1
     - icon2
     - icon3
+    - asset_pb
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 49b07f7c0cbfef043a078c34e89ab058, type: 2}

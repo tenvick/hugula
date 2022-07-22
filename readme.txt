@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.7.22
+1 lua zip模式，#USE_LUA_ZIP开启
+2 proto优化 启动阶段统一加载
+3 #PROFILER_DUMP统一控制开启
+
 2022.7.2
 1 增加提示更新功能 文档(hot res update.docx)。
 2 远端ver.json加载失败也能进入游戏。

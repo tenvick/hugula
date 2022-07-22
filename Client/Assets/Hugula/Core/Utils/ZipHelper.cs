@@ -16,7 +16,7 @@ namespace Hugula.Utils
     /// <summary>
     /// 文件读取等操作
     /// </summary>
-    
+
     public class ZipHelper
     {
 
@@ -27,7 +27,7 @@ namespace Hugula.Utils
         /// <param name="tgzFileName">tgzFileName.</param>
         /// <param name="files">files.</param>
         /// <param name="rootPath">rootPath.</param>
-        public static void CreateGZip(string tgzFileName, List<String> files, string rootPath = null)
+        public static void CreateGZip(string tgzFileName, List<String> files,string rootPath = null, string password = "")
         {
             if (string.IsNullOrEmpty(rootPath)) rootPath = CUtils.realStreamingAssetsPath;
             rootPath = rootPath.Replace('\\', '/');
@@ -38,6 +38,7 @@ namespace Hugula.Utils
             {
                 using (GZipOutputStream gzoStream = new GZipOutputStream(outStream))
                 {
+                    gzoStream.Password = password;
                     TarArchive tarArchive = TarArchive.CreateOutputTarArchive(gzoStream);
                     tarArchive.RootPath = rootPath;
                     foreach (string filename in files)
@@ -73,7 +74,7 @@ namespace Hugula.Utils
 
 
 
-        public static void ExtractGZip(Stream stream, string outPath)
+        public static void ExtractGZip(Stream stream, string outPath,string password = "")
         {
             if (string.IsNullOrEmpty(outPath)) outPath = CUtils.realPersistentDataPath;
             if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
@@ -87,7 +88,7 @@ namespace Hugula.Utils
             stream.Close();
         }
 
-        public static void ExtractGZip(System.Array bts, string outPath)
+        public static void ExtractGZip(System.Array bts, string outPath,string password = "")
         {
             var bytes = (byte[])bts;
             if (bytes != null)
@@ -99,7 +100,7 @@ namespace Hugula.Utils
             }
         }
 
-        public static void ExtractGZipByPath(string tarFileName, string outPath)
+        public static void ExtractGZipByPath(string tarFileName, string outPath,string password = "")
         {
             if (File.Exists(tarFileName))
             {
@@ -120,9 +121,9 @@ namespace Hugula.Utils
         /// <param name="tgzFileName">tgzFileName.</param>
         /// <param name="files">files.</param>
         /// <param name="rootPath">rootPath.</param>
-        public static bool CreateZip(string tgzFileName, List<String> files, string rootPath = null)
+        public static bool CreateZip(string tgzFileName, List<String> files, string rootPath = null,string password = "")
         {
-            if(files.Count==0) return false;
+            if (files.Count == 0) return false;
             bool hasFile = false;
             if (string.IsNullOrEmpty(rootPath)) rootPath = CUtils.realStreamingAssetsPath;
             rootPath = rootPath.Replace('\\', '/');
@@ -134,6 +135,7 @@ namespace Hugula.Utils
             {
                 using (ZipOutputStream zoStream = new ZipOutputStream(outStream))
                 {
+                    zoStream.Password = password;
                     foreach (string filename in files)
                     {
                         //check folder
@@ -154,7 +156,9 @@ namespace Hugula.Utils
         {
 
             FileInfo fi = new FileInfo(filePath);
-            string entryName = filePath.Substring(folderOffset); // Makes the name in zip based on the folder
+            string entryName = filePath;
+            if (filePath.Length > folderOffset)
+                entryName = filePath.Substring(folderOffset); // Makes the name in zip based on the folder
             entryName = ZipEntry.CleanName(entryName); // Removes drive from name and fixes slash direction
             // Debug.Log(entryName);
             ZipEntry newEntry = new ZipEntry(entryName);
@@ -178,13 +182,13 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="outPath"></param>
-        public static void UnpackZip(Stream stream, string outFolder)
+        public static void UnpackZip(Stream stream, string outFolder,string password="")
         {
-
             if (string.IsNullOrEmpty(outFolder)) outFolder = CUtils.realPersistentDataPath;
             if (!Directory.Exists(outFolder)) Directory.CreateDirectory(outFolder);
 
             ZipInputStream zipInputStream = new ZipInputStream(stream);
+            zipInputStream.Password = password;
             ZipEntry zipEntry = zipInputStream.GetNextEntry();
             while (zipEntry != null)
             {
@@ -217,14 +221,14 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="outPath"></param>
-        public static void UnpackZip(System.Array bts, string outPath)
+        public static void UnpackZip(System.Array bts, string outPath,string password = "")
         {
             var bytes = (byte[])bts;
             if (bytes != null)
             {
                 using (MemoryStream m = new MemoryStream(bytes))
                 {
-                    UnpackZip(m, outPath);
+                    UnpackZip(m, outPath,password);
                 }
             }
         }
@@ -234,13 +238,13 @@ namespace Hugula.Utils
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="outPath"></param>
-        public static void UnpackZipByPath(string zipPath, string outPath)
+        public static void UnpackZipByPath(string zipPath, string outPath,string password = "")
         {
             if (File.Exists(zipPath))
             {
                 using (Stream s = File.OpenRead(zipPath))
                 {
-                    UnpackZip(s, outPath);
+                    UnpackZip(s, outPath,password);
                 }
             }
             else
@@ -249,13 +253,23 @@ namespace Hugula.Utils
             }
         }
 
-        public static byte[] OpenZipFile(string zipPath, string fileName)
+        public static byte[] OpenZipFile(string zipPath, string fileName,string password = "")
         {
             byte[] re = null;
             if (File.Exists(zipPath))
             {
-                ZipInputStream zipInputStream = new ZipInputStream(File.OpenRead(zipPath));
-                // while(ZipEntry zipEntry = zipInputStream.GetNextEntry() ;
+                var zipfile = new ZipFile(zipPath);
+                zipfile.Password = password;
+                var entry = zipfile.GetEntry(fileName);
+                if (entry != null)
+                {
+                    re = new byte[entry.Size];
+                    using(var stream = zipfile.GetInputStream(entry))
+                    {
+                        stream.Read(re,0,(int)entry.Size);
+                    }
+                    return re;
+                }
             }
 
 

@@ -38,8 +38,10 @@ end
 
 function logger.LogSys(...)
     local msg = serpent.line({...}, {numformat = "%s", comment = false, maxlevel = MAX_DEPTH})
-    local str = msg .. debug.traceback("", 2)
-    TLogger.LogSys(str)
+    if CUtils.printLog then
+        msg =  msg.. debug.traceback("", 2) 
+    end
+    TLogger.LogSys(msg)
 end
 
 function logger.LogSysError(...)

@@ -360,6 +360,16 @@ namespace HugulaEditor.Addressable
         /// <summary>
         /// 将多个文件打成一个bundle
         /// </summary>
+        static public void BuildZipTogether(string[] assets, string outPath, string rootPath = null ,string password = "")
+        {
+            Hugula.Utils.ZipHelper.CreateZip(outPath,new List<string>(assets),rootPath,password);
+            Debug.Log($"BuildZipTogether success path:{outPath} password:{password}");
+
+        }
+
+        /// <summary>
+        /// 将多个文件打成一个bundle
+        /// </summary>
         static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
             AssetBundleBuild[] builds = new AssetBundleBuild[assets.Length];

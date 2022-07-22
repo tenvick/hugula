@@ -84,7 +84,7 @@ local function deactive(self, vm_name, view_active)
         local profiler
         local profiler1
         if NeedProfileDump then
-            p_name = "vm_mamanger.deactive:" .. (curr_vm.name or "")
+            p_name = "vm_mamanger.deactive:" .. (curr_vm._require_name or "")
             profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
             profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive()", nil, p_name, true)
         end
@@ -129,7 +129,7 @@ local function destroy(self, vm_name)
     if curr_vm.is_res_ready == true then --如果资源加载完成
         local p_name, profiler, profiler1
         if NeedProfileDump then
-            p_name = "vm_mamanger.destroy:" .. curr_vm.name
+            p_name = "vm_mamanger.destroy:" .. curr_vm._require_name
             profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
             profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":on_deactive() on_destroy()", nil, p_name, true)
         end
@@ -188,7 +188,7 @@ local function check_vm_base_all_done(vm_base, view)
 
     local vvm_name, parent_name, p_root_name, profiler
     if NeedProfileDump then
-        vvm_name = vm_base.name .. "-" .. view.name
+        vvm_name = vm_base._require_name .. "-" .. view.name
         parent_name = "InstantiateAsync.onComp:" .. view.name
         p_root_name = "check_all_done:before_set_context()." .. vvm_name
 
@@ -316,7 +316,7 @@ local function check_vm_base_all_done(vm_base, view)
             )
         end
 
-        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base.name) --触发界面打开消息
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base._require_name) --触发界面打开消息
 
         if NeedProfileDump and profiler then
             profiler:Stop()
@@ -329,10 +329,10 @@ local function check_vm_base_all_done(vm_base, view)
     end
 
     if vm_base._is_destory then --如果标记了销毁
-        destroy(vm_manager, vm_base.name)
+        destroy(vm_manager, vm_base._require_name)
     elseif is_active == false then --非激活状态需要执行deactive逻辑
         vm_base.is_active = true --强行设置为true确保正确的deactive流程
-        deactive(vm_manager, vm_base.name)
+        deactive(vm_manager, vm_base._require_name)
     end
 
     if NeedProfileDump and not is_release then
@@ -451,7 +451,7 @@ end
 local function active_view(self, curr_vm)
     ---@type VMBase
     if curr_vm.is_res_ready == true and curr_vm.is_active == false then --已经加载过并且未被激活
-        local vm_name = curr_vm.name
+        local vm_name = curr_vm._require_name
         local p_name,profiler,profiler1
 
         if NeedProfileDump then
@@ -539,7 +539,7 @@ end
 ---@param on_asset_comp function
 ---@param is_pre_load boolean
 local function load_resource(res_name, view_base, on_asset_comp, is_pre_load)
-    local vm_name = view_base._vm_base.name
+    local vm_name = view_base._vm_base._require_name
     local vm_config = VMConfig[vm_name]
     local async = vm_config.async
     local has_child = view_base:has_child()

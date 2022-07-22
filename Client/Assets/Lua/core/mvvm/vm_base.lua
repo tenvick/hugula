@@ -155,6 +155,11 @@ local function stop_all_timer(self)
     end
 end
 
+--判断是否已经打开
+local function is_open(self)
+    return self.is_res_ready and self.is_active
+end
+
 ---view销毁的时候
 ---@overload fun()
 local function on_destroy(self)
@@ -220,7 +225,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-    return string_format("VMBase(name=%s).views=%s ", self.name, self.views)
+    return string_format("VMBase(name=%s).views=%s ", self._require_name, self.views)
 end
 
 ---注销的时候
@@ -256,7 +261,7 @@ vm_base.clear = clear
 vm_base.dispose = dispose
 vm_base.set_views_context = set_views_context
 vm_base.set_views_active = set_views_active
-
+vm_base.is_open = is_open
 vm_base.debug_property_changed = debug_property_changed
 vm_base.__tostring = tostring
 ---所有视图模型的基类
@@ -277,6 +282,7 @@ vm_base.__tostring = tostring
 ---@field clear fun(self:VMBase) 清理view
 ---@field set_views_context fun(self:VMBase) 绑定数据
 ---@field set_views_active fun(self:VMBase,active:boolean) 设置gameobject可见性
+---@field is_open fun(self:VMBase):boolean 是否开启
 ---@field dispose fun(self:VMBase)
 ---@field is_active boolean
 ---@field is_res_ready boolean

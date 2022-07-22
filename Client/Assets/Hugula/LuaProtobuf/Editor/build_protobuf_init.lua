@@ -14,7 +14,7 @@ local serpent = require("serpent")
 -- p:loadfile("msgid.proto")
 local GetFileName = CS.System.IO.Path.GetFileName
 local outfilepath = CS.UnityEngine.Application.dataPath .. "/Lua/net/protoc_init.lua"
-local read_dir = CS.UnityEngine.Application.dataPath .. "/Lua/proto"
+local read_dir = CS.UnityEngine.Application.dataPath .. "/proto"
 
 local fileMys = CS.System.IO.Directory.GetFiles (read_dir);
 
@@ -37,8 +37,8 @@ file:write(
 -----------------this is generate by hugula lua protobuf tool -------------------------
 -------------------------do not change--------------------------------------
 local pb = require("pb")
-local protoc = require "protoc"
-local p = protoc.new()
+-- local protoc = require "protoc"
+-- local p = protoc.new()
 ]]
 )
 

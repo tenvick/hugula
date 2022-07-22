@@ -179,12 +179,12 @@ namespace Hugula
             AsyncOperationHandle<GameObject> op;
             key = GetKey(key);
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("Instantiate:", key))
             {
 #endif
                 op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             }
 #endif
             if (!op.IsDone)
@@ -261,7 +261,7 @@ namespace Hugula
             {
 
                 Task<T> task;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 var pkey = $"LoadAssetAsync<{typeof(T)},{typeof(R)}>:" + key;
 
                 using (ProfilerFactory.GetAndStartProfiler(pkey))
@@ -269,7 +269,7 @@ namespace Hugula
 #endif
                     task = Addressables.LoadAssetAsync<T>(key).Task;
                     await task;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 
                 var ckey = $"LoadAssetAsync<{typeof(T)},{typeof(R)}>.onComp:" + key;
@@ -286,7 +286,7 @@ namespace Hugula
                         if (onEnd != null) onEnd(null, userData);
                     }
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 #endif
             }
@@ -321,14 +321,14 @@ namespace Hugula
             {
 
                 Task<T> task;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 var pkey = $"LoadAssetAsync<{typeof(T)}>:" + key;
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
 #endif
                     task = Addressables.LoadAssetAsync<T>(key).Task;
                     await task;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 
                 var ckey = $"LoadAssetAsync<{typeof(T)}>.onComp:" + key;
@@ -343,7 +343,7 @@ namespace Hugula
                     {
                         if (onEnd != null) onEnd(null, userData);
                     }
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 #endif
             }
@@ -410,7 +410,7 @@ namespace Hugula
 
                 GameObject inst = null;
 #if ADDRESSABLES_INSTANTIATEASYNC
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 var pkey = "InstantiateAsync:" + key;
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
@@ -418,7 +418,7 @@ namespace Hugula
                     task = Addressables.InstantiateAsync(key, parent).Task;
                     await task;
                     inst = task.Result;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
                 var ckey = "InstantiateAsync.onComp:" + key;
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
@@ -433,13 +433,13 @@ namespace Hugula
                     {
                         if (onEnd != null) onEnd(key, userData);
                     }
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 #endif
 
 #else
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             var pkey = "InstantiateAsync:" + key;
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
             {
@@ -454,7 +454,7 @@ namespace Hugula
                     // OnItemLoaded(key);
                     return;
                 }
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             }
             var ckey = "InstantiateAsync.Instantiate:" + key;
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
@@ -465,7 +465,7 @@ namespace Hugula
                 inst = GameObject.Instantiate<GameObject>(asset, parent, false);
                 gObjInstanceRef[inst] = asset;
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             }
             ckey = "InstantiateAsync.onComp:" + key;
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
@@ -479,7 +479,7 @@ namespace Hugula
                 {
                     if (onEnd != null) onEnd(key, userData);
                 }
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
             }
 #endif
 #endif
@@ -531,7 +531,7 @@ namespace Hugula
             {
 
                 Task<SceneInstance> task;
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 var pkey = "LoadSceneAsync:" + key;
 
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
@@ -540,7 +540,7 @@ namespace Hugula
                     task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
                     await task;
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("LoadSceneAsync.onComp:", key, pkey, true))
                 {
@@ -558,7 +558,7 @@ namespace Hugula
 #endif
                     }
 
-#if PROFILER_DUMP || !HUGULA_RELEASE
+#if PROFILER_DUMP
                 }
 #endif
 
@@ -699,7 +699,7 @@ namespace Hugula
 
         static public void Release<T>(T obj)
         {
-#if !HUGULA_RELEASE
+#if PROFILER_DUMP
             if (obj == null)
                 Debug.LogWarningFormat("try to release null obj \r\n trace:{1}", Hugula.EnterLua.LuaTraceback());
 #endif

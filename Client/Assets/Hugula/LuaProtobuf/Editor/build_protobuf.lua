@@ -8,10 +8,10 @@ local io = io
 
 local serpent = require("serpent")
 local pb = require "pb"
-local protoc = require "protoc"
-local p = protoc.new()
+-- local protoc = require "protoc"
+-- local p = protoc.new()
 
-p:loadfile("_define.proto") --定义的消息ID namespace = id
+-- p:loadfile("_define.proto") --定义的消息ID namespace = id
 
 local path = CS.UnityEngine.Application.dataPath .. "/Lua/net/net_api_list.lua"
 print(path)

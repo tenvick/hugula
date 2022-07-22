@@ -32,7 +32,6 @@ namespace HugulaEditor.ResUpdate
             return null;
         }
 
-        public uint diff_crc;
     }
 
     //构建热更新资源
@@ -69,7 +68,7 @@ namespace HugulaEditor.ResUpdate
     {
         public static string GetLuaBytesResourcesPath()
         {
-            return $"Assets/{Common.LUACFOLDER}";
+            return $"{Common.LUACFOLDER}";
         }
 
         public static string GetLuaStreamingPath()
@@ -82,7 +81,7 @@ namespace HugulaEditor.ResUpdate
         {
             string OutLuaBytesPath = GetLuaBytesResourcesPath();
 
-            var files = Directory.GetFiles(OutLuaBytesPath, "*.bytes", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(OutLuaBytesPath, "*.*", SearchOption.AllDirectories);
             var dests = new string[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
@@ -92,13 +91,19 @@ namespace HugulaEditor.ResUpdate
             return dests;
         }
 
-        public string name { get { return $"build lua bundle (Assets/{Common.LUACFOLDER})"; } }
+        public string name { get { return $"build lua bundle ({Common.LUACFOLDER})"; } }
         public int priority { get { return 0; } }
 
         public void Run(HotResGenSharedData data)
         {
             var allLuaBytesFiles = GetOutLuaBytesFileList();
-            BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions,BuildConfig.GetOffsetData());
+            var zipOutPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
+            if (File.Exists(zipOutPath)) File.Delete(zipOutPath);
+#if USE_LUA_ZIP
+            BuildScriptHotResUpdate.BuildZipTogether(allLuaBytesFiles, zipOutPath, GetLuaBytesResourcesPath(), Common.BUNDLE_OFF_STR);
+#else
+            BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
+#endif
         }
 
         public BundleManifest GenStreamingLuaBundleManifest()
@@ -191,7 +196,7 @@ namespace HugulaEditor.ResUpdate
             }
 
             //构建所有foldermanifest
-            BuildScriptHotResUpdate.BuildABsTogether(folderManifest.ToArray(), null, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions,BuildConfig.GetOffsetData());
+            BuildScriptHotResUpdate.BuildABsTogether(folderManifest.ToArray(), null, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
 
             new ReadFolderManifestInfo().Run(data);
             ReadStreamingFolderManifest(data);
@@ -206,7 +211,7 @@ namespace HugulaEditor.ResUpdate
             var firstPath = Path.Combine(BuildConfig.CurrentUpdateResOutPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//首包folderManifest路径
                                                                                                                                //读取本地包
             var streamingPath = Path.Combine(CUtils.realStreamingAssetsPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//folderManifest路径
-            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath,0,Common.BUNDLE_OFF_SET)) != null)
+            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath, 0, Common.BUNDLE_OFF_SET)) != null)
             {
                 var assets = ab.LoadAllAssets<FileManifest>();
                 data.streamingFolderManifest = new List<FileManifest>(assets);
@@ -244,7 +249,7 @@ namespace HugulaEditor.ResUpdate
             var firstPath = Path.Combine(BuildConfig.CurrentUpdateResOutPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//首包folderManifest路径
                                                                                                                                //读取首包
             AssetBundle ab = null;
-            if (File.Exists(firstPath) && (ab = AssetBundle.LoadFromFile(firstPath,0,Common.BUNDLE_OFF_SET)) != null)
+            if (File.Exists(firstPath) && (ab = AssetBundle.LoadFromFile(firstPath, 0, Common.BUNDLE_OFF_SET)) != null)
             {
                 var assets = ab.LoadAllAssets<FileManifest>();
                 if (assets.Length == 0)
@@ -357,12 +362,24 @@ namespace HugulaEditor.ResUpdate
                 assets.Clear();
                 foreach (var f in folder.allFileInfos)
                 {
-                    assets.Add(Path.Combine(folder.assetFolderPath, f.name + Common.DOT_BYTES));
+                    assets.Add(Path.Combine(folder.assetFolderPath, f.name));
                     sb.AppendLine(assets[assets.Count - 1]);
                 }
                 var fileName = folder.fileName;
-                BuildScriptHotResUpdate.BuildABsTogether(assets.ToArray(), "Assets/Tmp", fileName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions,BuildConfig.GetOffsetData());
-                file = Path.Combine("Assets/Tmp", fileName);
+
+#if USE_LUA_ZIP
+                if (fileName.Equals(Common.LUA_BUNDLE_NAME))
+                {
+                        file = Path.Combine("Assets/Tmp", fileName);
+                        BuildScriptHotResUpdate.BuildZipTogether(assets.ToArray(), file, folder.assetFolderPath, Common.BUNDLE_OFF_STR);
+                }
+                else
+#endif
+                {
+                    BuildScriptHotResUpdate.BuildABsTogether(assets.ToArray(), "Assets/Tmp", fileName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
+                    file = Path.Combine("Assets/Tmp", fileName);
+                }
+
                 if (findStreaming)
                 {
                     BuildScriptHotResUpdate.AddToFolderManifest(file, findStreaming, buildBundlePathData);
@@ -416,7 +433,7 @@ namespace HugulaEditor.ResUpdate
                 {
                     var newManifest = HugulaEditor.Addressable.FolderManifestExtention.CreateBundleManifest(itemFolderManifest.fileName);
                     newManifest.allFileInfos = diffInfos;
-                     diffFolderManifest.Add(newManifest);
+                    diffFolderManifest.Add(newManifest);
                     diffItemFolderManifest = newManifest;
                 }
 
@@ -489,12 +506,12 @@ namespace HugulaEditor.ResUpdate
             }
 
             //单独构建所有foldermanifest到当前版本热更新目录
-            BuildScriptHotResUpdate.BuildABsTogether(folderManifestAssets.ToArray(), verPath, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions,BuildConfig.GetOffsetData());
+            BuildScriptHotResUpdate.BuildABsTogether(folderManifestAssets.ToArray(), verPath, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
             //读取manifest的crc值
             string old_name = Path.Combine(BuildConfig.UpdateResOutVersionPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);
             var crc32 = CrcCheck.GetLocalFileCrc(old_name, out var le);
-            data.diff_crc = crc32;
-            var newName = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{data.diff_crc}");
+            UnityEditor.EditorPrefs.SetString($"DIFF_CRC_{Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME}",crc32.ToString());
+            var newName = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{crc32.ToString()}");
             CopyFileTo(old_name, Path.Combine(BuildConfig.UpdateResOutVersionPath, newName));
         }
 
@@ -580,7 +597,7 @@ namespace HugulaEditor.ResUpdate
             var outConfig = SaveVersionJson(data);
 
             //根目录review配置
-            var rootVersionPath = Path.Combine(rootPath,$"review_{Common.CRC32_VER_FILENAME}");//Path.Combine(rootPath, CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,"_review"));
+            var rootVersionPath = Path.Combine(rootPath, $"review_{Common.CRC32_VER_FILENAME}");//Path.Combine(rootPath, CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,"_review"));
             File.WriteAllText(rootVersionPath, outConfig);
             Debug.Log($"刷新根目录配置:{rootVersionPath}");
 
@@ -598,13 +615,13 @@ namespace HugulaEditor.ResUpdate
             FileHelper.CheckCreateDirectory(rootPath);
             FileHelper.CheckCreateDirectory(resourcesPath);
 
-            var configName = prefix+ CUtils.platform + ".json";
-            var saveFileName =  prefix + Common.CRC32_VER_FILENAME; //CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,prefix);
+            var configName = prefix + CUtils.platform + ".json";
+            var saveFileName = prefix + Common.CRC32_VER_FILENAME; //CUtils.InsertAssetBundleName(Common.CRC32_VER_FILENAME,prefix);
             //当前配置文件
             var configPath = Path.Combine(BuildConfig.VersionConfigPath, configName);
-            var config = JsonUtility.FromJson<VerionConfig>(File.ReadAllText(configPath));
+            var config = JsonUtility.FromJson<VersionConfig>(File.ReadAllText(configPath));
             FastMode fastMode = config.fast;
-            var versionConfig = new VerionConfig();
+            var versionConfig = new VersionConfig();
             versionConfig.version = CodeVersion.APP_VERSION;
             versionConfig.res_number = EditorUtils.GetResNumber(); // CodeVersion.APP_NUMBER;
             SetVersionResNumber(versionConfig);
@@ -615,15 +632,19 @@ namespace HugulaEditor.ResUpdate
             versionConfig.update_url = config.update_url;
             versionConfig.manifest_name = config.manifest_name;
             versionConfig.fast = fastMode;
-            var outConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), data.diff_crc);
+            var crc_str = UnityEditor.EditorPrefs.GetString($"DIFF_CRC_{Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME}");
 
-            string versionFileName =  CUtils.InsertAssetBundleName(saveFileName, $"_{CodeVersion.APP_VERSION}");
+            var outConfig = ReplaceTemplate(JsonUtility.ToJson(versionConfig), crc_str);
+
+            string versionFileName = CUtils.InsertAssetBundleName(saveFileName, $"_{CodeVersion.APP_VERSION}");
             //保存单独版本文件
-            var savePath = Path.Combine(verPath,versionFileName);
+            var savePath = Path.Combine(verPath, versionFileName);
             File.WriteAllText(savePath, outConfig);
             Debug.Log($"保存当前版本:{savePath}");
+
             //本地缓存
-            savePath = Path.Combine(resourcesPath,saveFileName);
+
+            savePath = Path.Combine(resourcesPath, saveFileName);
             File.WriteAllText(savePath, outConfig);
             Debug.Log($"本地缓存Resrouces 目录:{savePath}");
 
@@ -635,20 +656,20 @@ namespace HugulaEditor.ResUpdate
             return outConfig;
         }
 
-        void SetVersionResNumber(VerionConfig versionConfig)
+        void SetVersionResNumber(VersionConfig versionConfig)
         {
             versionConfig.res_number = EditorUtils.GetResNumber();//CodeVersion.APP_NUMBER; //从svn获取版本号信息
         }
 
-        string ReplaceTemplate(string content, uint crc)
+        string ReplaceTemplate(string content, string crc)
         {
             content = content.Replace("{app.platform}", CUtils.platform);
             content = content.Replace("{app.version}", CodeVersion.APP_VERSION);
             content = content.Replace("{app.res_ver_folder}", Common.RES_VER_FOLDER);
 
-            content = content.Replace("{app.manifest_crc}", crc.ToString());
+            content = content.Replace("{app.manifest_crc}", crc);
             content = content.Replace("{app.manifest_name}", Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);
-            var full_manifest_name = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{crc.ToString()}");
+            var full_manifest_name = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{crc}");
             content = content.Replace("{app.manifest_full_name}", full_manifest_name);
 
             return content;
@@ -669,7 +690,7 @@ namespace HugulaEditor.ResUpdate
             var streamingPath = Path.Combine(CUtils.realStreamingAssetsPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//folderManifest路径
             AssetBundle ab = null;
             //读取本地包
-            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath,0,Common.BUNDLE_OFF_SET)) != null)
+            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath, 0, Common.BUNDLE_OFF_SET)) != null)
             {
                 var assets = ab.LoadAllAssets<FileManifest>();
                 data.streamingFolderManifest = new List<FileManifest>(assets);
@@ -727,7 +748,7 @@ namespace HugulaEditor.ResUpdate
             var streamingPath = Path.Combine(CUtils.realStreamingAssetsPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);//folderManifest路径
             AssetBundle ab = null;
             //读取本地包
-            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath,0,Common.BUNDLE_OFF_SET)) != null)
+            if (File.Exists(streamingPath) && (ab = AssetBundle.LoadFromFile(streamingPath, 0, Common.BUNDLE_OFF_SET)) != null)
             {
                 var assets = ab.LoadAllAssets<FolderManifest>();
                 data.streamingFolderManifest = new List<FileManifest>(assets);

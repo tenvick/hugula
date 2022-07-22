@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ui_chat_HugulaResUpdatePacking
   m_EditorClassIdentifier: 
   m_Group: {fileID: 11400000, guid: b9b14172256cdf346bc1b4f16ea9ba37, type: 2}
-  packingType: 2
+  packingType: 0
   customName: 

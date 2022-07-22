@@ -25,8 +25,8 @@ namespace Hugula
         {
             string str = string.Empty;
 #if UNITY_EDITOR
-            string path = Application.dataPath + "/Lua/proto/" + name;
-            if (File.Exists(path) && Hugula.EnterLua.isDebug)
+            string path = Application.dataPath + "/proto/" + name;
+            if (!ResLoader.Ready || Hugula.EnterLua.isDebug)
             {
                 str = File.ReadAllText(path); //LuaState.CleanUTF8Bom(
             }
@@ -46,7 +46,7 @@ namespace Hugula
                 if (Hugula.EnterLua.isDebug)
                     Debug.LogErrorFormat("protobuf ({0}) path={1} not exists.", name, path);
                 else
-                    Debug.LogErrorFormat("the protobuf(Assets/LuaBytes/lua_proto/{0}) did't exists.", name);
+                    Debug.LogErrorFormat("the protobuf(Assets/proto/{0}) did't exists.", name);
             }
 
 #endif

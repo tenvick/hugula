@@ -113,6 +113,18 @@ namespace Hugula.ResUpdate
             var hosts = GetVersionUrl();
             string response = null;
             var url = string.Empty;
+               //读取本地缓存
+            string versionName = Path.GetFileNameWithoutExtension(Common.CRC32_VER_FILENAME);
+#if !(HUGULA_RELEASE || SDK_RELEASE)
+            versionName = "dev_"+ versionName;
+#endif
+            VersionConfig localVersion = null;
+            var versionTxt = Resources.Load<TextAsset>(versionName); //优先读取本地
+            if(versionTxt)
+            {
+                localVersion = JsonUtility.FromJson<VersionConfig>(versionTxt.text);
+                Resources.UnloadAsset(versionTxt);
+            }
             foreach (var host in hosts)
             {
                 url = host;
@@ -133,7 +145,7 @@ namespace Hugula.ResUpdate
 
             if (!string.IsNullOrEmpty(response))
             {
-                yield return ParseVerionConfigAndCheckUpdate(response);
+                yield return ParseVerionConfigAndCheckUpdate(response,localVersion);
             }
             else if (!romoteVersionTxtLoaded)
             {
@@ -146,22 +158,15 @@ namespace Hugula.ResUpdate
                             MessageBox.Close();
                             StartCoroutine(LoadRemoteVersion(1));
                         });
-                    Debug.LogError($" {url} json 解析失败!");
+                    Debug.LogError($" {url}远程json 解析失败!");
 
                 }
                 else
                 {
-                    //读取本地缓存
-                    string versionName = Path.GetFileNameWithoutExtension(Common.CRC32_VER_FILENAME);
-#if !HUGULA_RELEASE
-                    versionName = "dev_"+ versionName;
-#endif
-
-                    var versionTxt = Resources.Load<TextAsset>(versionName);
-                    if (versionTxt)
+                    if (localVersion!=null)
                     {
                         Debug.LogWarning($" {url} json parse error! Resources({versionName}) load success!");
-                        StartCoroutine(ParseVerionConfigAndCheckUpdate(versionTxt.text));
+                        StartCoroutine(ParseVerionConfigAndCheckUpdate(string.Empty,localVersion));
                     }
                     else
                     {
@@ -184,11 +189,20 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 解析VerionConfig 判断提示热跟新
         /// </summary>
-        IEnumerator ParseVerionConfigAndCheckUpdate(string response)
+        IEnumerator ParseVerionConfigAndCheckUpdate(string response,VersionConfig localVersion)
         {
             TLogger.LogSys(response);
             romoteVersionTxtLoaded = true;
-            var remoteVer = JsonUtility.FromJson<VerionConfig>(response);
+            VersionConfig remoteVer = null;
+            if(!string.IsNullOrEmpty(response))
+                remoteVer = JsonUtility.FromJson<VersionConfig>(response);
+
+            if(remoteVer == null) 
+                remoteVer = localVersion;
+            else
+            {
+                remoteVer.EmptyFieldOverride(localVersion);
+            }
 
             var cdn_hosts = remoteVer.cdn_host;
             BackGroundDownload.rootHosts = cdn_hosts;
@@ -204,8 +218,8 @@ namespace Hugula.ResUpdate
             }
             else
             {
-                //提示更新 远端 notice_ver提示更新版本号 》大于本地热更新版本号 提示更新
-                if (CodeVersion.Subtract(remoteVer.notice_ver, FileManifestManager.localVersion) > 0)
+                //提示更新 远端 notice_ver提示更新版本号 》大于本地版本号 提示更新
+                if (CodeVersion.Subtract(remoteVer.notice_ver, CodeVersion.APP_VERSION) > 0)
                 {
                     MessageBox.Show(Localization.Get("main_check_update"), "", Localization.Get("main_check_sure"), () =>
                     {
@@ -225,13 +239,13 @@ namespace Hugula.ResUpdate
             }
         }
 
-        IEnumerator CheckHotUpdate(VerionConfig remoteVer)
+        IEnumerator CheckHotUpdate(VersionConfig remoteVer)
         {
             //判断是否等待fast包
             yield return CheckLoadFast(remoteVer);
-            var subVersion = CodeVersion.Subtract(remoteVer.version, FileManifestManager.localVersion);
+            var subVersion = CodeVersion.Subtract(remoteVer.version, CodeVersion.APP_VERSION); //发布版本相同版本才能热更新
             var subResNum = remoteVer.res_number > FileManifestManager.localResNum;
-            if (subVersion >= 0 && subResNum)//如果app.version相同还需要判断ResNum
+            if (subVersion == 0 && subResNum && !string.IsNullOrEmpty(remoteVer.manifest_name))//如果app.version相同还需要判断ResNum
                 yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
             else
                 yield return InternalIdTransformFunc();
@@ -241,7 +255,7 @@ namespace Hugula.ResUpdate
         ///<summary>
         /// 判断是否等待fast加载完毕
         ///</summary>
-        IEnumerator CheckLoadFast(VerionConfig remoteVer)
+        IEnumerator CheckLoadFast(VersionConfig remoteVer)
         {
             if (remoteVer.fast == FastMode.sync) //需要等待fast包下载完成
             {
@@ -338,7 +352,7 @@ namespace Hugula.ResUpdate
         string loadRemoteVersion = string.Empty; //将要下载的远端文件    
         int loadRemoteAppNum = 0;//将要下载的远端文件appnum 
         //加载远端FolderManifest文件
-        public IEnumerator LoadRemoteFoldmanifest(VerionConfig remoteVer)
+        public IEnumerator LoadRemoteFoldmanifest(VersionConfig remoteVer)
         {
             yield return null;
             SetProgressTxt(Localization.Get("main_web_server_crc_list")); //--加载服务器校验列表。")

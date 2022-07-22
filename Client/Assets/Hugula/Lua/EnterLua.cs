@@ -56,27 +56,30 @@ namespace Hugula
             DontDestroyOnLoad(this.gameObject);
         }
         #region  hot update
-        private AssetBundle m_StreamingLuaBundle;
+        private LuaBundleRead m_StreamingLuaBundle;
 
-        private AssetBundle GetStreamingLuaBundle()
+        private LuaBundleRead GetStreamingLuaBundle()
         {
-            if (!m_StreamingLuaBundle)
+            if (m_StreamingLuaBundle == null)
             {
                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
                 url = CUtils.GetAndroidABLoadPath(url);
-                m_StreamingLuaBundle = AssetBundle.LoadFromFile(url,0,Common.BUNDLE_OFF_SET);
+                bool isAndroid = false;
+#if UNITY_ANDROID && !UNITY_EDITOR
+                isAndroid = true;
+#endif
+                m_StreamingLuaBundle = new LuaBundleRead(url,isAndroid);
             }
             return m_StreamingLuaBundle;
         }
-        private AssetBundle m_PersistentLuaBundle;
+        private LuaBundleRead m_PersistentLuaBundle;
 
-        private AssetBundle GetPersistentLuaBundle()
+        private LuaBundleRead GetPersistentLuaBundle()
         {
-            if (!m_PersistentLuaBundle)
+            if (m_PersistentLuaBundle == null)
             {
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), Common.LUA_BUNDLE_NAME);
-                url = CUtils.GetAndroidABLoadPath(url);
-                m_PersistentLuaBundle = AssetBundle.LoadFromFile(url,0,Common.BUNDLE_OFF_SET);
+                m_PersistentLuaBundle = new LuaBundleRead(url);
             }
             return m_PersistentLuaBundle;
         }
@@ -101,8 +104,55 @@ namespace Hugula
             ReloadLua();
             BehaviourSingletonManager.CanCreateInstance();
             SingletonManager.CanCreateInstance();
-            
+
             Hugula.Atlas.AtlasManager.instance.Init();
+
+            yield return null;
+            //pb
+#if UNITY_EDITOR
+            if (isDebug)
+            {
+                string PROTO_PATH = Application.dataPath + "/proto";
+                var files = Directory.GetFiles(PROTO_PATH, "*.proto", SearchOption.TopDirectoryOnly);
+                LuaFunction loadFile = luaenv.DoString(
+                    $@"
+                    local pc = require('protoc').new()
+                    pc.experimental_allow_proto3_optional = true
+                    pc:addpath('{PROTO_PATH}')
+                    return function (txt)
+                        return pc:loadfile(txt)
+                    end"
+                )[0] as LuaFunction;
+                foreach (var pbFile in files)
+                {
+                    loadFile.Func<string, string>(Path.GetFileName(pbFile));
+                }
+            }
+            else
+            {
+                var asynHandle = Addressables.LoadAssetsAsync<TextAsset>(Common.PROTO_GROUP_NAME, null);
+                while (!asynHandle.IsDone)
+                {
+                    yield return null;
+                }
+                LuaFunction loadFunc = luaenv.DoString("return require('pb').load")[0] as LuaFunction;
+                yield return null;
+                foreach (var item in asynHandle.Result)
+                {
+                    loadFunc.Action<byte[]>(item.bytes);
+                }
+            }
+#else
+            var asynHandle = Addressables.LoadAssetsAsync<TextAsset> (Common.PROTO_GROUP_NAME, null);
+            while (!asynHandle.IsDone) {
+                yield return null;
+            }
+            LuaFunction loadFunc = luaenv.DoString ("return require('pb').load") [0] as LuaFunction;
+            yield return null;
+            foreach (var item in asynHandle.Result) {
+                loadFunc.Action<byte[]> (item.bytes);
+            }
+#endif
 
             yield return null;
             luaenv.DoString("require('" + enterLua + "')");
@@ -235,7 +285,7 @@ namespace Hugula
                 if (isDebug)
                     Debug.LogErrorFormat("lua ({0}) path={1} not exists.", name, path);
                 else
-                    Debug.LogErrorFormat("the file(Assets/lua_bundle/{0}.lua)  did't exists.", name);
+                    Debug.LogError($"the file({Common.LUACFOLDER}/{name}.lua)  did't exists.");
 
             }
 
@@ -252,28 +302,28 @@ namespace Hugula
         private byte[] LoadLuaBytes(string name)
         {
             byte[] ret = null;
+#if PROFILER_DUMP && LUA_REQUIRE_PROFILER
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("lua require:", name,null,true))
+            {
+#endif
             var bundleManifest = GetLuaPersistentBundleManifest();
-            AssetBundle luaAb = null;
+            LuaBundleRead luaAb = null;
             if (bundleManifest && bundleManifest.GetFileResInfo(name) != null)//如果有热更新走热更新
             {
                 luaAb = GetPersistentLuaBundle();
-                #if UNITY_EDITOR || UNITY_STANDALONE
-                    Debug.Log($"load lua ({name}) from persistent: {CUtils.GetRealPersistentDataPath()}/{Common.LUA_BUNDLE_NAME}");
-                #endif
+#if UNITY_EDITOR || UNITY_STANDALONE
+                Debug.Log($"load lua ({name}) from persistent: {CUtils.GetRealPersistentDataPath()}/{Common.LUA_BUNDLE_NAME}");
+#endif
             }
             else
             {
                 luaAb = GetStreamingLuaBundle();
             }
 
-            var txt = luaAb?.LoadAsset<TextAsset>(name);
-             if (txt != null)
-            {
-                ret = txt.bytes;
-                Resources.UnloadAsset(txt); //释放ab资源
-                luaAb?.Unload(false);
+            ret = luaAb?.LoadBytes(name);
+#if PROFILER_DUMP && LUA_REQUIRE_PROFILER
             }
-
+#endif
             return ret;
 
         }

@@ -21,7 +21,7 @@ local function _require_vm(t, k)
             local re = require(vm_name)
             local initialize = re.initialize
             rawset(t, k, re)
-            rawset(re, "name", k) ---设置view model的 name
+            rawset(re, "_require_name", k) ---设置view model的 name
             if initialize then --调用初始化函数
                 initialize(re)
             end
@@ -53,7 +53,7 @@ local function _reload_vm(t, k, hold_child)
         local re = require(vm_name) --重新require lua
         local initialize = re.initialize
         rawset(t, k, re)
-        rawset(re, "name", k) ---设置view model的 name
+        rawset(re, "_require_name", k) ---设置view model的 name
         if initialize then --调用初始化函数
             initialize(re)
         end

@@ -59,7 +59,7 @@ namespace HugulaEditor
 
         public static string GetProjectTempPath()
         {
-            return Path.Combine(Application.dataPath.Replace("Assets", ""), "Temp/hugula");
+            return Path.Combine(Application.dataPath.Replace("Assets", ""), "Tmp/hugula");
         }
 
         public static string GetOutPutPath()

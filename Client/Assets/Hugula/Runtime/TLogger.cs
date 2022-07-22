@@ -224,15 +224,6 @@ public class TLogger : ILogHandler
         Firebase.Crashlytics.Crashlytics.Log(sb.ToString());
 #endif
 
-#if !HUGULA_RELEASE
-        // var objs = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Object));
-        // sb.AppendLine("total objs length = " + objs.Length + "\n");
-        // foreach (var obj in objs)
-        // {
-        //     System.Type type = obj.GetType();
-        //     sb.AppendFormat("name = {0},type = {1} \n", obj.name, type);
-        // }
-#endif
         LogSys(sb.ToString());
     }
 
@@ -243,7 +234,7 @@ public class TLogger : ILogHandler
             lock (locked)
             {
                 logStreamWriter?.Write(content);
-                logStreamWriter.Flush();
+                logStreamWriter?.Flush();
             }
         }
     }

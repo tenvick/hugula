@@ -34,8 +34,6 @@ namespace Hugula.Profiler
         public static readonly bool DoNotProfile = true;
 #elif PROFILER_DUMP
         public static readonly bool DoNotProfile = false;
-#elif HUGULA_RELEASE
-        public static readonly bool DoNotProfile = true;
 #else
         public static readonly bool DoNotProfile = true;
 #endif
@@ -187,8 +185,6 @@ namespace Hugula.Profiler
 
         public static void BeginSample(string name, string arg = "")
         {
-// #if !HUGULA_RELEASE
-            // if(DoNotProfile) return;
             if(!string.IsNullOrEmpty(arg))
             {
                 name = name +":"+ arg;
@@ -197,18 +193,14 @@ namespace Hugula.Profiler
             UWAEngine.PushSample (name);
 #endif
             UnityEngine.Profiling.Profiler.BeginSample(name);
-// #endif
         }
 
         public static void EndSample()
         {
-// #if !HUGULA_RELEASE
-            // if(DoNotProfile) return;
             UnityEngine.Profiling.Profiler.EndSample();
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PopSample ();
 #endif
-// #endif
         }
 
         #endregion Methods

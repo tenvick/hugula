@@ -91,10 +91,38 @@ namespace HugulaEditor.ResUpdate
         }
         
 
+        private static UnityEditor.BuildTarget m_BuildTarget = UnityEditor.BuildTarget.NoTarget;
         /// <summary>
         /// 构建目标平台，用于资源copy
         /// </summary>
-        public static UnityEditor.BuildTarget BuildTarget ;
+        public static UnityEditor.BuildTarget BuildTarget
+        {
+            get
+            {
+                if (m_BuildTarget == UnityEditor.BuildTarget.NoTarget)
+                {
+#if UNITY_IOS
+                    m_BuildTarget = UnityEditor.BuildTarget.iOS;
+#elif UNITY_ANDROID
+                    m_BuildTarget = UnityEditor.BuildTarget.Android;
+#elif UNITY_FACEBOOK || USE_GAMEROOM
+                    m_BuildTarget = UnityEditor.BuildTarget.StandaloneWindows64;
+#elif UNITY_METRO
+                    m_BuildTarget = UnityEditor.BuildTarget.MetroPlayer;
+#elif UNITY_OSX || UNITY_STANDALONE_OSX
+                    m_BuildTarget = UnityEditor.BuildTarget.StandaloneOSX;
+#else
+                    m_BuildTarget = UnityEditor.BuildTarget.StandaloneWindows64;
+#endif
+                }
+
+                return m_BuildTarget;
+            }
+            set
+            {
+                m_BuildTarget = value;
+            }
+        } //= ;
 
         public static string GetTmpZipName(string folderName)
         {

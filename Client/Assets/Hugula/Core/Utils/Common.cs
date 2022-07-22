@@ -29,13 +29,25 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua out path
         /// </summary>
+#if USE_LUA_ZIP
         public const string LUACFOLDER = "lua_bundle";
+
+#else
+        public const string LUACFOLDER = "Assets/lua_bundle";
+#endif
         /// <summary>
         /// the lua bundle name
         /// </summary>
-        public const string LUA_BUNDLE_NAME = "asset_lu_.bundle";
-        public const string PROTO_BUNDLE_NAME = "asset_pr_.bundle";
+#if USE_LUA_ZIP
+        public const string LUA_BUNDLE_NAME = "z_lua_.bundle";
+#else
+        public const string LUA_BUNDLE_NAME = "a_lua_.bundle";
+#endif
+
+
+        public const string PROTO_GROUP_NAME = "asset_pb";
         public const int BUNDLE_OFF_SET = 16;
+        public const string BUNDLE_OFF_STR = "123";
 
         static string _STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
 

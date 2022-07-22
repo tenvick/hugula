@@ -32,7 +32,7 @@ DispatcherEvent = CS.Hugula.Framework.DispatcherEvent
 --net
 require("net.lua_dispatcher_type") --派发事件类型
 require("net.lua_dispatcher") --lua 派发器
-require("net.protoc_init") --加载描述文件
+-- require("net.net_api_list") --
 Rpc = require("net.rpc") --rpc
 Rpc:init()
 Net=require("net.net") --网络处理

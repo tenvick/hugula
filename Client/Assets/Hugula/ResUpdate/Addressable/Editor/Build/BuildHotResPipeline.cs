@@ -99,11 +99,8 @@ namespace HugulaEditor.ResUpdate
             var allLuaBytesFiles = GetOutLuaBytesFileList();
             var zipOutPath = Path.Combine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
             if (File.Exists(zipOutPath)) File.Delete(zipOutPath);
-#if USE_LUA_ZIP
-            BuildScriptHotResUpdate.BuildZipTogether(allLuaBytesFiles, zipOutPath, GetLuaBytesResourcesPath(), Common.BUNDLE_OFF_STR);
-#else
+
             BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
-#endif
         }
 
         public BundleManifest GenStreamingLuaBundleManifest()
@@ -241,7 +238,7 @@ namespace HugulaEditor.ResUpdate
     //读取首包内容
     public class ReadFolderManifestInfo : ITask<HotResGenSharedData>
     {
-        public string name { get { return "Read first and streaming foldermanifest to compare"; } }
+        public string name { get { return "Read first foldermanifest to compare"; } }
         public int priority { get { return 0; } }
 
         public void Run(HotResGenSharedData data)
@@ -285,7 +282,7 @@ namespace HugulaEditor.ResUpdate
             }
             else
             {
-                // Debug.Log($"copy streamingAsset({streamingPath}) 到热更新目录:{firstPath}");
+                Debug.Log($"there is no first folderManifest in {firstPath}");
                 FileHelper.CheckCreateFilePathDirectory(firstPath);
                 // File.Copy(streamingPath, firstPath);
             }
@@ -320,11 +317,12 @@ namespace HugulaEditor.ResUpdate
                 List<FileResInfo> diffInfos = null;
                 if (firstFind != null)
                 {
-                    Debug.Log($"Build diffrence firstFind: {firstFind.ToString()}");
+                    Debug.Log($"Build diffrence first BundleManifest: {firstFind.ToString()}");
                     diffInfos = firstFind.Compare(manifest);
                 }
                 else
                 {
+                    Debug.Log($"Build diffrence first BundleManifest is't exist ");
                     //没有首包全部记录
                     diffInfos = new List<FileResInfo>(); //manifest.allFileInfos;
                 }
@@ -338,7 +336,7 @@ namespace HugulaEditor.ResUpdate
                 }
                 else
                 {
-                    // Debug.Log($"Build diffrence diffItemFolderManifest:没有变更文件:{diffItemFolderManifest.ToString()}");
+                    Debug.Log($"Build diffrence diffItemFolderManifest:没有变更文件:{diffItemFolderManifest.ToString()}");
                 }
             }
 
@@ -360,21 +358,14 @@ namespace HugulaEditor.ResUpdate
             foreach (var folder in diffFolderManifest)
             {
                 assets.Clear();
+                sb.AppendLine($"\r\n {folder.fileName}  diffFileInfos:\r\n ");
                 foreach (var f in folder.allFileInfos)
                 {
-                    assets.Add(Path.Combine(folder.assetFolderPath, f.name));
+                    assets.Add(Path.Combine(folder.assetFolderPath, f.name + Common.DOT_BYTES));
                     sb.AppendLine(assets[assets.Count - 1]);
                 }
                 var fileName = folder.fileName;
 
-#if USE_LUA_ZIP
-                if (fileName.Equals(Common.LUA_BUNDLE_NAME))
-                {
-                        file = Path.Combine("Assets/Tmp", fileName);
-                        BuildScriptHotResUpdate.BuildZipTogether(assets.ToArray(), file, folder.assetFolderPath, Common.BUNDLE_OFF_STR);
-                }
-                else
-#endif
                 {
                     BuildScriptHotResUpdate.BuildABsTogether(assets.ToArray(), "Assets/Tmp", fileName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
                     file = Path.Combine("Assets/Tmp", fileName);
@@ -390,7 +381,9 @@ namespace HugulaEditor.ResUpdate
                     Debug.LogWarning($"doest find streaming folder! ");
                 }
             }
+
             BuildBundlePathData.SerializeBuildBundlePathData(buildBundlePathData);
+            EditorUtils.WriteToTmpFile(name+".txt",sb.ToString());
         }
     }
 
@@ -506,9 +499,10 @@ namespace HugulaEditor.ResUpdate
             }
 
             //单独构建所有foldermanifest到当前版本热更新目录
-            BuildScriptHotResUpdate.BuildABsTogether(folderManifestAssets.ToArray(), verPath, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
+            var hotStreamingName = CUtils.InsertAssetBundleName(Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME,"+"+CodeVersion.APP_VERSION);
+            BuildScriptHotResUpdate.BuildABsTogether(folderManifestAssets.ToArray(), verPath, hotStreamingName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
             //读取manifest的crc值
-            string old_name = Path.Combine(BuildConfig.UpdateResOutVersionPath, Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME);
+            string old_name = Path.Combine(verPath,hotStreamingName);
             var crc32 = CrcCheck.GetLocalFileCrc(old_name, out var le);
             UnityEditor.EditorPrefs.SetString($"DIFF_CRC_{Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME}",crc32.ToString());
             var newName = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{crc32.ToString()}");

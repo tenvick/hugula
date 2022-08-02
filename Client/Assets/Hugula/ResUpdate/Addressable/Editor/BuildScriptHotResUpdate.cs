@@ -74,6 +74,7 @@ namespace HugulaEditor.Addressable
             var streamingPack = HugulaResUpdatePacking.PackingType.streaming.ToString();
 
             List<AddressableAssetGroup> allGroups = aaContext.Settings.groups;
+            FileManifest fileManifestAdded = null;
             foreach (AddressableAssetGroup group in allGroups)
             {
                 var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
@@ -82,12 +83,16 @@ namespace HugulaEditor.Addressable
                     string folderName = resupPacking.packingType.ToString();
                     if (resupPacking.packingType == HugulaResUpdatePacking.PackingType.custom)
                         folderName = resupPacking.customName;
-
-                    AddToFolderManifest(folderName, group, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
+                    Debug.Log($"AddToFolderManifest(folderName:{folderName},group:{group.name}) ");
+                    fileManifestAdded = AddToFolderManifest(folderName, group, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
+                    if (fileManifestAdded != null && resupPacking.priority != 0)
+                    {
+                        fileManifestAdded.priority = resupPacking.priority;
+                    }
                 }
                 else
                 {
-                    AddToFolderManifest(streamingPack, group, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
+                    fileManifestAdded = AddToFolderManifest(streamingPack, group, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
                 }
 
             }
@@ -159,7 +164,7 @@ namespace HugulaEditor.Addressable
             buildBundlePathData?.AddBuildBundlePath(fileName, filePath, crc);
         }
 
-        void AddToFolderManifest(string folderName, AddressableAssetGroup group, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
+        FileManifest AddToFolderManifest(string folderName, AddressableAssetGroup group, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
         {
             FolderManifest folderManifest = null;
 
@@ -173,7 +178,11 @@ namespace HugulaEditor.Addressable
                 folderManifest = outFolderManifest as FolderManifest;
             }
 
-            if (folderManifest == null) return;
+            if (folderManifest == null)
+            {
+                Debug.LogWarning($"AddToFolderManifest fail folderManifest is null folderName={folderName}");
+                return folderManifest;
+            }
 
             foreach (AddressableAssetEntry entry in group.entries)
             {
@@ -191,7 +200,10 @@ namespace HugulaEditor.Addressable
                 }
 
                 if (bundleIdToFolderManifest.ContainsKey(bundleName))
+                {
+                    Debug.LogWarning($"address={entry.address},assetpath={entry.AssetPath}, has aleady added. ");
                     continue;
+                }
 
                 uint crc = 0;
                 uint fileLen = 0;
@@ -200,13 +212,14 @@ namespace HugulaEditor.Addressable
                 string parentFolder = Path.GetDirectoryName(bundleBuildPath).Replace("\\", "/");
                 folderManifest.AddFileInfo(bundleName, crc, fileLen);
 
-
                 buildBundlePathData.AddBuildBundlePath(bundleName, bundleBuildPath, crc);
                 bundleIdToFolderManifest.Add(bundleName, folderManifest);
             }
+
+            return folderManifest;
         }
 
-        void AddToFolderManifest(string folderName, string filePath, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
+        FileManifest AddToFolderManifest(string folderName, string filePath, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
         {
             FolderManifest folderManifest = null;
             if (!folderManifestDic.TryGetValue(folderName, out var outFolderManifest))
@@ -219,7 +232,7 @@ namespace HugulaEditor.Addressable
                 folderManifest = outFolderManifest as FolderManifest;
             }
 
-            if (folderManifest == null) return;
+            if (folderManifest == null) return folderManifest;
 
             string bundleName = Path.GetFileName(filePath);
             string parentFolder = Path.GetDirectoryName(filePath).Replace("\\", "/");
@@ -235,9 +248,10 @@ namespace HugulaEditor.Addressable
                 bundleIdToFolderManifest.Add(bundleName, folderManifest);
             }
 
+            return folderManifest;
         }
 
-        void AddOtherToFolderManifest(string folderName, FileRegistry fileRegistry, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
+        FileManifest AddOtherToFolderManifest(string folderName, FileRegistry fileRegistry, Dictionary<string, FileManifest> bundleIdToFolderManifest, Dictionary<string, FileManifest> folderManifestDic, BuildBundlePathData buildBundlePathData)
         {
             FolderManifest folderManifest = null;
             if (!folderManifestDic.TryGetValue(folderName, out var outfolderManifest))
@@ -250,7 +264,7 @@ namespace HugulaEditor.Addressable
                 folderManifest = outfolderManifest as FolderManifest;
             }
 
-            if (folderManifest == null) return;
+            if (folderManifest == null) return folderManifest;
 
 
             var paths = fileRegistry.GetFilePaths();
@@ -272,6 +286,8 @@ namespace HugulaEditor.Addressable
                     Debug.Log($"add other bundle({filePath}) to ({folderName})");
                 }
             }
+
+            return folderManifest;
         }
 
         #region static tool

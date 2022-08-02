@@ -35,10 +35,16 @@ namespace HugulaEditor.ResUpdate
                             sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({typeof(UnityEngine.Object)})");
 
                         }
-                        else if(kv.Length>2)
+                        else if (kv.Length == 3)
                         {
                             var tp = Hugula.Utils.LuaHelper.GetClassType(kv[2].Trim());
                             addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp };
+                            sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
+                        }
+                        else if (kv.Length > 3)
+                        {
+                            var tp = Hugula.Utils.LuaHelper.GetClassType(kv[2].Trim());
+                            addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp ,kv[3]};
                             sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
                         }
                     }
@@ -111,10 +117,15 @@ namespace HugulaEditor.ResUpdate
                                 }
                             }
 
-                            resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
-                            resupPacking.customName = objs[0].ToString();
-                            EditorUtility.SetDirty(resupPacking);
-                            AssetDatabase.SaveAssets();
+                                resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
+                                resupPacking.customName = objs[0].ToString();
+                                int priority = 0;
+                                if(objs.Length>=3 && int.TryParse(objs[2].ToString(),out priority) )
+                                {
+                                    resupPacking.priority = priority;
+                                }
+                                EditorUtility.SetDirty(resupPacking);
+                                AssetDatabase.SaveAssets();
 
                             sb.AppendLine($"[{group.Name}]:  \r\n               zipFolderName:{objs[0].ToString()}     found:[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n");
                             //debug info

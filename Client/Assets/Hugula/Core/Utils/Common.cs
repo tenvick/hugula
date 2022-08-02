@@ -38,12 +38,7 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua bundle name
         /// </summary>
-#if USE_LUA_ZIP
-        public const string LUA_BUNDLE_NAME = "z_lua_.bundle";
-#else
         public const string LUA_BUNDLE_NAME = "a_lua_.bundle";
-#endif
-
 
         public const string PROTO_GROUP_NAME = "asset_pb";
         public const int BUNDLE_OFF_SET = 16;

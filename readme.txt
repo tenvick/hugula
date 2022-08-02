@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.8.2
+1 lua取消 zip方式打包。
+2 zip分包支持优先级配置。
+3 图集映射战斗刷新。
+
 2022.7.22
 1 lua zip模式，#USE_LUA_ZIP开启
 2 proto优化 启动阶段统一加载

@@ -114,6 +114,8 @@ namespace HugulaEditor
         [MenuItem("Assets/Atlas/2.Generate All Atlas Mapping")]
         public static void GenerateAllAtlasMapping()
         {
+           UnityEditor.Sprites.Packer.RebuildAtlasCacheIfNeeded(HugulaEditor.ResUpdate.BuildConfig.BuildTarget);
+
             StringBuilder sb = new StringBuilder();
             List<int> allSprites = new List<int>();
             List<string> atlasNames = new List<string>();

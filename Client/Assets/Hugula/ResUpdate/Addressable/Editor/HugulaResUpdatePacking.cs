@@ -35,5 +35,6 @@ namespace UnityEditor.AddressableAssets.Settings.GroupSchemas
 
         public PackingType packingType = PackingType.streaming ;
         public string customName;
+        public int priority;
     }
 }

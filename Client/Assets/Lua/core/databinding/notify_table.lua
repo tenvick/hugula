@@ -20,8 +20,9 @@ local CS = CS
 local Object = CS.System.Object
 local Specialized = CS.System.Collections.Specialized
 local BindingUtility = CS.Hugula.Databinding.CollectionChangedEventArgsUtility
-local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
-local CollectionChangedEvent = CS.Hugula.Databinding.CollectionChangedEvent
+
+local PropertyChangedEventHandlerEvent = CS.Hugula.Databinding.PropertyChangedEventHandlerEvent
+local NotifyCollectionChangedEventHandlerEvent = CS.Hugula.Databinding.NotifyCollectionChangedEventHandlerEvent
 --- 为了与C#一致，这里的索引都是从0开始
 ---集合改变通知事件
 ---@class NotifyCollectionChangedAction
@@ -35,9 +36,9 @@ local notify_table =
     class(
     function(self, items)
         ---集合改变事件监听
-        self._collection_changed =  CollectionChangedEvent()
+        self.CollectionChanged =  NotifyCollectionChangedEventHandlerEvent()
         ---属性改变监听
-        self._property_changed = PropertyChangedEvent()
+        self.PropertyChanged = PropertyChangedEventHandlerEvent()
         ---
         self.items = items or {}
         self.Count = #self.items
@@ -52,7 +53,7 @@ local notify_table =
 ---@overload fun(property_name:string)
 ---@return void
 local function on_property_changed(self, property_name)
-    self._property_changed:Dispatch(self,property_name)
+    self.PropertyChanged:Invoke(self,property_name)
 end
 
 ---获取table或者list的长度
@@ -76,11 +77,11 @@ end
 ---@param ... any
 ---@return void
 local function on_collection_changed(self, arg)
-    -- local changed = self._collection_changed
+    -- local changed = self.CollectionChanged
     -- for i = 1, #changed do
     --     changed[i](self, arg)
     -- end
-    self._collection_changed:Dispatch(self,arg)
+    self.CollectionChanged:Invoke(self,arg)
     BindingUtility.Release(arg)
 end
 
@@ -96,11 +97,11 @@ local function set_property(self, property_name, value, force)
 end
 
 local add_property_changed = function(self, delegate)
-    self._property_changed:Add(delegate)
+    self.PropertyChanged:Add(delegate)
 end
 
 local remove_property_changed = function(self, delegate)
-    self._property_changed:Remove(delegate)
+    self.PropertyChanged:Remove(delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -151,11 +152,11 @@ local function set_item(self, index, item)
 end
 
 local add_collection_changed = function(self, delegate)
-    self._collection_changed:Add(delegate)
+    self.CollectionChanged:Add(delegate)
 end
 
 local remove_collection_changed = function(self, delegate)
-    self._collection_changed:Remove(delegate)
+    self.CollectionChanged:Remove(delegate)
 end
 
 local function collection_changed(self, op, delegate)
@@ -514,11 +515,11 @@ local function tostring(self)
 end
 
 ------INotifyPropertyChanged----
-notify_table.PropertyChanged = property_changed
+-- notify_table.PropertyChanged = property_changed
 notify_table.add_PropertyChanged = add_property_changed
 notify_table.remove_PropertyChanged = remove_property_changed
 ------INotifyCollectionChanged-----
-notify_table.CollectionChanged = collection_changed
+-- notify_table.CollectionChanged = collection_changed
 notify_table.add_CollectionChanged = add_collection_changed
 notify_table.remove_CollectionChanged = remove_collection_changed
 

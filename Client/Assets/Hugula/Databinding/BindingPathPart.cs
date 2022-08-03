@@ -81,7 +81,7 @@ namespace Hugula.Databinding
 
             Unsubscribe();
 
-            source.PropertyChanged += m_ChangeHandler;
+            source.PropertyChanged?.Add(m_ChangeHandler);
             m_NotifyPropertyChanged = source;
         }
 
@@ -90,7 +90,7 @@ namespace Hugula.Databinding
 
             if (m_NotifyPropertyChanged != null)
             {
-                m_NotifyPropertyChanged.PropertyChanged -= m_ChangeHandler;
+                m_NotifyPropertyChanged.PropertyChanged?.Remove(m_ChangeHandler);
             }
             m_NotifyPropertyChanged = null;
             // m_Source = null;

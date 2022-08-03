@@ -74,7 +74,7 @@ namespace Hugula.Databinding.Binder
             if (context is INotifyCollectionChanged)
             {
                 notify = ((INotifyCollectionChanged)context);
-                notify.CollectionChanged -= OnCollectionChanged;
+                notify.CollectionChanged.Remove(OnCollectionChanged);
             }
         }
         protected override void OnBindingContextChanged()
@@ -84,13 +84,13 @@ namespace Hugula.Databinding.Binder
             if (context is INotifyCollectionChanged)
             {
                 notify = ((INotifyCollectionChanged)context);
-                notify.CollectionChanged += OnCollectionChanged;
+                notify.CollectionChanged.Add(OnCollectionChanged);
             }
         }
 
         protected override void OnDestroy()
         {
-            if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
+            if (notify != null) notify.CollectionChanged.Remove(OnCollectionChanged);
             notify = null;
             base.OnDestroy();
         }
@@ -98,7 +98,7 @@ namespace Hugula.Databinding.Binder
         public override void ClearBinding()
         {
             base.ClearBinding();
-            if (notify != null) notify.CollectionChanged -= OnCollectionChanged;
+            if (notify != null) notify.CollectionChanged.Remove(OnCollectionChanged);
 
         }
 

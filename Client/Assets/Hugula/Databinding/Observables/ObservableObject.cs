@@ -7,7 +7,14 @@ namespace Hugula.Databinding
 {
     public class ObservableObject : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        private PropertyChangedEventHandlerEvent m_PropertyChanged = new PropertyChangedEventHandlerEvent();
+        public PropertyChangedEventHandlerEvent PropertyChanged
+        {
+            get
+            {
+                return m_PropertyChanged;
+            }
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -24,11 +31,5 @@ namespace Hugula.Databinding
             return true;
         }
 
-        // public bool SetProperty()
-
-        // public void OnPropertyChanged(string propertyName)
-        // {
-
-        // }
     }
 }

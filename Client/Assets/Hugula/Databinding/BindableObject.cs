@@ -47,8 +47,15 @@ namespace Hugula.Databinding
         #region  databinding
         protected object m_Context;
         protected object m_InheritedContext;
+        private PropertyChangedEventHandlerEvent m_PropertyChanged = new PropertyChangedEventHandlerEvent();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public PropertyChangedEventHandlerEvent PropertyChanged
+        {
+            get
+            {
+                return m_PropertyChanged;
+            }
+        }
 
         internal bool forceContextChanged = false;
         /// <summary>
@@ -86,6 +93,7 @@ namespace Hugula.Databinding
                 }
             }
         }
+
 
         ///<summary>
         /// 绑定表达式

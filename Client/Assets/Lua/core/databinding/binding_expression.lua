@@ -24,8 +24,6 @@ local context_property = "context"
 ---@param context any
 local function set_target_context(bindable_object, context)
     --check type
-    -- local ty = type(context)
-    -- if ty == "table" then
     if context.CollectionChanged then ---check INotifyTable:IList,INotifyPropertyChanged,INotifyCollectionChanged
         BindingUtility.SetContextByINotifyTable(bindable_object, context)
         return
@@ -36,7 +34,6 @@ local function set_target_context(bindable_object, context)
         BindingUtility.SetContextByINotifyPropertyChanged(bindable_object, context)
         return
     end
-    -- end
     bindable_object[context_property] = context
 end
 

@@ -36,7 +36,7 @@ namespace Hugula.Databinding
         {
             if (this.monitor.Busy)
             {
-                if ((this.CollectionChanged != null) && (this.CollectionChanged.GetInvocationList().Length > 1))
+                if ((this.CollectionChanged != null) && (this.CollectionChanged.Count > 1))
                     throw new InvalidOperationException();
             }
         }
@@ -295,8 +295,24 @@ namespace Hugula.Databinding
 
         #endregion
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
+        private NotifyCollectionChangedEventHandlerEvent m_CollectionChanged = new NotifyCollectionChangedEventHandlerEvent();
+        public NotifyCollectionChangedEventHandlerEvent CollectionChanged
+        {
+            get
+            {
+                return m_CollectionChanged;
+            }
+        }
+
+        private PropertyChangedEventHandlerEvent m_PropertyChanged = new PropertyChangedEventHandlerEvent();
+        public PropertyChangedEventHandlerEvent PropertyChanged
+        {
+            get
+            {
+                return m_PropertyChanged;
+            }
+        }
+
 
         protected virtual void ClearItems()
         {

@@ -12,14 +12,14 @@ local table_remove = table.remove
 local class = class
 local Object = CS.System.Object
 local GetSetObject = GetSetObject
-local PropertyChangedEvent = CS.Hugula.Databinding.PropertyChangedEvent
+local PropertyChangedEventHandlerEvent = CS.Hugula.Databinding.PropertyChangedEventHandlerEvent
 local empty_tab = {}
 local Timer = Timer
 local vm_base =
     class(
     function(self)
         ---属性改变事件监听
-        self._property_changed = PropertyChangedEvent()
+        self.PropertyChanged = PropertyChangedEventHandlerEvent()
         self.msg = {} --消息监听
         self.property = GetSetObject(self) --设置property getset
         self.is_active = false ---是否激活。
@@ -29,11 +29,11 @@ local vm_base =
 )
 
 local add_property_changed = function(self, delegate)
-    self._property_changed:Add(delegate)
+    self.PropertyChanged:Add(delegate)
 end
 
 local remove_property_changed = function(self, delegate)
-    self._property_changed:Remove(delegate)
+    self.PropertyChanged:Remove(delegate)
 end
 
 local function property_changed(self, op, delegate)
@@ -48,7 +48,7 @@ end
 ---@overload fun(property_name:string)
 ---@return void
 local function on_Property_changed(self, property_name)
-    self._property_changed:Dispatch(self, property_name)
+    self.PropertyChanged:Invoke(self, property_name)
 end
 
 ---改变属性
@@ -211,7 +211,7 @@ local function clear(self)
             v:clear()
         end
     end
-    self._property_changed:Clear()
+    self.PropertyChanged:Clear()
     self.is_res_ready = false
 end
 
@@ -219,8 +219,8 @@ end
 ---@overload fun()
 local function dispose(self)
     -- body
-    self._property_changed:Clear()
-    self._property_changed = nil
+    self.PropertyChanged:Clear()
+    self.PropertyChanged = nil
     self._push_arg = nil
 end
 
@@ -231,13 +231,13 @@ end
 ---注销的时候
 ---@overload fun()
 local function debug_property_changed(self)
-    local changed = self._property_changed.count
+    local changed = self.PropertyChanged.Count
     Logger.Log(string.format("debug_property_changed(%s) (%s) ", changed, tostring(self)))
     -- Logger.LogTable(changed)
 end
 
 ---INotifyPropertyChanged接口实现
-vm_base.PropertyChanged = property_changed
+-- vm_base.PropertyChanged = property_changed
 vm_base.add_PropertyChanged = add_property_changed
 vm_base.remove_PropertyChanged = remove_property_changed
 ---改变属性

@@ -1,5 +1,12 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.9.14
+1 分包工具优化与新的分包资源上传。
+2 timer profiler 优化。
+3 profiler log按照时间输出。
+4 webdownload 重连修改为异步方式。
+5 测试脚本。
+
 2022.8.2
 1 lua取消 zip方式打包。
 2 zip分包支持优先级配置。

@@ -6,13 +6,62 @@ using System.Text;
 using System.IO;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-
+using Hugula.Utils;
+using UnityEngine.AddressableAssets;
+using Hugula.Utils;
 namespace HugulaEditor.ResUpdate
 {
-    public class ResUpdateMenu 
+    public class ResUpdateMenu
     {
-        private const  string ResUpdatePackingPath = "Assets/Hugula/ResUpdate/Addressable/Editor/Config/ResUpdatePacking.txt";
-        [MenuItem("Hugula/AAS Tool/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
+
+        [MenuItem("Hugula/Res Packing/Clear All Group HugulaResUpdatePacking", false, 211)]
+        static void ClearAddressablesGroupHugulaResUpdatePacking()
+        {
+            int i;
+            float c;
+            var sb = new StringBuilder();
+            var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
+
+            var title = "Clear AddressableAssetGroup entries";
+            EditorUtility.DisplayProgressBar(title, title, 0);
+            i = 0;
+            c = allGroups.Count;
+            try
+            {
+                foreach (AddressableAssetGroup group in allGroups)
+                {
+                    i++;
+                    if (group == null) continue;
+                    if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
+                    {
+                        break;
+                    }
+
+                    var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                    bool remove = false;
+                    if (resupPacking != null)
+                    {
+                        remove = group.RemoveSchema<HugulaResUpdatePacking>();
+                        var str = $"LogWarning[{ group.Name}].RemoveSchema<HugulaResUpdatePacking>() = {remove} \r\n";
+                        Debug.LogWarning(str);
+                        sb.AppendLine(str);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                Debug.Log(sb.ToString());
+                AssetDatabase.Refresh();
+            }
+        }
+
+        private const string ResUpdatePackingPath = "Assets/Hugula/ResUpdate/Addressable/Editor/Config/ResUpdatePacking.txt";
+        [MenuItem("Hugula/Res Packing/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
         static void UpdateAddressablesGroupHugulaResUpdatePacking()
         {
 
@@ -21,15 +70,17 @@ namespace HugulaEditor.ResUpdate
             Dictionary<string, object[]> addressPackingName = new Dictionary<string, object[]>();
             string line;
             string[] kv;
-            using (var sr = new StreamReader(ResUpdatePackingPath,true))
+            int lineNumber = 0;
+            using (var sr = new StreamReader(ResUpdatePackingPath, true))
             {
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
-                    line= sr.ReadLine();
-                    if(!line.Contains("//"))
+                    lineNumber++;
+                    line = sr.ReadLine();
+                    if (!line.Contains("//"))
                     {
                         kv = line.Split(',');
-                        if(kv.Length==2)
+                        if (kv.Length == 2)
                         {
                             addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), typeof(UnityEngine.Object) };
                             sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({typeof(UnityEngine.Object)})");
@@ -38,14 +89,32 @@ namespace HugulaEditor.ResUpdate
                         else if (kv.Length == 3)
                         {
                             var tp = Hugula.Utils.LuaHelper.GetClassType(kv[2].Trim());
-                            addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp };
-                            sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
+                            if (tp == null)
+                            {
+                                var erro = $"line:{lineNumber}  {line}   error type({kv[1].Trim()}) is null ";
+                                Debug.LogError(erro);
+                                sb.AppendLine(erro);
+                            }
+                            else
+                            {
+                                addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp };
+                                sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
+                            }
                         }
                         else if (kv.Length > 3)
                         {
                             var tp = Hugula.Utils.LuaHelper.GetClassType(kv[2].Trim());
-                            addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp ,kv[3]};
-                            sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
+                            if (tp == null)
+                            {
+                                var erro = $"line:{lineNumber} {line} error type({kv[1].Trim()}) is null ";
+                                Debug.LogError(erro);
+                                sb.AppendLine(erro);
+                            }
+                            else
+                            {
+                                addressPackingName[kv[0].Trim()] = new object[] { kv[1].Trim(), tp, kv[3] };
+                                sb.AppendLine($"address[{kv[0].Trim()}],folderName({kv[1].Trim()}),type({tp})");
+                            }
                         }
                     }
                 }
@@ -53,89 +122,100 @@ namespace HugulaEditor.ResUpdate
 
             Debug.Log(sb.ToString());
 
-           var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
+            var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
 
             sb.AppendLine("AddressableAssetGroup:");
 
-            var title = "Check AddressableAssetGroup entries";
-            EditorUtility.DisplayProgressBar(title, title, 0);
             int i;
-            float c;
+            float c = allGroups.Count;
+
+            var PackingTypeMapping = new Dictionary<string, HugulaResUpdatePacking.PackingType>();
+            PackingTypeMapping.Add("fast", HugulaResUpdatePacking.PackingType.fast);
+            PackingTypeMapping.Add("demand", HugulaResUpdatePacking.PackingType.demand);
+
+
             i = 0;
-            c = allGroups.Count;
             try
             {
+                var title = "Check AddressableAssetGroup entries";
 
-            foreach (AddressableAssetGroup group in allGroups)
-            {
-                i++;
-                if (group == null) continue;
-                if (EditorUtility.DisplayCancelableProgressBar(title,group.Name,i/c))
+                foreach (AddressableAssetGroup group in allGroups)
                 {
-                    break;
-                }
-                foreach (AddressableAssetEntry entry in group.entries)
-                {
-                    if (entry == null) continue;
-                    if (EditorUtility.DisplayCancelableProgressBar(title, entry.address, i / c))
+                    i++;
+                    if (group == null) continue;
+                    if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
                     {
                         break;
                     }
-
-                    System.Type targetType = null;
-                    if(entry.TargetAsset)
+                    foreach (AddressableAssetEntry entry in group.entries)
                     {
-                        targetType = entry.TargetAsset.GetType(); 
-                    }
-                    else
-                    {
-                        var str = $"LogWarning[{ group.Name}] [{ entry.address}], ({ entry.TargetAsset}), { entry.AssetPath} entry.TargetAsset is null \r\n";
-                        Debug.LogWarning(str);
-                        sb.AppendLine(str);
-                        continue;
-                    }
-
-                    Debug.Log($"{entry.address}");
-                    if ( addressPackingName.TryGetValue(entry.address,out var objs))
-                    {
-                        var type = objs[1];
-                        if ( targetType.IsSubclassOf((System.Type)type) || targetType.Equals((System.Type)type))
+                        if (entry == null) continue;
+                        System.Type targetType = null;
+                        if (entry.TargetAsset)
                         {
+                            targetType = entry.TargetAsset.GetType();
+                        }
+                        else
+                        {
+                            var str = $"LogWarning[{ group.Name}] [{ entry.address}], ({ entry.TargetAsset}), { entry.AssetPath} entry.TargetAsset is null \r\n";
+                            Debug.LogWarning(str);
+                            sb.AppendLine(str);
+                            continue;
+                        }
 
-                            var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
-                            if (resupPacking == null)
+                        Debug.Log($"{entry.address}");
+                        if (addressPackingName.TryGetValue(entry.address, out var objs))
+                        {
+                            var type = objs[1];
+                            if (targetType.IsSubclassOf((System.Type)type) || targetType.Equals((System.Type)type))
                             {
-                                resupPacking = group.AddSchema<HugulaResUpdatePacking>();
-                            }
-                            else
-                            {
-                                if(resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+
+                                var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                                if (resupPacking == null)
                                 {
-                                    var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
-                                    Debug.LogWarning(str);
-                                    sb.AppendLine(str);
+                                    resupPacking = group.AddSchema<HugulaResUpdatePacking>();
                                 }
-                            }
+                                else
+                                {
+                                    if (resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+                                    {
+                                        var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
+                                        Debug.LogWarning(str);
+                                        sb.AppendLine(str);
+                                    }
+                                }
 
-                                resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
-                                resupPacking.customName = objs[0].ToString();
+                                var customName = objs[0].ToString().ToLower();
+
+                                if (PackingTypeMapping.TryGetValue(customName, out var packingType))
+                                {
+                                    resupPacking.packingType = packingType;
+                                }
+                                else
+                                {
+                                    resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
+                                }
+
+                                resupPacking.customName = customName;
                                 int priority = 0;
-                                if(objs.Length>=3 && int.TryParse(objs[2].ToString(),out priority) )
+                                if (objs.Length >= 3 && int.TryParse(objs[2].ToString(), out priority))
                                 {
                                     resupPacking.priority = priority;
                                 }
                                 EditorUtility.SetDirty(resupPacking);
-                                AssetDatabase.SaveAssets();
+                                // AssetDatabase.SaveAssets();
 
-                            sb.AppendLine($"[{group.Name}]:  \r\n               zipFolderName:{objs[0].ToString()}     found:[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n");
-                            //debug info
-                            foreach(var g in group.entries)
-                            {
-                                if (g == null) continue;
-                                sb.AppendLine($"                [{g.address}], ({g.TargetAsset.GetType()}), {g.AssetPath}");
+                                sb.AppendLine($"[{group.Name}]:  \r\n               zipFolderName:{customName}     found:[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n");
+                                //debug info
+                                foreach (var g in group.entries)
+                                {
+                                    if (g == null) continue;
+                                    sb.AppendLine($"                [{g.address}], ({g.TargetAsset.GetType()}), {g.AssetPath}");
+                                }
+
+                                break;
                             }
 
-                            break;
                         }
 
                     }
@@ -143,20 +223,152 @@ namespace HugulaEditor.ResUpdate
                 }
 
             }
-
-            }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 Debug.LogException(ex);
             }
             finally
             {
-            EditorUtility.ClearProgressBar();
-            Debug.Log(sb.ToString());
-            EditorUtils.WriteToTmpFile("Update_AddressablesGroup_HugulaResUpdatePacking.txt",sb.ToString());
-            AssetDatabase.Refresh();
+                EditorUtility.ClearProgressBar();
+                Debug.Log(sb.ToString());
+                EditorUtils.WriteToTmpFile("Update_AddressablesGroup_HugulaResUpdatePacking.txt", sb.ToString());
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
 
         }
-       }
+
+
+        // [MenuItem("Hugula/Res Packing/CheckResUpdatePackingDenpendences(Need Build)", false, 212)]
+        static void CheckResUpdatePackingDenpendences()
+        {
+
+            EditorUtils.InvokeStatic(typeof(Hugula.ResLoader), "Init");
+            Hugula.ResUpdate.FileManifestManager.LoadStreamingFolderManifests();
+
+            Debug.Log($" wait Hugula.ResLoader.Ready & {Hugula.ResLoader.Ready}");
+            int i = 0;
+            float c;
+            // #if !HUGULA_NO_LOG
+            var sb1 = new System.Text.StringBuilder();
+            var keys = new List<object>();
+            foreach (var item in Addressables.ResourceLocators)
+            {
+                sb1.AppendLine("new Addressables.ResourceLocators:(");
+                sb1.Append(item.LocatorId);
+                sb1.AppendLine("):");
+                keys.Clear();
+                keys.AddRange(item.Keys);
+                sb1.AppendLine($"  ------------------------------{item.LocatorId}-Count:{keys.Count}------------------");
+                c = keys.Count;
+                foreach (var key in keys)
+                {
+                    i++;
+                    if (item.Locate(key, typeof(UnityEngine.Object), out var locations))
+                    {
+                        if (EditorUtility.DisplayCancelableProgressBar("Addressables.ResourceLocators", key.ToString(), i / c))
+                        {
+                            break;
+                        }
+                        sb1.AppendLine($"            -----key:{key} ,LocatorId:{item.LocatorId} Count:{locations.Count}");
+                        foreach (var loc in locations)
+                        {
+                            sb1.AppendLine($"                    locations:{key.ToString()} (type:{loc.ResourceType},PrimaryKey:{loc.PrimaryKey},InternalId:{loc.InternalId})");
+                        }
+                        // sb1.AppendLine($"            end-----{item.LocatorId}-{key.ToString()}--Count:{locations.Count}");
+                    }
+                    // else
+                    //     sb1.AppendLine($"            -----{item.LocatorId}-{key.ToString()}--Count:0");
+
+                }
+                sb1.AppendLine($"  end-------------------------------{item.LocatorId}-Count:{keys.Count}-------------------");
+
+                Debug.Log(sb1.ToString());
+            }
+
+            EditorUtils.WriteToTmpFile("CheckResUpdatePackingDenpendences_ResourceLocators.txt", sb1.ToString());
+
+            // #endif
+
+            var sb = new StringBuilder();
+            var sbItem = new StringBuilder();
+            sb.AppendLine("CheckResUpdatePackingDenpendences:");
+            //遍历所有资源判断依赖分包情况。
+            var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
+
+            var title = "Check Res UpdatePacking Denpendences";
+            EditorUtility.DisplayProgressBar(title, title, 0);
+
+            i = 0;
+            c = allGroups.Count;
+            var streaming = HugulaResUpdatePacking.PackingType.streaming.ToString();
+            try
+            {
+                foreach (AddressableAssetGroup group in allGroups)
+                {
+                    i++;
+                    if (group == null) continue;
+                    if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
+                    {
+                        break;
+                    }
+
+                    foreach (AddressableAssetEntry entry in group.entries)
+                    {
+                        if (entry == null) continue;
+                        if (EditorUtility.DisplayCancelableProgressBar(title, entry.address, i / c))
+                        {
+                            break;
+                        }
+
+                        System.Type targetType = null;
+                        if (entry.TargetAsset)
+                        {
+                            targetType = entry.TargetAsset.GetType();
+                        }
+
+                        var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                        if (resupPacking == null || resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+                        {
+                            List<string> dependenciesInfo = ListPool<string>.Get();
+                            Hugula.ResUpdate.FileManifestManager.AnalyzeAddressDependencies(entry.address, targetType, dependenciesInfo);
+                            bool hasZipDependencies = false;
+                            sbItem.Clear();
+                            sbItem.AppendLine($"{entry.address} path:{entry.AssetPath}     Dependencies:");
+                            for (int j = 0; j < dependenciesInfo.Count;)
+                            {
+                                var folderName = dependenciesInfo[j];
+                                var bundle = dependenciesInfo[j + 2];
+                                if (folderName != streaming) //在依赖包
+                                {
+                                    sbItem.AppendLine($"     {folderName}        {bundle}");
+                                    hasZipDependencies = true;
+                                }
+                                j = j + 3;
+                            }
+
+                            ListPool<string>.Release(dependenciesInfo);
+                            if (hasZipDependencies)
+                            {
+                                sb.AppendLine(sbItem.ToString());
+                            }
+
+                        }
+
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                Debug.Log(sb.ToString());
+                EditorUtils.WriteToTmpFile("CheckResUpdatePackingDenpendences.txt", sb.ToString());
+                AssetDatabase.Refresh();
+            }
+        }
+    }
 }

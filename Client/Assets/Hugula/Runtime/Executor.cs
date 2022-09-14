@@ -34,6 +34,7 @@ namespace Hugula
                     else if (act is Coroutine)
                         StopCoroutine((Coroutine)act);
 
+                    m_Tasks.Remove(act);
                 }
                 m_CancelQueue.Clear();
             }
@@ -45,23 +46,14 @@ namespace Hugula
                 object act = m_Tasks[i];
                 if (act is Action)
                 {
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("System.Collections.Generic.List<System.Type>.Add");
-#endif
                     try
                     {
                         ((Action)act)();
                     }
-                    catch (System.Exception gen_e)
+                    catch (System.Exception e)
                     {
-                        UnityEngine.Debug.LogError($"action exception {gen_e}");
-                        return;//LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+                        UnityEngine.Debug.LogException(e);
                     }
-#if LUA_PROFILER_DEBUG
-                        finally {
-                            UnityEngine.Profiling.Profiler.EndSample();
-                        }
-#endif
                 }
                 else if (act is IEnumerator)
                 {
@@ -76,6 +68,7 @@ namespace Hugula
                 UnityEngine.Debug.LogWarningFormat("the executor's binding cost too long.  it  take {0} milliseconds. task count = {1}.", time, m_Tasks.Count);
 #endif
             m_Tasks.Clear();
+
         }
 
         void OnApplicationQuit()

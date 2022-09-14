@@ -94,22 +94,39 @@ namespace Hugula.Profiler
                     0, uniEncoding.GetByteCount(msg));
             }
         }
-        public static void DumpProfilerInfo(float timeThresholdToLog = 0f, bool resetProfilers = true, bool bWriteToFile = false)
+
+        static string m_LogFileName;
+        static string LogFileFullName
         {
-            FileStream kFile = null;
-            if (bWriteToFile)
+            get
             {
+                if (string.IsNullOrEmpty(m_LogFileName))
+                {
 #if UNITY_EDITOR || UNITY_STANDALONE
                 var kDirName = Path.Combine(Application.dataPath, "../Logs/");
 #else
                 var kDirName = Hugula.Utils.CUtils.realPersistentDataPath;
 #endif
 
-                if (File.Exists(kDirName) == false)
-                {
-                    Directory.CreateDirectory(kDirName);
+                    if (File.Exists(kDirName) == false)
+                    {
+                        Directory.CreateDirectory(kDirName);
+                    }
+
+                    m_LogFileName = Path.Combine(kDirName, $"ProfilerInfoLog_{System.DateTime.Now.ToString("MM_dd HH_mm_ss ")}.txt");
                 }
-                string kLogFileName = kDirName + "/ProfilerInfoLog.txt";
+
+                return m_LogFileName;
+            }
+        }
+
+        public static void DumpProfilerInfo(float timeThresholdToLog = 0f, bool resetProfilers = true, bool bWriteToFile = false)
+        {
+            FileStream kFile = null;
+            if (bWriteToFile)
+            {
+
+                string kLogFileName = LogFileFullName;
 
                 if (File.Exists(kLogFileName))
                 {
@@ -185,9 +202,9 @@ namespace Hugula.Profiler
 
         public static void BeginSample(string name, string arg = "")
         {
-            if(!string.IsNullOrEmpty(arg))
+            if (!string.IsNullOrEmpty(arg))
             {
-                name = name +":"+ arg;
+                name = name + ":" + arg;
             }
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PushSample (name);

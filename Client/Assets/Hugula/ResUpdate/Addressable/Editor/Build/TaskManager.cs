@@ -31,6 +31,7 @@ namespace HugulaEditor.ResUpdate
                     if(onProcess!=null)onProcess( (float)i/(float)count,task.name);
                 }catch(System.Exception ex)
                 {
+                     UnityEngine.Debug.LogException(ex);
                     UnityEngine.Debug.LogError(ex.Message+ex.ToString());
                 }
                 finally

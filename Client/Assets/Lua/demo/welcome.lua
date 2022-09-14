@@ -131,22 +131,22 @@ eg_data.on_item_select = {
 }
 
 ---事件变更监听
-eg_data:CollectionChanged(
-    "+",
-    function(sender, arg)
-        -- Logger.Log(
-        --     sender,
-        --     string.format(
-        --         "eg_data:Action=%s,NewStartingIndex:%s,NewItems:%s,OldItems:%s,OldStartingIndex:%s",
-        --         arg.Action,
-        --         arg.NewStartingIndex,
-        --         arg.NewItems,
-        --         arg.OldItems,
-        --         arg.OldStartingIndex
-        --     )
-        -- )
-    end
-)
+-- eg_data:CollectionChanged(
+--     "+",
+--     function(sender, arg)
+--         -- Logger.Log(
+--         --     sender,
+--         --     string.format(
+--         --         "eg_data:Action=%s,NewStartingIndex:%s,NewItems:%s,OldItems:%s,OldStartingIndex:%s",
+--         --         arg.Action,
+--         --         arg.NewStartingIndex,
+--         --         arg.NewItems,
+--         --         arg.OldItems,
+--         --         arg.OldStartingIndex
+--         --     )
+--         -- )
+--     end
+-- )
 
 welcome.eg_data = eg_data
 

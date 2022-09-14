@@ -93,6 +93,7 @@ namespace Hugula.Framework
 
 #if DEBUG_TIMER
             var str = EnterLua.LuaTraceback();
+            str = str.Replace("\r"," ").Replace("\n"," ");
             m_TimerTraceDic.Add(timerInfo.id, str);
             // WriteToLogFile($"\r\nadd DelayFrame(id={timerInfo.id},begin={timerInfo.begin},delay:{frame},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
 #endif
@@ -123,6 +124,8 @@ namespace Hugula.Framework
             m_Timers.Add(timerInfo);
 #if DEBUG_TIMER
             var str = EnterLua.LuaTraceback();
+            str = str.Replace("\r"," ").Replace("\n"," ");
+
             m_TimerTraceDic.Add(timerInfo.id, str);
             // WriteToLogFile($"\r\nadd Delay(id={timerInfo.id},begin={timerInfo.begin},delay:{delay},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
 #endif
@@ -145,6 +148,8 @@ namespace Hugula.Framework
             m_Timers.Add(timerInfo);
 #if DEBUG_TIMER
             var str = EnterLua.LuaTraceback();
+            str = str.Replace("\r"," ").Replace("\n"," ");
+
             m_TimerTraceDic.Add(timerInfo.id, str);
             // WriteToLogFile($"\r\nadd Delay(id={timerInfo.id},begin={timerInfo.begin},delay:{delay},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
 #endif
@@ -193,11 +198,10 @@ namespace Hugula.Framework
             System.Action<object> action = null;
             object arg = null;
 #if PROFILER_DUMP && !PROFILER_NO_DUMP
-            var m_Timers_count = m_Timers.Count;
-            var parentName = "Timer.UPdate:" + frame.ToString() + ":" + m_Timers_count.ToString();
-            var parent = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(parentName, null, null, true);
+            // var m_Timers_count = m_Timers.Count;
+            // var parentName = "Timer.UPdate:" +frameStr + ":" + m_Timers_count.ToString();
+            // var parent = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(parentName, null, null, true);
 #endif
-
 
             for (int i = 0; i < m_Timers.Count;)
             {
@@ -212,7 +216,7 @@ namespace Hugula.Framework
 
 #if DEBUG_TIMER 
                     var timeID = timerInfo.id.ToString();
-                    var timeTrace = $"id:{timeID},isDone:{timerInfo.isDone} " + m_TimerTraceDic[timerInfo.id];
+                    var timeTrace = $"Timer.trace id:{timeID},isDone:{timerInfo.isDone})" + m_TimerTraceDic[timerInfo.id];
 #endif
 
                     if (timerInfo.isDone)
@@ -237,7 +241,7 @@ namespace Hugula.Framework
                     {
 
 #if PROFILER_DUMP && !PROFILER_NO_DUMP && DEBUG_TIMER
-                        using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, parentName, true))
+                        using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, null, true))
                         {
                             action(arg);
                         }
@@ -247,7 +251,7 @@ namespace Hugula.Framework
                     }
                     catch (System.Exception ex)
                     {
-                        TLogger.LogCallback(ex);
+                        Debug.LogException(ex);
                     }
                 }
                 else
@@ -262,12 +266,13 @@ namespace Hugula.Framework
             if (m_Timers.Count > 6 && frame % 100 == 0)
             {
                 var frameStr = frame.ToString();
+
                 for (int i = 0; i < m_Timers.Count; i++)
                 {
                     timerInfo = m_Timers[i];
                     var timeID = timerInfo.id.ToString();
-                    var timeTrace = $"frame:{frameStr}, waiting id:{timeID},isDone:{timerInfo.isDone} " + m_TimerTraceDic[timerInfo.id];
-                    using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, parentName, true))
+                    var timeTrace = $"Timer.waiting  frame:{frameStr}, id:{timeID},isDone:{timerInfo.isDone} " + m_TimerTraceDic[timerInfo.id];
+                    using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, null, true))
                     {
 
                     }
@@ -275,7 +280,7 @@ namespace Hugula.Framework
             }
 #endif
 
-            if (parent != null) parent.Stop();
+            // if (parent != null) parent.Stop();
 #endif
         }
 

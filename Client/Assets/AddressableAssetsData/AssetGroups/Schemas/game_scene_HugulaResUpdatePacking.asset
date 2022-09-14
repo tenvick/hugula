@@ -15,3 +15,4 @@ MonoBehaviour:
   m_Group: {fileID: 11400000, guid: d714697e3a00b214e8d5b91114950025, type: 2}
   packingType: 3
   customName: small_game
+  priority: 2

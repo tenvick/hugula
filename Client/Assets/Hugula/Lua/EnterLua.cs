@@ -188,6 +188,10 @@ namespace Hugula
             // #if UNITY_EDITOR
             ClearLuaRef();
             // #endif
+            m_PersistentLuaBundle?.Unload();
+            m_PersistentLuaBundle = null;
+            m_StreamingLuaBundle?.Unload();
+            m_StreamingLuaBundle = null;
         }
 
         void OnApplicationQuit()
@@ -288,9 +292,9 @@ namespace Hugula
                     Debug.LogError($"the file({Common.LUACFOLDER}/{name}.lua)  did't exists.");
 
             }
-
-            name = path;//chunkname 调试用
 #endif
+            name = path;//chunkname 调试用
+
             return str;
         }
 
@@ -349,7 +353,7 @@ namespace Hugula
 
         static internal string LuaTraceback()
         {
-            return Hugula.EnterLua.luaenv?.DoString("return debug.traceback('')")[0].ToString();
+            return Hugula.EnterLua.luaenv?.DoString("return debug.traceback('',3)")[0].ToString().Replace("stack traceback:","");
         }
 
         #region delay

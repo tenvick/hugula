@@ -24,6 +24,14 @@ namespace Hugula.Framework
             }
         }
 
+        public static bool Created
+        {
+            get
+                {
+                return m_Instance != null;
+            }
+        }
+
         protected virtual void Awake()
         {
             if (m_Instance == null)

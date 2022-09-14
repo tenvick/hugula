@@ -265,6 +265,12 @@ namespace HugulaEditor
             field.SetValue(obj, value);
         }
 
+        public static object InvokeStatic(System.Type type ,string name,params object[] args)
+        {
+            var staticMethod = type.GetMethod(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Static);
+            return staticMethod.Invoke(null,args);
+        }
+
         [MenuItem("Assets/Hugula/打开开始场景  %g")]
         static public void OpenBeginSence()
         {

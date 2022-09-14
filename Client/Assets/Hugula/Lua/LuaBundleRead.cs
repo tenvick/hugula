@@ -20,6 +20,11 @@ namespace Hugula
             m_LuaBundle = AssetBundle.LoadFromFile(path, 0, Common.BUNDLE_OFF_SET);
         }
 
+        public void Unload()
+        {
+            m_LuaBundle?.Unload(true);
+        }
+
         public byte[] LoadBytes(string name)
         {
             byte[] ret = null;

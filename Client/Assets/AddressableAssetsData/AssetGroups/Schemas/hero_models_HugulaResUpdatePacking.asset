@@ -15,3 +15,4 @@ MonoBehaviour:
   m_Group: {fileID: 11400000, guid: c00905edeb4b74247b9d5fe2caf46b3c, type: 2}
   packingType: 3
   customName: hero_models
+  priority: 3

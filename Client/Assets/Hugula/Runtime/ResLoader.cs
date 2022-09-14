@@ -341,6 +341,7 @@ namespace Hugula
                     }
                     else
                     {
+                        Debug.LogError($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
                         if (onEnd != null) onEnd(null, userData);
                     }
 #if PROFILER_DUMP
@@ -377,6 +378,9 @@ namespace Hugula
         #region  GameObject 实例化
 #if !ADDRESSABLES_INSTANTIATEASYNC
         static Dictionary<GameObject, UnityEngine.Object> gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
+#else
+        static Dictionary<GameObject, string> InstantiateRef = new Dictionary<GameObject,string>();
+
 #endif
         public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
         {
@@ -427,10 +431,12 @@ namespace Hugula
 
                     if (inst != null)
                     {
+                        InstantiateRef[inst] = key;
                         if (onComplete != null) onComplete(inst, userData);
                     }
                     else
                     {
+                        Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
                         if (onEnd != null) onEnd(key, userData);
                     }
 #if PROFILER_DUMP
@@ -449,8 +455,8 @@ namespace Hugula
                 await task;
                 if (task.Result == null)
                 {
+                    Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
                     if (onEnd != null) onEnd(key, userData);
-                    Debug.LogError($"load gameobject({key}) fail.");
                     // OnItemLoaded(key);
                     return;
                 }
@@ -552,10 +558,8 @@ namespace Hugula
                     }
                     else
                     {
+                        Debug.LogError($"LoadSceneAsync can't find asset ({key})");
                         if (onEnd != null) onEnd(key, userData);
-#if UNITY_EDITOR
-                        Debug.LogError($"load scene{key} fail.");
-#endif
                     }
 
 #if PROFILER_DUMP
@@ -685,6 +689,7 @@ namespace Hugula
             if (obj)
             {
 #if ADDRESSABLES_INSTANTIATEASYNC
+                InstantiateRef.Remove(obj);
                 Addressables.ReleaseInstance(obj);
 #else
                 GameObject.Destroy(obj);
@@ -695,6 +700,29 @@ namespace Hugula
                 }
 #endif
             }
+        }
+
+        //释放所有缓存的GameObjecct 用于重启
+        static public void ReleaseCachedInstances()
+        {
+            GameObject gameObject;
+#if ADDRESSABLES_INSTANTIATEASYNC
+            foreach(var kv in InstantiateRef)
+            {
+                gameObject = kv.Key;
+                Addressables.ReleaseInstance(gameObject);
+            }
+            InstantiateRef.Clear();
+#else
+            foreach(var kv in gObjInstanceRef)
+            {
+                gameObject = kv.Key;
+                GameObject.Destroy(gameObject);
+                Release<UnityEngine.Object>(kv.Value);
+            }
+            gObjInstanceRef.Clear();
+#endif
+              
         }
 
         static public void Release<T>(T obj)

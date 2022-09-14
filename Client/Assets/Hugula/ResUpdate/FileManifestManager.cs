@@ -110,9 +110,22 @@ namespace Hugula.ResUpdate
 
         #region mem cache
         /// <summary>
+        /// address的状态
+        /// </summary>
+        enum ZipAddressState
+        {
+            //需要判断
+            NeedCheck,
+            //通过判断下载成功
+            Success,
+            //没有全部下载
+            Fail
+        }
+
+        /// <summary>
         /// 检测扩展包的资源是否已经下载
         /// </summary>
-        static Dictionary<string, bool> addressIsDownDic = new Dictionary<string, bool>();
+        static Dictionary<string, ZipAddressState> addressIsDownDic = new Dictionary<string, ZipAddressState>();
 
         /// <summary>
         /// 设置扩展包里加载address key的完成状态
@@ -123,15 +136,18 @@ namespace Hugula.ResUpdate
             if (keys == null) return;
 
             var key = string.Empty;
-            for(var i=0;i<keys.Count;i++)
+            for (var i = 0; i < keys.Count; i++)
             {
                 key = keys[i];
-                
-                if(isAllDown)
-                    addressIsDownDic.Remove(key);
-                else 
+
+                if (isAllDown)
                 {
-                    addressIsDownDic[key] = isAllDown;
+                    addressIsDownDic.Remove(key);
+                    // addressIsDownDic[key] = ZipAddressState.NeedCheck;
+                }
+                else
+                {
+                    addressIsDownDic[key] = ZipAddressState.Fail;
                 }
             }
         }
@@ -235,14 +251,57 @@ namespace Hugula.ResUpdate
 
             if (type == null) type = DEFAULT_TYPE;
 
-            if (addressIsDownDic.TryGetValue(address, out var isDown))
+            if (addressIsDownDic.TryGetValue(address, out var addState))
             {
-                return isDown;
+                if (addState == ZipAddressState.NeedCheck)
+                {
+                    var isAllDown = CheckAddressDependenciesIsDown(address, type);
+                    if (isAllDown)
+                    {
+                        addState = ZipAddressState.Success;
+                        addressIsDownDic.Remove(address); //移除
+                    }
+                    else
+                    {
+                        addState = ZipAddressState.Fail;
+                        addressIsDownDic[address] = addState;
+                    }
+                }
+#if !HUGULA_NO_LOG && LOG_ZIP_ADDRESS
+                Debug.LogWarning($"FileManifestManager.CheckAddressIsDown({address}) isdown:{addState == ZipAddressState.Success}");
+#endif
+                return addState == ZipAddressState.Success;
             }
             else
             {
+#if !HUGULA_NO_LOG && LOG_ZIP_ADDRESS
+                Debug.LogWarning($"FileManifestManager.CheckAddressIsDown({address}) not in addressIsDownDic true");
+#endif
+
                 return true;
             }
+        }
+
+        /// <summary>
+        /// 通过address地址判断资源是否已经下载
+        /// </summary>
+        public static bool CheckAddressDependenciesIsDown(string address, System.Type type = null)
+        {
+            var folders = FindFolderManifestByAddress(address, type);
+            FolderManifest folder;
+            bool isDown = true;
+            for (int i = 0; i < folders.Count; i++)
+            {
+                folder = folders[i];
+                if (!folder.isZipDone)
+                {
+                    isDown = false;
+                    break;
+                }
+            }
+
+            ListPool<FolderManifest>.Release(folders);
+            return isDown;
         }
 
         /// <summary>
@@ -260,6 +319,46 @@ namespace Hugula.ResUpdate
 
             return true;
         }
+
+
+#if UNITY_EDITOR
+        [XLua.DoNotGen]
+        [System.ObsoleteAttribute]
+        /// <summary>
+        ///  分析依赖bundle
+        /// </summary>
+        public static void AnalyzeAddressDependencies(string address,System.Type type,List<string> dependenciesInfo)
+        {
+            var abNames = FindBundleNameByAddress(address, type);
+            FolderManifest find=null;
+            string bundleName = null;
+             for (int i = 0; i < streamingFolderManifest.Count; i++)
+            {
+                find = streamingFolderManifest[i] as FolderManifest;
+                if (find)
+                {
+                    for (int j = 0; j < abNames.Count;)
+                    {
+                        bundleName = abNames[j];
+                        if (find.GetFileResInfo(bundleName) != null)
+                        {
+                            abNames.RemoveAt(j);
+                            dependenciesInfo.Add(find.fileName);
+                            dependenciesInfo.Add(find.priority.ToString());
+                            dependenciesInfo.Add(bundleName);
+                        }
+                        else
+                            j++;
+                    }
+                }
+            }
+
+            ListPool<string>.Release(abNames);
+        }
+
+
+#endif
+
         /// <summary>
         /// 检测当前是否可以覆盖stream中文件夹信息
         /// </summary>      
@@ -434,7 +533,7 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 读取Streaming中的folderManifest
         /// </summary>
-        internal static void LoadStreamingFolderManifests(System.Action onComplete)
+        public static void LoadStreamingFolderManifests(System.Action onComplete = null)
         {
             var fileListName = Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME;
             var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), fileListName);
@@ -829,11 +928,11 @@ namespace Hugula.ResUpdate
                 }
 
                 //清理address状态
-                SetFolderAddressIsDown(folderPackage,true);
+                SetFolderAddressIsDown(folderPackage, true);
             }
             else
             {
-                SetFolderAddressIsDown(folderPackage,false);
+                SetFolderAddressIsDown(folderPackage, false);
 #if !HUGULA_NO_LOG
                 Debug.LogWarning($"generate zip folder transform fail , {folderPackage.fileName} have't loaded size:{folderPackage.zipSize}) ");
 #endif

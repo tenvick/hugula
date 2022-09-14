@@ -210,7 +210,7 @@ namespace HugulaEditor.ResUpdate
             else
             {
                 Debug.LogError($"没有找到文件:{path}");
-                return null;
+                return new BuildBundlePathData();
             }
         }
     }

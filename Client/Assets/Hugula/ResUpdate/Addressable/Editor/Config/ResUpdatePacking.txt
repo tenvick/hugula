@@ -1,4 +1,8 @@
 //address对应的ResUpdatePacking 名
 //资源名,自定义zip包名，资源type类型(默认为UnityEngine.Object),下载优先级
 //addressName,FolderName,fullTypeName,FolderManifestPriority
-hero_bailangkaluolin_ride,hero_models,UnityEngine.GameObject,1
+hero_bailangkaluolin_ride,hero_models,UnityEngine.GameObject,3
+game_scene,small_game,UnityEngine.Object,2
+ui_button,sound_pack,UnityEngine.AudioClip,1
+bag_atlas,fast,UnityEngine.Object,0
+bag,fast,UnityEngine.Object,0

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Serialization;
-
+using UnityEditor.AddressableAssets.Settings;
 namespace UnityEditor.AddressableAssets.Settings.GroupSchemas
 {
     /// <summary>

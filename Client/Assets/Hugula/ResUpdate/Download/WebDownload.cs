@@ -10,6 +10,7 @@ using System.Threading;
 using Hugula.Collections;
 using Hugula.Utils;
 using UnityEngine;
+using System.Threading.Tasks;
 
 namespace System.Net
 {
@@ -370,7 +371,7 @@ namespace System.Net
             DownloadFileMultiAsync(address, fileName, null, maxThreading);
         }
 
-        public void DownloadFileMultiAsync(System.Uri address, string fileName, object userToken, int maxThreading = 2)
+        public async void DownloadFileMultiAsync(System.Uri address, string fileName, object userToken, int maxThreading = 2)
         {
             if (address == null)
             {
@@ -385,12 +386,38 @@ namespace System.Net
             CheckFileDirectory(fileName);
 
             System.Exception ex = null;
-            long len = GetContentLength(address, out ex);
+            WebRequest webRequest = null;
+            Task<WebResponse>  webResponse = null;
+            try{
+                webRequest = this.SetupRequest(address);
+                webResponse = this.GetWebResponseAsync(webRequest);
+                await webResponse;
+            }
+            catch(System.Exception e)
+            {
+                ex  = e;
+            }
+
             if (ex != null)
             {
+                if (webRequest != null) webRequest.Abort();
+                await Task.Delay(1000);
                 this.OnBlockDownloadFileCompleted(null, new System.ComponentModel.AsyncCompletedEventArgs(ex, false, userToken));
                 return;
             }
+            else if (webResponse.Result == null)
+            {
+                if (webRequest != null) webRequest.Abort();
+                await Task.Delay(1000);
+                this.OnBlockDownloadFileCompleted(null, new System.ComponentModel.AsyncCompletedEventArgs(new Exception("request result is null"), false, userToken));
+                return;
+            }
+
+            var Result = webResponse.Result;
+            responseHeaders = Result.Headers;
+            long len = Result.ContentLength;
+            if (webRequest != null) webRequest.Abort();
+            if (Result != null) Result.Close();
 
             progressChangedEventArgs = new DownloadingProgressChangedEventArgs(0, len, userToken);
             bool delCache = true;
@@ -560,143 +587,145 @@ namespace System.Net
         private void DownloadBlockFileCore(System.Uri address, string fileName, object userToken, int from, int to)
         {
             HttpWebRequest webRequest = null;
+            FileStream fileStream = null;
             string tmp = GetTmpFileName(fileName); // + ".tmp";
-            using (FileStream fileStream = new FileStream(tmp, FileMode.OpenOrCreate))
+            // Debug.Log($"DownloadBlockFileCore:{tmp}");
+            try
             {
-                try
+                fileStream = new FileStream(tmp, FileMode.OpenOrCreate);
+                long startPos = fileStream.Length;
+                int fileLen = to - from + 1;
+                if (fileLen == startPos)
                 {
-                    long startPos = fileStream.Length;
-                    int fileLen = to - from + 1;
-                    if (fileLen == startPos)
+                    if (this.async)
                     {
-                        if (this.async)
-                        {
-                            this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(startPos, (int)startPos, fileLen, userToken));
-                        }
+                        this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(startPos, (int)startPos, fileLen, userToken));
+                    }
+                    return;
+                }
+                else if (fileLen < startPos)
+                {
+                    throw new CacheFileException(tmp, "cache file is error!:" + fileName);
+                }
+                else if (startPos + from >= to)
+                {
+                    throw new CacheFileException(tmp, "file block is error!:" + fileName);
+                }
+
+                webRequest = (HttpWebRequest)this.SetupRequest(address);
+                webRequest.AddRange((int)startPos + from, to);
+                fileStream.Seek(startPos, SeekOrigin.Current);
+                WebResponse webResponse = this.GetWebResponse(webRequest);
+                Stream responseStream = webResponse.GetResponseStream();
+
+                int num = (int)webResponse.ContentLength;
+                int num2 = (num > -1 && num <= 16384) ? num : 16384; //16KB
+                byte[] array = new byte[num2];
+                long num3 = 0L;
+                int num4;
+                int num1 = num + (int)startPos;
+
+                if (startPos > 0 && async) this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(startPos, (int)startPos, num, userToken));
+
+                while ((num4 = responseStream.Read(array, 0, num2)) != 0)
+                {
+                    num3 += (long)num4;
+                    fileStream.Write(array, 0, num4);
+                    if (this.async)
+                    {
+                        this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(num3, num4, num, userToken));
+                    }
+                    if (this.interrupt)
+                    {
+                        fileStream.Close();
+                        webResponse.Close();
+                        webRequest.Abort();
                         return;
                     }
-                    else if (fileLen < startPos)
-                    {
-                        throw new CacheFileException(tmp, "cache file is error!:" + fileName);
-                    }
-                    else if (startPos + from >= to)
-                    {
-                        throw new CacheFileException(tmp, "file block is error!:" + fileName);
-                    }
-
-                    webRequest = (HttpWebRequest)this.SetupRequest(address);
-                    webRequest.AddRange((int)startPos + from, to);
-                    fileStream.Seek(startPos, SeekOrigin.Current);
-                    WebResponse webResponse = this.GetWebResponse(webRequest);
-                    Stream responseStream = webResponse.GetResponseStream();
-
-                    int num = (int)webResponse.ContentLength;
-                    int num2 = (num > -1 && num <= 16384) ? num : 16384; //16KB
-                    byte[] array = new byte[num2];
-                    long num3 = 0L;
-                    int num4;
-                    int num1 = num + (int)startPos;
-
-                    if (startPos > 0 && async) this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(startPos, (int)startPos, num, userToken));
-
-                    while ((num4 = responseStream.Read(array, 0, num2)) != 0)
-                    {
-                        num3 += (long)num4;
-                        fileStream.Write(array, 0, num4);
-                        if (this.async)
-                        {
-                            this.OnBlockDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(num3, num4, num, userToken));
-                        }
-                        if (this.interrupt)
-                        {
-                            fileStream.Close();
-                            webResponse.Close();
-                            webRequest.Abort();
-                            return;
-                        }
-
-                    }
-
-                    webRequest.Abort();
-
-                    if (num3 + startPos < num1)
-                    {
-                        throw new Exception(string.Format("download fail uri:{0} ", address));
-                    }
-                    else if (num3 + startPos > num1)
-                    {
-                        throw new CacheFileException(tmp, string.Format("file is wrong!uri:{0}  ", address));
-                    }
 
                 }
-                catch (ThreadInterruptedException)
+
+                webRequest.Abort();
+
+                if (num3 + startPos < num1)
                 {
-                    if (webRequest != null)
-                    {
-                        webRequest.Abort();
-                    }
-                    throw;
+                    throw new Exception(string.Format("download fail uri:{0} ", address));
                 }
+                else if (num3 + startPos > num1)
+                {
+                    throw new CacheFileException(tmp, string.Format("file is wrong!uri:{0}  ", address));
+                }
+
+            }
+            catch (ThreadInterruptedException)
+            {
+
+                throw;
+            }
+            finally
+            {
+                fileStream?.Close();
+                webRequest?.Abort();
             }
         }
 
         private void DownloadFileCore(System.Uri address, string fileName, object userToken)
         {
             HttpWebRequest webRequest = null;
+            FileStream fileStream = null;
             string tmp = GetTmpFileName(fileName); // + ".tmp";
-            using (FileStream fileStream = new FileStream(tmp, FileMode.Create))
+            try
             {
-                try
+                fileStream = new FileStream(tmp, FileMode.Create);
+                webRequest = (HttpWebRequest)this.SetupRequest(address);
+                WebResponse webResponse = this.GetWebResponse(webRequest);
+                Stream responseStream = webResponse.GetResponseStream();
+                int num = (int)webResponse.ContentLength;
+                int num2 = (num > -1 && num <= 32768) ? num : 32768; //32KB
+                byte[] array = new byte[num2];
+                long num3 = 0L;
+                int num4;
+                while ((num4 = responseStream.Read(array, 0, num2)) != 0)
                 {
-                    webRequest = (HttpWebRequest)this.SetupRequest(address);
-                    WebResponse webResponse = this.GetWebResponse(webRequest);
-                    Stream responseStream = webResponse.GetResponseStream();
-                    int num = (int)webResponse.ContentLength;
-                    int num2 = (num > -1 && num <= 32768) ? num : 32768; //32KB
-                    byte[] array = new byte[num2];
-                    long num3 = 0L;
-                    int num4;
-                    while ((num4 = responseStream.Read(array, 0, num2)) != 0)
+                    num3 += (long)num4;
+                    fileStream.Write(array, 0, num4);
+                    if (this.async)
                     {
-                        num3 += (long)num4;
-                        fileStream.Write(array, 0, num4);
-                        if (this.async)
-                        {
-                            this.OnDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(num3, num4, num, userToken));
-                        }
-
-                        if (this.interrupt)
-                        {
-                            fileStream.Close();
-                            webResponse.Close();
-                            webRequest.Abort();
-                            return;
-                        }
+                        this.OnDownloadingProgressChanged(new DownloadingProgressChangedEventArgs(num3, num4, num, userToken));
                     }
 
-                    webRequest.Abort();
-
-                    if (num3 < num)
+                    if (this.interrupt)
                     {
-                        throw new Exception(string.Format("download fail uri:{0} ", address));
-                    }
-                    else if (num3 > num)
-                    {
-                        throw new CacheFileException(tmp, string.Format("file is wrong!uri:{0}  ", address));
-                    }
-
-                }
-                catch (ThreadInterruptedException)
-                {
-                    if (webRequest != null)
-                    {
+                        fileStream.Close();
+                        webResponse.Close();
                         webRequest.Abort();
+                        return;
                     }
-                    throw;
                 }
+
+                webRequest.Abort();
+
+                if (num3 < num)
+                {
+                    throw new Exception(string.Format("download fail uri:{0} ", address));
+                }
+                else if (num3 > num)
+                {
+                    throw new CacheFileException(tmp, string.Format("file is wrong!uri:{0}  ", address));
+                }
+
+            }
+            catch (ThreadInterruptedException)
+            {
+                throw;
+            }
+            finally
+            {
+                fileStream?.Close();
+                webRequest?.Abort();
             }
         }
-        
+
         BlockTheadComparer blockTheadComparer = new BlockTheadComparer();
         private void OnBlockDownloadFileCompletedHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs args)
         {
@@ -704,7 +733,7 @@ namespace System.Net
             async_children_finished.Add(sender);
             if (args.Error != null)
             {
-                Debug.LogWarning(args.Error);
+                Debug.LogException(args.Error);
                 if (args.Error is CacheFileException)
                 {
                     string tmpName = ((CacheFileException)args.Error).fileName;
@@ -773,6 +802,13 @@ namespace System.Net
         {
             WebResponse response = request.GetResponse();
             this.responseHeaders = response.Headers;
+            return response;
+        }
+
+        protected virtual Task<WebResponse> GetWebResponseAsync(WebRequest request)
+        {
+            var response = request.GetResponseAsync();
+            // this.responseHeaders = response.;
             return response;
         }
 

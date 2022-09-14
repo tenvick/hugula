@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package netpack;
+//ping包
+message Msg_Ping
+{
+	uint64	utc = 1;
+}
+
+//握手消息
+message Msg_HandShakeREQ {
+	int64 time = 1;
+}
+
+//握手返回
+message Msg_HandShakeACK {
+	uint32 enSeed = 1;
+	uint32 deSeed = 2;
+}
+

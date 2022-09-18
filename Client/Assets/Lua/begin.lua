@@ -14,56 +14,44 @@ local GameObject = CS.UnityEngine.GameObject
 VMState:push(VMGroup.welcome)
 
 local NetWork = CS.Hugula.Net.NetWork.main
-Logger.LogSys("hot fix 2022.7.2 09:03")
+Logger.LogSys("hot fix 2022.9.18 17:01")
 -- NetWork:Connect("192.168.31.159",9091,false)
--- local serpent = require("serpent")
+local serpent = require("serpent")
 
--- local rapidjson = require "rapidjson"
--- local t = rapidjson.decode('{"a":123}')
--- print(t.a)
--- t.a = 456
--- local s = rapidjson.encode(t)
--- print("json", s)
--- -- ------------------------------------
--- local lpeg = require "lpeg"
--- print(lpeg.match(lpeg.R "09", "123"))
--- -- ------------------------------------
--- local pb = require "pb"
--- local protoc = require "protoc"
+local rapidjson = require "rapidjson"
+local t = rapidjson.decode('{"a":123}')
+print(t.a)
+t.a = 456
+local s = rapidjson.encode(t)
+print("json", s)
+-- ------------------------------------
+local lpeg = require "lpeg"
+print(lpeg.match(lpeg.R "09", "123"))
+-- ------------------------------------
+local pb = require "pb"
 
--- local p = protoc.new()
+local loginreq = {
+    account = "aaa",
+    password = "adsf",
+    platform = "3"
+}
+local bytes = assert(pb.encode("netpack.Msg_LoginReq", loginreq))
+print(pb.tohex(bytes))
+local data2 = assert(pb.decode("netpack.Msg_LoginReq", bytes))
+Logger.LogTable(data2)
 
--- p:loadfile("commcode.proto")
--- p:loadfile("login.proto")
--- p:loadfile("comm.proto")
--- p:loadfile("message.proto")
--- p:loadfile("base.proto")
--- p:loadfile("Person.proto")
--- -- p:loadfile("userinfo")
--- -- for name, basename, type in pb.types() do
--- --     print(name, basename, type)
--- -- end
-
--- local loginreq = {
---     account = "aaa",
---     password = "adsf",
---     platform = "3"
--- }
--- local bytes = assert(pb.encode("netpack.MsgLoginReq", loginreq))
--- print(pb.tohex(bytes))
--- local data2 = assert(pb.decode("netpack.MsgLoginReq", bytes))
--- Logger.LogTable(data2)
-
--- loginreq={
---     code = 1,
---     token = "adfasdf",
---     id = 12222222222,
---     ipaddr = "192.168.113.25"
--- }
--- local bytes = assert(pb.encode("netpack.MsgLoginAck", loginreq))
--- print(pb.tohex(bytes))
--- local data2 = assert(pb.decode("netpack.MsgLoginAck", bytes))
--- Logger.LogTable(data2)
+loginreq={
+    code = 1,
+    token = "adfasdf",
+    utc = os.time(),
+    id = 12222222222,
+    ip = "192.168.113.25",
+    port = 25000025
+}
+local bytes = assert(pb.encode("netpack.Msg_LoginAck", loginreq))
+print(pb.tohex(bytes))
+local data2 = assert(pb.decode("netpack.Msg_LoginAck", bytes))
+Logger.LogTable(data2)
 
 -- local data = {
 --     name = "ilse",
@@ -85,7 +73,7 @@ Logger.LogSys("hot fix 2022.7.2 09:03")
 -- print(data2.contacts[1].phonenumber)
 -- print(data2.contacts[2].name)
 -- print(data2.contacts[2].phonenumber)
--- -- ---------------------------------
+-- ---------------------------------
 -- local ffi = require("ffi")
 -- ffi.cdef [[
 --     typedef struct {int fake_id;unsigned int len;} CSSHeader;

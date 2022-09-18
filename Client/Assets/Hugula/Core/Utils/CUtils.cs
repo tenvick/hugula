@@ -385,6 +385,16 @@ namespace Hugula.Utils
             // #endif
         }
 
+        /// <summary>
+        /// get Persistent assetbundle name  
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string GetPersistentBundleFileName(string filename)
+        {
+            return $"_{filename}";
+        }
+
         public static bool currPersistentExist = false;
 
         /// <summary>

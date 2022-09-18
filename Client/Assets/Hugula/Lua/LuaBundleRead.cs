@@ -28,7 +28,7 @@ namespace Hugula
         public byte[] LoadBytes(string name)
         {
             byte[] ret = null;
-            var txt = m_LuaBundle.LoadAsset<TextAsset>(name);
+            var txt = m_LuaBundle?.LoadAsset<TextAsset>(name);
             if (txt != null)
             {
                 ret = txt.bytes;

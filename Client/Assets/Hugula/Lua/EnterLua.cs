@@ -78,7 +78,7 @@ namespace Hugula
         {
             if (m_PersistentLuaBundle == null)
             {
-                var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), Common.LUA_BUNDLE_NAME);
+                var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
                 m_PersistentLuaBundle = new LuaBundleRead(url);
             }
             return m_PersistentLuaBundle;

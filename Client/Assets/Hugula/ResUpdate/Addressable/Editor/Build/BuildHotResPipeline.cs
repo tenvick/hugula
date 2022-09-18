@@ -329,6 +329,7 @@ namespace HugulaEditor.ResUpdate
 
                 var diffItemFolderManifest = manifest.CloneWithOutAllFileInfos();  //HugulaEditor.Addressable.FolderManifestExtention.CreateBundleManifest(itemFolderManifest.fileName);
                 diffItemFolderManifest.allFileInfos = diffInfos;
+                diffItemFolderManifest.fileName = CUtils.GetPersistentBundleFileName(manifest.fileName);
                 if (diffInfos.Count > 0)
                 {
                     diffFolderManifest.Add(diffItemFolderManifest);

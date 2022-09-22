@@ -2,6 +2,7 @@
 using UnityEditor;
 using NUnit.Framework;
 using Hugula.Utils;
+using Hugula;
 
 public class CUtilsEditorTest
 {
@@ -216,5 +217,97 @@ public class CUtilsEditorTest
         name = CUtils.GetSuffix(url);
         Debug.Log("..............=" + name);
         Assert.AreEqual(name, "");
+    }
+
+    [Test]
+    public void TestAppVersionHotUpdate()
+    {
+        //eg 1 old version
+        string app_version = "0.5.2";
+        string min_ver= "";
+        string max_ver = "0.5.2";
+        int subMin;
+        int appVerNum;
+        int minVerNum;
+        int maxVerNum;
+        
+        subMin = CodeVersion.Subtract(max_ver, app_version); //发布版本相同版本才能热更新
+        var LoadRemoteFoldmanifest = subMin == 0 ;
+        Assert.AreEqual(LoadRemoteFoldmanifest , true);
+
+        // eg 2 new version
+        app_version = "0.5.2";
+        min_ver= "";
+        max_ver = "0.5.2";
+
+        appVerNum = CodeVersion.CovertVerToInt(app_version);
+        minVerNum = CodeVersion.CovertVerToInt(min_ver);
+        maxVerNum = CodeVersion.CovertVerToInt(max_ver);
+
+        if (minVerNum <= 0) minVerNum = maxVerNum;
+        LoadRemoteFoldmanifest = appVerNum>=minVerNum && appVerNum<=maxVerNum;
+        Debug.Log($"app_version:{app_version};min_ver:{min_ver};max_ver:{max_ver};LoadRemoteFoldmanifest:{LoadRemoteFoldmanifest},app_version_num:{appVerNum},min_ver_num:{minVerNum};max_ver_num:{maxVerNum}");
+        Assert.AreEqual(LoadRemoteFoldmanifest , true);
+
+        //eg3 in range
+        app_version = "0.5.3";
+        min_ver= "";
+        max_ver = "0.5.2";
+
+        appVerNum = CodeVersion.CovertVerToInt(app_version);
+        minVerNum = CodeVersion.CovertVerToInt(min_ver);
+        maxVerNum = CodeVersion.CovertVerToInt(max_ver);
+
+        if (minVerNum <= 0) minVerNum = maxVerNum;
+        LoadRemoteFoldmanifest = appVerNum>=minVerNum && appVerNum<=maxVerNum;
+        Debug.Log($"app_version:{app_version};min_ver:{min_ver};max_ver:{max_ver};LoadRemoteFoldmanifest:{LoadRemoteFoldmanifest},app_version_num:{appVerNum},min_ver_num:{minVerNum};max_ver_num:{maxVerNum}");
+    
+        Assert.AreEqual(LoadRemoteFoldmanifest , false);
+
+        //eg 4in range
+        app_version = "0.5.3";
+        min_ver= "0.5.2";
+        max_ver = "0.5.1";
+
+        appVerNum = CodeVersion.CovertVerToInt(app_version);
+        minVerNum = CodeVersion.CovertVerToInt(min_ver);
+        maxVerNum = CodeVersion.CovertVerToInt(max_ver);
+
+        if (minVerNum <= 0) minVerNum = maxVerNum;
+        LoadRemoteFoldmanifest = appVerNum>=minVerNum && appVerNum<=maxVerNum;
+        Debug.Log($"app_version:{app_version};min_ver:{min_ver};max_ver:{max_ver};LoadRemoteFoldmanifest:{LoadRemoteFoldmanifest},app_version_num:{appVerNum},min_ver_num:{minVerNum};max_ver_num:{maxVerNum}");
+    
+        Assert.AreEqual(LoadRemoteFoldmanifest , false);
+
+        //eg 5in range
+        app_version = "0.5.3";
+        min_ver= "0.5.0";
+        max_ver = "0.5.1";
+
+        appVerNum = CodeVersion.CovertVerToInt(app_version);
+        minVerNum = CodeVersion.CovertVerToInt(min_ver);
+        maxVerNum = CodeVersion.CovertVerToInt(max_ver);
+
+        if (minVerNum <= 0) minVerNum = maxVerNum;
+        LoadRemoteFoldmanifest = appVerNum>=minVerNum && appVerNum<=maxVerNum;
+        Debug.Log($"app_version:{app_version};min_ver:{min_ver};max_ver:{max_ver};LoadRemoteFoldmanifest:{LoadRemoteFoldmanifest},app_version_num:{appVerNum},min_ver_num:{minVerNum};max_ver_num:{maxVerNum}");
+    
+        Assert.AreEqual(LoadRemoteFoldmanifest , false);
+
+        //eg 6in range
+        app_version = "0.5.3";
+        min_ver= "0.5.0";
+        max_ver = "0.5.3";
+
+        appVerNum = CodeVersion.CovertVerToInt(app_version);
+        minVerNum = CodeVersion.CovertVerToInt(min_ver);
+        maxVerNum = CodeVersion.CovertVerToInt(max_ver);
+
+        if (minVerNum <= 0) minVerNum = maxVerNum;
+        LoadRemoteFoldmanifest = appVerNum>=minVerNum && appVerNum<=maxVerNum;
+        Debug.Log($"app_version:{app_version};min_ver:{min_ver};max_ver:{max_ver};LoadRemoteFoldmanifest:{LoadRemoteFoldmanifest},app_version_num:{appVerNum},min_ver_num:{minVerNum};max_ver_num:{maxVerNum}");
+    
+        Assert.AreEqual(LoadRemoteFoldmanifest , true);
+
     }
 }

@@ -10,5 +10,7 @@ namespace Hugula.ResUpdate {
 
         public Slider slider;
 
+        public Text version;
+
     }
 }

@@ -16,7 +16,7 @@ local Rpc = Rpc
 -- local CS = CS
 -- local GlobalDispatcher = GlobalDispatcher
 -- local DispatcherEvent = DispatcherEvent
-
+local FileManifestManager = CS.Hugula.ResUpdate.FileManifestManager
 ---@class ui_login:VMBase
 ---@type ui_login
 local ui_login = VMBase()
@@ -32,7 +32,8 @@ ui_login.Remember_me_is_on=false
 ui_login.on_invalid_enable=false
 ----  ui_login end  --
 
-
+ui_login.version = FileManifestManager.localVersion.."("..FileManifestManager.localResNum..")"
+print(ui_login.version)
 --------------------    消息处理    --------------------
 
 
@@ -114,7 +115,7 @@ end
 
 --view激活时候调用
 function ui_login:on_active()
-    Logger.Log("ui_login:on_active")
+    Logger.Log("ui_login:on_active hot update 2022.9.22 12:24")
 end
 
 --view失活调用

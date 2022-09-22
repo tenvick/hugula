@@ -76,6 +76,7 @@ namespace Hugula.ResUpdate
             yield return null;
             FileManifestManager.LoadPersistentFolderManifest(null);//读取持久化目录的列表
             yield return null;
+            SetVersionInfo();
             Hugula.Localization.language = PlayerPrefs.GetString(Hugula.Localization.KEY_LAN, Application.systemLanguage.ToString());
 
 #if  UNITY_ANDROID && !UNITY_EDITOR
@@ -506,6 +507,7 @@ namespace Hugula.ResUpdate
                 FileManifestManager.localResNum = loadRemoteAppNum;
                 Debug.Log($"download sccuess :{loadRemoteVersion}");
                 FileManifestManager.LoadPersistentFolderManifest(null); //刷新列表
+                SetVersionInfo();
                 StartCoroutine(RefreshCatalog());
             }
         }
@@ -559,6 +561,13 @@ namespace Hugula.ResUpdate
 #endif
         }
 
+        void SetVersionInfo()
+        {
+            if(view.version)
+            {
+                view.version.text = $"{FileManifestManager.localVersion} ({FileManifestManager.localResNum})";
+            }
+        }
         #endregion
 
         #region  util

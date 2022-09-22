@@ -194,7 +194,7 @@ namespace HugulaEditor
         //获取当前资源版本号
         public static int GetResNumber()
         {
-            return EditorPrefs.GetInt(RES_NUMBER_KEY, CodeVersion.APP_NUMBER);
+            return EditorPrefs.GetInt(RES_NUMBER_KEY, 0);
         }
 
         public static void SetResNumber(int resNum)

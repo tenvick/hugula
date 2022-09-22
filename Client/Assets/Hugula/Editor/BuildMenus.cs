@@ -362,6 +362,7 @@ public class ProjectBuild : Editor
         if(resNum ==0 ) 
         {
             resNum = EditorUtils.GetResNumber();
+            
         }
         // EditorPrefs.SetInt("resNumber",resNum);
         EditorUtils.SetResNumber(resNum+1);//自动加1

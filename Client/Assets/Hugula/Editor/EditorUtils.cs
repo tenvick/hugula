@@ -185,7 +185,8 @@ namespace HugulaEditor
         {
             get
             {
-                var key = $"{CUtils.platform}_{Application.identifier}_{Application.version}_res_number";
+                
+                var key = $"{CUtils.platform}_{Application.identifier}_{CodeVersion.CODE_VERSION}_res_number";
                 // Debug.Log(key);
                 return key;
             }
@@ -193,12 +194,16 @@ namespace HugulaEditor
         //获取当前资源版本号
         public static int GetResNumber()
         {
-            return EditorPrefs.GetInt(RES_NUMBER_KEY, 0);
+            return EditorPrefs.GetInt(RES_NUMBER_KEY, CodeVersion.APP_NUMBER);
         }
 
         public static void SetResNumber(int resNum)
         {
-            if (resNum < EditorPrefs.GetInt(RES_NUMBER_KEY)) Debug.LogWarning($"设置的resNum:{resNum}<原始值:{EditorPrefs.GetInt(RES_NUMBER_KEY)} ");
+            if (resNum < GetResNumber()) 
+            {
+                Debug.LogError($"设置的resNum:{resNum} < 原始值:{EditorPrefs.GetInt(RES_NUMBER_KEY)} 已经自动修正+1");
+                resNum = GetResNumber()+1;
+            }
             EditorPrefs.SetInt(RES_NUMBER_KEY, resNum);
         }
 

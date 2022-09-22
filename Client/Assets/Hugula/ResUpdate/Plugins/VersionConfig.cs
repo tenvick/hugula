@@ -11,8 +11,11 @@ namespace Hugula.ResUpdate
         //发布时间
         public int time;
 
-        //当前版本号
+        //热更新最高版本号
         public string version;
+        //热更新最低版本号 如果为空与version一致
+        public string min_ver;
+
         //强制更新版本号
         public string force_ver;
         //提示更新版本号

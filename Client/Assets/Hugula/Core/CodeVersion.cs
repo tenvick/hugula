@@ -85,7 +85,7 @@ namespace Hugula
             if (sp.Length < 3)
             {
                 //throw new System.Exception("Application.version set wrong ,it must be like 0.1.1");
-                Debug.LogError("Application.version set wrong, it must be like 0.1.1");
+                //Debug.LogError("Application.version set wrong, it must be like 0.1.1");
             }
 #endif
             int[] ints = new int[3];
@@ -100,7 +100,7 @@ namespace Hugula
             return ints;
         }
 
-        private static int CovertVerToInt(string version)
+        public static int CovertVerToInt(string version)
         {
             var ints = SplitVersion(version);
             var i = ints[0] * BIT_SIZE * BIT_SIZE1 + ints[1] * BIT_SIZE1 + ints[2];

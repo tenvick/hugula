@@ -213,7 +213,7 @@ public class TLogger : ILogHandler
         sb.Append($"\r\n processorCount= {SystemInfo.processorCount}");
         sb.Append($"\r\n graphicsMemorySize= {SystemInfo.graphicsMemorySize}");
         sb.Append($"\r\n graphicsDeviceVersion= {SystemInfo.graphicsDeviceVersion}");
-        sb.Append($"\r\n supports:2DArrayTextures={SystemInfo.supports2DArrayTextures},Instancing={SystemInfo.supportsInstancing},ASTC_6x6={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_6x6)},ETC2_RGBA8Crunched={SystemInfo.SupportsTextureFormat(TextureFormat.ETC2_RGBA8Crunched)};");
+        sb.Append($"\r\n supports:2DArrayTextures={SystemInfo.supports2DArrayTextures},Instancing={SystemInfo.supportsInstancing},ASTC_6x6={SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_6x6)};");
         sb.Append($"\r\n internetReachability= {Application.internetReachability}");
         sb.Append($"\r\n deviceModel= {SystemInfo.deviceModel}");
         sb.Append($"\r\n version={Application.version};");

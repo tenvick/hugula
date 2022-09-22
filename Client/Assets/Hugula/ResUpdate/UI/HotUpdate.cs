@@ -85,7 +85,7 @@ namespace Hugula.ResUpdate
 #endif
 #if UNITY_EDITOR
             yield return null;
-                     //如果非ab模式
+            //如果非ab模式
             List<ScriptableObject> allDataBuilders = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DataBuilders;
             var activeIndex = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.ActivePlayModeDataBuilderIndex;
             var curIndex = allDataBuilders.IndexOf(allDataBuilders.Find(s => s.GetType() == typeof(UnityEditor.AddressableAssets.Build.DataBuilders.BuildScriptPackedPlayMode)));
@@ -113,14 +113,14 @@ namespace Hugula.ResUpdate
             var hosts = GetVersionUrl();
             string response = null;
             var url = string.Empty;
-               //读取本地缓存
+            //读取本地缓存
             string versionName = Path.GetFileNameWithoutExtension(Common.CRC32_VER_FILENAME);
 #if !(HUGULA_RELEASE || SDK_RELEASE)
-            versionName = "dev_"+ versionName;
+            versionName = "dev_" + versionName;
 #endif
             VersionConfig localVersion = null;
             var versionTxt = Resources.Load<TextAsset>(versionName); //优先读取本地
-            if(versionTxt)
+            if (versionTxt)
             {
                 localVersion = JsonUtility.FromJson<VersionConfig>(versionTxt.text);
                 Resources.UnloadAsset(versionTxt);
@@ -145,7 +145,7 @@ namespace Hugula.ResUpdate
 
             if (!string.IsNullOrEmpty(response))
             {
-                yield return ParseVerionConfigAndCheckUpdate(response,localVersion);
+                yield return ParseVerionConfigAndCheckUpdate(response, localVersion);
             }
             else if (!romoteVersionTxtLoaded)
             {
@@ -163,10 +163,10 @@ namespace Hugula.ResUpdate
                 }
                 else
                 {
-                    if (localVersion!=null)
+                    if (localVersion != null)
                     {
                         Debug.LogWarning($" {url} json parse error! Resources({versionName}) load success!");
-                        StartCoroutine(ParseVerionConfigAndCheckUpdate(string.Empty,localVersion));
+                        StartCoroutine(ParseVerionConfigAndCheckUpdate(string.Empty, localVersion));
                     }
                     else
                     {
@@ -189,15 +189,15 @@ namespace Hugula.ResUpdate
         /// <summary>
         /// 解析VerionConfig 判断提示热跟新
         /// </summary>
-        IEnumerator ParseVerionConfigAndCheckUpdate(string response,VersionConfig localVersion)
+        IEnumerator ParseVerionConfigAndCheckUpdate(string response, VersionConfig localVersion)
         {
             TLogger.LogSys(response);
             romoteVersionTxtLoaded = true;
             VersionConfig remoteVer = null;
-            if(!string.IsNullOrEmpty(response))
+            if (!string.IsNullOrEmpty(response))
                 remoteVer = JsonUtility.FromJson<VersionConfig>(response);
 
-            if(remoteVer == null) 
+            if (remoteVer == null)
                 remoteVer = localVersion;
             else
             {
@@ -228,8 +228,8 @@ namespace Hugula.ResUpdate
                     },
                     Localization.Get("main_check_cancel"), () =>
                      {
-                        MessageBox.Destroy();
-                        StartCoroutine(CheckHotUpdate(remoteVer));
+                         MessageBox.Destroy();
+                         StartCoroutine(CheckHotUpdate(remoteVer));
                      }
                     );
 
@@ -243,9 +243,16 @@ namespace Hugula.ResUpdate
         {
             //判断是否等待fast包
             yield return CheckLoadFast(remoteVer);
-            var subVersion = CodeVersion.Subtract(remoteVer.version, CodeVersion.APP_VERSION); //发布版本相同版本才能热更新
+            var appVerNum = CodeVersion.CovertVerToInt(CodeVersion.APP_VERSION);
+            var maxVerNum = CodeVersion.CovertVerToInt(remoteVer.version);
+            var minVerNum = CodeVersion.CovertVerToInt(remoteVer.min_ver);
+            if (minVerNum <= 0) minVerNum = maxVerNum;
+            var verCheck = appVerNum >= minVerNum && appVerNum <= maxVerNum;
             var subResNum = remoteVer.res_number > FileManifestManager.localResNum;
-            if (subVersion == 0 && subResNum && !string.IsNullOrEmpty(remoteVer.manifest_name))//如果app.version相同还需要判断ResNum
+#if !HUGULA_NO_LOG
+            Debug.Log($"CheckHotUpdate verCheck:{verCheck},subResNum:{subResNum},appVerNum:{appVerNum},minVerNum:{minVerNum},maxVerNum:{maxVerNum},manifest_name:{!string.IsNullOrEmpty(remoteVer.manifest_name)} ");
+#endif
+            if (verCheck && subResNum && !string.IsNullOrEmpty(remoteVer.manifest_name))//如果app.version相同还需要判断ResNum
                 yield return LoadRemoteFoldmanifest(remoteVer);//下载热更新文件
             else
                 yield return InternalIdTransformFunc();
@@ -600,9 +607,9 @@ namespace Hugula.ResUpdate
             string verUrl;
             foreach (var host in hosts)
             {
-                verUrl = host.Replace("{udid}",udid);
-                verUrl = verUrl.Replace("{timeline}",timeline);
-                verUrl = string.Format(verUrl, CUtils.platform,Common.RES_VER_FOLDER,ver_name,CodeVersion.APP_VERSION);
+                verUrl = host.Replace("{udid}", udid);
+                verUrl = verUrl.Replace("{timeline}", timeline);
+                verUrl = string.Format(verUrl, CUtils.platform, Common.RES_VER_FOLDER, ver_name, CodeVersion.APP_VERSION);
                 urlGroup.Add(verUrl);
 #if !HUGULA_NO_LOG
                 Debug.LogFormat("version host = {0} ", verUrl);

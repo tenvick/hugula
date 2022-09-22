@@ -334,7 +334,6 @@ namespace HugulaEditor.ResUpdate
 
                 var diffItemFolderManifest = manifest.CloneWithOutAllFileInfos();  //HugulaEditor.Addressable.FolderManifestExtention.CreateBundleManifest(itemFolderManifest.fileName);
                 diffItemFolderManifest.allFileInfos = diffInfos;
-                diffItemFolderManifest.fileName = CUtils.GetPersistentBundleFileName(manifest.fileName);
                 if (diffInfos.Count > 0)
                 {
                     diffFolderManifest.Add(diffItemFolderManifest);
@@ -374,7 +373,7 @@ namespace HugulaEditor.ResUpdate
                     assets.Add(Path.Combine(folder.assetFolderPath, f.name + Common.DOT_BYTES));
                     sb.AppendLine(assets[assets.Count - 1]);
                 }
-                var fileName = folder.fileName;
+                var fileName = CUtils.GetPersistentBundleFileName(folder.fileName);
 
                 {
                     BuildScriptHotResUpdate.BuildABsTogether(assets.ToArray(), "Assets/Tmp", fileName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());

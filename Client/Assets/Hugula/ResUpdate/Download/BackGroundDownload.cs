@@ -107,6 +107,21 @@ namespace Hugula.ResUpdate
                 bQueue.group.DispatchProgressChanged();
 
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            WebDownload web;
+           for (int i = 0; i < loadingWebDownload.Count; i++) //
+            {
+                web = loadingWebDownload[i];
+                web.CancelAsync();
+                web.Dispose();
+            }
+
+            loadingWebDownload.Clear();
+
+        }
         #endregion
 
 

@@ -170,6 +170,7 @@ public class ProjectBuild : Editor
         List<string> names = new List<string>();
         names.Add("Assets/Scene/s_hotupdate.unity");
         names.Add("Assets/Scene/s_begin.unity");
+        names.Add("Assets/Scene/re_loading.unity");
         return names.ToArray();
     }
 

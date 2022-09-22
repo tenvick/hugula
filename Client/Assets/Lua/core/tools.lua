@@ -299,3 +299,19 @@ function class(base, _ctor)
     setmetatable(c, mt)
     return c
 end
+
+--- 销毁require缓存lua变量并执行destructor方法
+---@overload fun(name:string)
+---@param name string
+function release_require(name)
+    local old = package.loaded[name]
+    package.loaded[name] = nil
+    if type(old) == "table" then
+        local destructor = old and old.destructor
+        if destructor then --如果是标记了析构
+            destructor(old)
+        end
+    else
+        print(name, old)
+    end
+end

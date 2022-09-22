@@ -46,8 +46,12 @@ ui_login.on_click_Sign_In= {
         return true
     end,
     Execute = function(self, arg)
-        ui_login.property.on_invalid_enable = math.random(1,4) == 1
-
+        -- ui_login.property.on_invalid_enable = math.random(1,4) == 1
+        if ui_login.Remember_me_is_on then
+            VMState:push(VMGroup.game_reloading)
+        else
+            Logger.Log("Remember_me_is_on is false ")
+        end
     end
 }
 
@@ -75,6 +79,7 @@ ui_login.on_submit_Password= {
     end,
     Execute = function(self, arg)
         ui_login.property.on_invalid_enable = math.random(1,2) == 1
+        Logger.Log("on_submit_Password on_invalid_enable ",ui_login.on_invalid_enable)
     end
 }
 
@@ -93,6 +98,7 @@ ui_login.on_click_orange_button= {
     end,
     Execute = function(self, arg)
         ui_login.property.on_invalid_enable = math.random(1,4) == 1
+        Logger.Log("on_click_orange_button on_invalid_enable ",ui_login.on_invalid_enable)
 
     end
 }

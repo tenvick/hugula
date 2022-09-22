@@ -85,7 +85,7 @@ namespace Hugula
         }
 
         private BundleManifest m_LuaPersistentBundleManifest;
-        internal static bool luaPersistentBundleManifestIsDirty = true;
+        internal bool luaPersistentBundleManifestIsDirty = true;
         private BundleManifest GetLuaPersistentBundleManifest()
         {
             if (luaPersistentBundleManifestIsDirty && m_LuaPersistentBundleManifest == null)
@@ -341,14 +341,8 @@ namespace Hugula
         //重启动游戏
         public static void ReOpen(float sconds)
         {
-            // System.GC.Collect();
-            // luaenv?.GC();
-            // var ins = Manager.Get<EnterLua>();
-            // GameObject.Destroy(ins?.gameObject);
-            // await Task.Delay((int)(sconds * 1000));
-            // BeforeLuaDispose();
+            Debug.LogWarning($"LoadScene(re_loading) time:{System.DateTime.Now.ToString()}");
             UnityEngine.SceneManagement.SceneManager.LoadScene("re_loading");
-            Debug.LogFormat("ReOpen !");
         }
 
         static internal string LuaTraceback()

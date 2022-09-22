@@ -116,6 +116,7 @@ vm_config.ui_effect_loading = {vm = "demo.ui_effect_loading", gc_type = VM_GC_TY
 
 ----------------------------------------------------------------------------------demo end-----
 vm_config.ui_login = {vm = "viewmodels.ui_login", gc_type = VM_GC_TYPE.ALWAYS} 
+vm_config.game_reloading = {vm = "viewmodels.game_reloading", gc_type = VM_GC_TYPE.ALWAYS}
 
 --------------------------------------------------------------------------
 ------------------------viewmodel group 配置-------------------------------
@@ -132,6 +133,7 @@ vm_group.gamescene = {"asset_loader","scene_loader","back_tips","player_load"}
 vm_group.demo_login = {"demo_login","back_tips"}
 
 vm_group.ui_login = {"ui_login","back_tips"}
+vm_group.game_reloading = {"game_reloading"}
 
 -- VMGroupSource = vm_group
 return {vm_config, _VMGroupGet}

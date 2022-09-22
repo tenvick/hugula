@@ -616,9 +616,15 @@ namespace Hugula.ResUpdate
             string verUrl;
             foreach (var host in hosts)
             {
-                verUrl = host.Replace("{udid}", udid);
-                verUrl = verUrl.Replace("{timeline}", timeline);
-                verUrl = string.Format(verUrl, CUtils.platform, Common.RES_VER_FOLDER, ver_name, CodeVersion.APP_VERSION);
+                verUrl = host.Replace("{udid}",udid);
+                verUrl = verUrl.Replace("{timeline}",timeline);
+                verUrl = verUrl.Replace("{ver_file_name}",Common.CRC32_VER_FILENAME);
+                verUrl = verUrl.Replace("{platform}",CUtils.platform);
+                verUrl = verUrl.Replace("{ver_folder}",Common.RES_VER_FOLDER);
+                verUrl = verUrl.Replace("{ver_file_version_name}",ver_name);
+                verUrl = verUrl.Replace("{app_version}",CodeVersion.APP_VERSION);
+
+                verUrl = string.Format(verUrl, CUtils.platform,Common.RES_VER_FOLDER,ver_name,CodeVersion.APP_VERSION);
                 urlGroup.Add(verUrl);
 #if !HUGULA_NO_LOG
                 Debug.LogFormat("version host = {0} ", verUrl);

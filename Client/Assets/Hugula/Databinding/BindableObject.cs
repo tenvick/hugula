@@ -162,9 +162,9 @@ namespace Hugula.Databinding
         public virtual void ClearBinding()
         {
             foreach (var binding in bindings)
-                binding.Dispose();
+                binding?.Dispose();
 
-            bindings.Clear();
+            bindings?.Clear();
 
         }
         ///<summary>
@@ -173,7 +173,16 @@ namespace Hugula.Databinding
         public virtual void Unapply()
         {
             foreach (var binding in bindings)
-                binding.Unapply();
+                binding?.Unapply();
+        }
+
+        ///<summary>
+        /// 清理m_Context和m_InheritedContext引用对象
+        ///<summary>
+        internal void ClearContextRef()
+        {
+            m_Context = null;
+            m_InheritedContext = null;
         }
 
         // protected virtual void OnInheritedContextChanged()

@@ -99,6 +99,8 @@ function bag:on_deactive()
     --close tips
     VMState:popup_item("demo_click_tips")
 end
+
+
 ---------------------------------点击事件处理------------------------------------
 bag.selected_item = nil
 bag.selected_trigger = "fadeIn"
@@ -174,5 +176,21 @@ bag.on_insert_click = {
         Logger.Log(string.format("insert_range(index=%s,#range=%s,items=%s)", index, #range, #items.items))
     end
 }
+
+---------------------------------渲染处理------------------------------------
+function bag.on_item_context(bc,item_data)
+    bc:Get(0).text = item_data.count
+    --or 
+    -- bc:Get("count").text =item_data.count
+end
+
+
+--显示选中的项
+local valueConverterRegister = CS.Hugula.Databinding.ValueConverterRegister.instance
+function bag.on_select_render(select, item)
+    select:Get(0).spriteName = item.icon
+    select:Get(1).sprite =  valueConverterRegister:Get("StringToSprite"):Convert(item.quality)
+    select:Get(2).text = item.count
+end
 
 return bag

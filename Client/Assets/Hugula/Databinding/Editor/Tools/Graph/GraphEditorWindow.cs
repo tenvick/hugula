@@ -334,7 +334,7 @@ namespace HugulaEditor.Databinding
             // {
             //     // binding.target
             // }
-            if(CheckBingdings(container))
+            if (CheckBingdings(container))
             {
 
 
@@ -403,7 +403,7 @@ namespace HugulaEditor.Databinding
             for (int i = 0; i < children.Count; i++)
             {
                 child = children[i];
-                if(CheckBingdings(child))
+                if (CheckBingdings(child))
                 {
                     if (child is ICollectionBinder)
                     {
@@ -423,17 +423,23 @@ namespace HugulaEditor.Databinding
             {
                 var target = prop.GetValue(bindableObject) as UnityEngine.Object;
                 Type genericType = null;
-                    
-                if(bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments.Length>0)
+
+                if (bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments.Length > 0)
                 {
                     genericType = bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments[0];
                     var selfTarget = bindableObject.GetComponent(genericType);
 
-                    if (target != selfTarget)
+                    if (target==null)
                     {
-                        Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).target({target}) is not self({selfTarget})");
-                        searchText = bindableObject.name;
+                        Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).target is null type({genericType.FullName})");
+                        searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
                         Find();
+                    }
+                    else if (target != selfTarget)
+                    {
+                        Debug.LogWarning($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).target({target}) is not self({selfTarget})");
+                        // searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
+                        // Find();
                         //return false;
                     }
                     // Debug.Log($"target:{target} .selfTarget:{selfTarget}");
@@ -443,27 +449,27 @@ namespace HugulaEditor.Databinding
 
 
             var bindings = bindableObject.GetBindings();
-           var dic = new Dictionary<string,Binding>();
+            var dic = new Dictionary<string, Binding>();
 
 
-           foreach(var binding in bindings)
-           {
-               if(dic.TryGetValue(binding.propertyName,out var   oldBinding ))
-               {
-                   Debug.LogErrorFormat("check binding {0}, 已经包含{1} old={2},new={3}",GetGameObjectPath(bindableObject.transform),binding.propertyName,oldBinding,binding);
-                    searchText = bindableObject.name;
+            foreach (var binding in bindings)
+            {
+                if (dic.TryGetValue(binding.propertyName, out var oldBinding))
+                {
+                    Debug.LogErrorFormat("check binding {0}, 已经包含{1} old={2},new={3}", GetGameObjectPath(bindableObject.transform), binding.propertyName, oldBinding, binding);
+                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
                     Find();
                     return false;
                 }
-               else
-               {
-                   dic.Add(binding.propertyName,binding);
-               }
+                else
+                {
+                    dic.Add(binding.propertyName, binding);
+                }
 
-               if(string.IsNullOrEmpty(binding.path))
+                if (string.IsNullOrEmpty(binding.path))
                 {
                     Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).Binding({binding.propertyName}).path is empty ");
-                    searchText = bindableObject.name;
+                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
                     Find();
                     return false;
                 }
@@ -654,7 +660,7 @@ namespace HugulaEditor.Databinding
                         connection.endNode = node;
                         AddConnection(connection, true);
                         UnityEngine.Object target = null;
-                        string target_name =string.Empty;
+                        string target_name = string.Empty;
                         var tp = item.GetType();
                         var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
                         if (prop != null)
@@ -662,15 +668,15 @@ namespace HugulaEditor.Databinding
                             target = prop.GetValue(item) as UnityEngine.Object;
                         }
 
-                        if (target!=null )
+                        if (target != null)
                         {
-                            if(target.name != item.name)
+                            if (target.name != item.name)
                                 target_name = $"<color=#ff0f03>{target}</color>";
                             else
                                 target_name = $"<color=#888888>{target}</color>";
                         }
 
-                        node.name = string.Format("{0} {1}({2})\r\n{3}", idx, item.name, tp.Name,target_name);
+                        node.name = string.Format("{0} {1}({2})\r\n{3}", idx, item.name, tp.Name, target_name);
 
                         node.target = item;
                         node.depth = depth;

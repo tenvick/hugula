@@ -93,7 +93,7 @@ namespace HugulaEditor.Databinding
 }
 ";
             }
-            else if(typeof(IExecute) == propertyType)
+            else if (typeof(IExecute) == propertyType)
             {
                 return @" {
     Execute = function(self, arg)
@@ -134,9 +134,38 @@ end
 end
 ";
             }
+            else if (propertyType.IsSubclassOf(typeof(System.Delegate))) //是委托
+            {
+                return $@"function({GenGenericTypeArgumentsForLua(propertyType)})
+            --
+end                
+";
+            }
 
             return propertyType.ToString();
 
+        }
+
+        static string GenGenericTypeArgumentsForLua(System.Type type)
+        {
+            var sb = new StringBuilder();
+            int i = 0;
+            var sp = "";
+            var len = 1;
+            foreach (var t in type.GenericTypeArguments)
+            {
+                i++;
+                if (t.IsValueType)
+                {
+                    len = t.Name.Length <= 3 ? t.Name.Length : 3;
+                    sb.Append($"{sp}{t.Name.Substring(0, len).ToLower()}_{i}");
+                }
+                else
+                    sb.Append($"{sp}obj{i}");
+
+                sp = ",";
+            }
+            return sb.ToString();
         }
 
         static string NewContextByType(ContextType cType)
@@ -233,7 +262,7 @@ end
                     {
                         isMethod = propertyName.IndexOf('(') != -1,
                         propertyName = propertyName,
-                        propertyType = propertyType??typeof(object),
+                        propertyType = propertyType ?? typeof(object),
                         isListProperty = isListProperty,
                     };
                     peroperties.Add(prop);

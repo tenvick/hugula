@@ -11,15 +11,20 @@ namespace HugulaEditor.Databinding
     [CustomEditor(typeof(BindableContainer), true)]
     public class BindableContainerEditor : UnityEditor.Editor
     {
+        SerializedProperty property_monos;
         SerializedProperty property_children;
         SerializedProperty m_Property_bindings;
         ReorderableList reorderableList_bindings;
         ReorderableList reorderableList_children;
 
+        ReorderableList reorderableList_monos;
+
         void OnEnable()
         {
             m_Property_bindings = serializedObject.FindProperty("bindings");
             property_children = serializedObject.FindProperty("children");
+            property_monos = serializedObject.FindProperty("monos");
+
 
             reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings,
             target, true, true, true, true, OnAddClick, OnFilter);
@@ -28,12 +33,22 @@ namespace HugulaEditor.Databinding
 
             reorderableList_children.onRemoveCallback = (ReorderableList orderlist) =>
                       {
-                        //   Debug.Log(orderlist);
                           if (UnityEditor.EditorUtility.DisplayDialog("warnning", "Do you want to remove this element?", "remove", "canel"))
                           {
-                              ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                              //   ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                              ((BindableContainer)target).children.RemoveAt(orderlist.index);
                           }
                       };
+
+            reorderableList_monos = BindableUtility.CreateMonoContainerChildrenReorder(serializedObject, property_monos, target, true, true, true, true, OnMonoAddClick, OnChildrenFilter);
+
+
+            reorderableList_monos.onRemoveCallback = (ReorderableList orderlist) =>
+                       {
+                           RemoveMonos((BindableContainer)target, orderlist.index);
+                       };
+
+            CheckNamesAndMonos((BindableContainer)target);
 
         }
 
@@ -51,7 +66,7 @@ namespace HugulaEditor.Databinding
         bool OnChildrenFilter(SerializedProperty property, string searchText)
         {
             var refObj = property.objectReferenceValue;
-            if(refObj == null)
+            if (refObj == null)
             {
                 return false;
             }
@@ -73,6 +88,14 @@ namespace HugulaEditor.Databinding
             BindableUtility.AddEmptyBinding(bindable, property);
         }
 
+
+        void OnMonoAddClick(object args)
+        {
+            var bindableContainer = ((BindableContainer)target);
+            AddMonos(bindableContainer, -1, null);
+        }
+
+
         public override void OnInspectorGUI()
         {
             EditorGUILayout.Separator();
@@ -80,7 +103,7 @@ namespace HugulaEditor.Databinding
             var rect = EditorGUILayout.BeginVertical(GUILayout.Height(100));
             EditorGUI.HelpBox(rect, "", MessageType.None);
 
-            EditorGUILayout.LabelField("Drag(UIComponet) to there for add", GUILayout.Height(20));
+            EditorGUILayout.LabelField("Drag(UIComponet) to there for add to Children(BindableObject)", GUILayout.Height(20));
             UnityEngine.Component addComponent = null;
             addComponent = (UnityEngine.Component)EditorGUILayout.ObjectField(addComponent, typeof(UnityEngine.Component), true, GUILayout.Height(40));
             if (GUILayout.Button("auto add hierarchy  children"))
@@ -103,6 +126,12 @@ namespace HugulaEditor.Databinding
             EditorGUILayout.Space();
             serializedObject.Update();
             reorderableList_children.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
+
+            //show mono
+            EditorGUILayout.Space();
+            serializedObject.Update();
+            reorderableList_monos.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.BeginHorizontal();
@@ -255,6 +284,52 @@ namespace HugulaEditor.Databinding
 
         }
 
+        internal static void AddMonos(BindableContainer refer, int i, UnityEngine.Object obj)
+        {
+            List<UnityEngine.Object> monos = refer.monos;
+
+            if (monos == null)
+            {
+                monos = new List<UnityEngine.Object>();
+                refer.monos = monos;
+            }
+
+            if (i < 0)
+            {
+                monos.Add(obj);
+            }
+            else
+            {
+                while (monos.Count <= i)
+                    monos.Add(null);
+                monos[i] = obj;
+            }
+        }
+
+        internal static void CheckNamesAndMonos(BindableContainer refer)
+        {
+            while (refer.names.Count < refer.monos.Count)
+            {
+                refer.names.Add(refer.monos[refer.names.Count].name);
+            }
+
+            while (refer.names.Count > refer.monos.Count)
+            {
+                refer.names.RemoveAt(refer.names.Count - 1);
+            }
+        }
+
+        internal static void RemoveMonos(BindableContainer refer, int i)
+        {
+            if (refer.monos != null)
+            {
+                CheckNamesAndMonos(refer);
+                refer.monos.RemoveAt(i);
+                refer.names.RemoveAt(i);
+            }
+
+        }
+
     }
 
     public static class BinableObjectMenu
@@ -267,7 +342,10 @@ namespace HugulaEditor.Databinding
             if (bc != null)
             {
                 bc.children.Clear();
-                Debug.LogFormat("{0} clear ", bc);
+                Debug.LogFormat("{0} children clear ", bc);
+                bc.monos?.Clear();
+                Debug.LogFormat("{0} mono clear ", bc);
+
             }
         }
 

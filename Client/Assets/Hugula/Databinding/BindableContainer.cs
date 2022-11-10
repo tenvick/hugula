@@ -7,7 +7,6 @@ namespace Hugula.Databinding
     public class BindableContainer : BindableObject, ICollectionBinder
     {
 
-
         protected bool m_CheckEnable = false;
         private bool m_NeedDelayBinding = false;
 
@@ -22,6 +21,69 @@ namespace Hugula.Databinding
         [HideInInspector]
         [BindableObjectAttribute]
         public List<BindableObject> children = new List<BindableObject>();
+
+        #region mono单脚本引用新增加
+
+        [HideInInspector]
+        public List<string> names = new List<string>();
+        ///<summary>
+        /// 绑定的对象
+        ///<summary>
+        [HideInInspector]
+        public List<Object> monos = new List<Object>();
+        public Object Get(string k)
+        {
+            int index = names.IndexOf(k);
+            if (index == -1)
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning(gameObject.name + "BindableContainer : not found the key [" + k + "]");
+#endif
+                return null;
+            }
+            else
+                return Get(index);
+        }
+
+        public Object Get(int index)
+        {
+            if (index >= 0 && index < monos.Count)
+            {
+                return monos[index];
+            }
+            else
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning(gameObject.name + "BindableContainer : not found the index monos[" + index + "]");
+#endif
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// monos的长度
+        /// </summary>
+        public int monoLength
+        {
+            get
+            {
+                if (monos != null)
+                    return monos.Count;
+                else
+                    return 0;
+            }
+        }
+
+        private System.Action<object, object> m_OnContextChanged;
+        public System.Action<object, object> onContextChanged
+        {
+            get { return m_OnContextChanged; }
+            set
+            {
+                m_OnContextChanged = value;
+            }
+        }
+        #endregion
 
         public void AddChild(BindableObject child)
         {
@@ -62,6 +124,11 @@ namespace Hugula.Databinding
                     {
                         Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject), i);
                     }
+                }
+
+                if (m_OnContextChanged != null)
+                {
+                    m_OnContextChanged(this, context);
                 }
             }
             else

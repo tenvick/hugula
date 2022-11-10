@@ -14,7 +14,7 @@ local GameObject = CS.UnityEngine.GameObject
 VMState:push(VMGroup.welcome)
 
 local NetWork = CS.Hugula.Net.NetWork.main
-Logger.LogSys("hot fix 2022.9.18 17:01")
+Logger.LogSys("hot fix 2022.9.22 10:19")
 -- NetWork:Connect("192.168.31.159",9091,false)
 local serpent = require("serpent")
 

@@ -224,10 +224,10 @@ namespace XLua.Editor
                 var customlist = new List<Type>();
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 customlist.Add(typeof(Action<object, object, int>));
+                customlist.Add(typeof(Action<object, object>));
                 customlist.Add(typeof(UnityEngine.Events.UnityAction<float>));
                 customlist.Add(typeof(UnityEngine.Events.UnityAction));
                 customlist.Add(typeof(System.Func<System.Object, int, int>));
-                customlist.Add(typeof(Action<object, object, int>));
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 customlist.Add(typeof(Action<object, object, int, int>));
                 customlist.Add(typeof(System.Action));
@@ -321,10 +321,10 @@ namespace XLua.Editor
                 //自定义方法
                 types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 types.Add(typeof(Action<object, object, int>));
+                types.Add(typeof(Action<object, object>));
                 types.Add(typeof(UnityEngine.Events.UnityAction<float>));
                 types.Add(typeof(UnityEngine.Events.UnityAction));
                 types.Add(typeof(System.Func<System.Object, int, int>));
-                types.Add(typeof(Action<object, object, int>));
                 types.Add(typeof(System.Action<object>));
                 types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 types.Add(typeof(Action<object, object, int, int>));

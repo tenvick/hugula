@@ -77,7 +77,8 @@ namespace HugulaEditor.Addressable
             }
             catch (Exception e)
             {
-                Debug.LogError($"Exception occured when moving data for an app bundle build: {e.Message}.");
+                // Debug.LogError($"Exception occured when moving data for an app bundle build: {e.Message}.");
+                Debug.LogException(e);
             }
             finally
             {

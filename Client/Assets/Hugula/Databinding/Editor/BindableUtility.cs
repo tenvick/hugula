@@ -191,6 +191,123 @@ namespace HugulaEditor.Databinding
 
             return orderList;
         }
+
+
+        public static ReorderableList CreateMonoContainerChildrenReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
+        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
+        {
+
+            FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            orderList.onFilterFunc = onFilter;
+            orderList.drawHeaderCallback = (Rect rect) =>
+             {
+                 var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
+                 BindableObjectStyle.LabelFieldStyle(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}", "#0e6dcbff", 12);
+
+                 var rect1 = rect;
+                 rect1.x = rect.width * 0.4f;
+                 rect1.width = rect.width * 0.6f;
+                 if (orderList.onFilterFunc != null)
+                 {
+                     EditorGUI.BeginChangeCheck();
+                     {
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                     }
+                 }
+             };
+
+            orderList.onRemoveCallback = (ReorderableList orderlist) =>
+                {
+                    // if(UnityEditor.EditorUtility.DisplayDialog("warnning","Do you want to remove this element?","remove","canel"))
+                    ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                };
+
+
+            orderList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+                var taget = (BindableContainer)orderList.serializedProperty.serializedObject.targetObject;
+
+                while (taget.names.Count <= index)
+                    taget.names.Add(string.Empty);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
+                {
+
+                }
+                else
+                {
+
+                    var rectTF = new Rect(rect)
+                    {
+                        x = rect.x + 11,
+                        y = rect.y + EditorGUIUtility.singleLineHeight * .5f,
+                        height = rect.height - EditorGUIUtility.singleLineHeight
+                    };
+
+
+                    var posRect_prop = new Rect(rect)
+                    {
+                        x = rect.x + 10, //左边距
+                        y = rect.y + EditorGUIUtility.singleLineHeight * .5f,
+                        height = EditorGUIUtility.singleLineHeight
+                    };
+                    posRect_prop.xMin = 140;
+
+                    EditorGUILayout.BeginHorizontal();
+                    rectTF.xMin = 20;
+                    rectTF.width = 40;
+                    EditorGUI.LabelField(rectTF, $"{index}");
+
+                    rectTF.xMin = 30;
+                    rectTF.width = 100;
+                    var oldName = taget.names[index];
+                    if (string.IsNullOrEmpty(oldName))
+                    {
+                        oldName = taget.monos[index]?.name;
+                        // Debug.Log($" name= {taget.monos[index]?.name} obj:{taget.monos[index]}");
+                    }
+                    taget.names[index] = EditorGUI.TextField(rectTF, oldName);
+                    if (oldName != taget.names[index])
+                        EditorUtility.SetDirty(taget);
+                    PopUpComponentsDrawer.PropertyField(posRect_prop, element, GUIContent.none);
+                    EditorGUILayout.EndHorizontal();
+
+                }
+
+            };
+
+            if (displayAddButton)
+            {
+                orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent($"添加空对象"), false, onAddClick, null);
+                    menu.ShowAsContext();
+                };
+            }
+
+            orderList.elementHeightCallback = (index) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
+                {
+                    return 0;
+                }
+
+                var h = EditorGUIUtility.singleLineHeight;
+                if (element.isExpanded)
+                    h += EditorGUI.GetPropertyHeight(element);
+                else
+                    h += EditorGUI.GetPropertyHeight(element);//EditorGUIUtility.singleLineHeight * 0.5f;
+                return h;
+            };
+
+            return orderList;
+        }
+
+
     }
 
     public class BindableObjectStyle

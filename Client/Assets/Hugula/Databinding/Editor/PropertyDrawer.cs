@@ -70,6 +70,58 @@ namespace HugulaEditor.Databinding
         {
             return EditorGUIUtility.singleLineHeight;
         }
+    
+        public static void PropertyField(Rect position, SerializedProperty property, GUIContent label)
+        {
+             if (property.hasMultipleDifferentValues)
+            {
+                float w = position.width;
+                position.width = w * .6f;
+                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
+            }
+            else
+            {
+                float w = position.width;
+                position.width = w * .6f;
+                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object),label);
+                UnityEngine.Object content = null;//(UnityEngine.Component)property.objectReferenceValue;
+                var obj = property.objectReferenceValue;
+                if (obj != null && obj is UnityEngine.Object)
+                {
+                    Component[] comps;
+                    if (obj is GameObject)
+                    {
+                        comps = ((GameObject)obj).GetComponents<Component>();
+                    }
+                    else if (obj is Component)
+                    {
+                        comps = ((Component)obj).GetComponents<Component>();
+                    }
+                    else
+                    {
+                        Debug.LogFormat("PopUpComponentsDrawer.value={0}", obj);
+                        return;
+                    }
+
+                    var m_AllComponents = Hugula.Utils.ListPool<string>.Get();
+                    int selectIndex = 0;
+                    int i = 0;
+                    foreach (var comp in comps)
+                    {
+                        m_AllComponents.Add(comp.GetType().Name);
+                        if (comp == obj) selectIndex = i;
+                        i++;
+                    }
+                    position.x = position.xMax;
+                    position.width = w - position.width;
+                    selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
+                    content = comps[selectIndex];
+                    Hugula.Utils.ListPool<string>.Release(m_AllComponents);
+                }
+                property.objectReferenceValue = content;
+            }
+
+        }
     }
 
 

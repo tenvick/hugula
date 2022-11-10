@@ -285,7 +285,6 @@ GameObject:
   - component: {fileID: 7076665906816002885}
   - component: {fileID: 7076665906816002880}
   - component: {fileID: 7076665906816002883}
-  - component: {fileID: 7076665906816002882}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -353,26 +352,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 1
---- !u!114 &7076665906816002882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076665906816002884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: count
-    format: 
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-  m_Target: {fileID: 7076665906816002883}
 --- !u!1 &7076665906848657712
 GameObject:
   m_ObjectHideFlags: 0
@@ -1091,11 +1070,22 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+  - propertyName: onContextChanged
+    path: context.on_select_render
+    format: 
+    converter: 
+    mode: 0
+    source: {fileID: 8546090328614921685}
   m_BindingOnEnable: 1
-  children:
+  children: []
+  names:
+  - Icon
+  - Border
+  - Text
+  monos:
   - {fileID: 7076665907938245314}
   - {fileID: 7076665907693501846}
-  - {fileID: 7076665906816002882}
+  - {fileID: 7076665906816002883}
 --- !u!222 &7076665907762591866
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1395,6 +1385,8 @@ MonoBehaviour:
   - {fileID: 9113580412719260416}
   - {fileID: 7076665907762591867}
   - {fileID: 7680516629435908602}
+  names: []
+  monos: []
 --- !u!1 &7076665908172257988
 GameObject:
   m_ObjectHideFlags: 0
@@ -1622,13 +1614,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bindings: []
+  bindings:
+  - propertyName: onContextChanged
+    path: context.on_item_context
+    format: 
+    converter: 
+    mode: 0
+    source: {fileID: 8546090328614921685}
   m_BindingOnEnable: 1
   children:
   - {fileID: 7076665908172257984}
   - {fileID: 7076665906960771333}
-  - {fileID: 7076665908813975177}
   - {fileID: 5767658270734264589}
+  names:
+  - count
+  monos:
+  - {fileID: 7076665908813975174}
 --- !u!222 &7076665908509375227
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1866,7 +1867,6 @@ GameObject:
   - component: {fileID: 7076665908813975176}
   - component: {fileID: 7076665908813975175}
   - component: {fileID: 7076665908813975174}
-  - component: {fileID: 7076665908813975177}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -1934,23 +1934,3 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 1
---- !u!114 &7076665908813975177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076665908813975179}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: count
-    format: 
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-  m_Target: {fileID: 7076665908813975174}

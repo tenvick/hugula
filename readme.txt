@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.11.10
+1 BindableContainer半绑定的模式支持(直接Get组件设置值，eg:bag)。
+
 2022.9.14
 1 分包工具优化与新的分包资源上传。
 2 timer profiler 优化。

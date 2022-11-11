@@ -118,34 +118,28 @@ namespace HugulaEditor.Databinding
             {
                 return "false";
             }
-            else if (typeof(UnityEngine.Events.UnityAction<int>) == propertyType ||
-           typeof(System.Action<int>) == propertyType)
-            {
-                return @"function(i)
-            --
-end
-";
-            }
-            else if (typeof(UnityEngine.Events.UnityAction<string>) == propertyType ||
-          typeof(System.Action<string>) == propertyType)
-            {
-                return @"function(str)
-            --
-end
-";
-            }
             else if (propertyType.IsSubclassOf(typeof(System.Delegate))) //是委托
             {
-                return $@"function({GenGenericTypeArgumentsForLua(propertyType)})
+                if (propNode.targetPropertyName.Equals("onContextChanged") && propNode.target is BindableContainer)
+                {
+                    return $@"function(bc,item)){GenGenericonContextChangedFunction((BindableContainer)propNode.target)}
+end                
+";
+                }
+                else
+                {
+                    return $@"function({GenGenericTypeArgumentsForLua(propertyType)})
             --
 end                
 ";
+                }
             }
 
             return propertyType.ToString();
 
         }
 
+        //展开泛型参数为lua function参数
         static string GenGenericTypeArgumentsForLua(System.Type type)
         {
             var sb = new StringBuilder();
@@ -154,7 +148,6 @@ end
             var len = 1;
             foreach (var t in type.GenericTypeArguments)
             {
-                i++;
                 if (t.IsValueType)
                 {
                     len = t.Name.Length <= 3 ? t.Name.Length : 3;
@@ -163,7 +156,45 @@ end
                 else
                     sb.Append($"{sp}obj{i}");
 
+                i++;
                 sp = ",";
+            }
+            return sb.ToString();
+        }
+
+        static string GetComponentMainProperty(object comp)
+        {
+            var tp = comp.GetType();
+            if (tp.IsSubclassOf(typeof(UnityEngine.UI.Text)) || tp == (typeof(UnityEngine.UI.Text)))
+            {
+                return "text";
+            }
+            else if (tp == typeof(UnityEngine.UI.Image))
+            {
+                return "sprite";
+            }
+            else if (tp == typeof(Hugula.Databinding.Binder.ImageBinder))
+            {
+                return "spriteName";
+            }
+            else if (tp == typeof(Hugula.Databinding.Binder.TextBinder) || tp == typeof(Hugula.Databinding.Binder.TextMeshProUGUIBinder))
+            {
+                return "text";
+            }
+
+            return string.Empty;
+        }
+
+        //生成BindableContainer  onContextChanged 默认绑定内容
+        static string GenGenericonContextChangedFunction(BindableContainer bc)
+        {
+            var sb = new StringBuilder();
+            Object mono;
+            sb.AppendLine("");
+            for (int i = 0; i < bc.monos.Count; i++)
+            {
+                mono = bc.monos[i];
+                sb.AppendLine($@"        bc:Get(""{bc.names[i]}"").{GetComponentMainProperty(mono)} = item.{bc.names[i]}  --{mono.GetType().Name}");
             }
             return sb.ToString();
         }
@@ -216,7 +247,10 @@ end
         }
         class PropertyNode
         {
+            //ObjectReference
+            public object target;
             public string propertyName;
+            public string targetPropertyName;
             public System.Type propertyType;
             public bool isListProperty;
             public bool isMethod;
@@ -244,7 +278,7 @@ end
             public ContextNode parent;
             public List<PropertyNode> peroperties = new List<PropertyNode>();
             public List<ContextNode> children = new List<ContextNode>();
-            public PropertyNode AddProperty(string propertyName, System.Type propertyType, bool isListProperty)
+            public PropertyNode AddProperty(object target, string targetPropertyName, string propertyName, System.Type propertyType, bool isListProperty)
             {
                 var prop = peroperties.Find((PropertyNode t) =>
                 {
@@ -260,6 +294,8 @@ end
                 {
                     prop = new PropertyNode()
                     {
+                        target = target,
+                        targetPropertyName = targetPropertyName,
                         isMethod = propertyName.IndexOf('(') != -1,
                         propertyName = propertyName,
                         propertyType = propertyType ?? typeof(object),
@@ -629,12 +665,12 @@ end
                     context = sourceContext[(BindableObject)binder.source];
                     var path = binder.path.Replace("context.", "");
                     if (context.contextType == ContextType.NotifyTable) isListProp = false;
-                    context?.AddProperty(path, prop?.PropertyType, isListProp);
+                    context?.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
                     return;
                 }
             }
 
-            context.AddProperty(binder.path, prop?.PropertyType, isListProp);
+            context.AddProperty(target, prop.Name, binder.path, prop?.PropertyType, isListProp);
         }
 
         private void BuildContextTree(BindableObject root, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)

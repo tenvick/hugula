@@ -24,6 +24,26 @@ namespace Hugula.Databinding
 
         #region mono单脚本引用新增加
 
+        private XLua.LuaTable m_LuaMonos;
+        XLua.LuaTable luaMonos
+        {
+            get
+            {
+                if (m_LuaMonos == null)
+                {
+                    m_LuaMonos = EnterLua.luaenv.NewTable();
+                    string key =string.Empty; 
+                    for (int i = 0; i < monos.Count; i++)
+                    {
+                        key = names[i];
+                        m_LuaMonos.Set<string,Object>(key,monos[i]);
+                    }
+                }
+
+                return m_LuaMonos;
+            }
+        }
+
         [HideInInspector]
         public List<string> names = new List<string>();
         ///<summary>
@@ -31,34 +51,6 @@ namespace Hugula.Databinding
         ///<summary>
         [HideInInspector]
         public List<Object> monos = new List<Object>();
-        public Object Get(string k)
-        {
-            int index = names.IndexOf(k);
-            if (index == -1)
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning(gameObject.name + "BindableContainer : not found the key [" + k + "]");
-#endif
-                return null;
-            }
-            else
-                return Get(index);
-        }
-
-        public Object Get(int index)
-        {
-            if (index >= 0 && index < monos.Count)
-            {
-                return monos[index];
-            }
-            else
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning(gameObject.name + "BindableContainer : not found the index monos[" + index + "]");
-#endif
-                return null;
-            }
-        }
 
         /// <summary>
         /// monos的长度
@@ -128,7 +120,7 @@ namespace Hugula.Databinding
 
                 if (m_OnContextChanged != null)
                 {
-                    m_OnContextChanged(this, context);
+                    m_OnContextChanged(luaMonos, context);
                 }
             }
             else
@@ -168,10 +160,15 @@ namespace Hugula.Databinding
             }
         }
 
-        // protected override void OnDestroy()
-        // {
-        //     base.OnDestroy();
-        // }
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if(m_LuaMonos!=null)
+            {
+                m_LuaMonos.Dispose();
+            }
+            m_LuaMonos = null;
+        }
         #endregion
     }
 }

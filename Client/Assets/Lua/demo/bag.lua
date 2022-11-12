@@ -179,18 +179,16 @@ bag.on_insert_click = {
 
 ---------------------------------渲染处理------------------------------------
 function bag.on_item_context(bc,item_data)
-    bc:Get(0).text = item_data.count
-    --or 
-    -- bc:Get("count").text =item_data.count
+    bc["count"].text = item_data.count
 end
 
 
 --显示选中的项
 local valueConverterRegister = CS.Hugula.Databinding.ValueConverterRegister.instance
 function bag.on_select_render(select, item)
-    select:Get(0).spriteName = item.icon
-    select:Get(1).sprite =  valueConverterRegister:Get("StringToSprite"):Convert(item.quality)
-    select:Get(2).text = item.count
+    select["Icon"].spriteName = item.icon
+    select["Border"].sprite =  valueConverterRegister:Get("StringToSprite"):Convert(item.quality)
+    select["Text"].text = item.count
 end
 
 return bag

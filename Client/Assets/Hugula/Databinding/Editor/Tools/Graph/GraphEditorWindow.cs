@@ -72,8 +72,10 @@ namespace HugulaEditor.Databinding
         private Vector2 scrollRectMax;
         private Vector2 scrollPos;
 
-        private int bindableContainerCount;
-        private int binderCount;
+        private int bindableObjectCount;
+        
+        private int bindingCount;
+
         private bool enableExtraInfo = true;
 
         private string searchText;
@@ -153,11 +155,14 @@ namespace HugulaEditor.Databinding
 
                 enableExtraInfo = GUILayout.Toggle(enableExtraInfo, "Enable Binding Info", EditorStyles.toolbarButton, GUILayout.Width(150), toolbarHeight);
                 GraphEditorSettings.enableDrag = GUILayout.Toggle(GraphEditorSettings.enableDrag, "Enable Drag", EditorStyles.toolbarButton, GUILayout.Width(120), toolbarHeight);
-
+                if (GUILayout.Button("Open Convert Window", EditorStyles.toolbarButton, GUILayout.Width(150), toolbarHeight))
+                {
+                   ConvertCodeGenWindow.Init2();
+                }
                 GUILayout.FlexibleSpace();
 
-                EditorGUILayout.LabelField(string.Format("Binder: {0}", binderCount), GUILayout.Width(100), toolbarHeight);
-                EditorGUILayout.LabelField(string.Format("BindableContainer: {0}", bindableContainerCount), GUILayout.Width(150), toolbarHeight);
+                EditorGUILayout.LabelField(string.Format("Binding: {0}", bindingCount), GUILayout.Width(100), toolbarHeight);
+                EditorGUILayout.LabelField(string.Format("BindableObject: {0}", bindableObjectCount), GUILayout.Width(150), toolbarHeight);
             }
         }
 
@@ -307,8 +312,8 @@ namespace HugulaEditor.Databinding
             searchResultDirty = true;
             currentNodeIndex = 0;
 
-            binderCount = 0;
-            bindableContainerCount = 0;
+            bindingCount = 0;
+            bindableObjectCount = 0;
         }
 
         public void CheckError()
@@ -526,7 +531,7 @@ namespace HugulaEditor.Databinding
             BuildTree(container, root);
 
             // get count
-            bindableContainerCount = root.ChildrenCount() + 1;
+            // bindableObjectCount = root.ChildrenCount() + 1;
 
             // setup view
             SetupView(root);
@@ -608,7 +613,8 @@ namespace HugulaEditor.Databinding
         private void BuildTree(Hugula.Databinding.BindableObject root, TreeNode treeNode, int index = 0)
         {
             var depth = treeNode.Depth() + 1;
-            binderCount += root.GetBindings().Count;
+            bindingCount += root.GetBindings().Count;
+            bindableObjectCount ++;
             // 构建自身节点
             var rootNode = CreateNode(NodeType.Style1);
             rootNode.name = string.Format("{0} {1}({2})", index, root.name, root.GetType().Name);
@@ -648,7 +654,9 @@ namespace HugulaEditor.Databinding
                     }
                     else if (item != null)
                     {
-                        binderCount += item.GetBindings().Count;
+                        bindingCount += item.GetBindings().Count;
+                        bindableObjectCount ++;
+
                         node = CreateNode(NodeType.Style2);
                         if (enableExtraInfo)
                         {

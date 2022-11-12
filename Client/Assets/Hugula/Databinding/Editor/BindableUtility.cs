@@ -12,6 +12,15 @@ namespace HugulaEditor.Databinding
 {
     public static class BindableUtility
     {
+        //获取安全的名字
+        public static string GetSafeName(string name)
+        {
+            int i = name.IndexOf("@");
+            int j = name.IndexOf("(");
+            if (i < j) i = j;
+            if (i < 0) i = name.Length;
+            return name.Substring(0, i).Replace(" ","_");
+        }
 
         public static void RemoveAtbindableObjects(BindableObject target, int index)
         {
@@ -259,12 +268,12 @@ namespace HugulaEditor.Databinding
                     rectTF.width = 40;
                     EditorGUI.LabelField(rectTF, $"{index}");
 
-                    rectTF.xMin = 30;
-                    rectTF.width = 100;
+                    rectTF.xMin = 40;
+                    rectTF.width = 110;
                     var oldName = taget.names[index];
-                    if (string.IsNullOrEmpty(oldName))
+                    if (string.IsNullOrEmpty(oldName) && taget.monos[index])
                     {
-                        oldName = taget.monos[index]?.name;
+                        oldName = BindableUtility.GetSafeName(taget.monos[index].name);
                         // Debug.Log($" name= {taget.monos[index]?.name} obj:{taget.monos[index]}");
                     }
                     taget.names[index] = EditorGUI.TextField(rectTF, oldName);
@@ -423,6 +432,7 @@ namespace HugulaEditor.Databinding
         }
         // public 
         #endregion
+
     }
 
     public static class SerializedPropertyExtend

@@ -13,9 +13,11 @@ namespace HugulaEditor.Databinding
         static readonly string SaveLuaPath = "Assets/Lua/viewmodels/";
 
         [MenuItem("Hugula/Data Binding/CodeGen Window")]
-        static void Init()
+        internal static void Init()
         {
             var window = EditorWindow.GetWindow<CodeGenWindow>("CodeGen");
+            window.Close();
+            window = EditorWindow.GetWindow<CodeGenWindow>("CodeGen");
             window.Show();
         }
 
@@ -45,7 +47,7 @@ namespace HugulaEditor.Databinding
         #region  template
         public string template = string.Empty;
         public static string templateNotifyTableAddUPRemove = string.Empty;
-        void ReadTemplate()
+        virtual internal void ReadTemplate()
         {
             template = System.IO.File.ReadAllText("Assets/Hugula/Databinding/Editor/Tools/CodeGen/template_viewmodel.lua");
             templateNotifyTableAddUPRemove = System.IO.File.ReadAllText("Assets/Hugula/Databinding/Editor/Tools/CodeGen/template_notifytable_add_up_remove.lua");
@@ -53,490 +55,20 @@ namespace HugulaEditor.Databinding
 
         #endregion
 
+        internal GraphBackground background = new GraphBackground();
+        internal Vector2 scrollPos;
+        internal Rect graphRegion;
+        internal int bindableContainerCount;
+        internal int binderCount;
 
-        #region viewmodel tree
-
-        /// <summary>
-        /// 根据属性type类型生成对应模板代码
-        /// </summary>
-        /// <param name="propNode"></param>
-        /// <returns></returns>
-        static string TemplateByPropertyType(PropertyNode propNode)
-        {
-            System.Type propertyType = propNode.propertyType;
-            if (propNode.isMethod)
-            {
-                return string.Format(@"function(arg)
-                if arg then
-                    --set 
-                    {1}._{0} = arg
-                else 
-                    --get {1}._{0}
-                end
-        return  {1}._{0}
-    end
-    ", propNode.methName, propNode.upvalue);
-            }
-            else if (typeof(int) == propertyType || typeof(float) == propertyType)
-            {
-                return "0";
-            }
-            else if (typeof(ICommand) == propertyType)
-            {
-                return @" {
-    CanExecute = function(self, arg)
-        return true
-    end,
-    Execute = function(self, arg)
-
-    end
-}
-";
-            }
-            else if (typeof(IExecute) == propertyType)
-            {
-                return @" {
-    Execute = function(self, arg)
-
-    end
-}
-";
-            }
-            else if (typeof(INotifyTable) == propertyType)
-            {
-                return @"NotifyTable()";
-            }
-            else if (typeof(string) == propertyType)
-            {
-                return @"""""";
-            }
-            else if (typeof(object) == propertyType)
-            {
-                return "{}";
-            }
-            else if (typeof(bool) == propertyType)
-            {
-                return "false";
-            }
-            else if (propertyType.IsSubclassOf(typeof(System.Delegate))) //是委托
-            {
-                if (propNode.targetPropertyName.Equals("onContextChanged") && propNode.target is BindableContainer)
-                {
-                    return $@"function(bc,item)){GenGenericonContextChangedFunction((BindableContainer)propNode.target)}
-end                
-";
-                }
-                else
-                {
-                    return $@"function({GenGenericTypeArgumentsForLua(propertyType)})
-            --
-end                
-";
-                }
-            }
-
-            return propertyType.ToString();
-
-        }
-
-        //展开泛型参数为lua function参数
-        static string GenGenericTypeArgumentsForLua(System.Type type)
-        {
-            var sb = new StringBuilder();
-            int i = 0;
-            var sp = "";
-            var len = 1;
-            foreach (var t in type.GenericTypeArguments)
-            {
-                if (t.IsValueType)
-                {
-                    len = t.Name.Length <= 3 ? t.Name.Length : 3;
-                    sb.Append($"{sp}{t.Name.Substring(0, len).ToLower()}_{i}");
-                }
-                else
-                    sb.Append($"{sp}obj{i}");
-
-                i++;
-                sp = ",";
-            }
-            return sb.ToString();
-        }
-
-        static string GetComponentMainProperty(object comp)
-        {
-            var tp = comp.GetType();
-            if (tp.IsSubclassOf(typeof(UnityEngine.UI.Text)) || tp == (typeof(UnityEngine.UI.Text)))
-            {
-                return "text";
-            }
-            else if (tp == typeof(UnityEngine.UI.Image))
-            {
-                return "sprite";
-            }
-            else if (tp == typeof(Hugula.Databinding.Binder.ImageBinder))
-            {
-                return "spriteName";
-            }
-            else if (tp == typeof(Hugula.Databinding.Binder.TextBinder) || tp == typeof(Hugula.Databinding.Binder.TextMeshProUGUIBinder))
-            {
-                return "text";
-            }
-
-            return string.Empty;
-        }
-
-        //生成BindableContainer  onContextChanged 默认绑定内容
-        static string GenGenericonContextChangedFunction(BindableContainer bc)
-        {
-            var sb = new StringBuilder();
-            Object mono;
-            sb.AppendLine("");
-            for (int i = 0; i < bc.monos.Count; i++)
-            {
-                mono = bc.monos[i];
-                sb.AppendLine($@"        bc:Get(""{bc.names[i]}"").{GetComponentMainProperty(mono)} = item.{bc.names[i]}  --{mono.GetType().Name}");
-            }
-            return sb.ToString();
-        }
-
-        static string NewContextByType(ContextType cType)
-        {
-            switch (cType)
-            {
-                case ContextType.ViewModel:
-                    return string.Empty;
-                case ContextType.NotifyObject:
-                    return "NotifyObject()";
-                case ContextType.NotifyTable:
-                    return "NotifyTable()";
-                case ContextType.Object:
-                    return "{}";
-                default:
-                    return @"""""";
-            }
-        }
-        static bool IsProperty(System.Type propertyType)
-        {
-            if (typeof(INotifyTable) == propertyType ||
-            typeof(IList) == propertyType
-            )
-                return true;
-            else if (propertyType.IsInterface || propertyType.IsGenericType)
-                return false;
-            else
-            {
-                return true;
-            }
-        }
-
-        enum TemplateType
-        {
-            name,
-            property,
-            message,
-            method,
-            command
-        }
-
-        enum ContextType
-        {
-            ViewModel,
-            NotifyObject,
-            NotifyTable,
-            Object,
-        }
-        class PropertyNode
-        {
-            //ObjectReference
-            public object target;
-            public string propertyName;
-            public string targetPropertyName;
-            public System.Type propertyType;
-            public bool isListProperty;
-            public bool isMethod;
-            internal string methName;
-            internal string upvalue = null;
-
-            public string ToTemplateString(string upvalue = null)
-            {
-                this.upvalue = upvalue;
-                if (isMethod)
-                {
-                    var lbIndex = propertyName.IndexOf('(');
-                    methName = propertyName.Substring(0, lbIndex);
-                    return string.Format("{0}={1}", methName, TemplateByPropertyType(this));
-                }
-                else
-                    return string.Format("{0}={1}", propertyName, TemplateByPropertyType(this));
-            }
-        }
-
-        class ContextNode
-        {
-            public string name;
-            public ContextType contextType;
-            public ContextNode parent;
-            public List<PropertyNode> peroperties = new List<PropertyNode>();
-            public List<ContextNode> children = new List<ContextNode>();
-            public PropertyNode AddProperty(object target, string targetPropertyName, string propertyName, System.Type propertyType, bool isListProperty)
-            {
-                var prop = peroperties.Find((PropertyNode t) =>
-                {
-                    if (propertyName == t.propertyName)
-                        return true;
-                    else
-                    {
-                        return false;
-                    }
-                });
-
-                if (prop == null)
-                {
-                    prop = new PropertyNode()
-                    {
-                        target = target,
-                        targetPropertyName = targetPropertyName,
-                        isMethod = propertyName.IndexOf('(') != -1,
-                        propertyName = propertyName,
-                        propertyType = propertyType ?? typeof(object),
-                        isListProperty = isListProperty,
-                    };
-                    peroperties.Add(prop);
-                    peroperties.Sort((a, b) =>
-                    {
-                        return b.propertyType.GetHashCode() - a.propertyType.GetHashCode();
-                    });
-                }
-                return prop;
-            }
-
-            public void AddChildContext(ContextNode child)
-            {
-                if (children.IndexOf(child) < 0)
-                {
-                    child.m_TabStr = null;
-                    child.parent = this;
-                    children.Add(child);
-                }
-            }
-
-            public ContextNode FindContext(Binding binding, ContextType cType)
-            {
-                binding.ParsePath();
-                var m_Parts = binding.parts;
-                ContextNode m_Current = this;
-                ContextNode m_Last = this;
-
-                BindingPathPart part = null;
-                for (var i = 0; i < m_Parts.Count; i++)
-                {
-                    part = m_Parts[i];
-                    if (!part.isSelf && m_Current != null)
-                    {
-                        {
-                            m_Last = m_Current;
-                            m_Current = (ContextNode)m_Current[part.path];
-                            if (m_Current == null)
-                            {
-                                var context = new ContextNode() { name = part.path, contextType = cType };
-                                m_Current = context;
-                                m_Last[part.path] = context;
-                            }
-                        }
-                    }
-
-                    if (!part.isSelf && m_Current == null)
-                        break;
-                }
-
-                return m_Current;
-            }
-
-            public object this[string property]
-            {
-                get
-                {
-                    foreach (var c in children)
-                    {
-                        if (c.name == property)
-                            return c;
-                    }
-
-                    return null;
-                }
-                set
-                {
-                    if (value is ContextNode)
-                    {
-                        AddChildContext((ContextNode)value);
-                    }
-                    else if (value is PropertyNode)
-                        peroperties.Add((PropertyNode)value);
-                }
-            }
-
-            internal int m_Depth = -1;
-            public int depth
-            {
-                get
-                {
-
-                    // if (m_Depth == -1)
-                    {
-
-                        int i = 0;
-                        var curr = this;
-                        while (curr != null && curr.parent != null)
-                        {
-                            i++;
-                            curr = curr.parent;
-                        }
-                        m_Depth = i;
-                    }
-
-                    return m_Depth;
-                }
-
-            }
-
-            public static Dictionary<string, StringBuilder> templateDic = new Dictionary<string, StringBuilder>();
-            StringBuilder GetSBTemplate(bool isProperty)
-            {
-                StringBuilder sb = null;
-                string propName = "property";
-                if (!isProperty)
-                {
-                    propName = "command";
-                }
-
-                if (!templateDic.TryGetValue(propName, out sb))
-                {
-                    sb = new StringBuilder();
-                    templateDic.Add(propName, sb);
-                }
-                return sb;
-            }
-
-            StringBuilder GetSBTemplate(TemplateType templateType)
-            {
-                StringBuilder sb = null;
-                string propName = templateType.ToString();
-                if (!templateDic.TryGetValue(propName, out sb))
-                {
-                    sb = new StringBuilder();
-                    templateDic.Add(propName, sb);
-                }
-                return sb;
-            }
-
-            internal string m_TabStr = null;
-            string GetTabByDepth()
-            {
-                if (m_TabStr == null)
-                {
-                    int d = depth;
-                    m_TabStr = string.Empty;
-                    while (d > 0)
-                    {
-                        m_TabStr += "    ";
-                        d--;
-                    }
-                }
-
-                return m_TabStr;
-            }
-
-            void AppendLine(string line, System.Type propertyType)
-            {
-                var sb = GetSBTemplate(IsProperty(propertyType));
-                sb.AppendLine(line);
-            }
-
-            void AppendLineMethod(string line)
-            {
-                var sb = GetSBTemplate(TemplateType.method);
-                sb.AppendLine();
-                sb.AppendLine(line);
-            }
-
-            void AppendLineProperty(PropertyNode prop)
-            {
-
-                if (prop.isListProperty)
-                {
-                    AppendLine(string.Format(GetTabByDepth() + "-- {0}.{1}", name + "_item", prop.ToTemplateString(name)), prop.propertyType);
-                }
-                else if (prop.isListProperty && prop.isMethod)
-                {
-                    AppendLineMethod(string.Format("--[[ {0}.{1} ]]--", name + "_item", prop.ToTemplateString(name)));
-                }
-                else if (prop.isMethod)
-                {
-                    AppendLineMethod(string.Format("{0}.{1}", name, prop.ToTemplateString(name)));
-                }
-                else
-                {
-                    AppendLine(string.Format(GetTabByDepth() + "{0}.{1}", name, prop.ToTemplateString(name)), prop.propertyType);
-                }
-            }
-
-            string GenNotifyTableAddUpRemove(string name, string childName)
-            {
-                var templateOut = templateNotifyTableAddUPRemove;
-                templateOut = templateOut.Replace("{name}", name);
-                templateOut = templateOut.Replace("{0}", childName);
-                return templateOut;
-            }
-
-            private System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            public void GenTemplateString()
-            {
-                AppendLine(GetTabByDepth() + string.Format("----  {0}  ----", name), typeof(object));
-
-                foreach (var child in children)
-                {
-                    AppendLine("", typeof(object));
-                    AppendLine(string.Format(GetTabByDepth() + "local {0}={1}", child.name, NewContextByType(child.contextType)), typeof(object));
-                    AppendLine(string.Format(GetTabByDepth() + "{0}.{1}={1}", name, child.name), typeof(object));
-                    if (child.contextType == ContextType.NotifyTable) // notify table add remove update
-                    {
-                        AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, child.name));
-                    }
-                    child.GenTemplateString();
-                }
-
-                // AppendLine(string.Format("\r\n---- {0} property   --", name), typeof(object));
-                if (children.Count > 0)
-                    AppendLine("\r\n", typeof(object));
-                foreach (var prop in peroperties)
-                {
-                    AppendLineProperty(prop);
-                    if (prop.propertyType == typeof(INotifyTable)) //notify
-                    {
-                        AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, prop.propertyName));
-                    }
-                }
-                AppendLine(GetTabByDepth() + string.Format("----  {0} end  --", name), typeof(object));
-
-            }
-        }
-
-
-        #endregion
-
-        private GraphBackground background = new GraphBackground();
-        private Vector2 scrollPos;
-        private Rect graphRegion;
-        private int bindableContainerCount;
-        private int binderCount;
-
-        private void DrawToolbar()
+        internal virtual void DrawToolbar()
         {
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 var toolbarHeight = GUILayout.Height(GraphEditorSettings.ToolbarHeight);
                 if (GUILayout.Button("Generate ViewModel", EditorStyles.toolbarButton, GUILayout.Width(200), toolbarHeight))
                 {
+                    ContextNode.codeGenTemplateUtils = new CodeGenTemplateUtils();
                     CreatePreViewCode();
                 }
 
@@ -569,12 +101,14 @@ end
             ReadTemplate();
             templateOut = string.Empty;
             var container = selectedTransform.GetComponent<Hugula.Databinding.BindableObject>();
-            var name = GetSafeName(container.name);
+            var name = BindableUtility.GetSafeName(container.name);
             ContextNode.templateDic.Clear();
             ContextNode.templateDic["name"] = new StringBuilder().Append(name);
             ContextNode.templateDic["property"] = new StringBuilder();
             ContextNode.templateDic["command"] = new StringBuilder();
             // ContextNode.templateDic["other"] = new StringBuilder();
+                    
+            ContextNode.templateNotifyTableAddUPRemove = templateNotifyTableAddUPRemove;
 
 
             var root = new ContextNode() { name = name, contextType = ContextType.ViewModel };
@@ -606,7 +140,7 @@ end
             templateOut = tempOut;
         }
 
-        string templateOut = "";
+        internal string templateOut = "";
         public void DrawGraph()
         {
             background.Draw(graphRegion, scrollPos);
@@ -639,7 +173,7 @@ end
         }
 
 
-        private void AddPropertyToContext(object target, Binding binder, bool isSelf, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
+        internal void AddPropertyToContext(object target, Binding binder, bool isSelf, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
         {
             var tp = target.GetType();
 
@@ -662,10 +196,17 @@ end
                 binder.ParsePath();
                 if (binder.parts.Count > 1 && binder.parts[1].path == "context")
                 {
-                    context = sourceContext[(BindableObject)binder.source];
-                    var path = binder.path.Replace("context.", "");
-                    if (context.contextType == ContextType.NotifyTable) isListProp = false;
-                    context?.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
+                      var path = binder.path.Replace("context.", "");
+                    if(sourceContext.TryGetValue((BindableObject)binder.source, out var sourceContextItem))
+                    {
+                        if (sourceContextItem.contextType == ContextType.NotifyTable) isListProp = false;
+                        sourceContextItem?.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
+                    }
+                    else
+                    {
+                       context.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
+                    }
+
                     return;
                 }
             }
@@ -673,7 +214,7 @@ end
             context.AddProperty(target, prop.Name, binder.path, prop?.PropertyType, isListProp);
         }
 
-        private void BuildContextTree(BindableObject root, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
+        internal virtual void BuildContextTree(BindableObject root, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
         {
             // Debug.LogFormat("BuildContextTree({0}) ", root);
             binderCount += root.GetBindings().Count;
@@ -693,6 +234,7 @@ end
                     ctype = ContextType.NotifyTable;
                 }
                 currContext = context.FindContext(contextBinding, ctype);//寻找上下文
+
             }
             else
             {
@@ -743,13 +285,5 @@ end
 
         }
 
-        private string GetSafeName(string name)
-        {
-            int i = name.IndexOf("@");
-            int j = name.IndexOf("(");
-            if (i < j) i = j;
-            if (i < 0) i = name.Length;
-            return name.Substring(0, i);
-        }
     }
 }

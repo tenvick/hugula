@@ -327,12 +327,12 @@ namespace Hugula.ResUpdate
         /// <summary>
         ///  分析依赖bundle
         /// </summary>
-        public static void AnalyzeAddressDependencies(string address,System.Type type,List<string> dependenciesInfo)
+        public static void AnalyzeAddressDependencies(string address, System.Type type, List<string> dependenciesInfo)
         {
             var abNames = FindBundleNameByAddress(address, type);
-            FolderManifest find=null;
+            FolderManifest find = null;
             string bundleName = null;
-             for (int i = 0; i < streamingFolderManifest.Count; i++)
+            for (int i = 0; i < streamingFolderManifest.Count; i++)
             {
                 find = streamingFolderManifest[i] as FolderManifest;
                 if (find)
@@ -872,30 +872,36 @@ namespace Hugula.ResUpdate
                 var keys = new List<object>();
                 foreach (var item in Addressables.ResourceLocators)
                 {
-                    sb.AppendLine("/r/n new Addressables.ResourceLocators:(");
-                    sb.Append(item.LocatorId);
-                    sb.AppendLine("):");
+                    sb.AppendLine($"\r\n new Addressables.ResourceLocators:({item.LocatorId}):");
                     keys.Clear();
                     keys.AddRange(item.Keys);
-                    sb.AppendLine($"  -------------------------------{item.LocatorId}-Count:{keys.Count}------------------");
+                    sb.AppendLine($"\r\n  -------------------------------{item.LocatorId}-Count:{keys.Count}------------------");
 
                     foreach (var key in keys)
                     {
                         if (item.Locate(key, typeof(object), out var locations))
                         {
-                            sb.AppendLine($"            -----{item.LocatorId}-{key.ToString()}--Count:{locations.Count}");
+                            sb.AppendLine($"\r\n\r\n            -----{item.LocatorId} key({key.ToString()})      locations.Count:{locations.Count}");
                             foreach (var loc in locations)
                             {
-                                sb.AppendLine($"                    {key.ToString()}   ({loc.ResourceType}){loc.PrimaryKey}:{loc.InternalId}");
+                                sb.AppendLine($"                    {key.ToString()}   ResourceType:({loc.ResourceType}) PrimaryKey({loc.PrimaryKey}) InternalId({loc.InternalId}) ");
+
+                                if (loc.HasDependencies)
+                                {
+                                    sb.Append($"                        HasDependencies:{loc.HasDependencies}  DependencyHashCode:{loc.DependencyHashCode} , \r\n                        Dependencies:");
+                                    foreach (var dep in loc.Dependencies)
+                                    {
+                                        sb.Append($"\r\n                          Dep.PrimaryKey({dep.PrimaryKey}) Dep.InternalId({dep.InternalId})  ,");
+                                    }
+
+                                }
                             }
-                            sb.AppendLine($"            end-----{item.LocatorId}-{key.ToString()}--Count:{locations.Count}");
                         }
                         else
-                            sb.AppendLine($"            -----{item.LocatorId}-{key.ToString()}--Count:0");
+                            sb.AppendLine($"\r\n\r\n            -----{item.LocatorId} key({key.ToString()})--Count:0");
                     }
-                    sb.AppendLine($"  end-------------------------------{item.LocatorId}-Count:{keys.Count}-------------------");
-
                     Debug.Log(sb.ToString());
+                    sb.Clear();
                 }
 #endif
             }
@@ -921,9 +927,9 @@ namespace Hugula.ResUpdate
                     if (!locationIdPath.ContainsKey(finfo.name))
                     {
                         locationIdPath[finfo.name] = zipOutPath;
-                        // #if !HUGULA_NO_LOG
-                        //                         Debug.Log($" zip folder:{folderPackage.folderName} transform({finfo.name}={zipOutPath}) ");
-                        // #endif
+                        #if !HUGULA_NO_LOG
+                                                Debug.Log($" zip folder:{folderPackage.fileName} transform({finfo.name}={zipOutPath}) ");
+                        #endif
                     }
                 }
 
@@ -976,7 +982,7 @@ namespace Hugula.ResUpdate
         internal static string OverrideLocationURL(IResourceLocation location)
         {
 #if !HUGULA_NO_LOG
-            // Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
+            //Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
 #endif
 
             if (!location.InternalId.StartsWith("http")) //&& location.ResourceType == typeof(IAssetBundleResource)

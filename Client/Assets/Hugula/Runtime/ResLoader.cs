@@ -51,8 +51,69 @@ namespace Hugula
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
         {
             s_Initialized = true;
-#if UNITY_EDITOR
+#if (UNITY_EDITOR || !HUGULA_NO_LOG) && !HUGULA_RELEASE
             Debug.Log("Addressables.InitializeAsync() InitDone");
+            // #endif
+            // #if !HUGULA_NO_LOG
+            var sb = new System.Text.StringBuilder();
+            var keys = new List<object>();
+            foreach (var item in Addressables.ResourceLocators)
+            {
+                sb.AppendLine($"\r\n new Addressables.ResourceLocators:({item.LocatorId})  GetHashCode:{item.GetHashCode()}  {item}:");
+                keys.Clear();
+                keys.AddRange(item.Keys);
+                sb.AppendLine($"\r\n  -------------------------------{item.LocatorId}-Count:{keys.Count}------------------");
+
+                foreach (var key in keys)
+                {
+                    if (item.Locate(key, typeof(object), out var locations))
+                    {
+                        sb.AppendLine($"\r\n\r\n            -----{item.LocatorId} key({key.ToString()})      locations.Count:{locations.Count}");
+                        foreach (var loc in locations)
+                        {
+                            sb.AppendLine($"                    {key.ToString()}   ResourceType:({loc.ResourceType}) PrimaryKey({loc.PrimaryKey}) InternalId({loc.InternalId}) Data:{loc.Data} ");
+
+                            if (loc.HasDependencies)
+                            {
+                                sb.Append($"                        HasDependencies:{loc.HasDependencies}  DependencyHashCode:{loc.DependencyHashCode} , \r\n                        Dependencies:");
+                                foreach (var dep in loc.Dependencies)
+                                {
+                                    sb.Append($"\r\n                          Dep.PrimaryKey({dep.PrimaryKey}) Dep.InternalId({dep.InternalId}) Dep.ResourceType:({dep.ResourceType})  Dep.ProviderId:{dep.ProviderId}  Data:{loc.Data} ");
+                                }
+
+                            }
+                        }
+                    }
+                    else
+                        sb.AppendLine($"\r\n\r\n            -----{item.LocatorId} key({key.ToString()})--Count:0");
+                }
+
+                // Debug.Log(sb.ToString());
+                var logName = $"ResourceLocators_{item.LocatorId}.txt";
+                string logPath = "";
+
+#if UNITY_EDITOR
+                var path =  "Assets/Tmp";//Path.Combine(Application.dataPath, "../Logs");
+                logPath = System.IO.Path.Combine(path, logName);
+                if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+#elif UNITY_STANDALONE
+            var path = System.IO.Path.Combine(Application.dataPath, "../Logs");
+            logPath = System.IO.Path.Combine(path, System.DateTime.Now.ToString("MM_dd HH_mm_ss ")+logName);
+             if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+#else
+            logPath = System.IO.Path.Combine(CUtils.realPersistentDataPath,logName);
+#endif
+
+                using (System.IO.StreamWriter sr = new System.IO.StreamWriter(logPath, false))
+                {
+                    sr.Write(sb.ToString());
+                }
+                sb.Clear();
+            }
+
+
 #endif
         }
 
@@ -104,7 +165,7 @@ namespace Hugula
                 OnGroupProgress(m_LoadingEvent);
             }
 
-            if (OnGroupComplete != null && g_Idx>=0 && m_TotalGroupCount <= m_CurrGroupLoaded && !m_MarkGroup && m_Groupes.Count == 0)
+            if (OnGroupComplete != null && g_Idx >= 0 && m_TotalGroupCount <= m_CurrGroupLoaded && !m_MarkGroup && m_Groupes.Count == 0)
             {
                 OnGroupComplete();
             }
@@ -174,7 +235,7 @@ namespace Hugula
                 throw new NullReferenceException("Instantiate key is null");
 
             if (!s_Initialized)
-                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! "+ key);
+                throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
 
             AsyncOperationHandle<GameObject> op;
             key = GetKey(key);
@@ -183,7 +244,7 @@ namespace Hugula
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("Instantiate:", key))
             {
 #endif
-                op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
+            op = Addressables.InstantiateAsync(key, parent, instantiateInWorldSpace);
 #if PROFILER_DUMP
             }
 #endif
@@ -267,8 +328,8 @@ namespace Hugula
                 using (ProfilerFactory.GetAndStartProfiler(pkey))
                 {
 #endif
-                    task = Addressables.LoadAssetAsync<T>(key).Task;
-                    await task;
+                task = Addressables.LoadAssetAsync<T>(key).Task;
+                await task;
 #if PROFILER_DUMP
                 }
 
@@ -277,14 +338,14 @@ namespace Hugula
                 using (ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
                 {
 #endif
-                    if (task.Result != null)
-                    {
-                        onComplete(task.Result, userData);
-                    }
-                    else
-                    {
-                        if (onEnd != null) onEnd(null, userData);
-                    }
+                if (task.Result != null)
+                {
+                    onComplete(task.Result, userData);
+                }
+                else
+                {
+                    if (onEnd != null) onEnd(null, userData);
+                }
 
 #if PROFILER_DUMP
                 }
@@ -326,8 +387,8 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
 #endif
-                    task = Addressables.LoadAssetAsync<T>(key).Task;
-                    await task;
+                task = Addressables.LoadAssetAsync<T>(key).Task;
+                await task;
 #if PROFILER_DUMP
                 }
 
@@ -335,15 +396,15 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
                 {
 #endif
-                    if (task.Result != null)
-                    {
-                        onComplete(task.Result, userData);
-                    }
-                    else
-                    {
-                        Debug.LogError($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
-                        if (onEnd != null) onEnd(null, userData);
-                    }
+                if (task.Result != null)
+                {
+                    onComplete(task.Result, userData);
+                }
+                else
+                {
+                    Debug.LogError($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
+                    if (onEnd != null) onEnd(null, userData);
+                }
 #if PROFILER_DUMP
                 }
 #endif
@@ -379,7 +440,7 @@ namespace Hugula
 #if !ADDRESSABLES_INSTANTIATEASYNC
         static Dictionary<GameObject, UnityEngine.Object> gObjInstanceRef = new Dictionary<GameObject, UnityEngine.Object>();
 #else
-        static Dictionary<GameObject, string> InstantiateRef = new Dictionary<GameObject,string>();
+        static Dictionary<GameObject, string> InstantiateRef = new Dictionary<GameObject, string>();
 
 #endif
         public static AsyncOperationHandle<GameObject> InstantiateAsyncOperation(string key, Transform parent = null)
@@ -419,9 +480,9 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
 #endif
-                    task = Addressables.InstantiateAsync(key, parent).Task;
-                    await task;
-                    inst = task.Result;
+                task = Addressables.InstantiateAsync(key, parent).Task;
+                await task;
+                inst = task.Result;
 #if PROFILER_DUMP
                 }
                 var ckey = "InstantiateAsync.onComp:" + key;
@@ -429,16 +490,16 @@ namespace Hugula
                 {
 #endif
 
-                    if (inst != null)
-                    {
-                        InstantiateRef[inst] = key;
-                        if (onComplete != null) onComplete(inst, userData);
-                    }
-                    else
-                    {
-                        Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
-                        if (onEnd != null) onEnd(key, userData);
-                    }
+                if (inst != null)
+                {
+                    InstantiateRef[inst] = key;
+                    if (onComplete != null) onComplete(inst, userData);
+                }
+                else
+                {
+                    Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
+                    if (onEnd != null) onEnd(key, userData);
+                }
 #if PROFILER_DUMP
                 }
 #endif
@@ -533,10 +594,10 @@ namespace Hugula
                     m_Groupes.Add(key);
                     m_TotalGroupCount++;
                 }
-            try
-            {
+                try
+                {
 
-                Task<SceneInstance> task;
+                    Task<SceneInstance> task;
 #if PROFILER_DUMP
                 var pkey = "LoadSceneAsync:" + key;
 
@@ -566,17 +627,17 @@ namespace Hugula
                 }
 #endif
 
+                }
+                catch (Exception ex)
+                {
+                    if (onEnd != null) onEnd(key, userData);
+                    throw ex;
+                }
+                finally
+                {
+                    OnItemLoaded(key);
+                }
             }
-            catch (Exception ex)
-            {
-                if (onEnd != null) onEnd(key, userData);
-                throw ex;
-            }
-            finally
-            {
-                OnItemLoaded(key);
-            }
-			}
 
         }
 
@@ -707,7 +768,7 @@ namespace Hugula
         {
             GameObject gameObject;
 #if ADDRESSABLES_INSTANTIATEASYNC
-            foreach(var kv in InstantiateRef)
+            foreach (var kv in InstantiateRef)
             {
                 gameObject = kv.Key;
                 Addressables.ReleaseInstance(gameObject);
@@ -722,7 +783,7 @@ namespace Hugula
             }
             gObjInstanceRef.Clear();
 #endif
-              
+
         }
 
         static public void Release<T>(T obj)

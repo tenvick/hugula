@@ -20,6 +20,8 @@ namespace HugulaEditor.ResUpdate
         public List<FileManifest> streamingFolderManifest = null;//streamingAsset
         public List<FileManifest> diffFolderManifest = null;//变更包
         public List<FileResInfo>[] abInfoArray = null;
+        //增量更新
+        internal bool PreviousContentUpdate = false;
 
         public FileManifest FindFolderManifestByFolderName(List<FileManifest> list, string folderName)
         {
@@ -37,12 +39,13 @@ namespace HugulaEditor.ResUpdate
     //构建热更新资源
     public class BuildResPipeline
     {
-        private static Dictionary<string, FileManifest> m_AllFolderManifest;
-        public static void Initialize(Dictionary<string, FileManifest> allFolderManifest)
+        // private static Dictionary<string, FileManifest> m_AllFolderManifest;
+        // private static bool m_PreviousContentUpdate = false;
+        public static void Initialize()
         {
             TaskManager<HotResGenSharedData>.Clear();
-            m_AllFolderManifest = allFolderManifest;
             TaskManager<HotResGenSharedData>.AddTask(new ClearHotResCache());
+            TaskManager<HotResGenSharedData>.AddTask(new CopyContentStateData());
             TaskManager<HotResGenSharedData>.AddTask(new BuildCustomPackage());
             TaskManager<HotResGenSharedData>.AddTask(new ReadFolderManifestInfo());
             TaskManager<HotResGenSharedData>.AddTask(new BuildDiffBundleManifest());
@@ -53,11 +56,12 @@ namespace HugulaEditor.ResUpdate
             TaskManager<HotResGenSharedData>.AddTask(new GenVersionJson());
         }
 
-        public static void Build()
+        public static void Build(Dictionary<string, FileManifest> allFolderManifest, bool PreviousContentUpdate)
         {
             Hugula.Utils.CUtils.DebugCastTime($"Run Task BuildResPipeline.Build()");
             var resData = new HotResGenSharedData();
-            resData.allFolderManifest = m_AllFolderManifest;
+            resData.allFolderManifest = allFolderManifest;
+            resData.PreviousContentUpdate = PreviousContentUpdate;
             TaskManager<HotResGenSharedData>.Run(resData, (float p, string name) => UnityEditor.EditorUtility.DisplayProgressBar(name, $"run {name}", p));
         }
 
@@ -137,6 +141,31 @@ namespace HugulaEditor.ResUpdate
         }
     }
 
+    public class CopyContentStateData : ITask<HotResGenSharedData>
+    {
+        public string name { get { return "copy Content State Data (addressables_content_state.bin) "; } }
+        public int priority { get { return 0; } }
+
+        public void Run(HotResGenSharedData data)
+        {
+            var contentStatePath = UnityEditor.AddressableAssets.Build.ContentUpdateScript.GetContentStateDataPath(false);
+            if (!data.PreviousContentUpdate)
+            {
+                var updateContentStateDataPath = BuildConfig.UpdateContentStateDataPath;
+                if (!Directory.Exists(updateContentStateDataPath))
+                    Directory.CreateDirectory(updateContentStateDataPath);
+                string verPath = Path.Combine(updateContentStateDataPath, $"{CodeVersion.APP_VERSION}_{EditorUtils.GetResNumber()}_addressables_content_state.bin");
+
+                File.Copy(contentStatePath, verPath);
+                Debug.Log($" File.Copy({contentStatePath},{verPath})");
+            }
+            else
+            {
+                Debug.Log($"PreviousContentUpdate does't need File.Copy {contentStatePath};");
+            }
+        }
+    }
+
     //构建本地包
     public class BuildLocalStreamingFolderManifest : ITask<HotResGenSharedData>
     {
@@ -150,6 +179,7 @@ namespace HugulaEditor.ResUpdate
             string zipFilePath = string.Empty;
 
             List<string> folderManifest = new List<string>();
+            List<FileManifest> folderManifestBuild = new List<FileManifest>();
             // FolderManifest folderMani = null;
             foreach (var folder in folderManifestDic.Values)
             {
@@ -176,27 +206,36 @@ namespace HugulaEditor.ResUpdate
                     }
 
                     var strAsset = $"Assets/Tmp/{folder.fileName}.asset";
-                    folderMani.WriteToFile($"Assets/Tmp/folderManifest_{folder.fileName}.txt");
+                    folderMani.WriteToFile($"Assets/Tmp/local_{folder.fileName}.txt");
                     folderMani.SaveAsset(strAsset);
                     folderManifest.Add(strAsset);
+                    folderManifestBuild.Add(folderMani);
                 }
                 else if (folder is BundleManifest)
                 {
                     var bundleManifest = folder as BundleManifest;
 
                     var strAsset = $"Assets/Tmp/{folder.fileName}.asset";
-                    bundleManifest.WriteToFile($"Assets/Tmp/bundleManifest_{folder.fileName}.txt");
+                    bundleManifest.WriteToFile($"Assets/Tmp/local_lua_{folder.fileName}.txt");
                     bundleManifest.SaveAsset(strAsset);
                     folderManifest.Add(strAsset);
+                    folderManifestBuild.Add(bundleManifest);
+
                 }
 
             }
 
             //构建所有foldermanifest
-            BuildScriptHotResUpdate.BuildABsTogether(folderManifest.ToArray(), null, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
-
-            new ReadFolderManifestInfo().Run(data);
-            ReadStreamingFolderManifest(data);
+            if (data.PreviousContentUpdate) //如果是增量更新不需要覆盖streaming目录 STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME
+            {
+                data.streamingFolderManifest = folderManifestBuild;
+            }
+            else
+            {
+                BuildScriptHotResUpdate.BuildABsTogether(folderManifest.ToArray(), null, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
+                new ReadFolderManifestInfo().Run(data);
+                ReadStreamingFolderManifest(data);
+            }
 
         }
 
@@ -414,7 +453,7 @@ namespace HugulaEditor.ResUpdate
                 List<FileResInfo> diffInfos = null;
                 if (firstFind)
                 {
-                    diffInfos = firstFind.Compare(itemFolderManifest);
+                    diffInfos = Compare(firstFind, itemFolderManifest); //firstFind.Compare(itemFolderManifest);
                 }
                 else
                 {
@@ -446,6 +485,30 @@ namespace HugulaEditor.ResUpdate
             data.diffFolderManifest = diffFolderManifest;
 
         }
+
+
+        /// <summary>
+        /// 用remote的foldermanifest对比本地 找出差异文件
+        /// </summary>
+        public static List<FileResInfo> Compare(FileManifest self, FileManifest remote)
+        {
+            List<FileResInfo> re = new List<FileResInfo>();
+            if (remote == null) return re;
+            if (self.resNumber > remote.resNumber) return re; //如果本地大于远端不需要更新
+            var compareABInfos = remote.allFileInfos;
+            FileResInfo abInfo;
+            for (int i = 0; i < compareABInfos.Count; i++)
+            {
+                abInfo = compareABInfos[i];
+                if (self.CheckFileIsChanged(abInfo) && abInfo.crc32 != 0)
+                {
+                    re.Add(abInfo);
+                }
+            }
+
+            return re;
+        }
+
     }
 
 
@@ -504,6 +567,7 @@ namespace HugulaEditor.ResUpdate
             {
                 var strAsset = $"Assets/Tmp/{folderManifest.fileName}.asset";
                 folderManifest.SaveAsset(strAsset);
+                folderManifest.WriteToFile($"Assets/Tmp/remote_diff_{folderManifest.fileName}.txt");
                 folderManifestAssets.Add(strAsset);
             }
 
@@ -548,6 +612,11 @@ namespace HugulaEditor.ResUpdate
 
         public void Run(HotResGenSharedData data)
         {
+            if (data.PreviousContentUpdate)
+            {
+                Debug.Log($"PreviousContentUpdate does't need {name} ");
+                return;
+            }
             string verPath = BuildConfig.UpdatePackagesOutVersionPath;//Path.Combine(BuildConfig.UpdateResOutVersionPath, BuildConfig.ResFolderName);//特定版本资源目录用于资源备份
             FileHelper.CheckCreateDirectory(verPath);
             var aasBuildPath = Path.Combine(UnityEngine.AddressableAssets.Addressables.BuildPath, BuildConfig.BuildTarget.ToString());

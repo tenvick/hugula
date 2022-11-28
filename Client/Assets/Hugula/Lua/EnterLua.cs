@@ -106,6 +106,7 @@ namespace Hugula
             SingletonManager.CanCreateInstance();
 
             Hugula.Atlas.AtlasManager.instance.Init();
+            Hugula.Audio.AudioManager.instance.Init();
 
             yield return null;
             //pb

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: sounds_HugulaResUpdatePacking
   m_EditorClassIdentifier: 
   m_Group: {fileID: 11400000, guid: 02b184ddc027dd54fbee694c7adaef24, type: 2}
-  packingType: 3
-  customName: sound_pack
-  priority: 1
+  packingType: 1
+  customName: fast
+  priority: 2

@@ -37,7 +37,7 @@ MonoBehaviour:
     m_Id: f8aaf6b81043fae4d99221062e1831c6
   m_LoadPath:
     m_Id: c04dbdb25465d9e45bf36dfbe7e5c655
-  m_BundleMode: 1
+  m_BundleMode: 0
   m_AssetBundleProviderType:
     m_AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     m_ClassName: SyncBundleProvider

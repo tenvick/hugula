@@ -10,21 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: ui_bag
+  m_Name: Content Update
   m_EditorClassIdentifier: 
-  m_GroupName: ui_bag
+  m_GroupName: Content Update
   m_Data:
     m_SerializedData: []
-  m_GUID: 7c4da64b9391be34c82c638a6193c7a7
+  m_GUID: c12c5dacb111c904ea04f0deb5bd38d4
   m_SerializeEntries:
-  - m_GUID: dae349cbb2fec244aa2466ea6d1a502d
-    m_Address: bag
+  - m_GUID: 8f71dff3e3a987845ad362b75f690430
+    m_Address: chat_demo
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9005672ad23bdc04c96f243bf22d4233
+    m_Address: ui_login
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 76fa4b5b07d92ca4c9365c58073846bb, type: 2}
-    - {fileID: 11400000, guid: c0216424ae5864443bd4b09ff7163222, type: 2}
-    - {fileID: 11400000, guid: b1eb3a63821a02041a460ad24d23d908, type: 2}
+    - {fileID: 11400000, guid: a419e10aa5a286c42a2735ddb7887075, type: 2}
+    - {fileID: 11400000, guid: f4c9101a3ed486844977b90649851fc1, type: 2}

@@ -1,5 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2022.11.28
+1 增量更新支持(.1 aas增量工具生成group, .2 Hugula/Update a Previous Build(produce smaller content updates)菜单生成更新文件)。
+2 Addressables 升级到1.21.1 解决增量更新bug。
+
 2022.11.10
 1 BindableContainer半绑定的模式支持(直接Get组件设置值，eg:bag)。
 

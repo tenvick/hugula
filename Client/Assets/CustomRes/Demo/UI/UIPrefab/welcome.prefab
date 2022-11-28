@@ -151,6 +151,8 @@ MonoBehaviour:
   - {fileID: 1898566435255580335}
   - {fileID: 1898566436120551734}
   - {fileID: 7290547760750541673}
+  names: []
+  monos: []
 --- !u!222 &1898566434948006675
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -893,6 +895,8 @@ MonoBehaviour:
   m_BindingOnEnable: 1
   children:
   - {fileID: 1898566436092732780}
+  names: []
+  monos: []
 --- !u!1 &1898566436712216697
 GameObject:
   m_ObjectHideFlags: 0

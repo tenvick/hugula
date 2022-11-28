@@ -32,5 +32,10 @@ namespace Hugula.UIComponents
             GameObject.Destroy(this.gameObject);
             if (onDelayCompleted != null) onDelayCompleted();
         }
+
+        public void CancelDelay()
+        {
+            StopAllCoroutines();
+        }
     }
 }

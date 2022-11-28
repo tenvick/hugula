@@ -78,7 +78,7 @@ namespace HugulaEditor.ResUpdate
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// 当前平台zip包资源存放目录
         /// </summary>
         public static string UpdatePackagesOutVersionPath
@@ -86,6 +86,18 @@ namespace HugulaEditor.ResUpdate
             get
             {
                 string outPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,"packages");//" CodeVersion.APP_VERSION");
+                return outPath;
+            }
+        }
+
+         /// <summary>
+        /// 当前平台addressables_content_state.bin存放目录
+        /// </summary>
+        public static string UpdateContentStateDataPath
+        {
+            get
+            {
+                string outPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,"aas_bin");//" aas_bin");
                 return outPath;
             }
         }
@@ -197,6 +209,17 @@ namespace HugulaEditor.ResUpdate
             File.WriteAllText(path, contents);
             Debug.Log($"序列化文件保存地址:{path}");
             // Debug.Log(contents);
+        }
+
+        public static void ClearBuildBundlePathData()
+        {
+             string tmpPath = EditorUtils.GetProjectTempPath();
+            string path = Path.Combine(tmpPath, BuildConfig.BuildBundlePathDataFileName);
+            if(File.Exists(path))
+            {
+                File.Delete(path);
+                Debug.Log($"删除文件地址:{path}");
+            }
         }
 
         public static BuildBundlePathData ReadBuildBundlePathData()

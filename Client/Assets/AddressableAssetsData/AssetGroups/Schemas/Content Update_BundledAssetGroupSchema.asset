@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5d17a21594effb4e9591490b009e7aa, type: 3}
-  m_Name: ui_bag_BundledAssetGroupSchema
+  m_Name: Content Update_BundledAssetGroupSchema
   m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: 4d5896732ae1c2f48b107225a93e0381, type: 2}
-  m_InternalBundleIdMode: 1
+  m_Group: {fileID: 11400000, guid: f1c1ede5e87a49345a63aaa967042a91, type: 2}
+  m_InternalBundleIdMode: 0
   m_Compression: 1
   m_IncludeAddressInCatalog: 1
   m_IncludeGUIDInCatalog: 1
   m_IncludeLabelsInCatalog: 1
-  m_InternalIdNamingMode: 1
+  m_InternalIdNamingMode: 0
   m_CacheClearBehavior: 0
   m_IncludeInBuild: 1
   m_BundledAssetProviderType:
-    m_AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-    m_ClassName: SyncBundledAssetProvider
+    m_AssemblyName: Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_ClassName: UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider
   m_ForceUniqueProvider: 0
   m_UseAssetBundleCache: 1
   m_UseAssetBundleCrc: 0
@@ -37,9 +37,9 @@ MonoBehaviour:
     m_Id: f8aaf6b81043fae4d99221062e1831c6
   m_LoadPath:
     m_Id: c04dbdb25465d9e45bf36dfbe7e5c655
-  m_BundleMode: 0
+  m_BundleMode: 1
   m_AssetBundleProviderType:
-    m_AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-    m_ClassName: SyncBundleProvider
+    m_AssemblyName: Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_ClassName: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider
   m_BundleNaming: 1
   m_AssetLoadMode: 0

@@ -93,8 +93,8 @@ public class ProjectBuild : Editor
             {
                 if (arg.StartsWith("resNumber") && arg.Contains(":"))
                 {
-                    int re =0;
-                    int.TryParse(arg.Split(":"[0])[1],out re);
+                    int re = 0;
+                    int.TryParse(arg.Split(":"[0])[1], out re);
                     return re;
                 }
             }
@@ -198,6 +198,22 @@ public class ProjectBuild : Editor
 
     }
 
+    [MenuItem("Hugula/Update a Previous Build(produce smaller content updates) ", false, 205)]
+    public static void OnUpdateBuild()
+    {
+        var path = BuildConfig.UpdateContentStateDataPath;
+        if(Directory.Exists(path)) Directory.CreateDirectory(path);
+
+        path = EditorUtility.OpenFilePanel("Build Data File", path, "bin");
+
+        if (!string.IsNullOrEmpty(path))
+        {
+            Settings();
+            UnityEditor.AddressableAssets.Build.ContentUpdateScript.BuildContentUpdate(UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings, path);
+        }
+    }
+
+
     [MenuItem("Hugula/resource export and aas build ", false, 201)]
     public static void ExportRes()
     {
@@ -246,7 +262,7 @@ public class ProjectBuild : Editor
     static void WriteAppVerion(string folder = "apk", string appExtension = "il2cpp")
     {
         System.Environment.SetEnvironmentVariable("APP_VERSION", Hugula.CodeVersion.APP_VERSION); //app version
-        environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);        
+        environmentVariable.AppendFormat("APP_VERSION={0}\n", Hugula.CodeVersion.APP_VERSION);
         environmentVariable.AppendFormat("RES_NUMBER={0}\n", EditorUtils.GetResNumber());
         environmentVariable.AppendFormat("CODE_VERSION={0}\n", Hugula.CodeVersion.CODE_VERSION);
         environmentVariable.AppendFormat("APP_NUMBER={0}\n", Hugula.CodeVersion.APP_NUMBER);
@@ -278,7 +294,7 @@ public class ProjectBuild : Editor
         StringBuilder ftpTampleta = new StringBuilder();
         ftpTampleta.Append("function foo()\n{\nlocal r\nlocal a\nr=\"$@\"\nwhile [[ \"$r\" != \"$a\" ]] ; do\na=${r%%/*}\necho \"mkdir $a\"\necho \"cd $a\"\nr=${r#*/}\ndone\n}");
         ftpTampleta.Append("\nfunction upload_ftp()\n{\necho \"current folder \"$1\necho \"upload to \"$FTP_ROOT$2\nftp -niv <<- EOF\nopen $FTP_IP\nuser $FTP_USER $FTP_PWD\nlcd $1\n$(foo \"$FTP_ROOT$2\")\ncd $FTP_ROOT$2\nbin\nhash\npwd\nprompt off\nmput *.*\nclose\nbye\nEOF\n}");
-        var codeVersion =  Hugula.CodeVersion.CovertVerToCodeVersion(Hugula.CodeVersion.APP_VERSION); //Hugula.CodeVersion.APP_NUMBER.ToString(); //文件crc 不变路径需要改变
+        var codeVersion = Hugula.CodeVersion.CovertVerToCodeVersion(Hugula.CodeVersion.APP_VERSION); //Hugula.CodeVersion.APP_NUMBER.ToString(); //文件crc 不变路径需要改变
         string localHotResPath = BuildConfig.CurrentUpdateResOutPath;// UpdateRes/win
         string ftpToPath = CUtils.platform; // /win;
         StringBuilder content1 = new StringBuilder();
@@ -360,13 +376,13 @@ public class ProjectBuild : Editor
         Hugula.CodeVersion.APP_NUMBER = 0;
         // PrefabUtility.set
         var resNum = resNumber;
-        if(resNum ==0 ) 
+        if (resNum == 0)
         {
             resNum = EditorUtils.GetResNumber();
-            
+
         }
         // EditorPrefs.SetInt("resNumber",resNum);
-        EditorUtils.SetResNumber(resNum+1);//自动加1
+        EditorUtils.SetResNumber(resNum + 1);//自动加1
 
         Debug.Log($"resNumber:{EditorUtils.GetResNumber()}");
         // resNumber
@@ -456,7 +472,7 @@ public class ProjectBuild : Editor
 
     }
 
-     static void GenericBuild(string[] scenes, string target_dir, BuildTarget build_target, BuildOptions build_options)
+    static void GenericBuild(string[] scenes, string target_dir, BuildTarget build_target, BuildOptions build_options)
     {
         AssetDatabase.Refresh();
         // EditorUserBuildSettings.SwitchActiveBuildTarget(build_target);
@@ -468,10 +484,10 @@ public class ProjectBuild : Editor
             build_options |= BuildOptions.AllowDebugging;
 
         var result = BuildPipeline.BuildPlayer(scenes, target_dir, build_target, build_options);
-            
+
         if (result.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
         {
-                Debug.Log($"build {target_dir} success {System.DateTime.Now}!");
+            Debug.Log($"build {target_dir} success {System.DateTime.Now}!");
         }
         else
         {

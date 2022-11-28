@@ -166,11 +166,16 @@ namespace Hugula.Audio
             base.Awake();
         }
 
-        IEnumerator Start()
-        {
-            while (!ResLoader.Ready)
-                yield return null;
+        // IEnumerator Start()
+        // {
+        //     while (!ResLoader.Ready)
+        //         yield return null;
 
+        //     InitAudioClipAsset();
+        // }
+
+        public void Init()
+        {
             InitAudioClipAsset();
         }
 

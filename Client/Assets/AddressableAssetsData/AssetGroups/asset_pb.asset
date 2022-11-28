@@ -22,21 +22,25 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - asset_pb
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: af71dc964c1209b4dabf4de42a416181
     m_Address: commcode.proto
     m_ReadOnly: 0
     m_SerializedLabels:
     - asset_pb
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 973d6a3dc0d79cf49977ea1109a853ba
     m_Address: login.proto
     m_ReadOnly: 0
     m_SerializedLabels:
     - asset_pb
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ab2d87980d5833349bc547ffa8c98b17
     m_Address: _define.proto
     m_ReadOnly: 0
     m_SerializedLabels:
     - asset_pb
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:

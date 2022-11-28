@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hugula.Framework {
-    public interface IDelayDeactive {
+    public interface IDelayDeactive:IDelayCancel {
         void DelayDeactive ();
     }
 
-    public interface IDelayDestory {
+    public interface IDelayDestory:IDelayCancel {
         void DelayDestory ();
 
         System.Action onDelayCompleted{get;set;}

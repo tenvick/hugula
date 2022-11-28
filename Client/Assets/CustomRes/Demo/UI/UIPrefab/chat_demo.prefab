@@ -351,6 +351,8 @@ MonoBehaviour:
   - {fileID: 2490759159624249492}
   - {fileID: 4544857968167064937}
   - {fileID: 2382115006999314091}
+  names: []
+  monos: []
 --- !u!114 &4409975906818241294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1597,6 +1599,8 @@ MonoBehaviour:
   - {fileID: 5894523373853275121}
   - {fileID: 283831098912398720}
   - {fileID: 4489142502644847575}
+  names: []
+  monos: []
 --- !u!222 &3950815542391971783
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2223,6 +2227,8 @@ MonoBehaviour:
   - {fileID: 8189441946464837578}
   - {fileID: 6192473179890589433}
   - {fileID: 624807195267568338}
+  names: []
+  monos: []
 --- !u!1 &3707053567174967275
 GameObject:
   m_ObjectHideFlags: 0
@@ -2494,6 +2500,8 @@ MonoBehaviour:
   - {fileID: 7884552382114815365}
   - {fileID: 1303566577158346022}
   - {fileID: 9027021978071677096}
+  names: []
+  monos: []
 --- !u!114 &7429417608938149303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2918,6 +2926,8 @@ MonoBehaviour:
   - {fileID: 195251379198038686}
   - {fileID: 652055015737386986}
   - {fileID: 8872451334134517655}
+  names: []
+  monos: []
 --- !u!114 &3707053567411415123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4853,6 +4863,8 @@ MonoBehaviour:
   m_BindingOnEnable: 1
   children:
   - {fileID: 4706482700152397676}
+  names: []
+  monos: []
 --- !u!222 &196273038595779222
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4940,7 +4952,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "1\u9AD8\u5EA6\u81EA\u9002\u5E94\uFF0C\u5BF9\u8C61\u6C60\u91CD\u7528\uFF0C\u5BF9\u5927\u91CF\u6570\u636E\u663E\u793A\u65E0\u538B\u529B\u3002\n\n2\u6A21\u677F\u5217\u652F\u6301\uFF0C\u7ED1\u5B9AonGetItemTemplateType\u5C5E\u6027\u5728lua\u4E2D\u5B9E\u73B0\u6B64\u51FD\u6570,\u8FD4\u56DE\u503Ctypeid\u5BF9\u5E94\u6A21\u677FTemplates\u7684\u7D22\u5F15\uFF0C\u9ED8\u8BA4\u4E3A0\u53F7\u6A21\u677F\u3002\n\n3\u4E0B\u62C9\u804A\u5929\u6846\u53EF\u4EE5\u5237\u65B0\u5185\u5BB9\u3002\n\n4\u6700\u540E\u4E00\u884C\u81EA\u52A8\u6EDA\u5C4F\u3002\n"
+  m_Text: "1\u9AD8\u5EA6\u81EA\u9002\u5E94\uFF0C\u5BF9\u8C61\u6C60\u91CD\u7528\uFF0C\u5BF9\u5927\u91CF\u6570\u636E\u663E\u793A\u65E0\u538B\u529B\u3002\n\n2\u6A21\u677F\u5217\u652F\u6301\uFF0C\u7ED1\u5B9AonGetItemTemplateType\u5C5E\u6027\u5728lua\u4E2D\u5B9E\u73B0\u6B64\u51FD\u6570,\u8FD4\u56DE\u503Ctypeid\u5BF9\u5E94\u6A21\u677FTemplates\u7684\u7D22\u5F15\uFF0C\u9ED8\u8BA4\u4E3A0\u53F7\u6A21\u677F\u3002\n\n3\u4E0B\u62C9\u804A\u5929\u6846\u53EF\u4EE5\u5237\u65B0\u5185\u5BB9\u3002\n\n4\u6700\u540E\u4E00\u884C\u81EA\u52A8\u6EDA\u5C4F\u3002\n\n\n"
 --- !u!114 &3973829977414237674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6041,6 +6053,8 @@ MonoBehaviour:
   - {fileID: 8663869484244136399}
   - {fileID: 7309864711565486131}
   - {fileID: 983579532606009497}
+  names: []
+  monos: []
 --- !u!222 &6351782092008405032
 CanvasRenderer:
   m_ObjectHideFlags: 0

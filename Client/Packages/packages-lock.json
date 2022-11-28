@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.unity.addressables": {
-      "version": "1.18.19",
+      "version": "1.21.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.scriptablebuildpipeline": "1.19.2",
+        "com.unity.scriptablebuildpipeline": "1.21.0",
         "com.unity.modules.assetbundle": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0",
@@ -52,7 +52,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.scriptablebuildpipeline": {
-      "version": "1.19.2",
+      "version": "1.21.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {},

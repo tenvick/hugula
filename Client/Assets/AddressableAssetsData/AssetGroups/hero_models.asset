@@ -33,6 +33,22 @@ MonoBehaviour:
     m_Address: hero_molugongzhusaya_ride
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 986f9fb7078fc6a449c2460b02987690
+    m_Address: hero_bojuefurenyilishabai
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0f0436af3c6bffa4095467af88500ccf
+    m_Address: hero_bojuefurenyilishabai_preview
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 026890b4b4479e843b208e8ab16876bc
+    m_Address: hero_bojuefurenyilishabai_ride
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fbb3de64e66fef14cb75024164d9da65
+    m_Address: hero_bojuefurenyilishabai_ride_preview
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:

@@ -8,13 +8,15 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using Hugula.Utils;
 using UnityEngine.AddressableAssets;
+using System.Text.RegularExpressions;
 using Hugula.Utils;
+
 namespace HugulaEditor.ResUpdate
 {
     public class ResUpdateMenu
     {
 
-        [MenuItem("Hugula/Res Packing/Clear All Group HugulaResUpdatePacking", false, 211)]
+        [MenuItem("Hugula/Gen AAS Packing Schema/Clear All Group HugulaResUpdatePacking", false, 211)]
         static void ClearAddressablesGroupHugulaResUpdatePacking()
         {
             int i;
@@ -61,7 +63,7 @@ namespace HugulaEditor.ResUpdate
         }
 
         private const string ResUpdatePackingPath = "Assets/Hugula/ResUpdate/Addressable/Editor/Config/ResUpdatePacking.txt";
-        [MenuItem("Hugula/Res Packing/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
+        [MenuItem("Hugula/Gen AAS Packing Schema/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
         static void UpdateAddressablesGroupHugulaResUpdatePacking()
         {
 
@@ -129,9 +131,7 @@ namespace HugulaEditor.ResUpdate
             int i;
             float c = allGroups.Count;
 
-            var PackingTypeMapping = new Dictionary<string, HugulaResUpdatePacking.PackingType>();
-            PackingTypeMapping.Add("fast", HugulaResUpdatePacking.PackingType.fast);
-            PackingTypeMapping.Add("demand", HugulaResUpdatePacking.PackingType.demand);
+            var PackingTypeMapping = GetPackingTypeMapping();
 
 
             i = 0;
@@ -238,8 +238,161 @@ namespace HugulaEditor.ResUpdate
 
         }
 
+        private const string ResUpdatePackingCustomFolderPath = "Assets/Hugula/ResUpdate/Addressable/Editor/Config/ResUpdatePackingCustomFolder.txt";
+        [MenuItem("Hugula/Gen AAS Packing Schema/Update Addressables Group HugulaResUpdatePacking By Folder(ResUpdatePackingCustomFolder.txt)", false, 211)]
+        static void UpdateAddressablesGroupHugulaResUpdatePackingByFolder()
+        {
+            // P{d},demand_p_{d},{d}
+            var sb = new StringBuilder();
+            sb.AppendLine("ResUpdatePackingCustomFolder:");
+            List<Regex> regices = new List<Regex>();
+            List<string[]> regexArgs = new List<string[]>();
+            string line;
+            string[] kv;
+            int lineNumber = 0;
+            using (var sr = new StreamReader(ResUpdatePackingCustomFolderPath, true))
+            {
+                while (!sr.EndOfStream)
+                {
+                    lineNumber++;
+                    line = sr.ReadLine();
+                    if (!line.Contains("//"))
+                    {
+                        kv = line.Split(',');
+                        if (kv.Length >= 3)
+                        {
+                            regices.Add(new Regex(kv[0].Trim()));
+                            regexArgs.Add(new string[] { kv[1].Trim(), kv[2].Trim() });
+                            sb.AppendLine($"folder[{kv[0].Trim()}],Custom Packing Name({kv[1].Trim()}),Priority({kv[2].Trim()})");
+                        }
+                    }
+                }
+            }
 
+            Debug.Log(sb.ToString());
+
+            var allGroups = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.groups;
+
+            sb.AppendLine("AddressableAssetGroup:");
+
+            var PackingTypeMapping = GetPackingTypeMapping();
+
+            int i;
+            float c = allGroups.Count;
+            i = 0;
+            try
+            {
+                var title = "Check AddressableAssetGroup entries";
+
+                foreach (AddressableAssetGroup group in allGroups)
+                {
+                    i++;
+                    if (group == null) continue;
+                    if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
+                    {
+                        break;
+                    }
+
+                    foreach (AddressableAssetEntry entry in group.entries)
+                    {
+                        if (entry == null) continue;
+
+                        if (ReplaceMatch(regices, regexArgs, entry.AssetPath, out var customName, out var priority))
+                        {
+
+                            var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                            if (resupPacking == null)
+                            {
+                                resupPacking = group.AddSchema<HugulaResUpdatePacking>();
+                            }
+                            else
+                            {
+                                if (resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+                                {
+                                    var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
+                                    Debug.LogWarning(str);
+                                    sb.AppendLine(str);
+                                }
+                            }
+
+                            if (PackingTypeMapping.TryGetValue(customName, out var packingType))
+                            {
+                                resupPacking.packingType = packingType;
+                            }
+                            else
+                            {
+                                resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
+                            }
+
+                            resupPacking.customName = customName;
+                            resupPacking.priority = priority;
+                            EditorUtility.SetDirty(resupPacking);
+
+                            Debug.Log($"ReplaceMatch(  path:{entry.AssetPath},customName:{customName},priority:{priority} )  ");
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                Debug.Log(sb.ToString());
+                EditorUtils.WriteToTmpFile("Update_AddressablesGroup_ResUpdatePackingCustomFolder.txt", sb.ToString());
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+        }
+
+        static bool ReplaceMatch(List<Regex> regices, List<string[]> regexArgs, string path, out string customName, out int priority)
+        {
+            priority = 1;
+            customName = string.Empty;
+            string strPriority = string.Empty;
+
+            for (int j = 0; j < regices.Count; j++)
+            {
+                var regex = regices[j];
+                var match = regex.Match(path);
+                var args = regexArgs[j];
+                if (match.Success)
+                {
+                    customName = args[0];
+                    strPriority = args[1];
+                    var groups = regex.GetGroupNumbers();
+                    foreach (int gi in groups)
+                    {
+                        var gName = regex.GroupNameFromNumber(gi);
+                        if (!string.IsNullOrEmpty(gName))
+                        {
+                            var pName = $"${{{gName}}}";
+                            customName = customName.Replace(pName, match.Groups[gName].ToString());
+                            strPriority = strPriority.Replace(pName, match.Groups[gName].ToString());
+                            // Debug.Log($"groupName: {gName}, category:{match.Groups[gName]} ;  Name:{match.Name},Value:{match.Value}     customName:{customName}, strPriority:{strPriority}           path:{path} ");
+                        }
+                    }
+                    int.TryParse(strPriority, out priority);
+                    return true;
+                }
+            }
+
+            return false;
+        }
         // [MenuItem("Hugula/Res Packing/CheckResUpdatePackingDenpendences(Need Build)", false, 212)]
+
+        static Dictionary<string, HugulaResUpdatePacking.PackingType> GetPackingTypeMapping()
+        {
+            var PackingTypeMapping = new Dictionary<string, HugulaResUpdatePacking.PackingType>();
+            PackingTypeMapping.Add("fast", HugulaResUpdatePacking.PackingType.fast);
+            PackingTypeMapping.Add("demand", HugulaResUpdatePacking.PackingType.demand);
+
+            return PackingTypeMapping;
+        }
         static void CheckResUpdatePackingDenpendences()
         {
 

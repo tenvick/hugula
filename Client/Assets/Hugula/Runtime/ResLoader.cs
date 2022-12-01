@@ -51,7 +51,7 @@ namespace Hugula
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
         {
             s_Initialized = true;
-#if (UNITY_EDITOR || !HUGULA_NO_LOG) && !HUGULA_RELEASE
+#if (UNITY_EDITOR || !HUGULA_NO_LOG) && !HUGULA_RELEASE && ENABLE_RESOURCELOCATORS_INFO
             Debug.Log("Addressables.InitializeAsync() InitDone");
             // #endif
             // #if !HUGULA_NO_LOG

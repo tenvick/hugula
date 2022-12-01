@@ -32,7 +32,7 @@ namespace Hugula.Profiler
         private static Dictionary<string, StopwatchProfiler> profilers = new Dictionary<string, StopwatchProfiler>();
 #if PROFILER_NO_DUMP
         public static readonly bool DoNotProfile = true;
-#elif PROFILER_DUMP
+#elif PROFILER_DUMP || UNITY_EDITOR
         public static readonly bool DoNotProfile = false;
 #else
         public static readonly bool DoNotProfile = true;

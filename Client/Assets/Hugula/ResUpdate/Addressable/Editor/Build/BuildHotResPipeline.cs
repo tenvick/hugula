@@ -226,11 +226,11 @@ namespace HugulaEditor.ResUpdate
             }
 
             //构建所有foldermanifest
-            if (data.PreviousContentUpdate) //如果是增量更新不需要覆盖streaming目录 STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME
-            {
-                data.streamingFolderManifest = folderManifestBuild;
-            }
-            else
+            //if (data.PreviousContentUpdate) //如果是增量更新不需要覆盖streaming目录 STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME
+            //{
+            //    data.streamingFolderManifest = folderManifestBuild;
+            //}
+            //else
             {
                 BuildScriptHotResUpdate.BuildABsTogether(folderManifest.ToArray(), null, Hugula.Utils.Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
                 new ReadFolderManifestInfo().Run(data);

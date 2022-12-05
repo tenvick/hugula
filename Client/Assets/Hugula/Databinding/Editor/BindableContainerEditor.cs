@@ -111,6 +111,11 @@ namespace HugulaEditor.Databinding
                 AutoAddHierarchyChildren(temp);
                 EditorUtility.SetDirty(target);
             }
+            if (GUILayout.Button("auto add hierarchy  children to lua monos"))
+            {
+                AutoAddToLuaMonosHierarchyChildren(temp);
+                EditorUtility.SetDirty(target);
+            }
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
 
@@ -197,6 +202,21 @@ namespace HugulaEditor.Databinding
             }
         }
 
+        internal static void AutoAddToLuaMonosHierarchyChildren(BindableContainer container)
+        {
+            var children = container.children;
+            for (int i = 0; i < children.Count;)
+            {
+                if (children[i] != null)
+                    i++;
+                else
+                    children.RemoveAt(i);
+            }
+
+            AddHierarchyChildren(container.transform, container, false);
+
+        }
+
         public static void AutoAddHierarchyChildren(BindableContainer container)
         {
             var children = container.children;
@@ -211,16 +231,13 @@ namespace HugulaEditor.Databinding
             AddHierarchyChildren(container.transform, container, true);
         }
 
-        public static void AddHierarchyChildren(Transform transform, BindableContainer container, bool checkChildren = false)
+        public static void AddHierarchyChildren(Transform transform, BindableContainer container, bool toBinding = true)
         {
-
+            List<BindableObject> oldChildren = null;
+            List<UnityEngine.Object> oldMonos = null;
             for (int i = 0; i < transform.childCount; i++)
             {
                 var childTrans = transform.GetChild(i);
-                var children = childTrans.GetComponents<BindableObject>(); //当前子节点的所有可绑定对象
-                bool needDeep = true;
-                bool isSelf = false;
-                var oldChildren = container.children;
                 if (childTrans.name.ToLower().EndsWith(":ignore"))
                 {
                     Debug.LogWarning($"{childTrans} 不会添加到容器{container} ");
@@ -232,14 +249,33 @@ namespace HugulaEditor.Databinding
                     Debug.LogWarning($"{childTrans} 不会添加到容器{container} ");
                     continue;
                 }
-                //
 
+                if (!toBinding)
+                {
+                    oldMonos = container.monos;
+                    oldChildren = null;
+                }
+                else
+                {
+                    oldChildren = container.children;
+                    oldMonos = null;
+                }
+
+                var children = childTrans.GetComponents<BindableObject>(); //当前子节点的所有可绑定对象
+                bool needDeep = true;
+                bool isSelf = false;
+
+                //
                 foreach (var child in children)
                 {
                     isSelf = System.Object.Equals(child, container);
-                    if (oldChildren.IndexOf(child) == -1 && !isSelf)
+                    if (oldChildren != null && oldChildren.IndexOf(child) == -1 && !isSelf)
                     {
                         container.AddChild(child);
+                    }
+                    else if (oldMonos != null && oldMonos.IndexOf(child) == -1 && !isSelf)
+                    {
+                        oldMonos.Add(child);
                     }
 
                     if (!isSelf && child is ICollectionBinder) //如果遇到容器不需要遍历
@@ -249,39 +285,9 @@ namespace HugulaEditor.Databinding
 
                 if (needDeep)
                 {
-                    AddHierarchyChildren(childTrans, container);
+                    AddHierarchyChildren(childTrans, container,toBinding);
                 }
             }
-
-            //var oldChildren = container.children;
-            //if (oldChildren == null)
-            //{
-            //    oldChildren = new List<BindableObject>();
-            //    container.children = oldChildren;
-            //}
-
-            //bool needDeep = true;
-            //bool isSelf = false;
-            //foreach (var child in children)
-            //{
-            //    isSelf = System.Object.Equals(child, container);
-            //    if (oldChildren.IndexOf(child) == -1 && !isSelf)
-            //    {
-            //        container.AddChild(child);
-            //    }
-
-            //    if (!isSelf && child is ICollectionBinder) //如果遇到容器不需要遍历
-            //        needDeep = false;
-            //}
-
-            //if (needDeep)
-            //{
-            //    for (int i = 0; i < transform.childCount; i++)
-            //    {
-            //        AddHierarchyChildren(transform.GetChild(i), container);
-            //    }
-            //}
-
         }
 
         internal static void AddMonos(BindableContainer refer, int i, UnityEngine.Object obj)

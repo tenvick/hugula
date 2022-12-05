@@ -114,6 +114,7 @@ namespace HugulaEditor.Addressable
             FileManifest fileManifestAdded = null;
             foreach (AddressableAssetGroup group in allGroups)
             {
+#if !DONT_SUB_PACKAGE
                 var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
                 if (resupPacking != null)
                 {
@@ -128,6 +129,7 @@ namespace HugulaEditor.Addressable
                     }
                 }
                 else
+#endif
                 {
                     fileManifestAdded = AddToFolderManifest(streamingPack, group, bundleIdToFolderManifest, folderManifestDic, buildBundlePathData);
                 }

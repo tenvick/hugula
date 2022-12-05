@@ -241,6 +241,11 @@ namespace Hugula.ResUpdate
                 return true;
 
 #endif
+
+#if DONT_SUB_PACKAGE
+            return true;
+#else
+
             if (string.IsNullOrEmpty(address))
             {
 #if !HUGULA_NO_LOG
@@ -280,6 +285,7 @@ namespace Hugula.ResUpdate
 
                 return true;
             }
+#endif
         }
 
         /// <summary>

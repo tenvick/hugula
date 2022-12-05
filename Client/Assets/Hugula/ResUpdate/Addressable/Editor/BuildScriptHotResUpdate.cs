@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.Initialization;
 using Hugula.ResUpdate;
 using HugulaEditor.ResUpdate;
+using Hugula.Utils;
 
 namespace HugulaEditor.Addressable
 {
@@ -87,8 +88,9 @@ namespace HugulaEditor.Addressable
                         fileName = k.ToString();
                         if (fileName.EndsWith("bundle"))
                         {
-                            redirectionBundleName.Add(fileName, loc.InternalId);
-                            sb.AppendLine($"\r\n redirection {fileName} = {loc.InternalId}");
+                            var InternalId =loc.InternalId.Replace("\\","/");
+                            redirectionBundleName.Add(fileName,InternalId);
+                            sb.AppendLine($"\r\n redirection {fileName} = {InternalId}");
                         }
                     }
                 }
@@ -183,7 +185,6 @@ namespace HugulaEditor.Addressable
         public static void AddToBundleManifest(string filePath, BundleManifest bundleManifest)
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
-            string parentFolder = Path.GetDirectoryName(filePath).Replace("\\", "/");
             uint crc = 0;
             uint fileLen = 0;
             crc = CrcCheck.GetLocalFileCrc(filePath, out fileLen);
@@ -192,6 +193,7 @@ namespace HugulaEditor.Addressable
 
         public static void AddToFolderManifest(string filePath, FolderManifest folderManifest, BuildBundlePathData buildBundlePathData)
         {
+            filePath = filePath.Replace("\\", "/");
             string fileName = Path.GetFileName(filePath);
             uint crc = 0;
             uint fileLen = 0;
@@ -222,11 +224,11 @@ namespace HugulaEditor.Addressable
 
             foreach (AddressableAssetEntry entry in group.entries)
             {
-                string bundleBuildPath = EvaluateString(entry.BundleFileId);
+                string bundleBuildPath = EvaluateString(entry.BundleFileId.Replace("\\", "/"));
                 string bundleName = Path.GetFileName(bundleBuildPath);
                 if (string.IsNullOrEmpty(bundleBuildPath))
                 {
-                    Debug.LogWarning($"address={entry.address},assetpath={entry.AssetPath},BundleFileId is empty =  {entry.BundleFileId} ");
+                    Debug.LogError($"address={entry.address},assetpath={entry.AssetPath},BundleFileId is empty =  {entry.BundleFileId} ");
                     continue;
                 }
 
@@ -237,7 +239,7 @@ namespace HugulaEditor.Addressable
 
                 if (bundleIdToFolderManifest.ContainsKey(bundleName))
                 {
-                    Debug.LogWarning($"address={entry.address},assetpath={entry.AssetPath}, has aleady added. ");
+                    // Debug.LogWarning($"address={entry.address},assetpath={entry.AssetPath}, has aleady added. ");
                     continue;
                 }
 
@@ -245,7 +247,6 @@ namespace HugulaEditor.Addressable
                 uint fileLen = 0;
 
                 crc = CrcCheck.GetLocalFileCrc(bundleBuildPath, out fileLen);
-                string parentFolder = Path.GetDirectoryName(bundleBuildPath).Replace("\\", "/");
                 folderManifest.AddFileInfo(bundleName, crc, fileLen);
 
                 buildBundlePathData.AddBuildBundlePath(bundleName, bundleBuildPath, crc);
@@ -270,16 +271,15 @@ namespace HugulaEditor.Addressable
 
             if (folderManifest == null) return folderManifest;
 
+            filePath = filePath.Replace("\\", "/");
+
             string bundleName = Path.GetFileName(filePath);
-            string parentFolder = Path.GetDirectoryName(filePath).Replace("\\", "/");
-            var buildPath = Addressables.BuildPath.Replace("\\", "/");
-            string relative = RelativePath(parentFolder, buildPath);
             if (!bundleIdToFolderManifest.ContainsKey(bundleName))
             {
                 uint crc = 0;
                 uint fileLen = 0;
                 crc = CrcCheck.GetLocalFileCrc(filePath, out fileLen);
-                folderManifest.AddFileInfo(bundleName, crc, fileLen, relative);
+                folderManifest.AddFileInfo(bundleName, crc, fileLen);
                 buildBundlePathData.AddBuildBundlePath(bundleName, filePath, crc);
                 bundleIdToFolderManifest.Add(bundleName, folderManifest);
             }
@@ -308,20 +308,16 @@ namespace HugulaEditor.Addressable
 
             foreach (var filePath in paths)
             {
-                string bundleName = Path.GetFileName(filePath);
-                string parentFolder = Path.GetDirectoryName(filePath).Replace("\\", "/");
-                var buildPath = Addressables.BuildPath.Replace("\\", "/");
-                string relative = RelativePath(parentFolder, buildPath);
-                // if (!bundleName.Equals("settings.json") && !bundleName.Equals("addressables_content_state.bin") && !bundleIdToFolderManifest.ContainsKey(bundleName))
+                string bundleName = Path.GetFileName(filePath.Replace("\\", "/"));
                 if(bundleName.Contains("_monoscripts.bundle") || bundleName.Contains("_unitybuiltinshaders.bundle"))
                 {
                     uint crc = 0;
                     uint fileLen = 0;
                     crc = CrcCheck.GetLocalFileCrc(filePath, out fileLen);
-                    folderManifest.AddFileInfo(bundleName, crc, fileLen, relative);
+                    folderManifest.AddFileInfo(bundleName, crc, fileLen);
                     buildBundlePathData.AddBuildBundlePath(bundleName, filePath, crc);
                     bundleIdToFolderManifest.Add(bundleName, folderManifest);
-                    Debug.Log($"add other bundle({filePath}) to ({folderName})");
+                    // Debug.Log($"add other bundle({filePath}) to ({folderName})");
                 }
             }
 

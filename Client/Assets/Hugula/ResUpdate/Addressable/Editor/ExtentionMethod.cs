@@ -18,7 +18,7 @@ namespace HugulaEditor.Addressable
         ///<summary>
         /// 添加文件信息判断重名
         ///</summary>
-        public static FileResInfo AddFileInfo(this FileManifest self, string name, uint crc, uint size, string relativeDir = null)
+        public static FileResInfo AddFileInfo(this FileManifest self, string name, uint crc, uint size)
         {
             var info = new FileResInfo(name, crc, size);
             self.allFileInfos.Remove(info);

@@ -10,16 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Content Update
+  m_Name: hero_str
   m_EditorClassIdentifier: 
-  m_GroupName: Content Update
+  m_GroupName: hero_str
   m_Data:
     m_SerializedData: []
-  m_GUID: c12c5dacb111c904ea04f0deb5bd38d4
-  m_SerializeEntries: []
+  m_GUID: 4ff6fcaea08254946a9f465a6bac239a
+  m_SerializeEntries:
+  - m_GUID: b200258ee5f9e114ea547875d9fd0bc1
+    m_Address: hero_molugongzhusaya_ride
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: a419e10aa5a286c42a2735ddb7887075, type: 2}
-    - {fileID: 11400000, guid: f4c9101a3ed486844977b90649851fc1, type: 2}
+    - {fileID: 11400000, guid: 3dffcd721aa5ca0479c8ba142fef14a4, type: 2}
+    - {fileID: 11400000, guid: 0c0ee1ef14f250e40a54c96d2144d714, type: 2}

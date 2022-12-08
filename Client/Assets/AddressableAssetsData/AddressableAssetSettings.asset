@@ -17,7 +17,7 @@ MonoBehaviour:
   m_BuildRemoteCatalog: 1
   m_BundleLocalCatalog: 1
   m_CatalogRequestsTimeout: 0
-  m_DisableCatalogUpdateOnStart: 1
+  m_DisableCatalogUpdateOnStart: 0
   m_IgnoreUnsupportedFilesInBuild: 0
   m_UniqueBundleIds: 0
   m_NonRecursiveBuilding: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
     m_Id: bc5fd0538a386264ea6614ea43cca959
   m_RemoteCatalogLoadPath:
     m_Id: c04dbdb25465d9e45bf36dfbe7e5c655
-  m_ContentStateBuildPathProfileVariableName: 
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
   m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 2
@@ -58,6 +58,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3292c586edf7f744dbf15bb66fb92787, type: 2}
   - {fileID: 11400000, guid: 69bbd459c010e3d4195c8fc1535cfe9f, type: 2}
   - {fileID: 11400000, guid: 9690a95afff89ed42a6585369ee54123, type: 2}
+  - {fileID: 11400000, guid: 77ee9c251e042404ebdd67af3429d42d, type: 2}
+  - {fileID: 11400000, guid: cac05c2785fa48b45a9a69aad95a8cb4, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1

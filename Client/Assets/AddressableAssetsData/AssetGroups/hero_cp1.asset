@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: hero_cp1
+  m_EditorClassIdentifier: 
+  m_GroupName: hero_cp1
+  m_Data:
+    m_SerializedData: []
+  m_GUID: b2146b0817feb3f4390aa93bc77837c3
+  m_SerializeEntries:
+  - m_GUID: 74c10a9e34400df4f9437389da3acf83
+    m_Address: hero_bailangkaluolin_ride
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e5e7529d3dc9ee498639b4c1a785997
+    m_Address: hero_bailangkaluolin_ride_preview
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: a73a89e02e8ec9b47b1c5907a597cfea, type: 2}
+    - {fileID: 11400000, guid: 0c57dbe5712acc04fa3400d37ebcaa56, type: 2}
+    - {fileID: 11400000, guid: c2d3a1a8ed81b7f4e9ae9b930c0102f9, type: 2}

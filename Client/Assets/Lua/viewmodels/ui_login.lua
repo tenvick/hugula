@@ -32,7 +32,7 @@ ui_login.Remember_me_is_on=false
 ui_login.on_invalid_enable=false
 ----  ui_login end  --
 
-ui_login.version = FileManifestManager.localVersion.."("..FileManifestManager.localResNum..")"
+ui_login.version = FileManifestManager.localVersion.."("..FileManifestManager.localResNum..") hot update 2022/12/8"
 print(ui_login.version)
 --------------------    消息处理    --------------------
 

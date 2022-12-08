@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 9.9999695, y: -7.600006}
+  m_AnchoredPosition: {x: 10, y: -7.600006}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8801548003428085257
@@ -77,7 +77,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: hot fix 2022 11 24 13:55
+  m_Text: hot fix 2022 12 08 9:55
 --- !u!1 &6524762544855871684
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,12 +343,14 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: activeSelf
     path: on_invalid_enable
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762544867289004}
 --- !u!1 &6524762544917936363
 GameObject:
@@ -465,12 +467,14 @@ MonoBehaviour:
     converter: 
     mode: 1
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: onValueChangedCommand
     path: on_value_changed_Remember_me
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762544917936365}
 --- !u!1 &6524762544951766846
 GameObject:
@@ -799,12 +803,14 @@ MonoBehaviour:
     converter: 
     mode: 1
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: submitEventCommand
     path: on_submit_Password
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762544968998641}
 --- !u!1 &6524762545004418682
 GameObject:
@@ -1063,6 +1069,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762545021892623}
 --- !u!1 &6524762545163668312
 GameObject:
@@ -1392,12 +1399,14 @@ MonoBehaviour:
     converter: 
     mode: 1
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: submitEventCommand
     path: on_submit_Username
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762545259708866}
 --- !u!1 &6524762545315250241
 GameObject:
@@ -2820,6 +2829,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6524762546598049449}
 --- !u!1 &6524762546645488358
 GameObject:
@@ -3144,7 +3154,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 9.9999695, y: -27}
+  m_AnchoredPosition: {x: 10, y: -27}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1586781327449301212
@@ -3207,4 +3217,5 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6186783629007030720}

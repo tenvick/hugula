@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
-  m_Name: Content Update_ContentUpdateGroupSchema
+  m_Script: {fileID: 11500000, guid: 5cde2258fbdc31b4bb41acb6f84706fa, type: 3}
+  m_Name: hero_cp3_HugulaResUpdatePacking
   m_EditorClassIdentifier: 
-  m_Group: {fileID: 11400000, guid: f1c1ede5e87a49345a63aaa967042a91, type: 2}
-  m_StaticContent: 1
+  m_Group: {fileID: 11400000, guid: 69bbd459c010e3d4195c8fc1535cfe9f, type: 2}
+  packingType: 3
+  customName: hero_cp3
+  priority: 3

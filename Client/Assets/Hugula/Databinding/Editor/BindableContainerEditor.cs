@@ -228,6 +228,36 @@ namespace HugulaEditor.Databinding
                     children.RemoveAt(i);
             }
 
+
+            var monos = container.monos;
+            var names = container.names;
+
+            for (int i = 0; i < monos.Count;)
+            {
+                var obj = monos[i];
+                if (obj != null)
+                {
+                    if(names.Count<=i)
+                    {
+                        var name = names.Contains(obj.name)?obj.name+i.ToString():obj.name;
+                        names.Add(name);
+                    }
+                    else if(string.IsNullOrEmpty(names[i]))
+                    {
+                        var name = names.Contains(obj.name)?obj.name+i.ToString():obj.name;
+                        names[i] = name;
+                    }
+                    i++;
+                }
+                else
+                    monos.RemoveAt(i);
+            }
+
+            while(names.Count>monos.Count)
+            {
+                names.RemoveAt(names.Count-1);
+            }
+
             AddHierarchyChildren(container.transform, container, true);
         }
 
@@ -276,6 +306,13 @@ namespace HugulaEditor.Databinding
                     else if (oldMonos != null && oldMonos.IndexOf(child) == -1 && !isSelf)
                     {
                         oldMonos.Add(child);
+                        //check name
+                        var names = container.names;
+                        var name = names.Contains(child.name)?child.name+oldMonos.Count.ToString():child.name;
+                        if(names.Count<=oldMonos.Count)
+                        {
+                            names.Add(name);
+                        }
                     }
 
                     if (!isSelf && child is ICollectionBinder) //如果遇到容器不需要遍历
@@ -349,8 +386,9 @@ namespace HugulaEditor.Databinding
             {
                 bc.children.Clear();
                 Debug.LogFormat("{0} children clear ", bc);
-                bc.monos?.Clear();
-                Debug.LogFormat("{0} mono clear ", bc);
+                // bc.names.Clear();
+                // bc.monos?.Clear();
+                // Debug.LogFormat("{0} mono clear ", bc);
 
             }
         }
@@ -363,6 +401,19 @@ namespace HugulaEditor.Databinding
             if (bo != null)
             {
                 bo.GetBindings().Clear();
+                Debug.LogFormat("{0} clear ", bo);
+            }
+        }
+
+        [MenuItem("CONTEXT/BindableContainer/Clear All Monos")]
+        static void ClearAllMonos(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableContainer;
+
+            if (bo != null)
+            {
+                bo.monos.Clear();
+                bo.names.Clear();
                 Debug.LogFormat("{0} clear ", bo);
             }
         }

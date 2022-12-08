@@ -85,6 +85,112 @@ namespace HugulaEditor.Databinding
             return reType;
         }
 
+         public static ReorderableList CreateMulitTargetsBinderReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
+        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
+        {
+
+            FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            orderList.onFilterFunc = onFilter;
+            orderList.drawHeaderCallback = (Rect rect) =>
+             {
+                 var toolbarHeight = GUILayout.Height(BindableObjectStyle.kSingleLineHeight);
+                 BindableObjectStyle.LabelFieldStyle(rect, $"{serializedProperty.displayName} {serializedProperty.arraySize}", "#0e6dcbff", 12);
+
+                 var rect1 = rect;
+                 rect1.x = rect.width * 0.4f;
+                 rect1.width = rect.width * 0.6f;
+                 if (orderList.onFilterFunc != null)
+                 {
+                     EditorGUI.BeginChangeCheck();
+                     {
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                     }
+                 }
+             };
+
+            orderList.onRemoveCallback = (ReorderableList orderlist) =>
+                {
+                    // if(UnityEditor.EditorUtility.DisplayDialog("warnning","Do you want to remove this element?","remove","canel"))
+                    ReorderableList.defaultBehaviours.DoRemoveButton(orderlist);
+                };
+
+
+            orderList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
+                {
+
+                }
+                else
+                {
+                    var posRect_label = new Rect(rect)
+                    {
+                        x = rect.x + 10, //左边距
+                        height = EditorGUIUtility.singleLineHeight
+                    };
+
+                    var path = element.FindPropertyRelative("path");
+                    var bingTarget = element.FindPropertyRelative("target");
+                    if (path != null)
+                    {
+                        var disObjName = bingTarget.objectReferenceValue==null?"null":bingTarget.objectReferenceValue.ToString();
+                        element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index} ({disObjName}).{element.displayName}   path={path.stringValue}     ", "#2c76adff", 11);
+                    }
+
+                    if (element.isExpanded)
+                    {
+                        var posRect_prop = new Rect(rect)
+                        {
+                            x = rect.x + 10,
+                            y = rect.y + EditorGUIUtility.singleLineHeight,
+                            height = rect.height - EditorGUIUtility.singleLineHeight
+                        };
+                        // EditorGUI.PropertyField(posRect_prop, element, true);
+                        BindingDrawer.OnMulitTargetsBinderGUI(posRect_prop,element);
+                    }
+                }
+
+            };
+
+            if (displayAddButton)
+            {
+                List<PropertyInfo> properties = new List<PropertyInfo>();
+                {
+                    properties = BindableUtility.GetObjectProperties(target);
+                }
+
+                orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent($"add empty binding"), false, onAddClick,target);
+                    menu.ShowAsContext();
+                };
+            }
+
+            orderList.elementHeightCallback = (index) =>
+            {
+                var element = orderList.serializedProperty.GetArrayElementAtIndex(index);
+
+                if (orderList.onFilterFunc != null && orderList.onFilterFunc(element, orderList.searchText)) //搜索
+                {
+                    return 0;
+                }
+
+                var h = EditorGUIUtility.singleLineHeight;
+                if (element.isExpanded)
+                {
+                    h += (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 8f + BindableObjectStyle.kControlVerticalSpacing * 2;
+                }
+                else
+                    h += EditorGUIUtility.singleLineHeight * 0.5f;
+                return h;
+            };
+
+            return orderList;
+        }
+
 
         public static ReorderableList CreateBindalbeObjectBindingsReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
         bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
@@ -559,12 +665,15 @@ namespace HugulaEditor.Databinding
         public static string BindingToString(this Hugula.Databinding.Binding binding)
         {
             sb.Clear();
+            var target = binding.target;
             var property = binding.propertyName;
             var path = binding.path;
             var format = binding.format;
             BindingMode mode = binding.mode;
             var converter = binding.converter;
             var source = binding.source;
+            if(target!=null)
+                sb.Append(target.ToString());
             if (!string.IsNullOrEmpty(path))
                 sb.AppendFormat(".{0}=({1}) ", property, path);
             if (!string.IsNullOrEmpty(format))

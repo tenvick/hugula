@@ -60,6 +60,7 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static bool StartWith(string str, string value)
         {
+            if(str == null) return false;
             var vlen = value.Length;
             var sLen = str.Length;
             if (vlen > sLen) return false;
@@ -109,6 +110,27 @@ namespace Hugula.Utils
             // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
             if (fileLen == 0) return string.Empty;
             fname = url.Substring(lastFileIndex, fileLen);
+            return fname;
+        }
+
+        /// <summary>
+        /// Gets the assetname of the URL file.
+        /// </summary>
+        /// <returns>
+        /// The URL file name.
+        /// </returns>
+        /// <param name='url'>
+        /// URL.
+        /// </param>
+        public static string GetFileName(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            string fname = string.Empty;
+            int lastFileIndex, lastDotIndex, fileLen, suffixLen;
+            AnalysePathName(url, out lastFileIndex, out fileLen, out lastDotIndex, out suffixLen);
+            // Debug.LogFormat("lastFileIndex{0} fileLen{1} dotIndex{2} suffixLen{3} len{4}", lastFileIndex, fileLen, lastDotIndex, suffixLen, url.Length);
+            if (fileLen == 0) return string.Empty;
+            fname = url.Substring(lastFileIndex, fileLen+suffixLen);
             return fname;
         }
 
@@ -653,20 +675,39 @@ namespace Hugula.Utils
         }
 
         #endregion
+      
         private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder();
-        private static System.DateTime _last_time = System.DateTime.Now;
-        private static readonly System.DateTime _begin_time = System.DateTime.Now;
+        //private static System.DateTime _last_time = System.DateTime.Now;
+        //private static readonly System.DateTime _begin_time = System.DateTime.Now;
         //编辑器下使用
         public static double DebugCastTime(string tips)
         {
+            int all_ds = 0;
+#if UNITY_EDITOR
+            var now = Timeline();
+            var _last_time = UnityEditor.EditorPrefs.GetInt("CUtils_D_last_time", now);
+            var cast = now - _last_time;
+            var begin =  UnityEditor.EditorPrefs.GetInt("CUtils_D_begin_time", now);
+            if(begin == now) //如果没有设置
+            {
+                UnityEditor.EditorPrefs.SetInt("CUtils_D_begin_time", now);
+            }
+            all_ds = now - UnityEditor.EditorPrefs.GetInt("CUtils_D_begin_time", now);
+            UnityEditor.EditorPrefs.SetInt("CUtils_D_last_time", now);
 
-            var ds = System.DateTime.Now - _last_time;
-            var all_ds = (System.DateTime.Now - _begin_time).TotalMilliseconds;
-            double cast = ds.TotalSeconds;
-            _last_time = System.DateTime.Now;
-
-            Debug.LogFormat("Cast Time \"{0}\" Cast({1} s) runtime({2} s),frame={3}", tips, cast, all_ds/1000f, Time.frameCount);
+            Debug.LogFormat("Cast Time \"{0}\" Cast({1} s) runtime({2} s),frame={3}", tips, cast, all_ds, Time.frameCount);
+#endif
             return all_ds;
         }
+
+#if UNITY_EDITOR
+        internal static void ClearCastTime()
+        {
+            UnityEditor.EditorPrefs.DeleteKey("CUtils_D_last_time");
+            UnityEditor.EditorPrefs.DeleteKey("CUtils_D_begin_time");
+            Debug.Log(" delete EditorPrefs Key (CUtils_D_last_time,CUtils_D_begin_time)  ");
+        }
+
+#endif
     }
 }

@@ -70,10 +70,10 @@ namespace HugulaEditor.Databinding
         {
             return EditorGUIUtility.singleLineHeight;
         }
-    
+
         public static void PropertyField(Rect position, SerializedProperty property, GUIContent label)
         {
-             if (property.hasMultipleDifferentValues)
+            if (property.hasMultipleDifferentValues)
             {
                 float w = position.width;
                 position.width = w * .6f;
@@ -83,7 +83,7 @@ namespace HugulaEditor.Databinding
             {
                 float w = position.width;
                 position.width = w * .6f;
-                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object),label);
+                EditorGUI.ObjectField(position, property, typeof(UnityEngine.Object), label);
                 UnityEngine.Object content = null;//(UnityEngine.Component)property.objectReferenceValue;
                 var obj = property.objectReferenceValue;
                 if (obj != null && obj is UnityEngine.Object)
@@ -242,8 +242,6 @@ namespace HugulaEditor.Databinding
     [CustomPropertyDrawer(typeof(Binding), true)]
     public class BindingDrawer : PropertyDrawer
     {
-        static Dictionary<string, bool> toggleDic = new Dictionary<string, bool>();
-        static Dictionary<string, float> toggleHeight = new Dictionary<string, float>();
 
         static System.Text.StringBuilder sb = new System.Text.StringBuilder();
         static GUIStyle fontStyle = new GUIStyle();
@@ -294,6 +292,7 @@ namespace HugulaEditor.Databinding
                 // position.y += EditorGUIUtility.singleLineHeight * .5f;
                 position.width -= EditorGUIUtility.singleLineHeight * .5f;
                 var rects = GetRowRects(position);
+                // EditorGUI.PropertyField(rects[0],property.FindPropertyRelative("target"));
                 EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("path"));
                 EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("mode"));
                 EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
@@ -316,33 +315,91 @@ namespace HugulaEditor.Databinding
             return h;
         }
 
-        Rect[] GetRowRects(Rect rect)
+        static Rect[] GetRowRects(Rect rect, int count = 5)
         {
-            Rect[] rects = new Rect[5];
+            Rect[] rects = new Rect[count];
             rect.height = BindableObjectStyle.kSingleLineHeight;
             Rect rect0 = rect;
-            rect0.y += EditorGUIUtility.singleLineHeight;//+ BindableObjectStyle.kControlVerticalSpacing;
-
-            Rect rect1 = rect0;
-            rect1.y += EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing; ;
-            Rect rect2 = rect1;
-            rect2.y += EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing; ;
-
-            Rect rect3 = rect2;
-            rect3.y += EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing; ;
-
-            Rect rect4 = rect3;
-            rect4.y += EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing; ;
-
+            rect0.y += EditorGUIUtility.singleLineHeight;//- BindableObjectStyle.kControlVerticalSpacing;//+ BindableObjectStyle.kControlVerticalSpacing;
             rects[0] = rect0;
-            rects[1] = rect1;
-            rects[2] = rect2;
-            rects[3] = rect3;
-            rects[4] = rect4;
-
+            for (int i = 1; i < count; i++)
+            {
+                var rectItem = rects[i - 1];
+                rectItem.y += EditorGUIUtility.singleLineHeight + BindableObjectStyle.kControlVerticalSpacing;
+                rects[i] = rectItem;
+            }
             return rects;
         }
 
+        public static void OnMulitTargetsBinderGUI(Rect position, SerializedProperty property)
+        {
+            bool toggle = property.isExpanded;
+            position.x += EditorGUIUtility.singleLineHeight;
+            position.width -= EditorGUIUtility.singleLineHeight;
+
+            fontStyle.fontSize = 12;
+            fontStyle.fontStyle = FontStyle.Italic;
+            // if (toggle)
+            {
+                string propertyName = property.FindPropertyRelative("propertyName").stringValue;
+                // position.y += EditorGUIUtility.singleLineHeight * .5f;
+                position.width -= EditorGUIUtility.singleLineHeight * .5f;
+                var rects = GetRowRects(position, 7);
+                EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("target"));
+                // EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("propertyName"));
+                OnTargetPropertyChooseGUI(rects[1], property);
+                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("path"));
+                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("mode"));
+                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("format"));
+                EditorGUI.PropertyField(rects[5], property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[6], property.FindPropertyRelative("source"));
+            }
+        }
+
+        public static void OnTargetPropertyChooseGUI(Rect position, SerializedProperty property)
+        {
+            var target = property.FindPropertyRelative("target").objectReferenceValue;
+            var propertyName = property.FindPropertyRelative("propertyName");
+            string propertyNameValue = string.Empty;
+            if (target != null)
+            {
+                var propList = BindableUtility.GetObjectProperties(target);
+                float w = position.width;
+                position.width = w * .6f;
+
+                propertyNameValue = property.FindPropertyRelative("propertyName").stringValue;
+                EditorGUI.PropertyField(position, property.FindPropertyRelative("propertyName"), true);
+
+                // var obj = property.objectReferenceValue;
+                var m_AllComponents = Hugula.Utils.ListPool<string>.Get();
+                int selectIndex = 0;
+                int i = 0;
+                bool findValue = false;
+                foreach (var pi in propList)
+                {
+                    m_AllComponents.Add(pi.Name);
+                    if (pi.Name == propertyNameValue)
+                    {
+                        selectIndex = i;
+                        findValue = true;
+                    }
+                    i++;
+                }
+                position.x = position.xMax;
+                position.width = w - position.width;
+
+                selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
+                if (findValue == false && !string.IsNullOrEmpty(propertyNameValue))
+                {
+                    Debug.LogError($" property:{propertyNameValue} does't find in target({target})  new value changed to:{ propList[selectIndex].Name}");
+                }
+                propertyNameValue = propList[selectIndex].Name;
+
+
+                Hugula.Utils.ListPool<string>.Release(m_AllComponents);
+            }
+            propertyName.stringValue = propertyNameValue;
+        }
     }
 
     [CustomPropertyDrawer(typeof(BindableContainer), true)]

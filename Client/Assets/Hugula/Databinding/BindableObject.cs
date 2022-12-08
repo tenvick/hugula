@@ -128,7 +128,7 @@ namespace Hugula.Databinding
         }
 
 
-        public void SetBinding(string sourcePath, object target, string property, BindingMode mode, string format, string converter)
+        public void SetBinding(string sourcePath, UnityEngine.Object target, string property, BindingMode mode, string format, string converter)
         {
 
             if (target == null) target = this;

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Hugula.Databinding {
 
+    [XLua.LuaCallCSharp]
     public class ValueConverterRegister : Singleton<ValueConverterRegister>, IDisposable {
         private readonly Dictionary<string, object> m_Converter;
 

@@ -259,6 +259,7 @@ namespace HugulaEditor.Databinding
                         {
                             if (!globalConvert)
                             {
+                                globalConvert = true;
                                 sbTitle.AppendLine($@"        local __conv_reg = CS.Hugula.Databinding.ValueConverterRegister.instance");
                             }
                             sb.AppendLine($@"        _{safeVar}.{binding.propertyName} =  __conv_reg:Get(""{binding.converter}""):Convert(item.{binding.path})  ");

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using XLua;
 
 namespace Hugula.Databinding
 {
-
+    [LuaCallCSharp]
     public class BindableContainer : BindableObject, ICollectionBinder
     {
-
         protected bool m_CheckEnable = false;
         private bool m_NeedDelayBinding = false;
 
@@ -25,7 +25,7 @@ namespace Hugula.Databinding
         #region mono单脚本引用新增加
 
         private XLua.LuaTable m_LuaMonos;
-        XLua.LuaTable luaMonos
+        public XLua.LuaTable luaMonos
         {
             get
             {

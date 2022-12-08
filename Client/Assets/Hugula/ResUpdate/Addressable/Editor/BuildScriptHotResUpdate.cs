@@ -226,13 +226,14 @@ namespace HugulaEditor.Addressable
 
             foreach (AddressableAssetEntry entry in group.entries)
             {
-                string bundleBuildPath = EvaluateString(entry.BundleFileId.Replace("\\", "/"));
-                string bundleName = Path.GetFileName(bundleBuildPath);
-                if (string.IsNullOrEmpty(bundleBuildPath))
+                if (string.IsNullOrEmpty(entry.BundleFileId))
                 {
                     Debug.LogError($"address={entry.address},assetpath={entry.AssetPath},BundleFileId is empty =  {entry.BundleFileId} ");
                     continue;
                 }
+
+                string bundleBuildPath = EvaluateString(entry.BundleFileId.Replace("\\", "/"));
+                string bundleName = Path.GetFileName(bundleBuildPath);
 
                 if (folderManifest.fileName != Hugula.Utils.Common.FOLDER_STREAMING_NAME && !folderManifest.allAddressKeys.Contains(entry.address)) //添加key
                 {

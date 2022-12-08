@@ -933,9 +933,9 @@ namespace Hugula.ResUpdate
                     if (!locationIdPath.ContainsKey(finfo.name))
                     {
                         locationIdPath[finfo.name] = zipOutPath;
-                        #if !HUGULA_NO_LOG
-                                                Debug.Log($" zip folder:{folderPackage.fileName} transform({finfo.name}={zipOutPath}) ");
-                        #endif
+#if !HUGULA_NO_LOG
+                        Debug.Log($" zip folder:{folderPackage.fileName} transform({finfo.name}={zipOutPath}) ");
+#endif
                     }
                 }
 
@@ -993,7 +993,7 @@ namespace Hugula.ResUpdate
 
             if (!location.InternalId.StartsWith("http")) //&& location.ResourceType == typeof(IAssetBundleResource)
             {
-                string bundleName = Path.GetFileName(location.InternalId);
+                string bundleName = CUtils.GetFileName(location.InternalId);
                 string path = null;
                 if (locationIdPath.TryGetValue(bundleName, out path))
                 {

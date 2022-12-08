@@ -41,7 +41,8 @@ namespace Hugula.Databinding
 
         [PopUpComponentsAttribute]
         public UnityEngine.Object source;
-        public object target;
+        [PopUpComponentsAttribute]
+        public UnityEngine.Object target;
 
         public object convert;
 
@@ -82,12 +83,12 @@ namespace Hugula.Databinding
 
         }
 
-        public Binding(string path, object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "", "")
+        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "", "")
         {
 
         }
 
-        public Binding(string path, object target, string propertyName, BindingMode mode, string format, string converter)
+        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode, string format, string converter)
         {
             this.path = path;
             this.target = target;

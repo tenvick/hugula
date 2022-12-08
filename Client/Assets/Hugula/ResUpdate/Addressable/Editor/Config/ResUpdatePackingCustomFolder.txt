@@ -1,0 +1,4 @@
+//根据文件夹生成
+//资源名,自定义包名 {Priority}，下载优先级
+//FolderName,CustomName,FolderManifestPriority
+/CP(?<category>\d+)/,hero_cp${category},${category}

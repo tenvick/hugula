@@ -19,13 +19,23 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, TextMeshProUGUI target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index, Layer layer, TextMeshProUGUI target, GameObject parent, int posSizeLayerIndex)
         {
             var myText = target.GetComponent<TextMeshProUGUI>();
-            layer.target = myText;
+            // layer.target = myText;
             RectTransform rectTransform = myText.GetComponent<RectTransform>();
             PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
             myText.raycastTarget = false; //取消射线检测
+
+            myText.text = layer.arguments[3];
+
+            if (!string.IsNullOrEmpty(layer.templateName)) //如果是模板
+            {
+
+                rectTransform.sizeDelta = new Vector2(layer.size.width, layer.size.height);
+                rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);  //layer.position - parentAnchoredPosition;
+                return;
+            }
 
             Color color;
             if (!myText.enableVertexGradient)//没有渐变，才需要设置颜色
@@ -53,20 +63,18 @@ namespace PSDUINewImporter
                 myText.fontSize = (int)size;
             }
 
-            myText.text = layer.arguments[3];
-
             //设置字体,注意unity中的字体名需要和导出的xml中的一致
             string fontFolder;
 
-            if (layer.TagContains("Static")) //.arguments[1].ToLower().Contains("static"))
-            {
-                fontFolder = PSDImporterConst.FONT_STATIC_FOLDER;
-            }
-            else
+            //if (layer.TagContains("Static")) //.arguments[1].ToLower().Contains("static"))
+            //{
+            //    fontFolder = PSDImporterConst.FONT_STATIC_FOLDER;
+            //}
+            //else
             {
                 fontFolder = PSDImporterConst.FONT_FOLDER;
             }
-            string fontFullName = fontFolder + layer.arguments[1] + PSDImporterConst.FONT_ASSET_SUFIX;
+            string fontFullName = Path.Combine(fontFolder ,layer.arguments[1]+PSDImporterConst.FONT_ASSET_SUFIX);
             // Debug.Log("font name ; " + fontFullName);
             var font = AssetDatabase.LoadAssetAtPath(fontFullName, typeof(TMP_FontAsset)) as TMP_FontAsset;
             if (font == null)
@@ -80,8 +88,8 @@ namespace PSDUINewImporter
 
             myText.fontMaterial.DisableKeyword("UNDERLAY_ON");
             //ps的size在unity里面太小，文本会显示不出来,暂时选择溢出
-            // myText.overflowMode = TextOverflowModes.Overflow;
-            // myText.enableWordWrapping = false;
+            myText.overflowMode = TextOverflowModes.Overflow;
+            myText.enableWordWrapping = false;
             //设置对齐
             if (layer.arguments.Length >= 5)
                 myText.alignment = ParseAlignmentPS2UGUI(layer.arguments[4]);
@@ -249,13 +257,13 @@ namespace PSDUINewImporter
 
             #endregion
 
-            rectTransform.sizeDelta = new Vector2(layer.size.width*1.2f, layer.size.height*1.1f);
-            rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);  //layer.position - parentAnchoredPosition;
-
+            // rectTransform.sizeDelta = new Vector2(layer.size.width * 1.2f, layer.size.height * 1.1f);
+            SetRectTransformSize(rectTransform, layer.size, 1.2f);
+            SetRectTransformPosition(rectTransform, layer.position);
             // UnityEngine.Debug.LogFormat("name = {0},size={1},position={2} ",layer.name, layer.size,layer.position);
         }
 
-        protected override  void CheckAddBinder(Layer layer, TextMeshProUGUI text)
+        protected override void CheckAddBinder(Layer layer, TextMeshProUGUI text)
         {
             if (layer.TagContains(PSDImportUtility.DynamicTag))
             {

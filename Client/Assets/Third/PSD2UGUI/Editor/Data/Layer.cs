@@ -7,17 +7,21 @@ using UnityEngine.Events;
 namespace PSDUINewImporter
 {
     public class Layer
-    {
+    {   //prefab中显示的名字
         public string name;
-        //导出类型 在Ps中以取文件夹名字@后的关键字
+        //导出类型 标记图片文字组件等
         public string type;
         public Layer[] layers;
+        //记录的额外参数
         public string[] arguments;
-        //ps图层中@后面的内容以"_"分割后放入tag中
+        //ps图层中@后面的内容以"_"分割后放入tag中 tag标记用于导入判断
         public string[] tag;
         public string special;
+        //自定义模板名
+        public string templateName;
+        //图片类型
+        public string imageType;
 
-        public string layerKind;
         #region 位置信息与透明度
         public float opacity;
         public Size size;

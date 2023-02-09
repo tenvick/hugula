@@ -33,5 +33,7 @@ namespace PSDUINewImporter
         public const string Default = "Default";
 
         public const string BindableContainer = "BindableContainer";
+        //自定义组件prefab
+        public const string Customer = "Customer";
     }
 }

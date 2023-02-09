@@ -17,7 +17,7 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, Button target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index, Layer layer, Button target, GameObject parent, int posSizeLayerIndex)
         {
             var normalImage = (Image)target.targetGraphic;// target.GetComponent<UnityEngine.UI.Image>();
             var text = target.GetComponentInChildren<TMPro.TextMeshProUGUI>();
@@ -26,26 +26,27 @@ namespace PSDUINewImporter
             base.DrawSpriteState(layer,target,parent,posSizeLayerIndex,true);
 
             //第一个文本
-            foreach (var l1 in layer.layers)
+            // foreach (var l1 in layer.layers)
+            for (int i = 0; i < layer.layers.Length; i++)
             {
+                var l1 = layer.layers[i];
                 if (ComponentType.Text == l1.type && !l1.TagContains(PSDImportUtility.NewTag) && text != null)
                 {
                     if (normalIdx == -1 && posSizeLayerIndex==-1) //没有找到 size
                     {
                         RectTransform rectTransform = target.GetComponent<RectTransform>();
                         PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                        rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                        rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
-                        // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform); 
+                        SetRectTransformSize(rectTransform, l1.size);
+                        SetRectTransformPosition(rectTransform, l1.position);
                     }
 
-                    ctrl.DrawLayer(l1, text.gameObject, target.gameObject);
+                    ctrl.DrawLayer(i, l1, text.gameObject, target.gameObject);
                     text = null;
                     break;
                 }
             }
 
-            if(text!=null )
+            if (text != null)
             {
                 UnityEngine.GameObject.DestroyImmediate(text.gameObject);
             }

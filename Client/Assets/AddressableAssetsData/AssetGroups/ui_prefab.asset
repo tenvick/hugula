@@ -21,50 +21,57 @@ MonoBehaviour:
     m_Address: back_tips
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f003eef5aade1da4987e5a5d1c53d0fc
     m_Address: binding_demo
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1ac6f2c40cc85684994ba7adfbc9f234
     m_Address: demo_click_tips
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 58cfaf2ccbc759b4a9fcfeda5949b666
     m_Address: demo_subui
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 73629b55bf4320e4ab119065118368e8
     m_Address: demo_subui1
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6ec29884f9078364388b832cf74cb9ca
     m_Address: login
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1230a768c9eafdd4dabc9aecc9ea45a8
     m_Address: ui_effect_loading
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: dae349cbb2fec244aa2466ea6d1a502d
-    m_Address: bag
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c45cc0a6ddf33a14695487b25a733f2c
     m_Address: loading
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7ee59e79ef0fa32488539e3b845766f5
     m_Address: mono_bag
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 35d5f9bf468f1ca4d9254cda278123a0
     m_Address: player_load
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c9c9f36adc8397442b9a5bd43c0e40f6
     m_Address: welcome
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 791647a579fd73442aa4aad5e6aa004b, type: 2}
   m_SchemaSet:

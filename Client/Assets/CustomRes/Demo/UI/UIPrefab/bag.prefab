@@ -195,6 +195,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6477775281714381216}
 --- !u!1 &6747370871442784861
 GameObject:
@@ -273,7 +274,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "buy \u53C8\u6765"
+  m_Text: buy
 --- !u!1 &7076665906816002884
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +573,7 @@ MonoBehaviour:
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 7076665906960771335}
   setNativeSize: 0
 --- !u!1 &7076665907005035503
@@ -679,18 +681,21 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: itemCommand
     path: context.on_item_select
     format: 
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
+    target: {fileID: 0}
   - propertyName: itemParameter
     path: .
     format: 
     converter: 
     mode: 1
     source: {fileID: 7076665907005035501}
+    target: {fileID: 0}
   m_Target: {fileID: 7076665907005035501}
   m_forceBinding: 1
 --- !u!1 &7076665907116739544
@@ -821,6 +826,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 6035727573954531156}
   parameterName: 
 --- !u!1 &7076665907693501848
@@ -917,6 +923,7 @@ MonoBehaviour:
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 7076665907693501847}
   setNativeSize: 0
 --- !u!1 &7076665907710162257
@@ -1070,12 +1077,14 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: onContextChanged
     path: context.on_select_render
     format: 
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
+    target: {fileID: 0}
   m_BindingOnEnable: 1
   children: []
   names:
@@ -1260,6 +1269,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 7076665907938245315}
   setNativeSize: 0
 --- !u!1 &7076665908081613837
@@ -1481,6 +1491,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 7076665908172257986}
   setNativeSize: 0
 --- !u!1 &7076665908441038185
@@ -1621,6 +1632,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
+    target: {fileID: 0}
   m_BindingOnEnable: 1
   children:
   - {fileID: 7076665908172257984}
@@ -1745,6 +1757,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   tipsFollow: {fileID: 7076665908172257989}
   vmName: demo_click_tips
 --- !u!1 &7076665908621779125

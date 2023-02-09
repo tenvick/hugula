@@ -17,51 +17,51 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, TMP_InputField target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index,Layer layer, TMP_InputField target, GameObject parent, int posSizeLayerIndex)
         {
             var targetComp = target.GetComponent<TMPro.TMP_InputField>();
-            
+
             var normalImage = target.GetComponent<UnityEngine.UI.Image>();
             var textComp = targetComp.textComponent;
             var holderTxt = (TextMeshProUGUI)targetComp.placeholder;
 
-            int normalIdx= DrawBackgroundImage(layer,normalImage,target.gameObject);
+            int normalIdx = DrawBackgroundImage(layer, normalImage, target.gameObject);
 
-            int textCompIdx =-1;
+            int textCompIdx = -1;
 
             //text文本
             for (var i = 0; i < layer.layers.Length; i++)
             {
                 var l1 = layer.layers[i];
-                if (ComponentType.Text == l1.type && !l1.TagContains(PSDImportUtility.NewTag)) 
+                if (ComponentType.Text == l1.type && !l1.TagContains(PSDImportUtility.NewTag))
                 {
-                    if(textComp !=null )
+                    if (textComp != null)
                     {
                         if (normalIdx == -1 && posSizeLayerIndex == -1) //没有找到normal图片
                         {
                             RectTransform rectTransform = target.GetComponent<RectTransform>();
                             PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                            rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                            rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform); //layer.position - parentAnchoredPosition;
+                            SetRectTransformSize(rectTransform, l1.size);
+                            SetRectTransformPosition(rectTransform, l1.position);
                         }
 
-                        ctrl.DrawLayer(l1, textComp.gameObject, target.gameObject);
+                        ctrl.DrawLayer(i, l1, textComp.gameObject, target.gameObject);
                         textCompIdx = i;
                         textComp = null;
                         continue;
                     }
-                    else if(holderTxt !=null)
+                    else if (holderTxt != null)
                     {
-                        ctrl.DrawLayer(l1, holderTxt.gameObject, target.gameObject);
+                        ctrl.DrawLayer(i, l1, holderTxt.gameObject, target.gameObject);
                         holderTxt = null;
                     }
                 }
             }
 
-            if(holderTxt!=null && textCompIdx !=-1 )
+            if (holderTxt != null && textCompIdx != -1)
             {
                 var l1 = layer.layers[textCompIdx];
-                ctrl.DrawLayer(l1, holderTxt.gameObject, target.gameObject);
+                ctrl.DrawLayer(index, l1, holderTxt.gameObject, target.gameObject);
                 holderTxt = null;
             }
 
@@ -75,14 +75,14 @@ namespace PSDUINewImporter
             if (binder != null)
             {
                 var txtBinding = binder.GetBinding("text");
-                if(txtBinding == null)
+                if (txtBinding == null)
                 {
                     txtBinding = new Hugula.Databinding.Binding();
                     binder.AddBinding(txtBinding);
                     txtBinding.propertyName = "text";
                 }
                 txtBinding.mode = Hugula.Databinding.BindingMode.TwoWay;
-                txtBinding.path = "input_txt_"+layer.name;
+                txtBinding.path = "input_txt_" + layer.name;
 
                 var binding = binder.GetBinding("submitEventCommand");
                 if (binding == null)

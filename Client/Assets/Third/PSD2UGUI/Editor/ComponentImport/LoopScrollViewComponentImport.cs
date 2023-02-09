@@ -19,16 +19,21 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, LoopScrollRect target, GameObject parent, int posSizeLayerIndex)
+        protected override int DrawSizeAndPos(Layer layer, GameObject target, bool autoPosition = true, bool autoSize = true)
         {
-            RectTransform rectTransform = target.GetComponent<RectTransform>();
-            rectTransform.offsetMin = Vector2.zero;
-            rectTransform.offsetMax = Vector2.zero;
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.anchorMax = Vector2.one;
+            return base.DrawSizeAndPos(layer, target, false);
+        }
+
+        protected override void DrawTargetLayer(int index, Layer layer, LoopScrollRect target, GameObject parent, int posSizeLayerIndex)
+        {
+            //RectTransform rectTransform = target.GetComponent<RectTransform>();
+            //rectTransform.offsetMin = Vector2.zero;
+            //rectTransform.offsetMax = Vector2.zero;
+            //rectTransform.anchorMin = Vector2.zero;
+            //rectTransform.anchorMax = Vector2.one;
 
             var bgImg = target.GetComponent<Image>();
-            var bgIdx = DrawBackgroundImage(layer, bgImg, target.gameObject);
+            var bgIdx = DrawBackgroundImage(layer, bgImg, target.gameObject, false);
 
             if (bgIdx == -1) bgImg.enabled = false;
             // if (TryGetSizePostion(layer, out size, out position, out var index))
@@ -63,8 +68,9 @@ namespace PSDUINewImporter
                 if (itemSource != null && (ctrl.CompareLayerType(l1.type, ComponentType.BindableContainer) || ctrl.CompareLayerType(l1.type, ComponentType.Default)))
                 {
                     l1.type = ComponentType.BindableContainer; //强制为.BindableContainer
-                    ctrl.DrawLayer(l1, itemSource.gameObject, itemSource.transform.parent.gameObject);
+                    ctrl.DrawLayer(i, l1, itemSource.gameObject, itemSource.transform.parent.gameObject);
                     itemSource = null;
+                    break;
                 }
             }
 
@@ -84,9 +90,10 @@ namespace PSDUINewImporter
 
         }
 
-        protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent)
+        protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent,int index)
         {
             var txt = PSDImportUtility.LoadAndInstant<LoopScrollRect>(PSDImporterConst.ASSET_PATH_LOOP_SCROLLVIEW, layer.name, parent);
+            txt.transform.SetSiblingIndex(index);
             return txt;
         }
 

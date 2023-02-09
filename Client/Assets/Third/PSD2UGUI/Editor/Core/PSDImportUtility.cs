@@ -70,18 +70,8 @@ namespace PSDUINewImporter
             return instance;
         }
 
-        //         public static T InstantiateItem<T>(string resourcePatn, string name,GameObject parent) where T : UnityEngine.Object
-        //         {
-        //             GameObject temp = Resources.Load(resourcePatn, typeof(GameObject)) as GameObject;
-        //             GameObject item = GameObject.Instantiate(temp) as GameObject;
-        //             item.name = name;
-        //             item.transform.SetParent(canvas.transform, false);
-        //             ParentDic[item.transform] =  parent.transform;
-        //             return item.GetComponent<T>();
-        //         }
-
         /// <summary>
-        /// 加载并实例化prefab，编辑器下不用Resources.Load，否则这些预设会打到安装包
+        /// 加载并实例化prefab
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="assetPath">assets全路径，带后缀</param>
@@ -99,47 +89,67 @@ namespace PSDUINewImporter
                 return null;
             }
             item.name = name;
-            //item.transform.SetParent(parent.transform);
-            // item.transform.SetParent(canvas.transform, false);
-            // ParentDic[item.transform] = parent.transform;
             item.transform.localScale = Vector3.one;
             return item.GetComponent<T>();
         }
 
-        public static void SetAnchorMiddleCenter(this RectTransform rectTransform)
+        /// <summary>
+        /// 引用一个prefab
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="assetPath">assets全路径，带后缀</param>
+        /// <param name="name"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static GameObject LoadAndInstantAttachedPrefab(string assetPath, string name, GameObject parent)
+        {
+            GameObject temp = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+            Debug.LogFormat(" LoadAndInstantAttachedPrefab assetPath={0}", assetPath);
+            GameObject item = (GameObject)PrefabUtility.InstantiateAttachedAsset(temp);//GameObject.Instantiate(temp, Vector3.zero, Quaternion.identity, parent?.transform) as GameObject;
+            if (item == null)
+            {
+                Debug.LogError("LoadAndInstantAttachedPrefab asset failed : " + assetPath);
+                return null;
+            }
+            item.name = name;
+            item.transform.SetParent(parent?.transform);
+            item.transform.localScale = Vector3.one;
+            return item;
+        }
+
+        public static CacheAnchorInfo SetAnchorMiddleCenter(this RectTransform rectTransform)
         {
             if (rectTransform == null)
             {
                 Debug.LogWarning("rectTransform is null...");
-                return;
+                return new CacheAnchorInfo();
             }
-            rectTransform.offsetMin = new Vector2(0.5f, 0.5f);
-            rectTransform.offsetMax = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            CacheAnchorInfo cacheAnchorInfo = new CacheAnchorInfo();
+            cacheAnchorInfo.offsetMin = rectTransform.offsetMin;
+            cacheAnchorInfo.offsetMax = rectTransform.offsetMax;
+            cacheAnchorInfo.anchorMin = rectTransform.anchorMin;
+            cacheAnchorInfo.anchorMax = rectTransform.anchorMax;
+            cacheAnchorInfo.pivot = rectTransform.pivot;
+
+            Vector2 hafone = Vector2.one * .5f;
+            rectTransform.pivot = hafone;
+            //rectTransform.offsetMin = hafone;
+            //rectTransform.offsetMax = hafone;
+            rectTransform.anchorMin = hafone;
+            rectTransform.anchorMax = hafone;
+            //rectTransform.anchoredPosition = Vector2.zero;
+            return cacheAnchorInfo;
         }
-        /**
-        public static Object LoadAssetAtPath<T>(this PSImage image)
+
+        public static void SetAnchorMiddleCenter(this RectTransform rectTransform, CacheAnchorInfo cacheAnchorInfo)
         {
-            string assetPath = "";
-            if (image.imageSource == ImageSource.Common || image.imageSource == ImageSource.Custom)
-            {
-                assetPath = PSDImportUtility.baseDirectory + image.name + PSDImporterConst.PNG_SUFFIX;
-            }
-            else
-            {
-                assetPath = PSDImporterConst.Globle_BASE_FOLDER + image.name.Replace(".", "/") + PSDImporterConst.PNG_SUFFIX;
-            }
-
-            Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(T));
-            if (obj == null)
-            {
-                Debug.LogWarning("loading asset is null, at path: " + assetPath);
-            }
-
-            return obj;
+            rectTransform.pivot = cacheAnchorInfo.pivot;
+            //rectTransform.offsetMin = cacheAnchorInfo.offsetMin ;
+            //rectTransform.offsetMax = cacheAnchorInfo.offsetMax;
+            rectTransform.anchorMin = cacheAnchorInfo.anchorMin;
+            rectTransform.anchorMax = cacheAnchorInfo.anchorMax;
         }
-        **/
+
 
         public static string FindFileInDirectory(string baseDirectory,string fileName)
         {
@@ -171,5 +181,15 @@ namespace PSDUINewImporter
             if (comp != null)
                 UnityEngine.Object.Destroy(comp);
         }
+    }
+
+
+    public struct CacheAnchorInfo
+    {
+        public Vector2 offsetMin;
+        public Vector2 offsetMax;
+        public Vector2 anchorMin;
+        public Vector2 anchorMax;
+        public Vector2 pivot;
     }
 }

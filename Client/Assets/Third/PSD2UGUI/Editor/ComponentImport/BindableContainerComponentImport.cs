@@ -16,7 +16,7 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, BindableContainer target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index,Layer layer, BindableContainer target, GameObject parent,int posSizeLayerIndex)
         {
             var targetComp = target.GetComponent<BindableContainer>();
             layer.target = targetComp;

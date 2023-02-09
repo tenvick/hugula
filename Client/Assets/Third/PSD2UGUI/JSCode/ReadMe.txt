@@ -1,1 +1,1 @@
-Place "Export PSDUI.jsx" in the sub-directory Presets/Scripts inside the Photoshop application installation directory.
+Place "Export PSDUI New Only xml.jsx and Export PSDUI New.jsx " in the sub-directory Presets/Scripts inside the Photoshop application installation directory.

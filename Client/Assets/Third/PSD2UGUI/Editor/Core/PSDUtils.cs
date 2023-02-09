@@ -27,10 +27,17 @@ namespace PSDUINewImporter
 
         private static Type FindComponentImportType(string typeName)
         {
+            if(typeName.StartsWith("cus#"))
+            {
+                typeName = "Customer";
+            }
             string binderType = string.Format("PSDUINewImporter.{0}ComponentImport", typeName); 
             var reType = Hugula.Utils.LuaHelper.GetClassType(binderType);
             if(reType == null)
-                Debug.LogErrorFormat("ImportType {0} isn't find. ",binderType);
+            {
+                Debug.LogErrorFormat("ImportType({0})ComponentImport was't found. use DefaultComponentImport repleaced. ", binderType);
+                reType = typeof(DefaultComponentImport);
+            }
 
             return reType;
         }

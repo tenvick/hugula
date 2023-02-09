@@ -17,6 +17,7 @@ namespace PSDUINewImporter
 
         public PSDComponentImportCtrl(string xmlFilePath)
         {
+            PSDImporterConst.LoadConfig();
             InitDataAndPath(xmlFilePath);
             InitAliasType();
             InitCanvas();
@@ -42,19 +43,20 @@ namespace PSDUINewImporter
             return layerImport;
         }
 
-        public void DrawLayer(Layer layer, GameObject target, GameObject parent)
+        public void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPosition = true, bool autoSize = true)
         {
-            GetLayerImport(layer.type).DrawLayer(layer, target, parent);
+            GetLayerImport(layer.type).DrawLayer(index, layer, target, parent, autoPosition, autoSize);
         }
 
         public void DrawLayers(Layer[] layers, GameObject target, GameObject parent)
         {
             if (layers != null)
             {
+                int realyIdx = -1;
                 for (int layerIndex = layers.Length - 1; layerIndex >= 0; layerIndex--)
                 {
                     if (PSDImportUtility.NeedDraw(layers[layerIndex]))
-                        DrawLayer(layers[layerIndex], null, parent);
+                        DrawLayer(++realyIdx, layers[layerIndex], null, parent);
                 }
             }
         }
@@ -83,7 +85,10 @@ namespace PSDUINewImporter
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo () == false) { return; }
 #endif
             PSDImportUtility.baseFilename = Path.GetFileNameWithoutExtension(xmlFilePath);
-            PSDImportUtility.baseDirectory = "Assets/" + Path.GetDirectoryName(xmlFilePath.Remove(0, Application.dataPath.Length + 1)) + "/";
+            if(xmlFilePath.StartsWith(Application.dataPath))
+                PSDImportUtility.baseDirectory = "Assets/" + Path.GetDirectoryName(xmlFilePath.Remove(0, Application.dataPath.Length + 1)) + "/";
+            else
+                PSDImportUtility.baseDirectory = PSDImporterConst.Globle_BASE_FOLDER;
         }
 
         private void InitAliasType()
@@ -97,6 +102,7 @@ namespace PSDUINewImporter
             m_AliasType.Add("toggle", "Toggle");
             m_AliasType.Add("ckb", "Toggle");
             m_AliasType.Add("chekbox", "Toggle");
+            m_AliasType.Add("cus","Customer");
 
         }
 
@@ -141,17 +147,29 @@ namespace PSDUINewImporter
 
         public void BeginDrawUILayers()
         {
-            RectTransform obj = PSDImportUtility.LoadAndInstant<RectTransform>(PSDImporterConst.ASSET_PATH_EMPTY, PSDImportUtility.baseFilename, PSDImportUtility.canvas.gameObject);
-            obj.offsetMin = Vector2.zero;
-            obj.offsetMax = Vector2.zero;
-            obj.anchorMin = Vector2.zero;
-            obj.anchorMax = Vector2.one;
+            var selectedTransform = Selection.activeTransform;
+            RectTransform obj;
+            if (selectedTransform is RectTransform && selectedTransform.name == PSDImportUtility.baseFilename)
+            {
+                obj = (RectTransform)selectedTransform;
+            }
+            else
+            {
+                obj = PSDImportUtility.LoadAndInstant<RectTransform>(PSDImporterConst.ASSET_PATH_EMPTY, PSDImportUtility.baseFilename, PSDImportUtility.canvas.gameObject);
+                obj.offsetMin = Vector2.zero;
+                obj.offsetMax = Vector2.zero;
+                obj.anchorMin = Vector2.zero;
+                obj.anchorMax = Vector2.one;
+            }
+
+
+            int realyIdx = -1;
 
             for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
             {
                 var layer = psdUI.layers[layerIndex];
                 if (PSDImportUtility.NeedDraw(layer))
-                    DrawLayer(layer, null, obj.gameObject);
+                    DrawLayer(++realyIdx, layer, null, obj.gameObject);
             }
             AssetDatabase.Refresh();
         }
@@ -159,7 +177,7 @@ namespace PSDUINewImporter
         //--------------------------------------------------------------------------
         // private methods,按texture或image的要求导入图片到unity可加载的状态
         //-------------------------------------------------------------------------
-      
+
 
         private void ImportLayer(Layer layer, string baseDirectory)
         {
@@ -217,59 +235,5 @@ namespace PSDUINewImporter
             textureImporter.spriteBorder = new Vector4(float.Parse(args[0]), float.Parse(args[1]), float.Parse(args[2]), float.Parse(args[3]));
         }
 
-        /**
-        //------------------------------------------------------------------
-        //when it's a common psd, then move the asset to special folder
-        //------------------------------------------------------------------
-        private void MoveAsset(Layer layer, string baseDirectory)
-        {
-            if (layer.image != null)
-            {
-                string newPath = PSDImporterConst.Globle_BASE_FOLDER;
-                if (layer.name == PSDImporterConst.IMAGE)
-                {
-                    newPath += PSDImporterConst.IMAGE + "/";
-                }
-                else if (layer.name == PSDImporterConst.NINE_SLICE)
-                {
-                    newPath += PSDImporterConst.NINE_SLICE + "/";
-                }
-
-                if (!System.IO.Directory.Exists(newPath))
-                {
-                    System.IO.Directory.CreateDirectory(newPath);
-                    Debug.Log("creating new folder : " + newPath);
-                }
-                
-                AssetDatabase.Refresh();
-
-                //for (int imageIndex = 0; imageIndex < layer.images.Length; imageIndex++)
-                //{
-                    // we need to fixup all images that were exported from PS
-                    PSImage image = layer.image;
-                    if(image.imageSource == ImageSource.Global)
-                    {
-                        string texturePathName = PSDImportUtility.baseDirectory + image.name + PSDImporterConst.PNG_SUFFIX;
-                        string targetPathName = newPath + image.name + PSDImporterConst.PNG_SUFFIX;
-
-                        if (File.Exists(texturePathName))
-                        {
-                            AssetDatabase.MoveAsset(texturePathName, targetPathName);
-                            Debug.Log(texturePathName);
-                            Debug.Log(targetPathName);
-                        }                           
-                    }                 
-                //}
-            }
-
-            if (layer.layers != null)
-            {
-                for (int layerIndex = 0; layerIndex < layer.layers.Length; layerIndex++)
-                {
-                    MoveAsset(layer.layers[layerIndex], PSDImportUtility.baseDirectory);
-                }
-            }
-        }
-        **/
     }
 }

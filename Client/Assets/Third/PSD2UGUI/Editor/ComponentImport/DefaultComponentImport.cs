@@ -15,9 +15,9 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, RectTransform target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index, Layer layer, RectTransform target, GameObject parent, int posSizeLayerIndex)
         {
-             if(posSizeLayerIndex==-1)
+            if (posSizeLayerIndex == -1)
             {
                 RectTransform rectTransform = target.GetComponent<RectTransform>();
                 rectTransform.offsetMin = Vector2.zero;

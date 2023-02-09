@@ -15,7 +15,7 @@ namespace PSDUINewImporter
 
     public interface IComponentImport
     {
-        void DrawLayer(Layer layer, GameObject target, GameObject parent);
+        void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPosition = true, bool autoSizeDelta = true);
 
     }
 }

@@ -8,19 +8,19 @@ using UnityEngine.UI;
 
 namespace PSDUINewImporter
 {
-    public abstract class SelectableComponentImport <T> :BaseComponentImport<T>  where T : UnityEngine.UI.Selectable
+    public abstract class SelectableComponentImport<T> : BaseComponentImport<T> where T : UnityEngine.UI.Selectable
     {
         public const string NormalTag = "Normal";
         public const string Highlighted = "Highlighted";
         public const string PressedTag = "Pressed";
         public const string SelectedTag = "Selected";
         public const string DisabledTag = "Disabled";
-        public SelectableComponentImport (PSDComponentImportCtrl ctrl):base(ctrl)
+        public SelectableComponentImport(PSDComponentImportCtrl ctrl) : base(ctrl)
         {
 
         }
 
-        protected virtual void DrawSpriteState(Layer layer, T target, GameObject parent,int posSizeLayerIndex,bool findByOrder = false)
+        protected virtual void DrawSpriteState(Layer layer, T target, GameObject parent, int posSizeLayerIndex, bool findByOrder = false)
         {
             var btnState = target.spriteState;
 
@@ -34,7 +34,7 @@ namespace PSDUINewImporter
             int pressedIdx = -1;
             int selectedIdx = -1;
             int disabledIdx = -1;
-              
+
             //按照tag寻找
             for (var i = 0; i < layer.layers.Length; i++)
             {
@@ -60,8 +60,8 @@ namespace PSDUINewImporter
                     }
                 }
             }
-        
-            if(findByOrder)
+
+            if (findByOrder)
             {
                 //按照顺序设置状态
                 UnityEngine.Sprite defaultSprite = null;//normalImage.sprite;
@@ -70,7 +70,7 @@ namespace PSDUINewImporter
                 for (var i = 0; i < layer.layers.Length; i++)
                 {
                     var l1 = layer.layers[i];
-                    if (!PSDImportUtility.NeedDraw(l1) || l1.TagContains(PSDImportUtility.NewTag) || !ctrl.CompareLayerType(l1.type,ComponentType.Image)) continue;
+                    if (!PSDImportUtility.NeedDraw(l1) || l1.TagContains(PSDImportUtility.NewTag) || !ctrl.CompareLayerType(l1.type, ComponentType.Image)) continue;
 
                     //Debug.LogFormat("Button name={0},i={1},target={2} ", l1.name, i, l1.target);
                     //按照属性设置btnState
@@ -116,7 +116,7 @@ namespace PSDUINewImporter
         }
         // protected override void DrawTargetLayer(Layer layer, T target, GameObject parent,int posSizeLayerIndex)
         // {
-         
+
         // }
 
     }

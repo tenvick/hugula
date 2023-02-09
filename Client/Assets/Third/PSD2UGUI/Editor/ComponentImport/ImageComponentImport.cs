@@ -15,10 +15,10 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, Image target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index, Layer layer, Image target, GameObject parent, int posSizeLayerIndex)
         {
             var targetComp = target.GetComponent<Image>();
-            layer.target = targetComp;
+            // layer.target = targetComp;
             RectTransform rectTransform = target.GetComponent<RectTransform>();
             PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
 
@@ -27,15 +27,13 @@ namespace PSDUINewImporter
             targetComp.maskable = false;
             SetImageProperties(targetComp, layer);
 
-            rectTransform.sizeDelta = new Vector2(layer.size.width, layer.size.height);
-            // rectTransform.anchoredPosition = GetLocalAnchoredPosition(layer.position, rectTransform); //layer.position - parentAnchoredPosition;
-            rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);
-
+            SetRectTransformSize(rectTransform, layer.size);
+            SetRectTransformPosition(rectTransform, layer.position);
             // ctrl.DrawLayers(layer.layers, null, target.gameObject);
         }
 
 
-        protected override  void CheckAddBinder(Layer layer, Image image)
+        protected override void CheckAddBinder(Layer layer, Image image)
         {
             if (layer.TagContains(PSDImportUtility.DynamicTag))
             {

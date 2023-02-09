@@ -19,36 +19,45 @@ namespace PSDUINewImporter
             this.ctrl = ctrl;
         }
 
-        public void DrawLayer(Layer layer, GameObject target, GameObject parent)
+        public void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPos, bool autoSize)
         {
             T targetT = default(T);
             if (target != null)
             {
                 targetT = target.GetComponent<T>();
             }
+            if (targetT == null)//find in parent 
+            {
+                targetT = FindInParent(index, layer, parent);
+            }
             if (targetT == null)
             {
-                targetT = LoadAndInstant(layer, parent);
+                targetT = LoadAndInstant(layer, parent,index);
             }
 
-            DrawTargetLayer(layer, targetT, parent,DrawSizeAndPos(layer,targetT.gameObject));
+            layer.target = targetT;
+            DrawTargetLayer(index, layer, targetT, parent, DrawSizeAndPos(layer, targetT.gameObject, autoPos));
             CheckAddBinder(layer, targetT);
         }
 
 
-        protected virtual int DrawSizeAndPos(Layer layer,GameObject target)
+        protected virtual int DrawSizeAndPos(Layer layer, GameObject target, bool autoPosition = true, bool autoSize = true)
         {
             int bgIdx;
-            if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))
+            if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))//自定义组件需要控制布局
             {
                 var l1 = layer.layers[bgIdx];
-                var rectTransform = target.GetComponent<RectTransform>();
-                PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position,rectTransform);
-                rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+                if (!ctrl.CompareLayerType(layer.type, ComponentType.Customer))
+                {
+                    var rectTransform = target.GetComponent<RectTransform>();
+                // PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                if (autoSize) SetRectTransformSize(rectTransform, l1.size);
+                if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
+				}
+                // Debug.LogFormat("target={0}, autoPosition={1}, autoSize={2},l1.position={3}, rectTransform.localPosition={4} ", target, autoPosition, autoSize, l1.position, rectTransform.localPosition);
+                l1.target = target;
                 return bgIdx;
-            } 
+            }
             return -1;
         }
         /// <summary>
@@ -60,40 +69,37 @@ namespace PSDUINewImporter
         /// <param name="overrideTarget">重新覆盖目标对象大小和位置</param>
         /// <param name="autoImagePosition">是否设置图片位置</param>
         /// <returns></returns>
-        protected virtual int DrawBackgroundImage(Layer layer,Image image, GameObject overrideTarget = null,bool autoImagePosition = true)
+        protected virtual int DrawBackgroundImage(Layer layer, Image image, GameObject overrideTarget = null, bool autoImagePosition = true, bool autoSize = true)
         {
             int bgIdx;
-            if (TryGetBackgroundImage(layer,out bgIdx))
+            if (TryGetBackgroundImage(layer, out bgIdx))
             {
                 var l1 = layer.layers[bgIdx];
                 image.sprite = LoadSpriteRes(l1, null);
                 l1.target = image;
                 SetImageProperties(image, l1);
                 var rectTransform = image.GetComponent<RectTransform>();
-                if(autoImagePosition)
+                if (autoSize)
+                    SetRectTransformSize(rectTransform, l1.size);
+                if (autoImagePosition)
                 {
-                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                    // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform);
-                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
-
+                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    SetRectTransformPosition(rectTransform, l1.position);
                 }
-                rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
 
-                if(overrideTarget!=null)
+                if (overrideTarget != null)
                 {
-                   rectTransform =  overrideTarget.GetComponent<RectTransform>();
-                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                    rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
-                    // rectTransform.anchoredPosition = GetLocalAnchoredPosition(l1.position, rectTransform);
-                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
-
+                    rectTransform = overrideTarget.GetComponent<RectTransform>();
+                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    SetRectTransformSize(rectTransform, l1.size);
+                    SetRectTransformPosition(rectTransform, l1.position);
                 }
 
                 if (image.sprite == null)
                     image.enabled = false;
                 else
                     image.enabled = true;
-                    
+
                 return bgIdx;
             }
             return -1;
@@ -108,13 +114,13 @@ namespace PSDUINewImporter
         /// <param name="repIndex"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        protected virtual int DrawTagText(Layer layer, Component text, string tag, int repIndex, GameObject target)
+        protected virtual int DrawTagText(int index, Layer layer, Component text, string tag, int repIndex, GameObject target, bool autoPos = true, bool autoSize = true)
         {
             int tagIdx;
             if (TryGetTagText(layer, tag, repIndex, out tagIdx))
             {
                 var l1 = layer.layers[tagIdx];
-                ctrl.DrawLayer(l1, text.gameObject, target.gameObject);
+                ctrl.DrawLayer(index, l1, text.gameObject, target.gameObject, autoPos, autoSize);
                 return tagIdx;
             }
             return -1;
@@ -132,27 +138,31 @@ namespace PSDUINewImporter
         /// <param name="autoSetPosition">设置image位置</param>
         /// <param name="autoSetSize">设置imagesizeDelta</param>
         /// <returns></returns>
-        protected virtual int DrawTagImage(Layer layer,Image image, string tag, int repIndex ,GameObject target, bool autoSetPosition = true, bool autoSetSize = true)
+        protected virtual int DrawTagImage(Layer layer, Image image, string tag, int repIndex, GameObject target, bool autoSetPosition = true, bool autoSetSize = true)
         {
             int tagIdx;
-            if (TryGetTagImage(layer, tag, repIndex,out tagIdx))
+            if (TryGetTagImage(layer, tag, repIndex, out tagIdx))
             {
                 var l1 = layer.layers[tagIdx];
                 image.sprite = LoadSpriteRes(l1, null);
                 l1.target = image;
                 SetImageProperties(image, l1);
                 var rectTransform = target?.GetComponent<RectTransform>();
-                if(autoSetPosition)
+                if (autoSetPosition)
                 {
-                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                    rectTransform.localPosition = GetLocalPosition(l1.position, rectTransform);
+                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    SetRectTransformPosition(rectTransform, l1.position);
                 }
-                if(autoSetSize)rectTransform.sizeDelta = new Vector2(l1.size.width, l1.size.height);
+                if (autoSetSize)
+                {
+                    SetRectTransformSize(rectTransform, l1.size);
+                }
+
                 if (image.sprite == null)
                     image.enabled = false;
                 else
                     image.enabled = true;
-                    
+
                 return tagIdx;
             }
             return -1;
@@ -175,6 +185,18 @@ namespace PSDUINewImporter
 
             }
             return sprite;
+        }
+
+        protected Texture LoadTextureRes(Layer layer)
+        {
+            var assetPath = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
+            Texture texture = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Texture)) as Texture;
+            if (texture == null)
+            {
+                // texture = defaultSprite;
+                Debug.LogWarningFormat("Load Texture asset fail path = {0} .", assetPath);
+            }
+            return texture;
         }
 
         /// <summary>
@@ -287,12 +309,12 @@ namespace PSDUINewImporter
         /// <param name="replaceIndex"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        protected bool TryGetTagImage(Layer layer,string tag,int replaceIndex,out int index)
+        protected bool TryGetTagImage(Layer layer, string tag, int replaceIndex, out int index)
         {
             //寻找tag
             var tagIdx = ForeachLayersDesc(layer, (li, i) =>
             {
-                if (!string.IsNullOrEmpty(tag)  && ctrl.CompareLayerType(li.type, ComponentType.Image) && 
+                if (!string.IsNullOrEmpty(tag) && ctrl.CompareLayerType(li.type, ComponentType.Image) &&
                     li.TagContains(tag) && PSDImportUtility.NeedDraw(li))
                 {
                     return true;
@@ -305,17 +327,17 @@ namespace PSDUINewImporter
                 index = tagIdx;
                 return true;
             }
-            
-            int imgIdx=-1;
+
+            int imgIdx = -1;
             tagIdx = ForeachLayers(layer, (li, i) =>
             {
-                if (ctrl.CompareLayerType(li.type, ComponentType.Image) 
-                    && !li.TagContains(PSDImportUtility.NewTag) 
+                if (ctrl.CompareLayerType(li.type, ComponentType.Image)
+                    && !li.TagContains(PSDImportUtility.NewTag)
                     && PSDImportUtility.NeedDraw(li)
                    )
                 {
-                    imgIdx ++;
-                    if(imgIdx == replaceIndex)
+                    imgIdx++;
+                    if (imgIdx == replaceIndex)
                     {
                         return true;
                     }
@@ -330,7 +352,7 @@ namespace PSDUINewImporter
             }
             index = -1;
             return false;
-            
+
         }
 
         /// <summary>
@@ -338,13 +360,13 @@ namespace PSDUINewImporter
         /// 首先匹配tag
         /// 然后匹配位置
         /// </summary>
-        protected bool TryGetBackgroundImage(Layer layer,out int index)
+        protected bool TryGetBackgroundImage(Layer layer, out int index)
         {
             //寻找tag
             var tagIdx = ForeachLayersDesc(layer, (li, i) =>
             {
-                if (ctrl.CompareLayerType(li.type, ComponentType.Image) && 
-                    (li.TagContains(ImageTag.BackGround) || li.TagContains(ImageTag.NormalTag) ) && PSDImportUtility.NeedDraw(li))
+                if (ctrl.CompareLayerType(li.type, ComponentType.Image) &&
+                    (li.TagContains(ImageTag.BackGround) || li.TagContains(ImageTag.NormalTag)) && PSDImportUtility.NeedDraw(li))
                 {
                     return true;
                 }
@@ -360,8 +382,8 @@ namespace PSDUINewImporter
             //按照倒序寻找
             tagIdx = ForeachLayersDesc(layer, (li, i) =>
             {
-                if (ctrl.CompareLayerType(li.type, ComponentType.Image) 
-                    && !li.TagContains(PSDImportUtility.NewTag) 
+                if (ctrl.CompareLayerType(li.type, ComponentType.Image)
+                    && !li.TagContains(PSDImportUtility.NewTag)
                     && PSDImportUtility.NeedDraw(li)
                    )
                 {
@@ -411,24 +433,73 @@ namespace PSDUINewImporter
         /// <summary>
         /// 得到本地 AnchoredPosition
         /// </summary>
-        protected Vector3 GetLocalPosition(Position worldPos, RectTransform selfTrans)
+        protected Vector2 GetLocalPosition(Position worldPos, RectTransform selfTrans)
         {
-            Vector3 anchoredPosition = new Vector3(worldPos.x, worldPos.y,0);
+            Vector2 anchoredPosition = new Vector3(worldPos.x, worldPos.y);
             RectTransform parent = (RectTransform)selfTrans.parent;
-            Vector3 parentAnchoredPosition ;//= parent.GetComponent<RectTransform>().anchoredPosition;
-                
+            Vector2 parentAnchoredPosition;
+
             RectTransform pRectTrans;
             while (parent != null)
             {
                 pRectTrans = parent.GetComponent<RectTransform>();
-                parentAnchoredPosition = parent.GetComponent<RectTransform>().localPosition;
+                parentAnchoredPosition = GetMiddleCenterPos(pRectTrans);
                 anchoredPosition = anchoredPosition - parentAnchoredPosition;
-                //Debug.LogFormat("p={0},ppos={1},anpos={2} ,worldPos={3}",parent.name,parentAnchoredPosition,anchoredPosition,worldPos);
                 parent = (RectTransform)parent.parent;
                 if (parent != null && parent.parent == null) break;
             }
 
             return anchoredPosition;
+            // Vector3 anchoredPosition = new Vector3(worldPos.x, worldPos.y,0);
+            // RectTransform parent = (RectTransform)selfTrans.parent;
+            // Vector3 parentAnchoredPosition ;//= parent.GetComponent<RectTransform>().anchoredPosition;
+
+            // RectTransform pRectTrans;
+            // while (parent != null)
+            // {
+            //     pRectTrans = parent.GetComponent<RectTransform>();
+            //     parentAnchoredPosition = parent.GetComponent<RectTransform>().localPosition;
+            //     anchoredPosition = anchoredPosition - parentAnchoredPosition;
+            //     Debug.LogFormat(" self:{4};pRectTrans={5};parent={0},p.pos={1},local.anpos={2} ,worldPos={3},",parent.name,parentAnchoredPosition,anchoredPosition,worldPos,selfTrans,pRectTrans);
+            //     parent = (RectTransform)parent.parent;
+            //     if (parent != null && parent.parent == null) break;
+            // }
+
+            // return anchoredPosition;
+        }
+
+
+        ///我们需要把坐标校正到中心点
+        protected Vector2 GetMiddleCenterPos(RectTransform rectTransform)
+        {
+            var parent = (RectTransform)rectTransform.parent;
+            //anchor 校正 到中心点 
+            var anchorCenter = (rectTransform.anchorMin + rectTransform.anchorMax) * .5f; ;
+            var rect = parent.rect;
+            var sizeDelta = new Vector2(rect.width, rect.height);
+            var anchorOffset = Vector2.Scale(sizeDelta, anchorCenter - Vector2.one * 0.5f);
+            var pivotOffset = Vector2.Scale(rectTransform.sizeDelta, Vector2.one * 0.5f - rectTransform.pivot);
+            return rectTransform.anchoredPosition + anchorOffset + pivotOffset;
+        }
+
+        protected void SetRectTransformSize(RectTransform rectTransform, Size size, float scale = 1)
+        {
+            rectTransform.sizeDelta = new Vector2(size.width * scale, size.height * scale);
+        }
+
+        protected void SetRectTransformPosition(RectTransform rectTransform, Position pos)
+        {
+            var middleCenter = GetLocalPosition(pos, rectTransform);
+
+            //anchor 校正 到中心点 
+            var parent = (RectTransform)rectTransform.parent;
+            var anchorCenter = (rectTransform.anchorMin + rectTransform.anchorMax) * .5f; ;
+            var rect = parent.rect;
+            var sizeDelta = new Vector2(rect.width, rect.height);
+            var anchorOffset = Vector2.Scale(sizeDelta, anchorCenter - Vector2.one * 0.5f);
+            var pivotOffset = Vector2.Scale(rectTransform.sizeDelta, Vector2.one * 0.5f - rectTransform.pivot);
+            rectTransform.anchoredPosition = middleCenter - anchorOffset - pivotOffset;
+            //  Debug.LogFormat("self={0},pos={1},middleCenter={2},pivotOffset={3},anchorOffset={4},anchorCenter={5}",rectTransform,rectTransform.anchoredPosition,middleCenter,pivotOffset,anchorOffset,anchorCenter);
         }
 
         protected void SetImageProperties(Image image, Layer layer)
@@ -439,18 +510,70 @@ namespace PSDUINewImporter
             }
         }
 
-        protected abstract void DrawTargetLayer(Layer layer, T target, GameObject parent,int posSizeLayerIndex);
+        protected abstract void DrawTargetLayer(int index, Layer layer, T target, GameObject parent, int posSizeLayerIndex);
 
-        protected virtual void  CheckAddBinder(Layer layer, T comp){
-            
-        }
-
-        protected virtual T LoadAndInstant(Layer layer, GameObject parent)
+        protected virtual void CheckAddBinder(Layer layer, T comp)
         {
-            var typeName = typeof(T).Name;
-            if(typeof(RectTransform) == typeof(T) ) typeName = "Empty";
-            var  asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.name, parent);
-            return asset;
+
         }
+
+        //更新时候查找
+        protected virtual T FindInParent(int index, Layer layer, GameObject parent)
+        {
+            T t = default(T);
+            var transform = parent.transform;
+            Transform find = null;
+            // find by index
+            if (index < transform.childCount)
+            {
+                find = transform.GetChild(index);
+                if (find.name != layer.name)
+                    find = null;
+            }
+
+            // if (find == null) find = transform.Find(layer.name);
+
+            if (find) t = find.GetComponent<T>();
+            return t;
+        }
+
+        protected virtual T LoadAndInstant(Layer layer, GameObject parent, int index)
+        {
+            if (ctrl.CompareLayerType(layer.type, ComponentType.Customer)) //模板控件
+            {
+                var uiSourcePath = PSDImporterConst.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName);
+                if (string.IsNullOrEmpty(uiSourcePath))
+                {
+                    Debug.LogError($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
+                }
+                var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(uiSourcePath, layer.name,parent);
+                asset.transform.SetSiblingIndex(index);
+                return asset.GetComponent<T>();
+            }
+            else if (ctrl.CompareLayerType(layer.type, ComponentType.Text) && !string.IsNullOrEmpty(layer.templateName)) //模板字体
+            {
+                var fontStylePath = PSDImporterConst.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName);
+                if (string.IsNullOrEmpty(fontStylePath))
+                {
+                    Debug.LogError($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} use (Default.prefab) replaced");
+                    fontStylePath = "Default";
+                }
+                var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(fontStylePath, layer.name,
+                   parent);
+                asset.transform.SetSiblingIndex(index);
+                return asset.GetComponent<T>();
+            }
+            else
+            {
+                var typeName = typeof(T).Name;
+                if (typeof(RectTransform) == typeof(T)) typeName = "Empty";
+                var asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.name, parent);
+                asset.transform.SetSiblingIndex(index);
+                return asset;
+            }
+        }
+
+
+
     }
 }

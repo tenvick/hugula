@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PSDUI>
 <psdSize>
-    <width>720</width>
-    <height>1280</height>
+    <width>566</width>
+    <height>412</height>
 </psdSize>
 <layers>
+    <Layer>
+    <name>ui_loginundefined</name>
+    <type>RawImage</type>
+    <imageType>png</imageType>
+    <position><x>0</x><y>0</y></position>
+    <size><width>566</width><height>412</height></size>
+    </Layer>
         <Layer>
-            <type>bc</type>
             <name>Login</name> 
+            <type>bc</type>
             <tag><string>bc</string></tag>
             <layers>
                     <Layer>
-                        <type>bt</type>
                         <name>orange_button</name> 
+                        <type>bt</type>
                         <tag><string>bt</string></tag>
                         <layers>
                                 <Layer>
                                     <name>orange</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>-25.0000000000001</x><y>184</y></position>
-                                    <size><width>86</width><height>14</height></size>
+                                    <position><x>-102</x><y>-89</y></position>
+                                    <size><width>84</width><height>12</height></size>
                                     <shadow>1_000000_100_120_2</shadow>
                                     <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>12</string><string>Orange Button</string></arguments>
                                     <opacity>100</opacity>
@@ -29,42 +36,79 @@
                                     <name>bg_orange</name>
                                     <tag></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-26.0000000000001</x><y>187</y></position>
-                                    <size><width>112</width><height>34</height></size>
+                                    <imageType>Image</imageType>
+                                    <position><x>-103</x><y>-87</y></position>
+                                    <size><width>110</width><height>32</height></size>
                                 </Layer>
                         </layers>
                     </Layer>
                     <Layer>
-                        <name>lg_title</name>
+                        <name>#H1</name>
                         <tag></tag>
+                        <templateName>H1</templateName> 
                         <type>Text</type>
-                        <position><x>-131</x><y>404.5</y></position>
-                        <size><width>78</width><height>13</height></size>
+                        <position><x>41.5</x><y>177</y></position>
+                        <size><width>181</width><height>28</height></size>
                         <shadow>1_ffffff_50_90_0</shadow>
-                        <arguments><string>010101</string><string>ArialMT</string><string>12</string><string>Magical Login</string></arguments>
+                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>30</string><string>Hello Hugula</string></arguments>
                         <opacity>100</opacity>
                     </Layer>
                     <Layer>
+                        <name>lg_title#H2</name>
+                        <tag></tag>
+                        <templateName>H2</templateName> 
+                        <type>Text</type>
+                        <position><x>-165</x><y>127</y></position>
+                        <size><width>158</width><height>22</height></size>
+                        <shadow>1_ffffff_50_90_0</shadow>
+                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>24</string><string>Magical Login</string></arguments>
+                        <opacity>100</opacity>
+                    </Layer>
+                    <Layer>
+                        <name>hero#ItemMe</name>
+                        <tag></tag>
+                        <templateName>ItemMe</templateName> 
+                        <position><x>2</x><y>179</y></position>
+                        <size><width>500</width><height>50</height></size>
+                        <type>Customer</type>
+                        <imageType>Image</imageType>
+                    </Layer>
+                    <Layer>
+                        <name>itemzu#ItemBag</name> 
+                        <type>Customer</type>
+                        <templateName>ItemBag</templateName> 
+                        <tag></tag>
+                        <layers>
+                                <Layer>
+                                    <name></name>
+                                    <tag><string>Size</string><string>Hide</string></tag>
+                                    <type>Image</type>
+                                    <imageType>Image</imageType>
+                                    <position><x>2</x><y>-157</y></position>
+                                    <size><width>500</width><height>50</height></size>
+                                </Layer>
+                        </layers>
+                    </Layer>
+                    <Layer>
                         <name>top_BG</name>
-                        <tag><string></string><string>9S:17</string></tag>
+                        <tag><string></string><string>9S:17</string><string>Slice</string></tag>
                         <type>Image</type>
-                        <imageSource>Custom</imageSource>
-                        <position><x>-26.5000000000001</x><y>405</y></position>
-                        <size><width>289</width><height>34</height></size>
+                        <imageType>SliceImage</imageType>
+                        <position><x>-103.5</x><y>131.5</y></position>
+                        <size><width>289</width><height>33</height></size>
                         <arguments><string>17</string><string>17</string><string>17</string><string>17</string></arguments>
                     </Layer>
                     <Layer>
-                        <type>Input</type>
                         <name>Username</name> 
+                        <type>Input</type>
                         <tag><string>Input</string></tag>
                         <layers>
                                 <Layer>
                                     <name>Username</name>
                                     <tag><string>New</string></tag>
                                     <type>Text</type>
-                                    <position><x>-115.5</x><y>361.5</y></position>
-                                    <size><width>59</width><height>11</height></size>
+                                    <position><x>-192.5</x><y>88.5</y></position>
+                                    <size><width>55</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
                                     <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Username</string></arguments>
                                     <opacity>100</opacity>
@@ -73,33 +117,33 @@
                                     <name>Anaximander</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>-95.5000000000001</x><y>333.5</y></position>
+                                    <position><x>-172.5</x><y>59.5</y></position>
                                     <size><width>71</width><height>9</height></size>
                                     <arguments><string>080808</string><string>ArialMT</string><string>12</string><string>Anaximander</string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
                                 <Layer>
                                     <name>username</name>
-                                    <tag><string></string><string>9S:10</string></tag>
+                                    <tag><string></string><string>9S:10</string><string>Slice</string></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-26.5000000000001</x><y>333.5</y></position>
-                                    <size><width>233</width><height>33</height></size>
+                                    <imageType>SliceImage</imageType>
+                                    <position><x>-103.5</x><y>59.5</y></position>
+                                    <size><width>231</width><height>31</height></size>
                                     <arguments><string>10</string><string>10</string><string>10</string><string>10</string></arguments>
                                 </Layer>
                         </layers>
                     </Layer>
                     <Layer>
-                        <type>Input</type>
                         <name>Password</name> 
+                        <type>Input</type>
                         <tag><string>Input</string></tag>
                         <layers>
                                 <Layer>
                                     <name>Password</name>
                                     <tag><string>New</string></tag>
                                     <type>Text</type>
-                                    <position><x>-117</x><y>295.5</y></position>
-                                    <size><width>56</width><height>11</height></size>
+                                    <position><x>-194</x><y>22.5</y></position>
+                                    <size><width>52</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
                                     <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Password</string></arguments>
                                     <opacity>100</opacity>
@@ -108,49 +152,49 @@
                                     <name>hunter2</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>-114.5</x><y>270</y></position>
+                                    <position><x>-191.5</x><y>-4</y></position>
                                     <size><width>33</width><height>4</height></size>
                                     <arguments><string>080808</string><string>ArialMT</string><string>12</string><string>*******</string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
                                 <Layer>
                                     <name>PASSWORD</name>
-                                    <tag><string></string><string>9S:10</string></tag>
+                                    <tag><string></string><string>9S:10</string><string>Slice</string></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-26.5000000000001</x><y>267.5</y></position>
-                                    <size><width>235</width><height>35</height></size>
+                                    <imageType>SliceImage</imageType>
+                                    <position><x>-103.5</x><y>-6.5</y></position>
+                                    <size><width>231</width><height>31</height></size>
                                     <arguments><string>10</string><string>10</string><string>10</string><string>10</string></arguments>
                                 </Layer>
                         </layers>
                     </Layer>
                     <Layer>
-                        <type>ckb</type>
                         <name>Remember_me</name> 
+                        <type>ckb</type>
                         <tag><string>ckb</string></tag>
                         <layers>
                                 <Layer>
                                     <name>ck_mark</name>
                                     <tag><string></string><string></string><string>Sprite</string></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-70</x><y>228.5</y></position>
+                                    <imageType>Image</imageType>
+                                    <position><x>-147</x><y>-45.5</y></position>
                                     <size><width>10</width><height>11</height></size>
                                 </Layer>
                                 <Layer>
                                     <name>check_box</name>
                                     <tag></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-70.0000000000001</x><y>228</y></position>
-                                    <size><width>14</width><height>14</height></size>
+                                    <imageType>Image</imageType>
+                                    <position><x>-147</x><y>-46</y></position>
+                                    <size><width>12</width><height>12</height></size>
                                 </Layer>
                                 <Layer>
                                     <name>Remember_me</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>-16.5</x><y>225.5</y></position>
-                                    <size><width>83</width><height>11</height></size>
+                                    <position><x>-93.5</x><y>-47.5</y></position>
+                                    <size><width>79</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
                                     <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Remember me</string></arguments>
                                     <opacity>100</opacity>
@@ -158,51 +202,51 @@
                         </layers>
                     </Layer>
                     <Layer>
-                        <type>bt</type>
                         <name>Sign_In</name> 
+                        <type>bt</type>
                         <tag><string>bt</string></tag>
                         <layers>
                                 <Layer>
                                     <name>Sign_In</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>-26.0000000000001</x><y>186.5</y></position>
-                                    <size><width>44</width><height>15</height></size>
+                                    <position><x>-103</x><y>-86.5</y></position>
+                                    <size><width>40</width><height>13</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
                                     <arguments><string>000000</string><string>ArialMT</string><string>13</string><string>Sign In</string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
                                 <Layer>
                                     <name>sign_bg</name>
-                                    <tag><string></string><string>9S:20:16:20:16</string></tag>
+                                    <tag><string></string><string>9S:20:16:20:16</string><string>Slice</string></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>-26.0000000000001</x><y>187.5</y></position>
-                                    <size><width>106</width><height>33</height></size>
+                                    <imageType>SliceImage</imageType>
+                                    <position><x>-103</x><y>-86.5</y></position>
+                                    <size><width>104</width><height>31</height></size>
                                     <arguments><string>20</string><string>16</string><string>20</string><string>16</string></arguments>
                                 </Layer>
                         </layers>
                     </Layer>
                     <Layer>
                         <name>main_bg</name>
-                        <tag><string></string><string>9S:15</string></tag>
+                        <tag><string></string><string>9S:15</string><string>Slice</string></tag>
                         <type>Image</type>
-                        <imageSource>Custom</imageSource>
-                        <position><x>-26.5000000000001</x><y>286</y></position>
-                        <size><width>291</width><height>274</height></size>
+                        <imageType>SliceImage</imageType>
+                        <position><x>-103.5</x><y>12</y></position>
+                        <size><width>289</width><height>272</height></size>
                         <arguments><string>15</string><string>15</string><string>15</string><string>15</string></arguments>
                     </Layer>
                     <Layer>
-                        <type>bt</type>
                         <name>INVALID_PASSWORD</name> 
+                        <type>bt</type>
                         <tag><string>bt</string></tag>
                         <layers>
                                 <Layer>
                                     <name>Invalid_password</name>
                                     <tag></tag>
                                     <type>Text</type>
-                                    <position><x>186.5</x><y>266.5</y></position>
-                                    <size><width>107</width><height>15</height></size>
+                                    <position><x>109.5</x><y>-6.5</y></position>
+                                    <size><width>105</width><height>13</height></size>
                                     <shadow>1_000000_80_120_2</shadow>
                                     <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>13</string><string>Invalid password
 </string></arguments>
@@ -212,8 +256,8 @@
                                     <name>bg</name>
                                     <tag></tag>
                                     <type>Image</type>
-                                    <imageSource>Custom</imageSource>
-                                    <position><x>186.5</x><y>267.5</y></position>
+                                    <imageType>Image</imageType>
+                                    <position><x>109.5</x><y>-6.5</y></position>
                                     <size><width>137</width><height>31</height></size>
                                 </Layer>
                         </layers>

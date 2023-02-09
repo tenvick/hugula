@@ -21,19 +21,19 @@ namespace PSDUINewImporter
 
         }
 
-        protected override void DrawTargetLayer(Layer layer, Slider target, GameObject parent,int posSizeLayerIndex)
+        protected override void DrawTargetLayer(int index, Layer layer, Slider target, GameObject parent, int posSizeLayerIndex)
         {
-           
+
             var handleImage = (Image)target.transform.Find("Handle Slide Area/Handle").GetComponent<Image>();//0
             var fillImage = (Image)target.transform.Find("Fill Area/Fill").GetComponent<Image>();//1
             var bgImage = (Image)target.transform.Find("Background").GetComponent<Image>();//2 last
 
-            int bgIdx = DrawBackgroundImage(layer,bgImage,target.gameObject,false); 
-            base.DrawSpriteState(layer,target,parent,posSizeLayerIndex);
+            int bgIdx = DrawBackgroundImage(layer, bgImage, target.gameObject, false);
+            base.DrawSpriteState(layer, target, parent, posSizeLayerIndex);
 
-            base.DrawTagImage(layer,handleImage,FillTag,0,handleImage.gameObject,false);
+            base.DrawTagImage(layer, handleImage, FillTag, 0, handleImage.gameObject, false);
 
-            base.DrawTagImage(layer,fillImage,HandleTag,0,fillImage.transform.parent.gameObject);
+            base.DrawTagImage(layer, fillImage, HandleTag, 0, fillImage.transform.parent.gameObject);
 
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
 
@@ -45,14 +45,14 @@ namespace PSDUINewImporter
             if (binder != null)
             {
                 var binding = binder.GetBinding("value");
-                if(binding == null)
+                if (binding == null)
                 {
                     binding = new Hugula.Databinding.Binding();
                     binder.AddBinding(binding);
                     binding.propertyName = "value";
                 }
                 binding.mode = Hugula.Databinding.BindingMode.TwoWay;
-                binding.path = "slider_val_"+layer.name;
+                binding.path = "slider_val_" + layer.name;
 
                 binding = binder.GetBinding("onValueChangedExecute");
                 if (binding == null)

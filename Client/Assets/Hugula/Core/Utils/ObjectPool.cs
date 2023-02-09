@@ -75,7 +75,7 @@ namespace Hugula.Utils
     public static class ListPool<T>
     {
         // Object pool to avoid allocations.
-        private static readonly ObjectPool<List<T>> s_ListPool = new ObjectPool<List<T>>(null, l => l.Clear());
+        private static readonly ObjectPool<List<T>> s_ListPool = new ObjectPool<List<T>>(null, l => l.Clear(),512);
 
         public static List<T> Get()
         {
@@ -95,7 +95,7 @@ namespace Hugula.Utils
     /// <typeparam name="V"></typeparam>
     public static class DictionaryPool<K, V>
     {
-        private static readonly ObjectPool<Dictionary<K, V>> s_ListPool = new ObjectPool<Dictionary<K, V>>(null, l => l.Clear());
+        private static readonly ObjectPool<Dictionary<K, V>> s_ListPool = new ObjectPool<Dictionary<K, V>>(null, l => l.Clear(),1024);
 
         public static Dictionary<K, V> Get()
         {

@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2023.2.9
+1 psd导出工具支持字体与自定义模板。
+2 psd导出参考图功能。
+3 xml导出更新界面功能。
+
 2022.11.28
 1 增量更新支持(.1 aas增量工具生成group, .2 Hugula/Update a Previous Build(produce smaller content updates)菜单生成更新文件)。
 2 Addressables 升级到1.21.1 解决增量更新bug。

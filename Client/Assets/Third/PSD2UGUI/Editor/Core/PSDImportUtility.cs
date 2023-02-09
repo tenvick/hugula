@@ -94,7 +94,31 @@ namespace PSDUINewImporter
         }
 
         /// <summary>
-        /// 引用一个prefab
+        /// 引用一个moban prefab
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="assetPath">assets全路径，带后缀</param>
+        /// <param name="name"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static GameObject LoadAndInstantPrefab(string assetPath, string name, GameObject parent)
+        {
+            GameObject temp = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+            // Debug.LogFormat(" LoadAndInstantPrefab assetPath={0}", assetPath);
+            GameObject item = (GameObject)PrefabUtility.InstantiatePrefab(temp,parent.transform);//GameObject.Instantiate(temp, Vector3.zero, Quaternion.identity, parent?.transform) as GameObject;
+            if (item == null)
+            {
+                Debug.LogError("LoadAndInstantPrefab asset failed : " + assetPath);
+                return null;
+            }
+            item.name = name;
+            item.transform.SetParent(parent?.transform);
+            item.transform.localScale = Vector3.one;
+            return item;
+        }
+
+         /// <summary>
+        /// 复制prefab
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="assetPath">assets全路径，带后缀</param>
@@ -104,7 +128,7 @@ namespace PSDUINewImporter
         public static GameObject LoadAndInstantAttachedPrefab(string assetPath, string name, GameObject parent)
         {
             GameObject temp = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
-            Debug.LogFormat(" LoadAndInstantAttachedPrefab assetPath={0}", assetPath);
+            // Debug.LogFormat(" LoadAndInstantAttachedPrefab assetPath={0}", assetPath);
             GameObject item = (GameObject)PrefabUtility.InstantiateAttachedAsset(temp);//GameObject.Instantiate(temp, Vector3.zero, Quaternion.identity, parent?.transform) as GameObject;
             if (item == null)
             {

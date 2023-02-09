@@ -90,7 +90,7 @@ namespace PSDUINewImporter
         /// <returns></returns>
         internal static string SearAttachedPrefab(string folder,string name)
         {
-            var files = System.IO.Directory.GetFiles(folder, "*"+PSDUI_SUFFIX, System.IO.SearchOption.AllDirectories)
+            var files = System.IO.Directory.GetFiles(folder, name+PSDUI_SUFFIX, System.IO.SearchOption.AllDirectories)
                     .Where(f => 
                     name ==  System.IO.Path.GetFileNameWithoutExtension(f)
                     );

@@ -103,7 +103,10 @@ namespace PSDUINewImporter
 
                 _path = GetValue(_path);
                 if (!string.IsNullOrEmpty(_path))
+                {
                     m_config.m_psdFontCustomTemplatePath = _path;
+
+                }
             }
             EditorGUILayout.EndHorizontal();
 
@@ -112,14 +115,16 @@ namespace PSDUINewImporter
                 if (string.IsNullOrEmpty(m_config.m_rootImagePath) ||
                     string.IsNullOrEmpty(m_config.m_fontAssetPath) ||
                     string.IsNullOrEmpty(m_config.m_psduiTemplatePath) ||
-                    string.IsNullOrEmpty(m_config.m_rootImagePath))
+                    string.IsNullOrEmpty(m_config.m_rootImagePath) ||
+                    string.IsNullOrEmpty(m_config.m_psdFontCustomTemplatePath))
                 {
                     ShowNotification(new GUIContent("配置路径不应该为空!"));
                     return;
                 }
-                Debug.LogFormat(" save config = {0}", m_config.ToString());
                 var sav = AssetDatabase.LoadAssetAtPath<PSD2UGUIConfig>(PSDImporterConst.__CONFIG_PATH);
                 m_config.CloneTo(sav);
+                EditorUtility.SetDirty(sav);
+                Debug.LogFormat(" save config = {0}", sav.ToString());
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 PSDImporterConst.LoadConfig();

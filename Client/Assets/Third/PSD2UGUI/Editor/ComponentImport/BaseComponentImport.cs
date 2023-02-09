@@ -405,7 +405,7 @@ namespace PSDUINewImporter
         /// <summary>
         ///按照psd中图层顺序获取带有Size布局属性的层
         /// </summary>
-        protected bool TryGetSizePostion(Layer layer, out Size size, out Position position, out int index)
+        protected virtual bool TryGetSizePostion(Layer layer, out Size size, out Position position, out int index)
         {
             var layers = layer.layers;
             if (layers != null)
@@ -546,7 +546,7 @@ namespace PSDUINewImporter
                 {
                     Debug.LogError($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
                 }
-                var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(uiSourcePath, layer.name,parent);
+                var asset = PSDImportUtility.LoadAndInstantPrefab(uiSourcePath, layer.name, parent);
                 asset.transform.SetSiblingIndex(index);
                 return asset.GetComponent<T>();
             }

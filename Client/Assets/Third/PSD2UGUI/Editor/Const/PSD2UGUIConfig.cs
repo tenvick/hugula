@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PSDUINewImporter
 {
 
-    [CreateAssetMenu(fileName = "PSD2UGUIConfig", menuName = "Creat PSD2NewUGUIConfig Asset")]
+    [CreateAssetMenu(fileName = "PSD2UGUINewConfig", menuName = "Creat PSD2NewUGUIConfig Asset")]
     public class PSD2UGUIConfig : ScriptableObject
     {
         [Header("sprite图片根路径")]

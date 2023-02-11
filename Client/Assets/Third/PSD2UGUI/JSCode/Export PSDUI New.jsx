@@ -123,7 +123,9 @@ function main() {
     app.preferences.rulerUnits = savedRulerUnits;
     app.preferences.typeUnits = savedTypeUnits;
 
-    alert(" 导出成功！ 路径：" + destFile);
+    if (app.playbackDisplayDialogs != DialogModes.NO) {
+        alert(" 导出成功！ 路径：" + destFile);
+    }
 }
 
 function writeNewLine(line, depth) {
@@ -271,24 +273,24 @@ function exportLabel(obj, validFileName, depth) {
     }
 
     writeNewLine("<arguments>", depth);
-    writeLine("<string>" + obj.textItem.color.rgb.hexValue + "</string>", depth);
+    writeLine("<string>" + gen_text_color(obj) + "</string>", depth);
 
     if (StaticText == true) {
         writeLine("<string>" + obj.textItem.font + "_Static" + "</string>", depth);
     }
     else {
-        writeLine("<string>" + obj.textItem.font + "</string>", depth);
+        writeLine("<string>" + gen_font(obj) + "</string>", depth);
     }
     //writeNewLine( "<string>" + obj.textItem.font + "</string>",depth);
     var scale = getTextScale(obj, textScaleArr);
-    var fontSize = Math.round(obj.textItem.size.value * Math.min(scale.x, scale.y));
+    var fontSize = Math.round(gen_text_size(obj) * Math.min(scale.x, scale.y));
 
     writeLine("<string>" + fontSize + "</string>", depth);
-    writeLine("<string>" + obj.textItem.contents + "</string>", depth);
+    writeLine("<string>" + obj.textItem.contents.replace(/&/gi, "") + "</string>", depth);
 
     //段落文本带文本框，可以取得对齐方式
     if (obj.textItem.kind == TextType.PARAGRAPHTEXT) {
-        writeLine("<string>" + obj.textItem.justification + "</string>", depth);     //加对齐方式
+        writeLine("<string>" + gen_text_justify(obj) + "</string>", depth);     //加对齐方式
     }
     writeLine("</arguments>", depth);
 
@@ -348,6 +350,46 @@ function exportLabel(obj, validFileName, depth) {
     }
 
     obj.visible = false;
+}
+
+function gen_font(obj) {
+    try {
+        return obj.textItem.font.toString();
+    } catch (error) {
+        return "ArialMT";
+    }
+}
+
+function gen_text_color(obj) {
+    try {
+        return obj.textItem.color.rgb.hexValue.toString();
+    } catch (error) {
+        return "FFFFFF";
+    }
+}
+
+function gen_text_size(obj) {
+    try {
+        return obj.textItem.size.value;
+    } catch (error) {
+        return 26;
+    }
+}
+
+function gen_text_justify(obj) {
+    try {
+        return "<string>" + obj.textItem.justification + "</string>";
+    } catch (error) {
+        return "<string>" + Justification.LEFT + "</string>";
+    }
+}
+
+function gen_text_leading(obj, scale) {
+    try {
+        return "<string>" + obj.textItem.leading.value * scale.y + "</string>";
+    } catch (error) {
+        return "<string>X</string>";
+    }
 }
 
 
@@ -645,9 +687,8 @@ function isTemplate(fileName) {
 
 function getTemplateName(layer) {
     var fileName = layer.name
-    var idx =fileName.lastIndexOf("#");
-    if(idx>=0)
-    {
+    var idx = fileName.lastIndexOf("#");
+    if (idx >= 0) {
         var array = fileName.split("#");
         if (array.length > 1) {
             array = array[1].split(" ");//不能带空格

@@ -20,7 +20,7 @@ namespace PSDUINewImporter
         {
             RectTransform rectTransform = target;
 
-            if (layer.layers == null && layer.miniType == ComponentType.Image) //单张image模板
+            if (layer.layers == null && (layer.miniType == ComponentType.Image || layer.miniType == ComponentType.Text)) //单张image或者text模板
             {
                 Layer layer1 = layer;
                 if (layer1.size != null && layer1.position != null)
@@ -28,6 +28,7 @@ namespace PSDUINewImporter
                     var cache =PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                     SetRectTransformSize(rectTransform, layer1.size);
                     SetRectTransformPosition(rectTransform, layer1.position);
+                    PSDImportUtility.SetAnchorFromCache(rectTransform,cache);
                 }
             }
             else
@@ -50,6 +51,7 @@ namespace PSDUINewImporter
                         var cache = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                         SetRectTransformSize(rectTransform, layer1.size);
                         SetRectTransformPosition(rectTransform, layer1.position);
+                        PSDImportUtility.SetAnchorFromCache(rectTransform,cache);
                     }
                 }
             }

@@ -47,7 +47,7 @@ namespace PSDUINewImporter
             if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))//自定义组件需要控制布局
             {
                 var l1 = layer.layers[bgIdx];
-                if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer))
+                if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer) && !ctrl.CompareLayerType(layer.importType, ComponentType.Moban))
                 {
                     var rectTransform = target.GetComponent<RectTransform>();
                     PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
@@ -518,37 +518,46 @@ namespace PSDUINewImporter
         protected virtual T LoadAndInstant(Layer layer, GameObject parent, int index)
         {
             var importType = layer.importType;
-            if (ctrl.CompareLayerType(importType, ComponentType.Customer)) //模板控件
+            bool isCustomer = ctrl.CompareLayerType(importType, ComponentType.Customer) || ctrl.CompareLayerType(importType, ComponentType.Moban);
+            bool isText = layer.miniType == ComponentType.Text;
+
+            if (isCustomer) //模板控件
             {
-                var uiSourcePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName+".prefab");
-                if (string.IsNullOrEmpty(uiSourcePath))
+                if(isText)
                 {
-                    Debug.LogWarning($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
-                    return null;
+                    var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
+                    if (string.IsNullOrEmpty(fontStylePath))
+                    {
+                        Debug.LogWarning($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} ");
+                        fontStylePath = "Default";
+                        return null;
+                    }
+                    var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(fontStylePath, layer.name,
+                       parent);
+                    asset.transform.SetSiblingIndex(index);
+                    asset.SetActive(layer.visible);
+                    var re = asset.GetComponent<T>();
+                    asset.SetActive(layer.visible);
+                    return re;
                 }
-                var asset = PSDImportUtility.LoadAndInstantPrefab(uiSourcePath, layer.name, parent);
-                asset.transform.SetSiblingIndex(index);
-                var re = asset.GetComponent<T>();
-                asset.SetActive(layer.visible);
-                return re;
-            }
-            else if (ctrl.CompareLayerType(layer.type, ComponentType.Text) && !string.IsNullOrEmpty(layer.templateName)) //模板字体
-            {
-                var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
-                if (string.IsNullOrEmpty(fontStylePath))
+                else
                 {
-                    Debug.LogWarning($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} ");
-                    fontStylePath = "Default";
-                    return null;
+                    var uiSourcePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName + ".prefab");
+                    if (string.IsNullOrEmpty(uiSourcePath))
+                    {
+                        Debug.LogWarning($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
+                        return null;
+                    }
+                    var asset = PSDImportUtility.LoadAndInstantPrefab(uiSourcePath, layer.name, parent);
+                    asset.transform.SetSiblingIndex(index);
+                    var re = asset.GetComponent<T>();
+                    asset.SetActive(layer.visible);
+                    return re;
                 }
-                var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(fontStylePath, layer.name,
-                   parent);
-                asset.transform.SetSiblingIndex(index);
-                asset.SetActive(layer.visible);
-                var re = asset.GetComponent<T>();
-                asset.SetActive(layer.visible);
-                return re;
             }
+            //else if (ctrl.CompareLayerType(layer.type, ComponentType.Text) && !string.IsNullOrEmpty(layer.templateName)) //模板字体
+            //{
+            //}
             else
             {
                 var typeName = typeof(T).Name;
@@ -579,6 +588,7 @@ namespace PSDUINewImporter
 
             var gObj = ((UnityEngine.Component)layer.target)?.gameObject;
             PrefabUtility.SaveAsPrefabAssetAndConnect(gObj, path, InteractionMode.AutomatedAction);
+            Debug.Log($"Save As Prefab Asset And Connect :{path}");
         }
 
     }

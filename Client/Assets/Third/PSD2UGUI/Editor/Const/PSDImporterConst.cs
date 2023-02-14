@@ -40,6 +40,11 @@ namespace PSDUINewImporter
         /// </summary>
         public static string PSDUI_CONSTOM_FONT_PATH = "Assets/CustomRes/Demo/UI/components";
 
+        /// <summary>
+        /// 设置图片
+        /// </summary>
+        public static bool PSDUI_SETTING_TEXTRUE = true;
+
 
         public const string PSDUI_SUFFIX = ".prefab";
 
@@ -121,6 +126,7 @@ namespace PSDUINewImporter
                 PSDUI_PATH = _config.m_psduiTemplatePath;
                 PSDUI_CONSTOM_PATH = _config.m_psduiCustomTemplatePath;
                 PSDUI_CONSTOM_FONT_PATH = _config.m_psdFontCustomTemplatePath;
+                PSDUI_SETTING_TEXTRUE = _config.m_SettingImage;
                 Debug.Log($"Load config. {_config.ToString()}");
             }
 

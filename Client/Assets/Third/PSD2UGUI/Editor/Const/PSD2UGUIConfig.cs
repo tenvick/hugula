@@ -19,7 +19,8 @@ namespace PSDUINewImporter
         public string m_psduiCustomTemplatePath;// = PSDImporterConst.PSDUI_CONSTOM_PATH;
         [Header("用户字体模板加载路径")]
         public string m_psdFontCustomTemplatePath;// = PSDImporterConst.PSDUI_CONSTOM_FONT_PATH;
-
+        [Header("是否启用设置图片")]
+        public bool m_SettingImage=true;
         
         public void CloneTo(PSD2UGUIConfig m_config)
         {
@@ -28,6 +29,7 @@ namespace PSDUINewImporter
             m_config.m_psduiTemplatePath = m_psduiTemplatePath;
             m_config.m_psduiCustomTemplatePath = m_psduiCustomTemplatePath;
             m_config.m_psdFontCustomTemplatePath = m_psdFontCustomTemplatePath;
+            m_config.m_SettingImage = m_SettingImage;
 
         }
 

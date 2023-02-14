@@ -17,3 +17,4 @@ MonoBehaviour:
   m_psduiTemplatePath: Assets/Third/PSD2UGUI/Template/UI/
   m_psduiCustomTemplatePath: Assets/CustomRes/Demo/UI/components
   m_psdFontCustomTemplatePath: Assets/CustomRes/Demo/UI/components/font_comps
+  m_SettingImage: 1

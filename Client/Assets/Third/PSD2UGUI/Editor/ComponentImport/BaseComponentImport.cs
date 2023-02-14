@@ -19,7 +19,7 @@ namespace PSDUINewImporter
             this.ctrl = ctrl;
         }
 
-        public void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPos, bool autoSize)
+        public virtual void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPos, bool autoSize)
         {
             T targetT = default(T);
             if (target != null)
@@ -32,7 +32,7 @@ namespace PSDUINewImporter
             }
             if (targetT == null)
             {
-                targetT = LoadAndInstant(layer, parent,index);
+                targetT = LoadAndInstant(layer, parent, index);
             }
 
             layer.target = targetT;
@@ -47,13 +47,13 @@ namespace PSDUINewImporter
             if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))//自定义组件需要控制布局
             {
                 var l1 = layer.layers[bgIdx];
-                if (!ctrl.CompareLayerType(layer.type, ComponentType.Customer))
+                if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer))
                 {
                     var rectTransform = target.GetComponent<RectTransform>();
-                // PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                if (autoSize) SetRectTransformSize(rectTransform, l1.size);
-                if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
-				}
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    if (autoSize) SetRectTransformSize(rectTransform, l1.size);
+                    if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
+                }
                 // Debug.LogFormat("target={0}, autoPosition={1}, autoSize={2},l1.position={3}, rectTransform.localPosition={4} ", target, autoPosition, autoSize, l1.position, rectTransform.localPosition);
                 l1.target = target;
                 return bgIdx;
@@ -83,14 +83,14 @@ namespace PSDUINewImporter
                     SetRectTransformSize(rectTransform, l1.size);
                 if (autoImagePosition)
                 {
-                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                     SetRectTransformPosition(rectTransform, l1.position);
                 }
 
                 if (overrideTarget != null)
                 {
                     rectTransform = overrideTarget.GetComponent<RectTransform>();
-                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                     SetRectTransformSize(rectTransform, l1.size);
                     SetRectTransformPosition(rectTransform, l1.position);
                 }
@@ -176,12 +176,12 @@ namespace PSDUINewImporter
         /// <returns></returns>
         protected Sprite LoadSpriteRes(Layer layer, Sprite defaultSprite)
         {
-            var assetPath = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
+            var assetPath = PSDDirectoryUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
             Sprite sprite = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Sprite)) as Sprite;
             if (sprite == null)
             {
                 sprite = defaultSprite;
-                Debug.LogWarningFormat("Load Sprite asset fail path = {0} .", assetPath);
+                Debug.LogError($"Load Sprite asset({layer.name + PSDImporterConst.PNG_SUFFIX}) fail path = {assetPath} .");
 
             }
             return sprite;
@@ -189,12 +189,12 @@ namespace PSDUINewImporter
 
         protected Texture LoadTextureRes(Layer layer)
         {
-            var assetPath = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
+            var assetPath = PSDDirectoryUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);
             Texture texture = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Texture)) as Texture;
             if (texture == null)
             {
                 // texture = defaultSprite;
-                Debug.LogWarningFormat("Load Texture asset fail path = {0} .", assetPath);
+                Debug.LogError($"Load Texture asset({layer.name + PSDImporterConst.PNG_SUFFIX}) fail path = {assetPath} .");
             }
             return texture;
         }
@@ -416,7 +416,6 @@ namespace PSDUINewImporter
                     item = layers[i];
                     if (item.TagContains(PSDImportUtility.SizeTag))
                     {
-                        // Debug.LogFormat(" layer={0},l.name={1} size and pos",layer.name,l.name);
                         size = item.size;
                         position = item.position;
                         index = i;
@@ -431,7 +430,7 @@ namespace PSDUINewImporter
         }
 
         /// <summary>
-        /// 得到本地 AnchoredPosition
+        /// 得到本地 中心点的localPosition
         /// </summary>
         protected Vector2 GetLocalPosition(Position worldPos, RectTransform selfTrans)
         {
@@ -445,61 +444,40 @@ namespace PSDUINewImporter
                 pRectTrans = parent.GetComponent<RectTransform>();
                 parentAnchoredPosition = GetMiddleCenterPos(pRectTrans);
                 anchoredPosition = anchoredPosition - parentAnchoredPosition;
+
                 parent = (RectTransform)parent.parent;
                 if (parent != null && parent.parent == null) break;
             }
 
             return anchoredPosition;
-            // Vector3 anchoredPosition = new Vector3(worldPos.x, worldPos.y,0);
-            // RectTransform parent = (RectTransform)selfTrans.parent;
-            // Vector3 parentAnchoredPosition ;//= parent.GetComponent<RectTransform>().anchoredPosition;
-
-            // RectTransform pRectTrans;
-            // while (parent != null)
-            // {
-            //     pRectTrans = parent.GetComponent<RectTransform>();
-            //     parentAnchoredPosition = parent.GetComponent<RectTransform>().localPosition;
-            //     anchoredPosition = anchoredPosition - parentAnchoredPosition;
-            //     Debug.LogFormat(" self:{4};pRectTrans={5};parent={0},p.pos={1},local.anpos={2} ,worldPos={3},",parent.name,parentAnchoredPosition,anchoredPosition,worldPos,selfTrans,pRectTrans);
-            //     parent = (RectTransform)parent.parent;
-            //     if (parent != null && parent.parent == null) break;
-            // }
-
-            // return anchoredPosition;
         }
 
 
-        ///我们需要把坐标校正到中心点
-        protected Vector2 GetMiddleCenterPos(RectTransform rectTransform)
+        /// <summary>
+        /// 获取中心点坐标，此处要求RectTransform的Povit必须是(.5,.5)中心
+        /// </summary>
+        /// <param name="rectTransform"></param>
+        /// <returns></returns>
+        internal static Vector2 GetMiddleCenterPos(RectTransform rectTransform)
         {
-            var parent = (RectTransform)rectTransform.parent;
-            //anchor 校正 到中心点 
-            var anchorCenter = (rectTransform.anchorMin + rectTransform.anchorMax) * .5f; ;
-            var rect = parent.rect;
-            var sizeDelta = new Vector2(rect.width, rect.height);
-            var anchorOffset = Vector2.Scale(sizeDelta, anchorCenter - Vector2.one * 0.5f);
-            var pivotOffset = Vector2.Scale(rectTransform.sizeDelta, Vector2.one * 0.5f - rectTransform.pivot);
-            return rectTransform.anchoredPosition + anchorOffset + pivotOffset;
+            return rectTransform.localPosition;
         }
 
         protected void SetRectTransformSize(RectTransform rectTransform, Size size, float scale = 1)
         {
-            rectTransform.sizeDelta = new Vector2(size.width * scale, size.height * scale);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,size.width*scale);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,size.height*scale);
         }
 
+        /// <summary>
+        /// 设置pivot为中心RectTransform的坐标
+        /// </summary>
+        /// <param name="rectTransform"></param>
+        /// <param name="pos"></param>
         protected void SetRectTransformPosition(RectTransform rectTransform, Position pos)
         {
             var middleCenter = GetLocalPosition(pos, rectTransform);
-
-            //anchor 校正 到中心点 
-            var parent = (RectTransform)rectTransform.parent;
-            var anchorCenter = (rectTransform.anchorMin + rectTransform.anchorMax) * .5f; ;
-            var rect = parent.rect;
-            var sizeDelta = new Vector2(rect.width, rect.height);
-            var anchorOffset = Vector2.Scale(sizeDelta, anchorCenter - Vector2.one * 0.5f);
-            var pivotOffset = Vector2.Scale(rectTransform.sizeDelta, Vector2.one * 0.5f - rectTransform.pivot);
-            rectTransform.anchoredPosition = middleCenter - anchorOffset - pivotOffset;
-            //  Debug.LogFormat("self={0},pos={1},middleCenter={2},pivotOffset={3},anchorOffset={4},anchorCenter={5}",rectTransform,rectTransform.anchoredPosition,middleCenter,pivotOffset,anchorOffset,anchorCenter);
+            rectTransform.localPosition = middleCenter;
         }
 
         protected void SetImageProperties(Image image, Layer layer)
@@ -539,29 +517,37 @@ namespace PSDUINewImporter
 
         protected virtual T LoadAndInstant(Layer layer, GameObject parent, int index)
         {
-            if (ctrl.CompareLayerType(layer.type, ComponentType.Customer)) //模板控件
+            var importType = layer.importType;
+            if (ctrl.CompareLayerType(importType, ComponentType.Customer)) //模板控件
             {
-                var uiSourcePath = PSDImporterConst.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName);
+                var uiSourcePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName+".prefab");
                 if (string.IsNullOrEmpty(uiSourcePath))
                 {
-                    Debug.LogError($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
+                    Debug.LogWarning($"there is no customer component ({layer.templateName},{layer.name}) in path {PSDImporterConst.PSDUI_CONSTOM_PATH} ");
+                    return null;
                 }
                 var asset = PSDImportUtility.LoadAndInstantPrefab(uiSourcePath, layer.name, parent);
                 asset.transform.SetSiblingIndex(index);
-                return asset.GetComponent<T>();
+                var re = asset.GetComponent<T>();
+                asset.SetActive(layer.visible);
+                return re;
             }
             else if (ctrl.CompareLayerType(layer.type, ComponentType.Text) && !string.IsNullOrEmpty(layer.templateName)) //模板字体
             {
-                var fontStylePath = PSDImporterConst.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName);
+                var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
                 if (string.IsNullOrEmpty(fontStylePath))
                 {
-                    Debug.LogError($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} use (Default.prefab) replaced");
+                    Debug.LogWarning($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} ");
                     fontStylePath = "Default";
+                    return null;
                 }
                 var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(fontStylePath, layer.name,
                    parent);
                 asset.transform.SetSiblingIndex(index);
-                return asset.GetComponent<T>();
+                asset.SetActive(layer.visible);
+                var re = asset.GetComponent<T>();
+                asset.SetActive(layer.visible);
+                return re;
             }
             else
             {
@@ -569,11 +555,31 @@ namespace PSDUINewImporter
                 if (typeof(RectTransform) == typeof(T)) typeName = "Empty";
                 var asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.name, parent);
                 asset.transform.SetSiblingIndex(index);
+                asset.gameObject.SetActive(layer.visible);
                 return asset;
             }
         }
 
+        /// <summary>
+        /// SaveAsPrefabAssetAndConnect
+        /// </summary>
+        /// <param name="layer"></param>
+        protected void SavePrefabToCustomer(Layer layer)
+        {
+            string path = string.Empty;
 
+            if (layer.miniType == ComponentType.Text)
+            {
+                path = System.IO.Path.Combine(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
+            }
+            else
+            {
+                path = System.IO.Path.Combine(PSDImporterConst.PSDUI_CONSTOM_PATH, layer.templateName + ".prefab");
+            }
+
+            var gObj = ((UnityEngine.Component)layer.target)?.gameObject;
+            PrefabUtility.SaveAsPrefabAssetAndConnect(gObj, path, InteractionMode.AutomatedAction);
+        }
 
     }
 }

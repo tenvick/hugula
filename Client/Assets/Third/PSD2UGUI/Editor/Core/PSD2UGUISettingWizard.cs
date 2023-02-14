@@ -110,6 +110,12 @@ namespace PSDUINewImporter
             }
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("是否设置图片:");
+            m_config.m_SettingImage = EditorGUILayout.Toggle(m_config.m_SettingImage);
+
+            EditorGUILayout.EndHorizontal();
+
             if (GUILayout.Button("保存"))
             {
                 if (string.IsNullOrEmpty(m_config.m_rootImagePath) ||

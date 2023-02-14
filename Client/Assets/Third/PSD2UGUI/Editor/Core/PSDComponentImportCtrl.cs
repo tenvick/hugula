@@ -17,17 +17,28 @@ namespace PSDUINewImporter
 
         public PSDComponentImportCtrl(string xmlFilePath)
         {
+            ShowTips("导入PSD","加载配置",0.1f);
             PSDImporterConst.LoadConfig();
+            PSDDirectoryUtility.ClearCache();
+            ShowTips("导入PSD", $"加载{xmlFilePath}", 0.2f);
             InitDataAndPath(xmlFilePath);
             InitAliasType();
+            ShowTips("导入PSD", $"InitCanvas", 0.3f);
             InitCanvas();
-            LoadLayers();
+            ShowTips("导入PSD", $"LoadLayers", 0.5f);
+
+            if(PSDImporterConst.PSDUI_SETTING_TEXTRUE)
+            {
+                LoadLayers();
+            }
+
+            ClearTips();
         }
 
         Dictionary<string, IComponentImport> m_LayerImport = new Dictionary<string, IComponentImport>();
         Dictionary<string, string> m_AliasType = new Dictionary<string, string>();
 
-        private IComponentImport GetLayerImport(string layerType)
+        public IComponentImport GetLayerImport(string layerType)
         {
             IComponentImport layerImport = null;
             if (m_AliasType.TryGetValue(layerType.ToLower(), out var alias))
@@ -43,9 +54,18 @@ namespace PSDUINewImporter
             return layerImport;
         }
 
+        public string GetFullImportType(string importType)
+        {
+            if (m_AliasType.TryGetValue(importType.ToLower(), out var alias))
+            {
+                importType =  alias;
+            }
+           return importType;
+        }
+
         public void DrawLayer(int index, Layer layer, GameObject target, GameObject parent, bool autoPosition = true, bool autoSize = true)
         {
-            GetLayerImport(layer.type).DrawLayer(index, layer, target, parent, autoPosition, autoSize);
+            GetLayerImport(layer.importType).DrawLayer(index, layer, target, parent, autoPosition, autoSize);
         }
 
         public void DrawLayers(Layer[] layers, GameObject target, GameObject parent)
@@ -85,9 +105,9 @@ namespace PSDUINewImporter
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo () == false) { return; }
 #endif
             PSDImportUtility.baseFilename = Path.GetFileNameWithoutExtension(xmlFilePath);
-            if(xmlFilePath.StartsWith(Application.dataPath))
-                PSDImportUtility.baseDirectory = "Assets/" + Path.GetDirectoryName(xmlFilePath.Remove(0, Application.dataPath.Length + 1)) + "/";
-            else
+            //if(xmlFilePath.StartsWith(Application.dataPath))
+            //    PSDImportUtility.baseDirectory = "Assets/" + Path.GetDirectoryName(xmlFilePath.Remove(0, Application.dataPath.Length + 1)) + "/";
+            //else
                 PSDImportUtility.baseDirectory = PSDImporterConst.Globle_BASE_FOLDER;
         }
 
@@ -139,9 +159,12 @@ namespace PSDUINewImporter
 
         private void LoadLayers()
         {
-            for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
+            Layer layer = null;
+            var len = psdUI.layers.Length;
+            for (int layerIndex = 0; layerIndex < len; layerIndex++)
             {
-                ImportLayer(psdUI.layers[layerIndex], PSDImportUtility.baseDirectory);
+                layer = psdUI.layers[layerIndex];
+                ImportLayer(layer, PSDImportUtility.baseDirectory);
             }
         }
 
@@ -156,15 +179,18 @@ namespace PSDUINewImporter
             else
             {
                 obj = PSDImportUtility.LoadAndInstant<RectTransform>(PSDImporterConst.ASSET_PATH_EMPTY, PSDImportUtility.baseFilename, PSDImportUtility.canvas.gameObject);
+                
+                obj.pivot = Vector2.one*.5f;
                 obj.offsetMin = Vector2.zero;
                 obj.offsetMax = Vector2.zero;
-                obj.anchorMin = Vector2.zero;
-                obj.anchorMax = Vector2.one;
+                obj.anchorMin = Vector2.one*.5f;
+                obj.anchorMax = Vector2.one*.5f;
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(psdUI.psdSize.width,psdUI.psdSize.height);
             }
 
 
             int realyIdx = -1;
-
+            ShowTips("DrawUILayers","开始绘制ui，稍等片刻",1);
             for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
             {
                 var layer = psdUI.layers[layerIndex];
@@ -172,21 +198,27 @@ namespace PSDUINewImporter
                     DrawLayer(++realyIdx, layer, null, obj.gameObject);
             }
             AssetDatabase.Refresh();
+            ClearTips();
         }
 
         //--------------------------------------------------------------------------
         // private methods,按texture或image的要求导入图片到unity可加载的状态
         //-------------------------------------------------------------------------
 
-
+        /// <summary>
+        /// 设置图片
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="baseDirectory"></param>
         private void ImportLayer(Layer layer, string baseDirectory)
         {
-            if ("Image" == layer.type)
+            if (CompareLayerType(layer.type, ComponentType.Image))
             {
+                string texturePathName = PSDDirectoryUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);// PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
+                Debug.Log(texturePathName);
+                ShowTips("ImportLayer设置Image图片", $"{layer.name}=>{texturePathName}", 1);
+                if (!string.IsNullOrEmpty(texturePathName))
                 {
-                    string texturePathName = PSDImportUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);// PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
-
-                    Debug.Log(texturePathName);
                     // modify the importer settings
                     TextureImporter textureImporter = AssetImporter.GetAtPath(texturePathName) as TextureImporter;
 
@@ -195,19 +227,19 @@ namespace PSDUINewImporter
                         textureImporter.textureType = TextureImporterType.Sprite;
                         textureImporter.spriteImportMode = SpriteImportMode.Single;
                         textureImporter.mipmapEnabled = false; //默认关闭mipmap
-                        // textureImporter.sRGBTexture = false;
-                        // if(image.imageSource == ImageSource.Global)
-                        // {
-                        //     textureImporter.spritePackingTag = PSDImporterConst.Globle_FOLDER_NAME;
-                        // }
-                        // else
-                        // {
-                        //     textureImporter.spritePackingTag = PSDImportUtility.baseFilename;
-                        // }
+                                                               // textureImporter.sRGBTexture = false;
+                                                               // if(image.imageSource == ImageSource.Global)
+                                                               // {
+                                                               //     textureImporter.spritePackingTag = PSDImporterConst.Globle_FOLDER_NAME;
+                                                               // }
+                                                               // else
+                                                               // {
+                                                               //     textureImporter.spritePackingTag = PSDImportUtility.baseFilename;
+                                                               // }
 
                         textureImporter.maxTextureSize = 2048;
 
-                        // if (image.imageType == ImageType.SliceImage)  //slice才需要设置border,可能需要根据实际修改border值
+                        // if (image.miniType == ImageType.SliceImage)  //slice才需要设置border,可能需要根据实际修改border值
                         if (layer.TagContains("9S"))
                         {
                             setSpriteBorder(textureImporter, layer.arguments);
@@ -218,9 +250,29 @@ namespace PSDUINewImporter
                         AssetDatabase.ImportAsset(texturePathName);
                     }
                 }
+            }
+            else if (CompareLayerType(layer.type, ComponentType.RawImage)) // ComponentType.RawImage == " ")
+            {
+                //string texturePathName = PSDDirectoryUtility.FindFileInDirectory(PSDImportUtility.baseDirectory, layer.name + PSDImporterConst.PNG_SUFFIX);// PSDImportUtility.baseDirectory + layer.name + PSDImporterConst.PNG_SUFFIX;
+                //Debug.Log(texturePathName);
+                //ShowTips("ImportLayer设置RawImage图片", $"{layer.name}=>{texturePathName}", 1);
+                //if (!string.IsNullOrEmpty(texturePathName))
+                //{
+                //    // modify the importer settings
+                //    TextureImporter textureImporter = AssetImporter.GetAtPath(texturePathName) as TextureImporter;
+
+                //    if (textureImporter != null ) //Texture类型不设置属性
+                //    {
+                //        textureImporter.textureType = TextureImporterType.Sprite;
+                //        textureImporter.spriteImportMode = SpriteImportMode.Single;
+                //        textureImporter.mipmapEnabled = false; //默认关闭mipmap
+                //        textureImporter.maxTextureSize = 2048;
+                     
+                //        AssetDatabase.WriteImportSettingsIfDirty(texturePathName);
+                //        AssetDatabase.ImportAsset(texturePathName);
+                //    }
                 //}
             }
-
             if (layer.layers != null)
             {
                 for (int layerIndex = 0; layerIndex < layer.layers.Length; layerIndex++)
@@ -233,6 +285,17 @@ namespace PSDUINewImporter
         void setSpriteBorder(TextureImporter textureImporter, string[] args)
         {
             textureImporter.spriteBorder = new Vector4(float.Parse(args[0]), float.Parse(args[1]), float.Parse(args[2]), float.Parse(args[3]));
+        }
+
+
+        void ShowTips(string title,string info,float progress)
+        {
+            EditorUtility.DisplayProgressBar(title, info, progress);
+        }
+
+        void ClearTips()
+        {
+            EditorUtility.ClearProgressBar();
         }
 
     }

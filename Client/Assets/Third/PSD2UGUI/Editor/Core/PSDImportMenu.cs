@@ -10,7 +10,7 @@ namespace PSDUINewImporter
     //------------------------------------------------------------------------------
     public class PSDImportMenu : Editor
     {
-        [MenuItem("QuickTool/PSDNewImport ...", false, 1)]
+        [MenuItem("QuickTool/2. PSDNewImport ...", false, 2)]
         static public void ImportPSD()
         {
             string inputFile = EditorUtility.OpenFilePanel("Choose PSDUI File to Import" ,Path.Combine(Application.dataPath ,PSDImporterConst.Globle_PSD_FOLDER), "xml");
@@ -18,7 +18,7 @@ namespace PSDUINewImporter
             if (!string.IsNullOrEmpty(inputFile))
             {
                 PSDComponentImportCtrl import = new PSDComponentImportCtrl(inputFile);
-                import.BeginDrawUILayers();
+               import.BeginDrawUILayers();
             }            
 
             GC.Collect();

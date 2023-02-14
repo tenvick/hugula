@@ -28,6 +28,7 @@ namespace PSDUINewImporter
         {
             return (!layer.TagContains(HideTag) || layer.TagContains(DynamicTag)) && layer.target == null;
         }
+  
 
         public static bool ChildrenLayersTagContains(Layer layer, string tag, out int index)
         {
@@ -81,7 +82,7 @@ namespace PSDUINewImporter
         public static T LoadAndInstant<T>(string assetPath, string name, GameObject parent) where T : UnityEngine.Object
         {
             GameObject temp = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
-            Debug.LogFormat(" LoadAndInstant assetPath={0}",assetPath);
+            //Debug.LogFormat(" LoadAndInstant assetPath={0}",assetPath);
             GameObject item = GameObject.Instantiate(temp, Vector3.zero, Quaternion.identity, parent?.transform) as GameObject;
             if (item == null)
             {
@@ -111,7 +112,8 @@ namespace PSDUINewImporter
                 Debug.LogError("LoadAndInstantPrefab asset failed : " + assetPath);
                 return null;
             }
-            item.name = name;
+            if(!string.IsNullOrEmpty(name))
+                item.name = name;
             item.transform.SetParent(parent?.transform);
             item.transform.localScale = Vector3.one;
             return item;
@@ -135,7 +137,8 @@ namespace PSDUINewImporter
                 Debug.LogError("LoadAndInstantAttachedPrefab asset failed : " + assetPath);
                 return null;
             }
-            item.name = name;
+            if (!string.IsNullOrEmpty(name))
+                item.name = name;
             item.transform.SetParent(parent?.transform);
             item.transform.localScale = Vector3.one;
             return item;
@@ -155,34 +158,23 @@ namespace PSDUINewImporter
             cacheAnchorInfo.anchorMax = rectTransform.anchorMax;
             cacheAnchorInfo.pivot = rectTransform.pivot;
 
-            Vector2 hafone = Vector2.one * .5f;
-            rectTransform.pivot = hafone;
-            //rectTransform.offsetMin = hafone;
-            //rectTransform.offsetMax = hafone;
-            rectTransform.anchorMin = hafone;
-            rectTransform.anchorMax = hafone;
-            //rectTransform.anchoredPosition = Vector2.zero;
+            if(rectTransform.pivot.x!=.5f && rectTransform.pivot.y!=.5f)
+            {
+                Debug.LogWarning($" {rectTransform} pivot不是中心点，强制设置为中心点！ ");
+                PSDRectLayout.SetPivotSmart(rectTransform, 0.5f, 0, true, true);
+                PSDRectLayout.SetPivotSmart(rectTransform, 0.5f, 1, true, true);
+            }
+
             return cacheAnchorInfo;
         }
 
-        public static void SetAnchorMiddleCenter(this RectTransform rectTransform, CacheAnchorInfo cacheAnchorInfo)
+        public static void SetAnchorFromCache(this RectTransform rectTransform, CacheAnchorInfo cacheAnchorInfo)
         {
-            rectTransform.pivot = cacheAnchorInfo.pivot;
-            //rectTransform.offsetMin = cacheAnchorInfo.offsetMin ;
-            //rectTransform.offsetMax = cacheAnchorInfo.offsetMax;
-            rectTransform.anchorMin = cacheAnchorInfo.anchorMin;
-            rectTransform.anchorMax = cacheAnchorInfo.anchorMax;
+            var pivot = cacheAnchorInfo.pivot;
+            PSDRectLayout.SetPivotSmart(rectTransform, pivot.x, 0, true, true);
+            PSDRectLayout.SetPivotSmart(rectTransform, pivot.y, 1, true, true);
         }
-
-
-        public static string FindFileInDirectory(string baseDirectory,string fileName)
-        {
-            System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo(baseDirectory);
-            var files = dirInfo.GetFiles(fileName,System.IO.SearchOption.AllDirectories);
-            if (files.Length > 0) return files[0].FullName.Replace("\\","/").Replace(Application.dataPath, "Assets");
-            return string.Empty;
-        }
-        
+          
         public static RectTransform GetRectTransform(this GameObject source)
         {
             return source.GetComponent<RectTransform>();

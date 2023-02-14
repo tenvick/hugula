@@ -29,13 +29,12 @@ namespace PSDUINewImporter
 
             myText.text = layer.arguments[3];
 
-            if (!string.IsNullOrEmpty(layer.templateName)) //如果是模板
-            {
-
-                rectTransform.sizeDelta = new Vector2(layer.size.width, layer.size.height);
-                rectTransform.localPosition = GetLocalPosition(layer.position, rectTransform);  //layer.position - parentAnchoredPosition;
-                return;
-            }
+            //if (!string.IsNullOrEmpty(layer.templateName)) //如果是模板
+            //{
+            //    SetRectTransformSize(rectTransform, layer.size);
+            //    SetRectTransformPosition(rectTransform, layer.position);
+            //    return;
+            //}
 
             Color color;
             if (!myText.enableVertexGradient)//没有渐变，才需要设置颜色
@@ -79,7 +78,7 @@ namespace PSDUINewImporter
             var font = AssetDatabase.LoadAssetAtPath(fontFullName, typeof(TMP_FontAsset)) as TMP_FontAsset;
             if (font == null)
             {
-                Debug.LogWarning("Load font failed : " + fontFullName);
+                Debug.LogError($"Load font failed : {fontFullName} ");
             }
             else
             {

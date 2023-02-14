@@ -11,6 +11,7 @@ namespace PSDUINewImporter
         public string name;
         //导出类型 标记图片文字组件等
         public string type;
+
         public Layer[] layers;
         //记录的额外参数
         public string[] arguments;
@@ -19,8 +20,30 @@ namespace PSDUINewImporter
         public string special;
         //自定义模板名
         public string templateName;
-        //图片类型
-        public string imageType;
+        //小类型
+        public string miniType;
+        //默认可见性
+        public bool visible = true;
+
+        private string m_ImportType;
+        //导入时候的Type用于查询导入的Import组件
+        public string importType
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_ImportType))
+                    return type;
+                else
+                    return m_ImportType;
+
+            }
+            set
+            {
+                m_ImportType = value;
+            }
+        }
+
+
 
         #region 位置信息与透明度
         public float opacity;

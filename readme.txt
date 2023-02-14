@@ -1,5 +1,8 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2023.2.14
+1 模板自动生成(字体与用户模板) ui_login.psd
+
 2023.2.9
 1 psd导出工具支持字体与自定义模板。
 2 psd导出参考图功能。

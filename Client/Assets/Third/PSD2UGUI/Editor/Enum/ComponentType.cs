@@ -27,6 +27,8 @@ namespace PSDUINewImporter
         public const string Text = "Text";
         //图片类型
         public const string Image = "Image";
+        public const string RawImage = "RawImage";
+
         //
         public const string LoopScrollView = "LoopScrollView";
 
@@ -35,5 +37,7 @@ namespace PSDUINewImporter
         public const string BindableContainer = "BindableContainer";
         //自定义组件prefab
         public const string Customer = "Customer";
+        //兼容老版本的mb:表达式
+        public const string Moban = "Moban";
     }
 }

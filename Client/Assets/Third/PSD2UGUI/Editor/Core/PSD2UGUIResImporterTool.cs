@@ -12,7 +12,7 @@ namespace PSDUINewImporter
 
     public class PSD2UGUIResCopyTool : EditorWindow
     {
-        [MenuItem("QuickTool/PSD2UGUIResCopyTool", false,2)]
+        [MenuItem("QuickTool/1. PSD2UGUIResCopyTool", false,1)]
         static void Init()
         {
             var window = EditorWindow.GetWindow<PSD2UGUIResCopyTool>("Image & XML Res Copy tool");

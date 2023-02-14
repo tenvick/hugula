@@ -92,13 +92,13 @@ function main() {
 
     writeNewLine("<layers>");
     //导出对比图
-    writeNewLine("<Layer>",1);
-    writeNewLine("<name>" + sourcePsdName .replace("\.psd","")+ "</name>",2);
-    writeNewLine("<type>RawImage</type>",2);
-    writeNewLine("<imageType>png</imageType>",2);
-    writeNewLine("<position><x>0</x><y>0</y></position>",2);
-    writeNewLine("<size><width>"+psdW+"</width><height>"+psdH+"</height></size>",2);
-    writeNewLine("</Layer>",1);
+    writeNewLine("<Layer>", 1);
+    writeNewLine("<name>" + sourcePsdName.replace("\.psd", "").replace(" ","-") + "</name>", 2);
+    writeNewLine("<type>RawImage</type>", 2);
+    writeNewLine("<miniType>png</miniType>", 2);
+    writeNewLine("<position><x>0</x><y>0</y></position>", 2);
+    writeNewLine("<size><width>" + psdW + "</width><height>" + psdH + "</height></size>", 2);
+    writeNewLine("</Layer>", 1);
     exportAllLayers(duppedPsd, 0);
     writeNewLine("</layers>");
 
@@ -176,10 +176,13 @@ function exportComponents(_layer, depth) {
         if (isTemplate(_layer.name)) {
             writeNewLine("<type>Customer</type>", depth + 2);
             writeNewLine("<templateName>" + getTemplateName(_layer) + "</templateName> ", depth + 2);
+            writeNewLine("<miniType>" + getTypeName(_layer.name) + "</miniType>", depth + 2);
         }
         else {
             writeNewLine("<type>" + getTypeName(_layer.name) + "</type>", depth + 2);
         }
+        
+        writeNewLine("<visible>" + _layer.visible + "</visible>", depth + 2);
         writeNewLine("<tag>" + getTagList(_layer.name) + "</tag>", depth + 2);
         writeNewLine("<layers>", depth + 2);
         for (var i = 0; i < _layer.layers.length; i++) {
@@ -194,6 +197,7 @@ function exportComponents(_layer, depth) {
         var validFileName = makeValideTextureName(_layer.name);
         writeNewLine("<Layer>", depth + 1);
         writeNewLine("<name>" + validFileName + "</name>", depth + 2);
+        writeNewLine("<visible>" + _layer.visible + "</visible>", depth + 2);
         writeNewLine("<tag>" + getTagList(_layer.name) + "</tag>", depth + 2);
         if (LayerKind.TEXT == _layer.kind) {
             exportLabel(_layer, validFileName, depth + 2);
@@ -238,16 +242,21 @@ function exportLabel(obj, validFileName, depth) {
     }
 
     if (isTemplate(lowerName)) {
+        writeNewLine("<type>Customer</type>", depth);
+        writeNewLine("<miniType>Text</miniType>", depth);
         writeNewLine("<templateName>" + getTemplateName(obj) + "</templateName> ", depth);
+    }else
+    {
+        writeNewLine("<type>Text</type>", depth);
     }
+
 
     //处理静态文本，会对应unity的静态字体
     var StaticText = false;
     if (lowerName.search("_static") >= 0) {
         StaticText = true;
     }
-    writeNewLine("<type>" + "Text" + "</type>", depth);
-    //setLayerSizeAndPos(obj, depth);
+
     setArtNodeXmlInfo(obj, depth);
     app.activeDocument.activeLayer = obj;
     var layerDesc = getActiveLayerDescriptor();
@@ -385,24 +394,6 @@ function gen_text_leading(obj, scale) {
     }
 }
 
-
-function exportRectSize(obj, validFileName, depth) {
-    var oriName = obj.name
-    // writeNewLine( "<name>" + validFileName + "</name>",depth);
-    // alert("export Rect Size name ="+validFileName);
-    writeNewLine("<type>" + "Rect" + "</type>", depth);
-    var recSize = getLayerRec(duppedPsd.duplicate(), true);
-    writeNewLine("<position>", depth);
-    writeLine("<x>" + recSize.x + "</x>", depth);
-    writeLine("<y>" + recSize.y + "</y>", depth);
-    writeLine("</position>", depth);
-
-    writeNewLine("<size>", depth);
-    writeLine("<width>" + recSize.width + "</width>", depth);
-    writeLine("<height>" + recSize.height + "</height>", depth);
-    writeLine("</size>", depth);
-}
-
 function exportImage(obj, validFileName, depth) {
 
     //var saveToDisk = checkShouldSavePng(obj.name);
@@ -412,14 +403,14 @@ function exportImage(obj, validFileName, depth) {
     if (isTemplate(lowerName)) {
         writeNewLine("<templateName>" + getTemplateName(obj) + "</templateName> ", depth);
         setArtNodeXmlInfo(obj, depth);
-        writeNewLine("<type>" + "Customer" + "</type>", depth);
-        writeNewLine("<imageType>Image</imageType>", depth);
+        writeNewLine("<type>Customer</type>", depth);
+        writeNewLine("<miniType>Image</miniType>", depth);
         return
     } else
         writeNewLine("<type>" + "Image" + "</type>", depth);
 
     if (oriName.toLowerCase().search("_9s") >= 0) {
-        writeNewLine("<imageType>" + "SliceImage" + "</imageType>", depth);
+        writeNewLine("<miniType>SliceImage</miniType>", depth);
         setArtNodeXmlInfo(obj, depth);
         var posInfo = getLayerPosInfo(obj);
         _9sliceCutImg(obj.name, posInfo.w, posInfo.h, depth);
@@ -428,26 +419,26 @@ function exportImage(obj, validFileName, depth) {
     }
     else if (oriName.toLowerCase().search("_lefthalf") > 0 || oriName.toLowerCase().search("_lhalf") > 0)       //左右对称的图片切左边一半
     {
-        writeNewLine("<imageType>" + "LeftHalfImage" + "</imageType>", depth);
+        writeNewLine("<miniType>" + "LeftHalfImage" + "</miniType>", depth);
 
         setArtNodeXmlInfo(obj, depth);
         return;
     }
     else if (oriName.toLowerCase().search("_bottomhalf") > 0 || oriName.toLowerCase().search("_bhalf") > 0)     //上下对称的图片切底部一半
     {
-        writeNewLine("<imageType>" + "BottomHalfImage" + "</imageType>", depth);
+        writeNewLine("<miniType>" + "BottomHalfImage" + "</miniType>", depth);
         setArtNodeXmlInfo(obj, depth);
         return;
     }
     else if (oriName.toLowerCase().search("_quarter") > 0)     //上下左右均对称的图片切左下四分之一
     {
-        writeNewLine("<imageType>" + "QuarterImage" + "</imageType>", depth);
+        writeNewLine("<miniType>" + "QuarterImage" + "</miniType>", depth);
         setArtNodeXmlInfo(obj, depth);
         return;
     }
     else //if(saveToDisk)
     {
-        writeNewLine("<imageType>" + "Image" + "</imageType>", depth);
+        writeNewLine("<miniType>" + "Image" + "</miniType>", depth);
         setArtNodeXmlInfo(obj, depth);
     }
 

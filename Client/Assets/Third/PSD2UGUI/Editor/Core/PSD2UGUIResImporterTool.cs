@@ -97,7 +97,7 @@ namespace PSDUINewImporter
             Debug.Log($"Copy foler {source} to {target}");
             sb.AppendLine($"开始导入 \r\n原始文件夹：{source} \r\n目标文件夹：{target} \r\n\r\n\r\n");
 
-            var files= FilterFiles(source,new string[]{ "png","xml"},SearchOption.TopDirectoryOnly);
+            var files= FilterFiles(source,new string[]{ "png","xml"},SearchOption.AllDirectories);
 
             for(int i=0;i<files.Length;i++)
             {

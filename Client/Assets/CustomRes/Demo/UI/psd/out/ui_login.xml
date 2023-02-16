@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PSDUI>
+
+
 <psdSize>
     <width>566</width>
     <height>412</height>
 </psdSize>
+
+
 <layers>
-    <Layer>
-        <name>ui_login</name>
+
+
+    <Layer name='ui_login' visible='true' layerName='undefined' >
         <type>RawImage</type>
-        <miniType>png</miniType>
+        <miniType>RawImage</miniType>
         <position><x>0</x><y>0</y></position>
         <size><width>566</width><height>412</height></size>
     </Layer>
-        <Layer>
-            <name>Login</name> 
+
+
+
+
+        <Layer name='Login' visible='true' layerName='Login@bc' >
             <type>bc</type>
-            <visible>true</visible>
             <tag><string>bc</string></tag>
             <layers>
-                    <Layer>
-                        <name>orange_button</name> 
+                    <Layer name='orange_button' visible='true' layerName='orange_button@bt' >
                         <type>bt</type>
-                        <visible>true</visible>
                         <tag><string>bt</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>orange</name>
-                                    <visible>false</visible>
+                                <Layer name='orange' visible='false' layerName='orange' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>-102</x><y>-89</y></position>
                                     <size><width>84</width><height>12</height></size>
                                     <shadow>1_000000_100_120_2</shadow>
-                                    <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>12</string><string>Orange Button</string></arguments>
+                                    <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>12</string><string><![CDATA[Orange Button]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>bg_orange</name>
-                                    <visible>false</visible>
+                                <Layer name='bg_orange' visible='false' layerName='bg_orange' >
                                     <tag></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>Image</miniType>
                                     <position><x>-103</x><y>-87</y></position>
                                     <size><width>110</width><height>32</height></size>
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name>#H1</name>
-                        <visible>false</visible>
+                    <Layer name='#H1' visible='false' layerName='#H1' >
                         <tag></tag>
                         <type>Customer</type>
                         <miniType>Text</miniType>
@@ -56,12 +56,10 @@
                         <position><x>41.5</x><y>177</y></position>
                         <size><width>181</width><height>28</height></size>
                         <shadow>1_ffffff_50_90_0</shadow>
-                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>30</string><string>Hello Hugula</string></arguments>
+                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>30</string><string><![CDATA[Hello Hugula]]></string></arguments>
                         <opacity>100</opacity>
                     </Layer>
-                    <Layer>
-                        <name>lg_title#H2</name>
-                        <visible>false</visible>
+                    <Layer name='lg_title#H2' visible='false' layerName='lg_title#H2' >
                         <tag></tag>
                         <type>Customer</type>
                         <miniType>Text</miniType>
@@ -69,116 +67,96 @@
                         <position><x>-165</x><y>127</y></position>
                         <size><width>158</width><height>22</height></size>
                         <shadow>1_ffffff_50_90_0</shadow>
-                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>24</string><string>Magical Login</string></arguments>
+                        <arguments><string>010101</string><string>Arial-BoldMT</string><string>24</string><string><![CDATA[Magical Login]]></string></arguments>
                         <opacity>100</opacity>
                     </Layer>
-                    <Layer>
-                        <name>hero#ItemMe</name>
-                        <visible>false</visible>
+                    <Layer name='这种模式只能引用#ItemMe' visible='false' layerName='这种模式只能引用#ItemMe' >
                         <tag></tag>
+                        <type>Customer</type>
+                        <miniType>Image</miniType>
                         <templateName>ItemMe</templateName> 
                         <position><x>2</x><y>179</y></position>
                         <size><width>500</width><height>50</height></size>
-                        <type>Customer</type>
-                        <miniType>Image</miniType>
                     </Layer>
-                    <Layer>
-                        <name>itemzu#ItemNew</name> 
+                    <Layer name='itemzu#ItemNew' visible='true' layerName='itemzu@bc#ItemNew' >
                         <type>Customer</type>
                         <templateName>ItemNew</templateName> 
                         <miniType>bc</miniType>
-                        <visible>true</visible>
                         <tag><string>bc#ItemNew</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>item</name> 
+                                <Layer name='item' visible='true' layerName='item@bc' >
                                     <type>bc</type>
-                                    <visible>true</visible>
                                     <tag><string>bc</string></tag>
                                     <layers>
-                                            <Layer>
-                                                <name>x10</name>
-                                                <visible>false</visible>
+                                            <Layer name='x10' visible='false' layerName='x10' >
                                                 <tag></tag>
                                                 <type>Text</type>
                                                 <position><x>-199</x><y>-140</y></position>
                                                 <size><width>22</width><height>10</height></size>
-                                                <arguments><string>0A0A0A</string><string>ArialMT</string><string>12</string><string>x10</string></arguments>
+                                                <arguments><string>0A0A0A</string><string>ArialMT</string><string>12</string><string><![CDATA[x10]]></string></arguments>
                                                 <opacity>100</opacity>
                                             </Layer>
-                                            <Layer>
-                                                <name>Name</name>
-                                                <visible>false</visible>
+                                            <Layer name='Name' visible='false' layerName='Name' >
                                                 <tag></tag>
                                                 <type>Text</type>
                                                 <position><x>-202.5</x><y>-177</y></position>
                                                 <size><width>39</width><height>10</height></size>
-                                                <arguments><string>030314</string><string>ArialMT</string><string>14</string><string>Name</string></arguments>
+                                                <arguments><string>030314</string><string>ArialMT</string><string>14</string><string><![CDATA[Name]]></string></arguments>
                                                 <opacity>100</opacity>
                                             </Layer>
-                                            <Layer>
-                                                <name>icon</name>
-                                                <visible>false</visible>
+                                            <Layer name='icon' visible='false' layerName='icon' >
                                                 <tag></tag>
                                                 <type>Image</type>
+                                                <opacity>100</opacity>
                                                 <miniType>Image</miniType>
                                                 <position><x>-222.5</x><y>-154.5</y></position>
                                                 <size><width>41</width><height>35</height></size>
                                             </Layer>
-                                            <Layer>
-                                                <name>image_bg</name>
-                                                <visible>false</visible>
+                                            <Layer name='image_bg' visible='false' layerName='image_bg' >
                                                 <tag></tag>
                                                 <type>Image</type>
+                                                <opacity>100</opacity>
                                                 <miniType>Image</miniType>
                                                 <position><x>-216</x><y>-158</y></position>
                                                 <size><width>64</width><height>48</height></size>
                                             </Layer>
-                                            <Layer>
-                                                <name></name>
-                                                <visible>false</visible>
+                                            <Layer name='' visible='false' layerName='@size_hide' >
                                                 <tag><string>size</string><string>hide</string></tag>
                                                 <type>Image</type>
+                                                <opacity>100</opacity>
                                                 <miniType>Image</miniType>
                                                 <position><x>-216</x><y>-158</y></position>
                                                 <size><width>64</width><height>48</height></size>
                                             </Layer>
                                     </layers>
                                 </Layer>
-                                <Layer>
-                                    <name>title#T1</name>
-                                    <visible>false</visible>
+                                <Layer name='title#T1' visible='false' layerName='title#T1' >
                                     <tag></tag>
                                     <type>Customer</type>
                                     <miniType>Text</miniType>
                                     <templateName>T1</templateName> 
                                     <position><x>-11.5</x><y>-157</y></position>
                                     <size><width>125</width><height>18</height></size>
-                                    <arguments><string>05097A</string><string>ArialMT</string><string>24</string><string>Tile name</string></arguments>
+                                    <arguments><string>05097A</string><string>ArialMT</string><string>24</string><string><![CDATA[Tile name]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>Sign_In</name> 
+                                <Layer name='Sign_In' visible='true' layerName='Sign In@bt' >
                                     <type>bt</type>
-                                    <visible>true</visible>
                                     <tag><string>bt</string></tag>
                                     <layers>
-                                            <Layer>
-                                                <name>Sign_In</name>
-                                                <visible>false</visible>
+                                            <Layer name='Sign' visible='false' layerName='Sign In' >
                                                 <tag></tag>
                                                 <type>Text</type>
                                                 <position><x>187</x><y>-156.5</y></position>
                                                 <size><width>40</width><height>13</height></size>
                                                 <shadow>1_ffffff_50_90_0</shadow>
-                                                <arguments><string>000000</string><string>ArialMT</string><string>13</string><string>Sign In</string></arguments>
+                                                <arguments><string>000000</string><string>ArialMT</string><string>13</string><string><![CDATA[Sign In]]></string></arguments>
                                                 <opacity>100</opacity>
                                             </Layer>
-                                            <Layer>
-                                                <name>sign_bg</name>
-                                                <visible>false</visible>
+                                            <Layer name='sign_bg' visible='false' layerName='sign_bg@_9S:20:16:20:16' >
                                                 <tag><string></string><string>9S:20:16:20:16</string><string>Slice</string></tag>
                                                 <type>Image</type>
+                                                <opacity>100</opacity>
                                                 <miniType>SliceImage</miniType>
                                                 <position><x>187</x><y>-156.5</y></position>
                                                 <size><width>104</width><height>31</height></size>
@@ -188,57 +166,48 @@
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name></name>
-                        <visible>false</visible>
+                    <Layer name='' visible='false' layerName='@Size_Hide' >
                         <tag><string>Size</string><string>Hide</string></tag>
                         <type>Image</type>
+                        <opacity>100</opacity>
                         <miniType>Image</miniType>
                         <position><x>2</x><y>-157</y></position>
                         <size><width>500</width><height>50</height></size>
                     </Layer>
-                    <Layer>
-                        <name>top_BG</name>
-                        <visible>false</visible>
+                    <Layer name='top_BG' visible='false' layerName='top BG@_9S:17' >
                         <tag><string></string><string>9S:17</string><string>Slice</string></tag>
                         <type>Image</type>
+                        <opacity>100</opacity>
                         <miniType>SliceImage</miniType>
                         <position><x>-103.5</x><y>131.5</y></position>
                         <size><width>289</width><height>33</height></size>
                         <arguments><string>17</string><string>17</string><string>17</string><string>17</string></arguments>
                     </Layer>
-                    <Layer>
-                        <name>Username</name> 
+                    <Layer name='Username' visible='true' layerName='Username@Input' >
                         <type>Input</type>
-                        <visible>true</visible>
                         <tag><string>Input</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>Username</name>
-                                    <visible>false</visible>
+                                <Layer name='Username' visible='false' layerName='Username@New' >
                                     <tag><string>New</string></tag>
                                     <type>Text</type>
                                     <position><x>-192.5</x><y>88.5</y></position>
                                     <size><width>55</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
-                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Username</string></arguments>
+                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string><![CDATA[Username]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>Anaximander</name>
-                                    <visible>false</visible>
+                                <Layer name='Anaximander' visible='false' layerName='Anaximander' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>-172.5</x><y>59.5</y></position>
                                     <size><width>71</width><height>9</height></size>
-                                    <arguments><string>080808</string><string>ArialMT</string><string>12</string><string>Anaximander</string></arguments>
+                                    <arguments><string>080808</string><string>ArialMT</string><string>12</string><string><![CDATA[Anaximander]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>username</name>
-                                    <visible>false</visible>
+                                <Layer name='username' visible='false' layerName='username@_9S:10' >
                                     <tag><string></string><string>9S:10</string><string>Slice</string></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>SliceImage</miniType>
                                     <position><x>-103.5</x><y>59.5</y></position>
                                     <size><width>231</width><height>31</height></size>
@@ -246,38 +215,31 @@
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name>Password</name> 
+                    <Layer name='Password' visible='true' layerName='Password@Input' >
                         <type>Input</type>
-                        <visible>true</visible>
                         <tag><string>Input</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>Password</name>
-                                    <visible>false</visible>
+                                <Layer name='Password' visible='false' layerName='Password@New' >
                                     <tag><string>New</string></tag>
                                     <type>Text</type>
                                     <position><x>-194</x><y>22.5</y></position>
                                     <size><width>52</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
-                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Password</string></arguments>
+                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string><![CDATA[Password]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>hunter2</name>
-                                    <visible>false</visible>
+                                <Layer name='hunter2' visible='false' layerName='hunter2' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>-191.5</x><y>-4</y></position>
                                     <size><width>33</width><height>4</height></size>
-                                    <arguments><string>080808</string><string>ArialMT</string><string>12</string><string>*******</string></arguments>
+                                    <arguments><string>080808</string><string>ArialMT</string><string>12</string><string><![CDATA[*******]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>PASSWORD</name>
-                                    <visible>false</visible>
+                                <Layer name='PASSWORD' visible='false' layerName='PASSWORD@_9S:10' >
                                     <tag><string></string><string>9S:10</string><string>Slice</string></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>SliceImage</miniType>
                                     <position><x>-103.5</x><y>-6.5</y></position>
                                     <size><width>231</width><height>31</height></size>
@@ -285,65 +247,54 @@
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name>Remember_me</name> 
+                    <Layer name='Remember_me' visible='true' layerName='Remember me@ckb' >
                         <type>ckb</type>
-                        <visible>true</visible>
                         <tag><string>ckb</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>ck_mark</name>
-                                    <visible>false</visible>
+                                <Layer name='ck_mark' visible='false' layerName='ck_mark@__Sprite' >
                                     <tag><string></string><string></string><string>Sprite</string></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>Image</miniType>
                                     <position><x>-147</x><y>-45.5</y></position>
                                     <size><width>10</width><height>11</height></size>
                                 </Layer>
-                                <Layer>
-                                    <name>check_box</name>
-                                    <visible>false</visible>
+                                <Layer name='check' visible='false' layerName='check box' >
                                     <tag></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>Image</miniType>
                                     <position><x>-147</x><y>-46</y></position>
                                     <size><width>12</width><height>12</height></size>
                                 </Layer>
-                                <Layer>
-                                    <name>Remember_me</name>
-                                    <visible>false</visible>
+                                <Layer name='Remember' visible='false' layerName='Remember me' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>-93.5</x><y>-47.5</y></position>
                                     <size><width>79</width><height>9</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
-                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string>Remember me</string></arguments>
+                                    <arguments><string>222222</string><string>ArialMT</string><string>12</string><string><![CDATA[Remember me]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name>Sign_In</name> 
+                    <Layer name='Sign_In' visible='true' layerName='Sign In@bt' >
                         <type>bt</type>
-                        <visible>true</visible>
                         <tag><string>bt</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>Sign_In</name>
-                                    <visible>false</visible>
+                                <Layer name='Sign' visible='false' layerName='Sign In' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>-103</x><y>-86.5</y></position>
                                     <size><width>40</width><height>13</height></size>
                                     <shadow>1_ffffff_50_90_0</shadow>
-                                    <arguments><string>000000</string><string>ArialMT</string><string>13</string><string>Sign In</string></arguments>
+                                    <arguments><string>000000</string><string>ArialMT</string><string>13</string><string><![CDATA[Sign In]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>sign_bg</name>
-                                    <visible>false</visible>
+                                <Layer name='sign_bg' visible='false' layerName='sign_bg@_9S:20:16:20:16' >
                                     <tag><string></string><string>9S:20:16:20:16</string><string>Slice</string></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>SliceImage</miniType>
                                     <position><x>-103</x><y>-86.5</y></position>
                                     <size><width>104</width><height>31</height></size>
@@ -351,39 +302,33 @@
                                 </Layer>
                         </layers>
                     </Layer>
-                    <Layer>
-                        <name>main_bg</name>
-                        <visible>false</visible>
+                    <Layer name='main_bg' visible='false' layerName='main_bg@_9S:15' >
                         <tag><string></string><string>9S:15</string><string>Slice</string></tag>
                         <type>Image</type>
+                        <opacity>100</opacity>
                         <miniType>SliceImage</miniType>
                         <position><x>-103.5</x><y>12</y></position>
                         <size><width>289</width><height>272</height></size>
                         <arguments><string>15</string><string>15</string><string>15</string><string>15</string></arguments>
                     </Layer>
-                    <Layer>
-                        <name>INVALID_PASSWORD</name> 
+                    <Layer name='INVALID_PASSWORD' visible='true' layerName='INVALID PASSWORD@bt' >
                         <type>bt</type>
-                        <visible>true</visible>
                         <tag><string>bt</string></tag>
                         <layers>
-                                <Layer>
-                                    <name>Invalid_password</name>
-                                    <visible>false</visible>
+                                <Layer name='Invalid' visible='false' layerName='Invalid password ' >
                                     <tag></tag>
                                     <type>Text</type>
                                     <position><x>109.5</x><y>-6.5</y></position>
                                     <size><width>105</width><height>13</height></size>
                                     <shadow>1_000000_80_120_2</shadow>
-                                    <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>13</string><string>Invalid password
-</string></arguments>
+                                    <arguments><string>FFFFFF</string><string>Arial-BoldMT</string><string>13</string><string><![CDATA[Invalid password
+]]></string></arguments>
                                     <opacity>100</opacity>
                                 </Layer>
-                                <Layer>
-                                    <name>bg</name>
-                                    <visible>false</visible>
+                                <Layer name='bg' visible='false' layerName='bg' >
                                     <tag></tag>
                                     <type>Image</type>
+                                    <opacity>100</opacity>
                                     <miniType>Image</miniType>
                                     <position><x>109.5</x><y>-6.5</y></position>
                                     <size><width>137</width><height>31</height></size>

@@ -12,6 +12,7 @@
 // $.level = 0;
 // debugger; // launch debugger on next line
 
+var errorData = "";
 var sceneData;
 var sourcePsd;
 var duppedPsd;
@@ -41,11 +42,6 @@ function main() {
         return 'cancel';
     }
 
-    // ask for where the exported files should go
-    // destinationFolder = Folder.selectDialog("Choose the destination for export.");
-    // if (!destinationFolder) {
-    //     return;
-    // }
     // cache useful variables
     uuid = 1;
     sourcePsdName = app.activeDocument.name;
@@ -84,18 +80,18 @@ function main() {
     // export layers
     sceneData = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
     writeNewLine("<PSDUI>");
-
+    writeNewLine("\r\n");
     writeNewLine("<psdSize>");
     writeNewLine("<width>" + duppedPsd.width.value + "</width>", 1);
     writeNewLine("<height>" + duppedPsd.height.value + "</height>", 1);
     writeNewLine("</psdSize>");
-
+    writeNewLine("\r\n");
     writeNewLine("<layers>");
+    writeNewLine("\r\n");
     //导出对比图
-    writeNewLine("<Layer>", 1);
-    writeNewLine("<name>" + sourcePsdName.replace("\.psd", "").replace(" ","-") + "</name>", 2);
+    writeNewLine("<Layer name='"+sourcePsdName.replace("\.psd", "").replace(" ", "-")+"' visible='true' layerName='"+sourcePsdName.name+"' >", 1);
     writeNewLine("<type>RawImage</type>", 2);
-    writeNewLine("<miniType>png</miniType>", 2);
+    writeNewLine("<miniType>RawImage</miniType>", 2);
     writeNewLine("<position><x>0</x><y>0</y></position>", 2);
     writeNewLine("<size><width>" + psdW + "</width><height>" + psdH + "</height></size>", 2);
     writeNewLine("</Layer>", 1);
@@ -113,6 +109,21 @@ function main() {
     sceneFile.open('w');
     sceneFile.writeln(sceneData);
     sceneFile.close();
+
+    //create error tips
+    if(errorData)
+    {
+        var destErrFile = destinationFolder + "/" + sourcePsdName.replace("\.psd", "_Error.txt");
+        var sceneErrFile = new File(destErrFile);
+        sceneErrFile.encoding = "utf-8";   //写文件时指定编码，不然中文会出现乱码
+        sceneErrFile.open('w');
+        sceneErrFile.writeln(errorData);
+        sceneErrFile.close();
+        if (app.playbackDisplayDialogs != DialogModes.NO) {
+            alert("出错误信息 \n"+errorData);
+            alert(" 导出错误信息！ 路径：" + destErrFile);
+        }
+    }
 
     app.preferences.rulerUnits = savedRulerUnits;
     app.preferences.typeUnits = savedTypeUnits;
@@ -136,8 +147,14 @@ function writeNewLine(line, depth) {
     }
 }
 
+
 function writeLine(line) {
     sceneData += line;
+}
+
+function writeErrorLine(line)
+{
+    errorData += "\n" + line;
 }
 
 function exportAllLayers(obj, depth) {
@@ -146,13 +163,14 @@ function exportAllLayers(obj, depth) {
     }
 
     if (typeof (obj.layers) != "undefined" && obj.layers.length > 0) {
-
         for (var i = obj.layers.length - 1; 0 <= i; i--) {
+            writeNewLine("\r\n");
             exportLayer(obj.layers[i], 1);
         }
 
     }
     else {
+        writeNewLine("\r\n");
         exportLayer(obj.layer, 0);
     };
 }
@@ -168,37 +186,34 @@ function exportLayer(obj, depth) {
 //导出组件
 function exportComponents(_layer, depth) {
 
-    if (_layer.typename == "LayerSet" && checkShouldExport(_layer.name)) {
-        var itemName = makeValideTextureName(_layer.name);  // _layer.name.substring(0, _layer.name.search("@"));
+    var _layerName=syntaxSugar(_layer.name)
 
-        writeNewLine("<Layer>", depth + 1);
-        writeNewLine("<name>" + itemName + "</name> ", depth + 2);
-        if (isTemplate(_layer.name)) {
-            writeNewLine("<type>Customer</type>", depth + 2);
-            writeNewLine("<templateName>" + getTemplateName(_layer) + "</templateName> ", depth + 2);
-            writeNewLine("<miniType>" + getTypeName(_layer.name) + "</miniType>", depth + 2);
+    if (_layer.typename == "LayerSet" && checkShouldExport(_layerName)) {
+        checkLayerName(_layer.name);
+        var validFileName = makeValideTextureName(_layerName);  // _layer.name.substring(0, _layer.name.search("@"));
+
+        writeNewLine("<Layer name='"+validFileName+"' visible='"+_layer.visible+"' layerName='"+_layer.name+"' >", depth + 1);
+        if (isTemplate(_layerName)) {
+            writeNewLine("<type>" + getTemplateType(_layerName) + "</type>", depth + 2);
+            writeNewLine("<templateName>" +getTemplateName(_layerName)+ "</templateName> ", depth + 2);
+            writeNewLine("<miniType>" + getTypeName(_layerName) + "</miniType>", depth + 2);
         }
         else {
-            writeNewLine("<type>" + getTypeName(_layer.name) + "</type>", depth + 2);
+            writeNewLine("<type>" + getTypeName(_layerName) + "</type>", depth + 2);
         }
-        
-        writeNewLine("<visible>" + _layer.visible + "</visible>", depth + 2);
-        writeNewLine("<tag>" + getTagList(_layer.name) + "</tag>", depth + 2);
+        writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
         writeNewLine("<layers>", depth + 2);
         for (var i = 0; i < _layer.layers.length; i++) {
             exportComponents(_layer.layers[i], depth + 3);
         }
         writeNewLine("</layers>", depth + 2);
         writeNewLine("</Layer>", depth + 1);
-        // hideAllLayers(_layer);
 
-    } else if (_layer.typename = "ArtLayer" && checkShouldExport(_layer.name)) {
-        // alert("itemName="+_layer.name+" kind="+_layer.kind);
-        var validFileName = makeValideTextureName(_layer.name);
-        writeNewLine("<Layer>", depth + 1);
-        writeNewLine("<name>" + validFileName + "</name>", depth + 2);
-        writeNewLine("<visible>" + _layer.visible + "</visible>", depth + 2);
-        writeNewLine("<tag>" + getTagList(_layer.name) + "</tag>", depth + 2);
+    } else if (_layer.typename = "ArtLayer" && checkShouldExport(_layerName)) {
+        checkLayerName(_layer.name);
+        var validFileName = makeValideTextureName(_layerName);
+        writeNewLine("<Layer name='"+validFileName+"' visible='"+_layer.visible+"' layerName='"+_layer.name+"' >", depth + 1);
+        writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
         if (LayerKind.TEXT == _layer.kind) {
             exportLabel(_layer, validFileName, depth + 2);
         }
@@ -235,18 +250,19 @@ function setLayerSizeAndPos(layer, depth) {
 
 function exportLabel(obj, validFileName, depth) {
     //有些文本如标题，按钮，美术用的是其他字体，可能还加了各种样式，需要当做图片切出来使用
+    
     var lowerName = obj.name.toLowerCase()
     if (lowerName.search("_sprite") >= 0) {
         exportImage(obj, validFileName, depth);
         return;
     }
+    var _layerName=syntaxSugar(obj.name)
 
-    if (isTemplate(lowerName)) {
+    if (isTemplate(_layerName)) {
         writeNewLine("<type>Customer</type>", depth);
         writeNewLine("<miniType>Text</miniType>", depth);
-        writeNewLine("<templateName>" + getTemplateName(obj) + "</templateName> ", depth);
-    }else
-    {
+        writeNewLine("<templateName>" + getTemplateName(_layerName) + "</templateName> ", depth);
+    } else {
         writeNewLine("<type>Text</type>", depth);
     }
 
@@ -288,7 +304,7 @@ function exportLabel(obj, validFileName, depth) {
     var fontSize = Math.round(gen_text_size(obj) * Math.min(scale.x, scale.y));
 
     writeLine("<string>" + fontSize + "</string>", depth);
-    writeLine("<string>" + obj.textItem.contents.replace(/&/gi, "") + "</string>", depth);
+    writeLine("<string><![CDATA[" + obj.textItem.contents.replace(/&/gi, "") + "]]></string>", depth);
 
     //段落文本带文本框，可以取得对齐方式
     if (obj.textItem.kind == TextType.PARAGRAPHTEXT) {
@@ -380,34 +396,39 @@ function gen_text_size(obj) {
 
 function gen_text_justify(obj) {
     try {
-        return "<string>" + obj.textItem.justification + "</string>";
+        returnobj.textItem.justification;
     } catch (error) {
-        return "<string>" + Justification.LEFT + "</string>";
+        return Justification.LEFT;
     }
 }
 
 function gen_text_leading(obj, scale) {
     try {
-        return "<string>" + obj.textItem.leading.value * scale.y + "</string>";
+        return obj.textItem.leading.value * scale.y ;
     } catch (error) {
-        return "<string>X</string>";
+        return "X";
     }
 }
 
 function exportImage(obj, validFileName, depth) {
 
     //var saveToDisk = checkShouldSavePng(obj.name);
-    var oriName = obj.name.substring(obj.name.lastIndexOf("@", obj.name.length));
+    var _layerName=syntaxSugar(obj.name)
+    var oriName = obj.name.substring(obj.name.indexOf("@", obj.name.length));
     var lowerName = obj.name.toLowerCase()
-
-    if (isTemplate(lowerName)) {
-        writeNewLine("<templateName>" + getTemplateName(obj) + "</templateName> ", depth);
-        setArtNodeXmlInfo(obj, depth);
-        writeNewLine("<type>Customer</type>", depth);
+    
+    if (isTemplate(_layerName)) {
+        writeNewLine("<type>" + getTemplateType(_layerName) + "</type>", depth);
         writeNewLine("<miniType>Image</miniType>", depth);
+        writeNewLine("<templateName>" + getTemplateName(_layerName) + "</templateName> ", depth);
+        setArtNodeXmlInfo(obj, depth);
         return
     } else
+    {
         writeNewLine("<type>" + "Image" + "</type>", depth);
+    }
+
+    writeNewLine("<opacity>" + obj.opacity + "</opacity>", depth);
 
     if (oriName.toLowerCase().search("_9s") >= 0) {
         writeNewLine("<miniType>SliceImage</miniType>", depth);
@@ -540,7 +561,10 @@ function saveScenePng(psd, fileName, writeToDisk, depth, notMerge) {
     var canMerge = checkCanMerge(psd);
     if (!notMerge && canMerge) {
         psd.mergeVisibleLayers();
-        // alert(" mergeVisibleLayers saveScenePng.name = "+psd.name+" width= "+psd.width.value+" height"+psd.height.value )
+        writeErrorLine("mergeVisibleLayers saveScenePng.name = "+psd.name+" width= "+psd.width.value+" height"+psd.height.value);
+        if (app.playbackDisplayDialogs != DialogModes.NO) {
+            alert(" mergeVisibleLayers saveScenePng.name = "+psd.name+" width= "+psd.width.value+" height"+psd.height.value );
+        }
     }
 
     // figure out where the top-left corner is so it can be exported into the scene file for placement in game
@@ -606,23 +630,58 @@ function saveScenePng(psd, fileName, writeToDisk, depth, notMerge) {
 }
 
 
+function syntaxSugar(name)
+{
+    return name.replace("@mb:","@#");
+}
+
+function checkLayerName(fileName)
+{
+    var idx1 = fileName.indexOf("@mb")
+    var idx2 = fileName.indexOf("@mb:")
+    var id1 = fileName.indexOf("@")
+
+    if(idx1>=0 && idx2<0)
+    {
+        writeErrorLine("warning 图层:["+fileName+"] 模板命名错误,缺少':'应该是 @mb:模板名");
+    }
+
+    if(id1>0)
+    {
+        var tmpName = fileName.substring(0, fileName.indexOf("@"));  //截取@之前的字符串作为图片的名称。
+        if(fileName.indexOf(" ")>=0)
+        {
+            writeErrorLine("warning 图层:["+fileName+"]命名错误,包含空格,请去掉空格["+tmpName+"]");
+        }
+    }
+}
+
 function makeValideTextureName(fileName) {
     var validName = fileName.replace(/^\s+|\s+$/gm, ''); // trim spaces
 
     validName = validName.replace(/[\\\*\/\?:"\|<>]/g, ''); // remove characters not allowed in a file name
-    validName = validName.replace(/[ ]/g, '_'); // replace spaces with underscores, since some programs still may have troubles with them
-
-    var tempIndex = validName.lastIndexOf("#")
-    var nameIndex = validName.lastIndexOf("@")
+    //validName = validName.replace(/[ ]/g, '_'); // replace spaces with underscores, since some programs still may have troubles with them
+    var tempIndex = validName.indexOf("#") //第一个#后表示模板名
+    var nameIndex = validName.indexOf("@") //第一个@前面表示真名    name@被截取#moban
     if (nameIndex >= 0) {
         if (tempIndex >= 0) {
-            var tmpName = validName.substring(0, validName.lastIndexOf("@"));  //截取@之前的字符串作为图片的名称。
+            var tmpName = validName.substring(0, nameIndex);  //截取@之前的字符串作为图片的名称。
+            validName = validName.replace(/[ ]/g, '_');
             validName = tmpName + validName.substring(tempIndex); //截取#之后的字符
         }
         else
-            validName = validName.substring(0, validName.lastIndexOf("@"));  //截取#之前的字符串作为图片的名称。
+        {
+            validName = validName.substring(0, nameIndex);  //截取@之前的字符串作为图片的名称。
+            validName = validName.replace(/[ ]/g, '_');
+        }
     }
 
+    //截取第一个空格前的名字作为真名 处理类似问题：iconName 拷贝 1
+    var arr = validName.split(" ");
+    validName = arr[0];
+    if (validName == "") {
+        validName = getTemplateName(fileName)
+    }
     return validName
 }
 
@@ -649,21 +708,29 @@ function getTagList(fileName) {
 }
 
 function isTemplate(fileName) {
-    return fileName.search("#") >= 0;
+   return fileName.search("#") >= 0 ;
 }
 
-function getTemplateName(layer) {
-    var fileName = layer.name
-    var idx = fileName.lastIndexOf("#");
+function getTemplateType(fileName) {
+    var idx = fileName.indexOf("@#"); //可以缩放的模板@#
+    if (idx >= 0) {
+        return "Moban";
+    } else {
+        return "Customer";
+    }
+}
+
+function getTemplateName(fileName) {
+    var idx = fileName.indexOf("#"); //第一个#号后面为模板名字
     if (idx >= 0) {
         var array = fileName.split("#");
         if (array.length > 1) {
             array = array[1].split(" ");//不能带空格
             if (array[0])
-            return array[0];
+                return array[0];
         }
     }
-    alert("layer:"+layer.name+" Template Name is Empty .  \r\n you should name like is 'name#templateName' ");
+    // alert("layer:"+layer.name+" Template Name is Empty .  \r\n you should name like is 'name#templateName' ");
     return "";
 }
 
@@ -1134,7 +1201,10 @@ function _9sliceCutImg(layerName, w, h, depth) {
     if (result) {
         getStr = result[0]
     } else {
-        alert("图层名为：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        writeErrorLine("Error 图层：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        if (app.playbackDisplayDialogs != DialogModes.NO) {
+            alert("Error 图层：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        }
         return;
     }
 
@@ -1162,7 +1232,10 @@ function _9sliceCutImg(layerName, w, h, depth) {
             slicePaddingArr[j] = num
         }
     } else {
-        alert("图层名为：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        writeErrorLine("Error 图层：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        if (app.playbackDisplayDialogs != DialogModes.NO) {
+            alert("Error 图层：" + layerName + "的九宫格格式不对！应为_9S:XX或:XX:XX:XX:XX");
+        }
         return;
     }
 

@@ -9,6 +9,14 @@ namespace PSDUINewImporter
 {
     public sealed class TextComponentImport : BaseComponentImport<TMPro.TextMeshProUGUI>
     {
+        Dictionary<string, string> m_FontAliasName = new Dictionary<string, string>(){
+            //{"PingFang-SC-Bold","ArialMT"},
+            //{"MicrosoftJhengHeiBold","ArialMT"},
+            //{"Dutch801BT-Roman","ArialMT"},
+            //{"SourceHanSansCN-Medium","ArialMT"},
+            //{"DIN-Medium","ArialMT"}
+            };
+
         public const string NormalTag = "Normal";
         public const string PressedTag = "Pressed";
         public const string DisabledTag = "Disabled";
@@ -27,35 +35,9 @@ namespace PSDUINewImporter
             PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
             myText.raycastTarget = false; //取消射线检测
 
-            myText.text = layer.arguments[3];
+            SetText(myText, layer);
 
-            //if (!string.IsNullOrEmpty(layer.templateName)) //如果是模板
-            //{
-            //    SetRectTransformSize(rectTransform, layer.size);
-            //    SetRectTransformPosition(rectTransform, layer.position);
-            //    return;
-            //}
-
-            Color color;
-            if (!myText.enableVertexGradient)//没有渐变，才需要设置颜色
-            {
-                if (UnityEngine.ColorUtility.TryParseHtmlString(("#" + layer.arguments[0]), out color))
-                {
-                    if (layer.opacity > -1)
-                    {
-                        color.a = layer.opacity / 100f;
-
-                        // Debug.Log("Opacity:" + color.a);
-                    }
-
-                    myText.color = color;
-                }
-                else
-                {
-                    Debug.Log(layer.arguments[0]);
-                }
-            }
-
+            SetColor(myText,layer);
             float size;
             if (float.TryParse(layer.arguments[2], out size))
             {
@@ -73,7 +55,10 @@ namespace PSDUINewImporter
             {
                 fontFolder = PSDImporterConst.FONT_FOLDER;
             }
-            string fontFullName = Path.Combine(fontFolder ,layer.arguments[1]+PSDImporterConst.FONT_ASSET_SUFIX);
+
+            var fontName = GetFontName(layer.arguments[1]);
+
+            string fontFullName = Path.Combine(fontFolder, fontName + PSDImporterConst.FONT_ASSET_SUFIX);
             // Debug.Log("font name ; " + fontFullName);
             var font = AssetDatabase.LoadAssetAtPath(fontFullName, typeof(TMP_FontAsset)) as TMP_FontAsset;
             if (font == null)
@@ -110,7 +95,7 @@ namespace PSDUINewImporter
             {
                 if (!string.IsNullOrEmpty(layer.outline))
                 {
-                    EditorUtility.DisplayDialog("FBI WARN", layer.name +" :不支持同时投影和描边", "OK");
+                    EditorUtility.DisplayDialog("FBI WARN", layer.name + " :不支持同时投影和描边", "OK");
                 }
                 else
                 {
@@ -131,7 +116,7 @@ namespace PSDUINewImporter
                 var fileInfo = new FileInfo(path);
                 if (!fileInfo.Exists)
                 {
-                    if (!fileInfo.Directory.Exists)fileInfo.Directory.Create();
+                    if (!fileInfo.Directory.Exists) fileInfo.Directory.Create();
                     material = new Material(myText.fontMaterial);
                     myText.fontMaterial = material;
                     AssetDatabase.CreateAsset(material, path);
@@ -326,6 +311,42 @@ namespace PSDUINewImporter
             CENTER = 4,
             RIGHT = 5,
             FULLYJUSTIFIED = 6,
+        }
+
+        protected string GetFontName(string name)
+        {
+            if (m_FontAliasName.TryGetValue(name, out var newName))
+            {
+                return newName;
+            }
+            return name;
+        }
+
+        public static void SetText(TMPro.TextMeshProUGUI target, Layer layer)
+        {
+            target.text = layer.arguments[3];
+        }
+
+        public static void SetColor(TMPro.TextMeshProUGUI myText, Layer layer)
+        {
+            Color color;
+            if (!myText.enableVertexGradient)//没有渐变，才需要设置颜色
+            {
+                if (UnityEngine.ColorUtility.TryParseHtmlString(("#" + layer.arguments[0]), out color))
+                {
+                    if (layer.opacity > -1)
+                    {
+                        color.a = layer.opacity / 100f;
+                        // Debug.Log("Opacity:" + color.a);
+                    }
+
+                    myText.color = color;
+                }
+                else
+                {
+                    Debug.Log(layer.arguments[0]);
+                }
+            }
         }
     }
 }

@@ -22,11 +22,7 @@ namespace PSDUINewImporter
             layer.target = targetComp;
             if(posSizeLayerIndex==-1)
             {
-                RectTransform rectTransform = target.GetComponent<RectTransform>();
-                rectTransform.offsetMin = Vector2.zero;
-                rectTransform.offsetMax = Vector2.zero;
-                rectTransform.anchorMin = Vector2.zero;
-                rectTransform.anchorMax = Vector2.one;
+                SetSizeAndPosByBackgroundImage(target.GetComponent<RectTransform>(),layer);
             }
 
             ctrl.DrawLayers(layer.layers, null, target.gameObject);

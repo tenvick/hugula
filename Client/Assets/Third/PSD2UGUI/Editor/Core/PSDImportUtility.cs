@@ -47,28 +47,30 @@ namespace PSDUINewImporter
             return false;
         }
 
-        public static object DeserializeXml(string filePath, System.Type type)
+        public static PSDUI DeserializeXml(string filePath)
         {
-            object instance = null;
-            StreamReader xmlFile = File.OpenText(filePath);
-            if (xmlFile != null)
+            PSDUI instance = null;
+            if(File.Exists(filePath))
             {
-                string xml = xmlFile.ReadToEnd();
-                if ((xml != null) && (xml.ToString() != ""))
+                XmlSerializer serializer = new XmlSerializer(typeof(PSDUI));
+                serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
+                serializer.UnknownAttribute += new  XmlAttributeEventHandler(serializer_UnknownAttribute);
+                using (FileStream fs = new FileStream(filePath, System.IO.FileMode.Open))
                 {
-                    XmlSerializer xs = new XmlSerializer(type);
-                    System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
-                    byte[] byteArray = encoding.GetBytes(xml);
-                    MemoryStream memoryStream = new MemoryStream(byteArray);
-                    XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, System.Text.Encoding.UTF8);
-                    if (xmlTextWriter != null)
-                    {
-                        instance = xs.Deserialize(memoryStream);
-                    }
+                    instance = (PSDUI)serializer.Deserialize(fs);
                 }
             }
-            xmlFile.Close();
             return instance;
+        }
+
+        private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
+        {
+            Debug.LogError($"Unknown Node:{e.Name} LineNumber:{e.LineNumber} LinePosition:{e.LinePosition} ObjectBeingDeserialized:{e.ObjectBeingDeserialized} NodeType:{e.NodeType} {e.Text} ");
+        }
+        private static void  serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        {
+            System.Xml.XmlAttribute attr = e.Attr;
+            Debug.Log("Unknown attribute " +  attr.Name + "='" + attr.Value + "'");
         }
 
         /// <summary>

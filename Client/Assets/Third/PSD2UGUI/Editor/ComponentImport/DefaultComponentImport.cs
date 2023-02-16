@@ -17,13 +17,11 @@ namespace PSDUINewImporter
 
         protected override void DrawTargetLayer(int index, Layer layer, RectTransform target, GameObject parent, int posSizeLayerIndex)
         {
+            target.name = string.IsNullOrEmpty(layer.name)?layer.layerName:layer.name;
+
             if (posSizeLayerIndex == -1)
             {
-                RectTransform rectTransform = target.GetComponent<RectTransform>();
-                rectTransform.offsetMin = Vector2.zero;
-                rectTransform.offsetMax = Vector2.zero;
-                rectTransform.anchorMin = Vector2.zero;
-                rectTransform.anchorMax = Vector2.one;
+                SetSizeAndPosByBackgroundImage(target.GetComponent<RectTransform>(),layer);
             }
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
         }

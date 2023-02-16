@@ -34,6 +34,7 @@ namespace PSDUINewImporter
         {
             if(!m_DirectoryCache.TryGetValue(folder,out var firectoryFound))
             {
+                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
                 var files = System.IO.Directory.GetFiles(folder, "*.*", System.IO.SearchOption.AllDirectories);
                 firectoryFound = new Dictionary<string, string>();
                 foreach (var f in files)
@@ -67,6 +68,7 @@ namespace PSDUINewImporter
         {
             if (!m_DirectoryCache.TryGetValue(baseDirectory, out var firectoryFound))
             {
+                if (!Directory.Exists(baseDirectory)) Directory.CreateDirectory(baseDirectory);
                 var files = System.IO.Directory.GetFiles(baseDirectory, "*.*", System.IO.SearchOption.AllDirectories);
                 firectoryFound = new Dictionary<string, string>();
                 foreach (var f in files)

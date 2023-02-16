@@ -33,6 +33,9 @@ namespace PSDUINewImporter
             }
             else
             {
+                if(posSizeLayerIndex == -1)
+                    posSizeLayerIndex = GetBackgroundImageLayer(layer);
+
                 if (posSizeLayerIndex != -1)
                 {
                     Layer layer1 = layer.layers[posSizeLayerIndex];
@@ -48,10 +51,8 @@ namespace PSDUINewImporter
                             rectTransform.localScale = scale;
                             //
                         }
-                        var cache = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                        SetRectTransformSize(rectTransform, layer1.size);
-                        SetRectTransformPosition(rectTransform, layer1.position);
-                        PSDImportUtility.SetAnchorFromCache(rectTransform,cache);
+
+                        SetRectTransformSizeAndPos(rectTransform,layer1);
                     }
                 }
             }

@@ -47,13 +47,11 @@ namespace PSDUINewImporter
             if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))//自定义组件需要控制布局
             {
                 var l1 = layer.layers[bgIdx];
-                if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer) && !ctrl.CompareLayerType(layer.importType, ComponentType.Moban))
-                {
-                    var rectTransform = target.GetComponent<RectTransform>();
-                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                    if (autoSize) SetRectTransformSize(rectTransform, l1.size);
-                    if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
-                }
+                //if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer) && !ctrl.CompareLayerType(layer.importType, ComponentType.Moban))
+                var rectTransform = target.GetComponent<RectTransform>();
+                PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                if (autoSize) SetRectTransformSize(rectTransform, l1.size);
+                if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
                 // Debug.LogFormat("target={0}, autoPosition={1}, autoSize={2},l1.position={3}, rectTransform.localPosition={4} ", target, autoPosition, autoSize, l1.position, rectTransform.localPosition);
                 l1.target = target;
                 return bgIdx;
@@ -106,6 +104,36 @@ namespace PSDUINewImporter
         }
 
         /// <summary>
+        /// 用背景图片规则设置尺寸
+        /// </summary>
+        /// <param name="layer"></param>      
+        /// <returns></returns>
+        protected virtual int SetSizeAndPosByBackgroundImage(RectTransform rectTransform,Layer layer)
+        {
+            int bgIdx;
+             if(TryGetBackgroundImage(layer, out bgIdx))
+             {
+                Layer layer1 = layer.layers[bgIdx];
+                SetRectTransformSizeAndPos(rectTransform,layer1);
+                return bgIdx;
+             }
+            return -1;
+        }
+
+        /// <summary>
+        /// 获取背景图片所在层索引
+        /// </summary>
+        /// <param name="layer"></param>      
+        /// <returns></returns>
+        protected virtual int GetBackgroundImageLayer(Layer layer)
+        {
+            int bgIdx;
+            if (TryGetBackgroundImage(layer, out bgIdx))
+                return bgIdx;
+            return -1;
+        }
+
+        /// <summary>
         /// 绘制带特定TAG的图片，如果TAG不存在以repIndex替换 顺序。
         /// </summary>
         /// <param name="layer"></param>
@@ -150,7 +178,7 @@ namespace PSDUINewImporter
                 var rectTransform = target?.GetComponent<RectTransform>();
                 if (autoSetPosition)
                 {
-                    //PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                     SetRectTransformPosition(rectTransform, l1.position);
                 }
                 if (autoSetSize)
@@ -465,8 +493,16 @@ namespace PSDUINewImporter
 
         protected void SetRectTransformSize(RectTransform rectTransform, Size size, float scale = 1)
         {
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,size.width*scale);
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,size.height*scale);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.width * scale);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.height * scale);
+        }
+
+        protected void SetRectTransformSizeAndPos(RectTransform rectTransform, Layer layer)
+        {
+            var cach = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+            SetRectTransformSize(rectTransform, layer.size);
+            SetRectTransformPosition(rectTransform, layer.position);
+            PSDImportUtility.SetAnchorFromCache(rectTransform, cach);
         }
 
         /// <summary>
@@ -523,7 +559,7 @@ namespace PSDUINewImporter
 
             if (isCustomer) //模板控件
             {
-                if(isText)
+                if (isText)
                 {
                     var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
                     if (string.IsNullOrEmpty(fontStylePath))
@@ -534,7 +570,7 @@ namespace PSDUINewImporter
                     }
                     var asset = PSDImportUtility.LoadAndInstantAttachedPrefab(fontStylePath, layer.name,
                        parent);
-                    asset.transform.SetSiblingIndex(index);
+                    //asset.transform.SetSiblingIndex(index);
                     asset.SetActive(layer.visible);
                     var re = asset.GetComponent<T>();
                     asset.SetActive(layer.visible);
@@ -549,7 +585,7 @@ namespace PSDUINewImporter
                         return null;
                     }
                     var asset = PSDImportUtility.LoadAndInstantPrefab(uiSourcePath, layer.name, parent);
-                    asset.transform.SetSiblingIndex(index);
+                    //asset.transform.SetSiblingIndex(index);
                     var re = asset.GetComponent<T>();
                     asset.SetActive(layer.visible);
                     return re;
@@ -563,7 +599,7 @@ namespace PSDUINewImporter
                 var typeName = typeof(T).Name;
                 if (typeof(RectTransform) == typeof(T)) typeName = "Empty";
                 var asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.name, parent);
-                asset.transform.SetSiblingIndex(index);
+                //asset.transform.SetSiblingIndex(index);
                 asset.gameObject.SetActive(layer.visible);
                 return asset;
             }

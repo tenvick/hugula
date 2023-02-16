@@ -92,13 +92,15 @@ namespace PSDUINewImporter
 
         private void InitDataAndPath(string xmlFilePath)
         {
-            psdUI = (PSDUI)PSDImportUtility.DeserializeXml(xmlFilePath, typeof(PSDUI));
+            psdUI = (PSDUI)PSDImportUtility.DeserializeXml(xmlFilePath);
             Debug.Log(psdUI.psdSize.width + "=====psdSize======" + psdUI.psdSize.height);
             if (psdUI == null)
             {
                 Debug.Log("The file " + xmlFilePath + " wasn't able to generate a PSDUI.");
                 return;
             }
+            Debug.Log("=====psdUI.Layers.Length=" + psdUI.layers.Length);
+
 #if UNITY_5_2
             if (EditorApplication.SaveCurrentSceneIfUserWantsTo () == false) { return; }
 #elif UNITY_5_3
@@ -189,13 +191,13 @@ namespace PSDUINewImporter
             }
 
 
-            int realyIdx = -1;
+            //int realyIdx = -1;
             ShowTips("DrawUILayers","开始绘制ui，稍等片刻",1);
             for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
             {
                 var layer = psdUI.layers[layerIndex];
                 if (PSDImportUtility.NeedDraw(layer))
-                    DrawLayer(++realyIdx, layer, null, obj.gameObject);
+                    DrawLayer(layerIndex, layer, null, obj.gameObject);
             }
             AssetDatabase.Refresh();
             ClearTips();

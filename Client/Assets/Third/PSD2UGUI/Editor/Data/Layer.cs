@@ -3,28 +3,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace PSDUINewImporter
 {
     public class Layer
-    {   //prefab中显示的名字
+    {
+        //资源名
+        [XmlAttribute]
         public string name;
+        //ps图层的名字
+        [XmlAttribute]
+        public string layerName;
+        //默认可见性
+        [XmlAttribute]
+        public bool visible = true;
+
         //导出类型 标记图片文字组件等
         public string type;
-
         public Layer[] layers;
         //记录的额外参数
         public string[] arguments;
         //ps图层中@后面的内容以"_"分割后放入tag中 tag标记用于导入判断
         public string[] tag;
-        public string special;
         //自定义模板名
         public string templateName;
         //小类型
         public string miniType;
-        //默认可见性
-        public bool visible = true;
 
+        [XmlIgnore]
         private string m_ImportType;
         //导入时候的Type用于查询导入的Import组件
         public string importType
@@ -46,6 +54,7 @@ namespace PSDUINewImporter
 
 
         #region 位置信息与透明度
+        [System.ComponentModel.DefaultValueAttribute(100)]
         public float opacity;
         public Size size;
         public Position position;
@@ -57,6 +66,7 @@ namespace PSDUINewImporter
         public string outline = string.Empty;
         public string outerGlow = string.Empty;
         #endregion
+        [XmlIgnore]
         internal object target;
 
         public bool TagContains(string key)

@@ -35,7 +35,12 @@ namespace PSDUINewImporter
 
             if (targetT == null) //创建模板
             {
-                layer.importType = layer.miniType;
+                var miniType = string.IsNullOrEmpty(layer.miniType)?"Default":layer.miniType;
+                if(layer.templateName.StartsWith("btn_"))
+                {
+                    miniType = "Button";
+                }
+                layer.importType = miniType;
                 ctrl.GetLayerImport(layer.importType).DrawLayer(index, layer, target, parent, autoPos, autoSize);
                 //保存
                 SavePrefabToCustomer(layer);
@@ -52,8 +57,8 @@ namespace PSDUINewImporter
         protected override void DrawTargetLayer(int index, Layer layer, RectTransform target, GameObject parent, int posSizeLayerIndex)
         {
             RectTransform rectTransform = target;
-
-            if (layer.layers == null && (layer.miniType == ComponentType.Image || layer.miniType == ComponentType.Text)) //单张image或者text模板
+            bool isImg,isTxt = false;
+            if (layer.layers == null && ((isImg =layer.miniType == ComponentType.Image) || (isTxt = layer.miniType == ComponentType.Text))) //单张image或者text模板
             {
                 Layer layer1 = layer;
                 if (layer1.size != null && layer1.position != null)
@@ -63,31 +68,31 @@ namespace PSDUINewImporter
                     SetRectTransformPosition(rectTransform, layer1.position);
                     PSDImportUtility.SetAnchorFromCache(rectTransform,cach);
                 }
+
+                if(isTxt)
+                    UpdateTextPrefab(target.GetComponent<TMPro.TextMeshProUGUI>(),layer);
             }
             else
             {
+                if(posSizeLayerIndex == -1)
+                    posSizeLayerIndex = GetBackgroundImageLayer(layer);
+
                 if (posSizeLayerIndex != -1)
                 {
                     Layer layer1 = layer.layers[posSizeLayerIndex];
                     if (layer1.size != null && layer1.position != null)
                     {
-                        //check缩放 ?
-                        // var sizeData = rectTransform.sizeDelta;
-                        // if (sizeData != Vector2.zero)
-                        // {
-                        //     Vector3 scale = Vector3.one;
-                        //     scale.x = layer1.size.width / sizeData.x;
-                        //     scale.y = layer1.size.height / sizeData.y;
-                        //     rectTransform.localScale = scale;
-                        //     //
-                        // }
-                        var cach = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                        SetRectTransformSize(rectTransform, layer1.size);
-                        SetRectTransformPosition(rectTransform, layer1.position);
-                        PSDImportUtility.SetAnchorFromCache(rectTransform,cach);
-                    }
+                        SetRectTransformSizeAndPos(rectTransform,layer1);
+                    } 
                 }
             }
+           // ctrl.DrawLayers(layer.layers, null, target.gameObject); //更新组件？
+        }
+
+        protected void UpdateTextPrefab(TMPro.TextMeshProUGUI text,Layer layer)
+        {
+            TextComponentImport.SetText(text,layer);
+            TextComponentImport.SetColor(text,layer);
         }
 
     }

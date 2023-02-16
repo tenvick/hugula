@@ -45,9 +45,10 @@ namespace PSDUINewImporter
                         var sizeData = rectTransform.sizeDelta;
                         if (sizeData != Vector2.zero)
                         {
+                            var rect = rectTransform.rect;
                             Vector3 scale = Vector3.one;
-                            scale.x = layer1.size.width / sizeData.x;
-                            scale.y = layer1.size.height / sizeData.y;
+                            scale.x = layer1.size.width / rect.width;
+                            scale.y = layer1.size.height / rect.height;
                             rectTransform.localScale = scale;
                             //
                         }

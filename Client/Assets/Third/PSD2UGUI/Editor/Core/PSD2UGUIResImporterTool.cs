@@ -70,13 +70,16 @@ namespace PSDUINewImporter
                 }
 
                 lastTargetPath = _path2;
-                baseFolderFiles = ForeachFolderAndCachName(PSDImporterConst.Globle_BASE_FOLDER);
+                AssetDatabase.Refresh();
                 sb.Clear();
+                baseFolderFiles = ForeachFolderAndCachName(PSDImporterConst.Globle_BASE_FOLDER);
                 errSb.Clear();
                 CopyFolder(_path, _path2);
+                AssetDatabase.Refresh();
 
                 sb.Append(errSb);
                 textInfo = sb.ToString();
+                HugulaEditor.EditorUtils.WriteToTmpFile("PSD2UGUIResImport_Log.txt",sb.ToString());
             }
 
             
@@ -95,7 +98,7 @@ namespace PSDUINewImporter
         void CopyFolder(string source,string target)
         {
             Debug.Log($"Copy foler {source} to {target}");
-            sb.AppendLine($"开始导入 \r\n原始文件夹：{source} \r\n目标文件夹：{target} \r\n\r\n\r\n");
+            sb.AppendLine($"开始导入 \r\n原始文件夹：{source} \r\n目标文件夹：{target} \r\n {System.DateTime.Now.ToString()} \r\n ");
 
             var files= FilterFiles(source,new string[]{ "png","xml"},SearchOption.AllDirectories);
 
@@ -104,16 +107,17 @@ namespace PSDUINewImporter
                 var file = files[i];
                 var fileName = Path.GetFileName(file);
                 var extension = Path.GetExtension(fileName);
-                if(!baseFolderFiles.TryGetValue(fileName,out var sourPath))
+                if(!baseFolderFiles.TryGetValue(fileName,out var sourPath)  || extension == ".xml" )//如果是xml需要覆盖
                 {
                     var targetPath = Path.Combine(target, fileName);
-                    if(File.Exists(targetPath))
+                    if(File.Exists(targetPath) && extension == ".xml")
                     {
                         File.Delete(targetPath);
                         sb.AppendLine($"\r\n目标文件:{targetPath}存在,已经删除！");
                         Debug.LogWarning($"    目标文件:{targetPath}存在,已经删除！");
                     }
                     File.Copy(file, targetPath);
+                    baseFolderFiles[fileName] = targetPath; //标记为已经导入
                     sb.AppendLine($"{fileName},    copy to:    {targetPath}");
                 }
                 else
@@ -130,11 +134,13 @@ namespace PSDUINewImporter
             Debug.Log(folder);
             var dic = new Dictionary<string, string>();
             var files = Directory.GetFiles(folder, "*.png", SearchOption.AllDirectories);
+            //sb.AppendLine($" ForeachFolderAndCachName目录：{folder} 数量{files.Length}");
             for (int i = 0; i < files.Length; i++)
             {
                 var file = files[i];
                 var fileName = Path.GetFileName(file);
                 dic[fileName] = file;
+               // sb.AppendLine($" 原始文件：{fileName} 目录：{file}");
             }
             return dic;
         }

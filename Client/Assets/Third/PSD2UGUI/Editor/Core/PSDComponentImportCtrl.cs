@@ -72,11 +72,13 @@ namespace PSDUINewImporter
         {
             if (layers != null)
             {
-                int realyIdx = -1;
+                //int realyIdx = -1;
+                Layer layer=null;
                 for (int layerIndex = layers.Length - 1; layerIndex >= 0; layerIndex--)
                 {
-                    if (PSDImportUtility.NeedDraw(layers[layerIndex]))
-                        DrawLayer(++realyIdx, layers[layerIndex], null, parent);
+                    layer = layers[layerIndex];
+                    if (PSDImportUtility.NeedDraw(layer))
+                        DrawLayer(layer.index, layer, null, parent);
                 }
             }
         }
@@ -193,7 +195,8 @@ namespace PSDUINewImporter
 
             //int realyIdx = -1;
             ShowTips("DrawUILayers","开始绘制ui，稍等片刻",1);
-            for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
+            // for (int layerIndex = 0; layerIndex < psdUI.layers.Length; layerIndex++)
+            for (int layerIndex = psdUI.layers.Length - 1; layerIndex >= 0; layerIndex--)
             {
                 var layer = psdUI.layers[layerIndex];
                 if (PSDImportUtility.NeedDraw(layer))

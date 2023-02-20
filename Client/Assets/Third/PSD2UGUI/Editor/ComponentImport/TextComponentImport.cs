@@ -10,11 +10,14 @@ namespace PSDUINewImporter
     public sealed class TextComponentImport : BaseComponentImport<TMPro.TextMeshProUGUI>
     {
         Dictionary<string, string> m_FontAliasName = new Dictionary<string, string>(){
-            //{"PingFang-SC-Bold","ArialMT"},
-            //{"MicrosoftJhengHeiBold","ArialMT"},
-            //{"Dutch801BT-Roman","ArialMT"},
-            //{"SourceHanSansCN-Medium","ArialMT"},
-            //{"DIN-Medium","ArialMT"}
+            {"PingFang-SC-Bold","Arial-BoldMT"},
+            {"MicrosoftJhengHeiBold","Arial-BoldMT"},
+            {"MicrosoftJhengHeiUIBold","Arial-BoldMT"},
+			{"MasonAlternateBold","Arial-BoldMT"},
+            {"Dutch801BT-Roman","ArialMT"},
+            {"SourceHanSansCN-Medium","ArialMT"},
+            {"DIN-Medium","ArialMT"},
+			{"SourceHanSansSC-Regular","ArialMT"}
             };
 
         public const string NormalTag = "Normal";
@@ -242,7 +245,7 @@ namespace PSDUINewImporter
             #endregion
 
             // rectTransform.sizeDelta = new Vector2(layer.size.width * 1.2f, layer.size.height * 1.1f);
-            SetRectTransformSize(rectTransform, layer.size, 1.2f);
+            SetRectTransformSize(rectTransform, layer.size);
             SetRectTransformPosition(rectTransform, layer.position);
             // UnityEngine.Debug.LogFormat("name = {0},size={1},position={2} ",layer.name, layer.size,layer.position);
         }

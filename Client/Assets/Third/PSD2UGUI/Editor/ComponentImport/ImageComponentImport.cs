@@ -20,16 +20,12 @@ namespace PSDUINewImporter
             var targetComp = target.GetComponent<Image>();
             // layer.target = targetComp;
             RectTransform rectTransform = target.GetComponent<RectTransform>();
-            PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
 
             targetComp.sprite = LoadSpriteRes(layer, null);
             targetComp.raycastTarget = false;
             targetComp.maskable = false;
             SetImageProperties(targetComp, layer);
-
-            SetRectTransformSize(rectTransform, layer.size);
-            SetRectTransformPosition(rectTransform, layer.position);
-            // ctrl.DrawLayers(layer.layers, null, target.gameObject);
+            SetRectTransformSizeAndPos(rectTransform,layer);
         }
 
 

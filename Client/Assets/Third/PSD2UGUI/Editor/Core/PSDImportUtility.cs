@@ -26,7 +26,7 @@ namespace PSDUINewImporter
 
         public static bool NeedDraw(Layer layer)
         {
-            return (!layer.TagContains(HideTag) || layer.TagContains(DynamicTag)) && layer.target == null;
+            return (!layer.TagContains(HideTag) || layer.TagContains(DynamicTag)) && layer.target == null ;
         }
   
 

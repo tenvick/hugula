@@ -9,10 +9,13 @@ namespace PSDUINewImporter
 {
     public class ImageTag
     {
+
         public const string SliceTag = "slice";
         public const string BackGround = "Bg";
 
         public const string NormalTag = "Normal";
+
+        public const string LhalfTag = "lhalf";
 
         //  public const string Image = "Image";
         // public const string Texture = "Texture";

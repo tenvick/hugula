@@ -12,7 +12,7 @@
 // $.level = 0;
 // debugger; // launch debugger on next line
 
-var jsxfile="Export PSDUI New.jsx";
+var jsxfile="Export PSD Png New.jsx";
 
 var strData = "";
 function writeLine1(line) {

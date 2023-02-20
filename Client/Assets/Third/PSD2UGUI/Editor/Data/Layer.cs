@@ -10,6 +10,8 @@ namespace PSDUINewImporter
 {
     public class Layer
     {
+        [XmlAttribute]
+        public int id;
         //资源名
         [XmlAttribute]
         public string name;
@@ -19,6 +21,9 @@ namespace PSDUINewImporter
         //默认可见性
         [XmlAttribute]
         public bool visible = true;
+
+        [XmlAttribute]
+        public int index;
 
         //导出类型 标记图片文字组件等
         public string type;
@@ -58,6 +63,8 @@ namespace PSDUINewImporter
         public float opacity;
         public Size size;
         public Position position;
+        //缩放
+        public Scale scale;
         #endregion
 
         #region 文字效果

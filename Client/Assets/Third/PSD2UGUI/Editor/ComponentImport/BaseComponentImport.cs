@@ -26,10 +26,10 @@ namespace PSDUINewImporter
             {
                 targetT = target.GetComponent<T>();
             }
-            if (targetT == null)//find in parent 
-            {
-                targetT = FindInParent(index, layer, parent);
-            }
+            // if (targetT == null)//find in parent 
+            // {
+            //     targetT = FindInParent(index, layer, parent);
+            // }
             if (targetT == null)
             {
                 targetT = LoadAndInstant(layer, parent, index);
@@ -47,13 +47,11 @@ namespace PSDUINewImporter
             if (TryGetSizePostion(layer, out var size, out var position, out bgIdx))//自定义组件需要控制布局
             {
                 var l1 = layer.layers[bgIdx];
-                //if (!ctrl.CompareLayerType(layer.importType, ComponentType.Customer) && !ctrl.CompareLayerType(layer.importType, ComponentType.Moban))
                 var rectTransform = target.GetComponent<RectTransform>();
                 PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
                 if (autoSize) SetRectTransformSize(rectTransform, l1.size);
                 if (autoPosition) SetRectTransformPosition(rectTransform, l1.position);
-                // Debug.LogFormat("target={0}, autoPosition={1}, autoSize={2},l1.position={3}, rectTransform.localPosition={4} ", target, autoPosition, autoSize, l1.position, rectTransform.localPosition);
-                l1.target = target;
+                //l1.target = target;
                 return bgIdx;
             }
             return -1;
@@ -88,9 +86,7 @@ namespace PSDUINewImporter
                 if (overrideTarget != null)
                 {
                     rectTransform = overrideTarget.GetComponent<RectTransform>();
-                    PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
-                    SetRectTransformSize(rectTransform, l1.size);
-                    SetRectTransformPosition(rectTransform, l1.position);
+                    SetRectTransformSizeAndPos(rectTransform,l1);
                 }
 
                 if (image.sprite == null)
@@ -108,15 +104,15 @@ namespace PSDUINewImporter
         /// </summary>
         /// <param name="layer"></param>      
         /// <returns></returns>
-        protected virtual int SetSizeAndPosByBackgroundImage(RectTransform rectTransform,Layer layer)
+        protected virtual int SetSizeAndPosByBackgroundImage(RectTransform rectTransform, Layer layer)
         {
             int bgIdx;
-             if(TryGetBackgroundImage(layer, out bgIdx))
-             {
+            if (TryGetBackgroundImage(layer, out bgIdx))
+            {
                 Layer layer1 = layer.layers[bgIdx];
-                SetRectTransformSizeAndPos(rectTransform,layer1);
+                SetRectTransformSizeAndPos(rectTransform, layer1);
                 return bgIdx;
-             }
+            }
             return -1;
         }
 
@@ -442,7 +438,7 @@ namespace PSDUINewImporter
                 for (int i = 0; i < layers.Length; i++)
                 {
                     item = layers[i];
-                    if (item.TagContains(PSDImportUtility.SizeTag))
+                    if (item.TagContains(PSDImportUtility.SizeTag) || item.name == "mb_root") //模板
                     {
                         size = item.size;
                         position = item.position;
@@ -452,8 +448,8 @@ namespace PSDUINewImporter
                 }
             }
             size = null;
-            position = null;
             index = -1;
+            position = default(Position);
             return false;
         }
 
@@ -497,11 +493,37 @@ namespace PSDUINewImporter
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.height * scale);
         }
 
+        protected void SetRectTransformScale(RectTransform rectTransform, Layer layer)
+        {
+            Vector3 scale = Vector3.one;
+            scale.x = layer.scale.x * .01f;
+            scale.y = layer.scale.y * .01f;
+            rectTransform.localScale = scale;
+        }
+
         protected void SetRectTransformSizeAndPos(RectTransform rectTransform, Layer layer)
         {
             var cach = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
             SetRectTransformSize(rectTransform, layer.size);
             SetRectTransformPosition(rectTransform, layer.position);
+            PSDImportUtility.SetAnchorFromCache(rectTransform, cach);
+        }
+
+        protected void SetRectTransformScale(RectTransform rectTransform, Layer layer, Layer scaleLayer=null)
+        {
+            var cach = PSDImportUtility.SetAnchorMiddleCenter(rectTransform);
+            var pos = layer.position;
+            var scale = scaleLayer?.scale;
+            if (scale != null)
+            {
+                pos.x -= layer.size.width * .005f * (100 - scale.x) ;
+                pos.y += layer.size.height * .005f * (100 - scale.y) ;
+                Vector3 localScale = Vector3.one;
+                localScale.x = scale.x * .01f;
+                localScale.y = scale.y * .01f;
+                rectTransform.localScale = localScale;
+            }
+            SetRectTransformPosition(rectTransform, pos);
             PSDImportUtility.SetAnchorFromCache(rectTransform, cach);
         }
 
@@ -591,14 +613,11 @@ namespace PSDUINewImporter
                     return re;
                 }
             }
-            //else if (ctrl.CompareLayerType(layer.type, ComponentType.Text) && !string.IsNullOrEmpty(layer.templateName)) //模板字体
-            //{
-            //}
             else
             {
                 var typeName = typeof(T).Name;
                 if (typeof(RectTransform) == typeof(T)) typeName = "Empty";
-                var asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.name, parent);
+                var asset = (T)PSDImportUtility.LoadAndInstant<T>(PSDImporterConst.GetAssetPath(typeName), layer.layerName, parent);
                 //asset.transform.SetSiblingIndex(index);
                 asset.gameObject.SetActive(layer.visible);
                 return asset;

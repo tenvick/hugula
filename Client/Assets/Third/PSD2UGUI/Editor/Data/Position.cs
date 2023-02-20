@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 namespace PSDUINewImporter
 {
-    public class Position
+    public struct Position
     {
         public float x;
         public float y;
@@ -43,5 +43,15 @@ namespace PSDUINewImporter
             femal.y -= man.y;
             return femal;
          }
+    }
+
+    public class Scale{
+        public float x;
+        public float y;
+
+        public override string ToString()
+        {
+            return string.Format("scale x={0},y={1} ",x,y);
+        }
     }
 }

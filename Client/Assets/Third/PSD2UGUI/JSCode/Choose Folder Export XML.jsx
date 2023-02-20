@@ -12,7 +12,7 @@
 // $.level = 0;
 // debugger; // launch debugger on next line
 
-var jsxfile="Export PSDUI New Only xml.jsx";
+var jsxfile="Export PSD Xml New.jsx";
 
 var strData = "";
 function writeLine1(line) {

@@ -22,11 +22,13 @@ namespace PSDUINewImporter
             layer.target = targetComp;
             if(posSizeLayerIndex==-1)
             {
-                SetSizeAndPosByBackgroundImage(target.GetComponent<RectTransform>(),layer);
+                posSizeLayerIndex =SetSizeAndPosByBackgroundImage(target.GetComponent<RectTransform>(),layer);
             }
 
             ctrl.DrawLayers(layer.layers, null, target.gameObject);
             AutoAddChildren(target);
+
+            //处理缩放？
         }
      
 

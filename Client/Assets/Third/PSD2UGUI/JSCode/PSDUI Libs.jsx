@@ -21,7 +21,7 @@ var psdHHalf;
 var offsetX = 0; //智能图层文件夹绝对坐标x偏移
 var offsetY = 0;//智能图层文件夹绝对坐标y偏移
 
-var Imagekeywords =["size","hide","dotexport","_9s","_lhalf","_bhalf","_quarter"];
+var Imagekeywords = ["size", "hide", "dotexport", "_9s", "_lhalf", "_bhalf", "_quarter"];
 
 function writeNewLine(line, depth) {
     if (depth > 0) {
@@ -68,6 +68,16 @@ function openFolder(destFolder) {
 }
 
 //====================================命名检测=======
+//检测是否包含中文
+function containsChinese(temp) {
+    var re = /.*[\u4e00-\u9fa5]+.*$/;
+    if (re.test(temp))
+        return true;
+    else
+        return false;
+}
+
+
 function syntaxSugar(name) {
     return name.replace("@mb:", "@#");
 }
@@ -115,7 +125,7 @@ function checkOldMobanRoot(_layer) {
 function makeValideLayerName(name) {
     var validName = name.replace(/^\s+|\s+$/gm, ''); // trim spaces
     validName = validName.replace(/[\\\*\/\?:"\|<>]/g, '');
-    validName=validName.replace(/[ ]/g, '_');
+    validName = validName.replace(/[ ]/g, '_');
     return validName;
 }
 
@@ -174,13 +184,24 @@ function isTemplate(fileName) {
 }
 
 function getTemplateType(fileName) {
-    var idx = fileName.indexOf("@#"); //可以缩放的模板!#
+    var idx = fileName.indexOf("@#"); //表示老模板   !#
     if (idx >= 0) {
         return "Moban";
     } else {
-        return "Customer";
+        return "Customer"; //默认模板支持缩放
     }
 }
+
+//检测模板是否能够缩放
+function CheckTemplateScale(fileName) {
+    var idx = fileName.indexOf("!#"); //表示不能缩放
+    if (idx >= 0) {
+        false;
+    } else {
+        return true;
+    }
+}
+
 
 function getTemplateName(fileName) {
     var idx = fileName.indexOf("#"); //第一个#号后面为模板名字
@@ -225,19 +246,18 @@ function checkShouldExport(fileName) {
 
 //检测智能图层是否应该作为普通图片
 function checkSmartIsImage(layerName) {
-    var idx =-1;
+    var idx = -1;
     if (isTemplate(layerName))
         return false;
-    else if (layerName.indexOf("@grp")>=0) //group
+    else if (layerName.indexOf("@grp") >= 0) //group
     {
         return false;
-    }else if((idx =layerName.indexOf("@"))>=0) //特殊判断
+    } else if ((idx = layerName.indexOf("@")) >= 0) //特殊判断
     {
-        var extendName = layerName.substring(idx,layerName.length).toLowerCase();
+        var extendName = layerName.substring(idx, layerName.length).toLowerCase();
 
-        for(var i=0;i<Imagekeywords.length;i++)
-        {
-            if(extendName.indexOf(Imagekeywords[i])>=0) //图片
+        for (var i = 0; i < Imagekeywords.length; i++) {
+            if (extendName.indexOf(Imagekeywords[i]) >= 0) //图片
             {
                 return true;
             }

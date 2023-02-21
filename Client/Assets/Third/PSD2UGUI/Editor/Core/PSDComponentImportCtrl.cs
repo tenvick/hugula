@@ -15,11 +15,22 @@ namespace PSDUINewImporter
     {
         private PSDUI psdUI;
 
+        public PSDComponentImportCtrl()
+        {
+            PSDImporterConst.LoadConfig();
+            PSDDirectoryUtility.ClearCache();
+            InitAliasType();
+            PSDImportUtility.baseDirectory = PSDImporterConst.Globle_BASE_FOLDER;
+
+        }
+
         public PSDComponentImportCtrl(string xmlFilePath)
         {
             ShowTips("导入PSD","加载配置",0.1f);
             PSDImporterConst.LoadConfig();
             PSDDirectoryUtility.ClearCache();
+            PSDImportUtility.baseDirectory = PSDImporterConst.Globle_BASE_FOLDER;
+
             ShowTips("导入PSD", $"加载{xmlFilePath}", 0.2f);
             InitDataAndPath(xmlFilePath);
             InitAliasType();
@@ -29,7 +40,7 @@ namespace PSDUINewImporter
 
             if(PSDImporterConst.PSDUI_SETTING_TEXTRUE)
             {
-                LoadLayers();
+                LoadLayers(psdUI);
             }
 
             ClearTips();
@@ -109,10 +120,6 @@ namespace PSDUINewImporter
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo () == false) { return; }
 #endif
             PSDImportUtility.baseFilename = Path.GetFileNameWithoutExtension(xmlFilePath);
-            //if(xmlFilePath.StartsWith(Application.dataPath))
-            //    PSDImportUtility.baseDirectory = "Assets/" + Path.GetDirectoryName(xmlFilePath.Remove(0, Application.dataPath.Length + 1)) + "/";
-            //else
-                PSDImportUtility.baseDirectory = PSDImporterConst.Globle_BASE_FOLDER;
         }
 
         private void InitAliasType()
@@ -161,7 +168,7 @@ namespace PSDUINewImporter
             }
         }
 
-        private void LoadLayers()
+        public void LoadLayers(PSDUI psdUI)
         {
             Layer layer = null;
             var len = psdUI.layers.Length;
@@ -170,6 +177,8 @@ namespace PSDUINewImporter
                 layer = psdUI.layers[layerIndex];
                 ImportLayer(layer, PSDImportUtility.baseDirectory);
             }
+
+             ClearTips();
         }
 
         public void BeginDrawUILayers()

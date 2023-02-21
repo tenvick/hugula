@@ -12,18 +12,55 @@ namespace PSDUINewImporter
 
     public class PSD2UGUIResCopyTool : EditorWindow
     {
-        [MenuItem("QuickTool/1. PSD2UGUIResCopyTool", false,1)]
+        [MenuItem("QuickTool/1. PSD2UGUIResCopyTool", false, 1)]
         static void Init()
         {
             var window = EditorWindow.GetWindow<PSD2UGUIResCopyTool>("Image & XML Res Copy tool");
             window.Show();
         }
 
-        Dictionary<string, string> baseFolderFiles;
+        //右键方式导入资源
+        [MenuItem("Assets/1. PSD2UGUIResCopyTool", false, 1)]
+        static void CopyResFormOutside()
+        {
+
+            if (ChooseFolder())
+            {
+                foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+                {
+                    var assPath = AssetDatabase.GetAssetPath(obj);
+                    var objName = obj.name.ToLower();
+                    var psdUI = (PSDUI)PSDImportUtility.DeserializeXml(assPath);
+                    BeginCopy(psdUI);
+                    AssetDatabase.Refresh();
+                    var psdCtrl = new PSDComponentImportCtrl();
+                    psdCtrl.LoadLayers(psdUI);//设置图片
+                }
+            }
+
+        }
+
+        [MenuItem("Assets/2. PSDNew Generate Ugui", true, 2)]
+        [MenuItem("Assets/1. PSD2UGUIResCopyTool", true, 1)]
+        static bool ValidateXMLFile()
+        {
+            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            {
+                if (Path.GetExtension(AssetDatabase.GetAssetPath(obj)) == ".xml")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static Dictionary<string, string> baseFolderFiles;
         string textInfo = string.Empty;
-        StringBuilder sb = new StringBuilder();
-        string lastSourcePath = string.Empty;
-        string lastTargetPath = string.Empty;
+        static StringBuilder sb = new StringBuilder();
+        static string lastSourcePath = string.Empty;
+        static string lastTargetPath = string.Empty;
+
+        #region window
         void OnEnable()
         {
             PSDImporterConst.LoadConfig();
@@ -49,40 +86,13 @@ namespace PSDUINewImporter
             GUILayout.Label("资源copy工具=>", toolbarHeight);
             if (GUILayout.Button("Choose Source Folder", EditorStyles.miniButton, GUILayout.Width(300), toolbarHeight))
             {
-                string _path = EditorUtility.OpenFolderPanel("原始资源目录", lastSourcePath, string.Empty).Replace('\\', '/');
-
-                if(string.IsNullOrEmpty(_path))
+                if (ChooseFolder())
                 {
-                    EditorUtility.DisplayDialog("警告", "必须选择原始目录", "确定");
-                    return;
+                    BeginCopy();
+                    textInfo = sb.ToString();
                 }
-                lastSourcePath = _path;
-                if(string.IsNullOrEmpty(lastTargetPath))
-                {
-                    lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
-                }
-                string _path2 = EditorUtility.OpenFolderPanel("选择工程内部图片存放目录", lastTargetPath, string.Empty).Replace('\\', '/');
-
-                if(!_path2.Contains(PSDImporterConst.Globle_BASE_FOLDER))
-                {
-                    EditorUtility.DisplayDialog("警告", $"目标目录必须在{PSDImporterConst.Globle_BASE_FOLDER}下", "确定");
-                    return;
-                }
-
-                lastTargetPath = _path2;
-                AssetDatabase.Refresh();
-                sb.Clear();
-                baseFolderFiles = ForeachFolderAndCachName(PSDImporterConst.Globle_BASE_FOLDER);
-                errSb.Clear();
-                CopyFolder(_path, _path2);
-                AssetDatabase.Refresh();
-
-                sb.Append(errSb);
-                textInfo = sb.ToString();
-                HugulaEditor.EditorUtils.WriteToTmpFile("PSD2UGUIResImport_Log.txt",sb.ToString());
             }
 
-            
             EditorGUILayout.EndHorizontal();
             GUILayout.Space(15);
             if (!string.IsNullOrEmpty(textInfo))
@@ -93,24 +103,143 @@ namespace PSDUINewImporter
             }
 
         }
+
+        #endregion
+        static string choosePath1, choosePath2;
+        static bool ChooseFolder()
+        {
+             PSDImporterConst.LoadConfig();
+            PSDDirectoryUtility.ClearCache();
+            
+        sourceFolderSelectBegin:
+            string _path = EditorUtility.OpenFolderPanel("原始资源目录", lastSourcePath, string.Empty).Replace('\\', '/');
+
+            if (string.IsNullOrEmpty(_path))
+            {
+                if (EditorUtility.DisplayDialog("警告", "必须选择原始目录", "确定"))
+                    goto sourceFolderSelectBegin;
+                else
+                    return false;
+            }
+
+            lastSourcePath = _path;
+            if (string.IsNullOrEmpty(lastTargetPath))
+            {
+                lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
+            }
+            else if (!lastTargetPath.Contains(PSDImporterConst.Globle_BASE_FOLDER))
+            {
+                lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
+            }
+        targetFolderSelectPath:
+            string _path2 = EditorUtility.OpenFolderPanel("选择工程内部图片存放目录", lastTargetPath, string.Empty).Replace('\\', '/');
+
+            if (!_path2.Contains(PSDImporterConst.Globle_BASE_FOLDER))
+            {
+                if (EditorUtility.DisplayDialog("警告", $"目标目录必须在{PSDImporterConst.Globle_BASE_FOLDER}下", "确定"))
+                    goto targetFolderSelectPath;
+                else
+                    return false;
+            }
+
+            lastTargetPath = _path2;
+            AssetDatabase.Refresh();
+            choosePath1 = _path;
+            choosePath2 = _path2;
+            sb.Clear();
+            baseFolderFiles = ForeachFolderAndCachName(PSDImporterConst.Globle_BASE_FOLDER);
+            errSb.Clear();
+
+            return true;
+        }
+
+
+        static void BeginCopy()
+        {
+            CopyFolder(choosePath1, choosePath2);
+            AssetDatabase.Refresh();
+            sb.Append(errSb);
+            HugulaEditor.EditorUtils.WriteToTmpFile("PSD2UGUIResImport_Log.txt", sb.ToString());
+        }
+
+        #region  xml文件方式导入图片
+        ///以xml文件方式导入
+        static void BeginCopy(PSDUI psdUI)
+        {
+            Layer layer = null;
+            var len = psdUI.layers.Length;
+            for (int layerIndex = 0; layerIndex < len; layerIndex++)
+            {
+                layer = psdUI.layers[layerIndex];
+                ImportLayerImage(layer, choosePath1, choosePath2);
+            }
+            sb.Append(errSb);
+            HugulaEditor.EditorUtils.WriteToTmpFile("PSD2UGUIResImport_selected_Log.txt", sb.ToString());
+        }
+
+        /// <summary>
+        /// 导入图片
+        /// </summary>
+        /// <param name="layer"></param>
+        static void ImportLayerImage(Layer layer, string sourcePath, string targetPath)
+        {
+            if (layer.type == ComponentType.Image || layer.type == "img")//如果是图片
+            {
+                //寻找目标
+                var fileName = layer.name + ".png";
+                if (!baseFolderFiles.TryGetValue(fileName, out var sourPath))//如果没有目标图片
+                {
+                    var found = PSDDirectoryUtility.FindFileInDirectory(sourcePath, fileName);
+                    if (string.IsNullOrEmpty(found))
+                    {
+                        errSb.AppendLine($"\r\n        {fileName} 不存在于目录      {sourcePath}!");
+                    }
+                    else
+                    {
+                        var targetFile = Path.Combine(targetPath, fileName);
+                        if (File.Exists(targetPath))
+                        {
+                            File.Delete(targetPath);
+                            sb.AppendLine($"\r\n目标文件:{targetPath}存在,已经删除！");
+                            Debug.LogWarning($"    目标文件:{targetPath}存在,已经删除！");
+                        }
+                        File.Copy(found, targetFile);
+                        baseFolderFiles[fileName] = targetFile; //标记为已经导入
+                        sb.AppendLine($"{fileName},    copy to:    {targetFile}");
+                    }
+                }
+            }
+
+            if (layer.layers != null)
+            {
+                for (int layerIndex = 0; layerIndex < layer.layers.Length; layerIndex++)
+                {
+                    ImportLayerImage(layer.layers[layerIndex], sourcePath, targetPath);
+                }
+            }
+        }
+
+        #endregion
+
+
         Vector2 ScrollPos;
-        StringBuilder errSb = new StringBuilder();
-        void CopyFolder(string source,string target)
+        static StringBuilder errSb = new StringBuilder();
+        static void CopyFolder(string source, string target)
         {
             Debug.Log($"Copy foler {source} to {target}");
             sb.AppendLine($"开始导入 \r\n原始文件夹：{source} \r\n目标文件夹：{target} \r\n {System.DateTime.Now.ToString()} \r\n ");
 
-            var files= FilterFiles(source,new string[]{ "png","xml"},SearchOption.AllDirectories);
+            var files = FilterFiles(source, new string[] { "png", "xml" }, SearchOption.AllDirectories);
 
-            for(int i=0;i<files.Length;i++)
+            for (int i = 0; i < files.Length; i++)
             {
                 var file = files[i];
                 var fileName = Path.GetFileName(file);
                 var extension = Path.GetExtension(fileName);
-                if(!baseFolderFiles.TryGetValue(fileName,out var sourPath)  || extension == ".xml" )//如果是xml需要覆盖
+                if (!baseFolderFiles.TryGetValue(fileName, out var sourPath) || extension == ".xml")//如果是xml需要覆盖
                 {
                     var targetPath = Path.Combine(target, fileName);
-                    if(File.Exists(targetPath) && extension == ".xml")
+                    if (File.Exists(targetPath) && extension == ".xml")
                     {
                         File.Delete(targetPath);
                         sb.AppendLine($"\r\n目标文件:{targetPath}存在,已经删除！");
@@ -128,7 +257,7 @@ namespace PSDUINewImporter
             }
         }
 
-        Dictionary<string,string> ForeachFolderAndCachName(string folder)
+        static Dictionary<string, string> ForeachFolderAndCachName(string folder)
         {
             folder = folder.Replace("\\", "/");
             Debug.Log(folder);
@@ -140,18 +269,20 @@ namespace PSDUINewImporter
                 var file = files[i];
                 var fileName = Path.GetFileName(file);
                 dic[fileName] = file;
-               // sb.AppendLine($" 原始文件：{fileName} 目录：{file}");
+                // sb.AppendLine($" 原始文件：{fileName} 目录：{file}");
             }
             return dic;
         }
 
-        public string[] FilterFiles(string path,string[] exts, SearchOption searchOption = SearchOption.AllDirectories )
+        static public string[] FilterFiles(string path, string[] exts, SearchOption searchOption = SearchOption.AllDirectories)
         {
             return
                 Directory
                 .EnumerateFiles(path, "*.*", searchOption)
                 .Where(file => exts.Any(x => file.EndsWith(x, StringComparison.OrdinalIgnoreCase))).ToArray();
         }
+
+
     }
 
 }

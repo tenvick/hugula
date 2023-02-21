@@ -27,12 +27,8 @@ var depth = 0
 var psdW;
 var psdH;
 
-// var smartTargetLayer;//当前打开的智能图层对象
-// var smartLayerBounds;//当前智能图层的bounds
-var smartChildrenLayerRoot = {}; //
-// var smartScale = { x: 1, y: 1 }; //当前缩放
-// var smartAngle = 0; //当前旋转
 
+var smartChildrenLayerRoot = {}; //
 var smartLayerSetArray = [];//智能图层嵌套堆栈
 
 main();
@@ -166,10 +162,15 @@ function exportComponents(_layer, depth) {
 
     if (_layer.typename == "LayerSet") {
         checkLayerName(_layer.name);
+        var smartInfo = smartChildrenLayerRoot[getLayerHashKey(_layer)];
         writeNewLine("<Layer id='" + _layer.id + "' name='" + validFileName + "' visible='" + _layer.visible + "' layerName=\"" + makeValideLayerName(_layer.name) + "\" index='" + _layer.itemIndex + "' >", depth + 1);
         if (isTemplate(_layerName)) {
 
-            writeNewLine("<type>" + getTemplateType(_layerName) + "</type>", depth + 2);
+            if (smartInfo) //智能图层
+                writeNewLine("<type>Customer</type>", depth + 2);
+            else
+                writeNewLine("<type>" + getTemplateType(_layerName) + "</type>", depth + 2);
+
             writeNewLine("<templateName>" + getTemplateName(_layerName) + "</templateName> ", depth + 2);
             writeNewLine("<miniType>" + getTypeName(_layerName) + "</miniType>", depth + 2);
             //老的模板需要判断对齐规则
@@ -178,17 +179,26 @@ function exportComponents(_layer, depth) {
         else {
             writeNewLine("<type>" + getTypeName(_layerName) + "</type>", depth + 2);
         }
+
         writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
-        var smartInfo = smartChildrenLayerRoot[getLayerHashKey(_layer)];
-        if (smartInfo) //有缩放
+        if (smartInfo) //有缩放信息
         {
             var smartScale = smartInfo.scale;
             smartChildrenLayerRoot[getLayerHashKey(_layer)] = null;
-            writeNewLine("<scale><x>" + smartScale.x + "</x><y>" + smartScale.y + "</y></scale>", depth + 2);
-            var smartLayerBounds = smartInfo.bounds;
-            var posInfo = convertBounds2Pos(smartLayerBounds.l, smartLayerBounds.t, smartLayerBounds.r, smartLayerBounds.b);
-            getPosBoundsXmlInfo(posInfo.x - offsetX, posInfo.y - offsetY, posInfo.w, posInfo.h, depth + 2)
-        }
+            if (smartInfo.canScale) { //能够缩放
+                writeNewLine("<scale><x>" + smartScale.x + "</x><y>" + smartScale.y + "</y></scale>", depth + 2);
+                var smartLayerBounds = smartInfo.bounds;
+                var smartSourceBounds = smartInfo.sourceBounds;//原始尺寸
+                var posInfo = convertBounds2Pos(smartLayerBounds.l, smartLayerBounds.t, smartLayerBounds.r, smartLayerBounds.b);
+                var sourcePosInfo = convertBounds2Pos(smartSourceBounds.l, smartSourceBounds.t, smartSourceBounds.r, smartSourceBounds.b);
+                getPosBoundsXmlInfo(posInfo.x - offsetX, posInfo.y - offsetY, sourcePosInfo.w, sourcePosInfo.h, depth + 2);// 宽高应该是原始信息的尺寸，坐标是当前中心点
+            } else {
+                var smartLayerBounds = smartInfo.bounds;
+                var posInfo = convertBounds2Pos(smartLayerBounds.l, smartLayerBounds.t, smartLayerBounds.r, smartLayerBounds.b);
+                getPosBoundsXmlInfo(posInfo.x - offsetX, posInfo.y - offsetY, posInfo.w, posInfo.h, depth + 2)
+            }
+        } 
+
         writeNewLine("<layers>", depth + 2);
 
         for (var i = 0; i < _layer.layers.length; i++) {
@@ -201,12 +211,15 @@ function exportComponents(_layer, depth) {
     } else if (isSMARTOBJECT) {
 
         if (checkSmartIsImage(_layerName)) { //如果是图片方式渲染
-            writeNewLine("<Layer id='" + _layer.id + "' name='" + validFileName + "' visible='" + _layer.visible + "' layerName=\"" + makeValideLayerName(_layer.name) + "\"  index='" + _layer.itemIndex + "'  >", depth + 1);
-            writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
-            setArtNodeXmlInfo(_layer, depth + 2);
-            app.activeDocument.activeLayer = _layer;
-            exportImage(_layer, validFileName, depth + 2);
-            writeNewLine("</Layer>", depth + 1);
+            if (!containsChinese(validFileName)) //图片名字不不能包含中文
+            {
+                writeNewLine("<Layer id='" + _layer.id + "' name='" + validFileName + "' visible='" + _layer.visible + "' layerName=\"" + makeValideLayerName(_layer.name) + "\"  index='" + _layer.itemIndex + "'  >", depth + 1);
+                writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
+                setArtNodeXmlInfo(_layer, depth + 2);
+                app.activeDocument.activeLayer = _layer;
+                exportImage(_layer, validFileName, depth + 2);
+                writeNewLine("</Layer>", depth + 1);
+            }
         }
         else {
 
@@ -238,6 +251,7 @@ function exportComponents(_layer, depth) {
             smartScale.x = scale.scaleX.toFixed(2);
             smartScale.y = scale.scaleY.toFixed(2);
             smartInfo["scale"] = smartScale;
+            smartInfo["canScale"] = CheckTemplateScale(_layerName); //检测能否缩放，某些模板不能缩放 比如进度条。 !#模板不能缩放
 
             var sRootLayer;
             for (var i = 0; i < _layer.layers.length; i++) {
@@ -265,7 +279,7 @@ function exportComponents(_layer, depth) {
             exportLabel(_layer, validFileName, depth + 2);
             writeNewLine("</Layer>", depth + 1);
         }
-        else if (!isSMARTOBJECT && !isTemplate(_layerName)) //非智能图层非模板
+        else if (!isSMARTOBJECT && !isTemplate(_layerName) && !containsChinese(validFileName)) //非智能图层非模板不包含中文
         {
             writeNewLine("<Layer id='" + _layer.id + "' name='" + validFileName + "' visible='" + _layer.visible + "' layerName=\"" + makeValideLayerName(_layer.name) + "\"  index='" + _layer.itemIndex + "'  >", depth + 1);
             writeNewLine("<tag>" + getTagList(_layerName) + "</tag>", depth + 2);
@@ -283,7 +297,7 @@ function exportComponents(_layer, depth) {
             } else {
                 setArtNodeXmlInfo(_layer, depth + 2);
             }
-            app.activeDocument.activeLayer = _layer;
+            // app.activeDocument.activeLayer = _layer;
             exportImage(_layer, validFileName, depth + 2);
             writeNewLine("</Layer>", depth + 1);
         }

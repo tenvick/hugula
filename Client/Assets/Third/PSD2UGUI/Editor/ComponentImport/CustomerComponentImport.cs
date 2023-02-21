@@ -48,7 +48,7 @@ namespace PSDUINewImporter
             else
             {
                 layer.target = targetT;
-                DrawTargetLayer(index, layer, targetT, parent, DrawSizeAndPos(layer, targetT.gameObject, autoPos));
+                DrawTargetLayer(index, layer, targetT, parent, DrawSizeAndPos(layer, targetT.gameObject, autoPos,autoSize));
                 CheckAddBinder(layer, targetT);
             }
 

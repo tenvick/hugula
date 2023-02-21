@@ -159,8 +159,11 @@ function exportComponents(_layer, depth) {
         }
     } else if (isSMARTOBJECT) {
         if (checkSmartIsImage(_layerName)) {
-            app.activeDocument.activeLayer = _layer;
-            exportImage(_layer, validFileName, depth + 2);
+            if(!containsChinese(validFileName))
+            {
+                app.activeDocument.activeLayer = _layer;
+                exportImage(_layer, validFileName, depth + 2);
+            }
         } else {
             app.activeDocument.activeLayer = _layer;
             openSmartObject(_layer);
@@ -183,7 +186,7 @@ function exportComponents(_layer, depth) {
         if (LayerKind.TEXT == _layer.kind) {
             exportLabel(_layer, validFileName, depth + 2);
         }
-        else if (!isSMARTOBJECT && !isTemplate(_layerName)) //非智能图层非模板
+        else if (!isSMARTOBJECT && !isTemplate(_layerName) && !containsChinese(validFileName)) //非智能图层非模板
         {
             app.activeDocument.activeLayer = _layer;
             exportImage(_layer, validFileName, depth + 2);

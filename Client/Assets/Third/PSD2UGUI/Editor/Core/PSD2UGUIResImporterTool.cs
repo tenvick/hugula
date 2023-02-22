@@ -12,6 +12,7 @@ namespace PSDUINewImporter
 
     public class PSD2UGUIResCopyTool : EditorWindow
     {
+
         [MenuItem("QuickTool/1. PSD2UGUIResCopyTool", false, 1)]
         static void Init()
         {
@@ -24,7 +25,7 @@ namespace PSDUINewImporter
         static void CopyResFormOutside()
         {
 
-            if (ChooseFolder())
+            if (ChooseFolder(true))
             {
                 foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
                 {
@@ -33,8 +34,11 @@ namespace PSDUINewImporter
                     var psdUI = (PSDUI)PSDImportUtility.DeserializeXml(assPath);
                     BeginCopy(psdUI);
                     AssetDatabase.Refresh();
-                    var psdCtrl = new PSDComponentImportCtrl();
-                    psdCtrl.LoadLayers(psdUI);//设置图片
+                    if (PSDImporterConst.PSDUI_SETTING_TEXTRUE)
+                    {
+                        var psdCtrl = new PSDComponentImportCtrl();
+                        psdCtrl.LoadLayers(psdUI);//设置图片
+                    }
                 }
             }
 
@@ -105,12 +109,15 @@ namespace PSDUINewImporter
         }
 
         #endregion
+        const string choosePath1Key = "PSD2ugui_LASET_choose_Path1";
+        const string choosePath2Key = "PSD2ugui_LASET_choose_Path2";
+
         static string choosePath1, choosePath2;
-        static bool ChooseFolder()
+        static bool ChooseFolder(bool defaultTargetPath = false)
         {
-             PSDImporterConst.LoadConfig();
+            PSDImporterConst.LoadConfig();
             PSDDirectoryUtility.ClearCache();
-            
+            lastSourcePath = EditorPrefs.GetString(choosePath1Key, PSDImporterConst.Globle_BASE_FOLDER);
         sourceFolderSelectBegin:
             string _path = EditorUtility.OpenFolderPanel("原始资源目录", lastSourcePath, string.Empty).Replace('\\', '/');
 
@@ -122,30 +129,41 @@ namespace PSDUINewImporter
                     return false;
             }
 
-            lastSourcePath = _path;
-            if (string.IsNullOrEmpty(lastTargetPath))
-            {
-                lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
-            }
-            else if (!lastTargetPath.Contains(PSDImporterConst.Globle_BASE_FOLDER))
-            {
-                lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
-            }
-        targetFolderSelectPath:
-            string _path2 = EditorUtility.OpenFolderPanel("选择工程内部图片存放目录", lastTargetPath, string.Empty).Replace('\\', '/');
+            EditorPrefs.SetString(choosePath1Key, _path);
 
-            if (!_path2.Contains(PSDImporterConst.Globle_BASE_FOLDER))
-            {
-                if (EditorUtility.DisplayDialog("警告", $"目标目录必须在{PSDImporterConst.Globle_BASE_FOLDER}下", "确定"))
-                    goto targetFolderSelectPath;
-                else
-                    return false;
-            }
-
-            lastTargetPath = _path2;
-            AssetDatabase.Refresh();
             choosePath1 = _path;
+
+            string _path2 = string.Empty;
+            if (defaultTargetPath) //采用默认路径存放图片
+            {
+                _path2 =   PSDImporterConst.DEFAULT_IMAGE_PATH;
+            }
+            else
+            {
+
+                lastTargetPath = EditorPrefs.GetString(choosePath2Key, PSDImporterConst.Globle_BASE_FOLDER);
+                if (!lastTargetPath.Contains(PSDImporterConst.Globle_BASE_FOLDER))
+                {
+                    lastTargetPath = PSDImporterConst.Globle_BASE_FOLDER;
+                }
+
+            targetFolderSelectPath:
+                _path2 = EditorUtility.OpenFolderPanel("选择工程内部图片存放目录", lastTargetPath, string.Empty).Replace('\\', '/');
+
+                if (!_path2.Contains(PSDImporterConst.Globle_BASE_FOLDER))
+                {
+                    if (EditorUtility.DisplayDialog("警告", $"目标目录必须在{PSDImporterConst.Globle_BASE_FOLDER}下", "确定"))
+                        goto targetFolderSelectPath;
+                    else
+                        return false;
+                }
+
+                EditorPrefs.SetString(choosePath2Key, _path2);
+            }
+
+            AssetDatabase.Refresh();
             choosePath2 = _path2;
+
             sb.Clear();
             baseFolderFiles = ForeachFolderAndCachName(PSDImporterConst.Globle_BASE_FOLDER);
             errSb.Clear();

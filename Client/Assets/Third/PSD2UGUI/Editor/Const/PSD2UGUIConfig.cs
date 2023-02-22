@@ -6,8 +6,11 @@ namespace PSDUINewImporter
     [CreateAssetMenu(fileName = "PSD2UGUINewConfig", menuName = "Creat PSD2NewUGUIConfig Asset")]
     public class PSD2UGUIConfig : ScriptableObject
     {
-        [Header("sprite图片根路径")]
+        [Header("图片搜索根目录")]
         public string m_rootImagePath;//= PSDImporterConst.Globle_BASE_FOLDER;
+
+        [Header("图片默认导入目录")]
+        public string m_defautImagePath;//
 
         [Header("字体资源路径 (TMPro asset)")]
         public string m_fontAssetPath;// = PSDImporterConst.FONT_FOLDER;
@@ -25,6 +28,7 @@ namespace PSDUINewImporter
         public void CloneTo(PSD2UGUIConfig m_config)
         {
             m_config.m_rootImagePath = m_rootImagePath;
+            m_config.m_defautImagePath = m_defautImagePath;
             m_config.m_fontAssetPath = m_fontAssetPath;
             m_config.m_psduiTemplatePath = m_psduiTemplatePath;
             m_config.m_psduiCustomTemplatePath = m_psduiCustomTemplatePath;

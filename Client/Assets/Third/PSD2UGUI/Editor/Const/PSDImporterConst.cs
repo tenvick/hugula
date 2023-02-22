@@ -12,12 +12,14 @@ namespace PSDUINewImporter
         public const string PNG_SUFFIX = ".png";
 
         /// <summary>
-        /// 图片文件夹
+        /// 图片搜索根目录
         /// </summary>
         public static string Globle_BASE_FOLDER = "Assets/CustomRes/Demo/UI/";
 
-        public static string Globle_PSD_FOLDER = "CustomRes/psd";
-  
+        /// <summary>
+        /// 图片默认导入目录
+        /// </summary>
+        public static string DEFAULT_IMAGE_PATH = "Assets/CustomRes/Demo/UI/atlas";
 
         /// <summary>
         /// 字体资源路径路径
@@ -127,6 +129,7 @@ namespace PSDUINewImporter
                 PSDUI_CONSTOM_PATH = _config.m_psduiCustomTemplatePath;
                 PSDUI_CONSTOM_FONT_PATH = _config.m_psdFontCustomTemplatePath;
                 PSDUI_SETTING_TEXTRUE = _config.m_SettingImage;
+                DEFAULT_IMAGE_PATH = _config.m_defautImagePath;
                 Debug.Log($"Load config. {_config.ToString()}");
             }
 

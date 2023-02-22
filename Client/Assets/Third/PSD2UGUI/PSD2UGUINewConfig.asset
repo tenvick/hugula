@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: PSD2UGUINewConfig
   m_EditorClassIdentifier: 
   m_rootImagePath: Assets/CustomRes/Demo/UI/
+  m_defautImagePath: Assets/CustomRes/Demo/UI/atlas
   m_fontAssetPath: Assets/CustomRes/Font/
   m_psduiTemplatePath: Assets/Third/PSD2UGUI/Template/UI/
   m_psduiCustomTemplatePath: Assets/CustomRes/Demo/UI/components
   m_psdFontCustomTemplatePath: Assets/CustomRes/Demo/UI/components/font_comps
-  m_SettingImage: 1
+  m_SettingImage: 0

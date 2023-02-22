@@ -43,31 +43,67 @@ namespace PSDUINewImporter
             }
         }
 
+        bool m_Modify = false;
         private void OnGUI()
         {
-           
+
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.TextField("字体资源路径:", m_config.m_fontAssetPath);
             if (GUILayout.Button("字体资源(TMPro.asset)路径"))
             {
+            lableFont:
                 string _path = EditorUtility.OpenFolderPanel("字体资源路径", m_config.m_fontAssetPath, string.Empty).Replace('\\', '/');
 
-                _path = GetValue(_path);
+                if (!CheckValue(_path, null, out _path)) //目录选择错误
+                {
+                    goto lableFont;
+                }
 
                 if (!string.IsNullOrEmpty(_path))
+                {
                     m_config.m_fontAssetPath = _path;
+                    m_Modify = true;
+                }
             }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.TextField("ui图片资源根目录:", m_config.m_rootImagePath);
-            if (GUILayout.Button("ui图片资源根目录"))
+            EditorGUILayout.TextField("图片搜索根目录:", m_config.m_rootImagePath);
+            if (GUILayout.Button("图片搜索根目录"))
             {
-                string _path = EditorUtility.OpenFolderPanel("ui图片资源根目录", m_config.m_rootImagePath, string.Empty).Replace('\\', '/');
+            labelRootImage:
+                string _path = EditorUtility.OpenFolderPanel("图片搜索根目录", m_config.m_rootImagePath, string.Empty).Replace('\\', '/');
 
-                _path = GetValue(_path);
+                if (!CheckValue(_path, null, out _path)) //目录选择错误
+                {
+                    goto labelRootImage;
+                }
+
                 if (!string.IsNullOrEmpty(_path))
+                {
                     m_config.m_rootImagePath = _path;
+                    m_Modify = true;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.TextField("图片默认导入目录:", m_config.m_defautImagePath);
+            if (GUILayout.Button("图片默认导入目录"))
+            {
+            labelDefaultImage:
+                string _path = EditorUtility.OpenFolderPanel("图片默认导入目录", m_config.m_defautImagePath, string.Empty).Replace('\\', '/');
+
+                if (!CheckValue(_path, m_config.m_rootImagePath, out _path)) //目录选择错误
+                {
+                    goto labelDefaultImage;
+                }
+
+                if (!string.IsNullOrEmpty(_path))
+                {
+                    m_config.m_defautImagePath = _path;
+                    m_Modify = true;
+                }
             }
             EditorGUILayout.EndHorizontal();
 
@@ -75,11 +111,20 @@ namespace PSDUINewImporter
             EditorGUILayout.TextField("系统组件加载路径:", m_config.m_psduiTemplatePath);
             if (GUILayout.Button("系统组件加载路径"))
             {
+            labelSystemComp:
                 string _path = EditorUtility.OpenFolderPanel("系统组件加载路径", m_config.m_psduiTemplatePath, string.Empty).Replace('\\', '/');
 
-                _path = GetValue(_path);
+                if (!CheckValue(_path, null, out _path)) //目录选择错误
+                {
+                    goto labelSystemComp;
+                }
+
                 if (!string.IsNullOrEmpty(_path))
+                {
                     m_config.m_psduiTemplatePath = _path;
+                    m_Modify = true;
+
+                }
             }
             EditorGUILayout.EndHorizontal();
 
@@ -87,11 +132,20 @@ namespace PSDUINewImporter
             EditorGUILayout.TextField("自定义模板加载路径:", m_config.m_psduiCustomTemplatePath);
             if (GUILayout.Button("自定义模板加载路径"))
             {
+            lableTemplate:
                 string _path = EditorUtility.OpenFolderPanel("自定义模板加载路径", m_config.m_psduiTemplatePath, string.Empty).Replace('\\', '/');
 
-                _path = GetValue(_path);
+                if (!CheckValue(_path, null, out _path)) //目录选择错误
+                {
+                    goto lableTemplate;
+                }
+
                 if (!string.IsNullOrEmpty(_path))
+                {
                     m_config.m_psduiCustomTemplatePath = _path;
+                    m_Modify = true;
+
+                }
             }
             EditorGUILayout.EndHorizontal();
 
@@ -99,12 +153,18 @@ namespace PSDUINewImporter
             EditorGUILayout.TextField("自定义字体模板加载路径:", m_config.m_psdFontCustomTemplatePath);
             if (GUILayout.Button("自定义字体模板加载路径"))
             {
+            labelTextTemplate:
                 string _path = EditorUtility.OpenFolderPanel("自定义字体模板加载路径", m_config.m_psdFontCustomTemplatePath, string.Empty).Replace('\\', '/');
 
-                _path = GetValue(_path);
+                if (!CheckValue(_path, null, out _path)) //目录选择错误
+                {
+                    goto labelTextTemplate;
+                }
+
                 if (!string.IsNullOrEmpty(_path))
                 {
                     m_config.m_psdFontCustomTemplatePath = _path;
+                    m_Modify = true;
 
                 }
             }
@@ -116,8 +176,10 @@ namespace PSDUINewImporter
 
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("保存"))
+            var tips = m_Modify ? "(有变更）保存" : "保存";
+            if (GUILayout.Button(tips))
             {
+                m_Modify = false;
                 if (string.IsNullOrEmpty(m_config.m_rootImagePath) ||
                     string.IsNullOrEmpty(m_config.m_fontAssetPath) ||
                     string.IsNullOrEmpty(m_config.m_psduiTemplatePath) ||
@@ -138,25 +200,29 @@ namespace PSDUINewImporter
             }
         }
 
-        private static string GetValue(string _path)
+
+        static bool CheckValue(string path, string checkFolderPath, out string outPath)
         {
             string _path2 = Application.dataPath.Replace('\\', '/');
-
-            if (!_path.Contains("Assets"))
+            path = path.Replace('\\', '/');
+            checkFolderPath = checkFolderPath?.Replace('\\', '/');
+            if (!path.Contains("Assets") || (!string.IsNullOrEmpty(checkFolderPath) && !path.Contains(checkFolderPath)))
             {
-                Debug.LogError($"必须选择UnityAssets路径下的文件夹! 当前选择:{_path}");
-
-                // EditorWindow.ShowNotification(new GUIContent("配置路径不应该为空!"));
-                EditorUtility.DisplayDialog("配置路径错误", $"必须选择UnityAssets路径下的文件夹! 当前选择:{_path}", "确认");
-                return string.Empty;
+                var t = string.IsNullOrEmpty(checkFolderPath)?"Unity Assets":checkFolderPath;
+                Debug.LogError($"必须选择{t}路径下的文件夹! \r\n 当前选择:{path}");
+                outPath = string.Empty;
+                if (EditorUtility.DisplayDialog("配置路径错误", $"必须选择{t}路径下的文件夹! \r\n当前选择:{path}", "确认"))
+                    return true;
+                return false;
             }
 
-            int _index = _path.IndexOf("/Assets", StringComparison.Ordinal);
+            int _index = path.IndexOf("/Assets", StringComparison.Ordinal);
 
-            _path = _path.Substring(_index + 1, _path.Length - _index - 1);
+            outPath = path.Substring(_index + 1, path.Length - _index - 1);
 
-            return _path;
+            return true;
         }
+
 
     }
 }

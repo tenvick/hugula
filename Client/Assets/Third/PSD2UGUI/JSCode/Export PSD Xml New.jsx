@@ -120,7 +120,7 @@ function main() {
     app.preferences.rulerUnits = savedRulerUnits;
     app.preferences.typeUnits = savedTypeUnits;
     if (app.playbackDisplayDialogs != DialogModes.NO) {
-        // alert(" 导出成功！ 路径：" + destFile);
+        alert(" 导出成功！ 路径：" + destFile);
     }
 }
 

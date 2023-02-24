@@ -22,14 +22,23 @@ namespace Hugula.Databinding
                 if (data is LuaTable)
                 {
                     var lua = data as LuaTable;
-                    if (lua.ContainsKey<string>("PropertyChanged")) //检测属性
-                    {
-                        bindable.context = lua.Cast<INotifyPropertyChanged>();
-                    }else
-                        bindable.context = data;
+                if (lua.ContainsKey<string>("CollectionChanged"))
+                {
+                    bindable.context = lua.Cast<INotifyTable>();
+                }
+                else if (lua.ContainsKey<string>("get_Item"))
+                {
+                    bindable.context = lua.Cast<IList>();
+                }
+                else if (lua.ContainsKey<string>("PropertyChanged")) //检测属性
+                {
+                    bindable.context = lua.Cast<INotifyPropertyChanged>();
                 }
                 else
                     bindable.context = data;
+            }
+            else
+                bindable.context = data;
 
 #if BINDING_PROFILER_DUMP
             }

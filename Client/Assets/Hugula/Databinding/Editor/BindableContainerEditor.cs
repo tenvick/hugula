@@ -48,7 +48,8 @@ namespace HugulaEditor.Databinding
                            RemoveMonos((BindableContainer)target, orderlist.index);
                        };
 
-            CheckNamesAndMonos((BindableContainer)target);
+            if(target is BindableContainer)
+                CheckNamesAndMonos((BindableContainer)target);
 
         }
 

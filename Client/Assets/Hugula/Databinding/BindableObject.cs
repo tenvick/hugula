@@ -283,6 +283,16 @@ namespace Hugula.Databinding
         {
             return bindings;
         }
+
+        //清理序列化的引用
+        [XLua.DoNotGen]
+        internal virtual void ClearBindRef()
+        {
+            foreach(var b in bindings)
+            {
+                b.source = null;
+            }
+        }
 #endif
     }
 

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding;
+using System.Text.RegularExpressions;
 using UnityEditor.IMGUI.Controls;
 
 namespace HugulaEditor.Databinding
@@ -219,7 +220,7 @@ namespace HugulaEditor.Databinding
             {
                 sb.Clear();
                 CompareMonoBehaviours(m_RightSelectGo, m_LeftSelectGo);
-                HugulaEditor.EditorUtils.WriteToTmpFile($"{m_RightSelectGo.name} {m_LeftSelectGo.name}__diff.txt", sb.ToString());
+                HugulaEditor.EditorUtils.WriteToTmpFile($"{GetSafeFileName(m_RightSelectGo.name)} {GetSafeFileName(m_LeftSelectGo.name)}__diff.txt", sb.ToString());
                 Debug.Log(sb.ToString());
             }
             pos.y += pos.height - 5;
@@ -227,7 +228,7 @@ namespace HugulaEditor.Databinding
             {
                 sb.Clear();
                 CompareBindables(m_RightSelectGo, m_LeftSelectGo);
-                HugulaEditor.EditorUtils.WriteToTmpFile($"{m_RightSelectGo.name} {m_LeftSelectGo.name}_bindable_diff.txt", sb.ToString());
+                HugulaEditor.EditorUtils.WriteToTmpFile($"{GetSafeFileName(m_RightSelectGo.name)} {GetSafeFileName(m_LeftSelectGo.name)}_bindable_diff.txt", sb.ToString());
                 Debug.Log(sb.ToString());
 
             }
@@ -677,6 +678,13 @@ namespace HugulaEditor.Databinding
             }
 
 
+        }
+
+        string pattern = "[" + Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars())) + "]";
+        string GetSafeFileName(string fileName)
+        {
+            fileName = Regex.Replace(fileName, pattern, "_");
+            return fileName;
         }
 
         string GetParentPath(GameObject go)

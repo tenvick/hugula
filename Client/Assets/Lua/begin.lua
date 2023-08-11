@@ -9,9 +9,43 @@ local VMState = VMState
 local VMGroup = VMGroup
 require("core.hot_reload")
 
+------------------------------------
+local groups = {}
+local require = require
+local table_insert = table.insert
+
+local DelayFrame = DelayFrame
+
+table_insert(groups, function()
+    print("groups 1 require")  
+    print(_VERSION)
+
+    --require("common.requires")
+end)
+
+table_insert(groups, function()
+    print("groups 2 require config")
+    -- require("require_config")
+end)
+
+table_insert(groups, function()
+    print("groups 3 设置")
+    VMState:set_root(VMGroup.welcome,true) -- 设置根
+ --标记回收组
+    local vmManager = VMState:get_vm_manager()
+    vmManager:mark_gc_group("welcome",true)
+
+    VMState:push(VMGroup.welcome)
+end)
+
+
+--执行
+for i, func in ipairs(groups) do DelayFrame(func, i) end
+
+
 -- -------------------------------------------------------------------------------
 local GameObject = CS.UnityEngine.GameObject
-VMState:push(VMGroup.welcome)
+-- VMState:push(VMGroup.welcome)
 
 local NetWork = CS.Hugula.Net.NetWork.main
 Logger.LogSys("hot fix 2022.9.22 10:19")

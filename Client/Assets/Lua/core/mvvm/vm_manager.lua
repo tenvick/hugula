@@ -16,6 +16,7 @@ local DIS_TYPE = DIS_TYPE
 local xpcall = xpcall
 local debug = debug
 local string_format = string.format
+local table_clear         = table.clear
 
 local CS = CS
 local GameObject = CS.UnityEngine.GameObject

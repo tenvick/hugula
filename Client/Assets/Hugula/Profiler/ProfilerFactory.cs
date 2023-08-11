@@ -22,8 +22,8 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string TitleFormat = "\nProfiler|Total|Self|Calls|Max Single Call|Max Self Single Call|Avg Except Max Call|Number of SingleCallTime>3ms";
-        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}";
+        private const string TitleFormat = "\nProfiler|Total|Self|Calls|Max Single Call|Max Self Single Call|Avg Except Max Call|Number of SingleCallTime>3ms|first time|first frameCount";
+        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}";
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace Hugula.Profiler
         private static Dictionary<string, StopwatchProfiler> profilers = new Dictionary<string, StopwatchProfiler>();
 #if PROFILER_NO_DUMP
         public static readonly bool DoNotProfile = true;
-#elif PROFILER_DUMP || UNITY_EDITOR
+#elif PROFILER_DUMP
         public static readonly bool DoNotProfile = false;
 #else
         public static readonly bool DoNotProfile = true;
@@ -84,7 +84,7 @@ namespace Hugula.Profiler
             profiler.Start(needUnityProfiler);
             return profiler;
         }
-        private static System.Text.UnicodeEncoding uniEncoding = new System.Text.UnicodeEncoding();
+        private static System.Text.UTF8Encoding uniEncoding = new System.Text.UTF8Encoding();
 
         private static void WriteToStream(Stream stream, string msg)
         {
@@ -94,6 +94,35 @@ namespace Hugula.Profiler
                     0, uniEncoding.GetByteCount(msg));
             }
         }
+
+        /// <summary>
+        /// Dumps all profiler data to a log file.
+        /// </summary>
+        static string LogDirName
+        {
+            get
+            {
+#if UNITY_EDITOR || UNITY_STANDALONE
+                var kDirName = Path.Combine(Application.dataPath, "../Logs/");
+#else
+                var kDirName = Hugula.Utils.CUtils.realPersistentDataPath;
+#endif
+                return kDirName;
+            }
+        }
+
+        public static List<string> GetProfilerNames()
+        {
+            var dir =  new DirectoryInfo(LogDirName);
+            var files = dir.GetFiles("ProfilerInfoLog_*.txt");
+            var list = new List<string>();
+            foreach (var item in files)
+            {
+                list.Add(item.FullName);
+            }
+            return list;
+        }
+
 
         static string m_LogFileName;
         static string LogFileFullName
@@ -153,7 +182,13 @@ namespace Hugula.Profiler
                 list.Add(pair);
             }
 
-            list.Sort(delegate (KeyValuePair<string, StopwatchProfiler> a, KeyValuePair<string, StopwatchProfiler> b) { return a.Value.ElapsedMilliseconds.CompareTo(b.Value.ElapsedMilliseconds); });
+            list.Sort(delegate (KeyValuePair<string, StopwatchProfiler> a, KeyValuePair<string, StopwatchProfiler> b) { 
+                return 
+                    // a.Value.firstTime.CompareTo(b.Value.firstTime);
+                    b.Value.firstTime.CompareTo(a.Value.firstTime);
+                    //a.Value.ElapsedMilliseconds.CompareTo(b.Value.ElapsedMilliseconds);
+
+             });
 
             double fullTime = 0;
             foreach (var pair in list)
@@ -173,7 +208,7 @@ namespace Hugula.Profiler
                     {
                         avgExceptMaxMilliseconds = (float)(itemValue.ElapsedMilliseconds - itemValue.MaxSingleFrameTimeInMs) / (float)(itemValue.NumberOfCalls - 1);
                     }
-                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), itemValue.MaxSingleFrameTimeInMsSelf.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms);
+                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), itemValue.MaxSingleFrameTimeInMsSelf.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms,itemValue.firstTime,itemValue.firstFrameCount);
                     if (bWriteToFile)
                     {
                         WriteToStream(kFile, kLine);

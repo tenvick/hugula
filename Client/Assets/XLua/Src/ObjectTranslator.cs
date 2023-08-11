@@ -109,18 +109,18 @@ namespace XLua
         internal ObjectCasters objectCasters;
 
         internal readonly ObjectPool objects = new ObjectPool();
-        internal readonly Dictionary<object, int> reverseMap = new Dictionary<object, int>(new ReferenceEqualsComparer());
-        internal LuaEnv luaEnv;
-        internal StaticLuaCallbacks metaFunctions;
-        internal List<Assembly> assemblies;
-        private LuaCSFunction importTypeFunction, loadAssemblyFunction, castFunction;
+        internal readonly Dictionary<object, int> reverseMap = new Dictionary<object, int>(512,new ReferenceEqualsComparer());
+		internal LuaEnv luaEnv;
+		internal StaticLuaCallbacks metaFunctions;
+		internal List<Assembly> assemblies;
+		private LuaCSFunction importTypeFunction,loadAssemblyFunction, castFunction;
         //延迟加载
-        private readonly Dictionary<Type, Action<RealStatePtr>> delayWrap = new Dictionary<Type, Action<RealStatePtr>>();
+        private readonly Dictionary<Type, Action<RealStatePtr>> delayWrap = new Dictionary<Type, Action<RealStatePtr>>(512);
 
-        private readonly Dictionary<Type, Func<int, LuaEnv, LuaBase>> interfaceBridgeCreators = new Dictionary<Type, Func<int, LuaEnv, LuaBase>>();
+        private readonly Dictionary<Type, Func<int, LuaEnv, LuaBase>> interfaceBridgeCreators = new Dictionary<Type, Func<int, LuaEnv, LuaBase>>(512);
 
         //无法访问的类，比如声明成internal，可以用其接口、基类的生成代码来访问
-        private readonly Dictionary<Type, Type> aliasCfg = new Dictionary<Type, Type>();
+        private readonly Dictionary<Type, Type> aliasCfg = new Dictionary<Type, Type>(64);
 
         public void DelayWrapLoader(Type type, Action<RealStatePtr> loader)
         {
@@ -1229,7 +1229,7 @@ namespace XLua
             }
         }
 
-        Dictionary<object, int> enumMap = new Dictionary<object, int>();
+        Dictionary<object, int> enumMap = new Dictionary<object, int>(64);
 
         public int TranslateToEnumToTop(RealStatePtr L, Type type, int idx)
         {
@@ -1449,7 +1449,7 @@ namespace XLua
         }
 
 #if GEN_CODE_MINIMIZE
-        CSharpWrapper[] csharpWrapper = new CSharpWrapper[0];
+        CSharpWrapper[] csharpWrapper = new CSharpWrapper[64];
         int csharpWrapperSize = 0;
 
         internal int CallCSharpWrapper(RealStatePtr L, int funcidx, int top)

@@ -28,6 +28,7 @@ namespace HugulaEditor.Databinding
         }
 
         [MenuItem("Assets/1. Compare Left Prefab", false, 4)]
+        [MenuItem("GameObject/1. Compare Left Prefab", false, 1)]
         static void SelectLeft()
         {
             m_LeftChooseGO = Selection.activeGameObject;
@@ -36,6 +37,7 @@ namespace HugulaEditor.Databinding
         static GameObject m_LeftChooseGO;
 
         [MenuItem("Assets/2. Compare Right Prefab", false, 5)]
+        [MenuItem("GameObject/2. Compare Right Prefab", false, 1)]
         static void SelectRight()
         {
             var window = GetWindow<CompareWindow>();
@@ -60,6 +62,7 @@ namespace HugulaEditor.Databinding
         }
 
         [MenuItem("Assets/2. Compare Right Prefab", true, 5)]
+        [MenuItem("GameObject/2. Compare Right Prefab", true, 1)]
         static bool ValidateRight()
         {
             return m_LeftChooseGO != null;
@@ -159,7 +162,7 @@ namespace HugulaEditor.Databinding
 
         Rect middleTreeViewRectBottom
         {
-            get { return new Rect(20, position.height * .5f - 30, position.width - 40, position.height * .5f - 60); }
+            get { return new Rect(20, position.height * .5f , position.width - 40, position.height * .5f - 60); }
         }
 
         Rect toolbarRect
@@ -291,7 +294,11 @@ namespace HugulaEditor.Databinding
             if (monoFilterIndex == 0)
                 bindable = item.GetComponents<MonoBehaviour>();
             else
-                bindable = item.GetComponents<BindableObject>();
+                bindable = System.Array.ConvertAll<BindableObject,MonoBehaviour>(item.GetComponents<BindableObject>(), (tin) =>
+                {
+                    return (MonoBehaviour)tin;
+                });
+
             foreach (var obj in bindable)
             {
                 if (monoStyleIndex >= 2)

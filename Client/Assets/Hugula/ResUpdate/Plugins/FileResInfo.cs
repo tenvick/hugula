@@ -35,9 +35,10 @@ namespace Hugula.ResUpdate
             return name.GetHashCode();
         }
 
+        static StringBuilder stringBuilder = new StringBuilder();
         public override string ToString()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Clear();
             stringBuilder.AppendFormat("path={0},", name);
             stringBuilder.AppendFormat("crc32={0},", this.crc32);
             stringBuilder.AppendFormat("size={0},", this.size);

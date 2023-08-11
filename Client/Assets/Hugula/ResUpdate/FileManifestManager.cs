@@ -230,6 +230,11 @@ namespace Hugula.ResUpdate
         public static bool CheckAddressIsDown(string address, System.Type type = null)
         {
 #if UNITY_EDITOR
+
+            #if SIMULATION_SPLIT_PACKAGE
+                return false;
+            #else
+
             //如果非ab模式
             List<ScriptableObject> allDataBuilders = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DataBuilders;
             var activeIndex = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.ActivePlayModeDataBuilderIndex;
@@ -239,6 +244,7 @@ namespace Hugula.ResUpdate
 
             if (!check)
                 return true;
+            #endif
 
 #endif
 
@@ -249,7 +255,7 @@ namespace Hugula.ResUpdate
             if (string.IsNullOrEmpty(address))
             {
 #if !HUGULA_NO_LOG
-                Debug.LogError("FileManifestManager.CheckAddressIsDown() argument address is null or Empty");
+                Debug.LogError($"FileManifestManager.CheckAddressIsDown() argument address {address} is null or Empty \r\n {EnterLua.LuaTraceback()}");
 #endif
                 return false;
             }

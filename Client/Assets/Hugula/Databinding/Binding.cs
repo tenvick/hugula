@@ -215,14 +215,14 @@ namespace Hugula.Databinding
 #endif
             bool needSubscribe = this.needSubscribe;
             BindingPathPart part = null;
-            for (var i = 0; i < m_Parts.Count; i++)
+            for (var i = 0; i < parts.Count; i++)
             {
-                part = m_Parts[i];
+                part = parts[i];
                 part.SetSource(m_Current); //
                 if (!part.isSelf && m_Current != null)
                 {
 
-                    if (i < m_Parts.Count - 1)
+                    if (i < parts.Count - 1)
                         part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current); //lua NofityObject对象通过此方法在BindingExpression.get_property中订阅
                 }
 
@@ -260,9 +260,9 @@ namespace Hugula.Databinding
         //解绑目标
         public void Unapply()
         {
-            for (var i = 0; i < m_Parts.Count - 1; i++)
+            for (var i = 0; i < parts.Count - 1; i++)
             {
-                BindingPathPart part = m_Parts[i];
+                BindingPathPart part = parts[i];
                 part?.Unsubscribe();
             }
         }
@@ -277,7 +277,7 @@ namespace Hugula.Databinding
 
         public void SetLastPart()
         {
-            m_LastPart = m_Parts[m_Parts.Count - 1];
+            m_LastPart = parts[parts.Count - 1];
         }
 
         internal void OnSourceChanged(BindingPathPart lastPart)
@@ -296,7 +296,7 @@ namespace Hugula.Databinding
                         part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current);
                 }
 
-                // UnityEngine.Debug.LogFormat("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, m_Parts.Count, part, part.isSelf);
+                // UnityEngine.Debug.LogFormat("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, parts.Count, part, part.isSelf);
                 if (!part.isSelf && m_Current == null)
                     break;
 
@@ -343,27 +343,36 @@ namespace Hugula.Databinding
         static readonly char[] ExpressionSplit = new[] { '.' };
 
         //解析的path路径
-        readonly List<BindingPathPart> m_Parts = ListPool<BindingPathPart>.Get();// new List<BindingPathPart>();
+        List<BindingPathPart> m_Parts;// new List<BindingPathPart>();
 
         public List<BindingPathPart> parts
         {
             get
             {
+                if(m_Parts==null)
+                    m_Parts = ListPool<BindingPathPart>.Get();
                 return m_Parts;
             }
         }
         public void ParsePath()
         {
+            if(string.IsNullOrEmpty(path))
+            {
+                #if UNITY_EDITOR
+                Debug.LogError("Binding path is null or empty");
+                #endif
+                return;
+            }
 
             string p = path.Trim();
 
             if (!string.IsNullOrEmpty(converter))
                 convert = ValueConverterRegister.instance?.Get(converter);
 
-            m_Parts.Clear();
+            parts.Clear();
             var last = BindingPathPart.Get(); //new BindingPathPart(this, SelfPath);
             last.Initialize(this, SelfPath);
-            m_Parts.Add(last);
+            parts.Add(last);
 
             if (p[0] == ExpressionSplit[0])
             {
@@ -425,7 +434,7 @@ namespace Hugula.Databinding
                     // }
 
                     last.nextPart = next;
-                    m_Parts.Add(next);
+                    parts.Add(next);
                     last = next;
                 }
                 else if (part.Length > 0)
@@ -433,14 +442,14 @@ namespace Hugula.Databinding
                     var next = BindingPathPart.Get(); //new BindingPathPart(this, part);
                     next.Initialize(this, part);
                     last.nextPart = next;
-                    m_Parts.Add(next);
+                    parts.Add(next);
                     last = next;
                 }
 
                 if (indexer != null)
                 {
                     last.nextPart = indexer;
-                    m_Parts.Add(indexer);
+                    parts.Add(indexer);
                     last = indexer;
                 }
             }
@@ -458,12 +467,17 @@ namespace Hugula.Databinding
             m_ApplyContext = null;
             m_Context = null;
             m_LastPart = null;
-            for (var i = 0; i < m_Parts.Count - 1; i++)
+
+            if(m_Parts!=null)
             {
-                BindingPathPart part = m_Parts[i];
-                part?.ReleaseToPool();
+                for (var i = 0; i < m_Parts.Count - 1; i++)
+                {
+                    BindingPathPart part = m_Parts[i];
+                    part?.ReleaseToPool();
+                }
+                ListPool<BindingPathPart>.Release(m_Parts);
             }
-            ListPool<BindingPathPart>.Release(m_Parts);
+            m_Parts = null;
         }
 
     }

@@ -156,7 +156,7 @@ namespace HugulaEditor.ResUpdate
                     Directory.CreateDirectory(updateContentStateDataPath);
                 string verPath = Path.Combine(updateContentStateDataPath, $"{CodeVersion.APP_VERSION}_{EditorUtils.GetResNumber()}_addressables_content_state.bin");
 
-                File.Copy(contentStatePath, verPath);
+                File.Copy(contentStatePath, verPath,true);
                 Debug.Log($" File.Copy({contentStatePath},{verPath})");
             }
             else
@@ -249,10 +249,10 @@ namespace HugulaEditor.ResUpdate
                     Debug.LogError("there is no folderManifest in StreamingAssetsPath " + streamingPath);
 
                 Debug.LogFormat("Load streamingAsset folderManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", streamingPath, data.streamingFolderManifest.Count);
-                for (int i = 0; i < assets.Length; i++)
-                {
-                    Debug.Log(assets[i].ToString());
-                }
+                // for (int i = 0; i < assets.Length; i++)
+                // {
+                //     Debug.Log(assets[i].ToString());
+                // }
                 ab.Unload(false);
 
                 if (data.firstFolderManifest == null)
@@ -300,7 +300,7 @@ namespace HugulaEditor.ResUpdate
                 for (int i = 0; i < assets.Length; i++)
                 {
                     fileManifest = assets[i];
-                    Debug.Log(fileManifest.ToString());
+                    // Debug.Log(fileManifest.ToString());
                     version = fileManifest.version;
                 }
 
@@ -349,7 +349,7 @@ namespace HugulaEditor.ResUpdate
             foreach (var manifest in streamingManifest)
             {
                 // var itemFolderManifest = manifest;
-                Debug.Log($"Build diffrence bundleManifest: {manifest.ToString()}");
+                Debug.Log($"Build diffrence bundleManifest: {manifest.fileName}");
                 var firstFind = data.FindFolderManifestByFolderName(data.firstFolderManifest, manifest.fileName);
                 List<FileResInfo> diffInfos = null;
                 if (firstFind != null)
@@ -357,13 +357,13 @@ namespace HugulaEditor.ResUpdate
                     diffInfos = firstFind.Compare(manifest);
                     var str = $"Build diffrence first BundleManifest:({manifest.fileName}) count:{diffInfos.Count}";
                     sb.AppendLine(str);
-                    Debug.Log(str);
+                    // Debug.Log(str);
                 }
                 else
                 {
                     var str = $"Build diffrence first BundleManifest({manifest.fileName}) is't exist ";
                     sb.AppendLine(str);
-                    Debug.Log(str);
+                    // Debug.Log(str);
                     //没有首包全部记录
                     diffInfos = new List<FileResInfo>(); //manifest.allFileInfos;
                 }
@@ -614,26 +614,36 @@ namespace HugulaEditor.ResUpdate
             var streamingFolderManifest = data.allFolderManifest.Values;
             var exception = UnityEditor.AddressableAssets.Settings.GroupSchemas.HugulaResUpdatePacking.PackingType.streaming.ToString();
             BuildBundlePathData buildBundlePathData = BuildBundlePathData.ReadBuildBundlePathData();
+            var sb = new System.Text.StringBuilder();
             foreach (var folderManifest in streamingFolderManifest)
             {
                 if (folderManifest.fileName == exception || !(folderManifest is FolderManifest)) continue; //streaming目录默认不打包
                 var zipName = BuildConfig.GetTmpZipName(folderManifest.fileName);//   folderManifest.zipName;
                 var zipOutPath = Path.Combine(verPath, zipName);
+                sb.AppendLine(zipName);
+                sb.AppendLine($"    outpath={zipOutPath}");
+                sb.AppendLine($"    zipCount={folderManifest.allFileInfos.Count}");
                 fileToZipFullPath.Clear();
                 BuildBundlePath buildBundlePath;
                 foreach (var file in folderManifest.allFileInfos)
                 {
                     buildBundlePath = buildBundlePathData.GetBundleBuildPath(file.name);
                     fileToZipFullPath.Add(buildBundlePath.fullBuildPath);//Path.Combine(aasBuildPath, file.name));
+                    sb.AppendLine($"            {file}");
+                }
+                //address key:
+                var mFolderManifest = folderManifest as FolderManifest;
+                sb.AppendLine($"    addressCount={mFolderManifest.allAddressKeys.Count}");
+                foreach(var address in mFolderManifest.allAddressKeys)
+                {
+                    sb.AppendLine($"            {address}");
                 }
                 if (File.Exists(zipOutPath)) File.Delete(zipOutPath);
                 ZipHelper.CreateZip(zipOutPath, fileToZipFullPath, aasBuildPath);
                 Debug.Log($"zip 文件{zipOutPath} 打包成功");
             }
-
+            Debug.Log(sb.ToString());
         }
-
-
     }
 
     ///<summary>
@@ -758,10 +768,10 @@ namespace HugulaEditor.ResUpdate
                     Debug.LogError("there is no folderManifest in StreamingAssetsPath " + streamingPath);
 
                 Debug.LogFormat("Load streamingAsset folderManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", streamingPath, data.streamingFolderManifest.Count);
-                for (int i = 0; i < assets.Length; i++)
-                {
-                    Debug.Log(assets[i].ToString());
-                }
+                // for (int i = 0; i < assets.Length; i++)
+                // {
+                //     Debug.Log(assets[i].ToString());
+                // }
                 ab.Unload(false);
             }
             else
@@ -774,6 +784,7 @@ namespace HugulaEditor.ResUpdate
             var streamingFolderManifest = data.streamingFolderManifest;
             var exception = UnityEditor.AddressableAssets.Settings.GroupSchemas.HugulaResUpdatePacking.PackingType.streaming.ToString();
             // string filePath = string.Empty;
+            var sb = new System.Text.StringBuilder();
             foreach (var folderManifest in streamingFolderManifest)
             {
                 if (folderManifest.name == exception || folderManifest is BundleManifest) continue; //streaming目录默认不打包
@@ -783,10 +794,12 @@ namespace HugulaEditor.ResUpdate
                     if (buildBundlePath != null && File.Exists(buildBundlePath.fullBuildPath))
                     {
                         File.Delete(buildBundlePath.fullBuildPath);
-                        Debug.Log($"delete file：{buildBundlePath.fullBuildPath}");
+                        sb.AppendLine($"delete file：{buildBundlePath.fullBuildPath}");
                     }
                 }
             }
+
+            Debug.Log(sb.ToString());
         }
     }
 
@@ -816,10 +829,10 @@ namespace HugulaEditor.ResUpdate
                     Debug.LogError("there is no folderManifest in StreamingAssetsPath " + streamingPath);
 
                 Debug.LogFormat("Load streamingAsset folderManifest {0} is done !\r\n ManifestManager.streamingManifest.count = {1}", streamingPath, data.streamingFolderManifest.Count);
-                for (int i = 0; i < assets.Length; i++)
-                {
-                    Debug.Log(assets[i].ToString());
-                }
+                // for (int i = 0; i < assets.Length; i++)
+                // {
+                //     Debug.Log(assets[i].ToString());
+                // }
                 ab.Unload(false);
             }
             else

@@ -199,7 +199,10 @@ namespace Hugula.UIComponents
                 cpos.y = Mathf.Min(maxY, (itemSize.y + this.halfPadding) * row + m_ContentLocalStart.y); //开始位置
             }
 
-            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, cpos, scrollTime));
+            if (gameObject.activeInHierarchy)
+            {
+                m_Coroutine = StartCoroutine(TweenMoveToPos(curr, cpos, scrollTime));
+            }
 
             if (onScrollIndexChanged != null)
                 onScrollIndexChanged(this.parameter, m_ScrollToIndex, oldIdx);

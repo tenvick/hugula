@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2023.8.11 
+1 transition过渡效果重构(ui_effect_loading.lua)，有无viewviewmodel都流程统一。
+2 BindableContainer 属性筛选，MulitTargetsBinder多目标绑定组件。
+3 gc 优化，Profiler支持时间排序。
+
 2023.2.14
 1 模板自动生成(字体与用户模板) ui_login.psd
 

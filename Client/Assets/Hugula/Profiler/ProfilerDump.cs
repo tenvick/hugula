@@ -6,7 +6,7 @@ namespace Hugula.Profiler
 {
     public class ProfilerDump : MonoBehaviour
     {
-#if !PROFILER_NO_DUMP && (PROFILER_DUMP || !HUGULA_RELEASE)
+#if PROFILER_DUMP || !HUGULA_RELEASE
         private void OnDestroy()
         {
             ProfilerFactory.DumpProfilerInfo(0, true, true);

@@ -51,6 +51,10 @@ namespace Hugula.Profiler
         #endregion Fields
 
         #region Properties
+
+        public double firstTime = 0;
+        public int firstFrameCount = 0;
+
         //上一帧整体耗时
         public double lastFrameTime = 0;
         public double MaxSingleFrameTimeInMsSelf
@@ -93,7 +97,8 @@ namespace Hugula.Profiler
 
         public void Start(bool needUnityProfiler = false)
         {
-
+            if(firstTime==0) firstTime = Hugula.Utils.CUtils.msTimestamp;
+            if(firstFrameCount==0) firstFrameCount = Time.frameCount;
             nestingLevel++;
             NumberOfCalls++;
 

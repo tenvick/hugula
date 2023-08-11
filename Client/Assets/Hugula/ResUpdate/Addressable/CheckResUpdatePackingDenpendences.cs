@@ -31,7 +31,9 @@ public class CheckResUpdatePackingDenpendences : MonoBehaviour
 
         var sb1 = new System.Text.StringBuilder();
         var keys = new List<object>();
-        foreach (var item in Addressables.ResourceLocators)
+        var resourceLocators = Addressables.ResourceLocators;
+
+        foreach (var item in resourceLocators)
         {
             sb1.AppendLine("new Addressables.ResourceLocators:(");
             sb1.Append(item.LocatorId);
@@ -49,10 +51,15 @@ public class CheckResUpdatePackingDenpendences : MonoBehaviour
                     {
                         break;
                     }
-                    sb1.AppendLine($"            -----key:{key} ,LocatorId:{item.LocatorId} Count:{locations.Count}");
                     foreach (var loc in locations)
                     {
-                        sb1.AppendLine($"                    locations:{key.ToString()} (type:{loc.ResourceType},PrimaryKey:{loc.PrimaryKey},InternalId:{loc.InternalId})");
+                        var dependencies = loc.Dependencies;
+                        sb1.AppendLine($"            -----key:{key} ,LocatorId:{loc.InternalId},dependencies:{dependencies.Count}");
+                        for (int x = 0; x < dependencies.Count; x++)
+                        {
+                            sb1.AppendLine($"                    {dependencies[x].InternalId}");
+                        }
+                        break;
                     }
                 }
 
@@ -75,7 +82,7 @@ public class CheckResUpdatePackingDenpendences : MonoBehaviour
 
     void OnGUI()
     {
-        if (GUI.Button(new Rect(100, 100, 300, 100), "开始检测"))
+        if (GUI.Button(new Rect(100, 100, 300, 80), "开始检测"))
         {
 
             var sb = new StringBuilder();
@@ -102,41 +109,24 @@ public class CheckResUpdatePackingDenpendences : MonoBehaviour
 
                     foreach (AddressableAssetEntry entry in group.entries)
                     {
-                        if (entry == null) continue;  
+                        if (entry == null) continue;
                         System.Type targetType = null;
                         if (entry.TargetAsset)
                         {
                             targetType = entry.TargetAsset.GetType();
                         }
-/**
-                        var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
-                        if (resupPacking == null || resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
-                        {
-                            List<string> dependenciesInfo = ListPool<string>.Get();
-                            Hugula.ResUpdate.FileManifestManager.AnalyzeAddressDependencies(entry.address, targetType, dependenciesInfo);
-                            bool hasZipDependencies = false;
-                            sbItem.Clear();
-                            sbItem.AppendLine($"{entry.address} path:{entry.AssetPath}     Dependencies:");
-                            for (int j = 0; j < dependenciesInfo.Count;)
-                            {
-                                var folderName = dependenciesInfo[j];
-                                var bundle = dependenciesInfo[j + 2];
-                                if (folderName != streaming) //在依赖包
-                                {
-                                    sbItem.AppendLine($"     {folderName}        {bundle}");
-                                    hasZipDependencies = true;
-                                }
-                                j = j + 3;
-                            }
 
-                            ListPool<string>.Release(dependenciesInfo);
-                            if (hasZipDependencies)
-                            {
-                                sb.AppendLine(sbItem.ToString());
-                            }
+                        //var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
+                        //if (resupPacking == null || resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
+                        //{
 
-                        }
-**/
+                        //    if (CheckBundleDen(entry.address,entry.AssetPath,targetType, sbItem))
+                        //    {
+                        //        sb.AppendLine(sbItem.ToString());
+                        //    }
+
+                        //}
+
                     }
                 }
             }
@@ -151,6 +141,64 @@ public class CheckResUpdatePackingDenpendences : MonoBehaviour
                 WriteToTmpFile("CheckResUpdatePackingDenpendences.txt", sb.ToString());
             }
         }
+
+        str = GUI.TextArea(new Rect(100, 300, 300, 200), str);
+
+        if(GUI.Button(new Rect(100, 500, 200, 100), "检测指定"))
+        {
+            var sb = new StringBuilder();
+            var sbItem = new StringBuilder();
+            if (CheckBundleDen(str,"",typeof(Object), sbItem))
+            {
+                sb.AppendLine(sbItem.ToString());
+            }
+
+            EditorUtility.ClearProgressBar();
+            Debug.Log(sb.ToString());
+            WriteToTmpFile($"CheckResUpdatePackingDenpendences_{str}.txt", sb.ToString());
+        }
+
+        if(GUI.Button(new Rect(300, 500, 200, 100), "下载资源"))
+        {
+            Debug.Log($"ResLoader.LoadAssetAsync ({str})");
+            Hugula.Utils.CUtils.DebugCastTime($"ResLoader.LoadAssetAsync({str})");
+           ResLoader.LoadAssetAsync<GameObject>(str, (o,a) => { 
+            Debug.Log(o); 
+            Hugula.Utils.CUtils.DebugCastTime($"ResLoader.LoadAssetAsync({str}) finished");
+            ResLoader.Release(0);
+            },null);
+        }
+    }
+
+    string str = "yanhuiting_gangqin";
+
+    bool CheckBundleDen(string address,string AssetPath,System.Type targetType,StringBuilder sbItem)
+    {
+        List<string> dependenciesInfo = ListPool<string>.Get();
+        Hugula.ResUpdate.FileManifestManager.AnalyzeAddressDependencies(address, targetType, dependenciesInfo);
+        bool hasZipDependencies = false;
+        sbItem.Clear();
+        sbItem.AppendLine($"{address} path:{AssetPath}     Dependencies:{dependenciesInfo.Count/3}");
+        bool ckCount = dependenciesInfo.Count >= 15;
+        for (int j = 0; j < dependenciesInfo.Count;)
+        {
+            var folderName = dependenciesInfo[j];
+            var bundle = dependenciesInfo[j + 2];
+            if (folderName != "streaming") //在依赖包
+            {
+                sbItem.AppendLine($"--     {folderName}        {bundle}");
+                hasZipDependencies = true;
+            }else if(ckCount)
+            {
+                sbItem.AppendLine($"     {folderName}        {bundle}");
+                hasZipDependencies = true;
+            }
+            j = j + 3;
+        }
+
+        ListPool<string>.Release(dependenciesInfo);
+
+        return hasZipDependencies;
     }
 
     void WriteToTmpFile(string fileName, string context)

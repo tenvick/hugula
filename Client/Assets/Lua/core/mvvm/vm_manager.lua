@@ -65,6 +65,8 @@ end
 
 ------------------------------------------------
 local empty_tab = {}
+local mark_gc_vm_tab = {}    --标记清理的vm
+local mark_gc_group_tab = {} --标记清理的group
 
 local function set_views_index(curr_vm)
     local views = curr_vm.views or empty_tab
@@ -133,12 +135,17 @@ local function destroy(self, vm_name)
             profiler = ProfilerFactory.GetAndStartProfiler(p_name, nil, nil, true)
             profiler1 = ProfilerFactory.GetAndStartProfiler(p_name .. ":1.on_deactive() on_destroy()", nil, p_name, true)
         end
+
+        if curr_vm.is_active then --如果是激活状态才调用on_deactive
+            safe_call(curr_vm.on_deactive, curr_vm)
+            _unbinding_msg(curr_vm)
+            curr_vm:stop_all_timer()
+        end
+
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
         curr_vm._is_destory = nil
-        safe_call(curr_vm.on_deactive, curr_vm)
-        _unbinding_msg(curr_vm)
-        curr_vm:stop_all_timer()
+        curr_vm._call_on_awake = nil
         safe_call(curr_vm.on_destroy, curr_vm)
 
         if NeedProfileDump then
@@ -186,7 +193,7 @@ local function check_vm_base_all_done(vm_base, view)
         end
     end
 
-    local vvm_name, parent_name, p_root_name, profiler1, profiler2
+    local vvm_name, parent_name, p_root_name, profiler1
     if NeedProfileDump then
         vvm_name = vm_base._require_name .. "-" .. view.name
         parent_name = "InstantiateAsync.onComp:" .. view.name
@@ -209,7 +216,7 @@ local function check_vm_base_all_done(vm_base, view)
     vm_base:set_views_active(is_active)
 
     safe_call(vm_base.on_assets_load, vm_base)
-
+    vm_base._call_on_awake = true
     if NeedProfileDump then
         if profiler1 then
             profiler1:Stop()
@@ -226,42 +233,38 @@ local function check_vm_base_all_done(vm_base, view)
         profiler1 = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":3.set_views_context:", nil, parent_name, true)
     end
     vm_base:set_views_context()
-    if NeedProfileDump and profiler1 then
+    if NeedProfileDump then
         profiler1:Stop()
         profiler1 = nil
     end
 
-    --transition
-    local auto_transition = vm_base.auto_transition
-    if auto_transition ~= false then
-        local do_transition = vm_base.do_transition
-        if do_transition then
-            do_transition(vm_base)
+    if is_active then
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base._require_name) --触发界面打开消息
+    end
+
+    if NeedProfileDump then
+        local p_name = ":4.deactive:"
+        if vm_base._is_destory then
+            p_name = ":4.destroy:"
+        end
+        profiler1 = ProfilerFactory.GetAndStartProfiler(p_root_name .. p_name, nil, parent_name, false)
+    end
+
+    if vm_base._is_destory then    --如果标记了销毁
+        destroy(vm_manager, vm_base._require_name)
+    elseif is_active == false then --非激活状态需要执行deactive逻辑
+        vm_base.is_active = true   --强行设置为true确保正确的deactive流程
+        deactive(vm_manager, vm_base._require_name)
+    end
+
+    if NeedProfileDump then
+        if profiler1 then
+            profiler1:Stop()
         end
     end
 
     --on_state_changed
     if vm_base._is_group == true then
-        if NeedProfileDump and not is_release then
-            profiler2 =
-                ProfilerFactory.GetAndStartProfiler(
-                p_root_name .. ":4._check_on_state_changed:",
-                nil,
-                parent_name,
-                true
-            )
-        end
-
-        vm_manager._vm_state:_check_on_state_changed(vm_base)
-
-        if NeedProfileDump and not is_release then
-            if profiler2 then
-                profiler2:Stop()
-            end
-            profiler2 =
-                ProfilerFactory.GetAndStartProfiler(p_root_name .. ":5._check_transition:", nil, parent_name, true)
-        end
-
         --check transition
         local _curr_group = vm_base._curr_group
         if _curr_group and _curr_group.transition then
@@ -277,54 +280,30 @@ local function check_vm_base_all_done(vm_base, view)
 
             if need_close then
                 local transition = VMGenerate[_curr_group.transition]
-                local on_transition_done = transition.on_transition_done
-                if on_transition_done then
-                    on_transition_done(transition, _curr_group)
+                local ActiveGroupDone = transition.ActiveGroupDone
+                if ActiveGroupDone then
+                    ActiveGroupDone(transition, _curr_group)
                 else
                     deactive(vm_manager, _curr_group.transition)
                 end
             end
         end
 
-        if NeedProfileDump and not is_release then
-            if profiler2 then
-                profiler2:Stop()
+        if NeedProfileDump then
+            profiler1 =
+                ProfilerFactory.GetAndStartProfiler(p_root_name .. ":5._check_on_state_changed:" .. vvm_name, nil,
+                    parent_name, true)
+        end
+
+        vm_manager._vm_state:_check_on_state_changed(vm_base)
+
+        if NeedProfileDump then
+            if profiler1 then
+                profiler1:Stop()
             end
         end
     end
 
-    if is_active then
-        if NeedProfileDump then
-            profiler1 =
-                ProfilerFactory.GetAndStartProfiler(
-                p_root_name .. ":6.after_set_context:DIALOG_OPEN_UI:",
-                nil,
-                parent_name,
-                true
-            )
-        end
-
-        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base._require_name) --触发界面打开消息
-
-        if NeedProfileDump and profiler1 then
-            profiler1:Stop()
-        end
-    end
-
-    if NeedProfileDump and not is_release then
-        profiler2 = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":7.end_set_context:", nil, parent_name, false)
-    end
-
-    if vm_base._is_destory then --如果标记了销毁
-        destroy(vm_manager, vm_base._require_name)
-    elseif is_active == false then --非激活状态需要执行deactive逻辑
-        vm_base.is_active = true --强行设置为true确保正确的deactive流程
-        deactive(vm_manager, vm_base._require_name)
-    end
-
-    if NeedProfileDump and not is_release and profiler2 then
-        profiler2:Stop()
-    end
     return true
 end
 
@@ -359,14 +338,22 @@ end
 ---@param data GameObject
 ---@param view_base ViewBase
 local function on_res_comp(data, view_base)
-    -- profiler.start()
     if view_base:has_child() ~= true then
-        -- local inst = GameObject.Instantiate(data)
         set_view_child(data, view_base)
+    end
+    init_view(view_base)
+end
+
+---自定义资源加载完成
+---@overload fun(view_base:ViewBase,data:any)
+---@param data any
+---@param view_base ViewBase
+local function on_res_done(view_base, data)
+    if view_base:has_child() ~= true then
+        view_base:set_child(data)
     end
 
     init_view(view_base)
-    -- profiler.stop()
 end
 
 ---资源预加载完成
@@ -383,7 +370,7 @@ local function on_pre_load_comp(data, view_base)
             profiler =
                 ProfilerFactory.GetAndStartProfiler(p_root_name .. ":1.set_views_active:", nil, parent_name, true)
         end
-        
+
         set_view_child(data, view_base)
         data:SetActive(false)
 
@@ -475,19 +462,8 @@ local function active_view(self, curr_vm)
             profiler2:Stop()
         end
 
-        --transition
-        local auto_transition = curr_vm.auto_transition
-        if auto_transition ~= false then
-            local do_transition = curr_vm.do_transition
-            if do_transition then
-                do_transition(curr_vm)
-            end
-        end
-
         --on_state_changed 没有资源的模块也需要检测state changed 事件
         if curr_vm._is_group == true then
-            vm_manager._vm_state:_check_on_state_changed(curr_vm)
-
             --check transition
             local _curr_group = curr_vm._curr_group
             if _curr_group and _curr_group.transition then
@@ -503,21 +479,28 @@ local function active_view(self, curr_vm)
 
                 if need_close then
                     local transition = VMGenerate[_curr_group.transition]
-                    local on_transition_done = transition.on_transition_done
-                    if on_transition_done then
-                        on_transition_done(transition, _curr_group)
+                    local ActiveGroupDone = transition.ActiveGroupDone
+                    if ActiveGroupDone then
+                        ActiveGroupDone(transition, _curr_group)
                     else
                         deactive(vm_manager, _curr_group.transition)
                     end
                 end
             end
+
+            vm_manager._vm_state:_check_on_state_changed(curr_vm)
         end
 
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
-        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active_view", name = vm_name})
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, { action = "active_view", name = vm_name })
 
         if NeedProfileDump and profiler then
             profiler:Stop()
+        end
+    else
+        local DoActiveGroup = curr_vm.DoActiveGroup --ITransition 特殊处理
+        if DoActiveGroup then
+            DoActiveGroup(curr_vm)
         end
     end
 end
@@ -548,10 +531,22 @@ local function load_resource(res_name, view_base, on_asset_comp, is_pre_load)
     if has_child then --and is_pre_load ~= true then --如果已经加载资源
         init_view(view_base)
     else
-        if async ~= false then ---异步加载
-            ResLoader.InstantiateAsync(res_name, on_asset_comp, nil, view_base)
+        local parent = nil
+        local ui_layer = view_base.ui_layer
+      
+        if ui_layer ~= nil then
+            parent = ui_manager:GetLayerRootTransform(ui_layer)
         else
-            local gobj = ResLoader.Instantiate(res_name)
+            ui_layer = view_base.ui_container
+            if ui_layer then
+                parent = UISubManager:GetContainer(ui_layer)
+            end
+        end
+
+        if async ~= false then ---异步加载
+            ResLoader.InstantiateAsync(res_name, on_asset_comp, nil, view_base, parent)
+        else
+            local gobj = ResLoader.Instantiate(res_name, parent)
             on_asset_comp(gobj, view_base) ---同步步加载
         end
     end
@@ -608,7 +603,12 @@ local function load(self, curr_vm, arg, is_push, curr_group)
     if views == nil or #views == 0 then
         curr_vm.is_res_ready = true
     end
+
     if curr_vm.is_res_ready == true then --已经加载过
+        if curr_vm._call_on_awake == nil then  --保持 on_assets_load 与on_destroy 一一对应
+            safe_call(curr_vm.on_assets_load, curr_vm)
+            curr_vm._call_on_awake = true
+        end
         active_view(self, curr_vm)
     else
         curr_vm.is_active = true --需要重新加载，设置本身为激活状态
@@ -629,6 +629,9 @@ local function load(self, curr_vm, arg, is_push, curr_group)
                     load_scene(scene_name, v)
                 elseif v.find_path ~= nil then
                     find_gameobject(v.find_path, v)
+                elseif v.load ~= nil then
+                    v.on_load_done = on_res_done
+                    v.load(v) --开始加载
                 end
             end
         end
@@ -660,20 +663,11 @@ local function active_group(self, vm_group, arg, is_push, vm_group)
     lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_group.name})
 end
 
---真正开始切换
-local function do_transition(self)
-    local _change_action = self._change_action
-    if _change_action then
-        _change_action()
-    end
-    self._on_do_transition(unpack(self._on_do_transition_arg))
-    -- self.do_transition = nil --只能执行一次
-end
 
 --判断是否需要loading切换
-local function _transition_active_group(self, vm_group, is_push, _change_action, arg)
+local function _transition_active_group(self, vm_group, is_push, _change_action, need_transition, arg)
     local transition = vm_group.transition
-    if transition then --check show loading
+    if transition and (need_transition == nil or need_transition == true) then --check show loading
         local curr_vm, views
         local transition_item = VMGenerate[transition]
         local always_transition = transition_item.always_transition
@@ -693,11 +687,11 @@ local function _transition_active_group(self, vm_group, is_push, _change_action,
         end
 
         if need_trans then
-            transition_item._on_do_transition = active_group
-            transition_item._on_do_transition_arg = {self, vm_group, arg, is_push, vm_group}
-            transition_item.do_transition = do_transition
-
-            transition_item._change_action = _change_action
+            local _trans_begin = function()
+                if _change_action then _change_action() end
+                active_group(self, vm_group, arg, is_push, vm_group)
+            end
+            transition_item:RegisterActiveGroupFun(vm_group, _trans_begin)
 
             load(self, transition_item, vm_group, true) --激活loading
             return
@@ -748,7 +742,7 @@ local function re_load(self, vm_name)
     end
 
     VMGenerate:reload_vm(vm_name, true) --热重载模块
-    curr_vm = VMGenerate[vm_name] --新的模块
+    curr_vm = VMGenerate[vm_name]       --新的模块
     curr_vm:on_push_arg(arg)
     curr_vm._push_arg = arg
     curr_vm._is_push = _is_push --是否是push到栈上的
@@ -780,6 +774,48 @@ local function release(self, vm_name)
     VMGenerate:release_vm(vm_name) --彻底释放
 end
 
+-- 标记回收的viewmodel模块
+---@overload fun(vm_name:string,val:boolean)
+---@param vm_name string
+---@param val boolean
+local function mark_gc_vm(self, vm_name, val)
+    mark_gc_vm_tab[vm_name] = val
+end
+
+-- 标记回收的viewmodel组模块
+local function mark_gc_group(self, group_name, val)
+    mark_gc_group_tab[group_name] = val
+end
+
+--检测是否是标记的组模块
+local function check_is_mark_group(self, group)
+    if mark_gc_group_tab[group] == true then
+        return true
+    else
+        return false
+    end
+end
+
+--释放标记的模块
+local function release_mark(self)
+    for k, v in pairs(mark_gc_vm_tab) do
+        if v then
+            VMGenerate:release_vm(k)
+        end
+    end
+    table_clear(mark_gc_vm_tab)
+end
+
+--消耗标记的模块
+local function destroy_mark(self)
+    for k, v in pairs(mark_gc_vm_tab) do
+        if v then
+            destroy(self,k)
+        end
+    end
+    table_clear(mark_gc_vm_tab)
+end
+
 vm_manager.re_load = re_load
 vm_manager.pre_load = pre_load
 vm_manager.load = load
@@ -788,7 +824,11 @@ vm_manager._transition_active_group = _transition_active_group
 vm_manager.destroy = destroy
 vm_manager.deactive = deactive
 vm_manager.release = release
-
+vm_manager.mark_gc_vm = mark_gc_vm                   --
+vm_manager.mark_gc_group = mark_gc_group             --
+vm_manager.check_is_mark_group = check_is_mark_group --
+vm_manager.release_mark = release_mark               --  释放标记的模块
+vm_manager.destroy_mark = destroy_mark               --  销毁标记的模块
 ---vm的激活与失活管理
 ---@class VMManager
 ---@field active function
@@ -796,5 +836,8 @@ vm_manager.release = release
 ---@field load function
 ---@field destroy function
 ---@field deactive function
+---@field release function
+---@field mark_gc_clear function
+---@field release_mark function
 -- VMManager = vm_manager
 return vm_manager

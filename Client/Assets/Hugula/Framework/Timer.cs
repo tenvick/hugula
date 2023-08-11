@@ -192,6 +192,7 @@ namespace Hugula.Framework
         // Update is called once per frame
         void Update()
         {
+
             var time = Time.unscaledTime;
             var frame = Time.frameCount; //当前frame
             TimerInfo timerInfo = null;

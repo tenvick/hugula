@@ -32,7 +32,7 @@ public class TLogger : ILogHandler
     {
 
 #if HUGULA_NO_LOG
-        if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
+        // if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
 #endif
         {
             unityLogger?.LogFormat(logType,context,format,args);

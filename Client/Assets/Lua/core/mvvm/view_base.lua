@@ -56,13 +56,19 @@ end
 ---@param bindable_object BindableObject
 local function set_child(self, bindable_object)
     self._child = bindable_object
+    -- Logger.Log("set_child ",bindable_object)
 end
 
 ---资源是否准备好
 ---@overload fun()
 ---@return  bool
 local function has_child(self)
-    return self._child ~= nil
+    local _child = self._child
+    if self:is_scene() then  
+        return _child ~= nil
+    else
+        return _child ~= nil and not LuaHelper.IsNull(_child)
+    end
 end
 
 ---view是否有关联的context
@@ -76,11 +82,10 @@ end
 ---@overload fun(context:any)
 ---@param context any
 local function set_child_context(self, context)
-    local child = self._child
     -- Logger.Log("set_child_context", child,not self:is_scene(),self._context ~= context ,self._context)
     if not self:is_scene() and self:has_child() and self._context ~= context then
         self._context = context
-        set_target_context(child, context)
+        set_target_context(self._child, context)
     end
 end
 
@@ -110,6 +115,11 @@ local function clear(self)
         else
             LuaHelper.DelayDestroy(child)
         end
+    end
+
+    local unload = self._unload
+    if unload then
+        unload(self)
     end
     -- Logger.Log(string.format("clear ,scene_name=%s,self._child=%s,self._context=%s",self.scene_name,self._child,self._context));
     self._child = nil

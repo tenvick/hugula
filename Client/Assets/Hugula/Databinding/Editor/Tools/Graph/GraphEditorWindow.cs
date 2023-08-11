@@ -73,7 +73,7 @@ namespace HugulaEditor.Databinding
         private Vector2 scrollPos;
 
         private int bindableObjectCount;
-        
+
         private int bindingCount;
 
         private bool enableExtraInfo = true;
@@ -89,6 +89,7 @@ namespace HugulaEditor.Databinding
         {
             var window = EditorWindow.GetWindow<GraphEditorWindow>("DataBinding");
             window.Show();
+            EditorUtility.ClearProgressBar();
         }
 
         void OnEnable()
@@ -157,7 +158,7 @@ namespace HugulaEditor.Databinding
                 GraphEditorSettings.enableDrag = GUILayout.Toggle(GraphEditorSettings.enableDrag, "Enable Drag", EditorStyles.toolbarButton, GUILayout.Width(120), toolbarHeight);
                 if (GUILayout.Button("Open Convert Window", EditorStyles.toolbarButton, GUILayout.Width(150), toolbarHeight))
                 {
-                   ConvertCodeGenWindow.Init2();
+                    ConvertCodeGenWindow.Init2();
                 }
                 GUILayout.FlexibleSpace();
 
@@ -369,39 +370,41 @@ namespace HugulaEditor.Databinding
             {
                 child = children[i];
                 isSelf = System.Object.Equals(child, container);
-                // var context_binding = child.GetBinding("context");
-                if (CheckBingdings(child))
-                {
-                    if (child == null || isSelf)
-                    {
-                        children.RemoveAt(i);
-                        Debug.LogWarningFormat("Check {0} index {1} is null({2})", container, i, child);
-                    }
-                    // else if(child!= null && child.ta)
-                    else
-                    {
-                        i++;
-                        //check target
-                        var tp = child.GetType();
-                        var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
-                        if (prop != null)
-                        {
-                            var target = prop.GetValue(child);
-                            if (target == null)
-                            {
-                                tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
-                                Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
-                            }
-                            else
-                            {
 
-                            }
-                            // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
+                if(child)         
+                    CheckBingdings(child);
+
+                if (child == null || isSelf)
+                {
+                    children.RemoveAt(i);
+                    Debug.LogWarningFormat("Check {0} index {1} is null({2})", container, i, child);
+                }
+                // else if(child!= null && child.ta)
+                else
+                {
+                    i++;
+                    //check target
+                    var tp = child.GetType();
+                    var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                    if (prop != null)
+                    {
+                        var target = prop.GetValue(child);
+                        if (target == null)
+                        {
+                            tp.InvokeMember("Awake", BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Instance, null, child, null);
+                            Debug.LogWarningFormat("Check {0} index {1} .target is null({2})", container, i, child);
                         }
+                        else
+                        {
+
+                        }
+                        // prop.SetValue(target, temp.GetComponent(prop.PropertyType));
                     }
                 }
-                else
-                    return;
+
+                // }
+                // else
+                //     return;
 
             }
 
@@ -434,10 +437,10 @@ namespace HugulaEditor.Databinding
                     genericType = bindableObject.GetType().BaseType.GetTypeInfo().GenericTypeArguments[0];
                     var selfTarget = bindableObject.GetComponent(genericType);
 
-                    if (target==null)
+                    if (target == null)
                     {
                         Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).target is null type({genericType.FullName})");
-                        searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
+                        searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name); bindableObject.ToString();
                         Find();
                     }
                     else if (target != selfTarget)
@@ -462,7 +465,7 @@ namespace HugulaEditor.Databinding
                 if (dic.TryGetValue(binding.propertyName, out var oldBinding))
                 {
                     Debug.LogErrorFormat("check binding {0}, 已经包含{1} old={2},new={3}", GetGameObjectPath(bindableObject.transform), binding.propertyName, oldBinding, binding);
-                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
+                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name); bindableObject.ToString();
                     Find();
                     return false;
                 }
@@ -474,7 +477,7 @@ namespace HugulaEditor.Databinding
                 if (string.IsNullOrEmpty(binding.path))
                 {
                     Debug.LogError($"{Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)bindableObject).gameObject)}({bindableObject}).Binding({binding.propertyName}).path is empty ");
-                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name);bindableObject.ToString();
+                    searchText = string.Format("{0}({1})", bindableObject.name, bindableObject.GetType().Name); bindableObject.ToString();
                     Find();
                     return false;
                 }
@@ -614,7 +617,7 @@ namespace HugulaEditor.Databinding
         {
             var depth = treeNode.Depth() + 1;
             bindingCount += root.GetBindings().Count;
-            bindableObjectCount ++;
+            bindableObjectCount++;
             // 构建自身节点
             var rootNode = CreateNode(NodeType.Style1);
             rootNode.name = string.Format("{0} {1}({2})", index, root.name, root.GetType().Name);
@@ -655,7 +658,7 @@ namespace HugulaEditor.Databinding
                     else if (item != null)
                     {
                         bindingCount += item.GetBindings().Count;
-                        bindableObjectCount ++;
+                        bindableObjectCount++;
 
                         node = CreateNode(NodeType.Style2);
                         if (enableExtraInfo)

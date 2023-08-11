@@ -44,7 +44,7 @@ namespace HugulaEditor.ResUpdate
                     if (resupPacking != null)
                     {
                         remove = group.RemoveSchema<HugulaResUpdatePacking>();
-                        var str = $"LogWarning[{ group.Name}].RemoveSchema<HugulaResUpdatePacking>() = {remove} \r\n";
+                        var str = $"LogWarning[{group.Name}].RemoveSchema<HugulaResUpdatePacking>() = {remove} \r\n";
                         Debug.LogWarning(str);
                         sb.AppendLine(str);
                     }
@@ -157,7 +157,7 @@ namespace HugulaEditor.ResUpdate
                         }
                         else
                         {
-                            var str = $"LogWarning[{ group.Name}] [{ entry.address}], ({ entry.TargetAsset}), { entry.AssetPath} entry.TargetAsset is null \r\n";
+                            var str = $"LogWarning[{group.Name}] [{entry.address}], ({entry.TargetAsset}), {entry.AssetPath} entry.TargetAsset is null \r\n";
                             Debug.LogWarning(str);
                             sb.AppendLine(str);
                             continue;
@@ -179,7 +179,7 @@ namespace HugulaEditor.ResUpdate
                                 {
                                     if (resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
                                     {
-                                        var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
+                                        var str = $"LogWarning[{group.Name}].HugulaResUpdatePacking.packingType is {resupPacking.packingType} now force change to PackingType.custom .[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n";
                                         Debug.LogWarning(str);
                                         sb.AppendLine(str);
                                     }
@@ -283,11 +283,12 @@ namespace HugulaEditor.ResUpdate
             try
             {
                 var title = "Check AddressableAssetGroup entries";
+                var dirtyList = new List<HugulaResUpdatePacking>();
 
                 foreach (AddressableAssetGroup group in allGroups)
                 {
                     i++;
-                    if (group == null) continue;
+                    if (group == null || group.Name.StartsWith("dup_g") || group.Name.StartsWith("dup_s")) continue;
                     if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
                     {
                         break;
@@ -300,39 +301,53 @@ namespace HugulaEditor.ResUpdate
                         if (ReplaceMatch(regices, regexArgs, entry.AssetPath, out var customName, out var priority))
                         {
 
+                            bool isDirty = false;
                             var resupPacking = group.GetSchema<HugulaResUpdatePacking>();
                             if (resupPacking == null)
                             {
                                 resupPacking = group.AddSchema<HugulaResUpdatePacking>();
+                                isDirty = true;
+
                             }
                             else
                             {
                                 if (resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom)
                                 {
-                                    var str = $"LogWarning[{ group.Name}].HugulaResUpdatePacking.packingType is { resupPacking.packingType } now force change to PackingType.custom .[{ entry.address}], ({ entry.TargetAsset.GetType()}), { entry.AssetPath} \r\n";
+                                    var str = $"LogWarning[{group.Name}].HugulaResUpdatePacking.packingType is {resupPacking.packingType} now force change to PackingType.custom .[{entry.address}], ({entry.TargetAsset.GetType()}), {entry.AssetPath} \r\n";
                                     Debug.LogWarning(str);
                                     sb.AppendLine(str);
+                                    isDirty = true;
                                 }
                             }
 
                             if (PackingTypeMapping.TryGetValue(customName, out var packingType))
                             {
+                                isDirty = resupPacking.packingType != packingType;
                                 resupPacking.packingType = packingType;
                             }
                             else
                             {
+                                isDirty = resupPacking.packingType != HugulaResUpdatePacking.PackingType.custom;
                                 resupPacking.packingType = HugulaResUpdatePacking.PackingType.custom;
                             }
 
-                            resupPacking.customName = customName;
-                            resupPacking.priority = priority;
-                            EditorUtility.SetDirty(resupPacking);
+                            sb.AppendLine($"group:{group.Name}      packName:{customName}     asset:{entry.AssetPath}");
 
+                            isDirty = resupPacking.customName != customName;
+                            resupPacking.customName = customName;
+                            isDirty = resupPacking.priority != priority;
+                            resupPacking.priority = priority;
+                            if (isDirty)
+                                dirtyList.Add(resupPacking);
                             Debug.Log($"ReplaceMatch(  path:{entry.AssetPath},customName:{customName},priority:{priority} )  ");
                             break;
                         }
                     }
                 }
+
+                foreach (var resPacking in dirtyList)
+                    EditorUtility.SetDirty(resPacking);
+
             }
             catch (System.Exception ex)
             {

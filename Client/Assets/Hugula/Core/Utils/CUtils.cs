@@ -419,6 +419,8 @@ namespace Hugula.Utils
 
         public static bool currPersistentExist = false;
 
+        static System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));
+
         /// <summary>
         /// convert time to timeline
         /// </summary>
@@ -426,10 +428,19 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static int ConvertDateTimeInt(System.DateTime time)
         {
-            System.DateTime startTime = System.TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));
             return (int)(time - startTime).TotalSeconds;
         }
 
+        /// <summary>
+        /// Milliseconds Timestamp
+        /// </summary>
+        public static double msTimestamp
+        {
+            get
+            {
+                return (System.DateTime.Now - startTime).TotalMilliseconds;
+            }
+        }
 
         /// <summary>
         /// 当前时间戳
@@ -695,7 +706,7 @@ namespace Hugula.Utils
             all_ds = now - UnityEditor.EditorPrefs.GetInt("CUtils_D_begin_time", now);
             UnityEditor.EditorPrefs.SetInt("CUtils_D_last_time", now);
 
-            Debug.LogFormat("Cast Time \"{0}\" Cast({1} s) runtime({2} s),frame={3}", tips, cast, all_ds, Time.frameCount);
+            Debug.LogFormat("Cast Time \"{0}\" Cast({1} s) Time({2}) runtime({3} s),frame={4}", tips, cast,now, all_ds, Time.frameCount);
 #endif
             return all_ds;
         }

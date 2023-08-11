@@ -97,12 +97,12 @@ namespace HugulaEditor.Addressable
                 Debug.Log(sb.ToString());
             }
 
-
+            Hugula.Utils.CUtils.DebugCastTime($"DoBuild BuildLuaBundle Begin");
             //构建Lua bundle
             var buildLuaBundle = new BuildLuaBundle();
             buildLuaBundle.Run(null);
             var luaBundleManifest = buildLuaBundle.GenStreamingLuaBundleManifest();
-            Debug.Log(luaBundleManifest.ToString());
+            // Debug.Log(luaBundleManifest.ToString());
             Hugula.Utils.CUtils.DebugCastTime($"DoBuild BuildLuaBundle End");
 
             var bundleIdToFolderManifest = new Dictionary<string, FileManifest>(); //一个bundle只能添加到一个文件夹
@@ -345,8 +345,17 @@ namespace HugulaEditor.Addressable
 
             string tmpPath = EditorUtils.GetProjectTempPath();
             EditorUtils.CheckDirectory(tmpPath);
-
+            var sb = new System.Text.StringBuilder();
+            foreach(var b in bab)
+            {
+                sb.Append(b.assetBundleName);
+                sb.Append(",");
+                break;
+            }
+            Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles begin length={bab.Length},outPath={outPath} abNames={sb.ToString()}");
             var assetBundleManifest = BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, BuildConfig.BuildTarget);
+
+            Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles end length={bab.Length},outPath={outPath}    abNames={sb.ToString()}");
 
             var abNames = assetBundleManifest.GetAllAssetBundles();
 
@@ -425,6 +434,7 @@ namespace HugulaEditor.Addressable
         /// </summary>
         static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
+
             AssetBundleBuild[] builds = new AssetBundleBuild[assets.Length];
 
             for (int i = 0; i < assets.Length; i++)
@@ -437,6 +447,7 @@ namespace HugulaEditor.Addressable
             }
 
             BuildABs(builds, outPath, bbo, offset);
+
         }
 
         public static void ClearTmpFolder()

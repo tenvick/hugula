@@ -8,6 +8,7 @@ local table_remove = table.remove
 local table_clear = table.clear
 local table_remove_item = table.remove_item
 local table_indexof = table.indexof
+local talbe_insert =    table.insert
 local unpack = table.unpack
 local ipairs = ipairs
 local pairs = pairs
@@ -16,6 +17,7 @@ local require = require
 local xpcall = xpcall
 local string_format = string.format
 local debug = debug
+local serpent = require("serpent")
 
 local lua_distribute = lua_distribute
 local DIS_TYPE = DIS_TYPE
@@ -29,6 +31,8 @@ local TYPE_TABLE = "table"
 
 local TLogger = CS.TLogger
 local Logger = Logger
+local CUtils = CS.Hugula.Utils.CUtils
+
 ---
 ---     下面是一个典型的vm stack示例：{}表示根m_state:状态,""表示追加状态, 根状态来控制stack上的UI显示。
 ------------------------------------------------------
@@ -46,9 +50,20 @@ local Logger = Logger
 local ON_STATE_CHANGING = "on_state_changing"
 local DISTYPE_STATE_CHANGED = "on_state_changed"
 
+
+-----------------------ITransition接口描述 用于组切换自定义过度效果-----------------------
+-----
+----- RegisterActiveGroupFun(vm_group,begin_active_group) --注册group对应的开始加载函数
+----- DoActiveGroup(vm_group) --开始加载group
+----- ActiveGroupDone(group) --加载完成
+---
+----- eg：ui_effect_transition.lua
+------------------------------------------------------
+
 ---@type VMState
 local vm_state = {}
 local _stack = {} --记录栈
+local push_wait_queue = {}
 
 local _root_index = 0 --当前group root的stack索引
 
@@ -61,21 +76,32 @@ local function safe_call(f, arg1, ...)
     return re1, re2
 end
 
-local function debug_stack()
-    -- local str, item = ""
-    -- for i = #_stack, 1, -1 do
-    --     item = _stack[i]
-    --     if type(item) == "string" then
-    --         str = str .. "\r\n" .. item
-    --     elseif type(item) == TYPE_TABLE then
-    --         local tb_str = ""
-    --         for k, v in ipairs(item) do
-    --             tb_str = tb_str .. "," .. v
-    --         end
-    --         str = str .. "\r\n{" .. tb_str .. "}"
-    --     end
-    -- end
-    -- Logger.Log("debug_stack", str)
+local function debug_stack(...)
+    if CUtils.printLog then
+        local msg = serpent.line({...}, {numformat = "%s", comment = false, maxlevel = 8})
+        local str, item = msg
+        for i = #_stack, 1, -1 do
+            item = _stack[i]
+            if type(item) == "string" then
+                str = str .. "\r\n" .. item
+            elseif type(item) == TYPE_TABLE then
+                local tb_str = "name="..(item.name or "nil").." :"
+                for k, v in ipairs(item) do
+                    tb_str = tb_str  .. v.. ","
+                end
+
+                local _append = item:get_append_items()
+                if _append then
+                    tb_str = tb_str..".     append:"
+                    for k,v in pairs(_append) do
+                        tb_str = tb_str  .. k.. ","
+                    end
+                end
+                str = str .. "\r\n{" .. tb_str .. "}"
+            end
+        end
+        Logger.Log("debug_stack", str)
+    end
 end
 
 local function call_func(self, vm_name, fun_name, ...)
@@ -122,6 +148,7 @@ local function call_last_top_func(self, fun_name, ...)
     end
 end
 
+
 local function get_member(self, vm_name, member_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm then
@@ -141,8 +168,8 @@ end
 
 local function is_open(self, vm_name)
     local vm_base = VMGenerate[vm_name] --获取vm实例
-    if vm_base then 
-        return vm_base:is_open() 
+    if vm_base then
+        return vm_base:is_open()
     else
         return false
     end
@@ -155,12 +182,29 @@ local function set_top_group(self, vm_group)
     self.top_group_name = vm_group.name
 end
 
+--构建函数功能如下：接收vm_group参数。
+-- 用VMManager:check_is_mark_group  检测 vm_group是否标记,
+--  如果是调用VMManager:release_mark()
+--如果不是则不回收
+local function check_mark_destroy(self, vm_group_name)
+    if vm_group_name == nil then
+        return
+    end
+
+    local is_mark = VMManager:check_is_mark_group(vm_group_name)
+    if is_mark then
+        VMManager:destroy_mark()
+    end
+
+end
+
+
 ---根据策略判断回收view
 ---@overload fun(vm_name:string,is_state_change:boolean)
 ---@param vm_name string
 ---@param is_state_change boolean
 ---@return void
-local function strategy_view_gc(vm_name, is_state_change)
+local function strategy_view_gc(vm_name, is_state_change,is_mark_group)
     local config_item = VMConfig[vm_name]
     local vm_gc = VM_GC_TYPE.AUTO
     if config_item.gc_type ~= nil then
@@ -168,7 +212,7 @@ local function strategy_view_gc(vm_name, is_state_change)
     end
 
     if is_state_change then --
-        call_rawget_func(nil, vm_name, ON_STATE_CHANGING)
+        call_rawget_func(nil, vm_name, ON_STATE_CHANGING,vm_state.last_group_name,vm_state.top_group_name)
     end
 
     if vm_gc == VM_GC_TYPE.AUTO then --内存不够的时候回收
@@ -184,34 +228,30 @@ local function strategy_view_gc(vm_name, is_state_change)
         else
             VMManager:deactive(vm_name)
         end
+    elseif vm_gc == VM_GC_TYPE.MARK_STATE_CHANGED then
+        if is_mark_group then
+            VMManager:destroy(vm_name) 
+        else
+            VMManager:mark_gc_vm(vm_name,true)
+            VMManager:deactive(vm_name)
+        end
     elseif vm_gc == VM_GC_TYPE.MANUAL then --只执行vm的on_deactive方法自己隐藏或者回收 vm_gc ==  VM_GC_TYPE.MANUAL
         VMManager:deactive(vm_name, false) --不隐藏ui
     elseif vm_gc == VM_GC_TYPE.RELEASE then
         VMManager:release(vm_name)
-    end
-end
-
-local function _check_on_state_changed(self, vm_base)
-    local top = self.top_group
-    if top then
-        local check_isin_top = false
-        for k, v in ipairs(top) do
-            local curr_vm = VMGenerate[v] --获取vm实例
-            if curr_vm.is_res_ready ~= true or curr_vm.is_active == false then
-                return false
+    elseif vm_gc == VM_GC_TYPE.CUSTOM_GC then
+        -- body
+        local curr_vm = VMGenerate[vm_name] --获取vm实例
+        local gc_fun = curr_vm["_on_custom_gc"]
+        if gc_fun ~= nil then
+            local re = safe_call(gc_fun, curr_vm, is_state_change,is_mark_group)
+            if re == true then
+                VMManager:destroy(vm_name)
+            else
+                VMManager:deactive(vm_name)
             end
-
-            if curr_vm == vm_base then
-                check_isin_top = true
-            end
-        end
-
-        if check_isin_top then
-            local last_group_name = self.last_group_name
-            local top_group_name = self.top_group_name
-            call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
-            call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
-            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name,not vm_base._is_push) --状态改变完成后触发
+        else
+            VMManager:deactive(vm_name)
         end
     end
 end
@@ -229,14 +269,13 @@ local function hide_group(curr)
             item:clear_append() --清理附加
             for k, v in ipairs(item) do
                 if table_indexof(curr, v) == nil then --马上要使用的item不需要回收
-                    -- strategy_view_gc(v, true) --在group里不需要对item做栈操作
                     table_insert(_hide_group_items, v)
                 end
             end
 
             if log_enable == false then --如果不需要记录root log栈
-                table_remove(_stack, i)
-                debug_stack()
+                local v= table_remove(_stack, i)
+                debug_stack("hide_group no log",v,i)
             end
             return _hide_group_items
         else
@@ -267,7 +306,37 @@ local function append_item(self, vm_name, arg)
     table_insert(_stack, vm_name) --- 进入显示stack
     self.top_group:append_item(vm_name)
     VMManager:active(vm_name, arg, true, false) ---激活项
-    debug_stack()
+    debug_stack("append_item",vm_name)
+end
+
+---追加单个模块到指定group与group一起返回
+---@overload fun(vm_name:string,arg:any)
+---@param vm_config.name string
+local function append_item_to(self, group_name, vm_name, arg)
+    local target_group = _VMGroup[group_name]
+    if target_group == nil then
+        error("target group does't exist " .. group_name)
+    end
+
+    local is_top = self.top_group == target_group
+
+    if is_top then
+        for i = #_stack, _root_index, -1 do
+            if _stack[i] == vm_name then
+                table_remove(_stack, i) --移除
+                break
+            end
+        end
+
+        table_insert(_stack, vm_name) --- 进入显示stack
+    end
+
+    target_group:append_item(vm_name)
+
+    if is_top then
+        VMManager:active(vm_name, arg, true, false) ---激活项
+    end
+    debug_stack("append_item",vm_name)
 end
 
 ---入栈单个模块
@@ -283,7 +352,7 @@ local function push_item(self, vm_name, arg)
 
     table_insert(_stack, vm_name) --- 进入显示stack
     VMManager:active(vm_name, arg, true, false) ---激活项
-    debug_stack()
+    debug_stack("push_item",vm_name)
 end
 
 ---移除view model追加项目,只有追加项目才需要手动移除
@@ -312,45 +381,124 @@ local function popup_item(self, vm)
         table_remove(_stack, del)
         strategy_view_gc(vm, false)
         self.top_group:remove_append_item(vm)
-        debug_stack()
+        debug_stack("popup_item",vm)
         return true
     end
 
     return false
 end
 
+
+
+---入栈group
+---@overload fun(vm_group_name:string,arg:any)
+---@param vm_group_name string
+local function push_transi(self, vm_group_name,need_transition, arg)
+    if self.top_group_name == vm_group_name then --如果与当前相同不需要push
+        Logger.LogWarning(vm_group_name," is already at top");
+        return false
+    end
+
+    --check loading
+    if self._transition_group then
+        Logger.LogWarningFormat("group (%s) is transfering now add new push (%s)",self._transition_group, vm_group_name)
+        talbe_insert(push_wait_queue, {vm_group_name, arg})
+        return false
+    end
+
+
+    self._transition_group = vm_group_name --标记
+    local vm_group = _VMGroup[vm_group_name]
+    local hides = hide_group(vm_group) --后隐藏
+
+    table_insert(_stack, vm_group) --- 进入显示stack
+    _root_index = #_stack
+    set_top_group(self, vm_group)
+
+    for k, v in ipairs(vm_group) do
+        VMManager:mark_gc_vm(v,nil) --清理gc标记
+    end
+
+    debug_stack("push",vm_group_name)
+
+    local _hide_groups = function()
+        --确保顺序先失活，在入栈，在激活。
+        self._transition_group = nil --清空
+        local is_mark_group = VMManager:check_is_mark_group(vm_group.name)
+        for k, v in ipairs(hides) do
+            strategy_view_gc(v, true,is_mark_group) --
+        end
+     
+        check_mark_destroy(self,self.top_group_name)
+
+        debug_stack("push _hide_groups",self.top_group_name)
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGING, self.last_group_name, self.top_group_name, arg)
+
+    end
+
+    --check need transition
+    VMManager:_transition_active_group(vm_group, true, _hide_groups,need_transition ,arg)
+    return true
+end
+
 ---入栈group
 ---@overload fun(vm_group_name:string,arg:any)
 ---@param vm_group_name string
 local function push(self, vm_group_name, arg)
-    if self.top_group_name == vm_group_name then --如果与当前相同不需要push
-        return
+    push_transi(self,vm_group_name,true,arg)   
+end
+
+---入栈group
+---@overload fun(vm_group_name:string,arg:any)
+---@param vm_group_name string
+local function push_no_trans(self, vm_group_name, arg)
+    push_transi(self,vm_group_name,false,arg)   
+end
+
+local function   check_push_wait_queue(self)
+    if #push_wait_queue > 0 then
+        local item = table_remove(push_wait_queue, 1)
+        push(self,item[1], item[2])
+    end
+end
+
+
+local function _check_group_all_done(group_tab)
+    for k, v in ipairs(group_tab) do
+        local curr_vm = VMGenerate[v] --获取vm实例
+        if curr_vm.is_res_ready ~= true or curr_vm.is_active == false then
+            return false
+        end
     end
 
-    --check loading
-    if self._transition_group == vm_group_name then
-        Logger.LogWarningFormat("group (%s) is transfering",vm_group_name)
-        return 
-    end
+    return true
+end
 
-    self._transition_group = vm_group_name  --标记
-    local vm_group = _VMGroup[vm_group_name]
-    local hides = hide_group(vm_group) --后隐藏
+local function _check_on_state_changed(self, vm_base)
+    local top = self.top_group
+    if top then
+        local check_isin_top = false
+        for k, v in ipairs(top) do
+            local curr_vm = VMGenerate[v] --获取vm实例
+            if curr_vm.is_res_ready ~= true or curr_vm.is_active == false then
+                return false
+            end
 
-    local _hide_groups = function() --确保顺序先失活，在入栈，在激活。
-        self._transition_group = nil --清空
-        for k, v in ipairs(hides) do
-            strategy_view_gc(v, true) --
+            if curr_vm == vm_base then
+                check_isin_top = true
+            end
         end
 
-        table_insert(_stack, vm_group) --- 进入显示stack
-        _root_index = #_stack
-        set_top_group(self, vm_group)
+        if check_isin_top then
+            local last_group_name = self.last_group_name
+            local top_group_name = self.top_group_name
+            call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
+            call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
+            check_push_wait_queue(self)
+            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name, not vm_base._is_push) --状态改变完成后触发
 
-        debug_stack()
+        end
     end
-    --check need transition
-    VMManager:_transition_active_group(vm_group, true, _hide_groups, arg)
 end
 
 ---获取顶部的group
@@ -360,10 +508,18 @@ local function top_group_is(self, vm_group_name)
     return self.top_group == _VMGroup[vm_group_name]
 end
 
+---判断当前group是否全部加载完成
+---@overload fun():luatable
+---@param vm_group_name string
+local function group_is_done(self, vm_group_name)
+    local _group = _VMGroup[vm_group_name]
+    return _check_group_all_done(_group)
+end
+
 ---获取group的配置table
 ---@overload fun():luatable
 ---@param vm_group_name string
-local function get_group(self,vm_group_name)
+local function get_group(self, vm_group_name)
     return _VMGroup[vm_group_name]
 end
 
@@ -384,8 +540,9 @@ end
 ---设置root组，返回的时候到这里就停止
 ---@overload fun(self:VMState,root:{Group})
 ---@param vm_name string
-local function set_root(self, root)
-    self._root = _VMGroup[root]
+local function set_root(self, root,bl)
+    local _root = _VMGroup[root]
+    _root.__is_root = bl
 end
 
 local remove, active = {}, {}
@@ -394,6 +551,12 @@ local remove, active = {}, {}
 ---@overload fun()
 ---
 local function back(self)
+
+    if self._transition_group then
+        Logger.LogWarningFormat("debug_stack  (%s) is transfering can not back",self._transition_group)
+        return false
+    end
+
     local item
     local group_changed = false
     table_clear(remove)
@@ -401,7 +564,10 @@ local function back(self)
 
     for i = #_stack, _root_index, -1 do
         item = _stack[i]
-        if item == self._root then --如果是根模块不需要移除
+        if item.__is_root then --如果是根模块不需要移除
+            for k, v in ipairs(remove) do
+                strategy_view_gc(v, true)
+            end
             return true
         end
         if i == _root_index then
@@ -424,13 +590,16 @@ local function back(self)
                 if remove_index ~= nil then
                     table_remove(remove, remove_index)
                 end
+                VMManager:mark_gc_vm(v,nil) --清理gc标记
             end
             _root_index = i --记录root
             set_top_group(self, item)
             group_changed = true
+            self._transition_group = item.name
             break
         else
-            table_insert(active, 1,item)
+            table_insert(active, 1, item)
+            VMManager:mark_gc_vm(item,nil) --清理gc标记
             remove_index = table_indexof(remove, item)
             if remove_index ~= nil then
                 table_remove(remove, remove_index)
@@ -438,20 +607,27 @@ local function back(self)
         end
     end
 
-    local _change_back_group = function()
+    local _change_back_begin = function()
+        self._transition_group = nil
+        local is_mark_group = VMManager:check_is_mark_group(self.top_group_name)
         for k, v in ipairs(remove) do
-            strategy_view_gc(v, true)
+            strategy_view_gc(v, true,is_mark_group)
         end
-
+        
         for k, v in ipairs(active) do
             VMManager:load(VMGenerate[v]) --重新激活
         end
+
+        check_mark_destroy(self,self.top_group_name)
+
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGING, self.last_group_name, self.top_group_name, nil)
+
     end
 
     -- vm_group
-    VMManager:_transition_active_group(item, false, _change_back_group)
+    VMManager:_transition_active_group(item, false, _change_back_begin)
 
-    debug_stack()
+    debug_stack("back",self.top_group_name)
     return false
 end
 
@@ -459,6 +635,11 @@ end
 ---@overload fun()
 ---
 local function popup_top(self)
+    if self._transition_group then
+        Logger.LogWarningFormat("debug_stack  (%s) is transfering can not back",self._transition_group)
+        return false
+    end
+
     local item
     table_clear(remove)
     table_clear(active)
@@ -471,7 +652,10 @@ local function popup_top(self)
     for i = #_stack, 1, -1 do --寻找可以弹出的模块
         item = _stack[i]
         if type(item) == TYPE_TABLE then
-            if item == self._root then --如果是根模块不需要移除
+            if item.__is_root then --如果是根模块不需要移除
+                for k, v in ipairs(remove) do
+                    strategy_view_gc(v, true)
+                end
                 return true
             end
             for k, v in ipairs(item) do
@@ -512,7 +696,7 @@ local function popup_top(self)
                 set_top_group(self, item)
                 break
             else
-                table_insert(active, 1,item)
+                table_insert(active, 1, item)
                 remove_index = table_indexof(remove, item)
                 if remove_index ~= nil then
                     table_remove(remove, remove_index)
@@ -520,21 +704,32 @@ local function popup_top(self)
             end
         end
     end
- 
-    local _change_back_group = function()
-        for k, v in ipairs(remove) do
-            strategy_view_gc(v, true)
-        end
 
+    local _change_back_group = function()
+        local is_mark_group = VMManager:check_is_mark_group(self.top_group_name)
+
+        for k, v in ipairs(remove) do
+            strategy_view_gc(v, true,is_mark_group)
+        end
+        
         for k, v in ipairs(active) do
+            VMManager:mark_gc_vm(v,nil) --清理gc标记
             VMManager:load(VMGenerate[v]) --重新激活
         end
+        check_mark_destroy(self,self.top_group_name)
+
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGING, self.last_group_name, self.top_group_name, arg)
+
     end
 
     -- vm_group
-    VMManager:_transition_active_group(item, false, _change_back_group)
+    if group_changed then
+        VMManager:_transition_active_group(item, false, _change_back_group)
+    else
+        _change_back_group()
+    end
 
-    debug_stack()
+    debug_stack("popup_top")
 
     return false
 end
@@ -577,7 +772,6 @@ local function _reload_top_one(self)
 end
 
 local function _reload_top_active(self)
-
     local function do_reload(vm_name)
         Logger.Log("hot reload viewmodel：", vm_name)
         VMManager:re_load(vm_name)
@@ -604,7 +798,9 @@ vm_state.get_viewmodel = get_viewmodel
 vm_state.is_open = is_open
 vm_state.call_func = call_func
 vm_state.push = push
+vm_state.push_no_trans = push_no_trans
 vm_state.append_item = append_item
+vm_state.append_item_to = append_item_to
 vm_state.push_item = push_item
 vm_state.popup_item = popup_item
 vm_state.back = back
@@ -622,6 +818,7 @@ vm_state._check_on_state_changed = _check_on_state_changed --检查当前顶上�
 vm_state._reload_top_one = _reload_top_one
 vm_state._reload_top_active = _reload_top_active
 vm_state.top_group_is = top_group_is
+vm_state.group_is_done = group_is_done --检查当前顶上的group是否全部激活
 vm_state.get_group = get_group
 vm_state.debug_stack = debug_stack
 --- view model 的显示隐藏管理
@@ -631,8 +828,10 @@ vm_state.debug_stack = debug_stack
 ---@field is_open fun(self:VMState,vm_name:string):boolean 是否打开
 ---@field call_func fun(self:VMState, vm_name:string, fun_name:string, arg:any)
 ---@field push fun(self:VMState, vm_group_name:string, arg:any)
+---@field push_no_trans fun(self:VMState, vm_group_name:string, arg:any) --不开启过度效果
 ---@field push_item   fun(self:VMState, vm_name:string, arg:any)
----@field popup_item fun(self:VMState, vm:string)
+---@field popup_item fun(self:VMState, vm:string, arg:any)
+---@field popup_item_to fun(self:VMState,vm_group_name:string, vm:string, arg:any)
 ---@field back  fun(self:VMState) 返回上个组
 ---@field popup_top fun(self:VMState) 弹出最顶上的模块或者组
 ---@field active fun(self:VMState, vm_name:string, arg:any)
@@ -646,5 +845,6 @@ vm_state.debug_stack = debug_stack
 ---@field _change_group fun(self:VMState,vm_group:table)
 
 ---@field top_group_is fun(self:VMState,vm_group_name:string):boolean 判断顶部的group
+---@field group_is_done fun(self:VMState,vm_group_name:string):boolean 判断group是否全部激活
 ---@field get_group fun(self:VMState,vm_group_name:string):table 获取group的table配置
 VMState = vm_state

@@ -7,7 +7,7 @@ namespace Hugula.Databinding
     [XLua.CSharpCallLua]
     public class PropertyChangedEventHandlerEvent
     {
-        List<PropertyChangedEventHandler> m_Events = new List<PropertyChangedEventHandler>();
+        List<PropertyChangedEventHandler> m_Events = new List<PropertyChangedEventHandler>(16);
 
         public int Count
         {

@@ -6,6 +6,7 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 using Hugula.Databinding.Binder;
+using UnityEditor.IMGUI.Controls;
 using UnityEditorInternal;
 
 namespace HugulaEditor.Databinding
@@ -160,7 +161,6 @@ namespace HugulaEditor.Databinding
                 {
                     properties = BindableUtility.GetObjectProperties(target);
                 }
-
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
                     GenericMenu menu = new GenericMenu();
@@ -276,15 +276,21 @@ namespace HugulaEditor.Databinding
                     properties = BindableUtility.GetObjectProperties(target);
                 }
 
+                
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
-                    GenericMenu menu = new GenericMenu();
-                    foreach (var per in properties)
-                    {
-                        menu.AddItem(new GUIContent($"{per.Name} ({per.PropertyType.Name})"), false, onAddClick, new object[] { per, target });
-                    }
-                    menu.ShowAsContext();
+                    var dropdown = new BindablePropertyDropdown(new AdvancedDropdownState(), properties, target, onAddClick);
+                    dropdown.Show(rect);
                 };
+                // orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+                // {
+                //     GenericMenu menu = new GenericMenu();
+                //     foreach (var per in properties)
+                //     {
+                //         menu.AddItem(new GUIContent($"{per.Name} ({per.PropertyType.Name})"), false, onAddClick, new object[] { per, target });
+                //     }
+                //     menu.ShowAsContext();
+                // };
             }
 
             orderList.elementHeightCallback = (index) =>
@@ -399,7 +405,7 @@ namespace HugulaEditor.Databinding
                     GenericMenu menu = new GenericMenu();
                     menu.AddItem(new GUIContent($"添加空对象"), false, onAddClick, null);
                     menu.ShowAsContext();
-                };
+                };                
             }
 
             orderList.elementHeightCallback = (index) =>

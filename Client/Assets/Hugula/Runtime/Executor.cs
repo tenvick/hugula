@@ -64,7 +64,7 @@ namespace Hugula
 #if UNITY_EDITOR && !HUGULA_PROFILER_DEBUG
             watch.Stop();
             long time = watch.ElapsedMilliseconds;
-            if (time > 10)
+            if (time > 30)
                 UnityEngine.Debug.LogWarningFormat("the executor's binding cost too long.  it  take {0} milliseconds. task count = {1}.", time, m_Tasks.Count);
 #endif
             m_Tasks.Clear();

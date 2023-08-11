@@ -16,6 +16,7 @@ local Rpc = Rpc
 -- local CS = CS
 -- local GlobalDispatcher = GlobalDispatcher
 -- local DispatcherEvent = DispatcherEvent
+local Timer = Timer
 
 ---@class ui_effect_loading:VMBase
 ---@type ui_effect_loading
@@ -40,16 +41,39 @@ ui_effect_loading.always_transition = true --不管资源是否加载完成都�
 
 
 -------------------     事件响应    --------------------
+------ITransition-------传输接口------------
 
---当transition资源加载完成时候接管 transistion操作
--- function ui_effect_loading:on_transition_done(group)
---     local transition = group and group.transition
---     if transition then
---         ui_effect_loading:start_delay(function() 
---         VMState:deactive(transition)  --手动隐藏loading界面
---         end,0.2)
---     end
--- end
+local loading_groups_call = {}
+
+local arg_arr = {}
+function ui_effect_loading:RegisterActiveGroupFun(vm_group,begin_active_group)
+    loading_groups_call[vm_group] = begin_active_group
+    table.insert(arg_arr,vm_group)
+end
+
+function ui_effect_loading:DoActiveGroup(vm_group)
+    if vm_group == nil  then 
+        local c_group = arg_arr[1]
+        table.remove(arg_arr,1)
+        vm_group = c_group
+    end
+
+    if vm_group == nil then 
+        Logger.LogWarning("ui_effect_transition:DoActiveGroup currGrop is nil")
+        return 
+    end
+
+    local done =loading_groups_call[vm_group]
+    if type(done) == "function" then
+        done()
+    end
+    loading_groups_call[vm_group] = nil
+end
+
+
+function ui_effect_loading:ActiveGroupDone(group)
+        VMState:deactive("ui_effect_loading")
+end
 
 function ui_effect_loading:_base_set_views_active(bl)
     local views = self.views or {}
@@ -65,14 +89,14 @@ function ui_effect_loading:set_views_active(bl)
         ui_effect_loading:_base_set_views_active(bl)
     else
         local property = ui_effect_loading.property
-
-        ui_effect_loading:start_timer(0.05,-1,function()
+        local t = nil;
+        t =  Timer.Add(0.05,100,function()
             property.alpha = ui_effect_loading.alpha -0.1 --CS.UnityEngine.Time.deltaTime*.2
         -- Logger.Log("property.alpha",property.alpha,bl)
-
             if property.alpha <= 0 then
                 property.alpha = 0
-                ui_effect_loading:stop_all_timer()
+                Timer.Remove(t)
+                
                 ui_effect_loading:_base_set_views_active(false) --延时关闭
             end
         end)
@@ -99,14 +123,14 @@ end
 function ui_effect_loading:on_active()
     Logger.Log("ui_effect_loading:on_active")
     local property = ui_effect_loading.property
-    ui_effect_loading:start_timer(0.05,-1,function()
-
+    local t = nil;
+    t = Timer.Add(0.05,100,function()
         property.alpha = ui_effect_loading.alpha + 0.1
         -- Logger.Log("property.alpha",property.alpha)
         if property.alpha >= 1 then
-            ui_effect_loading:stop_all_timer()
+            Timer.Remove(t)
             --真正开始切换
-            ui_effect_loading:do_transition()
+            ui_effect_loading:DoActiveGroup()
         end
     end,nil)
 

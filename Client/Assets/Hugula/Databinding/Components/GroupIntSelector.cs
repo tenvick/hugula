@@ -37,7 +37,12 @@ namespace Hugula.UIComponents
             {
                 gobjects = m_Group[m_lastIdx].items;
                 foreach (var g in gobjects)
-                    LuaHelper.DelayDeActive(g?.GetComponent<Transform>());
+                {
+                    if (g != null)
+                    {
+                        LuaHelper.DelayDeActive(g.GetComponent<Transform>());
+                    }
+                }                    
             }
 
             if (m_GroupIndex >= 0 && m_GroupIndex < m_Group.Count)

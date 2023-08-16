@@ -165,7 +165,7 @@ namespace HugulaEditor
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        static byte[] Loader(ref string name)
+        static byte[] Loader(ref string name,ref int length)
         {
             byte[] str = null;
             string name1 = name.Replace('.', '/');

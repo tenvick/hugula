@@ -685,8 +685,23 @@ namespace Hugula.Utils
             }
         }
 
+        private static string _dataPath;
+
+        /// <summary>
+        /// Application.dataPath
+        /// </summary>
+        public static string dataPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_dataPath))
+                    _dataPath = Application.dataPath;
+                return _dataPath;
+            }
+        }
+
         #endregion
-      
+
         private static System.Text.StringBuilder _textSB = new System.Text.StringBuilder();
         //private static System.DateTime _last_time = System.DateTime.Now;
         //private static readonly System.DateTime _begin_time = System.DateTime.Now;

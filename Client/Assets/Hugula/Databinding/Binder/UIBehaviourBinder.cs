@@ -36,11 +36,13 @@ namespace Hugula.Databinding.Binder
             base.OnDestroy();
             m_Target = null;
         }
+#if UNITY_EDITOR
 
         internal override void ClearBindRef()
         {
            m_Target = default(T);
            base.ClearBindRef();
         }
+#endif
     }
 }

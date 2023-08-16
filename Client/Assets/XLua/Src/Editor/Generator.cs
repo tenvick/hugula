@@ -141,7 +141,7 @@ namespace CSObjectWrapEditor
                 TemplateCommon = { name = template_ref.TemplateCommon.name, text = template_ref.TemplateCommon.text },
             };
 #endif
-            luaenv.AddLoader((ref string filepath) =>
+            luaenv.AddLoader((ref string filepath,ref int length) =>
             {
                 if (filepath == "TemplateCommon")
                 {

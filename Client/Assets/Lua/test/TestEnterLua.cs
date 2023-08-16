@@ -9,10 +9,11 @@ public class TestEnterLua : MonoBehaviour {
     public TextAsset luaAsset;
     void Awake () {
         Hugula.EnterLua.luaenv = new LuaEnv ();
-        Hugula.EnterLua.luaenv.AddLoader ((ref string name) => {
+        Hugula.EnterLua.luaenv.AddLoader ((ref string name,ref int length) => {
             string name1 = name.Replace ('.', '/');
             string path = Application.dataPath + "/Lua/" + name1 + ".lua";
             var str = File.ReadAllBytes (path);
+            length = str.Length;
             return str;
         });
 

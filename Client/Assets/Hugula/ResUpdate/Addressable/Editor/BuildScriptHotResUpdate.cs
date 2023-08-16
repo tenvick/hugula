@@ -430,6 +430,34 @@ namespace HugulaEditor.Addressable
         }
 
         /// <summary>
+        /// 将文件copy到指定目录并加密或者压缩
+        /// </summary>
+        /// <param name="assets"></param>
+        /// <param name="outPath"></param>
+        /// <param name="rootPath"></param>
+        /// <param name="password"></param>
+        static public void PackSeparatelyZipToOutPath(string[] assets, string outPath,string rootPath = null,string password = "")
+        {
+            Debug.Log($"PackSeparatelyZipToOutPath( {assets.Length},{outPath},{rootPath}) ");
+            //
+            foreach (var asset in assets)
+            {
+                //获取rootPath相对路径
+                string fileName = asset.Replace(rootPath, "");
+                //将fileName路径分隔符替换为.
+                fileName = fileName.Replace("\\", ".").Replace("/", ".").Substring(1);
+                string targetPath = Path.Combine(outPath, fileName);
+                EditorUtils.CheckDirectory(outPath);
+                Debug.Log($"{asset} to {targetPath} ");
+                FileInfo tInfo = new FileInfo(targetPath);
+                if (tInfo.Exists) tInfo.Delete();
+                FileInfo fino = new FileInfo(asset);
+                fino.CopyTo(targetPath);
+            }
+        }
+
+
+        /// <summary>
         /// 将多个文件打成一个bundle
         /// </summary>
         static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo, byte[] offset = null)

@@ -56,32 +56,57 @@ namespace Hugula
             DontDestroyOnLoad(this.gameObject);
         }
         #region  hot update
-        private LuaBundleRead m_StreamingLuaBundle;
+        private ILuaBytesRead m_StreamingLuaBundle;
 
-        private LuaBundleRead GetStreamingLuaBundle()
+        private ILuaBytesRead GetStreamingLuaBundle()
         {
             if (m_StreamingLuaBundle == null)
             {
+#if USE_LUA_SEPARATELY
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+               // use android native read
+                m_StreamingLuaBundle = new AndroidLuaRead(Hugula.Utils.CUtils.platform + "/"+Common.LUAFOLDER_NAME);
+#else
+                var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUAFOLDER_NAME);
+                m_StreamingLuaBundle = new StreamingLuaBytesRead(url);
+#endif
+
+#else
                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
                 url = CUtils.GetAndroidABLoadPath(url);
-                bool isAndroid = false;
-#if UNITY_ANDROID && !UNITY_EDITOR
-                isAndroid = true;
+                m_StreamingLuaBundle = new LuaBundleRead(url);
 #endif
-                m_StreamingLuaBundle = new LuaBundleRead(url,isAndroid);
             }
             return m_StreamingLuaBundle;
         }
-        private LuaBundleRead m_PersistentLuaBundle;
+        private ILuaBytesRead m_PersistentLuaBundle;
 
-        private LuaBundleRead GetPersistentLuaBundle()
+        private ILuaBytesRead GetPersistentLuaBundle()
         {
             if (m_PersistentLuaBundle == null)
             {
+#if USE_LUA_SEPARATELY
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
                 m_PersistentLuaBundle = new LuaBundleRead(url);
+#else
+                var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
+                m_PersistentLuaBundle = new LuaBundleRead(url);
+#endif
             }
             return m_PersistentLuaBundle;
+        }
+
+        private ILuaBytesRead m_LocalLuaTextRead;
+
+        private ILuaBytesRead GetLocalLuaTextRead()
+        {
+            if (m_LocalLuaTextRead == null)
+            {
+                m_LocalLuaTextRead = new FileLuaTextRead();
+            }
+
+            return m_LocalLuaTextRead;
         }
 
         private BundleManifest m_LuaPersistentBundleManifest;
@@ -144,14 +169,16 @@ namespace Hugula
                 }
             }
 #else
-            var asynHandle = Addressables.LoadAssetsAsync<TextAsset> (Common.PROTO_GROUP_NAME, null);
-            while (!asynHandle.IsDone) {
+            var asynHandle = Addressables.LoadAssetsAsync<TextAsset>(Common.PROTO_GROUP_NAME, null);
+            while (!asynHandle.IsDone)
+            {
                 yield return null;
             }
-            LuaFunction loadFunc = luaenv.DoString ("return require('pb').load") [0] as LuaFunction;
+            LuaFunction loadFunc = luaenv.DoString("return require('pb').load")[0] as LuaFunction;
             yield return null;
-            foreach (var item in asynHandle.Result) {
-                loadFunc.Action<byte[]> (item.bytes);
+            foreach (var item in asynHandle.Result)
+            {
+                loadFunc.Action<byte[]>(item.bytes);
             }
 #endif
 
@@ -247,40 +274,48 @@ namespace Hugula
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private byte[] Loader(ref string name)
+        private byte[] Loader(ref string name, ref int length)
         {
             byte[] str = null;
 
 #if UNITY_EDITOR
-            string path = Application.dataPath + "/Lua/" + name.Replace('.', '/') + ".lua";
+            //string path = Application.dataPath + "/Lua/" + name.Replace('.', '/') + ".lua";
+            string path = ValueStrUtils.ConcatNoAlloc(CUtils.dataPath, "/Lua/", name.Replace('.', '/'), ".lua");
             bool exist = File.Exists(path);
             if (isDebug && exist)
             {
-                str = File.ReadAllBytes(path); //LuaState.CleanUTF8Bom(
+                str = GetLocalLuaTextRead().LoadBytes(path,ref length);
             }
             else
             {
                 if (!exist) Debug.LogErrorFormat("file {0} does't exists. ", path);
-                str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace('.', '+'));
+                str = LoadLuaBytes(name,ref length);// (Common.LUA_PREFIX + name.Replace('.', '+'));
             }
 #elif UNITY_STANDALONE && !HUGULA_RELEASE
 
-            var path = Application.dataPath + "/config_data/" + name.Replace ('.', '/') + ".lua"; //���ȶ�ȡ�����ļ�
+           // var path = Application.dataPath + "/config_data/" + name.Replace ('.', '/') + ".lua"; //���ȶ�ȡ�����ļ�
+           var path = ValueStrUtils.ConcatNoAlloc(CUtils.dataPath,  "/config_data/", name.Replace ('.', '/'), ".lua");
             if (File.Exists (path)) {
-                str = File.ReadAllBytes (path);
+                //str = File.ReadAllBytes (path);
+                str = GetLocalLuaTextRead().LoadBytes(path,ref length);
             } else {
-                str = LoadLuaBytes(name);//(Common.LUA_PREFIX + name.Replace ('.', '+'));
+                str = LoadLuaBytes(name,ref length);//(Common.LUA_PREFIX + name.Replace ('.', '+'));
             }
             if (str == null) Debug.LogErrorFormat ("lua({0}) path={1} not exists.", name, path);
 #else
-#if !HUGULA_RELEASE||LUA_ANDROID_DEBUG
-            var path = Application.persistentDataPath + "/lua/" + name.Replace ('.', '/') + ".lua";
-            if (File.Exists (path)) {
-                str = File.ReadAllBytes (path);
-            } else
-#endif  
+#if !HUGULA_RELEASE || LUA_ANDROID_DEBUG
+            // var path = Application.persistentDataPath + "/lua/" + name.Replace ('.', '/') + ".lua";
+            string path = ValueStrUtils.ConcatNoAlloc(CUtils.dataPath, "/Lua/", name.Replace('.', '/'), ".lua");
+
+            if (File.Exists(path))
             {
-                str = LoadLuaBytes(name);// (Common.LUA_PREFIX + name.Replace ('.', '+'));
+                //str = File.ReadAllBytes (path);
+                str = GetLocalLuaTextRead().LoadBytes(path, ref length);
+            }
+            else
+#endif
+            {
+                str = LoadLuaBytes(name, ref length);// (Common.LUA_PREFIX + name.Replace ('.', '+'));
             }
 #endif
 
@@ -299,12 +334,14 @@ namespace Hugula
             return str;
         }
 
+
+
         /// <summary>
         /// load lua bytes
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private byte[] LoadLuaBytes(string name)
+        private byte[] LoadLuaBytes(string name, ref int length)
         {
             byte[] ret = null;
 #if PROFILER_DUMP && LUA_REQUIRE_PROFILER
@@ -312,7 +349,7 @@ namespace Hugula
             {
 #endif
             var bundleManifest = GetLuaPersistentBundleManifest();
-            LuaBundleRead luaAb = null;
+            ILuaBytesRead luaAb = null;
             if (bundleManifest && bundleManifest.GetFileResInfo(name) != null)//如果有热更新走热更新
             {
                 luaAb = GetPersistentLuaBundle();
@@ -325,7 +362,7 @@ namespace Hugula
                 luaAb = GetStreamingLuaBundle();
             }
 
-            ret = luaAb?.LoadBytes(name);
+            ret = luaAb?.LoadBytes(name, ref length);
 #if PROFILER_DUMP && LUA_REQUIRE_PROFILER
             }
 #endif
@@ -348,7 +385,7 @@ namespace Hugula
 
         static internal string LuaTraceback()
         {
-            return Hugula.EnterLua.luaenv?.DoString("return debug.traceback('',3)")[0].ToString().Replace("stack traceback:","");
+            return Hugula.EnterLua.luaenv?.DoString("return debug.traceback('',3)")[0].ToString().Replace("stack traceback:", "");
         }
 
         #region delay

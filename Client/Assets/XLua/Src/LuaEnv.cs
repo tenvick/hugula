@@ -600,7 +600,7 @@ namespace XLua
             end
             ";
 
-        public delegate byte[] CustomLoader(ref string filepath);
+        public delegate byte[] CustomLoader(ref string filepath,ref int length);
 
         internal List<CustomLoader> customLoaders = new List<CustomLoader>();
 

@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2023.8.16
+1 com.hugula.value-string@0.0.1 无gc string 包引入(谨慎使用)
+2 lua require gc alloc 优化 XLUA_USE_SPAN 开启。
+3 lua 通用字节码开启(android)。
+
 2023.8.11 
 1 transition过渡效果重构(ui_effect_loading.lua)，有无viewviewmodel都流程统一。
 2 BindableContainer 属性筛选，MulitTargetsBinder多目标绑定组件。

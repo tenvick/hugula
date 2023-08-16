@@ -58,7 +58,8 @@ namespace HugulaEditor
     {
 
         public const string LUA_GROUP_NAME = "lua_bundle";
-
+        readonly static string LUA_ROOT_PATH = Application.dataPath + "/Lua";
+        readonly static string LUA_OUT_PATH = Application.dataPath.Replace("Assets", "") + "lua_bundle";
         public static void DoExportLua(string rootPath)
         {
             EditorUtils.CheckstreamingAssetsPath();
@@ -70,36 +71,33 @@ namespace HugulaEditor
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             var files = Directory.GetFiles(rootPath, "*.lua", SearchOption.AllDirectories);
             var dests = new string[files.Length];
-
+            var projectRoot = Application.dataPath.Replace("Assets", "");
             try
             {
                 AssetDatabase.StartAssetEditing();
 
-            for (int i = 0; i < files.Length; i++)
-            {
-                string xfile = files[i].Remove(0, rootPath.Length + 1);
-                xfile = xfile.Replace("\\", ".").Replace("/", ".");
-                string file = files[i].Replace("\\", "/");
-                string dest = OutLuaBytesPath + "/" + CUtils.GetRightFileName(xfile);
-#if USE_LUA_ZIP
-                string destName = dest.Substring(0, dest.Length - 4);// + "bytes";
-#else
-                string destName = dest.Substring(0, dest.Length - 3) + "bytes";
-#endif
-                dests[i] = destName;
-                System.IO.File.Copy(file, destName, true);
-                // CopyEncrypt(file,destName);
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string xfile = files[i].Remove(0, rootPath.Length + 1);
+                    xfile = xfile.Replace("\\", ".").Replace("/", ".");
+                    string file = projectRoot + files[i].Replace("\\", "/");
+                    string dest = LUA_OUT_PATH + "/" + xfile;
+                    string destName = dest.Substring(0, dest.Length - 3) + "bytes";
+                    dests[i] = destName;
+                    LuacCMD(file, destName);
+                    //System.IO.File.Copy(file, destName, true);
+                    // CopyEncrypt(file,destName);
 
-                sb.AppendFormat("\r\n {0}   ({1}) ", file, destName);
+                    sb.AppendFormat("\r\n {0}   ({1}) ", file, destName);
 
-            }
+                }
 
-            string tmpPath = EditorUtils.GetAssetTmpPath();
-            EditorUtils.CheckDirectory(tmpPath);
+                string tmpPath = EditorUtils.GetAssetTmpPath();
+                EditorUtils.CheckDirectory(tmpPath);
 
-            EditorUtils.WriteToTmpFile("lua_export_log.txt",sb.ToString());
+                EditorUtils.WriteToTmpFile("lua_export_log.txt", sb.ToString());
 
-            AssetDatabase.Refresh();
+                AssetDatabase.Refresh();
             }
             catch (System.Exception ex)
             {
@@ -110,15 +108,15 @@ namespace HugulaEditor
                 AssetDatabase.StopAssetEditing();
                 EditorUtility.ClearProgressBar();
             }
-          
 
-         
+
+
         }
 
         static bool CopyEncrypt(string file, string destName)
         {
             var bytes = Hugula.Cryptograph.CryptographHelper.EncryptDefault(File.ReadAllBytes(file));
-            File.WriteAllBytes(destName,bytes);
+            File.WriteAllBytes(destName, bytes);
             return true;
         }
 
@@ -129,6 +127,42 @@ namespace HugulaEditor
             if (!p.Exists) p.Create();
             return luapath;
         }
-        
+
+
+
+        static void LuacCMD(string source, string dest)
+        {
+            var argStr = string.Format("-o {0} {1}", dest, source, LUA_ROOT_PATH);
+            Debug.Log(argStr);
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+
+#if UNITY_EDITOR_WIN
+            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/win/535/luac.exe";
+#elif UNITY_EDITOR_OSX
+            p.StartInfo.FileName = "lua535";
+#endif
+            p.StartInfo.Arguments = argStr;
+            p.StartInfo.WorkingDirectory = LUA_ROOT_PATH;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardError = true;
+            p.Start();
+            string errorLog = p.StandardError.ReadToEnd();
+            if (errorLog.Length > 0)
+            {
+                if (errorLog.ToLower().Contains("error"))
+                {
+                    Debug.LogError(errorLog);
+                }
+                else
+                {
+                    Debug.Log(errorLog);
+                }
+            }
+            else
+            {
+                Debug.Log(dest + " 导出成功!");
+            }
+            p.Close();
+        }
     }
 }

@@ -107,6 +107,10 @@ namespace XLua.Editor
             "UnityEngine.AssetBundle",
             "UnityEngine.WheelCollider",
             "UnityEngine.LightProbes",
+            "Hugula.LuaBundleRead",
+            "Hugula.StreamingLuaBytesRead",
+            "Hugula.ZipLuaRead",
+            "Hugula.AndroidLuaRead",
         };
 
         static bool isExcluded(Type type)

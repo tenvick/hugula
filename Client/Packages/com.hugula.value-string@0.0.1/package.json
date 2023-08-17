@@ -1,0 +1,12 @@
+{
+  "name": "com.hugula.value-string",
+  "displayName": "com.hugula.value-string",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "keywords": [
+    "valueString"
+  ],
+  "description": "value string for unity",
+  "relatedPackages": {},
+  "repository": {}
+}

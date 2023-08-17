@@ -683,7 +683,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLWasmStreaming: 0
   scriptingDefineSymbols:
-    7: DONT_SUB_PACKAGE;HUGULA_NO_HOTUPDATE;USE_LUA_SEPARATELY;HUGULA_NO_LOG
+    7: DONT_SUB_PACKAGE;HUGULA_NO_HOTUPDATE;USE_LUA_SEPARATELY
   platformArchitecture: {}
   scriptingBackend:
     Android: 1
@@ -691,7 +691,7 @@ PlayerSettings:
   managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
   suppressCommonWarnings: 1
-  allowUnsafeCode: 0
+  allowUnsafeCode: 1
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
   gcIncremental: 1

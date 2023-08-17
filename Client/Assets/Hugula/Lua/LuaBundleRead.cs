@@ -14,13 +14,13 @@ namespace Hugula
     [XLua.DoNotGen]
     public interface ILuaBytesRead
     {
-        byte[] LoadBytes(string name,ref int length);
+        byte[] LoadBytes(string name, ref int length);
         void Unload();
     }
     /// <summary>
     /// 读取bundle中的lua bytes
     /// </summary>
-    internal class LuaBundleRead: ILuaBytesRead
+    internal class LuaBundleRead : ILuaBytesRead
     {
 
         private AssetBundle m_LuaBundle;
@@ -38,7 +38,7 @@ namespace Hugula
 
         }
 
-        public byte[] LoadBytes(string name,ref int length)
+        public byte[] LoadBytes(string name, ref int length)
         {
             byte[] ret = null;
             var txt = m_LuaBundle?.LoadAsset<TextAsset>(name);
@@ -58,11 +58,9 @@ namespace Hugula
     internal class StreamingLuaBytesRead : ILuaBytesRead
     {
         private string m_Path;
-        string url;
         public StreamingLuaBytesRead(string path)
         {
             m_Path = path;
-            url = Application.streamingAssetsPath + "/yourfile.txt";
 
         }
 
@@ -71,8 +69,7 @@ namespace Hugula
 
         }
 
- 
-        public byte[] LoadBytes(string name,ref int length)
+        public byte[] LoadBytes(string name, ref int length)
         {
             length = 0;
             var buffer = LuaBytesBuffer.buffer;
@@ -82,8 +79,11 @@ namespace Hugula
                 using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     int len = (int)fileStream.Length;
-                    if (len >= buffer.Length) //grow
+                    if (len > buffer.Length) //grow
+                    {
                         buffer = new byte[len];
+                        LuaBytesBuffer.buffer = buffer;
+                    }
                     int nread = 0;
                     while (nread < len)
                     {
@@ -110,18 +110,20 @@ namespace Hugula
 
         }
 
-        static byte[] buffer = new byte[1024 * 1024]; //1M空间 1024*1024
-
         public byte[] LoadBytes(string path, ref int length)
         {
             length = 0;
+            var buffer = LuaBytesBuffer.buffer;
             if (File.Exists(path))
             {
                 using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     int len = (int)fileStream.Length;
-                    if (len >= buffer.Length) //grow
+                    if (len > buffer.Length) //grow
+                    {
                         buffer = new byte[len];
+                        LuaBytesBuffer.buffer = buffer;
+                    }
                     int nread = 0;
                     while (nread < len)
                     {
@@ -183,14 +185,21 @@ namespace Hugula
             if (len > 0)
             {
                 length = len;
-                if (len >= buffer.Length) //grow
+                if (len > buffer.Length) //grow
+                {
                     buffer = new byte[len];
+                    LuaBytesBuffer.buffer = buffer;
+                }
                 if (ptr == IntPtr.Zero)
                 {
                     Debug.LogError("Read Failed!!!");
                 }
                 Marshal.Copy(ptr, buffer, 0, len);
                 ReleaseBytes(ptr);
+            }
+            else
+            {
+                length = 0; 
             }
             return buffer;
         }
@@ -201,7 +210,7 @@ namespace Hugula
     internal static class LuaBytesBuffer
     {
         internal static byte[] buffer = new byte[1024 * 1024 * 2]; //2M空间 1024*1024
-     
+
     }
 }
 

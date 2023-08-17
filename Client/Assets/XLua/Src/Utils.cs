@@ -1305,20 +1305,87 @@ namespace XLua
 			LuaAPI.lua_pop(L, 4);
 		}
 
-		static List<string> getPathOfType(Type type)
-		{
-			List<string> path = new List<string>();
+#if XLUA_USE_SPAN
+	static List<string> pathCache = new List<string>();
+	public static List<string> getPathOfType(Type type)
+	{
+		pathCache.Clear();
+		var Namespace = type.Namespace;
+		var typeName = type.ToString();
 
-			if (type.Namespace != null)
+		int pos = -1;
+		int nsLen = 0;
+		bool needNext = true;
+		ReadOnlySpan<char> curSplit;
+
+		if (Namespace != null)
+		{
+			nsLen = Namespace.Length + 1;
+			var path = Namespace.AsSpan();
+			pos = path.IndexOf('.');
+			while (needNext)
 			{
-				path.AddRange(type.Namespace.Split(new char[] { '.' }));
+				if (pos >= 0)
+				{
+					curSplit = path.Slice(0, pos);//
+					path = path.Slice(pos + 1, path.Length - (pos + 1));
+				}
+				else
+				{
+					curSplit = path;
+					needNext = false;
+				}
+				pos = path.IndexOf('.');
+				pathCache.Add(curSplit.ToString());
+			}
+		}
+
+		ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
+
+		if (type.IsNested)
+		{
+			needNext = true;
+			pos = class_name.IndexOf('+');
+			while (needNext)
+			{
+				if (pos >= 0)
+				{
+					curSplit = class_name.Slice(0, pos);//
+					class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
+				}
+				else
+				{
+					curSplit = class_name;
+					needNext = false;
+				}
+				pos = class_name.IndexOf('+');
+				pathCache.Add(class_name.ToString());
+			}
+		}
+		else
+		{
+			pathCache.Add(class_name.ToString());
+		}
+		return pathCache;
+	}
+
+#else
+
+		static List<string>  path = new List<string>();
+		public static List<string> getPathOfType(Type type)
+		{
+			path.Clear();
+			var Namespace = type.Namespace;
+			if (Namespace != null)
+			{
+				path.AddRange(Namespace.Split('.'));
 			}
 
-			string class_name = type.ToString().Substring(type.Namespace == null ? 0 : type.Namespace.Length + 1);
+			string class_name = type.ToString().Substring(Namespace == null ? 0 : Namespace.Length + 1);
 
 			if (type.IsNested)
 			{
-				path.AddRange(class_name.Split(new char[] { '+' }));
+				path.AddRange(class_name.Split('+'));
 			}
 			else
 			{
@@ -1326,7 +1393,196 @@ namespace XLua
 			}
 			return path;
 		}
+#endif
 
+
+#if XLUA_USE_SPAN
+		static bool CheckCSTable(RealStatePtr L, ReadOnlySpan<char> path, int oldTop, bool checkTable)
+		{
+			LuaAPI.xlua_pushasciistring(L, path);
+			if (0 != LuaAPI.xlua_pgettable(L, -2))
+			{
+				LuaAPI.lua_settop(L, oldTop);
+				LuaAPI.lua_pushnil(L);
+				return false;
+			}
+			if (!LuaAPI.lua_istable(L, -1) && checkTable) //i < path.count-1
+			{
+				LuaAPI.lua_settop(L, oldTop);
+				LuaAPI.lua_pushnil(L);
+				return false;
+			}
+			LuaAPI.lua_remove(L, -2);
+			return true;
+		}
+
+		public static void LoadCSTable(RealStatePtr L, Type type)
+		{
+			int oldTop = LuaAPI.lua_gettop(L);
+			LuaAPI.xlua_pushasciistring(L, LuaEnv.CSHARP_NAMESPACE);
+			LuaAPI.lua_rawget(L, LuaIndexes.LUA_REGISTRYINDEX);
+
+			var Namespace = type.Namespace;
+			var typeName = type.ToString();
+
+			int pos = -1;
+			int nsLen = 0;
+			bool needNext = true;
+			ReadOnlySpan<char> curSplit;
+
+			if (Namespace != null)
+			{
+				nsLen = Namespace.Length + 1;
+				var path = Namespace.AsSpan();
+				pos = path.IndexOf('.');
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = path.Slice(0, pos);//
+						path = path.Slice(pos + 1, path.Length - (pos + 1));
+					}
+					else
+					{
+						curSplit = path;
+						needNext = false;
+					}
+					pos = path.IndexOf('.');
+					if(!CheckCSTable(L, curSplit, oldTop, true)) return;
+				}
+			}
+
+			ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
+
+			if (type.IsNested)
+			{
+				needNext = true;
+				pos = class_name.IndexOf('+');
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = class_name.Slice(0, pos);//
+						class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
+						if(!CheckCSTable(L, curSplit, oldTop, true)) return;
+					}
+					else
+					{
+						curSplit = class_name;
+						needNext = false;
+						if(!CheckCSTable(L, curSplit, oldTop, false)) return;
+					}
+					pos = class_name.IndexOf('+');
+				}
+			}
+			else
+			{
+				if(!CheckCSTable(L, class_name, oldTop, false)) return;
+			}
+		}
+
+		static void ReginsterCSTable(RealStatePtr L,ReadOnlySpan<char> path, int oldTop,Type type)
+        {
+            LuaAPI.xlua_pushasciistring(L, path);
+            if (0 != LuaAPI.xlua_pgettable(L, -2))
+            {
+                var err = LuaAPI.lua_tostring(L, -1);
+                LuaAPI.lua_settop(L, oldTop);
+                throw new Exception("SetCSTable for [" + type + "] error: " + err);
+            }
+            if (LuaAPI.lua_isnil(L, -1))
+            {
+                LuaAPI.lua_pop(L, 1);
+                LuaAPI.lua_createtable(L, 0, 0);
+                LuaAPI.xlua_pushasciistring(L, path);
+                LuaAPI.lua_pushvalue(L, -2);
+                LuaAPI.lua_rawset(L, -4);
+            }
+            else if (!LuaAPI.lua_istable(L, -1))
+            {
+                LuaAPI.lua_settop(L, oldTop);
+                throw new Exception("SetCSTable for [" + type + "] error: ancestors is not a table!");
+            }
+            LuaAPI.lua_remove(L, -2);
+        }
+		public static void SetCSTable(RealStatePtr L, Type type, int cls_table)
+		{
+			int oldTop = LuaAPI.lua_gettop(L);
+			cls_table = abs_idx(oldTop, cls_table);
+			LuaAPI.xlua_pushasciistring(L, LuaEnv.CSHARP_NAMESPACE);
+			LuaAPI.lua_rawget(L, LuaIndexes.LUA_REGISTRYINDEX);
+
+			var Namespace = type.Namespace;
+			var typeName = type.ToString();
+
+			int pos = -1;
+			int nsLen = 0;
+			bool needNext = true;
+			ReadOnlySpan<char> curSplit;
+
+			if (Namespace != null)
+			{
+				nsLen = Namespace.Length + 1;
+				var path = Namespace.AsSpan();
+				pos = path.IndexOf('.');
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = path.Slice(0, pos);//
+						path = path.Slice(pos + 1, path.Length - (pos + 1));
+					}
+					else
+					{
+						curSplit = path;
+						needNext = false;
+					}
+					pos = path.IndexOf('.');
+					ReginsterCSTable(L,curSplit,oldTop,type);
+				}
+			}
+
+			ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
+
+			if (type.IsNested)
+			{
+				needNext = true;
+				pos = class_name.IndexOf('+');
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = class_name.Slice(0, pos);//
+						class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
+						ReginsterCSTable(L, curSplit, oldTop, type);
+					}
+					else
+					{
+						curSplit = class_name;
+						needNext = false;
+						LuaAPI.xlua_pushasciistring(L, curSplit);
+					}
+					pos = class_name.IndexOf('+');
+				}
+			}
+			else
+			{
+				LuaAPI.xlua_pushasciistring(L, class_name);
+			}
+
+			//LuaAPI.xlua_pushasciistring(L, path[path.Count - 1]);
+			LuaAPI.lua_pushvalue(L, cls_table);
+			LuaAPI.lua_rawset(L, -3);
+			LuaAPI.lua_pop(L, 1);
+
+			LuaAPI.xlua_pushasciistring(L, LuaEnv.CSHARP_NAMESPACE);
+			LuaAPI.lua_rawget(L, LuaIndexes.LUA_REGISTRYINDEX);
+			ObjectTranslatorPool.Instance.Find(L).PushAny(L, type);
+			LuaAPI.lua_pushvalue(L, cls_table);
+			LuaAPI.lua_rawset(L, -3);
+			LuaAPI.lua_pop(L, 1);
+		}
+#else
 		public static void LoadCSTable(RealStatePtr L, Type type)
 		{
 			int oldTop = LuaAPI.lua_gettop(L);
@@ -1400,7 +1656,7 @@ namespace XLua
 			LuaAPI.lua_rawset(L, -3);
 			LuaAPI.lua_pop(L, 1);
 		}
-
+#endif
 		public const string LuaIndexsFieldName = "LuaIndexs";
 
 		public const string LuaNewIndexsFieldName = "LuaNewIndexs";

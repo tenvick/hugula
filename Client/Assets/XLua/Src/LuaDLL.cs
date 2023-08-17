@@ -13,6 +13,7 @@ namespace XLua.LuaDLL
     using System.Runtime.InteropServices;
     using System.Text;
     using XLua;
+    using System.Runtime.CompilerServices;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || XLUA_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -322,7 +323,42 @@ namespace XLua.LuaDLL
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern void xlua_pushlstring(IntPtr L, byte[] str, int size);
 
-        public static void xlua_pushasciistring(IntPtr L, string str) // for inner use only
+        public static void xlua_pushasciistring(IntPtr L,ReadOnlySpan<char> str)
+        {
+            if (str == null)
+            {
+                lua_pushnil(L);
+            }
+            else
+            {
+
+#if !THREAD_SAFE && !HOTFIX_ENABLE
+                int str_len = str.Length;
+                int maxSize = checked(Encoding.UTF8.GetMaxByteCount(str_len) + 1);
+                unsafe
+                {
+                    Span<byte> strBuff = stackalloc byte[maxSize];
+                    int bytes_len = System.Text.EnCodingUTF8Extends.GetBytes(str, strBuff);
+                    if (InternalGlobals.strBuff.Length < str_len)
+                    {
+                        InternalGlobals.strBuff = new byte[str_len];
+                    }
+                    fixed (byte* source = strBuff)
+                    fixed (byte* target = InternalGlobals.strBuff)
+                    {
+                        Unsafe.CopyBlock(target, source,(uint) bytes_len * sizeof(byte));
+                    }
+                    xlua_pushlstring(L, InternalGlobals.strBuff, bytes_len);
+                }
+
+#else
+                var bytes = Encoding.UTF8.GetBytes(str);
+                xlua_pushlstring(L, bytes, bytes.Length);
+#endif
+            }
+        }
+
+       public static void xlua_pushasciistring(IntPtr L, string str) // for inner use only
         {
             if (str == null)
             {

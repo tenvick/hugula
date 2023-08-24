@@ -105,7 +105,7 @@ namespace HugulaEditor.ResUpdate
 #if USE_LUA_SEPARATELY
             var zipOutPath = Path.Combine(CUtils.realStreamingAssetsPath, Common.LUAFOLDER_NAME);
             if (Directory.Exists(zipOutPath)) Directory.Delete(zipOutPath, true);
-            BuildScriptHotResUpdate.PackSeparatelyZipToOutPath(allLuaBytesFiles, zipOutPath, GetLuaBytesResourcesPath(), Common.BUNDLE_OFF_STR);
+            BuildScriptHotResUpdate.PackSeparatelyToOutPath(allLuaBytesFiles, zipOutPath, GetLuaBytesResourcesPath(), Common.BUNDLE_OFF_STR);
 #else
 
             BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
@@ -407,19 +407,9 @@ namespace HugulaEditor.ResUpdate
                 }
 
                 var fileName = CUtils.GetPersistentBundleFileName(folder.fileName);
-#if USE_LUA_SEPARATELY
-                if (folder.fileName.Equals(Common.LUA_BUNDLE_NAME))
-                {
-                        file = Path.Combine("Assets/Tmp", fileName);
-                    //BuildScriptHotResUpdate.PackSeparatelyZipToOutPath(assets.ToArray(), file, folder.assetFolderPath, Common.BUNDLE_OFF_STR);
-                    BuildScriptHotResUpdate.BuildZipTogether(assets.ToArray(), file, folder.assetFolderPath, Common.BUNDLE_OFF_STR);
-                }
-                else
-#endif
-                {
+
                 BuildScriptHotResUpdate.BuildABsTogether(assets.ToArray(), "Assets/Tmp", fileName, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
                 file = Path.Combine("Assets/Tmp", fileName);
-                }
 
                 FolderManifest findStreaming = null;
                 if (data.allFolderManifest.TryGetValue(streamingName, out var find))

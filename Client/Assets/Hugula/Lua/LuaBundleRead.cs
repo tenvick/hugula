@@ -41,12 +41,13 @@ namespace Hugula
         public byte[] LoadBytes(string name, ref int length)
         {
             byte[] ret = null;
+            length = 0;
             var txt = m_LuaBundle?.LoadAsset<TextAsset>(name);
             if (txt != null)
             {
                 ret = txt.bytes;
+                length = ret.Length;
                 Resources.UnloadAsset(txt); //释放ab资源
-                // m_LuaBundle.Unload(false);
             }
             return ret;
         }

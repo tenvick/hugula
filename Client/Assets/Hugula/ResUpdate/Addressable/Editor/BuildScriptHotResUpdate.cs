@@ -338,7 +338,7 @@ namespace HugulaEditor.Addressable
         /// <param name="outPath"></param>
         /// <param name="abName"></param>
         /// <param name="bbo"></param>
-        static public void BuildABs(AssetBundleBuild[] bab, string outPath, BuildAssetBundleOptions bbo, byte[] offset = null)
+        static public bool BuildABs(AssetBundleBuild[] bab, string outPath, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
             if (string.IsNullOrEmpty(outPath))
                 outPath = EditorUtils.GetOutPutPath();
@@ -354,8 +354,14 @@ namespace HugulaEditor.Addressable
             }
             Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles begin length={bab.Length},outPath={outPath} abNames={sb.ToString()}");
             var assetBundleManifest = BuildPipeline.BuildAssetBundles(tmpPath, bab, bbo, BuildConfig.BuildTarget);
-
+            
             Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles end length={bab.Length},outPath={outPath}    abNames={sb.ToString()}");
+
+            if(assetBundleManifest==null)
+            {
+                Debug.LogError($"Build BuildABs BuildPipeline.BuildAssetBundles fail length={bab.Length},outPath={outPath}    abNames={sb.ToString()}");
+                return false;
+            }
 
             var abNames = assetBundleManifest.GetAllAssetBundles();
 
@@ -387,6 +393,7 @@ namespace HugulaEditor.Addressable
                 }
             }
 
+            return true;
         }
 
         private static void InternalCopyTo(Stream source, Stream destination, int bufferSize)
@@ -430,13 +437,13 @@ namespace HugulaEditor.Addressable
         }
 
         /// <summary>
-        /// 将文件copy到指定目录并加密或者压缩
+        /// 将文件copy到指定目录并加密
         /// </summary>
         /// <param name="assets"></param>
         /// <param name="outPath"></param>
         /// <param name="rootPath"></param>
         /// <param name="password"></param>
-        static public void PackSeparatelyZipToOutPath(string[] assets, string outPath,string rootPath = null,string password = "")
+        static public void PackSeparatelyToOutPath(string[] assets, string outPath,string rootPath = null,string password = "")
         {
             Debug.Log($"PackSeparatelyZipToOutPath( {assets.Length},{outPath},{rootPath}) ");
             //

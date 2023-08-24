@@ -59,7 +59,7 @@ namespace HugulaEditor
 
         public const string LUA_GROUP_NAME = "lua_bundle";
         readonly static string LUA_ROOT_PATH = Application.dataPath + "/Lua";
-        readonly static string LUA_OUT_PATH = Application.dataPath.Replace("Assets", "") + "lua_bundle";
+        readonly static string LUA_OUT_PATH = Application.dataPath + "/lua_bundle";
         public static void DoExportLua(string rootPath)
         {
             EditorUtils.CheckstreamingAssetsPath();

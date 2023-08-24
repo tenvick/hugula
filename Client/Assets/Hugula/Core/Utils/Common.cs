@@ -29,11 +29,7 @@ namespace Hugula.Utils
         /// <summary>
         /// the lua out path
         /// /// </summary>
-#if USE_LUA_SEPARATELY
-        public const string LUACFOLDER = "lua_bundle";
-#else
-        public const string LUACFOLDER = "Asssets/lua_bundle";
-#endif
+        public const string LUACFOLDER = "Assets/lua_bundle";
         /// <summary>
         /// streaming lua folder name
         /// </summary>

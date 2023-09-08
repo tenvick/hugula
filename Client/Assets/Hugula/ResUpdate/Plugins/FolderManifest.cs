@@ -123,6 +123,41 @@ namespace Hugula.ResUpdate
             return folderManifest;
         }
 
+        /// <summary>
+        /// 追加文件到当前文件夹,如果文件已经存在则更新,版本号大于等于才能追加
+        /// </summary>
+        /// <param name="folderManifest"></param>
+        /// <returns></returns>
+        public bool AppendFolder(FolderManifest folderManifest)
+        {
+            bool canAppend = resNumber <= folderManifest.resNumber;//大于等于才能追加
+            if (!canAppend) return false; //判断版本号
+
+            FileResInfo fileResInfo;
+            FileResInfo fileResInfo1;
+
+            var tagetAllFileInfos = folderManifest.allFileInfos;
+
+            for (int i = 0; i < tagetAllFileInfos.Count;i++)
+            {
+                fileResInfo = tagetAllFileInfos[i];
+                fileResInfo1 = GetFileResInfo(fileResInfo.name);
+                if(fileResInfo1==null)
+                {
+                    Add(fileResInfo);
+                }else if (fileResInfo.crc32 != fileResInfo1.crc32) //如果相同移除自己
+                {
+                    UpdateInfo(fileResInfo.name,fileResInfo);
+#if HUGULA_NO_LOG
+                    UnityEngine.Debug.Log($"update fileResInfo:({fileResInfo})");
+#endif
+                }
+               
+            }
+
+            return true;
+        }
+
         public override string ToString()
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();

@@ -113,6 +113,30 @@ namespace Hugula.ResUpdate
                 allFileInfos.Add(fileInfo);
         }
 
+        public void UpdateInfo(string name, FileResInfo fileResInfo)
+        {
+            if (fileInfoDict == null) OnAfterDeserialize();
+
+            if (fileInfoDict.TryGetValue(name, out var fileInfo))
+            {
+                var i = allFileInfos.IndexOf(fileInfo);
+                if (i >= 0)
+                {
+                    allFileInfos[i] = fileResInfo;//更新
+                }
+                else
+                    allFileInfos.Add(fileResInfo);
+                fileInfoDict[name] = fileResInfo;
+            }
+        }
+
+        public void Remove(FileResInfo fileInfo)
+        {
+            if (fileInfoDict == null) OnAfterDeserialize();
+            fileInfoDict.Remove(fileInfo.name);
+            allFileInfos.Remove(fileInfo);
+        }
+
         /// <summary>
         /// 获取单个文件信息
         /// </summary>
@@ -203,6 +227,7 @@ namespace Hugula.ResUpdate
                 {
                     re = true;
                     allFileInfos.RemoveAt(i);
+                    fileInfoDict.Remove(fileResInfo.name);
 #if HUGULA_NO_LOG
                     UnityEngine.Debug.Log($"remove fileResInfo:({fileResInfo})");
 #endif

@@ -377,58 +377,73 @@ namespace Hugula.ResUpdate
                 SetProgressTxt(Localization.Get("main_compare_crc_list")); //校验列表对比中。"
                 var ab = AssetBundle.LoadFromFile(path, 0, Common.BUNDLE_OFF_SET);
                 var all = ab.LoadAllAssets<FolderManifest>();
-                var remoteFolderManifest = new List<FolderManifest>(all);
+                var totalRemoteFolder = ScriptableObject.CreateInstance<FolderManifest>();
+                var totalLocalFolder = ScriptableObject.CreateInstance<FolderManifest>(); ;
+                FolderManifest remoteFolder = null;
+                FolderManifest localFolder = null;
+
+                //合并所有的foldermanifest用于热更新下载对比
+                for (int i = 0; i < all.Length; i++)
+                {
+                    remoteFolder = all[i];
+                    loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
+                    loadRemoteAppNum = remoteFolder.resNumber;
+                    totalRemoteFolder.version = remoteFolder.version;
+                    totalRemoteFolder.resNumber = remoteFolder.resNumber;
+                    totalRemoteFolder.AppendFolder(remoteFolder);
+                    localFolder = FileManifestManager.FindStreamingFolderManifest(remoteFolder.fileName) as FolderManifest;
+                    if (localFolder != null)
+                    {
+                        totalLocalFolder.AppendFolder(localFolder);
+                        var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.fileName);
+                        if (curPersistent != null) totalLocalFolder.AppendFolder(curPersistent);
+                    }
+                }
 
                 ab.Unload(false);
                 Debug.Log($"remote file({url}) is down");
 #if !HUGULA_NO_LOG
-                foreach (var folder in remoteFolderManifest)
-                    Debug.Log(folder.ToString());
-
+                Debug.Log(totalRemoteFolder.ToString());
 #endif
-                FolderManifest curStreaming = null;
-                FolderManifest remoteFolder = null;
+                // FolderManifest curStreaming = null;
                 List<FolderManifest> needDownload = new List<FolderManifest>();
+                totalRemoteFolder.RemoveSameFileResInfoFrom(totalLocalFolder);
+                needDownload.Add(totalRemoteFolder);
+                #if !HUGULA_NO_LOG
+                    Debug.Log($"log update Folder \r\folder={totalLocalFolder.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
+                #endif
+                //                 for (int i = 0; i < remoteFolderManifest.Count; i++)
+                //                 {
+                //                     remoteFolder = remoteFolderManifest[i];
+                //                     loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
+                //                     loadRemoteAppNum = remoteFolder.resNumber;
+                //                     curStreaming = FileManifestManager.FindStreamingFolderManifest(remoteFolder.fileName) as FolderManifest;
 
-                for (int i = 0; i < remoteFolderManifest.Count; i++)
-                {
-                    remoteFolder = remoteFolderManifest[i];
-                    loadRemoteVersion = remoteFolder.version;//记录要下载的远端版本号
-                    loadRemoteAppNum = remoteFolder.resNumber;
-                    curStreaming = FileManifestManager.FindStreamingFolderManifest(remoteFolder.fileName) as FolderManifest;
-
-                    if (curStreaming != null) //需要对比下载
-                    {
-                        var downLoadFolder = remoteFolder.CloneWithOutAllFileInfos();
-                        remoteFolder.RemoveSameFileResInfoFrom(curStreaming); //去重本地包内内容
-                        //查找当前缓存目录
-                        var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.fileName);
-                        if (curPersistent != null)
-                        {
-                            downLoadFolder.allFileInfos = curPersistent.NotSafeCompare(remoteFolder);
-                        }
-                        else
-                            downLoadFolder.allFileInfos = remoteFolder.allFileInfos;
+                //                     if (curStreaming != null) //需要对比下载
+                //                     {
+                //                         var downLoadFolder = remoteFolder.CloneWithOutAllFileInfos();
+                //                         remoteFolder.RemoveSameFileResInfoFrom(curStreaming); //去重本地包内内容
+                //                         //查找当前缓存目录
+                //                         var curPersistent = FileManifestManager.FindPersistentFolderManifest(remoteFolder.fileName);
+                //                         if (curPersistent != null)
+                //                         {
+                //                             downLoadFolder.allFileInfos = curPersistent.NotSafeCompare(remoteFolder);
+                //                         }
+                //                         else
+                //                             downLoadFolder.allFileInfos = remoteFolder.allFileInfos;
 
 
-                        // FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteFolder);
+                //                         // FileManifestManager.CheckAddOrUpdatePersistentFolderManifest(remoteFolder);
 
-                        if (downLoadFolder.allFileInfos.Count > 0)
-                        {
-                            needDownload.Add(downLoadFolder);
-#if !HUGULA_NO_LOG
-                            Debug.Log($"need update Folder {downLoadFolder.ToString()}\r\folder={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
-#endif
-                        }
-                    }
-                    //                     else if (remoteFolder.Count > 0)//不支持新增加文件夹
-                    //                     {
-                    //                         needDownload.Add(remoteFolder);
-                    // #if !HUGULA_NO_LOG
-                    //                         Debug.Log($"need update Folder whole: {remoteFolder}\r\folder={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
-                    // #endif
-                    //                     }
-                }
+                //                         if (downLoadFolder.allFileInfos.Count > 0)
+                //                         {
+                //                             needDownload.Add(downLoadFolder);
+                // #if !HUGULA_NO_LOG
+                //                             Debug.Log($"need update Folder {downLoadFolder.ToString()}\r\folder={curStreaming.ToString()}\r\n remoteFolder:{remoteFolder.ToString()}");
+                // #endif
+                //                         }
+                //                     }
+                //                 }
 
                 //开始加载热更新文件
                 var change = BackGroundDownload.instance.AddFolderManifests(needDownload, OnHotResProccessChanged, OnBackgroundComplete, OnBackgroundAllComplete);
@@ -563,7 +578,7 @@ namespace Hugula.ResUpdate
 
         void SetVersionInfo()
         {
-            if(view.version)
+            if (view.version)
             {
                 view.version.text = $"{FileManifestManager.localVersion} ({FileManifestManager.localResNum})";
             }
@@ -616,15 +631,15 @@ namespace Hugula.ResUpdate
             string verUrl;
             foreach (var host in hosts)
             {
-                verUrl = host.Replace("{udid}",udid);
-                verUrl = verUrl.Replace("{timeline}",timeline);
-                verUrl = verUrl.Replace("{ver_file_name}",Common.CRC32_VER_FILENAME);
-                verUrl = verUrl.Replace("{platform}",CUtils.platform);
-                verUrl = verUrl.Replace("{ver_folder}",Common.RES_VER_FOLDER);
-                verUrl = verUrl.Replace("{ver_file_version_name}",ver_name);
-                verUrl = verUrl.Replace("{app_version}",CodeVersion.APP_VERSION);
+                verUrl = host.Replace("{udid}", udid);
+                verUrl = verUrl.Replace("{timeline}", timeline);
+                verUrl = verUrl.Replace("{ver_file_name}", Common.CRC32_VER_FILENAME);
+                verUrl = verUrl.Replace("{platform}", CUtils.platform);
+                verUrl = verUrl.Replace("{ver_folder}", Common.RES_VER_FOLDER);
+                verUrl = verUrl.Replace("{ver_file_version_name}", ver_name);
+                verUrl = verUrl.Replace("{app_version}", CodeVersion.APP_VERSION);
 
-                verUrl = string.Format(verUrl, CUtils.platform,Common.RES_VER_FOLDER,ver_name,CodeVersion.APP_VERSION);
+                verUrl = string.Format(verUrl, CUtils.platform, Common.RES_VER_FOLDER, ver_name, CodeVersion.APP_VERSION);
                 urlGroup.Add(verUrl);
 #if !HUGULA_NO_LOG
                 Debug.LogFormat("version host = {0} ", verUrl);

@@ -305,7 +305,7 @@ namespace Hugula
 #else
 #if !HUGULA_RELEASE || LUA_ANDROID_DEBUG
             // var path = Application.persistentDataPath + "/lua/" + name.Replace ('.', '/') + ".lua";
-            string path = ValueStrUtils.ConcatNoAlloc(CUtils.dataPath, "/Lua/", name.Replace('.', '/'), ".lua");
+            string path = ValueStrUtils.ConcatNoAlloc(Application.persistentDataPath, "/Lua/", name.Replace('.', '/'), ".lua");
 
             if (File.Exists(path))
             {

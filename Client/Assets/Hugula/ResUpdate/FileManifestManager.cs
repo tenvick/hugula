@@ -184,7 +184,7 @@ namespace Hugula.ResUpdate
 
             if (fInfo.state != FileInfoState.Success)
             {
-                var fname = Path.GetFileName(fInfo.name);
+                var fname = CUtils.GetFileName(fInfo.name);
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), fname);
                 var crc = CrcCheck.GetLocalFileCrc(url, out var len);
                 if (len == 0)
@@ -451,7 +451,7 @@ namespace Hugula.ResUpdate
                     var dependencies = locations[0].Dependencies;
                     for (int i = 0; i < dependencies.Count; i++)
                     {
-                        depStr.Add(Path.GetFileName(dependencies[i].InternalId));
+                        depStr.Add(CUtils.GetFileName(dependencies[i].InternalId));
                     }
                 }
             }
@@ -852,7 +852,7 @@ namespace Hugula.ResUpdate
                 yield break;
             }
             //check file crc
-            if (CheckIsUpdateFile(Path.GetFileName(catelogPersistentPath)))
+            if (CheckIsUpdateFile(CUtils.GetFileName(catelogPersistentPath)))
             {
                 // Addressables.ClearDependencyCacheAsync();
                 // Caching.ClearCache();

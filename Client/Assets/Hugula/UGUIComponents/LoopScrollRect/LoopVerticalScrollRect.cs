@@ -270,8 +270,8 @@ namespace Hugula.UIComponents
             }
             set
             {
+                Clear();
                 m_DataLength = value;
-                ClearItems();
             }
         }
 
@@ -308,57 +308,16 @@ namespace Hugula.UIComponents
                 }
             }
 
-            if ((max == m_DataLength - 1 && index != 0) || max == int.MinValue) //判断最后一条位置
+            if (m_AutoScrollToBottom &&  ((max == m_DataLength - 1 && index != 0) || max == int.MinValue)) //判断最后一条位置
             {
                 m_autoScrollFloor = true;
             }
 
-            int eIdx, bIdx;
             m_DataLength += count;
 
-            //显示规则 1如果min=MaxValue,刷新  m_DataLength - pagesize - 1 ~ pageSize     索引并判断是否滚动到底部。 
-            if (min == int.MaxValue)
-            {
-                bIdx = m_DataLength - pageSize - 1;
-                eIdx = m_DataLength - 1;
+            if(min!=int.MaxValue && index<min) index = min ;
 
-                if (bIdx < 0) bIdx = 0;
-                // Debug.LogFormat("bIdx={0},eIdx={1},m_DataLength={2}", bIdx, eIdx, m_DataLength);
-                for (int i = bIdx; i <= eIdx; i++)
-                    m_RenderQueue.Enqueue(i);
-            }
-            else //if (index == 0) //从开始位置插入数据
-            {
-
-                eIdx = min + m_PageSize - 1; //本来应该的最大索引
-                if (eIdx >= m_DataLength) eIdx = m_DataLength - 1; //最大索引不能超过datalength
-                // if (eIdx <= 0) eIdx = 0;
-
-                bIdx = index > min ? index : min; //最小开始位置索引 
-
-                if (needScrollToBottom) //m_autoScrollFloor)
-                {
-                    if (max < 0) max = 0;
-                    // Debug.LogFormat("m_FloorDataIndex={0},max={1},m_DataLength={2},count={3}", min, max, dataLength, count);
-                    for (int i = max; i < m_DataLength; i++)
-                        m_RenderQueue.Enqueue(i);
-                }
-                else if (max > eIdx && eIdx >= 0) //有数据删除 往前渲染
-                {
-                    int bi = min - (max - eIdx);
-                    if (bi < 0) bi = 0;
-                    // Debug.LogFormat("delete min={0},bi = {1},max={2},DataLength={3}", min, bi, max, dataLength);
-                    for (int i = min; i >= bi; i--)
-                        m_RenderQueue.Enqueue(i);
-                }
-                else //从idx到end刷新
-                {
-                    // Debug.LogFormat("min={0},eIdx = {1},max={2},DataLength={3}", min, eIdx, max, dataLength);
-                    for (int i = min; i <= eIdx; i++)
-                        m_RenderQueue.Enqueue(i);
-                }
-
-            }
+            UpdateBegin(index);         
 
         }
 
@@ -601,7 +560,7 @@ namespace Hugula.UIComponents
                 loopItem.index = idx;
             }
 
-            var gObj = loopItem?.item.gameObject;
+            var gObj = loopItem?.item?.gameObject;
             if (idx >= dataLength)
             {
                 if (gObj) gObj.SetActive(false);
@@ -830,7 +789,7 @@ namespace Hugula.UIComponents
             get { return this.m_ScrollToIndex; }
             set
             {
-                ScrollToIndex(value);
+                StartCoroutine(ScrollToIndex(value));
             }
         }
 
@@ -839,19 +798,24 @@ namespace Hugula.UIComponents
         ///<summary>
         /// 滚动到指定索引
         ///</summary>
-        public void ScrollToIndex(int idx)
+        internal IEnumerator ScrollToIndex(int idx)
         {
-            if(isTweening || idx<0|| idx >= dataLength) return;
+            yield return waitForend;
+            if (isTweening) yield break;
+
+            if (idx < 0 || idx >= dataLength) yield break;
 
             var oldIdx = m_ScrollToIndex;
             m_ScrollToIndex = idx;
             Vector2 curr = content.anchoredPosition;
             var cpos = GetLoopVerticalItemSize(idx);
             var tpos = cpos;
+
             tpos.y = tpos.x;
             tpos.x = curr.x;
 
-            m_Coroutine = StartCoroutine(TweenMoveToPos(curr, tpos, scrollTime));
+            //CHECK RANGE
+            yield return TweenMoveToPos(curr, tpos, scrollTime);
 
             if (onScrollIndexChanged != null)
                 onScrollIndexChanged(this.parameter, m_ScrollToIndex, oldIdx);
@@ -908,10 +872,10 @@ namespace Hugula.UIComponents
                 return !tweenDir.Equals(Vector2.zero);
             }
         }
+        WaitForEndOfFrame waitForend = new WaitForEndOfFrame();
 
         protected IEnumerator TweenMoveToPos(Vector2 pos, Vector2 v2Pos, float delay)
         {
-            var waitForend = new WaitForEndOfFrame();
             float passedTime = 0f;
             tweenDir = (v2Pos - pos).normalized;
 
@@ -924,7 +888,6 @@ namespace Hugula.UIComponents
                 {
                     vCur = v2Pos;
                     tweenDir = Vector2.zero;
-                    StopCoroutine(m_Coroutine);
                     m_Coroutine = null;
                 }
                 else

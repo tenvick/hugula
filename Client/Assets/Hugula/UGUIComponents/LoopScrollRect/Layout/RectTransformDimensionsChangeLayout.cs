@@ -29,7 +29,21 @@ public class RectTransformDimensionsChangeLayout : UIBehaviour
 
     protected override void OnRectTransformDimensionsChange()
     {
-        float fTextPreferredHeight = mtransform.rect.height;
+        NotifyLayout(mtransform.rect.height);
+    }
+
+    void OnEnable()
+    {
+        NotifyLayout(mtransform.rect.height);
+    }
+
+    void OnDisable()
+    {
+        NotifyLayout(0);
+    }
+
+    void NotifyLayout(float fTextPreferredHeight)
+    {
         if (m_LayoutElement != null)
         {
             float fHeight = fTextPreferredHeight + offsetHeight;

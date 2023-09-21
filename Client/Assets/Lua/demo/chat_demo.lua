@@ -126,7 +126,7 @@ end
 -------------------------绑定属性---------------------
 -----------------------------------------------------
 chat_demo.chat_data = chat_data
-
+chat_demo.channel = "切换频道" --
 chat_data.goto_index = -1
 chat_data.loading_data = false --加载状态
 
@@ -184,6 +184,20 @@ chat_demo.on_goto_click =
     Execute = function(self, arg)
         print("跳转",arg)
         chat_data.property.goto_index = tonumber(arg)
+    end
+}
+
+chat_demo.on_btn_channel= 
+{
+    CanExecute = function(self, arg)
+        return true
+    end,
+    Execute = function(self, arg)
+        print("切换频道",arg)
+        -- chat_demo.property.channel = "切换频道"
+        chat_data:Clear()
+        add_chat_data(50, 200,0)
+
     end
 }
 

@@ -145,7 +145,7 @@ namespace Hugula.Utils
                             hasFile = true;
                         }
                         else
-                            Debug.LogWarningFormat("zip file {0} not exists ", filename);
+                            Debug.LogErrorFormat("file {0} not exists can't add to zip {1} ", filename,tgzFileName);
                     }
                 }
             }

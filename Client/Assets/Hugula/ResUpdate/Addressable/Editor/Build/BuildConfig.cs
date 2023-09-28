@@ -140,6 +140,16 @@ namespace HugulaEditor.ResUpdate
         {
            return string.Format("{0}_{1}.zip", folderName, Application.version);
         }
+
+
+
+        public static string AddressableBuildPath
+        {
+            get
+            {
+                return  Path.Combine(UnityEngine.AddressableAssets.Addressables.BuildPath, BuildTarget.ToString());
+            }
+        }
     }
 
     ///<summary>
@@ -150,13 +160,25 @@ namespace HugulaEditor.ResUpdate
     {
         public string fileName;
         public string fullBuildPath;
-        public uint crc;
+
+        private uint m_Crc;
+        public uint crc
+        {
+            get
+            {
+                if(m_Crc==0)
+                {
+                    m_Crc = CrcCheck.GetLocalFileCrc(fullBuildPath, out var fileLen);
+                }
+                return m_Crc;
+            }
+        }
 
         public BuildBundlePath(string name,string path,uint crc)
         {
             this.fileName = name;
             this.fullBuildPath = path;
-            this.crc = crc;
+            this.m_Crc = crc;
         }
     }
 

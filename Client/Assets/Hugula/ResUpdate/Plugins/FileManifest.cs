@@ -227,7 +227,7 @@ namespace Hugula.ResUpdate
                 {
                     re = true;
                     allFileInfos.RemoveAt(i);
-                    fileInfoDict.Remove(fileResInfo.name);
+                    fileInfoDict?.Remove(fileResInfo.name);
 #if HUGULA_NO_LOG
                     UnityEngine.Debug.Log($"remove fileResInfo:({fileResInfo})");
 #endif

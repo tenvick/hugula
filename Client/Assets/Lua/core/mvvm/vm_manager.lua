@@ -273,7 +273,7 @@ local function check_vm_base_all_done(vm_base, view)
             local curr_vm
             for k, v in ipairs(_curr_group) do --多个
                 curr_vm = VMGenerate[v]
-                if curr_vm.is_res_ready ~= true then
+                if curr_vm.is_res_ready ~= true and curr_vm._is_group then
                     need_close = false
                     break
                 end

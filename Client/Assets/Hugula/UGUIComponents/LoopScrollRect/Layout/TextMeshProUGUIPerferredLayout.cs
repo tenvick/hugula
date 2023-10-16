@@ -6,8 +6,10 @@ using UnityEngine.Serialization;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using Hugula.UIComponents;
-
-public class TextPerferredLayout : UIBehaviour, ILayoutElement, ILayoutIgnorer
+#if USE_TMPro
+using TMPro;
+#endif
+public class TextMeshProUGUIPerferredLayout : UIBehaviour, ILayoutElement, ILayoutIgnorer
 {
 
     #region  ILayoutElement
@@ -108,7 +110,7 @@ public class TextPerferredLayout : UIBehaviour, ILayoutElement, ILayoutIgnorer
     [SerializeField] 
     ContentSizeFitter m_SelfFitter;
 
-    public Text m_Text;
+    public TextMeshProUGUI m_Text;
     public LayoutElement m_LayoutElement;
 
     protected override void  Awake()

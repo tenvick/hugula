@@ -192,9 +192,10 @@ namespace Hugula.ResUpdate
             zipOutPath = Path.Combine(zipOutPath, f.fileName + Common.CHECK_ASSETBUNDLE_SUFFIX);
             var newFastManifest = f.CloneWithOutAllFileInfos();
             newFastManifest.transformZipFolder = true;
+            bool needDownloadZipfile = true;
             if (File.Exists(zipOutPath))
             {
-                Debug.Log($"zip folder({zipOutPath}) is done");
+                Debug.Log($"zip folder({zipOutPath}) has already loaded ,check incremental updating");
                 AssetBundle ab = null;
                 //读取persistent文件夹下的package文件
                 if ((ab = AssetBundle.LoadFromFile(zipOutPath, 0, Common.BUNDLE_OFF_SET)) != null)
@@ -211,26 +212,38 @@ namespace Hugula.ResUpdate
                     {
                         var flist = streamingFolderManifest.NotSafeCompare(persisFolderManifest);
                         //check size
+                        if (flist.Count == 0)//没有变更
+                        {
+                            needDownloadZipfile = false;
+                            f.MarkZipDone(); //标记完成
+                            return newFastManifest;
+                        }
+
                         uint size = 0;
                         foreach (var file in flist)
                         {
                             size += file.size;
                         }
 
-                        if (size < f.zipSize) //单文件加载
+                        if (size < f.zipSize) //增量更新
                         {
                             newFastManifest.allFileInfos = flist;
+                            needDownloadZipfile = false;
 #if !HUGULA_NO_LOG
-                            print($"add filelist:{flist.Count}");
+                            print($"add filelist:{flist.Count},size={size}");
                             Debug.Log(f.ToString());
                             Debug.Log(newFastManifest.ToString());
 #endif
+                        }
+                        else
+                        {
+                            needDownloadZipfile = true;//增量大于了zip包尺寸全量更新
                         }
                     }
                 }
             }
 
-            if (f.zipSize > 0 && newFastManifest.allFileInfos.Count <= 0) //zip包方式加载
+            if (f.zipSize > 0 && needDownloadZipfile) //zip包方式加载
             {
                 uint crc = 0;
                 uint.TryParse(f.zipVersion, out crc);
@@ -264,17 +277,25 @@ namespace Hugula.ResUpdate
         /// </summary>
         public uint AddFolderManifest(FolderManifest folder, System.Action<LoadingEventArg> onProgress, System.Action<FolderManifestQueue, bool> onItemComplete, System.Action<FolderQueueGroup, bool> onAllComplete)
         {
-            if (folder.Count <= 0) return 0;
+            // if (folder.Count <= 0) return 0;
             var folderQueue = new FolderManifestQueue();
             var group = new FolderQueueGroup(onProgress, onItemComplete, onAllComplete);
             folderQueue.SetFolder(folder, group);
-
-            willLoadFolders.Add(folderQueue);
-            willLoadFolders.Sort((a, b) =>
+            if (folder.Count > 0)
             {
-                return a.priority - b.priority;
-            });
-            return folder.totalSize;
+                willLoadFolders.Add(folderQueue);
+                willLoadFolders.Sort((a, b) =>
+                {
+                    return a.priority - b.priority;
+                });
+                return folder.totalSize;
+            }
+            else
+            {
+                folderQueue.Complete(null, false);
+            }
+
+           return 0;
         }
 
         ///<summary>
@@ -311,10 +332,14 @@ namespace Hugula.ResUpdate
             {
                 var folderQueue = new FolderManifestQueue();
                 item = folders[i];
+                folderQueue.SetFolder(item, group);
                 if (item.Count > 0)
                 {
-                    folderQueue.SetFolder(item, group);
                     willLoadFolders.Add(folderQueue);
+                }
+                else
+                {
+                    folderQueue.Complete(null, false);
                 }
             }
             willLoadFolders.Sort((a, b) =>
@@ -425,6 +450,8 @@ namespace Hugula.ResUpdate
                         if (queue.isEmpty)
                         {
                             loadingFolders.RemoveAt(i);
+                            // if(queue.isDown) //空列表触发下载完成事件
+                            //     queue.Complete(null, false);
                             continue;
                         }
                         else
@@ -543,12 +570,13 @@ namespace Hugula.ResUpdate
             //下载目录拼接
             if (folderManifest.transformZipFolder) //zip文件夹 下载目录与普通热更新不一样
             {
-                if(fileInfo.name.EndsWith(".zip") )
+                if (fileInfo.name.EndsWith(".zip"))
                 {
                     urlHost = CUtils.PathCombine(urlHost, HotResConfig.PACKAGE_FOLDER_NAME);
-                }else
+                }
+                else
                 {
-                    urlHost = Path.Combine(urlHost, HotResConfig.PACKAGE_FOLDER_NAME,folderManifest.fileName);
+                    urlHost = Path.Combine(urlHost, HotResConfig.PACKAGE_FOLDER_NAME, folderManifest.fileName);
                 }
             }
             else
@@ -561,7 +589,7 @@ namespace Hugula.ResUpdate
             else
                 url = new Uri(OverrideFullHostURL(fileInfo, urlHost, timestamp));
 
-            var savePath = GetPersistentFilePath(folderManifest,fileInfo);
+            var savePath = GetPersistentFilePath(folderManifest, fileInfo);
             FileHelper.CheckCreateFilePathDirectory(savePath);
             if (fileInfo.size < BreakPointLength)
                 download.DownloadFileAsync(url, savePath);
@@ -577,10 +605,11 @@ namespace Hugula.ResUpdate
         {
             var fname = CUtils.GetFileName(abInfo.name);
             string path = string.Empty;
-            if(folderManifest.transformZipFolder && !abInfo.name.EndsWith(".zip") )
-            {   
-                path = Path.Combine(persistentPath,folderManifest.fileName, fname);
-            }else
+            if (folderManifest.transformZipFolder && !abInfo.name.EndsWith(".zip"))
+            {
+                path = Path.Combine(persistentPath, folderManifest.fileName, fname);
+            }
+            else
             {
                 path = CUtils.PathCombine(persistentPath, fname);
             }
@@ -637,7 +666,7 @@ namespace Hugula.ResUpdate
             }
             else
             {
-                string path = GetPersistentFilePath(groupMap.groupQueue.currFolder,abInfo);
+                string path = GetPersistentFilePath(groupMap.groupQueue.currFolder, abInfo);
                 FileInfo tmpFile = new FileInfo(path);
                 if (tmpFile.Length == abInfo.size) //check size
                 {
@@ -716,7 +745,7 @@ namespace Hugula.ResUpdate
 
                 Debug.Log($"zipfile:{source} to :{targetFolder} crc:{abinfo.crc32} {System.DateTime.Now}");
                 ZipHelper.UnpackZipByPath(source, targetFolder);
-                FolderManifestRuntionExtention.MarkZipPathDone(targetFolder+$"_{abinfo.crc32}.zipd");
+                // FolderManifestRuntionExtention.MarkZipPathDone(targetFolder + $"_{abinfo.crc32}.zipd");、、move to FolderManifestQuque.DispatchOnComplete
                 File.Delete(source); //删除zip文件
                 Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
             }

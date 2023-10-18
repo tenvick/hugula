@@ -141,9 +141,13 @@ namespace HugulaEditor.ResUpdate
 
         public void Run(HotResGenSharedData data)
         {
-            string verPath = BuildConfig.UpdateResOutVersionPath;
+            // string verPath = BuildConfig.UpdateResOutVersionPath;
             //Debug.Log($"清理本地热更新缓存:{verPath}");
             //EditorUtils.DirectoryDelete(verPath);  需要保留zip文件
+
+            string newHotPath =  BuildConfig.UpdateResOutNewPath;      
+            EditorUtils.DirectoryDelete(newHotPath);
+            Debug.Log($"清理本地热更新缓存:{newHotPath}");
         }
     }
 
@@ -570,9 +574,10 @@ namespace HugulaEditor.ResUpdate
         {
             var buildBundlePathData = BuildBundlePathData.ReadBuildBundlePathData();
             string verPath = BuildConfig.UpdateResOutVersionPath;//Path.Combine(BuildConfig.UpdateResOutVersionPath, BuildConfig.ResFolderName);//特定版本资源目录用于资源备份
-                                                                 //清理缓存
+            string newHotPath =      BuildConfig.UpdateResOutNewPath;      
+                                                       //清理缓存
             FileHelper.CheckCreateDirectory(verPath);
-
+            FileHelper.CheckCreateDirectory(newHotPath);
             var aasBuildPath = UnityEngine.AddressableAssets.Addressables.BuildPath;
 
             //copy 变更的文件到更新目录
@@ -588,6 +593,7 @@ namespace HugulaEditor.ResUpdate
                         if (source != null)
                         {
                             CopyFileTo(source, file, verPath);
+                            CopyFileTo(source, file, newHotPath);
                         }
                     }
                 }
@@ -612,6 +618,8 @@ namespace HugulaEditor.ResUpdate
             UnityEditor.EditorPrefs.SetString($"DIFF_CRC_{Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME}", crc32.ToString());
             var newName = CUtils.InsertAssetBundleName(Common.STREAMING_ALL_FOLDERMANIFEST_BUNDLE_NAME, $"_{crc32.ToString()}");
             CopyFileTo(old_name, Path.Combine(BuildConfig.UpdateResOutVersionPath, newName));
+            CopyFileTo(old_name, Path.Combine(newHotPath, newName));
+
         }
 
         internal static bool CopyFileTo(string s, string t)
@@ -782,6 +790,9 @@ namespace HugulaEditor.ResUpdate
             var savePath = Path.Combine(verPath, versionFileName);
             File.WriteAllText(savePath, outConfig);
             Debug.Log($"保存当前版本:{savePath}");
+            savePath = Path.Combine(BuildConfig.UpdateResOutNewPath, versionFileName);
+            File.WriteAllText(savePath, outConfig);
+            Debug.Log($"保存当前 临时版本:{savePath}");
 
             //本地缓存
 

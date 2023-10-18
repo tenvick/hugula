@@ -149,10 +149,13 @@ namespace Hugula.ResUpdate
 
         public bool Complete(FileResInfo req, bool isError)
         {
-            var idx = loadingRes.IndexOf(req);
-            if (idx >= 0)
+            if(req!=null)
             {
-                loadingRes.RemoveAt(idx);
+                var idx = loadingRes.IndexOf(req);
+                if (idx >= 0)
+                {
+                    loadingRes.RemoveAt(idx);
+                }
             }
 
             var down = isDown;
@@ -178,12 +181,16 @@ namespace Hugula.ResUpdate
             // bytesReceived += e.BytesRead;
             AddReceiveBytes(fileResInfo.name, (int)e.BytesReceived);
             m_Dirty = true;
-            group.OnDownloadProgressChanged(fileResInfo, this, e);
+            group?.OnDownloadProgressChanged(fileResInfo, this, e);
         }
 
 
         protected virtual void DispatchOnComplete()
         {
+            if(currFolder.transformZipFolder)
+            {
+                currFolder.MarkZipDone();//标记下载完成
+            }
             group?.DispatchChildComplete(this);
             // if (onComplete != null)
             //     onComplete(this, isError);

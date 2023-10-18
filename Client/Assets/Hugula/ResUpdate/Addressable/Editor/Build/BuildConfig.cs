@@ -73,7 +73,19 @@ namespace HugulaEditor.ResUpdate
         {
             get
             {
-                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath,Common.RES_VER_FOLDER);//" CodeVersion.APP_VERSION");
+                string updateOutPath = string.Format("{0}/{1}", CurrentUpdateResOutPath, Common.RES_VER_FOLDER);//" CodeVersion.APP_VERSION");
+                return updateOutPath;
+            }
+        }
+
+        /// <summary>
+        /// 热更新资源新目录 方便当前构建copy
+        /// </summary>
+        public static string UpdateResOutNewPath
+        {
+            get
+            {
+                string updateOutPath = string.Format("{0}/CurrentUpdate", CurrentUpdateResOutPath);//" CodeVersion.APP_VERSION");
                 return updateOutPath;
             }
         }

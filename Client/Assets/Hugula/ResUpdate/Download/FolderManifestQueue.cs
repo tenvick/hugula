@@ -187,7 +187,7 @@ namespace Hugula.ResUpdate
 
         protected virtual void DispatchOnComplete()
         {
-            if(currFolder.transformZipFolder)
+            if(currFolder.transformZipFolder && !isError)
             {
                 currFolder.MarkZipDone();//标记下载完成
             }

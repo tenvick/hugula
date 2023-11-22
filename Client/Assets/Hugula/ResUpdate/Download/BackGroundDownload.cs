@@ -745,7 +745,7 @@ namespace Hugula.ResUpdate
 
                 Debug.Log($"zipfile:{source} to :{targetFolder} crc:{abinfo.crc32} {System.DateTime.Now}");
                 ZipHelper.UnpackZipByPath(source, targetFolder);
-                // FolderManifestRuntionExtention.MarkZipPathDone(targetFolder + $"_{abinfo.crc32}.zipd");、、move to FolderManifestQuque.DispatchOnComplete
+                groupMap.groupQueue.currFolder.MarkZipDone();
                 File.Delete(source); //删除zip文件
                 Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
             }

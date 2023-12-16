@@ -493,7 +493,8 @@ private:
 		case LUA_TTHREAD: // fall thought
 		case LUA_TNONE: // fall thought
 		default:
-			luaL_error(L, "value type : %s", lua_typename(L, t));
+			//luaL_error(L, "value type : %s", lua_typename(L, t));
+			writer->Null();
 			return;
 		}
 	}

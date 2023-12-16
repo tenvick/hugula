@@ -1,8 +1,8 @@
 # Google protobuf support for Lua
 
-[![Build Status](https://travis-ci.org/starwing/lua-protobuf.svg?branch=master)](https://travis-ci.org/starwing/lua-protobuf)[![Coverage Status](https://coveralls.io/repos/github/starwing/lua-protobuf/badge.svg?branch=master)](https://coveralls.io/github/starwing/lua-protobuf?branch=master)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/starwing/lua-protobuf/test.yml?branch=master)](https://github.com/starwing/lua-protobuf/actions?query=branch%3Amaster)[![Coverage Status](https://img.shields.io/coveralls/github/starwing/lua-protobuf)](https://coveralls.io/github/starwing/lua-protobuf?branch=master)
 
-中文使用说明：https://zhuanlan.zhihu.com/p/26014103
+English | [中文](https://github.com/starwing/lua-protobuf/blob/master/README.zh.md)
 
 Urho3d集成说明：https://note.youdao.com/ynoteshare1/index.html?id=20d06649fab669371140256abd7a362b&type=note
 
@@ -129,7 +129,7 @@ print(require "serpent".block(data2))
 | `p:compile(string)` | string        | transform schema to binary *.pb format data          |
 | `p:load(string)`    | true          | load schema into `pb` module                         |
 | `p.loaded`          | table         | contains all parsed `DescriptorProto` table          |
-| `p.unknown_module`  | see below     | handle schema import error                           |
+| `p.unknown_import`  | see below     | handle schema import error                           |
 | `p.unknown_type`    | see below     | handle unknown type in schema                        |
 | `p.include_imports` | bool          | auto load imported proto                             |
 
@@ -143,13 +143,13 @@ Then, set some options to the compiler, e.g. the unknown handlers:
 
 ```lua
 -- set some hooks
-p.unknown_module = function(self, module_name) ... end
+p.unknown_import = function(self, module_name) ... end
 p.unknown_type   = function(self, type_name) ... end
 -- ... and options
 p.include_imports = true
 ```
 
-The `unknwon_module` and `unknown_type` handle could be `true`, string or a function.  Seting it to `true` means all *non-exist* modules and types are given a default value without triggering an error;  A string means a Lua pattern that indicates whether an unknown module or type should raise an error, e.g.
+The `unknown_import` and `unknown_type` handle could be `true`, string or a function.  Seting it to `true` means all *non-exist* modules and types are given a default value without triggering an error;  A string means a Lua pattern that indicates whether an unknown module or type should raise an error, e.g.
 
 ```lua
 p.unknown_type = "Foo.*"
@@ -160,9 +160,9 @@ means all types prefixed by `Foo` will be treat as existing type and do not trig
 If these are functions, the unknown type and module name will be passed to functions.  For module handler, it should return a `DescriptorProto` Table produced by `p:load()` functions, for type handler, it should return a type name and type, such as `message` or `enum`, e.g.
 
 ```lua
-function p:unknown_module(name)
+function p:unknown_import(name)
   -- if can not find "foo.proto", load "my_foo.proto" instead
-  return p:load("my_"..name)
+  return p:parsefile("my_"..name)
 end
 
 function p:unknown_type(name)
@@ -210,7 +210,7 @@ In below table of functions, we have several types that have special means:
 | `pb.typefmt(type)`             | String          | transform type name of field into pack/unpack formatter |
 | `pb.enum(type, string)`        | number          | get the value of a enum by name                         |
 | `pb.enum(type, number)`        | string          | get the name of a enum by value                         |
-| `pb.defaults(type[, table])`   | table           | get the default table of type                           |
+| `pb.defaults(type[, table/nil])` | table           | get the default table of type                           |
 | `pb.hook(type[, function])`    | function        | get or set hook functions                               |
 | `pb.option(string)`            | string          | set options to decoder/encoder                          |
 | `pb.state()`                   | `pb.State`      | retrieve current pb state                               |
@@ -285,7 +285,11 @@ print(pb.enum("Color", 2)) --> "Green"
 
 #### Default Values
 
-Using `pb.defaults()` to get a table with all default values from a message. this table will be used as the metatable of the corresponding decoded message table when setting `use_default_metatable` option.
+Using `pb.defaults()` to get or set a table with all default values from a message. this table will be used as the metatable of the corresponding decoded message table when setting `use_default_metatable` option.
+
+You could also call `pb.defaults` with `"*map"` or `"*array"` to get the default metatable for map and array when decoding a message. These settings will bypass `use_default_metatable` option.
+
+To clear a default metatable, just pass `nil` as second argument to `pb.defaults()`.
 
 ```lua
    check_load [[
@@ -308,9 +312,9 @@ Using `pb.defaults()` to get a table with all default values from a message. thi
 
 #### Hooks
 
-If set `pb.option "enable_hooks"`, the hook function will enabled. you could use `pb.hook()` to set or get a hook function. call it with type name directly get current setted hook. call it with two arguments to set a hook. and call it with `nil` as the second argument to remove the hook. in all case, the original one will be returned.
+If set `pb.option "enable_hooks"`, the hook function will be enabled. you could use `pb.hook()` and `pb.encode_hook` to set or get a decode or encode hook function, respectively: call it with type name directly get current setted hook; call it with two arguments to set a hook; and call it with `nil` as the second argument to remove the hook. in all case, the original one will be returned.
 
-After the hook function setted and hook enabled, the function will be called *after* a message get decoded. So you could get all values in the table passed to hook function. That's the only argument of hook.
+After the hook function setted and hook enabled, the decode function will be called *after* a message get decoded and encode functions will be called *before* the message is encoded. So you could get all values in the table passed to hook function. That's the only argument of hook.
 
 If you need type name in hook functions, use this helper:
 
@@ -334,11 +338,20 @@ These options are supported currently:
 | `int64_as_number`       | set value to integer when it fit into uint32, otherwise return a number **(default)** |
 | `int64_as_string`       | same as above, but return a string instead |
 | `int64_as_hexstring`    | same as above, but return a hexadigit string instead         |
-| `no_default_values`     | do not default values for decoded message table **(default)** |
+| `auto_default_values`   | act as `use_default_values` for proto3 and act as `no_default_values` for the others **(default)** |
+| `no_default_values`     | do not default values for decoded message table |
 | `use_default_values`    | set default values by copy values from default table before decode |
 | `use_default_metatable` | set default values by set table from `pb.default()` as the metatable |
 | `enable_hooks`          | `pb.decode` will call `pb.hooks()` hook functions            |
 | `disable_hooks`         | `pb.decode` do not call hooks **(default)**                  |
+| `encode_default_values` | default values also encode |
+| `no_encode_default_values` | do not encode default values **(default)** |
+| `decode_default_array`  | work with `no_default_values`,decode null to empty table for array |
+| `no_decode_default_array`  | work with `no_default_values`,decode null to nil for array **(default)** |
+| `encode_order`          | guarantees the same message will be encoded into the same result with the same schema and the same data (but the order itself is not specified) |
+| `no_encode_order`       | do not have guarantees about encode orders **(default)** |
+| `decode_default_message`  | decode null message to default message table |
+| `no_decode_default_message`  | decode null message to null  **(default)** |
 
  *Note*: The string returned by `int64_as_string` or `int64_as_hexstring` will prefix a `'#'` character. Because Lua may convert between string with number, prefix a `'#'` makes Lua return the string as-is.
 
@@ -462,6 +475,7 @@ All routines in `pb.slice` module:
 | `s:delete()`              | none         | same as `s:reset()`, free it's content                       |
 | `tostring(s)`             | string       | return the string repr of the object                         |
 | `#s`                      | number       | returns the count of bytes can read in current view          |
+| `s:result([i[, j]])`      | String       | return the remaining bytes in current view                   |
 | `s:reset([...])`          | self         | reset object to another data                                 |
 | `s:level()`               | number       | returns the count of stored state                            |
 | `s:level(number)`         | p, i, j      | returns the informations of the `n`th stored state           |

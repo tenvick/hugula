@@ -421,7 +421,8 @@ namespace Hugula
 
         }
 
-        static public Task<T> LoadAssetAsyncTask<T>(string key)
+        ///
+        static public Task<T> LoadAssetAsyncTask<T>(string key,bool inGroup =false)
         {
             if (string.IsNullOrEmpty(key))
                 throw new NullReferenceException($"LoadAssetAsyncTask({typeof(T)}) key is null");
@@ -430,8 +431,26 @@ namespace Hugula
                 throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
 
             key = GetKey(key);
+
+            if (inGroup && m_MarkGroup)
+            {
+                m_Groupes.Add(key);
+                m_TotalGroupCount++;
+            }
             var task = Addressables.LoadAssetAsync<T>(key).Task;
             return task;
+        }
+
+        static public void  LoadAssetAsyncTaskDone(string key)
+        {
+#if UNITY_EDITOR && !HUGULA_NO_LOG
+                // Debug.Log($"ResLoader.LoadAssetAsyncTaskDone({key})");
+#endif
+            Hugula.Executor.Execute(()=>
+            {
+                OnItemLoaded(key);
+            }
+            );
         }
 
         #endregion
@@ -455,7 +474,7 @@ namespace Hugula
         static async public void InstantiateAsync(string key, System.Action<GameObject, object> onComplete, System.Action<object, object> onEnd, object userData = null, Transform parent = null)
         {
             if (string.IsNullOrEmpty(key))
-                throw new NullReferenceException($"LoadAssetAsyncTask(GameObject) key is null");
+                throw new NullReferenceException($"LoadAssetAsyncTask(GameObject) key is null lua:{Hugula.EnterLua.LuaTraceback()}");
 
             if (!s_Initialized)
                 throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);

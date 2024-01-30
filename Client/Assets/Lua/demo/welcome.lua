@@ -59,7 +59,9 @@ eg_data:InsertRange(
             res_type= typeof(UnityEngine.ResourceManagement.ResourceProviders.SceneInstance),
             bgcolor = Color.blue
         },
-        {id = 6, title = "psd模板生成 登录示例", name = btn_tips1, state = "ui_login", bgcolor = Color.blue, check_res = ""}
+        {id = 6, title = "psd模板生成 登录示例", name = btn_tips1, state = "ui_login", bgcolor = Color.blue, check_res = ""},
+        {id = 7, title = "资源加载测试", name = btn_tips1, state = "ui_res_test", bgcolor = Color.blue, check_res = ""}
+
     }
 )
 ---按钮点击事件

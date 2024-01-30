@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.1.30
+1 memoryinfo内存查询插件。
+2 PoolManager根据内存情况制定释放策略。
+3 lua 5.4.6 库文件上传。
+4 android streamingasset.jar 工程上传。 
+
 2023.8.16
 1 com.hugula.value-string@0.0.1 无gc string 包引入(谨慎使用)
 2 lua require gc alloc 优化 XLUA_USE_SPAN 开启。

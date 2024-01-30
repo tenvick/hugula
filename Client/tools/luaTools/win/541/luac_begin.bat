@@ -1,0 +1,1 @@
+luac -o begin.lua begin1.lua

@@ -1,0 +1,11 @@
+{
+  "name": "com.hiyorin.memoryinfo",
+  "displayName":  "MemoryInfoPlugin",
+  "version": "1.0.0",
+  "unity": "2018.3",
+  "description": "A set of tools for Unity to allow handling memory info for Android and iOS.",
+  "keywords": [],
+  "Author": "Kazuma Kuwabara (a.k.a. @hiyorin)",
+  "dependencies": {
+  }
+}

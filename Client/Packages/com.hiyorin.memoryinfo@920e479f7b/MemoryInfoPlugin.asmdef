@@ -1,0 +1,8 @@
+{
+    "name": "MemoryInfoPlugin",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

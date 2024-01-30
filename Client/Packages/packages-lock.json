@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.hiyorin.memoryinfo": {
+      "version": "file:com.hiyorin.memoryinfo@920e479f7b",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.hugula.value-string": {
       "version": "file:com.hugula.value-string@0.0.1",
       "depth": 0,

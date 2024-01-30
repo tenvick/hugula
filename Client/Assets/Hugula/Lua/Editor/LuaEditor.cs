@@ -137,9 +137,9 @@ namespace HugulaEditor
             System.Diagnostics.Process p = new System.Diagnostics.Process();
 
 #if UNITY_EDITOR_WIN
-            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/win/535/luac.exe";
+            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/win/546/luac.exe";
 #elif UNITY_EDITOR_OSX
-            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/luac535;
+            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/luac546;
 #endif
             p.StartInfo.Arguments = argStr;
             p.StartInfo.WorkingDirectory = LUA_ROOT_PATH;

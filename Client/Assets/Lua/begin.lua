@@ -25,7 +25,7 @@ end)
 
 table_insert(groups, function()
     print("groups 2 require config")
-    -- require("require_config")
+    require("require_config")
 end)
 
 table_insert(groups, function()
@@ -87,46 +87,58 @@ print(pb.tohex(bytes))
 local data2 = assert(pb.decode("netpack.Msg_LoginAck", bytes))
 Logger.LogTable(data2)
 
--- local data = {
---     name = "ilse",
---     age = 18,
---     contacts = {
---         {name = "alice", phonenumber = 12312341234},
---         {name = "bob", phonenumber = 45645674567}
---     }
--- }
+local data = {
+    name = "ilse",
+    age = 18858756582,
+    address = "上海",
+    contacts = {
+        {name = "alice", phonenumber = 13975126500},
+        {name = "bob", phonenumber = 1398541250}
+    }
+}
 
--- local bytes = assert(pb.encode("Person", data))
--- print(pb.tohex(bytes))
+local bytes = assert(pb.encode("netpack.Person", data))
+print(pb.tohex(bytes))
 
--- local data2 = assert(pb.decode("Person", bytes))
--- print(data2.name)
--- print(data2.age)
--- print(data2.address)
--- print(data2.contacts[1].name)
--- print(data2.contacts[1].phonenumber)
--- print(data2.contacts[2].name)
--- print(data2.contacts[2].phonenumber)
+local data2 = assert(pb.decode("netpack.Person", bytes))
+print(data2.name)
+print(data2.age)
+print(data2.address)
+print(data2.contacts[1].name)
+print(data2.contacts[1].phonenumber)
+print(data2.contacts[2].name)
+print(data2.contacts[2].phonenumber)
 -- ---------------------------------
--- local ffi = require("ffi")
--- ffi.cdef [[
---     typedef struct {int fake_id;unsigned int len;} CSSHeader;
--- ]]
--- ffi.cdef [[
---     typedef struct {
---         CSSHeader header;
---         float x;
---         float y;
---         float z;
---     } Vector3;
--- ]]
+local ffi = require("ffi")
+ffi.cdef [[
+    typedef struct {int fake_id;unsigned int len;} CSSHeader;
+]]
+ffi.cdef [[
+    typedef struct {
+        CSSHeader header;
+        float x;
+        float y;
+        float z;
+    } Vector3;
+]]
 
--- local Vector3Native = ffi.typeof("Vector3 *")
--- local v = CS.UnityEngine.Vector3(1, 2, 3)
--- local vn = ffi.cast(Vector3Native, v)
--- print(vn)
--- if vn.header.fake_id == -1 then
---     print("vector { ", vn.x, vn.y, vn.z, "}")
--- else
---     print("please gen code")
--- end
+local Vector3Native = ffi.typeof("Vector3 *")
+local v = CS.UnityEngine.Vector3(1, 2, 3)
+local vn = ffi.cast(Vector3Native, v)
+print(vn)
+if vn.header.fake_id == -1 then
+    print("vector { ", vn.x, vn.y, vn.z, "}")
+else
+    print("please gen code")
+end
+
+ffi.cdef [[
+    typedef struct lua_State lua_State;
+
+    int parse_rpc(lua_State* L, unsigned int id, char* cur, int len);
+]]
+local parse_rpc = ffi.typeof("int parse_rpc(lua_State* L, unsigned int id, char* cur, int len)")
+print(parse_rpc)
+local lua_State = ffi.typeof("lua_State *")
+print(lua_State)
+-- print(lua_State.l_G)

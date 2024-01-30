@@ -19,17 +19,19 @@ local CS = CS
 local FileManifestManager = CS.Hugula.ResUpdate.FileManifestManager
 local BackGroundDownload = CS.Hugula.ResUpdate.BackGroundDownload
 local ResLoader = CS.Hugula.ResLoader
+local PoolManager = CS.Hugula.Utility.PoolManager
 ---@class player_load:VMBase
 ---@type player_load
 local player_load = VMBase()
 player_load.views = {
-    View(player_load, {key = "player_load"}) ---加载prefab
+    View(player_load, { key = "player_load" }) ---加载prefab
 }
 
 --------------------    绑定属性    --------------------
 ----  player_load  ----
 ----  player_load end  --
-
+local SceneId = 1
+local cache = {}
 --------------------    消息处理    --------------------
 
 -------------------     公共方法    --------------------
@@ -62,16 +64,23 @@ player_load.on_load_click = {
     end
 }
 
-player_load.on_show_hero= {
+player_load.on_show_hero = {
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("on_show_hero:",arg)
-        ResLoader.InstantiateAsync(arg,function(gobj,user)  
-            Logger.Log(gobj,user)
-            gobj.transform.position = CS.UnityEngine.Vector3(math.random(-14,3),0,math.random(-8,5))
-        end,nil)
+        Logger.Log("on_show_hero:", arg)
+        local instance = PoolManager.instance
+        instance:SetPrefabCate(arg, SceneId) --标记为场景资源
+        instance:GetAsyncPriority(arg, function(arg, key, gobj)
+            Logger.Log(arg, key, gobj)
+            gobj.transform.position = CS.UnityEngine.Vector3(math.random(-14, 3), 0, math.random(-8, 5))
+            table.insert(cache, gobj)
+        end);
+        -- ResLoader.InstantiateAsync(arg,function(gobj,user)
+        --     Logger.Log(gobj,user)
+        --     gobj.transform.position = CS.UnityEngine.Vector3(math.random(-14,3),0,math.random(-8,5))
+        -- end,nil)
     end
 }
 
@@ -94,11 +103,19 @@ end
 --view激活时候调用
 function player_load:on_active()
     Logger.Log("player_load:on_active")
+   
 end
 
 --view失活调用
 function player_load:on_deactive()
     Logger.Log("player_load:on_deactive")
+    local instance = PoolManager.instance
+    for i, v in ipairs(cache) do
+        Logger.Log("ReleaseObj", v)
+        instance:ReleaseObj(v)
+    end
+
+    table.clear(cache)
 end
 
 -- --状态切换之前
@@ -110,9 +127,10 @@ end
 -- end
 
 -- --在销毁的时候调用此函数
--- function player_load:on_destroy()
---     print("player_load:on_deactive")
--- end
+function player_load:on_destroy()
+    print("player_load:on_destroy",SceneId)
+    PoolManager.instance:GCCollectCate(SceneId) --清理场景资源
+end
 
 --初始化方法只调用一次
 -- function player_load:initialize()
@@ -123,7 +141,7 @@ return player_load
 
 --[[
 
-vm_config.player_load = {vm = "viewmodels.player_load", gc_type = VM_GC_TYPE.ALWAYS} 
+vm_config.player_load = {vm = "viewmodels.player_load", gc_type = VM_GC_TYPE.ALWAYS}
 
 vm_group.player_load = {"player_load"}
 

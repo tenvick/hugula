@@ -18,7 +18,7 @@ local property_color = "color"
 ---text3 绑定 bind_text4(1)
 ---text4 绑定 goods.color[2]
 
-oneway_path_demo.text1 = "path=text1,普通路径"
+oneway_path_demo.text1 = "path=text1,普通路径  lua hot 08 24 20:29"
 ---数组与多路径支持双向
 local goods = NotifyObject()
 goods.name = "path=goods.name,pen"

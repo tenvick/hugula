@@ -26,9 +26,10 @@ binding_demo.oneway_path_demo = require("demo.binding_demo.path_binding_demo")
 
 --- 界面 PanelInteractableComponent
 binding_demo.enable_slider = true
-binding_demo.btntext = "拖动滑动条"
+binding_demo.btntext = "拖动滑动条 lua hot 08 24 20:29"
 binding_demo.slider1_value = 0 ---双向绑定
 binding_demo.btn_interactable = false
+binding_demo.test_tmp = "test_tmp"
 
 binding_demo.on_slider_value = {
     Execute = function(self, arg)
@@ -44,6 +45,14 @@ binding_demo.on_slider_value = {
         end
     end
 }
+
+
+
+function binding_demo:on_active()
+    Delay(function()
+        binding_demo.property.test_tmp = "擊殺遺跡首領後拾取部分魔物寶箱可獲得"
+    end, 3)
+end
 
 ---点击事件
 binding_demo.on_btn_click = {

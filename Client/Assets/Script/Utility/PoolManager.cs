@@ -91,7 +91,7 @@ namespace Hugula.Utility
         /// <returns></returns>
         static private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
-        static MemoryInfoPlugin memoryInfoPlugin = new MemoryInfoPlugin();
+        static MemoryInfoPlugin memoryInfoPlugin ;
 
         List<Request> callbackList = new List<Request>();
 
@@ -322,6 +322,7 @@ namespace Hugula.Utility
             lastGcTime = Time.unscaledTime;
             lowMemory = 0;
             Application.lowMemory += OnLowMemory;
+            memoryInfoPlugin = new MemoryInfoPlugin();
         }
 
 

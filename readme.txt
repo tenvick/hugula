@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.5.5
+1 框架vm_state切换部分重构，保持栈同步切换，资源还是异步加载。
+2 PSD2UGI插件支持文本自适应。
+3 Profiler 参数调整，检测同时可以看到当前加载资源数量。
+
 2024.1.30
 1 memoryinfo内存查询插件。
 2 PoolManager根据内存情况制定释放策略。

@@ -364,9 +364,8 @@ function exportLabel(obj, validFileName, depth) {
     writeLine("<string><![CDATA[" + obj.textItem.contents.replace(/&/gi, "") + "]]></string>", depth);
 
     //段落文本带文本框，可以取得对齐方式
-    if (obj.textItem.kind == TextType.PARAGRAPHTEXT) {
-        writeLine("<string>" + gen_text_justify(obj) + "</string>", depth);     //加对齐方式
-    }
+    writeLine("<string>" + gen_text_justify(obj) + "</string>", depth);     //加对齐方式
+    writeLine("<string>" + obj.textItem.kind + "</string>", depth);     //加对齐方式
     writeLine("</arguments>", depth);
 
     // 透明度

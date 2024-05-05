@@ -192,6 +192,7 @@ namespace Hugula.Framework
         // Update is called once per frame
         void Update()
         {
+            FrameWatcher.BeginWatch();
 
             var time = Time.unscaledTime;
             var frame = Time.frameCount; //当前frame
@@ -246,6 +247,10 @@ namespace Hugula.Framework
                         {
                             action(arg);
                         }
+#elif !HUGULA_RELEASE 
+                        UnityEngine.Profiling.Profiler.BeginSample($"Timer.action {action.GetHashCode()}({arg}) {Time.frameCount}");
+                        action(arg);
+                        UnityEngine.Profiling.Profiler.EndSample();
 #else
                     action(arg);
 #endif
@@ -258,6 +263,11 @@ namespace Hugula.Framework
                 else
                 {
                     i++;
+                }
+
+                if (FrameWatcher.IsTimeOver())
+                {
+                    break;
                 }
             }
 

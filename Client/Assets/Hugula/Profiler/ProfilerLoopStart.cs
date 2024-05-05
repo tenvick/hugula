@@ -17,7 +17,7 @@ namespace Hugula.Profiler
 
         public void DumpProfilerInfo()
         {
-            ProfilerFactory.DumpProfilerInfo(0, true, true);
+            ProfilerFactory.DumpProfilerInfo(0, false, true);
         }
         #endregion
 

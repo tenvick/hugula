@@ -10,6 +10,7 @@ namespace Hugula.Databinding.Binder
 {
 
     [RequireComponent(typeof(Image))]
+    [XLua.LuaCallCSharp]
     public class ImageBinder : MaskableGraphicBinder<Image>
     {
 

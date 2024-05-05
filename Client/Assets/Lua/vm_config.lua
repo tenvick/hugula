@@ -9,6 +9,7 @@ local rawget = rawget
 local rawset = rawset
 local pairs = pairs
 local VM_GC_TYPE = VM_GC_TYPE
+local VM_MARK_TYPE = VM_MARK_TYPE
 ------------------------------------------------------------------------
 
 -------------------------------------------------------------------------
@@ -48,16 +49,28 @@ end
 vm_group_item_mt.append_item = function(t, item)
     local _append = t.__append
     _append[item] = true
+
 end
 
 vm_group_item_mt.contains_append_item = function(t, item)
     local _append = t.__append
-    return _append[item]
+    return _append[item] ~= nil
+end
+
+vm_group_item_mt.set_append_item_arg = function(t, item,arg)
+    local _append = t.__append
+    local has = _append[item]
+    if has ~= nil then
+        _append[item] = arg
+    end
+    return has ~= nil
 end
 
 vm_group_item_mt.remove_append_item = function(t, item)
     local _append = t.__append
+    local has = _append[item]
     _append[item] = nil
+    return has ~= nil
 end
 
 vm_group_item_mt.clear_append = function(t, item)
@@ -97,7 +110,8 @@ VMGroup = vm_g
 -------------------------------viewmodel配置-------------------------------
 ---------------------------------------------------------------------------
 --log_enable --为是否记录回退栈。
-
+--back_mark 返回标记遇到此标记则停止返回
+--gc_type 为gc类型
 --------------------------demo-------------------------------------
 vm_config.scene_loader = {vm = "demo.scene_loader", gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载场景
 vm_config.asset_loader = {vm = "demo.asset_loader", gc_type = VM_GC_TYPE.ALWAYS} ---  动态加载资源

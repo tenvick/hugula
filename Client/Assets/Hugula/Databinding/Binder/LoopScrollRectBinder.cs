@@ -10,6 +10,7 @@ namespace Hugula.Databinding.Binder
 {
 
     [RequireComponent(typeof(LoopScrollRect))]
+    [XLua.LuaCallCSharp]
     public class LoopScrollRectBinder : CollectionChangedBinder<LoopScrollRect>
     {
         public const string OnItemInstantiatedProperty = "onItemInstantiated";

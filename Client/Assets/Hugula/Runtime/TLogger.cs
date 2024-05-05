@@ -4,6 +4,7 @@ using System.IO;
 using Hugula.Utils;
 using System.Text;
 using System;
+using System.Globalization;
 
 ///<summary>
 ///
@@ -17,7 +18,7 @@ public class TLogger : ILogHandler
     #region  ILogHander
     public void LogException(Exception exception, UnityEngine.Object context)
     {
-        unityLogger?.LogException(exception,context);
+        unityLogger?.LogException(exception, context);
         try
         {
             LogCallback(exception);
@@ -35,9 +36,9 @@ public class TLogger : ILogHandler
         // if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
 #endif
         {
-            unityLogger?.LogFormat(logType,context,format,args);
-            var content = string.Format(format, args);
-            LogCallback(content, context == null ? "" : content.ToString(), logType);
+            unityLogger?.LogFormat(logType, context, format, args);
+            //var content = string.Format(format, args);
+            LogCallbackFormat(format, args, "", logType);
         }
     }
 
@@ -72,7 +73,7 @@ public class TLogger : ILogHandler
             var path = Path.Combine(Application.dataPath, "../Logs");
             logPath = Path.Combine(path, logName);
             preLogPath = Path.Combine(path, preLogName);
-             if (!Directory.Exists(path))
+            if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 #elif UNITY_STANDALONE
             var path = Path.Combine(Application.dataPath, "../Logs");
@@ -102,10 +103,25 @@ public class TLogger : ILogHandler
         {
             lock (locked)
             {
-                if (logStreamWriter != null) logStreamWriter.Close();
+                if (logStreamWriter != null)
+                {
+                    logStreamWriter.Flush();
+                    logStreamWriter.Close();
+                } 
             }
         }
 
+    }
+
+    internal static void Flush()
+    {
+        if (isInit)
+        {
+            lock (locked)
+            {
+                logStreamWriter?.Flush();
+            }
+        }
     }
 
     //覆盖旧的log
@@ -133,15 +149,42 @@ public class TLogger : ILogHandler
             sb.Clear();
             sb.Append("\r\n\r\n");
             sb.Append(LogTypes[4]);
-            // sb.AppendLine(System.Threading.Thread.CurrentThread.ManagedThreadId.ToString());
-            sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | "));
+            sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | ", CultureInfo.InvariantCulture));
             sb.Append(exception.Message);
             sb.Append("\r\n");
             sb.Append(exception.StackTrace);
+
             WriteToLogFile(sb.ToString());
 #if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
         Firebase.Crashlytics.Crashlytics.LogException(exception);
 #endif
+        }
+    }
+
+    static void LogCallbackFormat(string format, object[] args, string stackTrace, LogType logType)
+    {
+        if (args == null || logStreamWriter == null) return;
+        lock (locked)
+        {
+#if HUGULA_NO_LOG && !HUGULA_RELEASE
+            if (! (logType == LogType.Log))
+#elif HUGULA_NO_LOG
+            if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
+#endif
+            {
+                sb.Clear();
+                sb.Append("\r\n\r\n");
+                sb.Append(LogTypes[(int)logType]);
+                sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | ", CultureInfo.InvariantCulture));
+                sb.AppendFormat(format, args);
+                sb.Append("\r\n");
+                sb.Append(stackTrace);
+                string txt = sb.ToString();
+                logStreamWriter.Write(txt);
+#if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
+                Firebase.Crashlytics.Crashlytics.Log(txt);
+#endif
+            }
         }
     }
 
@@ -154,17 +197,16 @@ public class TLogger : ILogHandler
             if (!(logType == LogType.Log || logType == LogType.Warning)) //warning和log不上传
 #endif
             {
-
                 sb.Clear();
                 sb.Append("\r\n\r\n");
                 sb.Append(LogTypes[(int)logType]);
-                // sb.AppendLine(System.Threading.Thread.CurrentThread.ManagedThreadId.ToString());
-                sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | "));
+                sb.Append(System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | ", CultureInfo.InvariantCulture));
                 sb.Append(msg);
                 sb.Append("\r\n");
                 sb.Append(stackTrace);
                 var txt = sb.ToString();
                 WriteToLogFile(txt);
+                // logStreamWriter.Write(txt);
 #if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
                 Firebase.Crashlytics.Crashlytics.Log(txt);
 #endif
@@ -185,14 +227,18 @@ public class TLogger : ILogHandler
     {
         if (!string.IsNullOrEmpty(msg))
         {
+
 #if !HUGULA_NO_LOG
-            Debug.Log(BindColor("#00e75c", "sys", msg));
+            unityLogger?.LogFormat(LogType.Log, null, "{0}", msg);
+            LogCallback(msg, "TLogger.LogSys", LogType.Log);
 #else
+        #if !HUGULA_RELEASE
+                    unityLogger?.LogFormat(LogType.Log, null, "{0}", msg);
+        #endif
             LogCallback(msg, "TLogger.LogSys", LogType.Assert);
 #endif
         }
     }
-
     public static void Log(string msg)
     {
 #if !HUGULA_NO_LOG
@@ -207,7 +253,7 @@ public class TLogger : ILogHandler
         sb.Append($"\r\n deviceUniqueIdentifier={SystemInfo.deviceUniqueIdentifier}");
         sb.Append($"\r\n identifier={Application.identifier}");
         sb.Append($"\r\n deviceName={SystemInfo.deviceName}");
-        sb.Append($"\r\n date={System.DateTime.Now.ToString()}");
+        sb.Append($"\r\n date={System.DateTime.Now.ToString(" yyyy-MM-dd HH:mm:ss | ", CultureInfo.InvariantCulture)}");
         sb.Append($"\r\n systemMemorySize={SystemInfo.systemMemorySize};");
         sb.Append($"\r\n processorFrequency= {SystemInfo.processorFrequency}");
         sb.Append($"\r\n processorCount= {SystemInfo.processorCount}");
@@ -219,6 +265,12 @@ public class TLogger : ILogHandler
         sb.Append($"\r\n version={Application.version};");
         sb.Append($"\r\n unityVersion={Application.unityVersion}");
         sb.Append($"\r\n systemLanguage={Application.systemLanguage.ToString()};");
+
+        using (var memoryInfoPlugin = new MemoryInfo.MemoryInfoPlugin())
+        {
+            var memoryInfo = memoryInfoPlugin.GetMemoryInfo();
+            sb.Append($"\r\n memoryInfo:TotalSize={memoryInfo.TotalSize},UsedSize={memoryInfo.UsedSize},AvailMem={memoryInfo.AvailMem}");
+        }
 
 #if HUGULA_RELEASE && (UNITY_ANDROID || UNTIY_IOS) && !UNITY_EDITOR
         Firebase.Crashlytics.Crashlytics.Log(sb.ToString());

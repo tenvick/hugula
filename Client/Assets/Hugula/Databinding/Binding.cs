@@ -344,13 +344,14 @@ namespace Hugula.Databinding
 
         //解析的path路径
         List<BindingPathPart> m_Parts;// new List<BindingPathPart>();
+       
 
         public List<BindingPathPart> parts
         {
             get
             {
                 if(m_Parts==null)
-                    m_Parts = ListPool<BindingPathPart>.Get();
+                    m_Parts = m_PoolBindingPathPart.Get();
                 return m_Parts;
             }
         }
@@ -475,10 +476,24 @@ namespace Hugula.Databinding
                     BindingPathPart part = m_Parts[i];
                     part?.ReleaseToPool();
                 }
-                ListPool<BindingPathPart>.Release(m_Parts);
+                m_PoolBindingPathPart.Release(m_Parts);
             }
             m_Parts = null;
         }
+
+        #region List pool
+        const int capacity = 2048;
+        const int initial = 1024;
+
+        private static ObjectPool<List<BindingPathPart>> m_PoolBindingPathPart = new ObjectPool<List<BindingPathPart>>(null, DefaultRelease, capacity, initial);
+
+        private static void DefaultRelease(List<BindingPathPart> toRelease)
+        {
+            toRelease.Clear();
+        }
+
+        #endregion
+
 
     }
 

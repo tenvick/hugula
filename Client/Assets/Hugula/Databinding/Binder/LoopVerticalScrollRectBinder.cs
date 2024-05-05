@@ -277,7 +277,8 @@ namespace Hugula.Databinding.Binder
             // if (GetBinding (OnItemInstantiatedProperty) == null)
             //     target.onInstantiated = OnItemInstantiated;
 
-            if (GetBinding(OnItemRenderProperty) == null)
+            // if (GetBinding(OnItemRenderProperty) == null)
+            if (target.onItemRender == null)
                 target.onItemRender = OnItemRender;
 
             if (context is IList)

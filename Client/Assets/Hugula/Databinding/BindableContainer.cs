@@ -32,11 +32,11 @@ namespace Hugula.Databinding
                 if (m_LuaMonos == null)
                 {
                     m_LuaMonos = EnterLua.luaenv.NewTable();
-                    string key =string.Empty; 
+                    string key = string.Empty;
                     for (int i = 0; i < monos.Count; i++)
                     {
                         key = names[i];
-                        m_LuaMonos.Set<string,Object>(key,monos[i]);
+                        m_LuaMonos.Set<string, Object>(key, monos[i]);
                     }
                 }
 
@@ -114,7 +114,9 @@ namespace Hugula.Databinding
                         child.SetInheritedContext(context, true);
                     else
                     {
+#if !HUGULA_RELEASE
                         Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject), i);
+#endif
                     }
                 }
 
@@ -163,7 +165,7 @@ namespace Hugula.Databinding
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            if(m_LuaMonos!=null)
+            if (m_LuaMonos != null)
             {
                 m_LuaMonos.Dispose();
             }

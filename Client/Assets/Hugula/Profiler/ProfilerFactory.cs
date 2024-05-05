@@ -22,8 +22,8 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string TitleFormat = "\nProfiler|Total|Self|Calls|Max Single Call|Max Self Single Call|Avg Except Max Call|Number of SingleCallTime>3ms|first time|first frameCount";
-        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}";
+        private const string TitleFormat = "\nProfiler|Total|Calls|Max Single Call|Avg Except Max Call|Number of SingleCallTime>3ms|first frame|first end frame|max frame|max end frame|asset count|nestingLevel";
+        private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}";
 
         #endregion
 
@@ -70,7 +70,8 @@ namespace Hugula.Profiler
             string fullPath = " :" + args ?? "";
             if (target != null)
             {
-                fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + fullPath;
+                // fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + fullPath;
+                fullPath = target.name + fullPath;
             }
             StopwatchProfiler profiler = GetProfiler(fullPath);
             profiler.Start(needUnityProfiler);
@@ -113,7 +114,7 @@ namespace Hugula.Profiler
 
         public static List<string> GetProfilerNames()
         {
-            var dir =  new DirectoryInfo(LogDirName);
+            var dir = new DirectoryInfo(LogDirName);
             var files = dir.GetFiles("ProfilerInfoLog_*.txt");
             var list = new List<string>();
             foreach (var item in files)
@@ -132,7 +133,7 @@ namespace Hugula.Profiler
                 if (string.IsNullOrEmpty(m_LogFileName))
                 {
 #if UNITY_EDITOR || UNITY_STANDALONE
-                var kDirName = Path.Combine(Application.dataPath, "../Logs/");
+                    var kDirName = Path.Combine(Application.dataPath, "../Logs/");
 #else
                 var kDirName = Hugula.Utils.CUtils.realPersistentDataPath;
 #endif
@@ -166,6 +167,13 @@ namespace Hugula.Profiler
                     kFile = File.Create(kLogFileName);
                 }
                 WriteToStream(kFile, string.Format("\r\n\r\n\r\n\r\n------------------------------------------  {0}[{1};{2}] - {3}  ms   ------------------------------------------------------------\r\n", UnityEngine.SystemInfo.deviceModel, UnityEngine.SystemInfo.deviceType, SystemInfo.deviceUniqueIdentifier, DateTime.Now.ToString()));
+               
+                using (var memoryInfoPlugin = new MemoryInfo.MemoryInfoPlugin())
+                {
+                    var memoryInfo = memoryInfoPlugin.GetMemoryInfo();
+                    WriteToStream(kFile,$"------------------------------------------ memoryInfo:TotalSize={memoryInfo.TotalSize},UsedSize={memoryInfo.UsedSize},AvailMem={memoryInfo.AvailMem}------------------------------------------------------------\r\n");
+                }
+
                 WriteToStream(kFile, TitleFormat);
                 Debug.LogFormat("\r\nDumpProfilerInfo in path = {0} ", kLogFileName);
             }
@@ -182,18 +190,19 @@ namespace Hugula.Profiler
                 list.Add(pair);
             }
 
-            list.Sort(delegate (KeyValuePair<string, StopwatchProfiler> a, KeyValuePair<string, StopwatchProfiler> b) { 
-                return 
+            list.Sort(delegate (KeyValuePair<string, StopwatchProfiler> a, KeyValuePair<string, StopwatchProfiler> b)
+            {
+                return
                     // a.Value.firstTime.CompareTo(b.Value.firstTime);
-                    b.Value.firstTime.CompareTo(a.Value.firstTime);
-                    //a.Value.ElapsedMilliseconds.CompareTo(b.Value.ElapsedMilliseconds);
+                    b.Value.firstFrameCount.CompareTo(a.Value.firstFrameCount);
+                //a.Value.ElapsedMilliseconds.CompareTo(b.Value.ElapsedMilliseconds);
 
-             });
+            });
 
             double fullTime = 0;
             foreach (var pair in list)
             {
-                double time = pair.Value.ElapsedMillisecondsSelf;
+                double time = pair.Value.ElapsedMilliseconds;
                 if (time < 0)
                 {
                     UnityEngine.Debug.LogWarning($"found negative value, check profiler code {pair.Key};ElapsedMillisecondsSelf={time}");
@@ -208,7 +217,8 @@ namespace Hugula.Profiler
                     {
                         avgExceptMaxMilliseconds = (float)(itemValue.ElapsedMilliseconds - itemValue.MaxSingleFrameTimeInMs) / (float)(itemValue.NumberOfCalls - 1);
                     }
-                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.ElapsedMillisecondsSelf.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), itemValue.MaxSingleFrameTimeInMsSelf.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms,itemValue.firstTime,itemValue.firstFrameCount);
+
+                    string kLine = string.Format(LogFormat, pair.Key, itemValue.ElapsedMilliseconds.ToString("0.0000"), itemValue.NumberOfCalls, itemValue.MaxSingleFrameTimeInMs.ToString("0.0000"), avgExceptMaxMilliseconds.ToString("0.0000"), pair.Value.NumberOfCallsGreaterThan3ms, itemValue.firstFrameCount,itemValue.firstEndFrameCount,itemValue.maxFrameCount ,itemValue.maxEndFrameCount,itemValue.tips,itemValue.getNestingLevel());
                     if (bWriteToFile)
                     {
                         WriteToStream(kFile, kLine);
@@ -237,6 +247,7 @@ namespace Hugula.Profiler
 
         public static void BeginSample(string name, string arg = "")
         {
+#if PROFILER_DUMP
             if (!string.IsNullOrEmpty(arg))
             {
                 name = name + ":" + arg;
@@ -245,13 +256,16 @@ namespace Hugula.Profiler
             UWAEngine.PushSample (name);
 #endif
             UnityEngine.Profiling.Profiler.BeginSample(name);
+#endif
         }
 
         public static void EndSample()
         {
+#if PROFILER_DUMP
             UnityEngine.Profiling.Profiler.EndSample();
 #if UWATEST || UWA_SDK_ENABLE
             UWAEngine.PopSample ();
+#endif
 #endif
         }
 

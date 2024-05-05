@@ -37,6 +37,12 @@ namespace Hugula.Databinding.Binder
             InsertItems(index, count);
         }
 
+
+        virtual protected void ItemActive(GameObject ob, bool active)
+        {
+            ob.SetActive(active);
+        }
+
         protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.OldStartingIndex;
@@ -101,8 +107,9 @@ namespace Hugula.Databinding.Binder
                 {
                     item = GameObject.Instantiate<BindableObject>(templateItem, this.transform);
                     viewItems.Add(item);
+
                 }
-                if (!item.gameObject.activeSelf) item.gameObject.SetActive(true);
+                if (!item.gameObject.activeSelf) ItemActive(item.gameObject, true);
                 if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
                 itemData = items[i];
                 // item.context = itemData;
@@ -116,7 +123,7 @@ namespace Hugula.Databinding.Binder
         {
             foreach (var item in viewItems)
             {
-                item.context = null;
+                item.ClearContextRef();
                 if (destoryItem)
                 {
                     GameObject.Destroy(item.gameObject);
@@ -124,7 +131,7 @@ namespace Hugula.Databinding.Binder
                 else
                 {
                     item.Unapply();
-                    item.gameObject.SetActive(false);
+                    ItemActive(item.gameObject, false);
                 }
             }
 
@@ -156,12 +163,17 @@ namespace Hugula.Databinding.Binder
                 viewItems.RemoveAt(idx);
                 view.transform.SetSiblingIndex(viewItems.Count - 1);
                 view.Unapply();
-                view.gameObject.SetActive(false);
+                ItemActive(view.gameObject, false);
                 viewItems.Add(view);
             }
         }
 
-        BindableObject GetItemAt(int idx)
+        /// <summary>
+        /// 获取item
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public BindableObject GetItemAt(int idx)
         {
             if (idx >= 0 && idx < viewItems.Count)
                 return viewItems[idx];
@@ -191,8 +203,9 @@ namespace Hugula.Databinding.Binder
                     viewItems.Add(item);
                 }
 
-                if (!item.gameObject.activeSelf) item.gameObject.SetActive(true);
-                item.transform.SetSiblingIndex(i);
+                if (!item.gameObject.activeSelf) ItemActive(item.gameObject, true);
+                if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
+
 
                 itemData = items[i];
                 item.forceContextChanged = m_forceBinding;

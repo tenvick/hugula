@@ -25,3 +25,16 @@ message Msg_LoginAck
 	string ip                       = 5;//分配的GateIP
 	int32    port                   = 6;//端口
 }
+
+message Person
+{
+	string name					= 1;
+	int32 age					= 2;
+	string address				= 3;
+}
+
+message Contacts
+{
+	string name =1;
+	string phonenumber =2;
+}

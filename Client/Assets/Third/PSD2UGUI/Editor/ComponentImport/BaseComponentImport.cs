@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Linq;
+using Hugula.Utils;
 
 namespace PSDUINewImporter
 {
@@ -583,7 +584,7 @@ namespace PSDUINewImporter
             {
                 if (isText)
                 {
-                    var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
+                    var fontStylePath = PSDDirectoryUtility.SearAttachedPrefab(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, "template_text_" + layer.templateName + ".prefab");
                     if (string.IsNullOrEmpty(fontStylePath))
                     {
                         Debug.LogWarning($"there is no font component ({layer.templateName}) in path {PSDImporterConst.PSDUI_CONSTOM_FONT_PATH} ");
@@ -634,7 +635,7 @@ namespace PSDUINewImporter
 
             if (layer.miniType == ComponentType.Text)
             {
-                path = System.IO.Path.Combine(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, layer.templateName + ".prefab");
+                path = System.IO.Path.Combine(PSDImporterConst.PSDUI_CONSTOM_FONT_PATH, "template_text_" + layer.templateName + ".prefab");
             }
             else
             {

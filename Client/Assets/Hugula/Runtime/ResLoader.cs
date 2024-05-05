@@ -51,6 +51,8 @@ namespace Hugula
         static void InitDone(AsyncOperationHandle<IResourceLocator> obj)
         {
             s_Initialized = true;
+
+
 #if (UNITY_EDITOR || !HUGULA_NO_LOG) && !HUGULA_RELEASE && ENABLE_RESOURCELOCATORS_INFO
             Debug.Log("Addressables.InitializeAsync() InitDone");
             // #endif
@@ -93,7 +95,7 @@ namespace Hugula
                 string logPath = "";
 
 #if UNITY_EDITOR
-                var path =  "Assets/Tmp";//Path.Combine(Application.dataPath, "../Logs");
+                var path = "Assets/Tmp";//Path.Combine(Application.dataPath, "../Logs");
                 logPath = System.IO.Path.Combine(path, logName);
                 if (!System.IO.Directory.Exists(path))
                     System.IO.Directory.CreateDirectory(path);
@@ -117,6 +119,14 @@ namespace Hugula
 #endif
         }
 
+        /// <summary>
+        /// 当前正在加载的资源数量
+        /// </summary>
+        internal static int CurrentLoadingAssetCount
+        {
+            get;
+            private set;
+        }
         #endregion
 
         #region  group  
@@ -318,6 +328,9 @@ namespace Hugula
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
+
+            bool callEnd = true;
+
             try
             {
 
@@ -327,8 +340,13 @@ namespace Hugula
 
                 using (ProfilerFactory.GetAndStartProfiler(pkey))
                 {
+                    ProfilerFactory.BeginSample(pkey);
 #endif
                 task = Addressables.LoadAssetAsync<T>(key).Task;
+#if PROFILER_DUMP
+                    ProfilerFactory.EndSample();
+#endif
+
                 await task;
 #if PROFILER_DUMP
                 }
@@ -338,13 +356,14 @@ namespace Hugula
                 using (ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
                 {
 #endif
+                callEnd = false;
                 if (task.Result != null)
                 {
-                    onComplete(task.Result, userData);
+                    onComplete?.Invoke(task.Result, userData);
                 }
                 else
                 {
-                    if (onEnd != null) onEnd(null, userData);
+                    onEnd?.Invoke(key, userData);
                 }
 
 #if PROFILER_DUMP
@@ -353,8 +372,9 @@ namespace Hugula
             }
             catch (Exception ex)
             {
-                if (onEnd != null) onEnd(null, userData);
-                throw ex;
+                Debug.LogException(ex);
+                if (callEnd) onEnd?.Invoke(key, userData);
+                // throw;
             }
             finally
             {
@@ -372,12 +392,14 @@ namespace Hugula
                 throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
 
             key = GetKey(key);
-
+            CurrentLoadingAssetCount++;
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
+
+            bool callEnd = true;
             try
             {
 
@@ -386,8 +408,13 @@ namespace Hugula
                 var pkey = $"LoadAssetAsync<{typeof(T)}>:" + key;
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
+                    ProfilerFactory.BeginSample(pkey);
 #endif
                 task = Addressables.LoadAssetAsync<T>(key).Task;
+#if PROFILER_DUMP
+                    ProfilerFactory.EndSample();
+#endif
+
                 await task;
 #if PROFILER_DUMP
                 }
@@ -396,14 +423,15 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
                 {
 #endif
+                callEnd = false;
                 if (task.Result != null)
                 {
-                    onComplete(task.Result, userData);
+                    onComplete?.Invoke(task.Result, userData);
                 }
                 else
                 {
                     Debug.LogError($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
-                    if (onEnd != null) onEnd(null, userData);
+                    onEnd?.Invoke(null, userData);
                 }
 #if PROFILER_DUMP
                 }
@@ -411,18 +439,28 @@ namespace Hugula
             }
             catch (Exception ex)
             {
-                if (onEnd != null) onEnd(null, userData);
-                throw ex;
+                Debug.LogException(ex);
+                if (callEnd) onEnd?.Invoke(null, userData);
+                // throw;
             }
             finally
             {
+                CurrentLoadingAssetCount--;
                 OnItemLoaded(key);
             }
 
         }
 
-        ///
-        static public Task<T> LoadAssetAsyncTask<T>(string key,bool inGroup =false)
+        /// <summary>
+        /// 返回Task 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="inGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        /// <exception cref="Exception"></exception>
+        static public Task<T> LoadAssetAsyncTask<T>(string key, bool inGroup = false)
         {
             if (string.IsNullOrEmpty(key))
                 throw new NullReferenceException($"LoadAssetAsyncTask({typeof(T)}) key is null");
@@ -437,16 +475,45 @@ namespace Hugula
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
+#if PROFILER_DUMP
+            var pkey = $"LoadAssetAsync<{typeof(T)}>:" + key;
+            ProfilerFactory.BeginSample(pkey);
+#endif
             var task = Addressables.LoadAssetAsync<T>(key).Task;
+
+#if PROFILER_DUMP
+            ProfilerFactory.EndSample();
+#endif
+
             return task;
         }
 
-        static public void  LoadAssetAsyncTaskDone(string key)
+        /// <summary>
+        /// 增加当前加载的资源数量，必须与SubCrruentLoadingAssetCount成对出现
+        /// </summary>
+        internal static void AddCrruentLoadingAssetCount()
+        {
+            CurrentLoadingAssetCount++;
+        }
+
+        /// <summary>
+        /// 减少当前加载的资源数量，必须与AddCrruentLoadingAssetCount成对出现
+        /// </summary>
+        internal static void SubCrruentLoadingAssetCount()
+        {
+            CurrentLoadingAssetCount--;
+        }
+
+        /// <summary>
+        /// 用于进度提示
+        /// </summary>
+        /// <param name="key"></param>
+        static public void LoadAssetAsyncTaskDone(string key)
         {
 #if UNITY_EDITOR && !HUGULA_NO_LOG
-                // Debug.Log($"ResLoader.LoadAssetAsyncTaskDone({key})");
+            // Debug.Log($"ResLoader.LoadAssetAsyncTaskDone({key})");
 #endif
-            Hugula.Executor.Execute(()=>
+            Hugula.Executor.Execute(() =>
             {
                 OnItemLoaded(key);
             }
@@ -480,13 +547,13 @@ namespace Hugula
                 throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
 
             key = GetKey(key);
-
+            CurrentLoadingAssetCount++;
             if (m_MarkGroup)
             {
                 m_Groupes.Add(key);
                 m_TotalGroupCount++;
             }
-
+            bool callEnd = true;
             try
             {
 
@@ -498,8 +565,13 @@ namespace Hugula
                 var pkey = "InstantiateAsync:" + key;
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey))
                 {
+                    ProfilerFactory.BeginSample(pkey);
 #endif
                 task = Addressables.InstantiateAsync(key, parent).Task;
+#if PROFILER_DUMP
+                    ProfilerFactory.EndSample();
+#endif
+
                 await task;
                 inst = task.Result;
 #if PROFILER_DUMP
@@ -508,16 +580,16 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
                 {
 #endif
-
+                callEnd = false;
                 if (inst != null)
                 {
                     InstantiateRef[inst] = key;
-                    if (onComplete != null) onComplete(inst, userData);
+                    onComplete?.Invoke(inst, userData);
                 }
                 else
                 {
                     Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
-                    if (onEnd != null) onEnd(key, userData);
+                    onEnd?.Invoke(key, userData);
                 }
 #if PROFILER_DUMP
                 }
@@ -557,6 +629,7 @@ namespace Hugula
             using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(ckey, null, null, true))
             {
 #endif
+                callEnd = false;
                 if (inst != null)
                 {
                     if (onComplete != null) onComplete(inst, userData);
@@ -572,11 +645,13 @@ namespace Hugula
             }
             catch (Exception ex)
             {
-                if (onEnd != null) onEnd(key, userData);
-                throw ex;
+                Debug.LogException(ex);
+                if (callEnd) onEnd?.Invoke(key, userData);
+                // throw;
             }
             finally
             {
+                CurrentLoadingAssetCount--;
                 OnItemLoaded(key); //确保本执行
             }
         }
@@ -602,6 +677,7 @@ namespace Hugula
                 throw new Exception("Whoa there friend!  We haven't init'd ResLoader yet! " + key);
 
             key = GetKey(key);
+            CurrentLoadingAssetCount++;
             if (m_LoadedScenes.TryGetValue(key, out var sceneInstance) && sceneInstance.Scene.IsValid()) //如果场景已经加载
             {
                 Executor.Execute(ActiveExistsSceneAsync(sceneInstance, onComplete, userData));
@@ -613,6 +689,8 @@ namespace Hugula
                     m_Groupes.Add(key);
                     m_TotalGroupCount++;
                 }
+
+                bool callEnd = true;
                 try
                 {
 
@@ -631,15 +709,16 @@ namespace Hugula
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("LoadSceneAsync.onComp:", key, pkey, true))
                 {
 #endif
+                    callEnd = false;
                     if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
                     {
                         m_LoadedScenes[key] = task.Result;
-                        if (onComplete != null) onComplete(task.Result, userData);
+                        onComplete?.Invoke(task.Result, userData);
                     }
                     else
                     {
                         Debug.LogError($"LoadSceneAsync can't find asset ({key})");
-                        if (onEnd != null) onEnd(key, userData);
+                        onEnd?.Invoke(key, userData);
                     }
 
 #if PROFILER_DUMP
@@ -649,11 +728,13 @@ namespace Hugula
                 }
                 catch (Exception ex)
                 {
-                    if (onEnd != null) onEnd(key, userData);
-                    throw ex;
+                    Debug.LogException(ex);
+                    if (callEnd) onEnd?.Invoke(key, userData);
+                    // throw;
                 }
                 finally
                 {
+                    CurrentLoadingAssetCount--;
                     OnItemLoaded(key);
                 }
             }
@@ -686,30 +767,48 @@ namespace Hugula
         /// <returns></returns>
         static async public void UnloadSceneAsync(SceneInstance loadedScene, System.Action<SceneInstance, object> onComplete, System.Action<SceneInstance, object> onEnd, object userData = null)
         {
-            var task = Addressables.UnloadSceneAsync(loadedScene).Task;
+            string key = null;
+            foreach (var kv in m_LoadedScenes)
+            {
+                if (kv.Value.Equals(loadedScene))
+                {
+                    key = kv.Key;
+                    break;
+                }
+            }
+            Task<SceneInstance> task;
+#if PROFILER_DUMP
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("UnloadSceneAsync:", key))
+            {
+
+#endif
+            if (key != null) m_LoadedScenes.Remove(key);
+
+            task = Addressables.UnloadSceneAsync(loadedScene).Task;
             await task;
+#if PROFILER_DUMP
+            }
+
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("UnloadSceneAsync.onComp:", key))
+            {
+
+#endif
             if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
             {
                 if (onComplete != null) onComplete(task.Result, userData);
-                string key = null;
-                foreach (var kv in m_LoadedScenes)
-                {
-                    if (kv.Value.Equals(loadedScene))
-                    {
-                        key = kv.Key;
-                        break;
-                    }
-                }
-
-                if (key != null) m_LoadedScenes.Remove(key);
             }
             else
             {
+                Debug.LogError($"UnloadSceneAsync can't find scene ({key})");
                 if (onEnd != null) onEnd(loadedScene, userData);
 #if UNITY_EDITOR
-                Debug.LogError("Failed to unload scene : " + loadedScene);
+                    Debug.LogError("Failed to unload scene : " + loadedScene);
 #endif
             }
+#if PROFILER_DUMP
+            }
+
+#endif
         }
 
         static public void UnloadSceneAsync(string key, System.Action<SceneInstance, object> onComplete, System.Action<SceneInstance, object> onEnd, object userData = null)
@@ -769,8 +868,19 @@ namespace Hugula
             if (obj)
             {
 #if ADDRESSABLES_INSTANTIATEASYNC
+#if PROFILER_DUMP
+                var pkey1 = $"ResLoader.ReleaseInstance<GameObject>:" + obj;
+                using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey1, null, null, true))
+                {
+#endif
+
                 InstantiateRef.Remove(obj);
                 Addressables.ReleaseInstance(obj);
+
+#if PROFILER_DUMP
+                }
+#endif
+
 #else
                 GameObject.Destroy(obj);
                 UnityEngine.Object asset = null;
@@ -807,12 +917,15 @@ namespace Hugula
 
         static public void Release<T>(T obj)
         {
-#if PROFILER_DUMP
+#if UNITY_EDITOR
             if (obj == null)
                 Debug.LogWarningFormat("try to release null obj \r\n trace:{1}", Hugula.EnterLua.LuaTraceback());
 #endif
+
+            if (obj == null) return;
+
             s_NextFrameObjects.Add(obj);
-            s_LastReleaseFrame = Time.frameCount + 2;
+            // s_LastReleaseFrame = Time.frameCount + 1;
         }
         static public void Release(object obj)
         {
@@ -821,37 +934,46 @@ namespace Hugula
 
         #region 延时释放 asset for "Addressables was not previously aware of"
         internal static List<object> s_NextFrameObjects = new List<object>(128);
-        static int s_LastReleaseFrame;
+        // static int s_LastReleaseFrame;
         /// <summary>
         /// 释放列表中待释放的资源
         /// </summary>
         /// <param name="count"></param>
         static internal void DoReleaseNext(int frameCount, int count = 0)
         {
-            if (frameCount > s_LastReleaseFrame + 2)
+
+            int len = s_NextFrameObjects.Count;
+            if (count <= 0)
+                count = len;
+            else
+                count = count >= len ? len : count;
+
+            int i = 0;
+            object res = null;
+
+            if (count == 0) return;
+
+#if PROFILER_DUMP
+            var pkey1 = $"ResLoader.DoReleaseNext: Addressables.Release.Count=" + count;
+            using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey1, null, null, true))
             {
-                int len = s_NextFrameObjects.Count;
-                if (count <= 0)
-                    count = len;
-                else
-                    count = count >= len ? len : count;
+#endif
+            while (i < count)
+            {
+                res = s_NextFrameObjects[i];
+                Addressables.Release(res);
+                i++;
 
-                int i = 0;
-                object res = null;
-
-                //if(count>0)
-                //    Debug.Log($" DoReleaseNext frame={Time.frameCount};  count={len}. ");
-
-                while (i < count)
+                if (FrameWatcher.IsTimeOver())
                 {
-                    res = s_NextFrameObjects[i];
-                    Addressables.Release(res);
-                    i++;
+                    break;
                 }
-
-                if (count > 0)
-                    s_NextFrameObjects.RemoveRange(0, count);
             }
+#if PROFILER_DUMP
+            }
+#endif
+            if (i > 0)
+                s_NextFrameObjects.RemoveRange(0, i);
 
         }
 

@@ -133,22 +133,43 @@ namespace HugulaEditor
                 {
                     EditorUtility.DisplayProgressBar("Processing...", "生成中... (" + i + " / " + files.Length + ")", (float)i / (float)files.Length);
                     var sps = new UnityEngine.Sprite[o.spriteCount];
-
-                    int len = o.GetSprites(sps);
-                    for (int j = 0; j < len; j++)
+                    try
                     {
-                        string name = sps[j].name.Replace("(Clone)", "");
-                        int id = UnityEngine.Animator.StringToHash(name);
-                        allSprites.Add(id);
-                        var idx = atlasNames.IndexOf(key);
-                        if(idx<0) 
+
+                        int len = o.GetSprites(sps);
+                        for (int j = 0; j < len; j++)
                         {
-                            atlasNames.Add(key);
-                            idx = atlasNames.Count -1;
+                            var sp = sps[j];
+                            if (sp)
+                            {
+                                string name = sp.name.Replace("(Clone)", "");
+                                int id = UnityEngine.Animator.StringToHash(name);
+                                allSprites.Add(id);
+                                var idx = atlasNames.IndexOf(key);
+                                if (idx < 0)
+                                {
+                                    atlasNames.Add(key);
+                                    idx = atlasNames.Count - 1;
+                                }
+                                atlasIndexs.Add(idx);
+                                sb.AppendFormat("{0}({1})   {2}\r\n", name, id, key);
+                            }
+                            else
+                            {
+                                sb.AppendFormat("error:{0}  (index:{1}) sprite is nil \r\n", key, j);
+                            }
+
                         }
-                        atlasIndexs.Add(idx);
-                        sb.AppendFormat("{0}({1})   {2}\r\n", name, id, key);
                     }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogErrorFormat("error:{0}  {1} \r\n", key, e.ToString());
+                    }
+                    finally
+                    {
+                        EditorUtility.UnloadUnusedAssetsImmediate();
+                    }
+
                 }
             }
 

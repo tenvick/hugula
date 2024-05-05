@@ -15,6 +15,7 @@ public class GameInitialize : MonoBehaviour
 
     void Awake()
     {
+        TLogger.Init();
         BehaviourSingletonManager.CanCreateInstance();
         SingletonManager.CanCreateInstance();
         Hugula.Databinding.ValueConverterRegister.instance.AddConverter(typeof(ClickTipsConvert).Name, new ClickTipsConvert());

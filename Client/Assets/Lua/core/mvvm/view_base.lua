@@ -4,7 +4,7 @@
 --  author pu
 ------------------------------------------------
 local require = require
--- local class = class
+local string = string
 local table = table
 local pairs = pairs
 local type = type
@@ -41,7 +41,9 @@ end
 
 local function set_active(self, enable)
     local child = self._child
-    if not self:is_scene() and child then
+    if child == true then
+
+    elseif not self:is_scene() and child then
         if enable then
             LuaHelper.Active(child,self._active_index or 0)
         else
@@ -56,7 +58,6 @@ end
 ---@param bindable_object BindableObject
 local function set_child(self, bindable_object)
     self._child = bindable_object
-    -- Logger.Log("set_child ",bindable_object)
 end
 
 ---资源是否准备好
@@ -64,7 +65,10 @@ end
 ---@return  bool
 local function has_child(self)
     local _child = self._child
-    if self:is_scene() then  
+
+    if _child == true then  
+        return true
+    elseif self:is_scene() then  
         return _child ~= nil
     else
         return _child ~= nil and not LuaHelper.IsNull(_child)
@@ -82,10 +86,13 @@ end
 ---@overload fun(context:any)
 ---@param context any
 local function set_child_context(self, context)
+    local child = self._child
     -- Logger.Log("set_child_context", child,not self:is_scene(),self._context ~= context ,self._context)
-    if not self:is_scene() and self:has_child() and self._context ~= context then
+    if child == true then
+
+    elseif not self:is_scene() and self:has_child() and self._context ~= context then
         self._context = context
-        set_target_context(self._child, context)
+        set_target_context(child, context)
     end
 end
 
@@ -109,7 +116,9 @@ local function clear(self)
     --scene
     local scene_name = self.scene_name
     local child = self._child
-    if child then
+    if child == true then
+
+    elseif child then
         if scene_name ~= nil then
             LuaHelper.UnloadScene(scene_name)
         else
@@ -117,7 +126,7 @@ local function clear(self)
         end
     end
 
-    local unload = self._unload
+    local unload = self.unload
     if unload then
         unload(self)
     end
@@ -137,7 +146,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-    return string.format("asset=%s,is_scene=%s,child=%s,context=%s ", self.key or self.scene_name, self:is_scene(), self._child,self._context)
+    return string.format("asset=%s,is_scene=%s,has_child=%s,context=%s ", self.key or self.scene_name, self:is_scene(), self:has_child(),self._context)
 end
 
 -- view_base.on_asset_load = on_asset_load
@@ -169,7 +178,7 @@ view_base.__tostring = tostring
 ---@field has_context function 是否设置了context
 ---@field has_child function 是否有BindableObject
 ---@field clear function  销毁child
----@field key string
+---@field key any 资源key string or function
 ---@field assetbundle string
 ---@field find_path string
 --- "welcome"
@@ -184,7 +193,7 @@ ViewBase = view_base
 View = function(vm_base, arg, view_path)
     ---@type ViewBase
     local view_inst
-    local name = ""
+    -- local name = ""
     local arg_is_string = type(arg) == "string"
     if arg_is_string then
         view_path = arg
@@ -194,11 +203,14 @@ View = function(vm_base, arg, view_path)
     else
         view_inst = require(view_path) ---返回是当前实例
     end
-    view_inst.name = arg["key"] or view_path or ""
+    view_inst.name = string.format("%s" , arg["key"] or view_path or "")
+
     view_inst._vm_base = vm_base
     if arg_is_string ~= true then --- string 表示路径
         for k, v in pairs(arg) do
-            view_inst[k] = v           
+            -- if type(view_inst[k]) == "function" then ---函数不能被重写
+                view_inst[k] = v
+            -- end
         end
     end
     return view_inst

@@ -419,6 +419,7 @@ namespace HugulaEditor.Addressable
                     Debug.LogFormat("Build assetbundle : {0} ", targetFileName);
                 }
             }
+            Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles Copy End length={bab.Length},outPath={outPath}    abNames={sb.ToString()}");
 
             return true;
         }

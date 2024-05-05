@@ -9,6 +9,7 @@ namespace PSDUINewImporter
 {
     public class ImageTag
     {
+        public const string ImgScalerTag = "scaler";
 
         public const string SliceTag = "slice";
         public const string BackGround = "Bg";

@@ -269,6 +269,7 @@ namespace Hugula.Databinding
                 DictionaryPool<string, Binding>.Release(m_BindingsDic);
             m_Context = null;
             m_InheritedContext = null;
+            m_PropertyChanged?.Clear();
         }
 
 #if UNITY_EDITOR

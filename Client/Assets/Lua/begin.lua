@@ -25,7 +25,7 @@ end)
 
 table_insert(groups, function()
     print("groups 2 require config")
-    require("require_config")
+    -- require("require_config")
 end)
 
 table_insert(groups, function()
@@ -91,10 +91,10 @@ local data = {
     name = "ilse",
     age = 18858756582,
     address = "上海",
-    contacts = {
-        {name = "alice", phonenumber = 13975126500},
-        {name = "bob", phonenumber = 1398541250}
-    }
+    -- contacts = {
+    --     {name = "alice", phonenumber = 13975126500},
+    --     {name = "bob", phonenumber = 1398541250}
+    -- }
 }
 
 local bytes = assert(pb.encode("netpack.Person", data))
@@ -104,10 +104,10 @@ local data2 = assert(pb.decode("netpack.Person", bytes))
 print(data2.name)
 print(data2.age)
 print(data2.address)
-print(data2.contacts[1].name)
-print(data2.contacts[1].phonenumber)
-print(data2.contacts[2].name)
-print(data2.contacts[2].phonenumber)
+-- print(data2.contacts[1].name)
+-- print(data2.contacts[1].phonenumber)
+-- print(data2.contacts[2].name)
+-- print(data2.contacts[2].phonenumber)
 -- ---------------------------------
 local ffi = require("ffi")
 ffi.cdef [[

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
 using TMPro;
+using System;
 
 namespace PSDUINewImporter
 {
@@ -40,12 +41,21 @@ namespace PSDUINewImporter
 
             SetText(myText, layer);
 
-            SetColor(myText,layer);
-            float size;
-            if (float.TryParse(layer.arguments[2], out size))
+            SetColor(myText, layer);
+            int size;
+            if (int.TryParse(layer.arguments[2], out size))
             {
-                myText.fontSize = (int)size;
+                myText.fontSize = size;
             }
+            else
+            {
+                myText.fontSize = 26;
+            }
+
+            myText.fontSizeMax = size;
+            int minSize = (int)Math.Round(size * .7f);
+            if (minSize < 20) minSize = 20;
+            myText.fontSizeMin = minSize;
 
             //设置字体,注意unity中的字体名需要和导出的xml中的一致
             string fontFolder;
@@ -62,7 +72,7 @@ namespace PSDUINewImporter
             var fontName = GetFontName(layer.arguments[1]);
 
             string fontFullName = Path.Combine(fontFolder, fontName + PSDImporterConst.FONT_ASSET_SUFIX);
-            // Debug.Log("font name ; " + fontFullName);
+
             var font = AssetDatabase.LoadAssetAtPath(fontFullName, typeof(TMP_FontAsset)) as TMP_FontAsset;
             if (font == null)
             {
@@ -77,6 +87,14 @@ namespace PSDUINewImporter
             //ps的size在unity里面太小，文本会显示不出来,暂时选择溢出
             myText.overflowMode = TextOverflowModes.Overflow;
             myText.enableWordWrapping = false;
+
+            if (IsPARAGRAPHTEXT(layer)) //多行文本
+            {
+                myText.enableWordWrapping = true;
+                myText.overflowMode = TextOverflowModes.Ellipsis; //省略号
+                myText.enableAutoSizing = true;
+            }
+
             //设置对齐
             if (layer.arguments.Length >= 5)
                 myText.alignment = ParseAlignmentPS2UGUI(layer.arguments[4]);
@@ -328,6 +346,21 @@ namespace PSDUINewImporter
         public static void SetText(TMPro.TextMeshProUGUI target, Layer layer)
         {
             target.text = layer.arguments[3];
+        }
+
+        /// <summary>
+        /// ps中的PARAGRAPHTEXT多行文本
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <returns></returns>
+        public static bool IsPARAGRAPHTEXT(Layer layer)
+        {
+            if (layer.arguments.Length >= 6)
+            {
+                return layer.arguments[5] == "TextType.PARAGRAPHTEXT";
+            }
+            else
+                return false;
         }
 
         public static void SetColor(TMPro.TextMeshProUGUI myText, Layer layer)

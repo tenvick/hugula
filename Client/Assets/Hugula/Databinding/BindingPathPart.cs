@@ -153,6 +153,7 @@ namespace Hugula.Databinding
 
         public void ReleaseToPool()
         {
+            // this.Dispose();
             m_PoolBindingPathPart.Release(this);
         }
 
@@ -166,10 +167,11 @@ namespace Hugula.Databinding
         public static BindingPathPart Get()
         {
             return m_PoolBindingPathPart.Get();
+            // return new BindingPathPart();
         }
 
-        const int capacity = 2048;
-        const int initial = 1024;
+        const int capacity = 4096;
+        const int initial = 2048;
 
         private static ObjectPool<BindingPathPart> m_PoolBindingPathPart = new ObjectPool<BindingPathPart>(null, ActionOnRelease, capacity, initial);
 

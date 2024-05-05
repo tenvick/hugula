@@ -9,7 +9,7 @@ namespace Hugula.Profiler
 #if PROFILER_DUMP || !HUGULA_RELEASE
         private void OnDestroy()
         {
-            ProfilerFactory.DumpProfilerInfo(0, true, true);
+            ProfilerFactory.DumpProfilerInfo(0, true, false);
         }
 
 #endif

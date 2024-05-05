@@ -7,6 +7,7 @@ namespace Hugula.Databinding.Binder
 {
 
     [RequireComponent(typeof(InputField))]
+    [XLua.LuaCallCSharp]
     public class InputFieldBinder : SelectableBinder<InputField>
     {
 

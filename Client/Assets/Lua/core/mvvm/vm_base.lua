@@ -225,7 +225,7 @@ local function dispose(self)
 end
 
 local function tostring(self)
-    return string_format("VMBase(name=%s).views=%s ", self._require_name, self.views)
+    return string_format("VMBase(name=%s,ready=%s,active=%s,_destory_step=%s)", self._require_name, self.is_res_ready,self.is_active,self._destory_step)
 end
 
 ---注销的时候

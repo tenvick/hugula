@@ -63,7 +63,7 @@ namespace HugulaEditor.ResUpdate
         }
 
         private const string ResUpdatePackingPath = "Assets/Hugula/ResUpdate/Addressable/Editor/Config/ResUpdatePacking.txt";
-        [MenuItem("Hugula/Gen AAS Packing Schema/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
+        // [MenuItem("Hugula/Gen AAS Packing Schema/Update Addressables Group HugulaResUpdatePacking By Config(ResUpdatePacking.txt)", false, 211)]
         static void UpdateAddressablesGroupHugulaResUpdatePacking()
         {
 
@@ -288,7 +288,7 @@ namespace HugulaEditor.ResUpdate
                 foreach (AddressableAssetGroup group in allGroups)
                 {
                     i++;
-                    if (group == null || group.Name.StartsWith("dup_g") || group.Name.StartsWith("dup_s")) continue;
+                    if (group == null || group.Name.StartsWith("dup_") ) continue;
                     if (EditorUtility.DisplayCancelableProgressBar(title, group.Name, i / c))
                     {
                         break;
@@ -386,7 +386,7 @@ namespace HugulaEditor.ResUpdate
                         if (!string.IsNullOrEmpty(gName))
                         {
                             var pName = $"${{{gName}}}";
-                            customName = customName.Replace(pName, match.Groups[gName].ToString());
+                            customName = customName.Replace(pName, match.Groups[gName].ToString().ToLower());
                             strPriority = strPriority.Replace(pName, match.Groups[gName].ToString());
                             // Debug.Log($"groupName: {gName}, category:{match.Groups[gName]} ;  Name:{match.Name},Value:{match.Value}     customName:{customName}, strPriority:{strPriority}           path:{path} ");
                         }

@@ -255,7 +255,7 @@ namespace Hugula.ResUpdate
             if (string.IsNullOrEmpty(address))
             {
 #if !HUGULA_NO_LOG
-                Debug.LogError($"FileManifestManager.CheckAddressIsDown() argument address {address} is null or Empty \r\n {EnterLua.LuaTraceback()}");
+                Debug.LogWarning($"FileManifestManager.CheckAddressIsDown() argument address {address} is null or Empty \r\n {EnterLua.LuaTraceback()}");
 #endif
                 return false;
             }

@@ -15,13 +15,12 @@ namespace Hugula.Databinding
 
         public static void SetContext(BindableObject bindable, object data)
         {
-#if BINDING_PROFILER_DUMP
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContext", true))
-            {
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.BeginSample($"{bindable?.name}:SetContext");
 #endif
-                if (data is LuaTable)
-                {
-                    var lua = data as LuaTable;
+            if (data is LuaTable)
+            {
+                var lua = data as LuaTable;
                 if (lua.ContainsKey<string>("CollectionChanged"))
                 {
                     bindable.context = lua.Cast<INotifyTable>();
@@ -40,8 +39,8 @@ namespace Hugula.Databinding
             else
                 bindable.context = data;
 
-#if BINDING_PROFILER_DUMP
-            }
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.EndSample();
 #endif
 
 
@@ -53,7 +52,7 @@ namespace Hugula.Databinding
             using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable", true))
             {
 #endif
-                bindable.context = notify;
+            bindable.context = notify;
 #if BINDING_PROFILER_DUMP
             }
 #endif
@@ -65,7 +64,7 @@ namespace Hugula.Databinding
             using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList", true))
             {
 #endif
-                bindable.context = list;
+            bindable.context = list;
 #if BINDING_PROFILER_DUMP
             }
 #endif
@@ -78,11 +77,11 @@ namespace Hugula.Databinding
             }
             else
             {
-#if BINDING_PROFILER_DUMP 
+#if BINDING_PROFILER_DUMP
                 using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged", true))
                 {
 #endif
-                    bindable.context = notify;
+                bindable.context = notify;
 #if BINDING_PROFILER_DUMP
                 }
 #endif

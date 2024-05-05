@@ -25,7 +25,7 @@ namespace PSDUINewImporter
         static void CopyResFormOutside()
         {
 
-            if (ChooseFolder(true))
+            if (ChooseFolder())
             {
                 foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
                 {
@@ -136,7 +136,7 @@ namespace PSDUINewImporter
             string _path2 = string.Empty;
             if (defaultTargetPath) //采用默认路径存放图片
             {
-                _path2 =   PSDImporterConst.DEFAULT_IMAGE_PATH;
+                _path2 = PSDImporterConst.DEFAULT_IMAGE_PATH;
             }
             else
             {
@@ -186,13 +186,15 @@ namespace PSDUINewImporter
         {
             Layer layer = null;
             var len = psdUI.layers.Length;
+            var psdName =   string.Empty;
             for (int layerIndex = 0; layerIndex < len; layerIndex++)
             {
                 layer = psdUI.layers[layerIndex];
+                if(string.IsNullOrEmpty(psdName)) psdName = layer.name;
                 ImportLayerImage(layer, choosePath1, choosePath2);
             }
             sb.Append(errSb);
-            HugulaEditor.EditorUtils.WriteToTmpFile("PSD2UGUIResImport_selected_Log.txt", sb.ToString());
+            HugulaEditor.EditorUtils.WriteToTmpFile($"PSD2UGUIResImport_Log_{psdName}.txt", sb.ToString());
         }
 
         /// <summary>
@@ -205,14 +207,14 @@ namespace PSDUINewImporter
             {
                 //寻找目标
                 var fileName = layer.name + ".png";
-                if (!baseFolderFiles.TryGetValue(fileName, out var sourPath))//如果没有目标图片
+                var found = PSDDirectoryUtility.FindFileInDirectory(sourcePath, fileName);
+                if (string.IsNullOrEmpty(found))
                 {
-                    var found = PSDDirectoryUtility.FindFileInDirectory(sourcePath, fileName);
-                    if (string.IsNullOrEmpty(found))
-                    {
-                        errSb.AppendLine($"\r\n        {fileName} 不存在于目录      {sourcePath}!");
-                    }
-                    else
+                    errSb.AppendLine($"\r\n        {fileName} 不存在于目录      {sourcePath}!");
+                }
+                else
+                {
+                    if (!baseFolderFiles.TryGetValue(fileName, out var filePath))//如果没有目标图片直接copy
                     {
                         var targetFile = Path.Combine(targetPath, fileName);
                         if (File.Exists(targetPath))
@@ -224,6 +226,29 @@ namespace PSDUINewImporter
                         File.Copy(found, targetFile);
                         baseFolderFiles[fileName] = targetFile; //标记为已经导入
                         sb.AppendLine($"{fileName},    copy to:    {targetFile}");
+                    }
+                    else
+                    {
+                        uint len = 0;
+                        var oldCrc = Hugula.ResUpdate.CrcCheck.GetLocalFileCrc(filePath, out len); //当前工程里面存在的老图片crc
+                        var newCrc = Hugula.ResUpdate.CrcCheck.GetLocalFileCrc(found, out len); //新的crc
+
+                        if (oldCrc != newCrc)
+                        {
+                            //将found复制到剪切板
+                            TextEditor te = new TextEditor();
+                            te.text = found;
+                            te.OnFocus();
+                            te.Copy();
+
+                            //弹出unity编辑器确认对话框
+                            var Edi = EditorUtility.DisplayDialog("警告", $"目标文件:{fileName} 已经存在，是否覆盖？\r\nctrl+v 可以直接粘贴原图片  \r\n\r\n源:{found} \r\n 目标:{filePath}", "是", "否");
+                            if (Edi)
+                            {
+                                File.Copy(found, filePath, true);
+                                sb.AppendLine($"{fileName},    {found} 覆盖:    {filePath}");
+                            }
+                        }                       
                     }
                 }
             }

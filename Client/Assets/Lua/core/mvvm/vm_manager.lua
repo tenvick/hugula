@@ -3,41 +3,44 @@
 --
 --  author pu
 ------------------------------------------------
-local type = type
-local ipairs = ipairs
-local pairs = pairs
-local require = require
-local unpack = unpack
-local table = table
-local lua_binding = lua_binding
-local lua_unbinding = lua_unbinding
-local lua_distribute = lua_distribute
-local DIS_TYPE = DIS_TYPE
-local xpcall = xpcall
-local debug = debug
-local string_format = string.format
-local table_clear         = table.clear
+local type                   = type
+local ipairs                 = ipairs
+local pairs                  = pairs
+local require                = require
+local unpack                 = unpack
+local table                  = table
+local lua_binding            = lua_binding
+local lua_unbinding          = lua_unbinding
+local lua_distribute         = lua_distribute
+local DIS_TYPE               = DIS_TYPE
+local xpcall                 = xpcall
+local debug                  = debug
+local string_format          = string.format
+local table_clear            = table.clear
+local VM_MARK_TYPE           = VM_MARK_TYPE
 
-local CS = CS
-local GameObject = CS.UnityEngine.GameObject
-local Hugula = CS.Hugula
-local ResLoader = Hugula.ResLoader
-local ProfilerFactory = Hugula.Profiler.ProfilerFactory
-local VMConfig = require("vm_config")[1]
-local VMGenerate = require("core.mvvm.vm_generate")
-local Timer = Hugula.Framework.Timer
-local TLogger = CS.TLogger
-local is_release = Hugula.Utils.CUtils.isRelease
-local NeedProfileDump = not ProfilerFactory.DoNotProfile
-local view_load_count = 0
+local CS                     = CS
+local GameObject             = CS.UnityEngine.GameObject
+local Hugula                 = CS.Hugula
+local ResLoader              = Hugula.ResLoader
+local ProfilerFactory        = Hugula.Profiler.ProfilerFactory
+local VMConfig               = require("vm_config")[1]
+local VMGenerate             = require("core.mvvm.vm_generate")
+local Timer                  = Hugula.Framework.Timer
+local TLogger                = CS.TLogger
+local is_release             = Hugula.Utils.CUtils.isRelease
+local NeedProfileDump        = not ProfilerFactory.DoNotProfile
+local view_load_count        = 0
+local on_ui_state_change_arg = {} -- { action = "active_view", name = vm_name } arg缓存
 --CS.UnityEngine.SceneManagement.LoadSceneMode
-local LoadSceneMode = {
+local LoadSceneMode          = {
     Single = 0,
     Additive = 1
 }
-local BindingUtility = Hugula.Databinding.BindingUtility
+local BindingUtility         = Hugula.Databinding.BindingUtility
+local UISubManager           = CS.CDL2.UI.UISubManager.instance
 
-local vm_manager = {}
+local vm_manager             = {}
 
 local function error_hander(h)
     TLogger.LogError(string_format("lua:%s \r\n %s", h, debug.traceback("", 2)))
@@ -108,8 +111,6 @@ local function deactive(self, vm_name, view_active)
             curr_vm:set_views_active(false)
         end
 
-        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "deactive", name = vm_name})
-
         if NeedProfileDump then
             if profiler1 then
                 profiler1:Stop()
@@ -117,6 +118,14 @@ local function deactive(self, vm_name, view_active)
             if profiler then
                 profiler:Stop()
             end
+        end
+
+        on_ui_state_change_arg.action = "deactive"
+        on_ui_state_change_arg.name = vm_name
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, on_ui_state_change_arg)
+
+        if VMConfig[vm_name].mark_type == VM_MARK_TYPE.HIDDEN_SCENES then
+            vm_manager._vm_state:_on_mark_item_changed(vm_name, VM_MARK_TYPE.HIDDEN_SCENES, false)
         end
     else
         curr_vm.is_active = false --标记状态
@@ -127,7 +136,7 @@ end
 ---@overload fun(vm_name:string)
 ---@param vm_name string
 local function destroy(self, vm_name)
-    local curr_vm = VMGenerate[vm_name] --获取vm实例
+    local curr_vm = VMGenerate[vm_name]  --获取vm实例
 
     if curr_vm.is_res_ready == true then --如果资源加载完成
         local p_name, profiler, profiler1
@@ -145,7 +154,7 @@ local function destroy(self, vm_name)
 
         curr_vm.is_active = false
         curr_vm.is_res_ready = false
-        curr_vm._is_destory = nil
+        curr_vm._destory_step = false
         curr_vm._call_on_awake = nil
         safe_call(curr_vm.on_destroy, curr_vm)
 
@@ -157,7 +166,6 @@ local function destroy(self, vm_name)
         end
 
         safe_call(curr_vm.clear, curr_vm)
-        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "destroy", name = vm_name})
 
         if curr_vm._need_destructor then --如果是标记了析构
             local destructor = curr_vm.destructor
@@ -175,8 +183,16 @@ local function destroy(self, vm_name)
                 profiler:Stop()
             end
         end
+
+        on_ui_state_change_arg.action = "destroy"
+        on_ui_state_change_arg.name = vm_name
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, on_ui_state_change_arg)
+
+        if VMConfig[vm_name].mark_type == VM_MARK_TYPE.HIDDEN_SCENES then
+            vm_manager._vm_state:_on_mark_item_changed(vm_name, VM_MARK_TYPE.HIDDEN_SCENES, false)
+        end
     else
-        curr_vm._is_destory = true --标记销毁
+        curr_vm._destory_step = true --标记销毁
     end
 end
 
@@ -201,6 +217,7 @@ local function check_vm_base_all_done(vm_base, view)
         p_root_name = "check_vm_base_all_done." .. vvm_name
         profiler1 = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":1.set_views_active:", nil, parent_name, true)
     end
+
 
     vm_base._isloading = false
     vm_base.is_res_ready = true
@@ -240,18 +257,25 @@ local function check_vm_base_all_done(vm_base, view)
     end
 
     if is_active then
-        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_base._require_name) --触发界面打开消息
+        local v_name = vm_base._require_name
+        lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, v_name) --触发界面打开消息
+        --check标记类型
+        if VMConfig[v_name].mark_type == VM_MARK_TYPE.HIDDEN_SCENES then
+            vm_manager._vm_state:_on_mark_item_changed(v_name, VM_MARK_TYPE.HIDDEN_SCENES, true)
+        end
     end
 
     if NeedProfileDump then
         local p_name = ":4.deactive:"
-        if vm_base._is_destory then
+        if vm_base._destory_step then
             p_name = ":4.destroy:"
         end
         profiler1 = ProfilerFactory.GetAndStartProfiler(p_root_name .. p_name, nil, parent_name, false)
     end
 
-    if vm_base._is_destory then    --如果标记了销毁
+
+
+    if vm_base._destory_step then  --如果标记了销毁
         destroy(vm_manager, vm_base._require_name)
     elseif is_active == false then --非激活状态需要执行deactive逻辑
         vm_base.is_active = true   --强行设置为true确保正确的deactive流程
@@ -268,16 +292,10 @@ local function check_vm_base_all_done(vm_base, view)
     if vm_base._is_group == true then
         --check transition
         local _curr_group = vm_base._curr_group
+        _curr_group.__loaded_count = _curr_group.__loaded_count + 1
+
         if _curr_group and _curr_group.transition then
-            local need_close = true
-            local curr_vm
-            for k, v in ipairs(_curr_group) do --多个
-                curr_vm = VMGenerate[v]
-                if curr_vm.is_res_ready ~= true and curr_vm._is_group then
-                    need_close = false
-                    break
-                end
-            end
+            local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
 
             if need_close then
                 local transition = VMGenerate[_curr_group.transition]
@@ -381,6 +399,12 @@ local function on_pre_load_comp(data, view_base)
     end
 end
 
+local function on_pre_cus_load_comp(view_base, data)
+    if view_base:has_child() ~= true then
+        view_base:set_child(data)
+    end
+end
+
 ---场景加载完成
 ---@overload fun(data:GameObject,view_base:ViewBase)
 ---@param data GameObject
@@ -404,7 +428,9 @@ local function on_pre_scene_comp(data, view_base)
 end
 
 local function on_res_end(data, view_base)
-    Logger.Log(string.format("on_res_end : %s", view_base))
+    Logger.LogError(string.format("on_res_end : %s", view_base))
+    view_base:initialized()
+    --on_state_changed
 end
 
 ---利用find查找view的gameobject root
@@ -468,16 +494,7 @@ local function active_view(self, curr_vm)
             --check transition
             local _curr_group = curr_vm._curr_group
             if _curr_group and _curr_group.transition then
-                local need_close = true
-                local curr_vm
-                for k, v in ipairs(_curr_group) do --多个
-                    curr_vm = VMGenerate[v]
-                    if curr_vm.is_res_ready ~= true then
-                        need_close = false
-                        break
-                    end
-                end
-
+                local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
                 if need_close then
                     local transition = VMGenerate[_curr_group.transition]
                     local ActiveGroupDone = transition.ActiveGroupDone
@@ -493,12 +510,41 @@ local function active_view(self, curr_vm)
         end
 
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
-        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, { action = "active_view", name = vm_name })
+
+        --check标记类型
+        if VMConfig[vm_name].mark_type == VM_MARK_TYPE.HIDDEN_SCENES then
+            vm_manager._vm_state:_on_mark_item_changed(vm_name, VM_MARK_TYPE.HIDDEN_SCENES, true)
+        end
 
         if NeedProfileDump and profiler then
             profiler:Stop()
         end
+
+        on_ui_state_change_arg.action = "active_view"
+        on_ui_state_change_arg.name = vm_name
+        lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, on_ui_state_change_arg)
     else
+        --on_state_changed 没有资源的模块也需要检测state changed 事件
+        if curr_vm._is_group == true then
+            --check transition
+            local _curr_group = curr_vm._curr_group
+            if _curr_group and _curr_group.transition then
+                local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
+                if need_close then
+                    local transition = VMGenerate[_curr_group.transition]
+                    local ActiveGroupDone = transition.ActiveGroupDone
+                    if ActiveGroupDone then
+                        ActiveGroupDone(transition, _curr_group)
+                    else
+                        deactive(vm_manager, _curr_group.transition)
+                    end
+                end
+            end
+
+            vm_manager._vm_state:_check_on_state_changed(curr_vm)
+        end
+
+
         local DoActiveGroup = curr_vm.DoActiveGroup --ITransition 特殊处理
         if DoActiveGroup then
             DoActiveGroup(curr_vm)
@@ -534,15 +580,14 @@ local function load_resource(res_name, view_base, on_asset_comp, is_pre_load)
     else
         local parent = nil
         local ui_layer = view_base.ui_layer
-      
-        if ui_layer ~= nil then
-            parent = ui_manager:GetLayerRootTransform(ui_layer)
-        else
-            ui_layer = view_base.ui_container
-            if ui_layer then
-                parent = UISubManager:GetContainer(ui_layer)
-            end
+        -- if ui_layer ~= nil then
+        --     parent = ui_manager:GetLayerRootTransform(ui_layer)
+        -- else
+        ui_layer = view_base.ui_container
+        if ui_layer then
+            parent = UISubManager:GetContainer(ui_layer)
         end
+        -- end
 
         if async ~= false then ---异步加载
             ResLoader.InstantiateAsync(res_name, on_asset_comp, nil, view_base, parent)
@@ -594,9 +639,9 @@ local function load(self, curr_vm, arg, is_push, curr_group)
     if not is_push then --is back
         arg = curr_vm._push_arg
     end
-    curr_vm:on_push_arg(arg) --有参数
+    curr_vm:on_push_arg(arg)              --有参数
     curr_vm._push_arg = arg
-    curr_vm._is_push = is_push --是否是push到栈上的
+    curr_vm._is_push = is_push            --是否是push到栈上的
     curr_vm._is_group = curr_group ~= nil --是否是组
     curr_vm._curr_group = curr_group
     local views = curr_vm.views
@@ -605,34 +650,51 @@ local function load(self, curr_vm, arg, is_push, curr_group)
         curr_vm.is_res_ready = true
     end
 
-    if curr_vm.is_res_ready == true then --已经加载过
-        if curr_vm._call_on_awake == nil then  --保持 on_assets_load 与on_destroy 一一对应
+    if curr_vm.is_res_ready == true then      --已经加载过
+        if curr_vm._call_on_awake == nil then --保持 on_assets_load 与on_destroy 一一对应
             safe_call(curr_vm.on_assets_load, curr_vm)
             curr_vm._call_on_awake = true
         end
+
+        if curr_group then
+            curr_group.__loaded_count = curr_group.__loaded_count + 1
+            -- Logger.Log("active_view. __loaded_count+1 ", curr_vm, curr_group.name, curr_group.__loaded_count,
+                -- curr_group.__total_count)
+        end
+
         active_view(self, curr_vm)
     else
-        curr_vm.is_active = true --需要重新加载，设置本身为激活状态
-        curr_vm._is_destory = nil --清理销毁标记
+        curr_vm.is_active = true    --需要重新加载，设置本身为激活状态
+        curr_vm._destory_step = nil --清理销毁标记
         if views and curr_vm._isloading ~= true then
             curr_vm._isloading = true
 
-            local find_path, res_name, scene_name
+            local find_path, res_func, scene_name, has_child
             for k, v in ipairs(views) do
                 -- active index
                 v._active_index = view_load_count
                 view_load_count = view_load_count + 1
                 --
-                find_path, res_name, scene_name = v.find_path, v.key, v.scene_name
-                if res_name ~= nil then
-                    load_resource(res_name, v)
+                find_path, res_func, scene_name = v.find_path, v.key, v.scene_name
+
+                if v.load ~= nil then
+                    v.on_load_done = on_res_done
+                    if v:has_child() ~= true then
+                        v.load(v) --开始加载
+                    else
+                        v:on_load_done(v._child)
+                    end
+                elseif res_func ~= nil then
+                    local tp = type(res_func)
+                    if tp == "string" then
+                        load_resource(res_func, v)
+                    elseif tp == "function" then
+                        load_resource(res_func(), v)
+                    end
                 elseif scene_name ~= nil then
                     load_scene(scene_name, v)
                 elseif v.find_path ~= nil then
                     find_gameobject(v.find_path, v)
-                elseif v.load ~= nil then
-                    v.on_load_done = on_res_done
-                    v.load(v) --开始加载
                 end
             end
         end
@@ -650,23 +712,56 @@ local function active(self, vm_name, arg, is_push)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
+    local vm = VMGenerate[vm_name]
+    load(self, vm, arg, is_push, vm._curr_group)
 
-    load(self, VMGenerate[vm_name], arg, is_push)
-
-    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_name})
+    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, { action = "active", name = vm_name }) --待优化
 end
 
 local function active_group(self, vm_group, arg, is_push, vm_group)
+    local _change_action = vm_group.__change_action
+
+    if _change_action then
+        _change_action()
+    end
+
+    vm_group.__change_action = nil --表示已经激活
+
+    local append_item = vm_group:get_append_items()
+
+    vm_group.__loaded_count = 0
+    vm_group.__total_count = #vm_group
+
     for k, v in ipairs(vm_group) do --多个
         load(self, VMGenerate[v], arg, is_push, vm_group)
     end
 
-    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, {action = "active", name = vm_group.name})
+    if append_item then
+        local append_arg = nil
+        for k, v in pairs(append_item) do
+            if v ~= true then
+                append_arg = v
+            else
+                append_arg = nil
+            end
+            load(self, VMGenerate[k], append_arg, is_push) --加载附加的不计数
+            append_item[k] = true                          --覆盖缓存的参数
+        end
+    end
+
+    on_ui_state_change_arg.action = "active"
+    on_ui_state_change_arg.name = vm_group.name
+
+    lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, on_ui_state_change_arg) --待优化
 end
 
 
 --判断是否需要loading切换
-local function _transition_active_group(self, vm_group, is_push, _change_action, need_transition, arg)
+local function _transition_active_group(self, vm_group, is_push, need_transition, arg)
+    -- vm_group.__loaded_count = 0
+    -- vm_group.__total_count = 0
+    vm_group.__transition = nil
+
     local transition = vm_group.transition
     if transition and (need_transition == nil or need_transition == true) then --check show loading
         local curr_vm, views
@@ -689,19 +784,15 @@ local function _transition_active_group(self, vm_group, is_push, _change_action,
 
         if need_trans then
             local _trans_begin = function()
-                if _change_action then _change_action() end
                 active_group(self, vm_group, arg, is_push, vm_group)
             end
             transition_item:RegisterActiveGroupFun(vm_group, _trans_begin)
-
+            vm_group.__transition = transition_item
             load(self, transition_item, vm_group, true) --激活loading
             return
         end
     end
 
-    if _change_action then
-        _change_action()
-    end
     active_group(self, vm_group, arg, is_push, vm_group)
 end
 
@@ -713,15 +804,27 @@ local function pre_load(self, vm_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     local views = curr_vm.views
     if views and not curr_vm.is_res_ready then
-        local res_name, scene_name
+        local find_path, res_func, scene_name
         for k, v in ipairs(views) do
-            res_name, scene_name = v.key, v.scene_name
-            if scene_name ~= nil then
-                load_scene(scene_name, v, on_pre_scene_comp, true)
-            elseif res_name ~= nil then
-                load_resource(res_name, v, on_pre_load_comp, true)
+            -- res_name, scene_name = v.key, v.scene_name
+            find_path, res_func, scene_name = v.find_path, v.key, v.scene_name
+
+            if v:has_child() ~= true then
+                if v.load ~= nil then
+                    v.on_load_done = on_pre_cus_load_comp
+                    v.load(v) --开始加载
+                elseif res_func ~= nil then
+                    local tp = type(res_func)
+                    if tp == "string" then
+                        load_resource(res_func, v, on_pre_load_comp, true)
+                    elseif tp == "function" then
+                        load_resource(res_func(), v, on_pre_load_comp, true)
+                    end
+                elseif scene_name ~= nil then
+                    load_scene(scene_name, v, on_pre_scene_comp, true)
+                end
+                Logger.Log("pre_load", vm_name, k, v)
             end
-            Logger.Log("pre_load", vm_name, k, v)
         end
     end
 end
@@ -811,7 +914,7 @@ end
 local function destroy_mark(self)
     for k, v in pairs(mark_gc_vm_tab) do
         if v then
-            destroy(self,k)
+            destroy(self, k)
         end
     end
     table_clear(mark_gc_vm_tab)

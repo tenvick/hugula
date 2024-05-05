@@ -44,12 +44,17 @@ namespace Hugula.Utility
         /// <summary>
         /// 最大同时加载assetbundle asset数量
         /// </summary>
-        static public int maxLoading = 12;
+        static public int maxLoading = 32;
+
+        /// <summary>
+        /// 一次释放的asset最大数量
+        /// </summary>
+        public static int RELEASE_COUNT = 16;
 
         /// <summary>
         /// 加载asset耗时跳出判断时间
         /// </summary>
-        static public float BundleLoadBreakMilliSeconds = 200;
+        static public float BundleLoadBreakMilliSeconds = 500;
 
         static public Vector3 InitPosition = Vector3.one * -2000;
 
@@ -91,7 +96,7 @@ namespace Hugula.Utility
         /// <returns></returns>
         static private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
-        static MemoryInfoPlugin memoryInfoPlugin ;
+        static MemoryInfoPlugin memoryInfoPlugin;
 
         List<Request> callbackList = new List<Request>();
 
@@ -227,7 +232,7 @@ namespace Hugula.Utility
         /// <summary>
         /// 两次GC检测间隔时间
         /// </summary>
-        public static float gcDeltaTimeConfig = 3f; //两次GC检测时间S
+        public static float gcDeltaTimeConfig = 5f; //两次GC检测时间S
 
         /// <summary>
         /// 延时删除时间
@@ -331,16 +336,14 @@ namespace Hugula.Utility
         /// </summary>
         void Update()
         {
-            watch.Restart();
-            // FrameWatcher.BeginWatch();
+
+            FrameWatcher.BeginWatch();
             while (waitingSourceTasks.Count > 0)
             {
-                if (watch.ElapsedMilliseconds > BundleLoadBreakMilliSeconds)
-                {
-                    break;
-                }
-
-
+                // if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
+                // {
+                //     break;
+                // }
                 var req = waitingSourceTasks[0];
                 waitingSourceTasks.RemoveAt(0);
                 GetSourceAsync(req);
@@ -350,10 +353,10 @@ namespace Hugula.Utility
             while (waitingTasks.Count > 0 && maxLoading - inProgressOperations.Count > 0)
             {
                 //check frame time
-                if (watch.ElapsedMilliseconds > BundleLoadBreakMilliSeconds)
-                {
-                    break;
-                }
+                // if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
+                // {
+                //     break;
+                // }
 
                 var req = waitingTasks[0];
                 waitingTasks.RemoveAt(0);
@@ -362,14 +365,11 @@ namespace Hugula.Utility
 
             while (callbackList.Count > 0)
             {
-                if (watch.ElapsedMilliseconds > BundleLoadBreakMilliSeconds)
-                {
-                    break;
-                }
+
                 var req = callbackList[0];
                 callbackList.RemoveAt(0);
 #if PROFILER_DUMP
-                using (var Profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("PoolManager.callbackList:", req.key))
+                using (var Profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("PoolManager.callbackList:", req.key, null, true))
                 {
 #endif
                     req.action?.Invoke(req.arg, req.key, req.element);
@@ -377,8 +377,15 @@ namespace Hugula.Utility
 #if PROFILER_DUMP
                 }
 #endif
+
+                if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
+                {
+                    break;
+                }
             }
         }
+
+
 
         /// <summary>
         /// 内存阈值检测和自动对象回收
@@ -388,7 +395,7 @@ namespace Hugula.Utility
             if (willGcList.Count == 0) //如果正在gc不需要判断
             {
                 gcDeltaTime = Time.unscaledTime - lastGcTime;
-                if (gcDeltaTime >= gcDeltaTimeConfig) //20s检测一次
+                if (gcDeltaTime >= gcDeltaTimeConfig || lowMemory > 0) //5s检测一次
                 {
                     // float totalMemory = HugulaProfiler.GetTotalAllocatedMemoryMB();
                     var memoryInfo = memoryInfoPlugin.GetMemoryInfo();
@@ -400,17 +407,17 @@ namespace Hugula.Utility
                     Debug.Log($" totalMemory={totalMemory} UsedSize={UsedSize} AvailMem={AvailMem} totalMemory*0.15:{totalMemory * .15f} totalMemory*0.6:{totalMemory * .6f} systemMemoryMB={systemMemory}  lowMemory:{lowMemory},frame:{Time.frameCount}");
 #endif
 
-                    if (AvailMem < totalMemory * .15f || lowMemory > 0) //可用内存小于总内存的15% 或者低内存通知
+                    if (AvailMem < totalMemory * .16f || lowMemory > 0) //可用内存小于总内存的16% 或者低内存通知
                     {
                         if (lowMemory > 0)
                             lowMemory--;
                         AutoGC(gcSegment3);
                     }
-                    else if (UsedSize > totalMemory * .6f)//大于总内存的60%
+                    else if (UsedSize > totalMemory * .55f)//大于总内存的55%
                     {
                         AutoGC(gcSegment2);
                     }
-                    else if (UsedSize > threshold1)
+                    else //if (UsedSize > threshold1)
                     {
                         AutoGC(gcSegment1);
                     }
@@ -440,6 +447,11 @@ namespace Hugula.Utility
                 }
 
                 DisposeRefer(removeCount); //移除数量
+            }
+
+            if (!FrameWatcher.IsTimeOver() && ResLoader.CurrentLoadingAssetCount == 0)
+            {
+                ResLoader.DoReleaseNext(Time.frameCount, RELEASE_COUNT);
             }
         }
 
@@ -559,7 +571,7 @@ namespace Hugula.Utility
                 // Debug.Log("Dispose " + referRemove.name);
                 count--;
 
-                // if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds)) break;
+                if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds)) break;
             }
         }
 
@@ -883,18 +895,39 @@ namespace Hugula.Utility
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey1))
                 {
 #endif
-                    task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
-                    await task;
-                    ResLoader.LoadAssetAsyncTaskDone(key);
-                    inProgressOperations.Remove(req);//移除队列计数
+                    try
+                    {
+
+                        ResLoader.AddCrruentLoadingAssetCount();
+#if PROFILER_DUMP
+                        Hugula.Profiler.ProfilerFactory.BeginSample(pkey1);
+                        task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
+                        Hugula.Profiler.ProfilerFactory.EndSample();
+#else
+                        task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
+#endif
+
+                        await task;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogErrorFormat("PoolManager.LoadAssetAsync can't find asset ({0})", key);
+                        Debug.LogException(e);
+                    }
+                    finally
+                    {
+                        ResLoader.SubCrruentLoadingAssetCount();
+                        inProgressOperations.Remove(req);//移除队列计数
+                        ResLoader.LoadAssetAsyncTaskDone(key);
+                    }
 #if PROFILER_DUMP
                 }
 #endif
                 if (m_Source.TryGetValue(key, out element)) //如果已经加载过
                 {
 #if UNITY_EDITOR || UNITY_STANDALONE
-                    Debug.LogWarningFormat("the resource({0}) has already loaded ,now we need release it ({1})。 ",
-                        key, task.Result);
+                    // Debug.LogWarningFormat("the resource({0}) has already loaded ,now we need release it ({1})。 ",
+                    //     key, task.Result);
 #endif
                     ResLoader.Release(task.Result); //释放引用
                 }
@@ -904,22 +937,9 @@ namespace Hugula.Utility
                     if (null == element)
                     {
                         Debug.LogErrorFormat("PoolManager.LoadAssetAsync can't find asset ({0})", key);
-                        // AddCallback(req, null);
-                        // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-                        //                         Debug.LogError($"PoolManager.LoadAssetAsync the key ({key})  res is nil, {GetLuaTrack(req)} ");
-                        //                         RemoveLuaTrack(req);
-                        // #endif
                         req.Dispose();
                         return;
                     }
-
-                    // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-                    //                     if (!(element is GameObject))
-                    //                     {
-                    //                         Debug.LogError($"PoolManager.LoadAssetAsync the key ({key})  res is not a GameObject, {GetLuaTrack(req)} ");
-                    //                         RemoveLuaTrack(req);
-                    //                     }
-                    // #endif
 
                     m_Source.Add(key, element);
                 }
@@ -1041,9 +1061,7 @@ namespace Hugula.Utility
             }
 
             var req = new Request { key = key, action = onComplete };
-            // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-            //             AddLuaTrack(req, EnterLua.LuaTraceback());
-            // #endif
+
             LoadAssetAsync(req);
         }
 
@@ -1054,9 +1072,7 @@ namespace Hugula.Utility
                 throw new ArgumentNullException($"GetAsync key \r\n luatrace:{EnterLua.LuaTraceback()}");
             }
             var req = new Request { key = key, action = onComplete, parent = parent };
-            // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-            //             AddLuaTrack(req, EnterLua.LuaTraceback());
-            // #endif
+
             LoadAssetAsync(req);
         }
 
@@ -1067,9 +1083,7 @@ namespace Hugula.Utility
                 throw new ArgumentNullException($"GetAsync key \r\n luatrace:{EnterLua.LuaTraceback()}");
             }
             var req = new Request { key = key, action = onComplete, arg = arg };
-            // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-            //             AddLuaTrack(req, EnterLua.LuaTraceback());
-            // #endif
+
             LoadAssetAsync(req);
         }
 
@@ -1080,9 +1094,7 @@ namespace Hugula.Utility
                 throw new ArgumentNullException($"GetAsync key \r\n luatrace:{EnterLua.LuaTraceback()}");
             }
             var req = new Request { arg = arg, key = key, action = onComplete, parent = parent };
-            // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-            //             AddLuaTrack(req, EnterLua.LuaTraceback());
-            // #endif
+
             LoadAssetAsync(req);
         }
 
@@ -1153,41 +1165,6 @@ namespace Hugula.Utility
                 m_Stack.Push(element);
             }
         }
-
-        #endregion
-
-        #region debug
-        // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-        //
-        //         Dictionary<Request, string> m_LuaTrackDic = new Dictionary<Request, string>();
-        //         void AddLuaTrack(Request key, string luaTrace)
-        //         {
-        //             if (m_LuaTrackDic.ContainsKey(key))
-        //             {
-        //                 m_LuaTrackDic[key] = luaTrace;
-        //             }
-        //             else
-        //             {
-        //                 m_LuaTrackDic.Add(key, luaTrace);
-        //             }
-        //         }
-        //
-        //         void RemoveLuaTrack(Request key)
-        //         {
-        //             if (m_LuaTrackDic.ContainsKey(key))
-        //             {
-        //                 m_LuaTrackDic.Remove(key);
-        //             }
-        //         }
-        //
-        //         string GetLuaTrack(Request key)
-        //         {
-        //             var luaTrace = string.Empty;
-        //             m_LuaTrackDic.TryGetValue(key, out luaTrace);
-        //             return luaTrace;
-        //         }
-        //
-        // #endif
 
         #endregion
 

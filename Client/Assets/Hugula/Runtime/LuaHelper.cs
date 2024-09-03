@@ -45,6 +45,7 @@ namespace Hugula.Utils
 
         public static void DelayDestroy(Object obj)
         {
+            if (obj == null) return;
 
             GameObject gobj = null;
             if (obj is GameObject)
@@ -84,6 +85,7 @@ namespace Hugula.Utils
 
         public static void Active(Object obj,int activeIndex=0)
         {
+            if (obj == null) return;
             GameObject gobj = null;
             if (obj is GameObject)
             {
@@ -108,6 +110,8 @@ namespace Hugula.Utils
 
         public static void DelayDeActive(Object obj)
         {
+            if (obj == null) return;
+
             GameObject gobj = null;
             if (obj is GameObject)
             {

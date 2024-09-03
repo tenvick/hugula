@@ -35,7 +35,9 @@ namespace XLua
             {
                 if (rawL == RealStatePtr.Zero)
                 {
+// #if UNITY_EDITOR
                     throw new InvalidOperationException("this lua env had disposed!");
+// #endif
                 }
                 return rawL;
             }

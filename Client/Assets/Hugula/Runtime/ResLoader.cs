@@ -574,6 +574,7 @@ namespace Hugula
 
                 await task;
                 inst = task.Result;
+                await Task.Yield(); // 实例化完成后等待一帧执行
 #if PROFILER_DUMP
                 }
                 var ckey = "InstantiateAsync.onComp:" + key;
@@ -605,6 +606,7 @@ namespace Hugula
                 //从缓存中读取
                 task = Addressables.LoadAssetAsync<GameObject>(key).Task;
                 await task;
+                await Task.Yield(); // 实例化完成后等待一帧执行
                 if (task.Result == null)
                 {
                     Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
@@ -703,7 +705,7 @@ namespace Hugula
 #endif
                     task = Addressables.LoadSceneAsync(key, (LoadSceneMode)loadSceneMode, activateOnLoad).Task;
                     await task;
-
+                await Task.Yield(); // 实例化完成后等待一帧执行
 #if PROFILER_DUMP
                 }
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("LoadSceneAsync.onComp:", key, pkey, true))
@@ -786,6 +788,8 @@ namespace Hugula
 
             task = Addressables.UnloadSceneAsync(loadedScene).Task;
             await task;
+            await Task.Yield(); // 实例化完成后等待一帧执行
+
 #if PROFILER_DUMP
             }
 

@@ -41,10 +41,6 @@ namespace Hugula.Utility
     [XLua.LuaCallCSharp]
     public class PoolManager : BehaviourSingleton<PoolManager>
     {
-        /// <summary>
-        /// 最大同时加载assetbundle asset数量
-        /// </summary>
-        static public int maxLoading = 32;
 
         /// <summary>
         /// 一次释放的asset最大数量
@@ -54,7 +50,13 @@ namespace Hugula.Utility
         /// <summary>
         /// 加载asset耗时跳出判断时间
         /// </summary>
-        static public float BundleLoadBreakMilliSeconds = 500;
+        static public float BundleLoadBreakMilliSeconds = 100;
+
+        /// <summary>
+        /// 资源加载完成跳出时间
+        /// </summary>
+        static public float BundleCompleteBreakMilliSeconds = 200;
+
 
         static public Vector3 InitPosition = Vector3.one * -2000;
 
@@ -96,14 +98,15 @@ namespace Hugula.Utility
         /// <returns></returns>
         static private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
-        static MemoryInfoPlugin memoryInfoPlugin;
+        static CallBackComparer reqComparer = new CallBackComparer();
 
-        List<Request> callbackList = new List<Request>();
+        PriorityQueue<Request> callbackList = new PriorityQueue<Request>(32,reqComparer);
 
-        List<Request> waitingTasks = new List<Request>();
+        PriorityQueue<Request> waitingTasks = new PriorityQueue<Request>(32,reqComparer);
+
         List<Request> inProgressOperations = new List<Request>();
 
-        List<Request> waitingSourceTasks = new List<Request>();
+        PriorityQueue<Request> waitingSourceTasks = new PriorityQueue<Request>(reqComparer);
 
         #region 队列加载
 
@@ -160,30 +163,16 @@ namespace Hugula.Utility
         /// <param name="req">Request</param>
         private void AddToWaitingTasks(Request req)
         {
-            //
-            int priority = req.priority;
-            int len = waitingTasks.Count;
-            Request item;
-            if (priority <= 0) //默认最小为0
+
+            if (req.priority < int.MaxValue &&  FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds)) //如果时间不够加入队列
             {
-                waitingTasks.Add(req);
+                waitingTasks.Push(req);                
             }
             else
             {
-                bool added = false;
-                for (int i = 0; i < len; i++)
-                {
-                    item = waitingTasks[i];
-                    if (priority > item.priority) //如果优先级更高
-                    {
-                        waitingTasks.Insert(i, req);
-                        added = true;
-                        break;
-                    }
-                }
-
-                if (!added) waitingTasks.Add(req);
+                LoadAssetAsync(req);
             }
+
         }
 
         /// <summary>
@@ -191,7 +180,7 @@ namespace Hugula.Utility
         /// </summary>
         /// <param name="key"></param>
         /// <param name="onComplete"></param>
-        public void GetSourcePriority(string key, Action<object, string, UnityEngine.Object> onComplete)
+        public void GetSourcePriority(string key, Action<object, string, UnityEngine.Object> onComplete,int priority = 0)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -202,8 +191,14 @@ namespace Hugula.Utility
             {
                 key = key,
                 action = onComplete,
+                priority = priority
             };
-            waitingSourceTasks.Add(req);
+
+            if (req.priority < int.MaxValue && FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds)) //如果时间不够
+                waitingSourceTasks.Push(req);
+            else
+                GetSourceAsync(req);
+
         }
 
         public int CompareTo(Request x, Request y)
@@ -214,6 +209,8 @@ namespace Hugula.Utility
         public void Clear()
         {
             waitingTasks.Clear();
+            waitingSourceTasks.Clear();
+            callbackList.Clear();
             inProgressOperations.Clear();
             m_SourceRef.Clear();
             m_StackDic.Clear();
@@ -233,6 +230,11 @@ namespace Hugula.Utility
         /// 两次GC检测间隔时间
         /// </summary>
         public static float gcDeltaTimeConfig = 5f; //两次GC检测时间S
+
+        /// <summary>
+        /// 两次UnusedAssets 检测间隔时间
+        /// </summary>
+        public static float unloadUnusedAssetsDeltaTimeConfig = 20f; //两次GC检测时间S
 
         /// <summary>
         /// 延时删除时间
@@ -274,7 +276,8 @@ namespace Hugula.Utility
         private const byte SegmentSize = 7;
         private static int removeCount = 1;
         private static float lastGcTime = 0; //上传检测GC时间
-        private static float gcDeltaTime = 0; //上传检测GC时间
+
+        private static float lastUnloadUnusedAssetsTime = 0; //上次调用UnloadUnusedAssets时间
 
         //标记回收
         private Dictionary<string, float> removeMark = new Dictionary<string, float>(512);
@@ -327,7 +330,6 @@ namespace Hugula.Utility
             lastGcTime = Time.unscaledTime;
             lowMemory = 0;
             Application.lowMemory += OnLowMemory;
-            memoryInfoPlugin = new MemoryInfoPlugin();
         }
 
 
@@ -338,50 +340,35 @@ namespace Hugula.Utility
         {
 
             FrameWatcher.BeginWatch();
-            while (waitingSourceTasks.Count > 0)
+            while (waitingSourceTasks.Count > 0 && !FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
             {
-                // if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
-                // {
-                //     break;
-                // }
-                var req = waitingSourceTasks[0];
-                waitingSourceTasks.RemoveAt(0);
-                GetSourceAsync(req);
+
+                var req = waitingSourceTasks.Pop(); //
+                GetSourceAsync(req); 
             }
 
             // waitingTasks
-            while (waitingTasks.Count > 0 && maxLoading - inProgressOperations.Count > 0)
+            while (waitingTasks.Count > 0 && !FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds) )
             {
-                //check frame time
-                // if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
-                // {
-                //     break;
-                // }
-
-                var req = waitingTasks[0];
-                waitingTasks.RemoveAt(0);
+ 
+                var req = waitingTasks.Pop(); //
                 LoadAssetAsync(req);
             }
 
-            while (callbackList.Count > 0)
+            while (callbackList.Count > 0 && !FrameWatcher.IsTimeOver(BundleCompleteBreakMilliSeconds) )
             {
 
-                var req = callbackList[0];
-                callbackList.RemoveAt(0);
+                var req =  callbackList.Pop(); //
 #if PROFILER_DUMP
                 using (var Profiler = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler("PoolManager.callbackList:", req.key, null, true))
                 {
 #endif
-                    req.action?.Invoke(req.arg, req.key, req.element);
-                    req.Dispose();
+                req.action?.Invoke(req.arg, req.key, req.element);
+                req.Dispose();
 #if PROFILER_DUMP
                 }
 #endif
 
-                if (FrameWatcher.IsTimeOver(BundleLoadBreakMilliSeconds))
-                {
-                    break;
-                }
             }
         }
 
@@ -394,24 +381,30 @@ namespace Hugula.Utility
         {
             if (willGcList.Count == 0) //如果正在gc不需要判断
             {
-                gcDeltaTime = Time.unscaledTime - lastGcTime;
+                var unscaledTime = Time.unscaledTime;
+                var gcDeltaTime = unscaledTime - lastGcTime;
                 if (gcDeltaTime >= gcDeltaTimeConfig || lowMemory > 0) //5s检测一次
                 {
-                    // float totalMemory = HugulaProfiler.GetTotalAllocatedMemoryMB();
-                    var memoryInfo = memoryInfoPlugin.GetMemoryInfo();
-                    int totalMemory = memoryInfo.TotalSize;
-                    int UsedSize = memoryInfo.UsedSize;
-                    int AvailMem = memoryInfo.AvailMem;
+                    int totalMemory = HugulaProfiler.TotalSize;
+                    int UsedSize = HugulaProfiler.UsedSize;
+                    int AvailMem = HugulaProfiler.AvailMem;
                     var systemMemory = HugulaProfiler.systemMemorySize;
 #if HUGULA_CACHE_DEBUG
                     Debug.Log($" totalMemory={totalMemory} UsedSize={UsedSize} AvailMem={AvailMem} totalMemory*0.15:{totalMemory * .15f} totalMemory*0.6:{totalMemory * .6f} systemMemoryMB={systemMemory}  lowMemory:{lowMemory},frame:{Time.frameCount}");
 #endif
 
-                    if (AvailMem < totalMemory * .16f || lowMemory > 0) //可用内存小于总内存的16% 或者低内存通知
+                    if (HugulaProfiler.IsMemoryWarning  || lowMemory > 0) //可用内存小于总内存的16% 或者低内存通知
                     {
                         if (lowMemory > 0)
                             lowMemory--;
                         AutoGC(gcSegment3);
+
+                        var unloadUnusedAssetsTime = unscaledTime - lastUnloadUnusedAssetsTime;
+                        if (unloadUnusedAssetsTime >= unloadUnusedAssetsDeltaTimeConfig) //
+                        {
+                            lastUnloadUnusedAssetsTime = unscaledTime;
+                            Resources.UnloadUnusedAssets();
+                        }
                     }
                     else if (UsedSize > totalMemory * .55f)//大于总内存的55%
                     {
@@ -422,13 +415,13 @@ namespace Hugula.Utility
                         AutoGC(gcSegment1);
                     }
 
-                    lastGcTime = Time.unscaledTime;
+                    lastGcTime = unscaledTime;
                 } // 
             }
 
             if (willGcList.Count > 0) //如果有需要回收的gameobject
             {
-                var fps = Time.time / (float)Time.frameCount;
+                var fps = Time.unscaledDeltaTime;
                 if (fps >= deltaTime30)
                 {
                     removeCount = 4;
@@ -800,10 +793,15 @@ namespace Hugula.Utility
         private void AddCallback(Request req, UnityEngine.Object element)
         {
             req.element = element;
-            callbackList.Add(req);
-            // #if UNITY_EDITOR && (!LUA_PROFILER_DEBUG || !PROFILER_DUMP || !HUGULA_NO_LOG )
-            //             RemoveLuaTrack(req);
-            // #endif
+            if (req.priority < int.MaxValue && FrameWatcher.IsTimeOver(BundleCompleteBreakMilliSeconds)) //如果时间不够
+            {
+                callbackList.Push(req);
+            }
+            else
+            {
+                req.action?.Invoke(req.arg, req.key, req.element);
+                req.Dispose();
+            }
         }
 
         private void AddReferCount(string key, UnityEngine.Object element)
@@ -895,31 +893,31 @@ namespace Hugula.Utility
                 using (Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(pkey1))
                 {
 #endif
-                    try
-                    {
+                try
+                {
 
-                        ResLoader.AddCrruentLoadingAssetCount();
+                    ResLoader.AddCrruentLoadingAssetCount();
 #if PROFILER_DUMP
                         Hugula.Profiler.ProfilerFactory.BeginSample(pkey1);
                         task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
                         Hugula.Profiler.ProfilerFactory.EndSample();
 #else
-                        task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
+                    task = ResLoader.LoadAssetAsyncTask<UnityEngine.Object>(key);
 #endif
 
-                        await task;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogErrorFormat("PoolManager.LoadAssetAsync can't find asset ({0})", key);
-                        Debug.LogException(e);
-                    }
-                    finally
-                    {
-                        ResLoader.SubCrruentLoadingAssetCount();
-                        inProgressOperations.Remove(req);//移除队列计数
-                        ResLoader.LoadAssetAsyncTaskDone(key);
-                    }
+                    await task;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogErrorFormat("PoolManager.LoadAssetAsync can't find asset ({0})", key);
+                    Debug.LogException(e);
+                }
+                finally
+                {
+                    ResLoader.SubCrruentLoadingAssetCount();
+                    inProgressOperations.Remove(req);//移除队列计数
+                    ResLoader.LoadAssetAsyncTaskDone(key);
+                }
 #if PROFILER_DUMP
                 }
 #endif
@@ -1168,6 +1166,13 @@ namespace Hugula.Utility
 
         #endregion
 
+        internal class CallBackComparer:IComparer<Request>
+        {
+            public int Compare(Request x, Request y)
+            {
+                return x.priority - y.priority;
+            }
+        }
     }
 
     /// <summary>
@@ -1177,11 +1182,14 @@ namespace Hugula.Utility
     {
         const float m_MBSize = 1024.0f * 1024.0f;
 
+        /// <summary>
+        /// 可用内存小于0.35表示低内存
+        /// </summary>
         public static bool IsMemoryWarning
         {
             get
             {
-                return false;
+                return AvailMem < 0.35f;
             }
         }
 
@@ -1218,6 +1226,56 @@ namespace Hugula.Utility
                 return m_MemorySize;
             }
         }
+   
+    #region  本地内存相关
+        static  MemoryInfoPlugin  m_MemoryInfoPlugin;// = new MemoryInfoPlugin();
+        static MemoryInfo.MemoryInfo m_MemoryInfo;
+        static int lastFrame = 0;
+        static MemoryInfo.MemoryInfo memoryInfo
+        {
+            get
+            {
+                if (m_MemoryInfoPlugin == null)
+                    m_MemoryInfoPlugin = new MemoryInfoPlugin();
+
+                var tFrame = Time.frameCount;
+
+                if (lastFrame != tFrame || m_MemoryInfo.TotalSize == 0) //当前帧请求一次
+                {
+                    lastFrame = tFrame;
+                    m_MemoryInfo = m_MemoryInfoPlugin.GetMemoryInfo();
+                }
+
+                return m_MemoryInfo;
+            }
+        }
+
+        public static int TotalSize
+        {
+            get
+            {
+                return memoryInfo.TotalSize;
+            }
+        }
+
+        public static int UsedSize
+        {
+            get
+            {
+                return memoryInfo.UsedSize;
+            }
+        }
+
+        public static int AvailMem
+        {
+            get
+            {
+                return memoryInfo.AvailMem;
+            }
+        }
+
+    #endregion
+   
     }
 
     /// <summary>

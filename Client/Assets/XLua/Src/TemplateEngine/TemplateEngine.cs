@@ -175,9 +175,9 @@ namespace XLua.TemplateEngine
             return code.ToString();
         }
 
-        public static LuaFunction Compile(LuaEnv luaenv, string snippet)
+        public static LuaFunction Compile(LuaEnv luaenv, string snippet,string chunkName = "luatemplate")
         {
-            return luaenv.LoadString(ComposeCode(Parser.Parse(snippet)), "luatemplate");
+            return luaenv.LoadString(ComposeCode(Parser.Parse(snippet)), chunkName);
         }
 
         public static string Execute(LuaFunction compiledTemplate, LuaTable parameters)

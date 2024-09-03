@@ -190,7 +190,9 @@ namespace HugulaEditor.ResUpdate
 
             List<string> folderManifest = new List<string>();
             var buildBundlePathData = BuildBundlePathData.ReadBuildBundlePathData();
-            var aasBuildPath = BuildConfig.AddressableBuildPath;
+            // var aasBuildPath = BuildConfig.AddressableBuildPath;
+            var  aasBuildPath = EditorUtils.GetOutPutPath(); //这里 直接构建在StreamingAssets/平台  下的目录
+
             foreach (var folder in folderManifestDic.Values)
             {
                 if (folder is FolderManifest)
@@ -198,7 +200,7 @@ namespace HugulaEditor.ResUpdate
                     var folderMani = folder as FolderManifest;
 
                     var fileBundlePath =Path.Combine(aasBuildPath,Path.GetFileNameWithoutExtension(folder.fileName)+Common.CHECK_ASSETBUNDLE_SUFFIX );
-                    BuildScriptHotResUpdate.AddToFolderManifest(fileBundlePath, folderMani, buildBundlePathData);
+                    BuildScriptHotResUpdate.AddToFolderManifest(fileBundlePath, null, buildBundlePathData);//不添加文件列表到foldermanifest
 
                     var strAsset = $"Assets/Tmp/{folder.fileName}.asset";
                     folderMani.WriteToFile($"Assets/Tmp/local_zip_{folder.fileName}.txt");
@@ -853,7 +855,7 @@ namespace HugulaEditor.ResUpdate
                 // {
                 //     Debug.Log(assets[i].ToString());
                 // }
-                // ab.Unload(false);
+                ab.Unload(false);
             }
             else
                 Debug.LogWarning($"there is no folderManifest in {streamingPath} use (Addressabkes Groups /Build/New Build/Hot Resource Update) to build ");
@@ -868,13 +870,18 @@ namespace HugulaEditor.ResUpdate
             var sb = new System.Text.StringBuilder();
             foreach (var folderManifest in streamingFolderManifest)
             {
-                if (folderManifest.name == exception || folderManifest is BundleManifest) continue; //streaming目录默认不打包
+                if (folderManifest.fileName == exception || folderManifest is BundleManifest)
+                {
+                    Debug.Log($"DelFolderManifestFiles: {folderManifest.fileName}  不需要删除");
+                    continue; //streaming目录默认不打包
+                } 
                 foreach (var file in folderManifest.allFileInfos)
                 {
                     var buildBundlePath = buildBundlePathData.GetBundleBuildPath(file.name);
                     if (buildBundlePath != null && File.Exists(buildBundlePath.fullBuildPath))
                     {
                         File.Delete(buildBundlePath.fullBuildPath);
+                        File.Create(buildBundlePath.fullBuildPath); //创建一个空文件为了防止报错
                         sb.AppendLine($"delete file：{buildBundlePath.fullBuildPath}");
                     }
                 }
@@ -914,7 +921,7 @@ namespace HugulaEditor.ResUpdate
                 // {
                 //     Debug.Log(assets[i].ToString());
                 // }
-                // ab.Unload(false);
+                ab.Unload(false);
             }
             else
                 Debug.LogWarning($"there is no folderManifest in {streamingPath} use (Addressabkes Groups /Build/New Build/Hot Resource Update) to build ");

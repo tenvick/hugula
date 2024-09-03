@@ -166,6 +166,16 @@ namespace Hugula.Utils
             return re;
         }
 
+        public static string ReadAllText(string path)
+        {
+            string re = string.Empty;
+            if (File.Exists(path))
+            {
+                re = File.ReadAllText(path);
+            }
+            return re;
+        }
+
         private static System.Action<string,string> callBackFn;
 
         /// <summary>

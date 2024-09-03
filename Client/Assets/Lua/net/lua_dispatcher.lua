@@ -7,18 +7,19 @@ local assert = assert
 local xpcall = xpcall
 local unpack = unpack
 local string_format = string.format
+local debug = debug
 
 local lua_dispatcher = {}
 local tables = {} --存储所有函数
 local errorTables = {}
-local Debug = CS.UnityEngine.Debug
+local TLogger = CS.TLogger
 
 local function error_hander(h)
     Debug.LogError(string_format("lua:%s \r\n %s", h, debug.traceback()))
 end
 
 local function safe_call(f, ...)
-    xpcall(f, error_hander, ...)
+    return xpcall(f, error_hander, ...)
 end
 
 function lua_dispatcher:binding(api, fun)
@@ -114,19 +115,28 @@ function lua_unbinding(api, fun)
     lua_dispatcher:unbinding(api, fun)
 end
 
+local local_utils
 function lua_distribute(api, ...)
     local funTable = tables[api]
+
     if funTable then
         local len = #funTable
-        local i = 1
-        while (i <= len) do
-            safe_call(funTable[i], ...)
-            --     --check delete
-            if len > #funTable then
-                len = #funTable
-            else
-                i = i + 1
+        if len > 0 then
+            if local_utils == nil then local_utils = utils end
+            local_utils.begin_sample("lua_distribute: ", api, len, ...)
+
+            local i = 1
+            while (i <= len) do
+                safe_call(funTable[i], ...)
+                --     --check delete
+                if len > #funTable then
+                    len = #funTable
+                else
+                    i = i + 1
+                end
             end
+
+            local_utils.end_sample()
         end
     end
 end

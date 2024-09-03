@@ -134,35 +134,37 @@ namespace HugulaEditor
         {
             var argStr = string.Format("-o {0} {1}", dest, source, LUA_ROOT_PATH);
             Debug.Log(argStr);
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            using (System.Diagnostics.Process p = new System.Diagnostics.Process())
+            {
 
 #if UNITY_EDITOR_WIN
-            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/win/546/luac.exe";
+                p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/win/546/luac.exe";
 #elif UNITY_EDITOR_OSX
-            p.StartInfo.FileName = Application.dataPath + "/../tools/luaTools/luac546;
+            p.StartInfo.FileName = "/usr/local/bin/luac546";
+            // p.StartInfo.FileName = "luac535";
 #endif
-            p.StartInfo.Arguments = argStr;
-            p.StartInfo.WorkingDirectory = LUA_ROOT_PATH;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardError = true;
-            p.Start();
-            string errorLog = p.StandardError.ReadToEnd();
-            if (errorLog.Length > 0)
-            {
-                if (errorLog.ToLower().Contains("error"))
+                p.StartInfo.Arguments = argStr;
+                p.StartInfo.WorkingDirectory = LUA_ROOT_PATH;
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardError = true;
+                p.Start();
+                string errorLog = p.StandardError.ReadToEnd();
+                if (errorLog.Length > 0)
                 {
-                    Debug.LogError(errorLog);
+                    if (errorLog.ToLower().Contains("error"))
+                    {
+                        Debug.LogError(errorLog);
+                    }
+                    else
+                    {
+                        Debug.Log(errorLog);
+                    }
                 }
                 else
                 {
-                    Debug.Log(errorLog);
+                    Debug.Log(dest + " 导出成功!");
                 }
             }
-            else
-            {
-                Debug.Log(dest + " 导出成功!");
-            }
-            p.Close();
         }
     }
 }

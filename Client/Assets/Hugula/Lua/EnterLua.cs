@@ -208,7 +208,6 @@ namespace Hugula
 
 #endif
             //if(Time.frameCount %10 ==0)
-            ResLoader.DoReleaseNext(Time.frameCount, RELEASE_COUNT);
         }
 
         void OnDestroy()
@@ -409,7 +408,13 @@ namespace Hugula
         private static IEnumerator DelayDo(LuaFunction luafun, float time, object args)
         {
             yield return new WaitForSeconds(time);
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.BeginSample($"{luafun} DelayDo");
+#endif
             luafun.Call(args);
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
         }
 
         public static Coroutine DelayFrame(LuaFunction luafun, int frame, object args)
@@ -427,7 +432,13 @@ namespace Hugula
             waitFrame.SetEndFrame(frame);
             yield return waitFrame;
             WaitForFrameCountPool.Release(waitFrame);
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.BeginSample($"{luafun} DelayFrameDo");
+#endif
             luafun.Call(args);
+#if !HUGULA_RELEASE
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
         }
 
         static Hugula.Utils.ObjectPool<WaitForFrameCount> WaitForFrameCountPool = new Hugula.Utils.ObjectPool<WaitForFrameCount>(null, null);
@@ -453,7 +464,8 @@ namespace Hugula
 
             bool IEnumerator.MoveNext()
             {
-                return Time.frameCount <= m_EndCount;
+			   var re =  Time.frameCount <= m_EndCount;
+                return re;
             }
 
             object IEnumerator.Current

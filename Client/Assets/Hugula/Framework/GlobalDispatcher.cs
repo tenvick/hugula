@@ -111,10 +111,17 @@ namespace Hugula.Framework
                 while (i < count)
                 {
                     e = events[i];
-                    if (e is System.Action<T>)
-                        ((System.Action<T>)e)(arg);
-                    else if (e is System.Action<object>)
-                        ((System.Action<object>)e)(arg);
+                    try
+                    {
+                        if (e is System.Action<T>)
+                            ((System.Action<T>)e)(arg);
+                        else if (e is System.Action<object>)
+                            ((System.Action<object>)e)(arg);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogErrorFormat("Dispatch {0} error {1}", key, ex);
+                    }
 
                     if (count > events.Count) count = events.Count;
                     else
@@ -138,6 +145,24 @@ namespace Hugula.Framework
             }
         }
 
+        ///<summary>
+        /// 创建一个时间线参数
+        ///</summary>
+        static internal object CreateTimeLineArg<T>(string eventType, T arg)
+        {
+            if (Hugula.EnterLua.luaenv != null)
+            {
+                XLua.LuaTable newArg = Hugula.EnterLua.luaenv.NewTable();
+                newArg.Set<string, T>(eventType, arg);
+                return newArg;
+            }
+            else
+            {
+                var dic = new Dictionary<string, T>();
+                dic[eventType] = arg;
+                return dic;
+            }
+        }
     }
 
 

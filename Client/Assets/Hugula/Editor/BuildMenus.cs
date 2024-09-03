@@ -428,10 +428,10 @@ public class ProjectBuild : Editor
         BuildForAndroidIL2CPP();
     }
 
-     [MenuItem("Hugula/Build/Android  (only buildplayer)", false, 216)]
+     [MenuItem("Hugula/Build/Android  (AA && buildplayer)", false, 216)]
     static void BuildForAndroidApkOnekey()
     {
-        // ExportRes();
+        AddressableBuild();
         BuildForAndroidIL2CPP();
     }
 

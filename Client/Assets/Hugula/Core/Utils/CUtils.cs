@@ -498,7 +498,7 @@ namespace Hugula.Utils
         public static string GetAndroidABLoadPath(string path)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            path = path.Replace(Common.JAR_FILE,"").Replace("!/assets","!assets");
+            // path = path.Replace(Common.JAR_FILE,"").Replace("!/assets","!assets");
 #endif
             return path;
         }

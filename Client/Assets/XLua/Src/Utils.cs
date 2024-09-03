@@ -11,6 +11,8 @@ using System;
 using System.Reflection;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
+
 
 #if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
@@ -124,8 +126,10 @@ namespace XLua
 					}
 #endif
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
+					UnityEngine.Debug.LogException(e);
+					UnityEngine.Debug.LogError("Load assembly type error:" + assemblies[i].FullName);
 				}
 			}
 

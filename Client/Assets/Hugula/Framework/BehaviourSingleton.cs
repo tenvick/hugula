@@ -14,10 +14,18 @@ namespace Hugula.Framework
             {
                 if (m_Instance == null && BehaviourSingletonManager.m_CanCreateInstance)//Double-Check Locking 
                 {
-                    GameObject obj = new GameObject(typeof(T).Name);
-                    DontDestroyOnLoad(obj);
-                    m_Instance = obj.AddComponent<T>();
-                    BehaviourSingletonManager.AddInstance(m_Instance);
+#if UNITY_EDITOR
+                    Debug.LogErrorFormat("BehaviourSingleton<{0}> instance from new GameObject（） not support ,frame:{1} ", typeof(T).Name, Time.frameCount);
+#endif
+                    // var find = GameObject.Find("/BehaviourSingleton");
+                    // if (find == null)
+                    // {
+                    //     find = new GameObject("BehaviourSingleton");
+                    //     DontDestroyOnLoad(find);
+                    // }
+                    // find.CheckAddComponent<T>();
+
+
                 }
 
                 return m_Instance;
@@ -27,18 +35,28 @@ namespace Hugula.Framework
         public static bool Created
         {
             get
-                {
+            {
                 return m_Instance != null;
             }
         }
 
         protected virtual void Awake()
         {
-            if (m_Instance == null)
+            if (m_Instance)
             {
-                m_Instance = this as T;
-                BehaviourSingletonManager.AddInstance(m_Instance);
+                BehaviourSingletonManager.RemoveInstance(m_Instance);
+                if (m_Instance != this)
+                    Destroy(m_Instance);
             }
+            #if UNITY_EDITOR    
+            else
+            {
+                Debug.LogWarningFormat("BehaviourSingleton<{0}> instance already exists check Destroy=({1}) . frame:{2} ", typeof(T).Name,m_Instance != this,Time.frameCount);
+            }
+            #endif
+
+            m_Instance = this as T;
+            BehaviourSingletonManager.AddInstance(m_Instance);
         }
 
         protected virtual void OnDestroy()

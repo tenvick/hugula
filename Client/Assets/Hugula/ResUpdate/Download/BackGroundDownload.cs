@@ -195,14 +195,19 @@ namespace Hugula.ResUpdate
             bool needDownloadZipfile = true;
             if (File.Exists(zipOutPath))
             {
+#if !HUGULA_NO_LOG
                 Debug.Log($"zip folder({zipOutPath}) has already loaded ,check incremental updating");
+#endif
+
                 AssetBundle ab = null;
                 //读取persistent文件夹下的package文件
                 if ((ab = AssetBundle.LoadFromFile(zipOutPath, 0, Common.BUNDLE_OFF_SET)) != null)
                 {
                     var folderManifests = ab.LoadAllAssets<FolderManifest>();
-                    if (folderManifests.Length >= 0)
+                    if (folderManifests.Length > 0)
                         persisFolderManifest = folderManifests[0];
+
+                    ab.Unload(false);
                 }
 
                 if (persisFolderManifest != null)
@@ -210,7 +215,7 @@ namespace Hugula.ResUpdate
                     var streamingFolderManifest = FileManifestManager.FindStreamingFolderManifest(f.fileName);
                     if (streamingFolderManifest != null)
                     {
-                        var flist = streamingFolderManifest.NotSafeCompare(persisFolderManifest);
+                        var flist = streamingFolderManifest.NotSafeCompare(persisFolderManifest,true); 
                         //check size
                         if (flist.Count == 0)//没有变更
                         {
@@ -230,8 +235,9 @@ namespace Hugula.ResUpdate
                             newFastManifest.allFileInfos = flist;
                             needDownloadZipfile = false;
 #if !HUGULA_NO_LOG
-                            print($"add filelist:{flist.Count},size={size}");
-                            Debug.Log(f.ToString());
+                            Debug.Log($"zip persisFolderManifest info");
+                            Debug.Log(persisFolderManifest.ToString());
+                            Debug.Log($"add filelist:{flist.Count},size={size} new load:");
                             Debug.Log(newFastManifest.ToString());
 #endif
                         }

@@ -225,7 +225,7 @@ namespace Hugula.Utils
             if (!m_StackDic.TryGetValue(key, out m_Stack)) return;
 
             if (m_Stack.Count > 0 && ReferenceEquals(m_Stack.Peek(), element))
-                Debug.LogError("Internal error. Trying to destroy object that is already released to pool.");
+                Debug.LogError($"Internal error. Trying to destroy GameObject {element}  that was already released to pool.");
             if (m_ActionOnRelease != null)
                 m_ActionOnRelease(element);
             m_Stack.Push(element);

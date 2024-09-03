@@ -24,9 +24,9 @@ public class FrameWatcher
         {
             frameCount = Time.frameCount;
             watch.Restart();
+            beginTime = watch.ElapsedMilliseconds;
         }
 
-        beginTime = watch.ElapsedMilliseconds;
         return beginTime;
 #else
         watch.Restart();

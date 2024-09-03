@@ -22,7 +22,7 @@ namespace Hugula.Profiler
     {
         #region Constants
 
-        private const string TitleFormat = "\nProfiler|Total|Calls|Max Single Call|Avg Except Max Call|Number of SingleCallTime>3ms|first frame|first end frame|max frame|max end frame|asset count|nestingLevel";
+        private const string TitleFormat = "\nProfiler|Total|Calls|Max Single Call|Avg Except Max Call|Number of SingleCallTime>3ms|first frame|first end frame|max frame|max end frame|max frame loading count|nestingLevel";
         private const string LogFormat = "\n{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}";
 
         #endregion
@@ -247,25 +247,19 @@ namespace Hugula.Profiler
 
         public static void BeginSample(string name, string arg = "")
         {
-#if PROFILER_DUMP
+#if !HUGULA_RELEASE
             if (!string.IsNullOrEmpty(arg))
             {
                 name = name + ":" + arg;
             }
-#if UWATEST || UWA_SDK_ENABLE
-            UWAEngine.PushSample (name);
-#endif
             UnityEngine.Profiling.Profiler.BeginSample(name);
 #endif
         }
 
         public static void EndSample()
         {
-#if PROFILER_DUMP
+#if !HUGULA_RELEASE
             UnityEngine.Profiling.Profiler.EndSample();
-#if UWATEST || UWA_SDK_ENABLE
-            UWAEngine.PopSample ();
-#endif
 #endif
         }
 

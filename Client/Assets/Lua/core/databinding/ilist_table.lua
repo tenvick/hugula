@@ -7,6 +7,7 @@ local table = table
 -- local type = type
 local table_insert = table.insert
 local table_remove = table.remove
+local table_indexof = table.indexof
 -- local table_remove_item = table.remove_item
 local string_format = string.format
 -- local ipairs = ipairs
@@ -69,18 +70,19 @@ local function remove_at(self, index, count)
         end_idx = size
     end
 
-    local changedItems = {}
+    -- local changedItems = {}
     local item
     for i = end_idx, index, -1 do
         item = table_remove(items, i)
-        table_insert(changedItems, item)
+        -- table_insert(changedItems, item)
     end
 
     set_count(self)
+    return item
 end
 
 local function indexof(self, item)
-    local idx = table.indexof(self.items, item)
+    local idx = table_indexof(self.items, item)
     if idx == nil then
         return -1
     else
@@ -89,7 +91,7 @@ local function indexof(self, item)
 end
 
 local function contains(self, item)
-    local idx = table.indexof(self.items, item)
+    local idx = table_indexof(self.items, item)
     if idx ~= nil then
         return true
     else
@@ -185,6 +187,7 @@ ilist_table.IndexOf = indexof --int IndexOf(object value);
 ilist_table.Insert = insert_item --void Insert(int index, object value);
 ilist_table.Remove = remove_item --void Remove(object value);
 ilist_table.RemoveAt = remove_at --void RemoveAt(int index);
+ilist_table.Move = move_item --void Move(int old_index, int new_index);
 ilist_table.__tostring = tostring
 
 ---Ilist的lua实现,在列表绑定不需要监听改变的时候可以使用这个数据结构

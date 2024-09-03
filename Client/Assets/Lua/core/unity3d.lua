@@ -3,14 +3,87 @@ local UnityEngine = CS.UnityEngine
 local Hugula = CS.Hugula
 local manager = Hugula.Framework.Manager
 local EnterLua = CS.Hugula.EnterLua
-
+local NeedProfileDump = not Hugula.Profiler.ProfilerFactory.DoNotProfile
 ---------------
-Timer = Hugula.Framework.Timer
-local timer = Timer
-local tins = timer.instance
-Delay = timer.Delay
-DelayFrame = timer.DelayFrame
+Timer                 = Hugula.Framework.Timer
+local timer           = Timer
+local type            = type
+local debug           = debug
+
+if NeedProfileDump then
+    local _Delay       = timer.Delay
+    local _Add         = timer.Add
+    local _DelayFrame  = timer.DelayFrame
+    local SetTimerName = timer.SetTimerName
+
+    Delay              = function(func, time, arg)
+        local info = debug.getinfo(func)
+        local name = info and info["source"] .. ":" .. info["linedefined"] or ""
+        local id = _Delay(func, time, arg, name)
+        SetTimerName(id, name)
+        return id
+    end
+
+    DelayFrame         = function(func, frame, arg)
+        local info = debug.getinfo(func)
+        local name = info and info["source"] .. ":" .. info["linedefined"] or ""
+        local id = _DelayFrame(func, frame, arg)
+        SetTimerName(id, name)
+        return id
+    end
+
+
+    timer.Add        = function(delay, arg2, arg3, arg4)
+        local v1 = type(arg2) == "function"
+        local name = ""
+        local fun = v1 == true and arg2 or arg3
+        local info = debug.getinfo(fun)
+        name = info and info["source"] .. ":" .. info["linedefined"] or ""
+        local id = _Add(delay, arg2, arg3, arg4)
+
+        SetTimerName(id, name)
+
+        return id
+    end
+
+    timer.Delay      = function(func, time, arg, name)
+        local name = ""
+        local info = debug.getinfo(func)
+        name = info and info["source"] .. ":" .. info["linedefined"] or ""
+
+        local id = _Delay(func, time, arg, name)
+        SetTimerName(id, name)
+        return id
+    end
+
+    timer.DelayFrame = function(action, frame, arg)
+        local name = ""
+        local info = debug.getinfo(action)
+        name = info and info["source"] .. ":" .. info["linedefined"] or ""
+
+        local id = _DelayFrame(action, frame, arg, name)
+        SetTimerName(id, name)
+        return id
+    end
+else
+    ---属性改变的时候通知绑定对象
+    ---@overload fun(function:function,time:float,arg:any)
+    ---@return int
+    Delay = timer.Delay
+    ---属性改变的时候通知绑定对象
+    ---@overload fun(function:function,frame:int,arg:any)
+    ---@return int
+    DelayFrame = timer.DelayFrame
+end
+
+
+
+---属性改变的时候通知绑定对象
+---@overload fun(id:int)
+---@return void
 StopDelay = timer.StopDelay
+
+
 
 Manager = manager
 

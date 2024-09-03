@@ -17,6 +17,10 @@ local xpcall                 = xpcall
 local debug                  = debug
 local string_format          = string.format
 local table_clear            = table.clear
+local table_insert           = table.insert
+local table_remove           = table.remove
+local math_floor             = math.floor
+--- 原来界面的ui_type定义
 local VM_MARK_TYPE           = VM_MARK_TYPE
 
 local CS                     = CS
@@ -71,6 +75,16 @@ end
 local empty_tab = {}
 local mark_gc_vm_tab = {}    --标记清理的vm
 local mark_gc_group_tab = {} --标记清理的group
+
+local lru_capacity = 5       --lru容量
+local lru_cache              --lru缓存
+
+local function get_lru_cache()
+    if lru_cache == nil then
+        lru_cache = LRUCache(lru_capacity)
+    end
+    return lru_cache
+end
 
 local function set_views_index(curr_vm)
     local views = curr_vm.views or empty_tab
@@ -196,6 +210,38 @@ local function destroy(self, vm_name)
     end
 end
 
+-- 标记自动回收的viewmodel模块
+---@overload fun(vm_name:string,val:boolean)
+---@param vm_name string
+---@param val boolean
+local function push_lru_gc_vm(self, vm_name, val)
+    local rem_key, rem_val = get_lru_cache():Put(vm_name, val) --放入缓存
+    if rem_key then
+        destroy(self, rem_key)
+    end
+end
+
+-- 跟新lru缓存顺序到最后
+local function get_lru_vm(self, vm_name)
+    get_lru_cache():Get(vm_name)
+end
+
+-- 判断是否关闭transition
+local function check_close_transition(_curr_group, vm_base)
+    if _curr_group and _curr_group.transition then
+        local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
+        if need_close then
+            local transition = VMGenerate[_curr_group.transition]
+            local ActiveGroupDone = transition.ActiveGroupDone
+            if ActiveGroupDone then
+                ActiveGroupDone(transition, _curr_group)
+            else
+                deactive(vm_manager, _curr_group.transition)
+            end
+        end
+    end
+end
+
 ------------------------------------------------
 ---检查view_base的所有资源是否都加载完成
 ---@overload fun(view_base:VMBase)
@@ -217,7 +263,6 @@ local function check_vm_base_all_done(vm_base, view)
         p_root_name = "check_vm_base_all_done." .. vvm_name
         profiler1 = ProfilerFactory.GetAndStartProfiler(p_root_name .. ":1.set_views_active:", nil, parent_name, true)
     end
-
 
     vm_base._isloading = false
     vm_base.is_res_ready = true
@@ -294,19 +339,6 @@ local function check_vm_base_all_done(vm_base, view)
         local _curr_group = vm_base._curr_group
         _curr_group.__loaded_count = _curr_group.__loaded_count + 1
 
-        if _curr_group and _curr_group.transition then
-            local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
-
-            if need_close then
-                local transition = VMGenerate[_curr_group.transition]
-                local ActiveGroupDone = transition.ActiveGroupDone
-                if ActiveGroupDone then
-                    ActiveGroupDone(transition, _curr_group)
-                else
-                    deactive(vm_manager, _curr_group.transition)
-                end
-            end
-        end
 
         if NeedProfileDump then
             profiler1 =
@@ -314,7 +346,10 @@ local function check_vm_base_all_done(vm_base, view)
                     parent_name, true)
         end
 
-        vm_manager._vm_state:_check_on_state_changed(vm_base)
+        vm_manager._vm_state:_check_on_state_changed(vm_base, _curr_group)
+
+        --check transition close
+        check_close_transition(_curr_group, vm_base)
 
         if NeedProfileDump then
             if profiler1 then
@@ -492,21 +527,9 @@ local function active_view(self, curr_vm)
         --on_state_changed 没有资源的模块也需要检测state changed 事件
         if curr_vm._is_group == true then
             --check transition
-            local _curr_group = curr_vm._curr_group
-            if _curr_group and _curr_group.transition then
-                local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
-                if need_close then
-                    local transition = VMGenerate[_curr_group.transition]
-                    local ActiveGroupDone = transition.ActiveGroupDone
-                    if ActiveGroupDone then
-                        ActiveGroupDone(transition, _curr_group)
-                    else
-                        deactive(vm_manager, _curr_group.transition)
-                    end
-                end
-            end
+            -- check_close_transition(curr_vm._curr_group,curr_vm)
 
-            vm_manager._vm_state:_check_on_state_changed(curr_vm)
+            vm_manager._vm_state:_check_on_state_changed(curr_vm, curr_vm._curr_group)
         end
 
         lua_distribute(DIS_TYPE.DIALOG_OPEN_UI, vm_name) --触发界面打开消息
@@ -527,21 +550,8 @@ local function active_view(self, curr_vm)
         --on_state_changed 没有资源的模块也需要检测state changed 事件
         if curr_vm._is_group == true then
             --check transition
-            local _curr_group = curr_vm._curr_group
-            if _curr_group and _curr_group.transition then
-                local need_close = _curr_group.__loaded_count >= _curr_group.__total_count
-                if need_close then
-                    local transition = VMGenerate[_curr_group.transition]
-                    local ActiveGroupDone = transition.ActiveGroupDone
-                    if ActiveGroupDone then
-                        ActiveGroupDone(transition, _curr_group)
-                    else
-                        deactive(vm_manager, _curr_group.transition)
-                    end
-                end
-            end
-
-            vm_manager._vm_state:_check_on_state_changed(curr_vm)
+            --    check_close_transition(curr_vm._curr_group,curr_vm)
+            vm_manager._vm_state:_check_on_state_changed(curr_vm, curr_vm._curr_group)
         end
 
 
@@ -580,14 +590,12 @@ local function load_resource(res_name, view_base, on_asset_comp, is_pre_load)
     else
         local parent = nil
         local ui_layer = view_base.ui_layer
-        -- if ui_layer ~= nil then
-        --     parent = ui_manager:GetLayerRootTransform(ui_layer)
-        -- else
+
         ui_layer = view_base.ui_container
         if ui_layer then
             parent = UISubManager:GetContainer(ui_layer)
         end
-        -- end
+
 
         if async ~= false then ---异步加载
             ResLoader.InstantiateAsync(res_name, on_asset_comp, nil, view_base, parent)
@@ -639,10 +647,11 @@ local function load(self, curr_vm, arg, is_push, curr_group)
     if not is_push then --is back
         arg = curr_vm._push_arg
     end
-    curr_vm:on_push_arg(arg)              --有参数
+    curr_vm:on_push_arg(arg)               --有参数
     curr_vm._push_arg = arg
-    curr_vm._is_push = is_push            --是否是push到栈上的
-    curr_vm._is_group = curr_group ~= nil --是否是组
+    curr_vm._is_push = is_push             --是否是push到栈上的
+    curr_vm._is_group = curr_group ~= nil  --是否是组
+    local last_group = curr_vm._curr_group --上一个组
     curr_vm._curr_group = curr_group
     local views = curr_vm.views
 
@@ -658,11 +667,11 @@ local function load(self, curr_vm, arg, is_push, curr_group)
 
         if curr_group then
             curr_group.__loaded_count = curr_group.__loaded_count + 1
-            -- Logger.Log("active_view. __loaded_count+1 ", curr_vm, curr_group.name, curr_group.__loaded_count,
-                -- curr_group.__total_count)
         end
 
         active_view(self, curr_vm)
+
+        check_close_transition(curr_group, curr_vm)
     else
         curr_vm.is_active = true    --需要重新加载，设置本身为激活状态
         curr_vm._destory_step = nil --清理销毁标记
@@ -698,6 +707,11 @@ local function load(self, curr_vm, arg, is_push, curr_group)
                 end
             end
         end
+
+        if last_group ~= curr_group and last_group ~= nil then --关闭上个组的transition
+            last_group.__loaded_count = last_group.__loaded_count + 1
+            check_close_transition(last_group, curr_vm)
+        end
     end
 end
 
@@ -712,9 +726,10 @@ local function active(self, vm_name, arg, is_push)
     if vm_name == nil then
         error("VMManager.active vm_name is nil")
     end
+
     local vm = VMGenerate[vm_name]
     load(self, vm, arg, is_push, vm._curr_group)
-
+    get_lru_vm(self, vm_name)
     lua_distribute(DIS_TYPE.ON_UI_STATE_CHANGE, { action = "active", name = vm_name }) --待优化
 end
 
@@ -731,6 +746,7 @@ local function active_group(self, vm_group, arg, is_push, vm_group)
 
     vm_group.__loaded_count = 0
     vm_group.__total_count = #vm_group
+    vm_group.__complete = false     --标记未完成
 
     for k, v in ipairs(vm_group) do --多个
         load(self, VMGenerate[v], arg, is_push, vm_group)
@@ -878,12 +894,16 @@ local function release(self, vm_name)
     VMGenerate:release_vm(vm_name) --彻底释放
 end
 
+
 -- 标记回收的viewmodel模块
 ---@overload fun(vm_name:string,val:boolean)
 ---@param vm_name string
 ---@param val boolean
 local function mark_gc_vm(self, vm_name, val)
     mark_gc_vm_tab[vm_name] = val
+    if val == nil and lru_cache ~= nil then
+        lru_cache:Remove(vm_name) --移除缓存
+    end
 end
 
 -- 标记回收的viewmodel组模块
@@ -900,7 +920,6 @@ local function check_is_mark_group(self, group)
     end
 end
 
---释放标记的模块
 local function release_mark(self)
     for k, v in pairs(mark_gc_vm_tab) do
         if v then
@@ -908,6 +927,16 @@ local function release_mark(self)
         end
     end
     table_clear(mark_gc_vm_tab)
+end
+
+--销毁一半的lru缓存
+local function destroy_half_lru_cache(self)
+    local half = math_floor(lru_capacity / 2)
+    local keys = lru_cache:GetKeys()
+    for i = 1, half do
+        local key = keys[i]
+        destroy(vm_manager, key)
+    end
 end
 
 --消耗标记的模块
@@ -919,6 +948,15 @@ local function destroy_mark(self)
     end
     table_clear(mark_gc_vm_tab)
 end
+
+local function set_lru_capacity(self, val)
+    lru_capacity = val
+end
+
+local function get_lru_capacity(self)
+    return lru_capacity
+end
+
 
 vm_manager.re_load = re_load
 vm_manager.pre_load = pre_load
@@ -933,6 +971,10 @@ vm_manager.mark_gc_group = mark_gc_group             --
 vm_manager.check_is_mark_group = check_is_mark_group --
 vm_manager.release_mark = release_mark               --  释放标记的模块
 vm_manager.destroy_mark = destroy_mark               --  销毁标记的模块
+vm_manager._get_lru_vm = get_lru_vm                  -- 更新自动回收的viewmodel模块
+vm_manager._push_lru_gc_vm = push_lru_gc_vm          --标记自动回收的viewmodel模块
+vm_manager._set_lru_capacity = set_lru_capacity      --设置lru容量
+vm_manager._get_lru_capacity = get_lru_capacity      --获取lru容量
 ---vm的激活与失活管理
 ---@class VMManager
 ---@field active function

@@ -9,6 +9,7 @@ require("core.tools")
 require("core.structure")
 require("core.unity3d")
 
+require("core.lru_cache") --
 require("common.constants") --定义的常量
 require("core.databinding.get_set_obj") --get set 实现
 require("core.databinding.ilist_table") --可以装换成ilist的table

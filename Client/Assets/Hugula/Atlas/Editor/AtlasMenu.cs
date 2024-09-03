@@ -114,7 +114,8 @@ namespace HugulaEditor
         [MenuItem("Assets/Atlas/2.Generate All Atlas Mapping")]
         public static void GenerateAllAtlasMapping()
         {
-           UnityEditor.Sprites.Packer.RebuildAtlasCacheIfNeeded(HugulaEditor.ResUpdate.BuildConfig.BuildTarget);
+            UnityEditor.U2D.SpriteAtlasUtility.PackAllAtlases(HugulaEditor.ResUpdate.BuildConfig.BuildTarget); // error CS0117: 'Packer' does not contain a definition for 'RebuildAtlasCacheIfNeeded'
+		   // UnityEditor.Sprites.Packer.RebuildAtlasCacheIfNeeded(HugulaEditor.ResUpdate.BuildConfig.BuildTarget);
 
             StringBuilder sb = new StringBuilder();
             List<int> allSprites = new List<int>();

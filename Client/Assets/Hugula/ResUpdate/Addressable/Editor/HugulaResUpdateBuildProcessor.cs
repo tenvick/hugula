@@ -17,7 +17,7 @@ namespace HugulaEditor.Addressable
     ///
     /// This script executes before the <see cref="AddressablesPlayerBuildProcessor"/> which moves all Addressables data to StreamingAssets.
     /// </summary>
-    public class HugulaResUpdateBuildProcessor : IPreprocessBuildWithReport
+    public class HugulaResUpdateBuildProcessor : IPreprocessBuildWithReport, IPostprocessBuildWithReport
     {
         /// <summary>
         /// Returns the player build processor callback order.
@@ -27,11 +27,28 @@ namespace HugulaEditor.Addressable
             get { return 0; }
         }
 
+        public void OnPostprocessBuild(BuildReport report)
+        {
+            Debug.Log($"HugulaResUpdateBuildProcessor.OnPostprocessBuild:{report.summary.outputPath}");
+            // var GetFiles = report.GetFiles();
+            // foreach (var file in GetFiles)
+            // {
+            //     Debug.Log($"GetFiles: {file.path}");
+            // }
+
+            var packedAssets = report.packedAssets;
+            foreach (var packedAsset in packedAssets)
+            {
+                Debug.Log($"Packed asset: {packedAsset.shortPath}");
+            }
+        }
+
         ///<summary>
         /// Initializes temporary build data.
         /// </summary>
         public void OnPreprocessBuild(BuildReport report)
         {
+            Debug.Log($"HugulaResUpdateBuildProcessor.OnPreprocessBuild:{report.summary.outputPath}");
             if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && EditorUserBuildSettings.buildAppBundle) //移动
             {
                 MoveDataForAppBundleBuild();

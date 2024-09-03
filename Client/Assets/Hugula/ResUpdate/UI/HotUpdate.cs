@@ -99,6 +99,8 @@ namespace Hugula.ResUpdate
 
                 yield return InternalIdTransformFunc();
             }
+#elif HUGULA_NO_HOTUPDATE
+            yield return InternalIdTransformFunc();
 #else
             yield return LoadRemoteVersion ();
 #endif
@@ -166,7 +168,7 @@ namespace Hugula.ResUpdate
                 {
                     if (localVersion != null)
                     {
-                        Debug.LogWarning($" {url} json parse error! Resources({versionName}) load success!");
+                        Debug.LogWarning($" {url} json parse error! Resources({versionName}) load success! try {count} times");
                         StartCoroutine(ParseVerionConfigAndCheckUpdate(string.Empty, localVersion));
                     }
                     else
@@ -174,10 +176,10 @@ namespace Hugula.ResUpdate
                         MessageBox.Show(url + Localization.Get("main_download_fail"), "", Localization.Get("main_check_sure"), () =>
                         {
                             MessageBox.Close();
-                            StartCoroutine(LoadRemoteVersion());
+                            StartCoroutine(LoadRemoteVersion(count + 1));
                         });
 
-                        Debug.LogError($"Resources({versionName}) load fail, {url} json parse error!");
+                        // Debug.LogError($"Resources({versionName}) load fail, {url} json parse error!");
                     }
 
                 }
@@ -211,9 +213,9 @@ namespace Hugula.ResUpdate
             //check force download full app
             if (CodeVersion.Subtract(remoteVer.force_ver, CodeVersion.APP_VERSION) > 0) //强制更新版本号大于本地版本号
             { //强制更新提示
-                MessageBox.Show(Localization.Get("main_download_new_app"), "", Localization.Get("main_check_sure"), () =>
+                MessageBox.Show(Localization.Get("main_download_new_app"), Localization.Get("tips"), Localization.Get("main_check_sure"), () =>
                 {
-                    MessageBox.Destroy();
+                    //MessageBox.Close();
                     Application.OpenURL(remoteVer.update_url);
                 });
             }
@@ -222,7 +224,7 @@ namespace Hugula.ResUpdate
                 //提示更新 远端 notice_ver提示更新版本号 》大于本地版本号 提示更新
                 if (CodeVersion.Subtract(remoteVer.notice_ver, CodeVersion.APP_VERSION) > 0)
                 {
-                    MessageBox.Show(Localization.Get("main_check_update"), "", Localization.Get("main_check_sure"), () =>
+                    MessageBox.Show(Localization.Get("main_check_update"), Localization.Get("tips"), Localization.Get("main_check_sure"), () =>
                     {
                         MessageBox.Destroy();
                         Application.OpenURL(remoteVer.update_url);
@@ -350,7 +352,7 @@ namespace Hugula.ResUpdate
                            BackGroundDownload.instance.Begin();
                            MessageBox.Destroy();
                        };
-                MessageBox.Show("fast pack download failed, please check your network!", "", "", BeginLoad);
+                MessageBox.Show("fast pack download failed, please check your network!", "", Localization.Get("main_check_sure"), BeginLoad);
             }
         }
 
@@ -465,7 +467,7 @@ namespace Hugula.ResUpdate
                     else
                     {
                         var tips = Localization.GetFormat("main_download_from_webserver", string.Format("{0:.00}", (float)change / 1048576));
-                        MessageBox.Show(tips, "", "", BeginLoad); //提示手动下载
+                            MessageBox.Show(tips, "", Localization.Get("main_check_sure"), BeginLoad); //提示手动下载
                     }
                 }
                 else
@@ -522,7 +524,6 @@ namespace Hugula.ResUpdate
                 FileManifestManager.localResNum = loadRemoteAppNum;
                 Debug.Log($"download sccuess :{loadRemoteVersion}");
                 FileManifestManager.LoadPersistentFolderManifest(null); //刷新列表
-                SetVersionInfo();
                 StartCoroutine(RefreshCatalog());
             }
         }

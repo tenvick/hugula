@@ -107,10 +107,22 @@ namespace XLua.Editor
             "UnityEngine.AssetBundle",
             "UnityEngine.WheelCollider",
             "UnityEngine.LightProbes",
+			"UnityEngine.ClusterSerialization",
+            "UnityEngine.ClusterRendererModule",
+            "UnityEngine.GamepadSpeakerOutputType",
+            "UnityEngine.LightingSettings+Lightmapper",
+            "UnityEngine.LightingSettings+Sampling",
+            "UnityEngine.LightingSettings+FilterMode",
+            "UnityEngine.LightingSettings+DenoiserType",
+            "UnityEngine.LightingSettings+FilterType",
+            "UnityEngine.AudioSource",
+            "UnityEngine.LightingSettings",
+            "UnityEngine.CloudStreaming",
             "Hugula.LuaBundleRead",
             "Hugula.StreamingLuaBytesRead",
             "Hugula.ZipLuaRead",
             "Hugula.AndroidLuaRead",
+		
         };
 
         static bool isExcluded(Type type)
@@ -139,6 +151,8 @@ namespace XLua.Editor
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindings" },
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindingByName","System.String" },
             new List<string> () { "Hugula.Databinding.BindableObject", "RemoveBindingAt","System.Int32" },
+             new List<string> () { "Hugula.ResUpdate.FileManifestManager", "AnalyzeAddressDependencies","System.String","System.Type","System.Collections.Generic.List<string>"},
+
 
             new List<string> () { "UnityEngine.AnimatorControllerParameter", "name" },
             new List<string> () { "UnityEngine.AudioSettings", "GetSpatializerPluginNames" },
@@ -166,7 +180,93 @@ namespace XLua.Editor
             new List<string> () { "UnityEngine.MeshRenderer","scaleInLightmap","System.Int32"},
             new List<string> () { "UnityEngine.MeshRenderer","stitchLightmapSeams","System.Boolean"},
             new List<string> () { "UnityEngine.ParticleSystemRenderer","supportsMeshInstancing","System.Boolean"},
+            new List<string> () {"System.Collections.Generic.Stack<Hugula.Profiler.StopwatchProfiler>","TryPeek","Hugula.Profiler.StopwatchProfiler"},
+            new List<string> () { "UnityEngine.SystemInfo", "GetRenderTextureSupportedMSAASampleCount","UnityEngine.RenderTextureDescriptor"},
+            new List<string>() {"UnityEngine.SystemInfo",""},
+              new List<string> () { "System.Xml.XmlNodeList", "ItemOf" },
+            new List<string> () { "UnityEngine.WWW", "movie" },
+#if UNITY_WEBGL
+            new List<string> () { "UnityEngine.WWW", "threadPriority" },
+#endif
+            new List<string> () { "UnityEngine.Texture2D", "alphaIsTransparency" },
+            new List<string> () { "UnityEngine.Sprite", "isUsingPlaceholder" },
 
+
+            new List<string> () { "UnityEngine.Security", "GetChainOfTrustValue" },
+            new List<string> () { "UnityEngine.CanvasRenderer", "onRequestRebuild" },
+            new List<string> () { "UnityEngine.Light", "areaSize" },
+            new List<string> () { "UnityEngine.Light", "lightmapBakeType" },
+            new List<string> () { "UnityEngine.WWW", "MovieTexture" },
+            new List<string> () { "UnityEngine.WWW", "GetMovieTexture" },
+            new List<string> () { "UnityEngine.AnimatorOverrideController", "PerformOverrideClipListCleanup" },
+#if !UNITY_WEBPLAYER
+            new List<string> () { "UnityEngine.Application", "ExternalEval" },
+#endif
+            new List<string> () { "UnityEngine.GameObject", "networkView" }, //4.6.2 not support
+            new List<string> () { "UnityEngine.Component", "networkView" }, //4.6.2 not support
+            new List<string> () { "UnityEngine.MonoBehaviour", "runInEditMode" },
+
+            new List<string> () { "System.IO.FileInfo", "GetAccessControl", "System.Security.AccessControl.AccessControlSections" },
+            new List<string> () { "System.IO.FileInfo", "SetAccessControl", "System.Security.AccessControl.FileSecurity" },
+
+            new List<string> () { "System.IO.DirectoryInfo", "GetAccessControl", "System.Security.AccessControl.AccessControlSections" },
+            new List<string> () { "System.IO.DirectoryInfo", "SetAccessControl", "System.Security.AccessControl.DirectorySecurity" },
+            new List<string> () { "System.IO.DirectoryInfo", "CreateSubdirectory", "System.String", "System.Security.AccessControl.DirectorySecurity" },
+            new List<string> () { "System.IO.DirectoryInfo", "Create", "System.Security.AccessControl.DirectorySecurity" },
+            new List<string> () { "System.IO.DirectoryInfo", "TryGetValue", "System.Security.AccessControl.DirectorySecurity" },
+
+            new List<string> () { "Hugula.Loader.FileManifest", "WriteToFile","System.String" },
+            new List<string> () { "Hugula.Loader.ManifestManager", "SimulateAssetBundleInEditor" },
+            new List<string> () { "Hugula.ZipConfigs", "CreateInstance" },
+            new List<string> () { "Hugula.ZipConfigs", "Delete" },
+
+            new List<string> () { "Hugula.Loader.BackGroundDownload", "currentLoadingCount" },
+            new List<string> () { "Hugula.Loader.BackGroundDownload", "loadingList" },
+            new List<string> () { "Hugula.Loader.ABInfo", "EqualsDependencies","Hugula.Loader.ABInfo" },
+            new List<string> () { "Hugula.Loader.ABInfo", "assetPath"},
+            new List<string> () { "Hugula.Loader.CacheManager", "EditorCacheData"},
+            new List<string> () { "Hugula.EnterLua", "isDebug"},
+            new List<string> () { "Hugula.Audio.WwiseAudioManager", "isDebug"},
+
+            //hashset报错处理
+            new List<string> () { "System.Collections.Generic.HashSet`1[System.Int32]", "TryGetValue", "System.Int32","System.Int32&" },
+            new List<string> () { "System.Collections.Generic.HashSet`1[System.Int32]", ".ctor", "System.Int32"},
+            new List<string> () { "System.Collections.Generic.HashSet`1[System.Int32]", ".ctor", "System.Int32","System.Collections.Generic.IEqualityComparer`1[System.Int32]"},
+
+            new List<string> () { "UnityEngine.Application", "MemoryUsageChangedCallback","UnityEngine.ApplicationMemoryUsageChange" },
+            new List<string>() {"UnityEngine.ClusterSerialization", "SaveTimeManagerState","RestoreTimeManagerState","SaveInputManagerState","RestoreInputManagerState","SaveClusterInputState","RestoreClusterInputState"},
+
+            //2022.3 win发布报错处理
+            new List<string>() {"UnityEngine.Material","RevertAllPropertyOverrides"},
+            new List<string>() {"UnityEngine.Material","IsPropertyOverriden","System.String"},
+            new List<string>() {"UnityEngine.Material","IsPropertyOverriden","System.Int32"},
+            new List<string>() {"UnityEngine.Material","IsPropertyLocked","System.String"},
+            new List<string>() {"UnityEngine.Material","IsPropertyLocked","System.Int32"},
+            new List<string>() {"UnityEngine.Material","IsPropertyLockedByAncestor","System.String"},
+            new List<string>() {"UnityEngine.Material","IsPropertyLockedByAncestor","System.Int32"},
+            new List<string>() {"UnityEngine.Material","SetPropertyLock","System.Int32","System.Boolean"},
+            new List<string>() {"UnityEngine.Material","SetPropertyLock","System.String","System.Boolean"},
+            new List<string>() {"UnityEngine.Material","ApplyPropertyOverride","UnityEngine.Material","System.String","System.Boolean"},
+            new List<string>() {"UnityEngine.Material","ApplyPropertyOverride","UnityEngine.Material","System.Int32","System.Boolean"},
+            new List<string>() {"UnityEngine.Material","ApplyPropertyOverride","UnityEngine.Material","UnityEngine.MaterialSerializedProperty","System.Boolean"},
+            new List<string>() {"UnityEngine.Material","RevertPropertyOverride","System.Int32"},
+            new List<string>() {"UnityEngine.Material","RevertPropertyOverride","System.String"},
+            new List<string>() {"UnityEngine.Material","IsChildOf","UnityEngine.Material"},
+            new List<string>() {"UnityEngine.Material","parent"},
+            new List<string>() {"UnityEngine.Material","isVariant"},
+            new List<string>() {"UnityEngine.Material","shaderKeywords"},
+
+            new List<string>() {"UnityEngine.QualitySettings","IsPlatformIncluded","System.String","System.Int32"},
+            new List<string>() {"UnityEngine.QualitySettings","GetActiveQualityLevelsForPlatform","System.String"},
+            new List<string>() {"UnityEngine.QualitySettings","GetActiveQualityLevelsForPlatformCount","System.String"},
+
+            new List<string>() {"UnityEngine.QualitySettings","TryIncludePlatformAt","System.String","System.Int32","System.Exception&"},
+            new List<string>() {"UnityEngine.QualitySettings","TryExcludePlatformAt","System.String","System.Int32","System.Exception&"},
+            new List<string>() {"UnityEngine.QualitySettings","GetAllRenderPipelineAssetsForPlatform","System.String","System.Collections.Generic.List`1[UnityEngine.Rendering.RenderPipelineAsset]&"},
+
+
+            new List<string>() {"UnityEngine.TextureMipmapLimitGroups","CreateGroup","System.String"},
+            new List<string>() {"UnityEngine.TextureMipmapLimitGroups","RemoveGroup","System.String"},
          };
 
         [LuaCallCSharp]
@@ -178,8 +278,11 @@ namespace XLua.Editor
                 {
                     "UnityEngine",
                     "UnityEngine.UI",
+                    "UnityEngine.AI",
+                    "UnityEngine.Events",
                     "Hugula",
                     "Hugula.Loader",
+                    "Hugula.Audio",
                     "Hugula.Utils",
                     "Hugula.Framework",
                     "Hugula.UIComponents",
@@ -220,10 +323,10 @@ namespace XLua.Editor
                     }
                 }
 
-                foreach (var t in genericTypes)
-                {
-                    Debug.Log($"genericTypes :{t}");
-                }
+                // foreach (var t in genericTypes)
+                // {
+                //     Debug.Log($"genericTypes :{t}");
+                // }
 
                 var customlist = new List<Type>();
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
@@ -231,7 +334,9 @@ namespace XLua.Editor
                 customlist.Add(typeof(Action<object, object>));
                 customlist.Add(typeof(UnityEngine.Events.UnityAction<float>));
                 customlist.Add(typeof(UnityEngine.Events.UnityAction));
+                customlist.Add(typeof(UnityEngine.EventSystems.UIBehaviour));
                 customlist.Add(typeof(System.Func<System.Object, int, int>));
+                customlist.Add(typeof(Action<object, object, int>));
                 customlist.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 customlist.Add(typeof(Action<object, object, int, int>));
                 customlist.Add(typeof(System.Action));
@@ -253,8 +358,21 @@ namespace XLua.Editor
 
                 customlist.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
                 customlist.Add(typeof(System.Collections.IList));
-                customlist.Add(typeof(Hugula.Audio.AudioManager));
+                customlist.Add(typeof(System.Collections.Generic.List<int>));
+                customlist.Add(typeof(System.Collections.Generic.HashSet<int>));
 
+                customlist.Add(typeof(Action<float, float, float>));
+                customlist.Add(typeof(Action<float, float>));
+                customlist.Add(typeof(Action<int>));
+                customlist.Add(typeof(Func<int, int>));
+                customlist.Add(typeof(Action<object>));
+
+                customlist.Add(typeof(System.Action<Vector2, Vector2>));
+                customlist.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+
+                customlist.Add(typeof(List<UnityEngine.Vector3>));
+                customlist.Add(typeof(List<float>));
+                customlist.Add(typeof(List<int>));
                 // customlist.Add (typeof (Hugula.Databinding.Binding));
                 // customlist.Add (typeof (Hugula.Databinding.BindableObject));
                 // customlist.Add (typeof (Hugula.Databinding.BindableContainer));
@@ -270,9 +388,22 @@ namespace XLua.Editor
                 // customlist.Add (typeof (Hugula.Databinding.Binder.InputFieldBinder));
                 // customlist.Add (typeof (Hugula.Databinding.Binder.LoopScrollRectBinder));
                 // customlist.Add (typeof (Hugula.Databinding.Binder.MaskableGraphicBinder));
-                // customlist.Add (typeof (Hugula.Databinding.Binder.SliderBinder));
+                customlist.Add(typeof(UnityEngine.Profiling.Profiler));
+                customlist.Add(typeof(UnityEngine.EventSystems.EventSystem));
+                #region hot update   
+                customlist.Add(typeof(Hugula.ResUpdate.FolderManifest));
+                customlist.Add(typeof(Hugula.ResUpdate.FolderManifestQueue));
+                customlist.Add(typeof(Hugula.ResUpdate.FolderQueueGroup));
+                customlist.Add(typeof(Hugula.ResUpdate.OtherZipMode));
+                customlist.Add(typeof(Hugula.ResUpdate.FastMode));
                 // customlist.Add (typeof (Hugula.Databinding.Binder.TextBinder));
-                return unityTypes.Concat(customlist);
+
+                customlist.Add(typeof(List<Hugula.ResUpdate.FolderManifest>));
+                customlist.Add(typeof(System.Action<Hugula.LoadingEventArg>));
+                customlist.Add(typeof(System.Action<Hugula.ResUpdate.FolderManifestQueue, bool>));
+                customlist.Add(typeof(System.Action<Hugula.ResUpdate.FolderQueueGroup, bool>));
+                #endregion
+                return unityTypes.Concat(customlist).Concat(genericTypes);
             }
         }
 
@@ -325,11 +456,16 @@ namespace XLua.Editor
                 //自定义方法
                 types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 types.Add(typeof(Action<object, object, int>));
+                types.Add(typeof(Action<object, float>));
                 types.Add(typeof(Action<object, object>));
+                types.Add(typeof(Action<object, float, float>));
                 types.Add(typeof(UnityEngine.Events.UnityAction<float>));
                 types.Add(typeof(UnityEngine.Events.UnityAction));
                 types.Add(typeof(System.Func<System.Object, int, int>));
+                types.Add(typeof(Action<object, object, int>));
                 types.Add(typeof(System.Action<object>));
+                types.Add(typeof(System.Func<string, float, string>));
+
                 types.Add(typeof(Func<object, int, Component, int, RectTransform, Component>));
                 types.Add(typeof(Action<object, object, int, int>));
                 types.Add(typeof(Hugula.Databinding.ICommand));
@@ -347,6 +483,44 @@ namespace XLua.Editor
                 types.Add(typeof(Hugula.Databinding.NotifyCollectionChangedEventHandler));
                 types.Add(typeof(Hugula.Databinding.PropertyChangedEventHandler));
                 types.Add(typeof(System.Collections.IList));
+                types.Add(typeof(Func<string, string>));
+                types.Add(typeof(System.Collections.IEnumerator));
+
+                types.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+
+                types.Add(typeof(Action<Vector2>));
+                types.Add(typeof(System.Action<object, object, string, string, string, string>));
+                types.Add(typeof(System.Func<int, object, bool>));
+
+                types.Add(typeof(System.Collections.Specialized.NotifyCollectionChangedEventArgs));
+                types.Add(typeof(System.Collections.IList));
+                types.Add(typeof(Hugula.Audio.AudioManager));
+
+                types.Add(typeof(Action<float, float, float>));
+                types.Add(typeof(Action<float, float>));
+                types.Add(typeof(Action<int>));
+                types.Add(typeof(Func<int, int>));
+                types.Add(typeof(Action<object>));
+                types.Add(typeof(Action<int, bool>));
+
+                types.Add(typeof(System.Action<Vector2, Vector2>));
+                types.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+
+                types.Add(typeof(List<UnityEngine.Vector3>));
+                types.Add(typeof(List<float>));
+                types.Add(typeof(List<int>));
+
+                types.Add(typeof(UnityEngine.RuntimePlatform));
+                types.Add(typeof(System.Object));
+                types.Add(typeof(Func<string, bool>));
+                types.Add(typeof(Func<string, bool, Action, bool>));
+                #region hot update   
+
+                types.Add(typeof(System.Action<Hugula.LoadingEventArg>));
+                types.Add(typeof(System.Action<Hugula.ResUpdate.FolderManifestQueue, bool>));
+                types.Add(typeof(System.Action<Hugula.ResUpdate.FolderQueueGroup, bool>));
+
+                #endregion
                 return types;
             }
 
@@ -386,31 +560,43 @@ namespace XLua.Editor
             return false;
         }
 
-        static bool typeHasEditorRef(Type type)
+        static bool typeHasEditorRef(Type type,bool IgnoreCaseIsNested = false)
         {
-            if (type.Namespace != null && (type.Namespace == "UnityEditor" || type.Namespace.StartsWith("UnityEditor.")))
+            try
             {
-                return true;
-            }
-            if (type.IsNested)
-            {
-                return typeHasEditorRef(type.DeclaringType);
-            }
-            if (type.IsByRef || type.IsArray)
-            {
-                return typeHasEditorRef(type.GetElementType());
-            }
-            if (type.IsGenericType)
-            {
-                foreach (var typeArg in type.GetGenericArguments())
+
+                var Namespace = type.Namespace;
+                if (Namespace != null && (Namespace == "UnityEditor" || Namespace.StartsWith("UnityEditor.")))
                 {
-                    if (typeHasEditorRef(typeArg))
+                    return true;
+                }
+                if (type.IsNested && IgnoreCaseIsNested)
+                {
+                    return typeHasEditorRef(type.DeclaringType);
+                }
+                if (type.IsByRef || type.IsArray)
+                {
+                    return typeHasEditorRef(type.GetElementType());
+                }
+                if (type.IsGenericType)
+                {
+                    foreach (var typeArg in type.GetGenericArguments())
                     {
-                        return true;
+                        if (typeHasEditorRef(typeArg,true ))
+                        {
+                            return true;
+                        }
                     }
                 }
+                return false;
             }
-            return false;
+            catch (Exception e)
+            {
+                Debug.LogError(type);
+                Debug.LogError(e);
+                return false;
+            }
+          
         }
 
         static bool delegateHasEditorRef(Type delegateType)

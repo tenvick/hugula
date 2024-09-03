@@ -594,7 +594,7 @@ namespace CSObjectWrapEditor
             LuaFunction template;
             if (!templateCache.TryGetValue(templateAsset.name, out template))
             {
-                template = XLua.TemplateEngine.LuaTemplate.Compile(luaenv, templateAsset.text);
+                template = XLua.TemplateEngine.LuaTemplate.Compile(luaenv, templateAsset.text,templateAsset.name);
                 templateCache[templateAsset.name] = template;
             }
 

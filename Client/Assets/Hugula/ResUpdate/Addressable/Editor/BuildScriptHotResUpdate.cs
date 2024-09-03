@@ -225,7 +225,7 @@ namespace HugulaEditor.Addressable
             uint crc = 0;
             uint fileLen = 0;
             crc = CrcCheck.GetLocalFileCrc(filePath, out fileLen);
-            folderManifest.AddFileInfo(fileName, crc, fileLen);
+            folderManifest?.AddFileInfo(fileName, crc, fileLen);
             buildBundlePathData?.AddBuildBundlePath(fileName, filePath, crc);
         }
 
@@ -242,6 +242,8 @@ namespace HugulaEditor.Addressable
             {
                 folderManifest = outFolderManifest as FolderManifest;
             }
+
+            Debug.Log($"AddToFolderManifest folderName={folderName} folderManifest={folderManifest.fileName}");
 
             if (folderManifest == null)
             {
@@ -411,12 +413,12 @@ namespace HugulaEditor.Addressable
                             InternalCopyTo(sr, sw, 128);
                         }
                     }
-                    Debug.Log($"Build assetbundle : {targetFileName} offset:{offset.Length}");
+                    Debug.Log($"Build assetbundle :{tmpFileName}=> {targetFileName} offset:{offset.Length}");
                 }
                 else
                 {
                     fino.CopyTo(targetFileName);
-                    Debug.LogFormat("Build assetbundle : {0} ", targetFileName);
+                    Debug.LogFormat("Build assetbundle tmp{1} => {0} ", tmpFileName,targetFileName);
                 }
             }
             Hugula.Utils.CUtils.DebugCastTime($"Build BuildABs BuildPipeline.BuildAssetBundles Copy End length={bab.Length},outPath={outPath}    abNames={sb.ToString()}");
@@ -498,16 +500,18 @@ namespace HugulaEditor.Addressable
         static public void BuildABsTogether(string[] assets, string outPath, string name, BuildAssetBundleOptions bbo, byte[] offset = null)
         {
 
-            AssetBundleBuild[] builds = new AssetBundleBuild[assets.Length];
+            AssetBundleBuild[] builds = new AssetBundleBuild[1];
 
-            for (int i = 0; i < assets.Length; i++)
-            {
+
+
+            // for (int i = 0; i < assets.Length; i++)
+            // {
                 AssetBundleBuild curr = new AssetBundleBuild();
-                string path = assets[i];
-                curr.assetNames = new string[] { path };
+                // string path = assets[i];
+                curr.assetNames = assets ;//new string[] { path };
                 curr.assetBundleName = name;
-                builds[i] = curr;
-            }
+                builds[0] = curr;
+            // }
 
             BuildABs(builds, outPath, bbo, offset);
 

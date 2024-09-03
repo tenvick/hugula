@@ -34,6 +34,7 @@ local TLogger = CS.TLogger
 local Logger = Logger
 local CUtils = CS.Hugula.Utils.CUtils
 local Time                  = CS.UnityEngine.Time
+local HugulaProfiler        = CS.Hugula.Utility.HugulaProfiler
 
 ---
 ---     下面是一个典型的vm stack示例：{}表示根m_state:状态,""表示追加状态, 根状态来控制stack上的UI显示。
@@ -153,18 +154,6 @@ local function _call_group_func(self, group, fun_name, ...)
     end
 end
 
-local function call_top_func(self, fun_name, ...)
-    _call_group_func(self, self.top_group, fun_name, ...)
-end
-
-local function call_last_top_func(self, fun_name, ...)
-    local last = self.last_group
-    if last then
-        _call_group_func(self, last, fun_name, ...)
-    end
-end
-
-
 local function get_member(self, vm_name, member_name)
     local curr_vm = VMGenerate[vm_name] --获取vm实例
     if curr_vm then
@@ -231,8 +220,8 @@ local function strategy_view_gc(vm_name, is_state_change,is_mark_group)
     end
 
     if vm_gc == VM_GC_TYPE.AUTO then --内存不够的时候回收
-        --todo 检查内存
-        VMManager:deactive(vm_name)
+            VMManager:deactive(vm_name)
+            VMManager:_push_lru_gc_vm(vm_name, true)
     elseif vm_gc == VM_GC_TYPE.ALWAYS then
         VMManager:destroy(vm_name)
     elseif vm_gc == VM_GC_TYPE.NEVER then
@@ -448,6 +437,7 @@ local function push_transi(self, vm_group_name,need_transition, arg)
     table_insert(_stack, vm_group) --- 进入显示stack
     _root_index = #_stack
     set_top_group(self, vm_group)
+    vm_group.__last_group = self.last_group
 
     for k, v in ipairs(vm_group) do
         VMManager:mark_gc_vm(v,nil) --清理gc标记
@@ -461,10 +451,14 @@ local function push_transi(self, vm_group_name,need_transition, arg)
         for k, v in ipairs(hides) do
             strategy_view_gc(v, true,is_mark_group) --
         end
-     
-        check_mark_destroy(self,self.top_group_name)
 
-        lua_distribute(DIS_TYPE.ON_STATE_CHANGING, self.last_group_name, self.top_group_name, arg)
+        local top_group_name = self.top_group_name
+        local __last_group = vm_group.__last_group
+        local last_group_name = __last_group and __last_group.name or ""
+
+        check_mark_destroy(self, top_group_name)
+
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGING, last_group_name, top_group_name, arg)
     end
     vm_group.__change_action = _hide_groups
     --check need transition
@@ -498,39 +492,25 @@ local function _check_group_all_done(group_tab)
     return true
 end
 
-local function _check_on_state_changed(self, vm_base)
-    local top = self.top_group
-
-    if top and top.__loaded_count == top.__total_count and top.__total_count > 0 then
-        local check_isin_top = false
-        local c_name = vm_base._require_name
-        for k, v in ipairs(top) do
-            if v == c_name then
-                check_isin_top = true
-            end
+local function _check_on_state_changed(self, vm_base, _curr_group)
+    local loaded_count = _curr_group and _curr_group.__loaded_count or 0
+    local total_count = _curr_group and _curr_group.__total_count or 0
+    if _curr_group and _curr_group.__complete == false and loaded_count >= total_count and total_count > 0 then
+        if self._transition_group == _curr_group then
+            self._transition_group = nil
         end
+        _curr_group.__complete = true
 
-        if check_isin_top == false then
-            local append_items = top:get_append_items()
-            for k, v in pairs(append_items) do
-                if k == c_name then
-                    check_isin_top = true
-                    break
-                end
-            end
+        local last_group = _curr_group.__last_group
+        local last_group_name = last_group and last_group.name or ""
+        local top_group_name = _curr_group.name or ""
+        if last_group then
+            _call_group_func(self, last_group, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
         end
+        _call_group_func(self, _curr_group, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
 
-        self._transition_group = nil
-
-        if check_isin_top then
-            local last_group_name = self.last_group_name
-            local top_group_name = self.top_group_name
-            call_last_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
-            call_top_func(self, DISTYPE_STATE_CHANGED, last_group_name, top_group_name)
-            lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name, not vm_base._is_push) --状态改变完成后触发
-            debug_stack("pushed ", last_group_name, top_group_name)
-
-        end
+        lua_distribute(DIS_TYPE.ON_STATE_CHANGED, last_group_name, top_group_name, not vm_base._is_push) --状态改变完成后触发
+        debug_stack("pushed ", last_group_name, top_group_name)
     end
 end
 
@@ -546,7 +526,8 @@ end
 ---@overload fun():luatable
 ---@param vm_group_name string
 local function top_group_is(self, vm_group_name)
-    return self.top_group == _VMGroup[vm_group_name]
+    -- return self.top_group == _VMGroup[vm_group_name]
+    return self.top_group_name == vm_group_name
 end
 
 ---判断当前group是否全部加载完成
@@ -629,6 +610,13 @@ local function back(self)
             for k, v in ipairs(item) do
                 table_insert(remove, v)
             end
+
+            local append_items = item:get_append_items()
+            for k, v in pairs(append_items) do
+                if k ~= nil then --
+                    table_insert(remove, k)
+                end
+            end
         else
             table_insert(remove, item)
         end
@@ -663,6 +651,7 @@ local function back(self)
                 VMManager:mark_gc_vm(v,nil) --清理gc标记
             end
             _root_index = i                  --记录root
+            item.__last_group = self.top_group
             set_top_group(self, item)
             group_changed = true
             self._transition_group = item

@@ -114,12 +114,12 @@ namespace Hugula
         public byte[] LoadBytes(string path, ref int length)
         {
             length = 0;
-            var buffer = LuaBytesBuffer.buffer;
             if (File.Exists(path))
             {
                 using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     int len = (int)fileStream.Length;
+                    var buffer = LuaBytesBuffer.buffer;
                     if (len > buffer.Length) //grow
                     {
                         buffer = new byte[len];
@@ -131,9 +131,10 @@ namespace Hugula
                         nread += fileStream.Read(buffer, nread, len - nread);
                     }
                     length = nread;
+                    return buffer;
                 }
             }
-            return buffer;
+            return null;
         }
     }
 
@@ -182,15 +183,20 @@ namespace Hugula
             var path = ValueStrUtils.ConcatNoAlloc(m_Path, "/", name, ".bytes");
             var ptr = IntPtr.Zero;
             var len = ReadAssetsBytes(path,ref ptr); //ReadAssetsBytesWithOffset(path,ref ptr, sizeof(int), sizeof(int));
-            var buffer = LuaBytesBuffer.buffer;
+            byte[] buffer = null;
             if (len > 0)
             {
-                length = len;
+#if UPR_LUA_PROFILER
+                buffer = new byte[len];
+#else
+                buffer = LuaBytesBuffer.buffer;
                 if (len > buffer.Length) //grow
                 {
                     buffer = new byte[len];
                     LuaBytesBuffer.buffer = buffer;
                 }
+#endif
+                length = len;               
                 if (ptr == IntPtr.Zero)
                 {
                     Debug.LogError("Read Failed!!!");

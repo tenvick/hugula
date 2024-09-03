@@ -19,6 +19,7 @@ namespace Hugula.Framework
             internal float delay;
             internal bool isFrame = false;
             public int id;
+            public string name = string.Empty;
             public object arg;
             public System.Action<object> action;
             internal int cycle = 1;
@@ -49,27 +50,14 @@ namespace Hugula.Framework
             }
         }
         private static ObjectPool<TimerInfo> m_pool = new ObjectPool<TimerInfo>(null, ActionOnRelease);
-        private static List<TimerInfo> m_Timers = new List<TimerInfo>(16);
+        private static LinkedList<TimerInfo> m_Timers = new LinkedList<TimerInfo>();
+
+        // #if PROFILER_DUMP
+        private static Dictionary<int, TimerInfo> m_TimersDic = new Dictionary<int, TimerInfo>(32);
+        // #endif
+
         private static int m_ActID = 1;
 
-#if PROFILER_DUMP && !PROFILER_NO_DUMP
-        private static System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-#endif
-
-#if DEBUG_TIMER
-        static Dictionary<int, string> m_TimerTraceDic = new Dictionary<int, string>();
-        // static string kDirName = Path.Combine("../Logs/",System.DateTime.Now.ToString("MM_dd HH_mm_ss")+"timer_profiler.txt");
-        // static StreamWriter logStreamWriter;
-        // static void WriteToLogFile(string content)
-        // {
-        //     if(logStreamWriter==null)
-        //     {
-        //         logStreamWriter = new StreamWriter(Path.Combine(Application.dataPath,kDirName),true);
-        //     }
-        //     logStreamWriter?.WriteLine(content);
-        //     logStreamWriter?.Flush();
-        // }
-#endif
         public static int Delay(System.Action<object> action, float time, object arg)
         {
             return Add(time, action, arg);
@@ -89,14 +77,9 @@ namespace Hugula.Framework
             timerInfo.begin = Time.frameCount;
             timerInfo.cycle = 1;
             timerInfo.currCycle++;
-            m_Timers.Add(timerInfo);
-
-#if DEBUG_TIMER
-            var str = EnterLua.LuaTraceback();
-            str = str.Replace("\r"," ").Replace("\n"," ");
-            m_TimerTraceDic.Add(timerInfo.id, str);
-            // WriteToLogFile($"\r\nadd DelayFrame(id={timerInfo.id},begin={timerInfo.begin},delay:{frame},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
-#endif
+            // m_Timers.Add(timerInfo);
+            m_Timers.AddLast(timerInfo);
+            m_TimersDic[timerInfo.id] = timerInfo;
             return timerInfo.id;
         }
 
@@ -111,7 +94,6 @@ namespace Hugula.Framework
             if (action == null)
                 throw new System.ArgumentNullException("action");
 
-
             var timerInfo = m_pool.Get();
             timerInfo.id = m_ActID++;
             timerInfo.action = action;
@@ -121,14 +103,8 @@ namespace Hugula.Framework
             timerInfo.begin = Time.unscaledTime;
             timerInfo.cycle = 1;
             timerInfo.currCycle++;
-            m_Timers.Add(timerInfo);
-#if DEBUG_TIMER
-            var str = EnterLua.LuaTraceback();
-            str = str.Replace("\r"," ").Replace("\n"," ");
-
-            m_TimerTraceDic.Add(timerInfo.id, str);
-            // WriteToLogFile($"\r\nadd Delay(id={timerInfo.id},begin={timerInfo.begin},delay:{delay},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
-#endif
+            m_Timers.AddLast(timerInfo);
+            m_TimersDic[timerInfo.id] = timerInfo;
             return timerInfo.id;
         }
 
@@ -145,28 +121,30 @@ namespace Hugula.Framework
             if (cycle < 0) cycle = int.MaxValue;
             timerInfo.cycle = cycle;
             timerInfo.currCycle++;
-            m_Timers.Add(timerInfo);
-#if DEBUG_TIMER
-            var str = EnterLua.LuaTraceback();
-            str = str.Replace("\r"," ").Replace("\n"," ");
-
-            m_TimerTraceDic.Add(timerInfo.id, str);
-            // WriteToLogFile($"\r\nadd Delay(id={timerInfo.id},begin={timerInfo.begin},delay:{delay},frameCount:{Time.frameCount},action:{action.GetHashCode()}) arg:{arg}\r\n:{str}");
-#endif
+            m_Timers.AddLast(timerInfo);
+            m_TimersDic[timerInfo.id] = timerInfo;
             return timerInfo.id;
         }
+
         public static void Remove(int id)
         {
-            for (int i = 0; i < m_Timers.Count; i++)
+            if (m_TimersDic.TryGetValue(id, out var timerInfo))
             {
-                if (m_Timers[i]?.id == id)
-                {
-                    m_Timers.RemoveAt(i);
-                    break;
-                }
+                m_Timers.Remove(timerInfo);
+                m_pool.Release(timerInfo);
+                m_TimersDic.Remove(id);
             }
         }
 
+        public static bool SetTimerName(int id, string name)
+        {
+            if (m_TimersDic.TryGetValue(id, out var timerInfo))
+            {
+                timerInfo.name = name;
+                return true;
+            }
+            return false;
+        }
         /// <summary>
         /// 清理所有的对象
         /// </summary>
@@ -177,6 +155,7 @@ namespace Hugula.Framework
                 t.OnDestroy();
             }
             m_Timers.Clear();
+            m_TimersDic.Clear();
         }
 
         static void ActionOnRelease(TimerInfo timerInfo)
@@ -184,6 +163,7 @@ namespace Hugula.Framework
             timerInfo.isFrame = false;
             timerInfo.id = 0;
             timerInfo.action = null;
+            timerInfo.name = string.Empty;
             timerInfo.arg = null;
             timerInfo.currCycle = 0;
             timerInfo.cycle = 1;
@@ -199,15 +179,12 @@ namespace Hugula.Framework
             TimerInfo timerInfo = null;
             System.Action<object> action = null;
             object arg = null;
-#if PROFILER_DUMP && !PROFILER_NO_DUMP
-            // var m_Timers_count = m_Timers.Count;
-            // var parentName = "Timer.UPdate:" +frameStr + ":" + m_Timers_count.ToString();
-            // var parent = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(parentName, null, null, true);
-#endif
+            string name = "";
+            int id = 0;
 
-            for (int i = 0; i < m_Timers.Count;)
+            for (var node = m_Timers.First; node != null;)
             {
-                timerInfo = m_Timers[i];
+                timerInfo = node.Value;
                 if ((!timerInfo.isFrame && timerInfo.begin + timerInfo.delay <= time)
                     || (timerInfo.isFrame && (int)timerInfo.begin + (int)timerInfo.delay <= frame)
                  )
@@ -215,19 +192,16 @@ namespace Hugula.Framework
 
                     action = timerInfo.action;
                     arg = timerInfo.arg;
-
-#if DEBUG_TIMER 
-                    var timeID = timerInfo.id.ToString();
-                    var timeTrace = $"Timer.trace id:{timeID},isDone:{timerInfo.isDone})" + m_TimerTraceDic[timerInfo.id];
-#endif
+                    name = timerInfo.name;
+                    id = timerInfo.id;
 
                     if (timerInfo.isDone)
                     {
-                        m_Timers.RemoveAt(i);
-#if DEBUG_TIMER
-                        m_TimerTraceDic.Remove(timerInfo.id);
-#endif
+                        var nextNode = node.Next;
+                        m_Timers.Remove(node);
+                        m_TimersDic.Remove(id);
                         m_pool.Release(timerInfo);
+                        node = nextNode;
                     }
                     else
                     {
@@ -242,13 +216,8 @@ namespace Hugula.Framework
                     try
                     {
 
-#if PROFILER_DUMP && !PROFILER_NO_DUMP && DEBUG_TIMER
-                        using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, null, true))
-                        {
-                            action(arg);
-                        }
-#elif !HUGULA_RELEASE 
-                        UnityEngine.Profiling.Profiler.BeginSample($"Timer.action {action.GetHashCode()}({arg}) {Time.frameCount}");
+#if !HUGULA_RELEASE || PROFILER_DUMP
+                        UnityEngine.Profiling.Profiler.BeginSample($"Timer.action:{id} {name}({arg})");
                         action(arg);
                         UnityEngine.Profiling.Profiler.EndSample();
 #else
@@ -262,7 +231,7 @@ namespace Hugula.Framework
                 }
                 else
                 {
-                    i++;
+                    node = node.Next;
                 }
 
                 if (FrameWatcher.IsTimeOver())
@@ -270,29 +239,6 @@ namespace Hugula.Framework
                     break;
                 }
             }
-
-#if PROFILER_DUMP && !PROFILER_NO_DUMP
-
-#if DEBUG_TIMER
-            if (m_Timers.Count > 6 && frame % 100 == 0)
-            {
-                var frameStr = frame.ToString();
-
-                for (int i = 0; i < m_Timers.Count; i++)
-                {
-                    timerInfo = m_Timers[i];
-                    var timeID = timerInfo.id.ToString();
-                    var timeTrace = $"Timer.waiting  frame:{frameStr}, id:{timeID},isDone:{timerInfo.isDone} " + m_TimerTraceDic[timerInfo.id];
-                    using (var c = Hugula.Profiler.ProfilerFactory.GetAndStartProfiler(timeTrace, null, null, true))
-                    {
-
-                    }
-                }
-            }
-#endif
-
-            // if (parent != null) parent.Stop();
-#endif
         }
 
         protected override void OnDestroy()
@@ -301,6 +247,7 @@ namespace Hugula.Framework
                 t.OnDestroy();
 
             m_Timers.Clear();
+            m_TimersDic.Clear();
 
             base.OnDestroy();
 

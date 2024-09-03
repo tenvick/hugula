@@ -187,25 +187,38 @@ namespace Hugula.ResUpdate
         }
 
         /// <summary>
-        /// 用remote的foldermanifest对比本地 找出差异文件
+        /// 用remote的foldermanifest对比本地 找出差异文件, retLocal==true返回自己否则返回remote
         /// </summary>
-        public List<FileResInfo> NotSafeCompare(FileManifest remote)
+        public List<FileResInfo> NotSafeCompare(FileManifest remote, bool retLocal = false)
         {
             List<FileResInfo> re = new List<FileResInfo>();
             if (remote == null) return re;
             var compareABInfos = remote.allFileInfos;
-            FileResInfo abInfo;
+            FileResInfo abInfo, localInfo;
+            bool isChanged = false;
             for (int i = 0; i < compareABInfos.Count; i++)
             {
                 abInfo = compareABInfos[i];
-                if (CheckFileIsChanged(abInfo))
+                localInfo = GetFileResInfo(abInfo.name);
+                isChanged = false;
+                if (localInfo == null) //本地不存在
                 {
-                    re.Add(abInfo);
+                    isChanged = !retLocal;
+                }
+                else
+                {
+                    isChanged = localInfo.crc32 != abInfo.crc32;//校验码不相等表示文件变更
+                }
+
+                if (isChanged)
+                {
+                    re.Add(retLocal ? localInfo : abInfo);
                 }
             }
 
             return re;
         }
+
 
         /// <summary>
         /// 移除自己相同的文件信息

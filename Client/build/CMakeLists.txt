@@ -39,10 +39,10 @@ if (NOT LUA_VERSION)
 endif()
 
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
-set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
+set(LUAJIT_SRC_PATH luajit-2.1-agentzh/src)
 
-message(STATUS "LUA_SRC_PATH: ${LUA_SRC_PATH}")
-set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
+message(STATUS "LUA_SRC_PATH:{LUA_SRC_PATH} LUAJIT_SRC_PATH: ${LUA_SRC_PATH}")
+
 #begin lua-rapidjson
 set (RAPIDJSON_SRC lua-rapidjson/source/rapidjson.cpp)
 set_property(

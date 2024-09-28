@@ -103,14 +103,14 @@ namespace HugulaEditor.ResUpdate
         {
             var allLuaBytesFiles = GetOutLuaBytesFileList();
 
-#if USE_LUA_SEPARATELY
+// #if USE_LUA_SEPARATELY
             var zipOutPath = Path.Combine(CUtils.realStreamingAssetsPath, Common.LUAFOLDER_NAME);
             if (Directory.Exists(zipOutPath)) Directory.Delete(zipOutPath, true);
             BuildScriptHotResUpdate.PackSeparatelyToOutPath(allLuaBytesFiles, zipOutPath, GetLuaBytesResourcesPath(), Common.BUNDLE_OFF_STR);
-#else
+// #else
 
-            BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
-#endif
+            // BuildScriptHotResUpdate.BuildABsTogether(allLuaBytesFiles, CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME, BuildScriptHotResUpdate.DefaultBuildAssetBundleOptions, BuildConfig.GetOffsetData());
+// #endif
         }
 
         public BundleManifest GenStreamingLuaBundleManifest()

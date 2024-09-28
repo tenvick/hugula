@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#define USE_LUA_JIT
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ICSharpCode.SharpZipLib.Zip;
@@ -48,6 +49,14 @@ namespace Hugula
                 ret = txt.bytes;
                 length = ret.Length;
                 Resources.UnloadAsset(txt); //释放ab资源
+
+#if USE_LUA_JIT && UNITY_STANDALONE
+                //decode
+                if(System.IntPtr.Size == 4)
+                    LuaByteCode.Patch32Bytecode(ret, out length);
+                else
+                    LuaByteCode.Patch64Bytecode(ret, out length);
+#endif
             }
             return ret;
         }
@@ -73,25 +82,36 @@ namespace Hugula
         public byte[] LoadBytes(string name, ref int length)
         {
             length = 0;
+            int len = 0;
             var buffer = LuaBytesBuffer.buffer;
             var path = ValueStrUtils.ConcatNoAlloc(m_Path, "/", name, ".bytes");     // Path.Combine(m_Path, name+ ".bytes");
             if (File.Exists(path))
             {
                 using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
-                    int len = (int)fileStream.Length;
+                    len = (int)fileStream.Length;
                     if (len > buffer.Length) //grow
                     {
                         buffer = new byte[len];
                         LuaBytesBuffer.buffer = buffer;
                     }
+                    
                     int nread = 0;
                     while (nread < len)
                     {
                         nread += fileStream.Read(buffer, nread, len - nread);
                     }
+                    len = nread;
                     length = nread;
                 }
+
+#if USE_LUA_JIT && UNITY_STANDALONE
+                //decode
+                if(System.IntPtr.Size == 4)
+                    LuaByteCode.Patch32Bytecode(buffer, out length,len);
+                else
+                    LuaByteCode.Patch64Bytecode(buffer, out length,len);
+#endif
             }
             return buffer;
         }
@@ -139,7 +159,7 @@ namespace Hugula
     }
 
 
-#if UNITY_ANDROID  && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
 
     /// <summary>
     /// android apk时候读取streamingasset目录下资源 
@@ -203,6 +223,13 @@ namespace Hugula
                 }
                 Marshal.Copy(ptr, buffer, 0, len);
                 ReleaseBytes(ptr);
+#if USE_LUA_JIT && UNITY_STANDALONE
+                //decode
+                if(System.IntPtr.Size == 4)
+                    LuaByteCode.Patch32Bytecode(buffer, out length,len);
+                else
+                    LuaByteCode.Patch64Bytecode(buffer, out length,len);
+#endif
             }
             else
             {

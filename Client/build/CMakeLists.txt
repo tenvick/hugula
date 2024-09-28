@@ -25,6 +25,7 @@ option ( USING_LUAJIT "using luajit" OFF )
 option ( GC64 "using gc64" OFF )
 option ( LUAC_COMPATIBLE_FORMAT "compatible format" OFF )
 option ( PBC "using pbc" OFF )
+option ( LUAJIT_ENABLE_LUA52COMPAT "luajit enable lua 5.2 compat" OFF )
 
 find_path(XLUA_PROJECT_DIR NAMES SConstruct
     PATHS 
@@ -39,10 +40,10 @@ if (NOT LUA_VERSION)
 endif()
 
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
-set(LUAJIT_SRC_PATH luajit-2.1-agentzh/src)
+set(LUAJIT_SRC_PATH  luajit-2.1.87ae18a/src)
 
-message(STATUS "LUA_SRC_PATH:{LUA_SRC_PATH} LUAJIT_SRC_PATH: ${LUA_SRC_PATH}")
-
+message(STATUS "LUA_SRC_PATH:${LUA_SRC_PATH} LUAJIT_SRC_PATH: ${LUAJIT_SRC_PATH}")
+message(STATUS "USING_LUAJIT: ${USING_LUAJIT} GC64: ${GC64} LUAC_COMPATIBLE_FORMAT: ${LUAC_COMPATIBLE_FORMAT} PBC: ${PBC} LUAJIT_ENABLE_LUA52COMPAT: ${LUAJIT_ENABLE_LUA52COMPAT}")
 #begin lua-rapidjson
 set (RAPIDJSON_SRC lua-rapidjson/source/rapidjson.cpp)
 set_property(
@@ -302,6 +303,11 @@ endif ( )
 
 if (GC64 AND USING_LUAJIT)
     target_compile_definitions (xlua PRIVATE LUAJIT_ENABLE_GC64)
+endif ()
+
+if (USING_LUAJIT AND LUAJIT_ENABLE_LUA52COMPAT)
+    target_compile_definitions (xlua PUBLIC LUAJIT_ENABLE_LUA52COMPAT)
+    message(STATUS "USING_LUAJIT AND LUAJIT_ENABLE_LUA52COMPAT = ${LUAJIT_ENABLE_LUA52COMPAT}")
 endif ()
 
 if (LUAC_COMPATIBLE_FORMAT AND NOT USING_LUAJIT)

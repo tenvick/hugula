@@ -1,9 +1,10 @@
 @echo off
+set LUAJIT_DIR=luajit-2.1.87ae18a
 
 call "D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 echo Swtich to x64 build env
-cd %~dp0\luajit-2.1-agentzh\src
+cd %~dp0\%LUAJIT_DIR%\src
 call msvcbuild_mt.bat static
 @REM call msvcbuild.bat static
 cd ..\..
@@ -18,16 +19,21 @@ md plugin_luajit\luac
 copy /Y build_lj64\RelWithDebInfo\xlua.dll plugin_luajit\Plugins\x86_64\xlua.dll
 copy /Y build_lj64\RelWithDebInfo\xlua.pdb plugin_luajit\Plugins\x86_64\xlua.pdb
 copy /Y build_lj64\RelWithDebInfo\xlua.dll ..\Assets\Plugins\x86_64\xlua.dll
-cd %~dp0\luajit-2.1-agentzh\src 
-mkdir "..\..\plugin_luajit\luac" 2>nul
-copy /Y luajit.exe ..\..\plugin_luajit\luac\luajit21_x64.exe
-mkdir "..\..\..\tools\luaTools\win\21-agentzh" 2>nul
-copy /Y luajit.exe ..\..\..\tools\luaTools\win\21-agentzh\luajit21_x64.exe
+cd %~dp0\%LUAJIT_DIR%\src 
+
+set luac_path = "..\..\plugin_luajit\luac"
+set tools_dir="..\..\..\tools\luaTools\win\%LUAJIT_DIR%"
+
+mkdir %luac_path% 2>nul
+copy /Y luajit.exe %luac_path%\luajit21_x64.exe
+mkdir %tools_dir% 2>nul
+copy /Y luajit.exe %tools_dir%\luajit21_x64.exe
+xcopy "jit" "%tools_dir%\jit" /E /I /Y
 
 call "D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars32.bat"
 
 echo Swtich to x86 build env
-cd %~dp0\luajit-2.1-agentzh\src
+cd %~dp0\%LUAJIT_DIR%\src
 call msvcbuild_mt.bat static
 @REM call msvcbuild.bat static
 cd ..\..
@@ -41,9 +47,9 @@ md plugin_luajit\Plugins\x86
 copy /Y build_lj32\RelWithDebInfo\xlua.dll plugin_luajit\Plugins\x86\xlua.dll
 copy /Y build_lj32\RelWithDebInfo\xlua.pdb plugin_luajit\Plugins\x86\xlua.pdb
 copy /Y build_lj32\RelWithDebInfo\xlua.dll ..\Assets\Plugins\x86\xlua.dll
-cd %~dp0\luajit-2.1-agentzh\src 
-copy /Y luajit.exe ..\..\plugin_luajit\luac\luajit21_x32.exe
-copy /Y luajit.exe ..\..\..\tools\luaTools\win\21-agentzh\luajit21_x32.exe
+cd %~dp0\%LUAJIT_DIR%\src 
+copy /Y luajit.exe %luac_path%\luajit21_x32.exe
+copy /Y luajit.exe %tools_dir%\luajit21_x32.exe
 
 
 pause

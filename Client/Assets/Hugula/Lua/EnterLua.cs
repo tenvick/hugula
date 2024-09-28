@@ -62,7 +62,7 @@ namespace Hugula
         {
             if (m_StreamingLuaBundle == null)
             {
-#if USE_LUA_SEPARATELY
+// #if USE_LUA_SEPARATELY
 
 #if UNITY_ANDROID && !UNITY_EDITOR
                // use android native read
@@ -72,11 +72,11 @@ namespace Hugula
                 m_StreamingLuaBundle = new StreamingLuaBytesRead(url);
 #endif
 
-#else
-                var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
-                url = CUtils.GetAndroidABLoadPath(url);
-                m_StreamingLuaBundle = new LuaBundleRead(url);
-#endif
+// #else
+//                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
+//                 url = CUtils.GetAndroidABLoadPath(url);
+//                 m_StreamingLuaBundle = new LuaBundleRead(url);
+// #endif
             }
             return m_StreamingLuaBundle;
         }
@@ -86,13 +86,13 @@ namespace Hugula
         {
             if (m_PersistentLuaBundle == null)
             {
-#if USE_LUA_SEPARATELY
+// #if USE_LUA_SEPARATELY
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
                 m_PersistentLuaBundle = new LuaBundleRead(url);
-#else
-                var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
-                m_PersistentLuaBundle = new LuaBundleRead(url);
-#endif
+// #else
+//                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
+//                 m_PersistentLuaBundle = new LuaBundleRead(url);
+// #endif
             }
             return m_PersistentLuaBundle;
         }

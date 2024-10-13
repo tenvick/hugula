@@ -4,7 +4,8 @@
 # http://opensource.org/licenses/MIT
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)  # or a more recent version
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
 
 if ( WIN32 AND NOT CYGWIN AND NOT ( CMAKE_SYSTEM_NAME STREQUAL "WindowsStore" ) AND NOT ANDROID)
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT" CACHE STRING "")
@@ -39,8 +40,12 @@ if (NOT LUA_VERSION)
     set(LUA_VERSION "5.3.5")
 endif()
 
+if (NOT LUAJIT_VERSION)
+    set(LUAJIT_VERSION "luajit-2.1.87ae18a")
+endif()
+
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
-set(LUAJIT_SRC_PATH  luajit-2.1.87ae18a/src)
+set(LUAJIT_SRC_PATH  ${LUAJIT_VERSION}/src)
 
 message(STATUS "LUA_SRC_PATH:${LUA_SRC_PATH} LUAJIT_SRC_PATH: ${LUAJIT_SRC_PATH}")
 message(STATUS "USING_LUAJIT: ${USING_LUAJIT} GC64: ${GC64} LUAC_COMPATIBLE_FORMAT: ${LUAC_COMPATIBLE_FORMAT} PBC: ${PBC} LUAJIT_ENABLE_LUA52COMPAT: ${LUAJIT_ENABLE_LUA52COMPAT}")
@@ -163,8 +168,11 @@ if (USING_LUAJIT)
 
 	    set ( LUA_CORE )
 	    set_property( SOURCE xlua.c APPEND PROPERTY COMPILE_DEFINITIONS USING_LUAJIT )
+        
     endif ()
 	set ( LUA_LIB )
+    message(STATUS "LUAJIT LUA_CORE: ${LUA_CORE}")
+
 else ()
 	set ( LUA_IDSIZE 120 CACHE STRING "gives the maximum size for the description of the source." )
 

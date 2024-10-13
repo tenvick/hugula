@@ -85,9 +85,14 @@ namespace HugulaEditor
                     string dest = LUA_OUT_PATH + "/" + xfile;
                     string destName = dest.Substring(0, dest.Length - 3) + "bytes";
                     dests[i] = destName;
-#if USE_LUA_JIT && UNITY_STANDALONE
+#if USE_LUA_JIT 
+                    var only64 = true;
+#if UNITY_ANDROID
+                    only64 = false; //android 平台需要同时支持32位和64位
+#endif
+
                     if(Path.GetFileName(file)!= "bit.lua")
-                        LuaJitCmd(file, destName, true);
+                        LuaJitCmd(file, destName, true,only64);
 #else
                     LuacCMD(file, destName);
 #endif
@@ -147,13 +152,14 @@ namespace HugulaEditor
             {
                 try
                 {
-                    var argStr = string.Format("-b -X -d {0} {1}", source, dest+".64");
+                    var argStr = string.Format("-b -X -g -d {0} {1}", source, dest+".64");
                     Debug.Log(argStr);
                     LuaJitProcess(argStr,"luajit21_x64");
 
-                    argStr = string.Format("-b -W -d {0} {1}", source, dest+".32");
-                    if(!del) Debug.Log(argStr);
-                    LuaJitProcess(argStr,"luajit21_x32");
+                    argStr = string.Format("-b -W -g -d {0} {1}", source, dest+".32");
+                    Debug.Log(argStr);
+
+                    LuaJitProcess(argStr,"luajit21_x64");
 
                     var code64 = File.ReadAllBytes(dest + ".64");
                     var code32 = File.ReadAllBytes(dest + ".32");
@@ -172,14 +178,14 @@ namespace HugulaEditor
             }
             else
             {
-                var argStr = string.Format("-b -X -d {0} {1}", source, dest);
+                var argStr = string.Format("-b -X -g -d {0} {1}", source, dest);
                 Debug.Log(argStr);
-                LuaJitProcess(argStr,"luaji21t_x64");
+                LuaJitProcess(argStr,"luajit21_x64");
             }
            
         }
 
-        static byte[] LuaJitProcess(string argStr,string fileName="luajit_x32")
+        static byte[] LuaJitProcess(string argStr,string fileName="luajit21_x64")
         {
             byte[] ret = null;
             using (System.Diagnostics.Process p = new System.Diagnostics.Process())
@@ -188,7 +194,7 @@ namespace HugulaEditor
 #if UNITY_EDITOR_WIN
                 p.StartInfo.FileName = Application.dataPath + $"/../tools/luaTools/win/luajit-2.1.87ae18a/{fileName}.exe";
 #elif UNITY_EDITOR_OSX
-            p.StartInfo.FileName = "/usr/local/bin/luac546";
+            p.StartInfo.FileName = $"/usr/local/bin/{fileName}";
             // p.StartInfo.FileName = "luac535";
 #endif
                 p.StartInfo.Arguments = argStr;
@@ -219,6 +225,10 @@ namespace HugulaEditor
 
         static void LuacCMD(string source, string dest)
         {
+#if UPR_LUA_PROFILER && !HUGULA_RELEASE //非release情况下使用源码
+            //测试时候使用源码
+            File.Copy(source, dest, true);
+#else
             var argStr = string.Format("-o {0} {1}", dest, source, LUA_ROOT_PATH);
             Debug.Log(argStr);
             using (System.Diagnostics.Process p = new System.Diagnostics.Process())
@@ -252,6 +262,7 @@ namespace HugulaEditor
                     Debug.Log(dest + " 导出成功!");
                 }
             }
+#endif
         }
     }
 }

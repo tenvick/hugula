@@ -171,10 +171,10 @@ namespace Hugula
         static byte[] ConstructBytecodeDelta(byte[] bytecode64, byte[] bytecode32)
         {
             // expect same length on 32 and 64 bit bytecode if storing a delta
-            if (bytecode32.Length > bytecode64.Length)
-            {
-                throw new Exception($"Byte code length mismatch  bytecode32.Length{bytecode32.Length} > bytecode64.Length{bytecode64.Length}");
-            }
+            // if (bytecode32.Length > bytecode64.Length)
+            // {
+            //     throw new Exception($"Byte code length mismatch  bytecode32.Length{bytecode32.Length} > bytecode64.Length{bytecode64.Length}");
+            // }
 
             /**
             * Calculate the difference/delta between the 64-bit and 32-bit
@@ -199,6 +199,7 @@ namespace Hugula
             {
                 int i = 0;
                 var len = bytecode32.Length;
+                var bytecode64Length = bytecode64.Length;
                 while (i < len)
                 {
                     // find sequences of consecutive bytes that differ
@@ -206,7 +207,7 @@ namespace Hugula
                     int count = 0;
                     while (count < 255 && (i + count) < len)
                     {
-                        if (bytecode32[i + count] == bytecode64[i + count])
+                        if (bytecode64Length > i+count &&  bytecode32[i + count] == bytecode64[i + count]) //检测范围
                         {
                             break;
                         }
@@ -248,6 +249,7 @@ namespace Hugula
                         i += 1;
                     }
                 }
+               
 
                 return ms.ToArray();
             }

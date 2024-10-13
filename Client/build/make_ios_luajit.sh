@@ -1,6 +1,7 @@
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 LIPO="xcrun -sdk iphoneos lipo"
 STRIP="xcrun -sdk iphoneos strip"
+LUAJIT_PATH=luajit-2.1.87ae18a
 
 IXCODE=`xcode-select -print-path`
 ISDK=$IXCODE/Platforms/iPhoneOS.platform/Developer
@@ -19,11 +20,11 @@ if [ ! -e $ISDKP/strip ]; then
   sudo cp /usr/bin/strip $ISDKP
 fi
 
-cd luajit-2.1.0b3
+cd $LUAJIT_PATH
 
 XCODEVER=`xcodebuild -version|head -n 1|sed 's/Xcode \([0-9]*\)/\1/g'`
-
-if [ $XCODEVER -lt 10]
+ISOLD_XCODEVER=`echo "$XCODEVER < 10" | bc`
+if [ ISOLD_XCODEVER == 1 ]
 then
     make clean
     ISDKF="-arch armv7 -isysroot $ISDK/SDKs/$ISDKVER -miphoneos-version-min=7.0"
@@ -36,17 +37,22 @@ then
 fi
 
 make clean
-ISDKF="-arch arm64 -isysroot $ISDK/SDKs/$ISDKVER -miphoneos-version-min=7.0"
+ISDKF="-arch arm64 -isysroot $ISDK/SDKs/$ISDKVER -miphoneos-version-min=7.0 -DLJ_NO_SYSTEM"
 make HOST_CC="gcc -std=c99" TARGET_FLAGS="$ISDKF" TARGET=arm64 TARGET_SYS=iOS LUAJIT_A=libxlua64.a
 
 cd src
-lipo libxluav7.a -create libxluav7s.a libxlua64.a -output libluajit.a
+if [ ISOLD_XCODEVER == 1 ]
+then
+    lipo libxluav7.a -create libxluav7s.a libxlua64.a -output libluajit.a
+else
+    mv libxlua64.a libluajit.a
+fi
 cd ../..
 
 mkdir -p build_lj_ios && cd build_lj_ios
-cmake -DUSING_LUAJIT=ON  -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPLATFORM=OS64  -GXcode ../
+cmake -DUSING_LUAJIT=ON  -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DCMAKE_C_FLAGS="-DLJ_NO_SYSTEM" -GXcode ../
 cd ..
 cmake --build build_lj_ios --config Release
 
 mkdir -p plugin_luajit/Plugins/iOS/
-libtool -static -o plugin_luajit/Plugins/iOS/libxlua.a build_lj_ios/Release-iphoneos/libxlua.a luajit-2.1.0b3/src/libluajit.a
+libtool -static -o plugin_luajit/Plugins/iOS/libxlua.a build_lj_ios/Release-iphoneos/libxlua.a $LUAJIT_PATH/src/libluajit.a

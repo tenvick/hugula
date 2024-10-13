@@ -50,7 +50,7 @@ namespace Hugula
                 length = ret.Length;
                 Resources.UnloadAsset(txt); //释放ab资源
 
-#if USE_LUA_JIT && UNITY_STANDALONE
+#if USE_LUA_JIT && UNITY_ANDROID
                 //decode
                 if(System.IntPtr.Size == 4)
                     LuaByteCode.Patch32Bytecode(ret, out length);
@@ -105,7 +105,7 @@ namespace Hugula
                     length = nread;
                 }
 
-#if USE_LUA_JIT && UNITY_STANDALONE
+#if USE_LUA_JIT && UNITY_ANDROID
                 //decode
                 if(System.IntPtr.Size == 4)
                     LuaByteCode.Patch32Bytecode(buffer, out length,len);
@@ -223,7 +223,7 @@ namespace Hugula
                 }
                 Marshal.Copy(ptr, buffer, 0, len);
                 ReleaseBytes(ptr);
-#if USE_LUA_JIT && UNITY_STANDALONE
+#if USE_LUA_JIT
                 //decode
                 if(System.IntPtr.Size == 4)
                     LuaByteCode.Patch32Bytecode(buffer, out length,len);

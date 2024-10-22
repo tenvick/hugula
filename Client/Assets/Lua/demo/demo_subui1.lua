@@ -104,12 +104,13 @@ end
 --     -- body
 -- end
 --------------------    事件响应    --------------------
-demo_subui1.on_btn_click = {
+---
+demo_subui1.btn_sct_del = {
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
-        -- VMState:push(VMGroup.welcome)
+        print("btn_sct_del",arg)
     end
 }
 

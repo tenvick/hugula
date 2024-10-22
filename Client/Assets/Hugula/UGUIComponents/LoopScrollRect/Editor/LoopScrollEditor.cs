@@ -101,14 +101,14 @@ namespace HugulaEditor.UIComponents
 
         protected SerializedProperty m_Columns;
         protected SerializedProperty m_ItemSource;
-        protected SerializedProperty m_RenderPerFrames;
+        protected SerializedProperty m_RemoveEasing;
         protected SerializedProperty m_ItemSize;
         protected SerializedProperty m_Padding;
 
         protected SerializedProperty m_SelectedIndex;
         protected SerializedProperty m_ScrollTime;
         protected SerializedProperty m_ScrollDataSize;
-
+        protected SerializedProperty m_ContentLocalStart;
         protected SerializedProperty m_Content;
         protected SerializedProperty m_Horizontal;
         protected SerializedProperty m_Vertical;
@@ -133,6 +133,7 @@ namespace HugulaEditor.UIComponents
 
         protected virtual void OnEnable()
         {
+            m_ContentLocalStart = serializedObject.FindProperty("m_ContentLocalStart");
             m_Content = serializedObject.FindProperty("m_Content");
             m_Horizontal = serializedObject.FindProperty("m_Horizontal");
             m_Vertical = serializedObject.FindProperty("m_Vertical");
@@ -160,7 +161,7 @@ namespace HugulaEditor.UIComponents
             // m_Viewport.serializedObject =  (RectTransform)((GameObject)target).transform;
             //新增加属性
             m_ItemSource = serializedObject.FindProperty("m_ItemSource");
-            m_RenderPerFrames = serializedObject.FindProperty("m_RenderPerFrames");
+            m_RemoveEasing = serializedObject.FindProperty("m_RemoveEasing");
             m_ItemSize = serializedObject.FindProperty("m_ItemSize");
             m_Padding = serializedObject.FindProperty("m_Padding");
             m_Columns = serializedObject.FindProperty("m_Columns");
@@ -353,7 +354,7 @@ namespace HugulaEditor.UIComponents
             serializedObject.Update();
             // Once we have a reliable way to know if the object changed, only re-cache in that case.
             CalculateCachedValues();
-
+            EditorGUILayout.PropertyField(m_ContentLocalStart);
             EditorGUILayout.PropertyField(m_Content);
 
             PropertyFieldChooseMono(m_ItemSource);
@@ -362,7 +363,7 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_ItemSize);
             EditorGUILayout.PropertyField(m_Padding);
             EditorGUILayout.PropertyField(m_Columns);
-            EditorGUILayout.PropertyField(m_RenderPerFrames);
+            EditorGUILayout.PropertyField(m_RemoveEasing);
             EditorGUILayout.PropertyField(m_SelectedIndex);
             EditorGUILayout.PropertyField(m_ScrollTime);
             EditorGUILayout.PropertyField(m_ScrollDataSize);

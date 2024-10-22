@@ -59,6 +59,7 @@ mail_list:InsertRange(create_tmp_data()) ---初始化数据
 local index, last_index = 0, -1
 
 demo_subui.mail_list = mail_list
+demo_subui.select_item = nil
 ------------------------------------------------------
 ---列表选中
 demo_subui.on_item_select = {
@@ -66,11 +67,11 @@ demo_subui.on_item_select = {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("on_item_select", arg.selectedIndex)
+        Logger.Log("on_item_select", arg.selectedIndex,arg)
         index = arg.selectedIndex
 
         local item = mail_list:get_Item(index)
-
+        demo_subui.select_item = item
         VMState:push_item("demo_subui1", item)
         -- if last_index >= 0 and index ~= last_index then
         --     local last_item = mail_list.items[last_index + 1]
@@ -86,6 +87,16 @@ demo_subui.on_item_select = {
         -- end
 
         -- last_index = index
+    end
+}
+
+demo_subui.btn_sct_del = {
+    CanExecute = function(self, arg)
+        return demo_subui.select_item ~= nil
+    end,
+    Execute = function(self, arg)
+        mail_list:Remove(demo_subui.select_item)
+        Logger.Log("btn_sct_del", demo_subui.select_item.title)
     end
 }
 

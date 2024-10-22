@@ -66,12 +66,12 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        public int renderPerFrames
+        public bool removeEasing
         {
-            get { return target.renderPerFrames; }
+            get { return target.removeEasing; }
             set
             {
-                target.renderPerFrames = value;
+                target.removeEasing = value;
                 OnPropertyChanged();
             }
         }
@@ -108,15 +108,15 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        public Func<object, int, Component, int, RectTransform, Component> onGetItem
-        {
-            get { return target.onGetItem; }
-            set
-            {
-                target.onGetItem = value;
-                OnPropertyChanged();
-            }
-        }
+        // public Func<object, int, Component, int, RectTransform, Component> onGetItem
+        // {
+        //     get { return target.onGetItem; }
+        //     set
+        //     {
+        //         target.onGetItem = value;
+        //         OnPropertyChanged();
+        //     }
+        // }
 
         public Action<object, object, int> onItemRender
         {

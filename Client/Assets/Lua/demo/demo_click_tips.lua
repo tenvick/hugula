@@ -1,7 +1,7 @@
 ------------------------------------------------
 --  Copyright © 2013-2021   Hugula mvvm framework
 --  discription demo_click_tips
---  author 
+--  author
 --  date
 ------------------------------------------------
 local View = View
@@ -22,14 +22,14 @@ local UnityEngine = CS.UnityEngine
 ---@type demo_click_tips
 local demo_click_tips = VMBase()
 demo_click_tips.views = {
-    View(demo_click_tips, {key = "demo_click_tips"}) ---加载prefab
+    View(demo_click_tips, { key = "demo_click_tips" }) ---加载prefab
 }
 
 --------------------    绑定属性    --------------------
 ----  demo_click_tips  ----
-demo_click_tips.pos= UnityEngine.Vector3(0,0,0)
-demo_click_tips.sprite=""
-demo_click_tips.tips=""
+demo_click_tips.pos = UnityEngine.Vector3(0, 0, 0)
+demo_click_tips.sprite = ""
+demo_click_tips.tips = ""
 ----  demo_click_tips end  --
 
 
@@ -43,14 +43,21 @@ end
 
 -------------------     事件响应    --------------------
 
-
+demo_click_tips.on_close_click = {
+    CanExecute = function(...)
+        return true
+    end,
+    Execute = function(...)
+        VMState:popup_item("demo_click_tips")
+    end
+}
 --------------------    生命周期    --------------------
 
 --VMState:push(vm_name,arg) push过来的arg，此时view资源可能还没准备好
 function demo_click_tips:on_push_arg(arg)
-    Logger.Log(" select ",arg)
+    Logger.Log(" select ", arg)
     local property = self.property
-    property.tips =  arg.name
+    property.tips = arg.name
     property.sprite = arg.icon
     self:OnPropertyChanged("pos") --强制刷新位置
 end

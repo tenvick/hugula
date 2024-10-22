@@ -1,4 +1,6 @@
 ﻿// #define TEST
+using Hugula.Databinding;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +12,16 @@ namespace Hugula.UIComponents
     [XLua.LuaCallCSharp]
     public class LoopScrollRect : LoopScrollBase
     {
+        /// <summary>
+        /// 当在顶部或者底部释放的时候触发。
+        /// </summary>
+        public ICommand droppedCommand { get; set; }
+
+        /// <summary>
+        /// 当在顶部或者底部释放的时候触发。
+        /// </summary>
+        public Action<Vector2> onDropped { get; set; }
+
         protected override void ScrollLoopItem()
         {
             bool tween = isTweening;
@@ -73,11 +85,11 @@ namespace Hugula.UIComponents
             }
         }
 
-        protected override void LayOut(LoopItem loopItem) //
+        protected override void LayOut(LoopItem loopItem, int index) //
         {
 
             RectTransform rectTran = loopItem.transform;
-            int index = loopItem.index;
+            // int index = loopItem.index;
             var rect = rectTran.rect;
             rect.height = -Mathf.Abs(rect.height);
             Vector2 pos = Vector2.zero;
@@ -101,11 +113,40 @@ namespace Hugula.UIComponents
             rect.position = pos;
             pos = pos + m_ContentLocalStart; //开始位置
 
-            // Debug.LogFormat("SetInsetAndSizeFromParentEdge pos={0},width={1} ", pos, rectTran.rect.width);
             rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
             rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
-
         }
+
+        protected Vector2 EasingLayout(LoopItem loopItem, int index, float time)
+        {
+            RectTransform rectTran = loopItem.transform;
+            var rect = rectTran.rect;
+            rect.height = -Mathf.Abs(rect.height);
+            Vector2 pos = Vector2.zero;
+            if (this.columns == 0) //单行
+            {
+                pos.x = (rect.width + this.halfPadding) * index + this.halfPadding; // + rect.width * .5f;
+                pos.y = -halfPadding;
+            }
+            else if (columns == 1) //单列 需要宽度适配
+            {
+                pos.x = halfPadding;
+                pos.y = (rect.height - this.halfPadding) * index - this.halfPadding; // rect.height * .5f ;
+            }
+            else // 多行
+            {
+                int x = index % columns;
+                pos.x = (rect.width + this.halfPadding) * x + this.halfPadding; // + rect.width * .5f;
+                int y = index / columns;
+                pos.y = (rect.height - this.halfPadding) * y - this.halfPadding; // rect.height * .5f ;
+            }
+            pos = pos + m_ContentLocalStart; //开始位置
+            var begin = rectTran.anchoredPosition;
+            var pos1 = Vector2.Lerp(begin, pos, time);
+
+            return pos1;
+        }
+
 
         protected override void CalcBounds()
         {
@@ -116,22 +157,35 @@ namespace Hugula.UIComponents
                 Vector2 delt = new Vector2(rect.width, rect.height);
                 if (columns <= 0) //只有一行，为了高度适配不设置sieDelta.y
                 {
-                    delt.x = dataLength * (itemSize.x + this.halfPadding) + this.halfPadding;
+                    delt.x = dataLength * (itemSize.x + this.halfPadding) + this.halfPadding + Mathf.Abs(m_ContentLocalStart.x);
                 }
                 else if (columns == 1) //只有一列的时候为了 宽度适配不设置sieDelta.x
                 {
-                    delt.y = (itemSize.y + this.halfPadding) * dataLength + this.halfPadding;
+                    delt.y = (itemSize.y + this.halfPadding) * dataLength + this.halfPadding + Mathf.Abs(m_ContentLocalStart.y);
                 }
                 else
                 {
-                    delt.x = columns * (itemSize.x + this.halfPadding) + this.halfPadding;
+                    delt.x = columns * (itemSize.x + this.halfPadding) + this.halfPadding + Mathf.Abs(m_ContentLocalStart.x);
                     int y = (int)Mathf.Ceil((float)dataLength / (float)columns);
-                    delt.y = (itemSize.y + this.halfPadding) * y + this.halfPadding;
+                    delt.y = (itemSize.y + this.halfPadding) * y + this.halfPadding + Mathf.Abs(m_ContentLocalStart.y);
                 }
 
                 content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, delt.x);
                 content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, delt.y);
             }
+        }
+
+        public override void RemoveAt(int index, int count = 1)
+        {
+            base.RemoveAt(index, count);
+
+            if (m_Coroutine != null)
+            {
+                StopCoroutine(m_Coroutine);
+                m_Coroutine = null;
+            }
+
+            StartCoroutine(DeleteTweenMoveToPos());
         }
 
         [SerializeField]
@@ -253,8 +307,12 @@ namespace Hugula.UIComponents
                     UpdateViewPointBounds();
                     ScrollLoopItem();
                     tweenDir = Vector2.zero;
-                    StopCoroutine(m_Coroutine);
-                    m_Coroutine = null;
+                    if (m_Coroutine != null)
+                    {
+                        StopCoroutine(m_Coroutine);
+                        m_Coroutine = null;
+                    }
+
                 }
                 else
                 {
@@ -265,6 +323,32 @@ namespace Hugula.UIComponents
 
         }
         protected Coroutine m_Coroutine = null;
+
+        protected IEnumerator DeleteTweenMoveToPos()
+        {
+            float t = removeEasing?0:1;
+            while (true)
+            {
+                t += Time.deltaTime;
+                for (int i = 0; i < m_Pages.Count; i++)
+                {
+                    var item = m_Pages[i];
+                    if (item.posDirty && item.index >= 0)
+                    {
+                        var pos = EasingLayout(item, item.index, t);//得到目标点位置
+                        RectTransform rectTran = item.transform;
+                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                        if (t >= 1)
+                        {
+                            item.posDirty = false;
+                        }
+                    }
+                }
+                if (t >= 1) yield break;
+                yield return null;
+            }
+        }
 
         #region  drag
         private int m_CurrHeadIdx;
@@ -295,6 +379,10 @@ namespace Hugula.UIComponents
                 // ScrollToIndex(idx);
                 setScrollIndex = idx;
             }
+
+            if (onDropped != null) onDropped(content.anchoredPosition);
+            if (droppedCommand != null && droppedCommand.CanExecute(eventData.position))
+                droppedCommand.Execute(eventData.position);
             //滚动到
         }
         #endregion

@@ -483,7 +483,8 @@ local function remove_item(self, obj)
     local index = table.indexof(items, obj)
     -- index = index + 1
     if index == nil then
-        error(" Argument index Out of Range " .. tostring(self))
+        -- error(" Argument index Out of Range " .. tostring(self))
+        return
     end
 
     local old = table_remove(items, index)

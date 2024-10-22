@@ -15,7 +15,7 @@ local Color = UnityEngine.Color
 local bag = VMBase()
 --UI资源
 bag.views = {
-    View(bag, {key = "bag"})
+    View(bag, { key = "bag" })
 }
 ----------------------------------申明属性名用于绑定--------------
 local property_selected_trigger = "selected_trigger"
@@ -37,7 +37,7 @@ items.on_item_click = {
     end,
     Execute = function(self, arg)
         -- Logger.Log(" delete ", arg)
-        items:RemoveRange({arg})
+        items:RemoveRange({ arg })
     end
 }
 
@@ -62,13 +62,13 @@ local function create_item(i)
     it.quality = tostring(math.random(0, 10))
     it.count = tostring(math.random(1, 5))
     it.selected = false
-    it.index = i
+    -- it.index = i
     return it
 end
 
 local function create_tmp_data()
     local datas = {}
-    for i = 1, 60 do
+    for i = 0, 99 do
         table.insert(datas, create_item(i))
     end
     return datas
@@ -100,31 +100,30 @@ function bag:on_deactive()
     VMState:popup_item("demo_click_tips")
 end
 
-
 ---------------------------------点击事件处理------------------------------------
 bag.selected_item = nil
 bag.selected_trigger = "fadeIn"
 
-bag.on_item_changed = {
-    CanExecute = function(...)
-        return true
-    end,
-    Execute = function(self, arg)
-        local arg0 = arg[0]
-        local arg1 = arg[1]
+-- bag.on_item_changed = {
+--     CanExecute = function(...)
+--         return true
+--     end,
+--     Execute = function(self, arg)
+--         local arg0 = arg[0]
+--         local arg1 = arg[1]
 
-        local old_item = items:get_Item(arg0 - 1)
-        local new_item = items:get_Item(arg1 - 1)
-        if not old_item or not new_item then
-            return
-        end
-        -- if not items:get_Item(arg0) or not items:get_Item(arg1) then return end
-        old_item.index = arg1
-        new_item.index = arg0
-        items:Move(arg0 - 1, arg1 - 1)
-        Logger.LogTable(items.items)
-    end
-}
+--         local old_item = items:get_Item(arg0 - 1)
+--         local new_item = items:get_Item(arg1 - 1)
+--         if not old_item or not new_item then
+--             return
+--         end
+--         -- if not items:get_Item(arg0) or not items:get_Item(arg1) then return end
+--         old_item.index = arg1
+--         new_item.index = arg0
+--         items:Move(arg0 - 1, arg1 - 1)
+--         Logger.LogTable(items.items)
+--     end
+-- }
 
 bag.on_item_select = {
     CanExecute = function(self, arg)
@@ -134,7 +133,7 @@ bag.on_item_select = {
         local index = arg.selectedIndex
         --播放动画
         bag:OnPropertyChanged(property_selected_trigger)
-
+        print("on_item_select", index)
         -- 显示详细
         local item_data = items:get_Item(index)
         --刷新详细数据
@@ -153,8 +152,21 @@ bag.on_add_click = {
         return true
     end,
     Execute = function(...)
-        local size = #items.items + 1
+        local size = #items.items + math.random(1, 5)
         items:Add(create_item(size))
+    end
+}
+
+---点击添加数据按钮
+bag.on_del_click = {
+    CanExecute = function(self, arg)
+        return arg.selectedIndex >= 0
+    end,
+    Execute = function(self, arg)
+        print("on_del_click", arg.selectedIndex)
+        -- local item_data = items:get_Item(arg.selectedIndex)
+
+        items:RemoveAt(arg.selectedIndex)
     end
 }
 
@@ -178,17 +190,18 @@ bag.on_insert_click = {
 }
 
 ---------------------------------渲染处理------------------------------------
-function bag.on_item_context(bc,item_data)
+function bag.on_item_context(bc, item_data)
     bc["count"].text = item_data.count
+    bc["name"].text = item_data.name
 end
-
 
 --显示选中的项
 local valueConverterRegister = CS.Hugula.Databinding.ValueConverterRegister.instance
 function bag.on_select_render(select, item)
     select["Icon"].spriteName = item.icon
-    select["Border"].sprite =  valueConverterRegister:Get("StringToSprite"):Convert(item.quality)
+    select["Border"].sprite = valueConverterRegister:Get("StringToSprite"):Convert(item.quality)
     select["Text"].text = item.count
+    print("on_select_render", item.name)
 end
 
 return bag

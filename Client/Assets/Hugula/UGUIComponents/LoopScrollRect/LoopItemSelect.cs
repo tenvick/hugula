@@ -38,6 +38,7 @@ namespace Hugula.UIComponents {
         }
 
         public void InitSytle (LoopItem loopItem, ILoopSelect loopScrollBase) {
+            loopItem.loopSelectStyle = this; //保存
             this.m_LoopItem = loopItem;
             this.loopScrollBase = loopScrollBase;
         }
@@ -55,6 +56,8 @@ namespace Hugula.UIComponents {
         void OnDestroy () {
             if (clickBtn)
                 clickBtn.onClick.RemoveListener (OnSelect);
+            if(m_LoopItem!=null)
+                m_LoopItem.loopSelectStyle = null;
             selected = null;
             clickBtn = null;
             m_LoopItem = null;
@@ -63,10 +66,16 @@ namespace Hugula.UIComponents {
     }
 
     public class LoopItem {
-        public int templateType = 0; //当前项的模板类型
-        public int index = -1; //对应data的索引
-        public Component item; //clone的模板项
-        public RectTransform transform; //
+        internal int templateType = 0; //当前项的模板类型
+        internal int index = -1; //对应data的索引
+        internal Component item; //clone的模板项
+        internal RectTransform transform; //
+        /// <summary>
+        /// 需要重新计算位置，删除条目后需要缓动标记
+        /// </summary>
+        internal bool posDirty = false; //是否需要布局
+
+        internal ILoopSelectStyle loopSelectStyle;//当前项的选中样式
 
     }
 

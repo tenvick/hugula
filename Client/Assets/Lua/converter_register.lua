@@ -51,10 +51,24 @@ local number_to_string = {
     end
 }
 
+local obj_to_bool = {
+    Convert = function(self, source_value, type)
+        if source_value == nil then
+            return false
+        else
+            return true
+        end
+    end,
+    ConvertBack = function(self, target_value, type)
+        return target_value
+    end
+}
+
 -- converter.number_to_string= number_to_string
 
 ValueConverterRegister:AddConverter("StringToNumber", string_to_number)
 ValueConverterRegister:AddConverter("NumberToString", number_to_string)
+ValueConverterRegister:AddConverter("ObjToBool", obj_to_bool)
 
 ---------------------得到当前点击ui--------------------------
 

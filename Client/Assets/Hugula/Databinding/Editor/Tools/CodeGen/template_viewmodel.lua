@@ -1,21 +1,20 @@
 ------------------------------------------------
---  Copyright © 2013-2021   Hugula mvvm framework
+--  Copyright © 2013-2024   Hugula mvvm framework
 --  discription {name}
---  author 
---  date
+--  author {author}
+--  date {date}
 ------------------------------------------------
 local View = View
 local VMState = VMState
-local VMGroup = VMGroup
+local NotifyTable = NotifyTable
+local NotifyObject = NotifyObject
 --lua
 local DIS_TYPE = DIS_TYPE
 -- local lua_binding = lua_binding
 -- local lua_unbinding = lua_unbinding
 local Rpc = Rpc
 --C#
--- local CS = CS
--- local GlobalDispatcher = GlobalDispatcher
--- local DispatcherEvent = DispatcherEvent
+local CS = CS
 
 ---@class {name}:VMBase
 ---@type {name}
@@ -23,51 +22,42 @@ local {name} = VMBase()
 {name}.views = {
     View({name}, {key = "{name}"}) ---加载prefab
 }
+--------------------    定义变量    --------------------
 
---------------------    绑定属性    --------------------
+
+
+--------------------    模板生成 绑定属性    --------------------
 {property}
 
---------------------    消息处理    --------------------
-{message}
-
--------------------     公共方法    --------------------
+-------------------    模板生成 方法    --------------------
 {method}
 
--------------------     事件响应    --------------------
+-------------------    模板生成 事件响应    --------------------
 {command}
 
+--------------------    自定义  消息处理    --------------------
+{message}
+
+-------------------     自定义 方法   --------------------
+
+
 --------------------    生命周期    --------------------
-
---VMState:push(vm_name,arg) push过来的arg，此时view资源可能还没准备好
 function {name}:on_push_arg(arg)
-end
 
---从stack里返回激活调用
-function {name}:on_back()
 end
 
 --view资源全部加载完成时候调用
-function {name}:on_assets_load()
-    Logger.Log("{name}:on_assets_load")
-end
+-- function {name}:on_assets_load()
+--     Logger.Log("{name}:on_assets_load")
+-- end
 
---view激活时候调用
 function {name}:on_active()
     Logger.Log("{name}:on_active")
 end
 
---view失活调用
 function {name}:on_deactive()
     Logger.Log("{name}:on_deactive")
 end
-
--- --状态切换之前
--- function {name}:on_state_changing()
--- end
-
--- --状态切换完成后
--- function {name}:on_state_changed(last_group_name)
--- end
 
 -- --在销毁的时候调用此函数
 -- function {name}:on_destroy()
@@ -84,7 +74,6 @@ return {name}
 --[[
 
 vm_config.{name} = {vm = "viewmodels.{name}", gc_type = VM_GC_TYPE.ALWAYS} 
-
 vm_group.{name} = {"{name}"}
 
 ---]]

@@ -1,27 +1,10 @@
-
-function {name}:add_{0}(data)
-    {name}.{0}:Add(data)
+function {name}:add_{property}(data) {data_path}:Add(data) end
+function {name}:update_{property}(data)
+    local index = {data_path}:FindIndex(function(i, v) return v.eid == data.eid end)
+    if index ~= nil then {data_path}:set_Item(index, data) end
 end
-
-function {name}:update_{0}(data)
-    local index ={name}.{0}:FindIndex(
-        function(i, v)
-            return v.id == data.id
-        end
-    )
-    if index then
-       {name}.{0}:set_Item(index, data) --更新数据
-    end
+function {name}:remove_{property}(data)
+    local index = {data_path}:FindIndex(function(i, v) return v.eid == data.eid end)
+    if index ~= nil then {data_path}:RemoveAt(index) end
 end
-
-function {name}:remove_{0}(data)
-    local index =
-        {name}.{0}:FindIndex(
-        function(i, v)
-            return v.id == data.id
-        end
-    )
-    if index ~= nil then
-        {name}.{0}:RemoveAt(index)
-    end
-end
+function {name}:clear_{property}() {data_path}:Clear() end

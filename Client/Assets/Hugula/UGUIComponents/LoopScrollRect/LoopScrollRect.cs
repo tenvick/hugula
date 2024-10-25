@@ -54,34 +54,6 @@ namespace Hugula.UIComponents
                         RenderItem(item, i);
                     }
                 }
-
-                // if (velocity.y > 0 || tweenDir.y > 0) //向上拖动
-                // {
-                //     int cloumnIndex = Mathf.FloorToInt (-m_ViewPointRect.y / (itemSize.y + this.halfPadding));
-                //     m_HeadDataIndex = Mathf.CeilToInt ((float) (cloumnIndex * this.columns) / (float) this.columns) * columns; //
-                //     if (m_HeadDataIndex < 0) m_HeadDataIndex = 0;
-                //     m_FootDataIndex = m_HeadDataIndex + pageSize > dataLength ? dataLength : m_HeadDataIndex + pageSize;
-                //     for (int i = m_HeadDataIndex; i < m_FootDataIndex; i++) {
-                //         var item = GetLoopItemAt (i);
-                //         if (item.index != i) {
-                //             RenderItem (item, i);
-                //         }
-                //     }
-                // } else if (velocity.y < 0 || tweenDir.y < 0) //向下拖动
-                // {
-                //     int cloumnIndex = Mathf.CeilToInt (-m_ViewPointRect.yMax / (itemSize.y + this.halfPadding));
-                //     m_FootDataIndex = Mathf.CeilToInt ((float) (cloumnIndex * this.columns) / (float) this.columns) * columns; //
-                //     if (m_FootDataIndex > dataLength) m_FootDataIndex = dataLength;
-                //     m_HeadDataIndex = m_FootDataIndex - pageSize <= 0 ? 0 : m_FootDataIndex - pageSize;
-
-                //     for (int i = m_HeadDataIndex; i < m_FootDataIndex; i++) {
-                //         var item = GetLoopItemAt (i);
-                //         if (item.index != i) {
-                //             RenderItem (item, i);
-                //         }
-                //     }
-                // }
-
             }
         }
 
@@ -333,7 +305,7 @@ namespace Hugula.UIComponents
                 for (int i = 0; i < m_Pages.Count; i++)
                 {
                     var item = m_Pages[i];
-                    if (item.posDirty && item.index >= 0)
+                    if (item.onlyPosDirty && item.index >= 0)
                     {
                         var pos = EasingLayout(item, item.index, t);//得到目标点位置
                         RectTransform rectTran = item.transform;
@@ -341,7 +313,7 @@ namespace Hugula.UIComponents
                         rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
                         if (t >= 1)
                         {
-                            item.posDirty = false;
+                            item.onlyPosDirty = false;
                         }
                     }
                 }

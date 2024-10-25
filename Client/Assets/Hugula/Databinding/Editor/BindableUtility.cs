@@ -20,7 +20,7 @@ namespace HugulaEditor.Databinding
             int j = name.IndexOf("(");
             if (i < j) i = j;
             if (i < 0) i = name.Length;
-            return name.Substring(0, i).Replace(" ","_");
+            return name.Substring(0, i).Replace(" ","_").Replace(" (","").Replace("）","").Replace("(","_").Replace(")","");
         }
 
         public static void RemoveAtbindableObjects(BindableObject target, int index)
@@ -29,7 +29,7 @@ namespace HugulaEditor.Databinding
             binding.RemoveAt(index);
         }
 
-        public static void AddEmptyBinding(BindableObject target, string property)
+        public static Binding AddEmptyBinding(BindableObject target, string property)
         {
             var bindings = target.GetBindings();
 
@@ -38,13 +38,43 @@ namespace HugulaEditor.Databinding
                 if (b.propertyName == property)
                 {
                     Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
-                    return;
+                    return b;
                 }
             }
             var binding = new Binding();
             binding.propertyName = property;
             target.AddBinding(binding);
 
+            return binding;
+        }
+
+        public static string GetFullPath(Transform transform)
+        {
+            if (transform == null) return string.Empty;
+            var path = transform.name;
+            while (transform.parent != null)
+            {
+                transform = transform.parent;
+                path = transform.name + "/" + path;
+            }
+            return path;
+        }
+
+        public static BindableContainer GetRootBindableContainer(Component bindableObject)
+        {
+            var curr = bindableObject;
+            var root = bindableObject.GetComponent<BindableContainer>();
+            do{
+                curr = curr.transform.parent;
+                if(curr==null) break;
+                var c = curr.GetComponent<BindableContainer>();
+                if (c != null)
+                {
+                    root = c;
+                }
+            }while(curr.transform.parent!=null);
+
+            return root;
         }
 
         public static List<PropertyInfo> GetObjectProperties(UnityEngine.Object target)
@@ -104,7 +134,7 @@ namespace HugulaEditor.Databinding
                  {
                      EditorGUI.BeginChangeCheck();
                      {
-                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, BindableObjectStyle.ToolbarSeachTextField);
                      }
                  }
              };
@@ -210,7 +240,7 @@ namespace HugulaEditor.Databinding
                  {
                      EditorGUI.BeginChangeCheck();
                      {
-                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, BindableObjectStyle.ToolbarSeachTextField);
                      }
                  }
              };
@@ -332,7 +362,7 @@ namespace HugulaEditor.Databinding
                  {
                      EditorGUI.BeginChangeCheck();
                      {
-                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, new GUIStyle("ToolbarSeachTextField"));
+                         orderList.searchText = EditorGUI.TextField(rect1, string.Empty, orderList.searchText, BindableObjectStyle.ToolbarSeachTextField);
                      }
                  }
              };
@@ -542,6 +572,9 @@ namespace HugulaEditor.Databinding
                 return m_HtmlFoldoutGUIStyle;
             }
         }
+       
+       
+       public static GUIStyle ToolbarSeachTextField = new GUIStyle(EditorStyles.toolbarSearchField);
         // public 
         #endregion
 

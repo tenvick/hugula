@@ -71,9 +71,9 @@ namespace Hugula.UIComponents {
         internal Component item; //clone的模板项
         internal RectTransform transform; //
         /// <summary>
-        /// 需要重新计算位置，删除条目后需要缓动标记
+        /// 此条目只需要更新位置
         /// </summary>
-        internal bool posDirty = false; //是否需要布局
+        internal bool onlyPosDirty = false; //是否需要布局
 
         internal ILoopSelectStyle loopSelectStyle;//当前项的选中样式
 

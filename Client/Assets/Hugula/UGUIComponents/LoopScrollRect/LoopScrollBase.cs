@@ -13,9 +13,9 @@ namespace Hugula.UIComponents
     [XLua.LuaCallCSharp]
     public abstract class LoopScrollBase : ScrollRect, ILoopSelect //: UIBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
-
+        [Tooltip("-1 auto columns")]
         [SerializeField]
-        int m_Columns = 0; //显示的列数
+        int m_Columns = -1; //显示的列数
 
         int m_RealColumns = 0;
         /// <summary>
@@ -468,7 +468,7 @@ namespace Hugula.UIComponents
                     repItem = GetValideLoopItemAt(nextIdx);
                     if (repItem != null)
                     {
-                        if(repItem.posDirty == false)
+                        if(repItem.onlyPosDirty == false)
                         {
                             ReplaceLoopItemAt(index1, nextIdx);
                             remEndIdx = nextIdx;
@@ -481,7 +481,7 @@ namespace Hugula.UIComponents
                             ReplaceLoopItemAt(remEndIdx, index);
                         }
                         item1.index = -1; //强制刷新
-                        item1.posDirty = true;
+                        item1.onlyPosDirty = true;
                         LayOut(item1, index1+1); //刷新到下一个位置
                     }
                 }
@@ -572,6 +572,7 @@ namespace Hugula.UIComponents
             int min = int.MaxValue, max = int.MinValue;
             foreach (var item1 in m_Pages)
             {
+                item1.onlyPosDirty = false;
                 if (item1.index != -1)
                     min = Math.Min(item1.index, min);
                 max = Math.Max(item1.index, max);
@@ -625,15 +626,15 @@ namespace Hugula.UIComponents
         public void Refresh() //开始渲染
         {
             StopMovement();
-            int min = int.MaxValue, max = int.MinValue;
-            foreach (var item1 in m_Pages)
-            {
-                if (item1.index != -1)
-                {
-                    min = Math.Min(item1.index, min);
-                    max = Math.Max(item1.index, max);
-                }
-            }
+            // int min = int.MaxValue, max = int.MinValue;
+            // foreach (var item1 in m_Pages)
+            // {
+            //     if (item1.index != -1)
+            //     {
+            //         min = Math.Min(item1.index, min);
+            //         max = Math.Max(item1.index, max);
+            //     }
+            // }
 
             UpdateBegin(0);
         }
@@ -683,7 +684,7 @@ namespace Hugula.UIComponents
             if (onSelected != null) onSelected(this.parameter, loopItem.item, m_SelectedIndex, m_LastSelectedIndex);
             object para = null;
             if (itemParameter == null)
-                para = loopItem.item;
+                para = this;
             else
                 para = itemParameter;
             if (itemCommand != null && itemCommand.CanExecute(para))
@@ -739,8 +740,12 @@ namespace Hugula.UIComponents
         void InitColumns()
         {
 
-            var vSize = viewport.rect; //  content.rect;
-            m_RealColumns = m_Columns;
+            var vSize = viewRect.rect; //  content.rect;
+            if(m_Columns<0) //auto columns
+                m_RealColumns = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding));
+            else
+                m_RealColumns = m_Columns;
+
             if (!horizontal && m_Columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
             {
                 columns = Mathf.FloorToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding));
@@ -748,11 +753,11 @@ namespace Hugula.UIComponents
 
             if (columns == 0)
             {
-                m_PageSize = Mathf.CeilToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding)) + 1;
+                m_PageSize = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding)) + 1;
             }
             else
             {
-                m_PageSize = columns * (Mathf.CeilToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.halfPadding)) + 1);
+                m_PageSize = columns * (Mathf.RoundToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.halfPadding)) + 1);
             }
         }
 
@@ -804,7 +809,7 @@ namespace Hugula.UIComponents
             var idx1Item = m_Pages[i];
             var idx2Item = m_Pages[j];
 
-            idx1Item.posDirty = true;
+            idx1Item.onlyPosDirty = true;
 
             var temp = idx1Item.item;
             var tmptrans = idx1Item.transform;
@@ -821,7 +826,7 @@ namespace Hugula.UIComponents
             if (tmpstyle2 != null)
                 tmpstyle2.InitSytle(idx1Item, this);
 
-            idx2Item.posDirty = true;
+            idx2Item.onlyPosDirty = true;
 
             return true;
         }
@@ -920,13 +925,13 @@ namespace Hugula.UIComponents
                     m_SelecteStyle.CancelStyle();
             }
 
-            if (oldIdx != idx) //控制布局与刷新
+            if (oldIdx != idx || !loopItem.onlyPosDirty) //索引变化或者刷新数据
             {
-                if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
-                if(!(oldIdx == -1 && loopItem.posDirty)) //如果是删除项目不刷新位置
+                if (onItemRender != null ) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+                if(!(oldIdx == -1 && loopItem.onlyPosDirty)) //如果是删除项目不刷新位置
                 {
                     LayOut(loopItem, loopItem.index);
-                    loopItem.posDirty = false;
+                    loopItem.onlyPosDirty = false;
                 }
             }
 
@@ -942,7 +947,7 @@ namespace Hugula.UIComponents
         {
             Vector2 localp = content.anchoredPosition;
             var cpos = localp + m_ContentLocalStart; //开始位置
-            m_ViewPointRect = rectTransform.rect; //
+            m_ViewPointRect = viewRect.rect; //
             m_ViewPointRect.height = -Mathf.Abs(m_ViewPointRect.height);
             m_ViewPointRect.x = cpos.x;
             m_ViewPointRect.y = -cpos.y;

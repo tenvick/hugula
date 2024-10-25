@@ -10,6 +10,7 @@ namespace Hugula.Databinding.Binder
 {
 #if USE_TMPro
     [RequireComponent(typeof(TMP_InputField))]
+    [XLua.LuaCallCSharp]
     public class TMP_InputFieldBinder : SelectableBinder<TMP_InputField>
     {
 

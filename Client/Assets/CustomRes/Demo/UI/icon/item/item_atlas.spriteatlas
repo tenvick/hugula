@@ -7,7 +7,6 @@ SpriteAtlas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: item_atlas
-  serializedVersion: 2
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -190,4 +189,3 @@ SpriteAtlas:
   - icon_sword
   m_Tag: item_atlas
   m_IsVariant: 0
-  m_IsPlaceholder: 0

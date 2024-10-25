@@ -66,7 +66,7 @@ namespace Hugula.Databinding
             get { return m_InheritedContext ?? m_Context; }
             set
             {
-                if (!Object.Equals(m_Context, value) || forceContextChanged)
+                // if (!Object.Equals(m_Context, value) || forceContextChanged)
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;

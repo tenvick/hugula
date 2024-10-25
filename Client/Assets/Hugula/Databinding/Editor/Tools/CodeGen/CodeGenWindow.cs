@@ -106,12 +106,14 @@ namespace HugulaEditor.Databinding
             ContextNode.templateDic["name"] = new StringBuilder().Append(name);
             ContextNode.templateDic["property"] = new StringBuilder();
             ContextNode.templateDic["command"] = new StringBuilder();
-            // ContextNode.templateDic["other"] = new StringBuilder();
+            ContextNode.templateDic["author"] = new StringBuilder().Append(System.Environment.UserName);
+            ContextNode.templateDic["date"] = new StringBuilder().Append(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     
             ContextNode.templateNotifyTableAddUPRemove = templateNotifyTableAddUPRemove;
 
 
-            var root = new ContextNode() { name = name, contextType = ContextType.ViewModel };
+            var root = new ContextNode() { name = name,contextType = ContextType.ViewModel };
+            ContextNode.rootName = name;
             Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext = new Dictionary<BindableObject, ContextNode>();
             BuildContextTree(container, root, sourceContext);
             Debug.Log(root.name);
@@ -189,8 +191,7 @@ namespace HugulaEditor.Databinding
             }
             var prop = tp.GetProperty(binder.propertyName);
             bool isListProp = false;
-            if (!isSelf && context.contextType == ContextType.NotifyTable) isListProp = true;
-
+            if (!isSelf && (context.contextType == ContextType.NotifyTable || (context.parent?.contextType == ContextType.NotifyTable))) isListProp = true;
             if (binder.source is BindableObject) //从source寻找上下文
             {
                 binder.ParsePath();

@@ -17,58 +17,49 @@ namespace HugulaEditor.Databinding
         /// </summary>
         /// <param name="propNode"></param>
         /// <returns></returns>
-        internal virtual string TemplateByPropertyType(PropertyNode propNode)
+        internal virtual string TemplateByPropertyType(PropertyNode propNode, string tabstr = "")
         {
             System.Type propertyType = propNode.propertyType;
             if (propNode.isMethod)
             {
-                return string.Format(@"function(arg)
-                if arg then
-                    --set 
-                    {1}._{0} = arg
-                else 
-                    --get {1}._{0}
-                end
-        return  {1}._{0}
-    end
-    ", propNode.methName, propNode.upvalue);
+                return $@"function(arg)
+   if arg then  {propNode.upvalue}._{propNode.methName} = arg end
+   return  {propNode.upvalue}._{propNode.methName} --get
+end";
             }
             else if (typeof(int) == propertyType || typeof(float) == propertyType)
             {
-                return "0";
+                return $" 0";
             }
             else if (typeof(ICommand) == propertyType)
             {
-                return @" {
-    CanExecute = function(self, arg)
-        return true
-    end,
-    Execute = function(self, arg)
+                return $@"{{
+   CanExecute = function(self, arg)
+       return true
+   end,
+   Execute = function(self, arg)
 
-    end
-}
-";
+   end
+}}";
             }
             else if (typeof(IExecute) == propertyType)
             {
-                return @" {
+                return $@"{{
     Execute = function(self, arg)
 
     end
-}
-";
+}}";
             }
             else if (propNode.targetPropertyName.Equals("onClickCommand")) //点击事件
             {
-                return @" {
+                return $@"{{
     CanExecute = function(self, arg)
         return true
     end,
     Execute = function(self, arg)
 
     end
-}
-";
+}}";
             }
             else if (typeof(INotifyTable) == propertyType)
             {
@@ -91,19 +82,24 @@ namespace HugulaEditor.Databinding
                 if (propNode.targetPropertyName.Equals("onContextChanged") && propNode.target is BindableContainer) //自定义设置
                 {
                     return $@"function(bc,item){GenGenericonContextChangedFunction((BindableContainer)propNode.target)}
-end                
-";
+end";
                 }
                 else
                 {
                     return $@"function({GenGenericTypeArgumentsForLua(propertyType)})
-            --
-end                
-";
+--
+end ";
                 }
             }
 
-            return propertyType.ToString();
+            if (propertyType.IsClass)
+                return propertyType.ToString().Replace("+", ".") + "()";
+            else
+            {
+                return propertyType.ToString().Replace("+", ".");
+
+            }
+
 
         }
 
@@ -151,7 +147,7 @@ end
                 return "text";
             }
 
-            return string.Empty;
+            return "name";
         }
 
         //生成BindableContainer  onContextChanged 默认绑定内容
@@ -160,6 +156,7 @@ end
             var sb = new StringBuilder();
             var sbTitle = new StringBuilder();
             Object mono;
+            sbTitle.AppendLine("\r\nif item == nil then return end");
             sbTitle.AppendLine("\r\n-- declare ");
             sb.AppendLine("\r\n-- fill");
 
@@ -170,7 +167,7 @@ end
                 sbTitle.AppendLine($@"        local _{safeVar} = bc[""{safeVar}""] --{mono.GetType().Name}");
                 sb.AppendLine($@"        _{safeVar}.{GetComponentMainProperty(mono)} = item.{safeVar}");
             }
-                        
+
             sbTitle.AppendLine(sb.ToString());
             return sbTitle.ToString();
         }
@@ -183,10 +180,10 @@ end
             {
                 var lbIndex = prop.propertyName.IndexOf('(');
                 prop.methName = prop.propertyName.Substring(0, lbIndex);
-                return string.Format("{0}={1}", prop.methName, TemplateByPropertyType(prop));
+                return string.Format("{0} = {1}", prop.methName, TemplateByPropertyType(prop));
             }
             else
-                return string.Format("{0}={1}", prop.propertyName, TemplateByPropertyType(prop));
+                return string.Format("{0} = {1}", prop.propertyName, TemplateByPropertyType(prop));
         }
 
     }
@@ -198,7 +195,9 @@ end
         property,
         message,
         method,
-        command
+        command,
+        author,
+        date
     }
 
     public enum ContextType
@@ -219,6 +218,11 @@ end
         public bool isMethod;
         internal string methName;
         internal string upvalue = null;
+
+        public override string ToString()
+        {
+            return $"{target}.{propertyName} {propertyType.Name} isListProperty={isListProperty} ,isMethod={isMethod} methName={methName}";
+        }
 
         // public string ToTemplateString(string upvalue = null)
         // {
@@ -261,6 +265,7 @@ end
             }
         }
 
+        internal static string rootName = "";
         #endregion
 
 
@@ -268,12 +273,63 @@ end
         // public static System.Func<PropertyNode, string,string> ToTemplateString;
         public static CodeGenTemplateUtils codeGenTemplateUtils;
         #endregion
+        //名字
         public string name;
+
+        private string m_LocalName;
+        //
+        public string localName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_LocalName))
+                {
+                    m_LocalName = name;
+                    var currParent = parent;
+                    while (currParent != null)
+                    {
+                        m_LocalName = currParent.name.Substring(0,3) + "_" + m_LocalName;
+                        currParent = currParent.parent;
+                    }
+                }
+                return m_LocalName;
+            }
+        }
+
+        private string m_FullName;
+        public string fullContextName{
+            get{
+                if(string.IsNullOrEmpty(m_FullName))
+                {
+                    m_FullName = name;
+                    var currParent = parent;
+                    while(currParent!=null)
+                    {
+                        m_FullName = currParent.name+"."+m_FullName;
+                        currParent = currParent.parent;
+                    }
+                }             
+
+                return m_FullName;
+            }
+        }
+
         public static string templateNotifyTableAddUPRemove;
         public ContextType contextType;
         public ContextNode parent;
         public List<PropertyNode> peroperties = new List<PropertyNode>();
         public List<ContextNode> children = new List<ContextNode>();
+
+        /// <summary>
+        /// 父节点是NotifyTable
+        /// </summary>
+        /// <returns></returns>
+        public bool ParentIsNotifyTable()
+        {
+            if (parent != null && parent.contextType == ContextType.NotifyTable)
+                return true;
+            return false;
+        }
         public PropertyNode AddProperty(object target, string targetPropertyName, string propertyName, System.Type propertyType, bool isListProperty)
         {
             var prop = peroperties.Find((PropertyNode t) =>
@@ -297,13 +353,14 @@ end
                     propertyType = propertyType ?? typeof(object),
                     isListProperty = isListProperty,
                 };
+
                 peroperties.Add(prop);
                 peroperties.Sort((a, b) =>
                 {
                     // return b.propertyType.GetHashCode() - a.propertyType.GetHashCode();
-                    return string.CompareOrdinal(a.propertyName,b.propertyName);
+                    return string.CompareOrdinal(a.propertyName, b.propertyName);
                 });
-                
+
             }
             return prop;
         }
@@ -460,45 +517,56 @@ end
         void AppendLineProperty(PropertyNode prop)
         {
 
+            var tempStr = codeGenTemplateUtils.ToTemplateString(prop, name);
             if (prop.isListProperty)
             {
-                AppendLine(string.Format(GetTabByDepth() + "--[[ {0}.{1} ]]--", name + "_item", codeGenTemplateUtils.ToTemplateString(prop, name)), prop.propertyType);
-            }
-            else if (prop.isListProperty && prop.isMethod)
-            {
-                AppendLineMethod(string.Format("--[[ {0}.{1} ]]--", name + "_item", codeGenTemplateUtils.ToTemplateString(prop, name)));
+                if (tempStr.Contains("\n") || tempStr.Contains("\r\n"))
+                {
+                    if (prop.isMethod)
+                        AppendLineMethod(string.Format(GetTabByDepth() + "--[[{0}.{1}]]--", name + "_item", tempStr));
+                    else
+                        AppendLine(string.Format(GetTabByDepth() + "--[[{0}.{1}]]--", name + "_item", tempStr), prop.propertyType);
+                }
+                else
+                {
+                    if (prop.isMethod)
+                        AppendLineMethod(string.Format(GetTabByDepth() + "--{0}.{1} ", name + "_item", tempStr));
+                    else
+                        AppendLine(string.Format(GetTabByDepth() + "--{0}.{1} ", name + "_item", tempStr), prop.propertyType);
+                }
             }
             else if (prop.isMethod)
             {
-                AppendLineMethod(string.Format("{0}.{1}", name, codeGenTemplateUtils.ToTemplateString(prop, name)));
+                AppendLineMethod(string.Format("{0}.{1}", localName, tempStr));
             }
             else
             {
-                AppendLine(string.Format(GetTabByDepth() + "{0}.{1}", name, codeGenTemplateUtils.ToTemplateString(prop, name)), prop.propertyType);
+                AppendLine(string.Format(GetTabByDepth() + "{0}.{1}", localName, tempStr), prop.propertyType);
             }
         }
 
-        string GenNotifyTableAddUpRemove(string name, string childName)
+        string GenNotifyTableAddUpRemove(string name, string dataFullPath,string propertyName)
         {
             var templateOut = templateNotifyTableAddUPRemove;
             templateOut = templateOut.Replace("{name}", name);
-            templateOut = templateOut.Replace("{0}", childName);
+            templateOut = templateOut.Replace("{data_path}", dataFullPath);
+            templateOut = templateOut.Replace("{property}", propertyName);
             return templateOut;
         }
 
         private System.Text.StringBuilder sb = new System.Text.StringBuilder();
         public void GenTemplateString()
         {
-            AppendLine(GetTabByDepth() + string.Format("----  {0}  ----", name), typeof(object));
+            AppendLine(GetTabByDepth() + string.Format("----  {0} begin  ----", name), typeof(object));
 
             foreach (var child in children)
             {
                 AppendLine("", typeof(object));
-                AppendLine(string.Format(GetTabByDepth() + "local {0}={1}", child.name, NewContextByType(child.contextType)), typeof(object));
-                AppendLine(string.Format(GetTabByDepth() + "{0}.{1}={1}", name, child.name), typeof(object));
+                AppendLine(string.Format(GetTabByDepth() + "local {0} = {1}", child.localName, NewContextByType(child.contextType)), typeof(object));
+                AppendLine(string.Format(GetTabByDepth() + "{0} = {1}", child.fullContextName, child.localName), typeof(object));
                 if (child.contextType == ContextType.NotifyTable) // notify table add remove update
                 {
-                    AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, child.name));
+                    AppendLineMethod(GenNotifyTableAddUpRemove(ContextNode.rootName, child.fullContextName, child.name));
                 }
                 child.GenTemplateString();
             }
@@ -511,7 +579,7 @@ end
                 AppendLineProperty(prop);
                 if (prop.propertyType == typeof(INotifyTable)) //notify
                 {
-                    AppendLineMethod(GetTabByDepth() + GenNotifyTableAddUpRemove(name, prop.propertyName));
+                    AppendLineMethod(GenNotifyTableAddUpRemove(ContextNode.rootName, fullContextName,prop.propertyName));
                 }
             }
             AppendLine(GetTabByDepth() + string.Format("----  {0} end  --", name), typeof(object));

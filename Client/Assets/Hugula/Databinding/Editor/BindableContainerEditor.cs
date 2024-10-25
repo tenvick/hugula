@@ -406,6 +406,27 @@ namespace HugulaEditor.Databinding
             }
         }
 
+        [MenuItem("CONTEXT/BindableObject/Test Add All Bindings")]
+        static void TestAllBindings(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableObject;
+
+            if (bo != null)
+            {
+                //反射得到当前bo的所有非基层公开属性
+                var type = bo.GetType();
+                //不显示基础的属性
+
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                foreach (var per in properties)
+                {
+                    var b = BindableUtility.AddEmptyBinding(bo, per.Name);
+                    b.path = per.Name;
+                }
+               
+            }
+        }
+
         [MenuItem("CONTEXT/BindableContainer/Clear All Monos")]
         static void ClearAllMonos(MenuCommand menuCommand)
         {

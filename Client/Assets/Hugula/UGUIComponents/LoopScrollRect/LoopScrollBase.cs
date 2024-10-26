@@ -803,7 +803,7 @@ namespace Hugula.UIComponents
             int i = idx1 % m_PageSize;
             int j = idx2 % m_PageSize;
             if (i == j) return false;
-            Debug.LogFormat("ReplaceLoopItemAt {0} {1} i={2} j={3} count={4}", idx1, idx2, i, j,m_Pages.Count);
+
             var idx1Item = m_Pages[i];
             var idx2Item = m_Pages[j];
 

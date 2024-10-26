@@ -100,7 +100,7 @@ namespace Hugula.Databinding
 
         public static object ConvertToNotifyTable(INotifyPropertyChanged table)
         {
-            UnityEngine.Debug.LogWarning(" ConvertToNotifyTable:" + table);
+            // UnityEngine.Debug.LogWarning(" ConvertToNotifyTable:" + table);
             return table;
         }
 

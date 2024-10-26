@@ -48,12 +48,13 @@ namespace Hugula.UIComponents
         /// </summary>
         public Vector2 itemSize { get { return m_RuntimeItemSize; } set { m_RuntimeItemSize = value; } } //默认size
 
+        [Tooltip("padding left=x,top=y,right=z,bottom=w")]
         [SerializeField]
-        float m_Padding = 0;
+        Vector4 m_Padding = Vector4.zero;
         /// <summary>
         /// 间距</br>
         /// </summary>
-        public float padding { get { return m_Padding; } set { m_Padding = value; m_HalfPadding = float.NaN; } } //间隔
+        public Vector4 padding { get { return m_Padding; } set { m_Padding = value; m_HorizontalPadding = float.NaN; m_VerticalPadding = float.NaN; }} //间隔
 
         [SerializeField]
         bool m_RemoveEasing = true;
@@ -225,7 +226,7 @@ namespace Hugula.UIComponents
         public object itemParameter { get; set; }
 
         [System.NonSerialized] private RectTransform m_Rect;
-        private RectTransform rectTransform
+        internal  RectTransform rectTransform
         {
             get
             {
@@ -249,7 +250,8 @@ namespace Hugula.UIComponents
         protected override void Awake()
         {
             base.Awake();
-            m_HalfPadding = float.NaN;
+            m_HorizontalPadding = float.NaN;
+            m_VerticalPadding = float.NaN;
             m_LastSelectedIndex = m_SelectedIndex;
             m_HeadDataIndex = 0;
             m_FootDataIndex = 0;
@@ -457,6 +459,7 @@ namespace Hugula.UIComponents
                     if (remBeginIdx == int.MinValue) 
                     {
                         remBeginIdx = index1;
+                        remEndIdx = index1;
                     }
 
                     if (m_SelectedIndex == index1)
@@ -476,7 +479,7 @@ namespace Hugula.UIComponents
                     }
                     else
                     {
-                        if(remBeginIdx> index) //如果第一个没有被替换 刷新到开头
+                        if(remBeginIdx > index) //如果第一个没有被替换 刷新到开头
                         {
                             ReplaceLoopItemAt(remEndIdx, index);
                         }
@@ -664,7 +667,7 @@ namespace Hugula.UIComponents
         {
             StopMovement();
             ClearItems();
-            if (content)
+            if (content && content != rectTransform)
             {
                 content.anchoredPosition = Vector2.zero;  //m_ContentLocalStart;
             }
@@ -742,22 +745,17 @@ namespace Hugula.UIComponents
 
             var vSize = viewRect.rect; //  content.rect;
             if(m_Columns<0) //auto columns
-                m_RealColumns = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding));
+                m_RealColumns = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.horizontalPadding));
             else
                 m_RealColumns = m_Columns;
 
-            if (!horizontal && m_Columns == 0 && rectTransform.anchorMin == Vector2.zero && rectTransform.anchorMax == Vector2.one) //自动适应
-            {
-                columns = Mathf.FloorToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding));
-            }
-
             if (columns == 0)
             {
-                m_PageSize = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.halfPadding)) + 1;
+                m_PageSize = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.horizontalPadding)) + 1;
             }
             else
             {
-                m_PageSize = columns * (Mathf.RoundToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.halfPadding)) + 1);
+                m_PageSize = columns * (Mathf.RoundToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.verticalPadding)) + 1);
             }
         }
 
@@ -805,7 +803,7 @@ namespace Hugula.UIComponents
             int i = idx1 % m_PageSize;
             int j = idx2 % m_PageSize;
             if (i == j) return false;
-
+            Debug.LogFormat("ReplaceLoopItemAt {0} {1} i={2} j={3} count={4}", idx1, idx2, i, j,m_Pages.Count);
             var idx1Item = m_Pages[i];
             var idx2Item = m_Pages[j];
 
@@ -844,14 +842,31 @@ namespace Hugula.UIComponents
         #endregion
 
         #region 渲染与布局
-        private float m_HalfPadding = float.NaN;
-        protected float halfPadding
+        private float m_HorizontalPadding = float.NaN;
+        /// <summary>
+        /// 水平间距
+        /// </summary>
+        protected float horizontalPadding
         {
             get
             {
-                if (m_HalfPadding.Equals(float.NaN))
-                    m_HalfPadding = padding * .5f;
-                return m_HalfPadding;
+                if (m_HorizontalPadding.Equals(float.NaN))
+                    m_HorizontalPadding = padding.x + padding.z;
+                return m_HorizontalPadding;
+            }
+        }
+        private float m_VerticalPadding = float.NaN;
+
+        /// <summary>
+        /// 垂直间距
+        /// </summary>
+        protected float verticalPadding
+        {
+            get
+            {
+                if (m_VerticalPadding.Equals(float.NaN))
+                    m_VerticalPadding = padding.y + padding.w;
+                return m_VerticalPadding;
             }
         }
 
@@ -895,7 +910,7 @@ namespace Hugula.UIComponents
                     rent.rotation = Quaternion.Euler(0, 0, 0);
                     rent.localScale = Vector3.one;
                     Vector3 newPos = Vector3.zero;
-                    newPos.x = halfPadding;
+                    newPos.x = horizontalPadding;
                     rent.anchoredPosition = newPos;
                 }
                 loopItem.transform = rent;
@@ -993,7 +1008,7 @@ namespace Hugula.UIComponents
         #region  tool
         protected void ClearItems()
         {
-            content.anchoredPosition = Vector2.zero;// m_ContentLocalStart;
+            if(content && content!= rectTransform) content.anchoredPosition = Vector2.zero;// m_ContentLocalStart;
             foreach (var item in m_Pages)
             {
                 if (item.transform)

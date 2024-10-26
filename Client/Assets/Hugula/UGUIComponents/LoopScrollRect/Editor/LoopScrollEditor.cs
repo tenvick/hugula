@@ -211,9 +211,12 @@ namespace HugulaEditor.UIComponents
             {
                 temp.dataLength = 0;
                 var content = temp.content;
+                Transform trans;
                 for (int i = content.childCount - 1; i >= 0; i--)
                 {
-                    GameObject.DestroyImmediate(content.GetChild(i).gameObject);
+                    trans = content.GetChild(i);
+                    if(trans.gameObject.name.Contains("(Clone)"))
+                        GameObject.DestroyImmediate(trans.gameObject);
                 }
                 Debug.Log("Clear Simulate");
                 AssetDatabase.Refresh();

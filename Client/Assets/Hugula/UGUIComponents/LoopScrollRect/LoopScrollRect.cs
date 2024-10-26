@@ -27,7 +27,7 @@ namespace Hugula.UIComponents
             bool tween = isTweening;
             if (columns == 0 && (IsHorizontalScroll || tween))
             {
-                m_HeadDataIndex = Mathf.FloorToInt(-m_ViewPointRect.x / (itemSize.x + this.halfPadding)); //头
+                m_HeadDataIndex = Mathf.FloorToInt(-m_ViewPointRect.x / (itemSize.x + this.horizontalPadding)); //头
                 if (m_HeadDataIndex < 0) m_HeadDataIndex = 0;
                 m_FootDataIndex = m_HeadDataIndex + pageSize > dataLength ? dataLength : m_HeadDataIndex + pageSize;
                 for (int i = m_HeadDataIndex; i < m_FootDataIndex; i++)
@@ -41,7 +41,7 @@ namespace Hugula.UIComponents
             }
             else if (columns > 0 && (IsVerticalScroll || tween))
             {
-                int cloumnIndex = Mathf.FloorToInt(-m_ViewPointRect.y / (itemSize.y + this.halfPadding));
+                int cloumnIndex = Mathf.FloorToInt(-m_ViewPointRect.y / (itemSize.y + this.verticalPadding));
                 m_HeadDataIndex = Mathf.CeilToInt((float)(cloumnIndex * this.columns) / (float)this.columns) * columns; //
                 if (m_HeadDataIndex < 0) m_HeadDataIndex = 0;
                 m_FootDataIndex = m_HeadDataIndex + pageSize > dataLength ? dataLength : m_HeadDataIndex + pageSize;
@@ -67,20 +67,20 @@ namespace Hugula.UIComponents
             Vector2 pos = Vector2.zero;
             if (this.columns == 0) //单行
             {
-                pos.x = (rect.width + this.halfPadding) * index + this.halfPadding; // + rect.width * .5f;
-                pos.y = -halfPadding;
+                pos.x = (rect.width + this.horizontalPadding) * index + this.padding.x; // + rect.width * .5f;
+                pos.y = -padding.y;
             }
             else if (columns == 1) //单列 需要宽度适配
             {
-                pos.x = halfPadding;
-                pos.y = (rect.height - this.halfPadding) * index - this.halfPadding; // rect.height * .5f ;
+                pos.x = padding.x;
+                pos.y = (rect.height - this.verticalPadding) * index - this.padding.y; // rect.height * .5f ;
             }
             else // 多行
             {
                 int x = index % columns;
-                pos.x = (rect.width + this.halfPadding) * x + this.halfPadding; // + rect.width * .5f;
+                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x;; // + rect.width * .5f;
                 int y = index / columns;
-                pos.y = (rect.height - this.halfPadding) * y - this.halfPadding; // rect.height * .5f ;
+                pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
             rect.position = pos;
             pos = pos + m_ContentLocalStart; //开始位置
@@ -97,20 +97,20 @@ namespace Hugula.UIComponents
             Vector2 pos = Vector2.zero;
             if (this.columns == 0) //单行
             {
-                pos.x = (rect.width + this.halfPadding) * index + this.halfPadding; // + rect.width * .5f;
-                pos.y = -halfPadding;
+                pos.x = (rect.width + this.horizontalPadding) * index + this.padding.x; // + rect.width * .5f;
+                pos.y = -padding.y;
             }
             else if (columns == 1) //单列 需要宽度适配
             {
-                pos.x = halfPadding;
-                pos.y = (rect.height - this.halfPadding) * index - this.halfPadding; // rect.height * .5f ;
+                pos.x = padding.x;
+                pos.y = (rect.height - this.verticalPadding) * index - this.padding.y; // rect.height * .5f ;
             }
             else // 多行
             {
                 int x = index % columns;
-                pos.x = (rect.width + this.halfPadding) * x + this.halfPadding; // + rect.width * .5f;
+                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x;; // + rect.width * .5f;
                 int y = index / columns;
-                pos.y = (rect.height - this.halfPadding) * y - this.halfPadding; // rect.height * .5f ;
+                pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
             pos = pos + m_ContentLocalStart; //开始位置
             var begin = rectTran.anchoredPosition;
@@ -123,23 +123,23 @@ namespace Hugula.UIComponents
         protected override void CalcBounds()
         {
 
-            if (content != null)
+            if (content != null && content!= rectTransform) //不能是自己
             {
                 var rect = content.rect;
                 Vector2 delt = new Vector2(rect.width, rect.height);
                 if (columns <= 0) //只有一行，为了高度适配不设置sieDelta.y
                 {
-                    delt.x = dataLength * (itemSize.x + this.halfPadding) + this.halfPadding + Mathf.Abs(m_ContentLocalStart.x);
+                    delt.x = dataLength * (itemSize.x + this.horizontalPadding) + this.padding.x + Mathf.Abs(m_ContentLocalStart.x);
                 }
                 else if (columns == 1) //只有一列的时候为了 宽度适配不设置sieDelta.x
                 {
-                    delt.y = (itemSize.y + this.halfPadding) * dataLength + this.halfPadding + Mathf.Abs(m_ContentLocalStart.y);
+                    delt.y = (itemSize.y + this.verticalPadding) * dataLength + this.padding.y + Mathf.Abs(m_ContentLocalStart.y);
                 }
                 else
                 {
-                    delt.x = columns * (itemSize.x + this.halfPadding) + this.halfPadding + Mathf.Abs(m_ContentLocalStart.x);
+                    delt.x = columns * (itemSize.x + this.horizontalPadding) + this.padding.x + Mathf.Abs(m_ContentLocalStart.x);
                     int y = (int)Mathf.Ceil((float)dataLength / (float)columns);
-                    delt.y = (itemSize.y + this.halfPadding) * y + this.halfPadding + Mathf.Abs(m_ContentLocalStart.y);
+                    delt.y = (itemSize.y + this.verticalPadding) * y + this.padding.y + Mathf.Abs(m_ContentLocalStart.y);
                 }
 
                 content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, delt.x);
@@ -216,13 +216,13 @@ namespace Hugula.UIComponents
             if (columns == 0) //x轴 
             {
                 var minX = Mathf.Min(0, viewPortSize.width - contentSize.width);
-                cpos.x = Mathf.Max(minX, -(itemSize.x + this.halfPadding) * idx - m_ContentLocalStart.x); //开始位置
+                cpos.x = Mathf.Max(minX, -(itemSize.x + this.horizontalPadding) * idx - m_ContentLocalStart.x); //开始位置
             }
             else
             {
                 var maxY = Mathf.Max(0, contentSize.height - viewPortSize.height);
                 int row = idx / columns;
-                cpos.y = Mathf.Min(maxY, (itemSize.y + this.halfPadding) * row + m_ContentLocalStart.y); //开始位置
+                cpos.y = Mathf.Min(maxY, (itemSize.y + this.verticalPadding) * row + m_ContentLocalStart.y); //开始位置
             }
 
             if (gameObject.activeInHierarchy)

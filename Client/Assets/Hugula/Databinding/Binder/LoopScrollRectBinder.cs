@@ -56,7 +56,7 @@ namespace Hugula.Databinding.Binder
             get { return target.itemSize; }
         }
 
-        public float padding
+        public Vector4 padding
         {
             get { return target.padding; }
             set

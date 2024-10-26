@@ -132,12 +132,9 @@ else
     print("please gen code")
 end
 
--- ffi.cdef [[
---     typedef struct lua_State lua_State;
---     int parse_rpc(lua_State* L, unsigned int id, char* cur, int len);
--- ]]
--- local parse_rpc = ffi.typeof("int parse_rpc(lua_State* L, unsigned int id, char* cur, int len)")
--- print(parse_rpc)
--- local lua_State = ffi.typeof("lua_State *")
--- print(lua_State)
--- print(lua_State.l_G)
+ffi.cdef [[
+    typedef struct lua_State lua_State;
+]]
+
+local lua_State = ffi.typeof("lua_State *")
+print(lua_State)

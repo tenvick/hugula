@@ -54,7 +54,7 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 间距</br>
         /// </summary>
-        public Vector4 padding { get { return m_Padding; } set { m_Padding = value; m_HorizontalPadding = float.NaN; m_VerticalPadding = float.NaN; }} //间隔
+        public Vector4 padding { get { return m_Padding; } set { m_Padding = value; m_HorizontalPadding = float.NaN; m_VerticalPadding = float.NaN; } } //间隔
 
         [SerializeField]
         bool m_RemoveEasing = true;
@@ -63,12 +63,15 @@ namespace Hugula.UIComponents
         /// </summary>
         public bool removeEasing { get { return m_RemoveEasing; } set { m_RemoveEasing = value; } } //每次渲染item数
 
+        // [SerializeField]
+        [PopUpComponentsAttribute]
         [SerializeField]
-        Component m_ItemSource;
+        BindableObject[] m_Templates;
         /// <summary>
-        /// clone的原始项</br>
+        /// clone的原始项模板</br>
         /// </summary>
-        public Component itemSource { get { return m_ItemSource; } set { m_ItemSource = value; } } //clone的项目
+        public BindableObject[] templates { get { return m_Templates; } set { m_Templates = value; } } //clone的项目
+
 
         [Tooltip("默认选中索引")]
         [SerializeField]
@@ -81,7 +84,7 @@ namespace Hugula.UIComponents
             get { return m_SelectedIndex; }
             set
             {
-                m_SelectedIndex = value;
+                // m_SelectedIndex = value;
                 TriggerStyleBySelectedIndex(value);
             }
         }
@@ -93,6 +96,24 @@ namespace Hugula.UIComponents
         public int lastSelectedIndex { get { return m_LastSelectedIndex; } }
 
         ILoopSelectStyle m_SelecteStyle;
+        /// <summary>
+        /// 设置选中样式
+        /// </summary>
+        protected ILoopSelectStyle selectStyle
+        {
+            get { return m_SelecteStyle; }
+            set
+            {
+                var last = m_SelecteStyle;
+                if (last != null && last != value) last.CancelStyle(); //取消上一个选中
+
+                m_SelecteStyle = value;
+                if (m_SelecteStyle != null)
+                {
+                    m_SelecteStyle.SelectedStyle();
+                }
+            }
+        }
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
@@ -125,38 +146,10 @@ namespace Hugula.UIComponents
         public Action<object, object, int> onInstantiated { get; set; } //渲染
 
         /// <summary>
-        /// 此函数会接管 默认的item Clone
+        /// 获取模板类型
         /// </summary>
-        /// <example>
-        /// <code>
-        /// using UnityEngine;
-        /// using System.Collections;
-        /// using UnityEngine.UI;  // Required when Using UI elements.
-        ///
-        /// public class ExampleClass : MonoBehaviour
-        /// {
-        ///     public LoopScrollBase myScrollRect;
-        ///     public Transform text;
-        ///     public Transform button;
-        ///     void Awake()
-        ///     {
-        ///                                                         
-        ///         myScrollRect.OnGetItem = (int idx/*当前索引 */,Component oldComp/*上一个持有对象 */,int oldIdx/*旧的索引 */,RectTransform parent/*挂接父对象 */) =>
-        ///         {
-        ///             GameObject gobj = null;
-        ///             if (idx % 2 == 0 )
-        ///                 gobj = GameObject.Instantiate(text);
-        ///             else
-        ///                 gobj = GameObject.Instantiate(button);
-        ///             gobj.name = "item" + idx.ToString();
-        ///             var btn = gobj.GetComponentInChildren<Button>();
-        ///             return btn
-        ///         };
-        ///     }
-        /// }
-        /// </code>
-        /// </example>
-        public Func<object, int, Component, int, RectTransform, Component> onGetItem { get; set; } //
+        public Func<object, int, int> onGetItemTemplateType { get; set; } //获取模板类型
+
 
         /// <summary>
         /// 填充数据显示项目
@@ -226,7 +219,7 @@ namespace Hugula.UIComponents
         public object itemParameter { get; set; }
 
         [System.NonSerialized] private RectTransform m_Rect;
-        internal  RectTransform rectTransform
+        internal RectTransform rectTransform
         {
             get
             {
@@ -255,9 +248,9 @@ namespace Hugula.UIComponents
             m_LastSelectedIndex = m_SelectedIndex;
             m_HeadDataIndex = 0;
             m_FootDataIndex = 0;
-            CalcPageSize();
+            Init();
         }
-   
+
         protected override void LateUpdate()
         {
             UpdateViewPointBounds();
@@ -280,7 +273,7 @@ namespace Hugula.UIComponents
             onItemRender = null;
             onInstantiated = null;
             content = null;
-            m_SelecteStyle = null;
+            selectStyle = null;
 
             foreach (var loopItem in m_Pages)
             {
@@ -291,6 +284,8 @@ namespace Hugula.UIComponents
                 loopItem.item = null;
             }
             m_Pages.Clear();
+            m_Pool?.Dispose();
+            m_Pool = null;
             base.OnDestroy();
         }
 
@@ -439,12 +434,12 @@ namespace Hugula.UIComponents
             m_DataLength -= count;
             // 移动数据 将当前index后面的数据向前移动cout个位置
             int min = int.MaxValue, max = int.MinValue;
-            int remBeginIdx = int.MinValue,remEndIdx = int.MinValue;
+            int remBeginIdx = int.MinValue, remEndIdx = int.MinValue;
             LoopItem repItem = null;
-            int index1 = 0,nextIdx = 0;
+            int index1 = 0, nextIdx = 0;
 
             LoopItem item1;
-            for(int i=0; i<m_Pages.Count;i++)
+            for (int i = 0; i < m_Pages.Count; i++)
             {
                 item1 = m_Pages[i];
                 index1 = item1.index;
@@ -456,7 +451,7 @@ namespace Hugula.UIComponents
 
                 if (index1 >= index) //需要移动下面的项目来填充
                 {
-                    if (remBeginIdx == int.MinValue) 
+                    if (remBeginIdx == int.MinValue)
                     {
                         remBeginIdx = index1;
                         remEndIdx = index1;
@@ -471,7 +466,7 @@ namespace Hugula.UIComponents
                     repItem = GetValideLoopItemAt(nextIdx);
                     if (repItem != null)
                     {
-                        if(repItem.onlyPosDirty == false)
+                        if (repItem.onlyPosDirty == false)
                         {
                             ReplaceLoopItemAt(index1, nextIdx);
                             remEndIdx = nextIdx;
@@ -479,13 +474,13 @@ namespace Hugula.UIComponents
                     }
                     else
                     {
-                        if(remBeginIdx > index) //如果第一个没有被替换 刷新到开头
+                        if (remBeginIdx > index) //如果第一个没有被替换 刷新到开头
                         {
                             ReplaceLoopItemAt(remEndIdx, index);
                         }
                         item1.index = -1; //强制刷新
                         item1.onlyPosDirty = true;
-                        LayOut(item1, index1+1); //刷新到下一个位置
+                        LayOut(item1, index1 + 1); //刷新到下一个位置
                     }
                 }
             }
@@ -512,7 +507,7 @@ namespace Hugula.UIComponents
 
             for (int i = range_begin; i <= range_end; i++)
                 renderQueue.Enqueue(i);
-            
+
             CalcBounds();
         }
 
@@ -575,7 +570,7 @@ namespace Hugula.UIComponents
             int min = int.MaxValue, max = int.MinValue;
             foreach (var item1 in m_Pages)
             {
-                item1.onlyPosDirty = false;
+                // item1.onlyPosDirty = false;
                 if (item1.index != -1)
                     min = Math.Min(item1.index, min);
                 max = Math.Max(item1.index, max);
@@ -676,23 +671,67 @@ namespace Hugula.UIComponents
             m_FootDataIndex = 0;
         }
 
-        public void OnSelect(ILoopSelectStyle loopSelectStyle) //选中
+        public class SelectArg
         {
-            if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle();
-            var loopItem = loopSelectStyle.loopItem;
-            m_SelecteStyle = loopSelectStyle;
-            m_LastSelectedIndex = m_SelectedIndex;
-            m_SelectedIndex = loopItem.index;
-            loopSelectStyle.SelectedStyle();
-            if (onSelected != null) onSelected(this.parameter, loopItem.item, m_SelectedIndex, m_LastSelectedIndex);
+            public int selectedIndex;
+            public int lastSelectedIndex;
+        }
+        private SelectArg defaultArg = new SelectArg();
+
+        protected bool CanSelect(int index, out object parameter) //选中
+        {
+            parameter = null;
             object para = null;
             if (itemParameter == null)
-                para = this;
+            {
+                defaultArg.selectedIndex = index;
+                defaultArg.lastSelectedIndex = m_SelectedIndex;
+                para = defaultArg;
+            }
             else
                 para = itemParameter;
-            if (itemCommand != null && itemCommand.CanExecute(para))
+
+
+            if (itemCommand != null)
             {
-                itemCommand.Execute(para);
+                if (itemCommand.CanExecute(para)) //check can select
+                {
+                    parameter = para;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 选中，渲染出来才能选中
+        /// </summary>
+        /// <param name="loopItem"></param>
+        public void OnSelect(LoopItem loopItem) //选中
+        {
+            // if (onSelected != null) onSelected(this.parameter, loopItem.item, m_SelectedIndex, m_LastSelectedIndex);
+            var loopSelectStyle = loopItem.loopSelectStyle;
+            var can = CanSelect(loopItem.index, out object para);
+
+            if (can && loopSelectStyle != null)
+            {
+                if (loopItem.index != m_SelectedIndex) m_LastSelectedIndex = m_SelectedIndex; //如果是TriggerStyleBySelectedIndex的时候标记的索引
+                m_SelectedIndex = loopItem.index;
+                selectStyle = loopSelectStyle;
+                if (itemParameter == null)
+                {
+                    defaultArg.selectedIndex = m_SelectedIndex;
+                    defaultArg.lastSelectedIndex = m_LastSelectedIndex;
+                    para = defaultArg;
+                }
+                if (para != null) itemCommand?.Execute(para);
             }
         }
 
@@ -704,27 +743,58 @@ namespace Hugula.UIComponents
                 var item = GetValideLoopItemAt(selectedIndex);
                 if (item != null && item.loopSelectStyle != null)
                 {
-                    OnSelect(item.loopSelectStyle);
+                    OnSelect(item);
                 }
                 else
-                    m_SelectedIndex = selectedIndex;
+                {
+                    var can = CanSelect(selectedIndex, out object para);
+                    if (can)
+                    {
+                        m_SelectedIndex = selectedIndex; //标记
+                    }
+                }
             }
-
+            else
+            {
+                m_SelectedIndex = -1;
+                selectStyle = null;
+            }
         }
 
         #endregion
 
         #region 模板项目
 
+        protected Hugula.Utils.GameObjectPool<BindableObject> m_Pool;
+        void OnPoolGet(BindableObject comp)
+        {
+            comp.gameObject?.SetActive(true);
+        }
+
+        void OnPoolRealse(BindableObject comp)
+        {
+            comp.gameObject?.SetActive(false);
+        }
+
+        void InitTemplatePool()
+        {
+            if (m_Pool == null)
+            {
+                m_Pool = new Hugula.Utils.GameObjectPool<BindableObject>(OnPoolGet, OnPoolRealse);
+                for (int i = 0; i < templates.Length; i++)
+                    m_Pool.Add(i, templates[i]);
+            }
+        }
+
         protected List<LoopItem> m_Pages = new List<LoopItem>();
         protected int m_HeadDataIndex;
         protected int m_FootDataIndex;
 
-        protected void CalcPageSize()
+        protected void Init()
         {
-            if (m_ItemSource != null)
+            if (templates != null && templates.Length > 0)
             {
-                var rect = m_ItemSource.GetComponent<RectTransform>().rect;
+                var rect = templates[0].GetComponent<RectTransform>().rect;
                 if (m_ItemSize.x == 0)
                     SetItemSize(Mathf.Abs(rect.width), 0);
                 else
@@ -735,16 +805,23 @@ namespace Hugula.UIComponents
                 else
                     SetItemSize(m_ItemSize.y, 1);
             }
+#if UNITY_EDITOR
+            else
+            {
+                Debug.LogError($"LoopScroll{this} Init templates is null path:{Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject)}");
+            }
+#endif
 
             InitColumns();
             InitPages();
+            InitTemplatePool();
         }
 
         void InitColumns()
         {
 
             var vSize = viewRect.rect; //  content.rect;
-            if(m_Columns<0) //auto columns
+            if (m_Columns < 0) //auto columns
                 m_RealColumns = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.horizontalPadding));
             else
                 m_RealColumns = m_Columns;
@@ -808,7 +885,7 @@ namespace Hugula.UIComponents
             var idx2Item = m_Pages[j];
 
             idx1Item.onlyPosDirty = true;
-
+            var templateId = idx1Item.templateType;
             var temp = idx1Item.item;
             var tmptrans = idx1Item.transform;
             var tmpstyle = idx1Item.loopSelectStyle;
@@ -816,13 +893,20 @@ namespace Hugula.UIComponents
 
             idx1Item.item = idx2Item.item;
             idx1Item.transform = idx2Item.transform;
+            idx1Item.templateType = idx2Item.templateType;
             if (tmpstyle != null)
                 tmpstyle.InitSytle(idx2Item, this);
 
             idx2Item.item = temp;
             idx2Item.transform = tmptrans;
+            idx2Item.templateType = templateId;
             if (tmpstyle2 != null)
                 tmpstyle2.InitSytle(idx1Item, this);
+
+            // if(m_SelectedIndex == idx1)
+            //     m_SelecteStyle = tmpstyle2;
+            // else if(m_SelectedIndex == idx2)
+            //     m_SelecteStyle = tmpstyle;
 
             idx2Item.onlyPosDirty = true;
 
@@ -881,43 +965,44 @@ namespace Hugula.UIComponents
                 RenderItem(item, idx);
             }
         }
+        Component OnCreateOrGetItem(int idx, int templateId, LoopItem loopItem, RectTransform content)
+        {
+            Component item = loopItem.item;
+            if (item == null || loopItem.templateType != templateId)
+            {
+                //还对象到缓存池
+                m_Pool.Release(loopItem.templateType, (BindableObject)item);
+                bool isNew = false;
+                item = m_Pool.Get(templateId, content, out isNew); //创建或者从缓存中获取
+
+                loopItem.templateType = templateId;
+                loopItem.item = item;
+                loopItem.transform = item.GetComponent<RectTransform>();
+                InitItemStyle(loopItem);
+
+                if (isNew && onInstantiated != null)
+                {
+                    onInstantiated(this.parameter, item, idx);
+                }
+
+            }
+
+            return item;
+        }
 
         protected void RenderItem(LoopItem loopItem, int idx)
         {
-            bool dispatchOnSelectedEvent = false;
+            // bool dispatchOnSelectedEvent = false;
             var oldIdx = loopItem.index;
             loopItem.index = idx;
-
-            if (loopItem.item == null && onGetItem == null)
+            if (idx < dataLength)
             {
-                var trans = itemSource.GetComponent<RectTransform>();
-                var item = GameObject.Instantiate(itemSource, trans.position, trans.rotation, content);
-                loopItem.item = item;
-                loopItem.transform = item.GetComponent<RectTransform>();
-                if (onInstantiated != null)
-                    onInstantiated(this.parameter, loopItem.item, loopItem.index);
-
-                dispatchOnSelectedEvent = InitItemStyle(loopItem);
-            }
-
-            if (onGetItem != null)
-            {
-                var item = onGetItem(this.parameter, idx, loopItem.item, oldIdx, content); //
-                var rent = item.GetComponent<RectTransform>();
-                if (rent.parent == null)
-                {
-                    rent.SetParent(content);
-                    rent.rotation = Quaternion.Euler(0, 0, 0);
-                    rent.localScale = Vector3.one;
-                    Vector3 newPos = Vector3.zero;
-                    newPos.x = horizontalPadding;
-                    rent.anchoredPosition = newPos;
-                }
-                loopItem.transform = rent;
-                loopItem.item = item;
-
-                dispatchOnSelectedEvent = InitItemStyle(loopItem);
-
+                var templateId = 0;
+                if (onGetItemTemplateType != null) templateId = onGetItemTemplateType(this.parameter, idx);
+                var item = OnCreateOrGetItem(idx, templateId, loopItem, content); //
+#if UNITY_EDITOR
+                item.name = string.Format("{0}-{1}", idx, templateId);
+#endif              
             }
 
             var gObj = loopItem.item.gameObject;
@@ -936,24 +1021,24 @@ namespace Hugula.UIComponents
             {
                 if (m_SelecteStyle.loopItem.index == m_SelectedIndex)
                     m_SelecteStyle.SelectedStyle();
-                else if (m_SelecteStyle.loopItem == loopItem)
+                else
                     m_SelecteStyle.CancelStyle();
             }
 
             if (oldIdx != idx || !loopItem.onlyPosDirty) //索引变化或者刷新数据
             {
-                if (onItemRender != null ) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
-                if(!(oldIdx == -1 && loopItem.onlyPosDirty)) //如果是删除项目不刷新位置
+                if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+                if (!(oldIdx == -1 && loopItem.onlyPosDirty)) //如果是删除项目不刷新位置
                 {
                     LayOut(loopItem, loopItem.index);
                     loopItem.onlyPosDirty = false;
                 }
             }
 
-
-            if (dispatchOnSelectedEvent)
+            //check select
+            if (m_SelectedIndex == idx && m_SelecteStyle != loopItem.loopSelectStyle)
             {
-                OnSelect(m_SelecteStyle);
+                OnSelect(loopItem);
             }
 
         }
@@ -968,20 +1053,13 @@ namespace Hugula.UIComponents
             m_ViewPointRect.y = -cpos.y;
         }
 
-        protected bool InitItemStyle(LoopItem loopItem)
+        protected void InitItemStyle(LoopItem loopItem)
         {
-            var loopItemSelect = loopItem.item.GetComponent<ILoopSelectStyle>();
+            var loopItemSelect = loopItem.item?.GetComponent<ILoopSelectStyle>();
             if (loopItemSelect != null)
             {
                 loopItemSelect.InitSytle(loopItem, this);
-                if (m_SelectedIndex == loopItem.index)
-                {
-                    m_SelecteStyle = loopItemSelect;
-                    // m_SelecteStyle.SelectedStyle();
-                    return true;
-                }
             }
-            return false;
         }
 
         ///<summary>
@@ -1008,7 +1086,7 @@ namespace Hugula.UIComponents
         #region  tool
         protected void ClearItems()
         {
-            if(content && content!= rectTransform) content.anchoredPosition = Vector2.zero;// m_ContentLocalStart;
+            if (content && content != rectTransform) content.anchoredPosition = Vector2.zero;// m_ContentLocalStart;
             foreach (var item in m_Pages)
             {
                 if (item.transform)
@@ -1018,6 +1096,10 @@ namespace Hugula.UIComponents
                 }
                 item.index = -1;
             }
+
+            m_SelectedIndex = -1;
+            m_LastSelectedIndex = -1;
+            selectStyle = null;
         }
 
         #endregion

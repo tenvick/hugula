@@ -363,6 +363,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 1898566435255580329}
 --- !u!1 &1898566435622137220
 GameObject:
@@ -462,6 +463,7 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 1898566435622137210}
 --- !u!1 &1898566435724762646
 GameObject:
@@ -578,10 +580,12 @@ MonoBehaviour:
       m_Calls: []
   m_Columns: 1
   m_ItemSize: {x: 0, y: 0}
-  m_Padding: 6
-  m_RenderPerFrames: 0
-  m_ItemSource: {fileID: 1898566434948006685}
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_RemoveEasing: 1
+  m_Templates:
+  - {fileID: 1898566434948006685}
   m_SelectedIndex: 1
+  m_ContentLocalStart: {x: 0, y: 0}
   m_ScrollTime: 0.4
   m_ScrollDataSize: 0
 --- !u!114 &1898566436092732780
@@ -603,20 +607,22 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: itemParameter
     path: .
     format: 
     converter: 
     mode: 0
     source: {fileID: 1898566436092732782}
+    target: {fileID: 0}
   - propertyName: context
     path: eg_data
     format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 1898566436092732782}
-  m_forceBinding: 1
 --- !u!1 &1898566436120551731
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,12 +763,14 @@ MonoBehaviour:
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: onClickCommand
     path: context.on_btn_click
     format: 
     converter: 
     mode: 0
     source: {fileID: 1898566436092732780}
+    target: {fileID: 0}
   m_Target: {fileID: 1898566436120551729}
 --- !u!114 &4638732201441098971
 MonoBehaviour:

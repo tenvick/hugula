@@ -21,7 +21,7 @@ namespace Hugula.UIComponents {
         ILoopSelect loopScrollBase;
 
         public void OnSelect () {
-            loopScrollBase?.OnSelect (this);
+            loopScrollBase?.OnSelect(this.loopItem);
         }
 
         public void SelectedStyle () {
@@ -80,7 +80,7 @@ namespace Hugula.UIComponents {
     }
 
     public interface ILoopSelect {
-        void OnSelect (ILoopSelectStyle loopItem);
+        void OnSelect (LoopItem loopItem);
     }
 
     public interface ILoopSelectStyle {

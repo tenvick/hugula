@@ -167,7 +167,8 @@ MonoBehaviour:
   m_ItemSize: {x: 0, y: 0}
   m_Padding: {x: 20, y: 10, z: 0, w: -20}
   m_RemoveEasing: 1
-  m_ItemSource: {fileID: 6486442932134360868}
+  m_Templates:
+  - {fileID: 6486442932134360868}
   m_SelectedIndex: -1
   m_ContentLocalStart: {x: 0, y: 0}
   m_ScrollTime: 0.4
@@ -207,7 +208,6 @@ MonoBehaviour:
     source: {fileID: 8546090328614921685}
     target: {fileID: 8043727514733340239}
   m_Target: {fileID: 3061713256876353407}
-  m_forceBinding: 1
 --- !u!1 &1999197224859069654
 GameObject:
   m_ObjectHideFlags: 0
@@ -1904,7 +1904,8 @@ MonoBehaviour:
   m_ItemSize: {x: 0, y: 0}
   m_Padding: {x: 0, y: 0, z: 0, w: 0}
   m_RemoveEasing: 1
-  m_ItemSource: {fileID: 7076665908509375229}
+  m_Templates:
+  - {fileID: 7076665908509375229}
   m_SelectedIndex: -1
   m_ContentLocalStart: {x: 0, y: -90}
   m_ScrollTime: 0.4
@@ -1958,7 +1959,6 @@ MonoBehaviour:
     source: {fileID: 8546090328614921685}
     target: {fileID: 0}
   m_Target: {fileID: 7076665907005035501}
-  m_forceBinding: 1
 --- !u!1 &7076665907116739544
 GameObject:
   m_ObjectHideFlags: 0

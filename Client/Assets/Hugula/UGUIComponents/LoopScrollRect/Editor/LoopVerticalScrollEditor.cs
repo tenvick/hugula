@@ -73,7 +73,8 @@ namespace HugulaEditor.UIComponents
         protected SerializedProperty m_Templates;
         protected SerializedProperty m_RenderPerFrames;
         protected SerializedProperty m_PageSize;
-        protected SerializedProperty m_Padding;
+        protected SerializedProperty m_PaddingTop;
+        protected SerializedProperty m_PaddingBottom;
 
         protected SerializedProperty m_Content;
         protected SerializedProperty m_Elasticity;
@@ -88,7 +89,7 @@ namespace HugulaEditor.UIComponents
         // protected SerializedProperty m_OnValueChanged;
         protected SerializedProperty m_AutoScrollToBottom;
         protected SerializedProperty m_CeilBar;
-        protected SerializedProperty m_LoadingBar;        
+        protected SerializedProperty m_LoadingBar;
         protected SerializedProperty m_FloorBar;
         protected SerializedProperty m_DragOffsetShow;
         protected SerializedProperty m_OnEndDragChanged;
@@ -135,8 +136,8 @@ namespace HugulaEditor.UIComponents
             m_Templates = serializedObject.FindProperty("m_Templates");
             m_RenderPerFrames = serializedObject.FindProperty("m_RenderPerFrames");
             m_PageSize = serializedObject.FindProperty("m_PageSize");
-            m_Padding = serializedObject.FindProperty("m_Padding");
-            // m_Columns = serializedObject.FindProperty("m_Columns");
+            m_PaddingTop = serializedObject.FindProperty("m_PaddingTop");
+            m_PaddingBottom = serializedObject.FindProperty("m_PaddingBottom");
 
             Init();
         }
@@ -165,17 +166,21 @@ namespace HugulaEditor.UIComponents
             if (targets.Length == 1)
             {
                 RectTransform transform = (RectTransform)((MonoBehaviour)target).transform;
-                // int colums = m_Columns.intValue;
-                // if (m_ItemSource.objectReferenceValue == null) {
-                //     var item = transform.GetChild (0);
-                //     if (item != null) {
-                //         if (item.childCount > 0) {
-                //             item = item.GetChild (0);
-                //             m_ItemSource.objectReferenceValue = item;
-                //             Debug.LogFormat (" m_ItemSource = {0}", item);
-                //         }
-                //     }
-                // }
+                if (m_Templates.arraySize == 0)
+                {
+                    var item = transform.Find("ItemContainer");
+                    if (item != null)
+                    {
+                        if (item.childCount > 0)
+                        {
+                            item = item.GetChild(0);
+                            m_Templates.InsertArrayElementAtIndex(0);
+                            var itemBind = item.GetComponent<BindableObject>();
+                            m_Templates.GetArrayElementAtIndex(0).objectReferenceValue = itemBind;
+                            Debug.LogFormat(" m_Templates = {0}", item);
+                        }
+                    }
+                }
 
                 if (m_Content.objectReferenceValue == null)
                 {
@@ -188,14 +193,7 @@ namespace HugulaEditor.UIComponents
                 transform.pivot = new Vector2(0f, 1f);
                 if ((rect = (RectTransform)m_Content.objectReferenceValue) != null && !EditorApplication.isPlaying)
                 {
-                    // rect.pivot = Vector2.zero;
                     var pivot = rect.pivot;
-                    // if (colums == 0) //单列
-                    // {
-                    //     pivot.x = 0;//左对齐
-
-                    // }
-                    // else if (colums == 1) // 上对齐
                     {
                         pivot.y = 1;
                         if (rect.anchorMax.y != 1) //锚点必须上对齐
@@ -213,41 +211,12 @@ namespace HugulaEditor.UIComponents
                             Debug.LogWarningFormat("当({0})只有一列的时候{1}锚点必须上对齐 anchorMin= {2}", transform, rect, rect.anchorMin);
                         }
                     }
-                    // else //左上角对齐
-                    // {
-                    //     pivot = new Vector2(0f, 1f);
-                    //     rect.anchorMin = new Vector2(0, 1);
-                    //     rect.anchorMax = new Vector2(0, 1);
-                    // }
 
                     rect.pivot = pivot;
                     rect.anchoredPosition3D = Vector3.zero;
                     rect.anchoredPosition = Vector2.zero;
-                    // Debug.LogFormat("m_Content {0}.pivot = {1}", rect, pivot);
                 }
 
-                // UnityEngine.Component obj;
-                // if ((obj = (Component) m_ItemSource.objectReferenceValue) != null && (rect = (RectTransform) obj.transform) != null && !EditorApplication.isPlaying) {
-                //     var pivot = rect.pivot;
-                //     // if (colums == 0) //单列
-                //     // {
-                //     //     pivot.x = 0;//左对齐
-                //     // }
-                //     // else if (colums == 1) // 上对齐
-                //     {
-                //         pivot.y = 1;
-                //     }
-                //     // else
-                //     // {
-                //     //     pivot = new Vector2(0f, 1f);
-                //     // }
-
-                //     if (!rect.pivot.Equals (pivot)) {
-                //         rect.pivot = pivot;
-                //         Debug.LogFormat ("m_ItemSource {0}.pivot = {1}", rect, pivot);
-                //     }
-
-                // }
                 serializedObject.ApplyModifiedProperties();
             }
         }
@@ -281,7 +250,8 @@ namespace HugulaEditor.UIComponents
             GUILayout.Space(10);
             //GUILayout.Label(new GUIContent("____________________________________________________________________________________________________"), GUILayout.MaxWidth(500));
             EditorGUILayout.PropertyField(m_PageSize);
-            EditorGUILayout.PropertyField(m_Padding);
+            EditorGUILayout.PropertyField(m_PaddingTop);
+            EditorGUILayout.PropertyField(m_PaddingBottom);
             EditorGUILayout.PropertyField(m_RenderPerFrames);
             EditorGUILayout.PropertyField(m_DragOffsetShow);
 
@@ -368,7 +338,7 @@ namespace HugulaEditor.UIComponents
                     var obj = item.objectReferenceValue as Component;
                     if (obj && !(obj is BindableObject))
                     {
-                        var bindable = obj.GetComponent<BindableContainer>()?? obj.GetComponent<BindableObject>();
+                        var bindable = obj.GetComponent<BindableContainer>() ?? obj.GetComponent<BindableObject>();
 
                         item.objectReferenceValue = bindable;
                         if (bindable == null)

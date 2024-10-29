@@ -71,14 +71,24 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        public float padding
+        public float paddingTop
         {
-            get { return target.padding; }
-            set
-            {
-                target.padding = value;
-                OnPropertyChanged();
-            }
+            get { return target.paddingTop; }
+            // set
+            // {
+            //     target.paddingTop = value;
+            //     OnPropertyChanged();
+            // }
+        }
+
+        public float paddingBottom
+        {
+            get { return target.paddingBottom; }
+            // set
+            // {
+            //     target.paddingBottom = value;
+            //     OnPropertyChanged();
+            // }
         }
 
         public int renderPerFrames
@@ -265,7 +275,7 @@ namespace Hugula.Databinding.Binder
             BindableObject item = (BindableObject)obj2;
             if (item != null)
             {
-                item.forceContextChanged = m_forceBinding;
+                // item.forceContextChanged = m_forceBinding;
                 // item.context = items[index];
                 BindingUtility.SetContext(item, items[index]);
             }

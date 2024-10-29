@@ -231,7 +231,8 @@ MonoBehaviour:
   m_ItemSize: {x: 0, y: 0}
   m_Padding: {x: 0, y: 0, z: 0, w: 0}
   m_RemoveEasing: 1
-  m_ItemSource: {fileID: 801883228876914997}
+  m_Templates:
+  - {fileID: 801883228876914997}
   m_SelectedIndex: -1
   m_ContentLocalStart: {x: 0, y: 0}
   m_ScrollTime: 0.4
@@ -271,7 +272,6 @@ MonoBehaviour:
     source: {fileID: 801883227586217137}
     target: {fileID: 0}
   m_Target: {fileID: 801883227586217137}
-  m_forceBinding: 1
 --- !u!1 &801883227784651437
 GameObject:
   m_ObjectHideFlags: 0

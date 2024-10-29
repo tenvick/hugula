@@ -9,8 +9,8 @@ namespace Hugula.Databinding.Binder
     public abstract class MaskableGraphicBinder<T> : UIBehaviourBinder<T> where T : UnityEngine.UI.MaskableGraphic
     {
 
-        public const string MaskableProperty = "maskable";
-        public const string ColorProperty = "color";
+        // public const string MaskableProperty = "maskable";
+        // public const string ColorProperty = "color";
 
         #region  重写属性
         public bool maskable

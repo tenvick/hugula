@@ -59,16 +59,16 @@ namespace PSDUINewImporter
             // }
 
             //fill ItemSource
-            var itemSource = target.itemSource;
+            var itemSource = target.templates;
             for (var i = 0; i < layer.layers.Length; i++)
             {
                 var l1 = layer.layers[i];
                 if (!PSDImportUtility.NeedDraw(l1)) continue;
 
-                if (itemSource != null && (ctrl.CompareLayerType(l1.type, ComponentType.BindableContainer) || ctrl.CompareLayerType(l1.type, ComponentType.Default)))
+                if (itemSource != null && itemSource.Length > 0 && (ctrl.CompareLayerType(l1.type, ComponentType.BindableContainer) || ctrl.CompareLayerType(l1.type, ComponentType.Default)))
                 {
                     l1.type = ComponentType.BindableContainer; //强制为.BindableContainer
-                    ctrl.DrawLayer(i, l1, itemSource.gameObject, itemSource.transform.parent.gameObject);
+                    ctrl.DrawLayer(i, l1, itemSource[0].gameObject, itemSource[0].transform.parent.gameObject);
                     itemSource = null;
                     break;
                 }

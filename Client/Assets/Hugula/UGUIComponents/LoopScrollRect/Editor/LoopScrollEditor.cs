@@ -7,6 +7,11 @@ using UnityEditor.AnimatedValues;
 using UnityEngine;
 using UnityEngine.UI;
 using Hugula.UIComponents;
+using System.IO;
+using System.Text;
+using System.Linq;
+using Hugula.Utils;
+
 
 namespace HugulaEditor.UIComponents
 {
@@ -70,7 +75,9 @@ namespace HugulaEditor.UIComponents
             rt2.pivot = Vector2.up;
             var bindableContainer = itemSource.AddComponent<BindableContainer>();
 
-            loopScrollRect.itemSource = bindableContainer;
+            // loopScrollRect.itemSource = bindableContainer;
+            loopScrollRect.templates = new BindableObject[1];
+            loopScrollRect.templates[0] = bindableContainer;
 
             GameObject parent = menuCommand.context as GameObject; // Selection.activeGameObject;
             root.SetActive(true);
@@ -100,7 +107,7 @@ namespace HugulaEditor.UIComponents
     {
 
         protected SerializedProperty m_Columns;
-        protected SerializedProperty m_ItemSource;
+        protected SerializedProperty m_Templates;
         protected SerializedProperty m_RemoveEasing;
         protected SerializedProperty m_ItemSize;
         protected SerializedProperty m_Padding;
@@ -160,7 +167,7 @@ namespace HugulaEditor.UIComponents
 
             // m_Viewport.serializedObject =  (RectTransform)((GameObject)target).transform;
             //新增加属性
-            m_ItemSource = serializedObject.FindProperty("m_ItemSource");
+            m_Templates = serializedObject.FindProperty("m_Templates");
             m_RemoveEasing = serializedObject.FindProperty("m_RemoveEasing");
             m_ItemSize = serializedObject.FindProperty("m_ItemSize");
             m_Padding = serializedObject.FindProperty("m_Padding");
@@ -212,10 +219,13 @@ namespace HugulaEditor.UIComponents
                 temp.dataLength = 0;
                 var content = temp.content;
                 Transform trans;
+                string pattern = @"^\d+-\d+$";
                 for (int i = content.childCount - 1; i >= 0; i--)
                 {
                     trans = content.GetChild(i);
-                    if(trans.gameObject.name.Contains("(Clone)"))
+                    var objName = trans.gameObject.name;
+                    //objName匹配 数字 {}_{}
+                    if (objName.Contains("(Clone)") || System.Text.RegularExpressions.Regex.IsMatch(objName, pattern))
                         GameObject.DestroyImmediate(trans.gameObject);
                 }
                 Debug.Log("Clear Simulate");
@@ -230,19 +240,48 @@ namespace HugulaEditor.UIComponents
             if (targets.Length == 1)
             {
                 RectTransform transform = (RectTransform)((LoopScrollBase)target).transform;
-                int colums = m_Columns.intValue;
-                if (m_ItemSource.objectReferenceValue == null)
+                if (m_Templates.arraySize == 0)
                 {
-                    var item = transform.Find("ItemSource");
+                    List<BindableContainer> templateContainer = new List<BindableContainer>();
+                    var item = transform.Find("ItemContainer");
                     if (item != null)
                     {
-                        if (item.childCount > 0)
+                        for (int i = 0; i < item.childCount; i++)
                         {
-                            item = item.GetChild(0);
-                            m_ItemSource.objectReferenceValue = item;
-                            Debug.LogFormat(" m_ItemSource = {0}", item);
+                            var child = item.GetChild(i);
+                            var bindable = child.GetComponent<BindableContainer>();
+                            if (bindable != null)
+                            {
+                                templateContainer.Add(bindable);
+                            }
                         }
                     }
+
+                    if (item == null || templateContainer.Count == 0)
+                    {
+                        for (int i = 0; i < transform.childCount; i++)
+                        {
+                            var child = transform.GetChild(i);
+                            if (child.gameObject.activeSelf == false) //查找隐藏的模板项目
+                            {
+                                var bindable = child.GetComponent<BindableContainer>();
+                                if (bindable != null)
+                                {
+                                    templateContainer.Add(bindable);
+                                }
+                            };
+                        }
+                    }
+
+                    for (int i = 0; i < templateContainer.Count; i++)
+                    {
+                        var template = templateContainer[i];
+                        m_Templates.InsertArrayElementAtIndex(0);
+                        m_Templates.GetArrayElementAtIndex(i).objectReferenceValue = template;
+                        Debug.LogFormat("<color=green> {0}.m_Templates = {1} </color>", CUtils.GetGameObjectFullPath(transform.gameObject), template);
+
+                    }
+
                 }
 
                 if (m_Content.objectReferenceValue == null)
@@ -258,76 +297,6 @@ namespace HugulaEditor.UIComponents
                     Debug.LogFormat(" m_Viewport = {0}", m_Viewport.objectReferenceValue);
                 }
 
-                // if (m_Columns.intValue == 0)
-                // {
-                //     // if(m_Horizontal.boolValue) = true; //水平
-                //     m_Vertical.boolValue = false;
-                // }
-                // else
-                // {
-                //     m_Horizontal.boolValue = false;
-                //     // m_Vertical.boolValue = true;
-                // }
-
-                //设置对齐方式
-                // RectTransform rect;
-                // transform.pivot = new Vector2 (0f, 1f);
-                // if ((rect = (RectTransform) m_Content.objectReferenceValue) != null && !EditorApplication.isPlaying) {
-                //     // rect.pivot = Vector2.zero;
-                //     var pivot = rect.pivot;
-                //     if (colums == 0) //单列
-                //     {
-                //         pivot.x = 0; //左对齐
-
-                //     } else if (colums == 1) // 上对齐
-                //     {
-                //         pivot.y = 1;
-                //         if (rect.anchorMax.y != 1) //锚点必须上对齐
-                //         {
-                //             var anchor = rect.anchorMax;
-                //             anchor.y = 1;
-                //             rect.anchorMax = anchor;
-                //             Debug.LogWarningFormat ("当({0})只有一列的时候{1}锚点必须上对齐 anchorMax= {2}", transform, rect, rect.anchorMax);
-                //         }
-                //         if (rect.anchorMin.y != 1) //锚点必须上对齐
-                //         {
-                //             var anchor = rect.anchorMin;
-                //             anchor.y = 1;
-                //             rect.anchorMin = anchor;
-                //             Debug.LogWarningFormat ("当({0})只有一列的时候{1}锚点必须上对齐 anchorMin= {2}", transform, rect, rect.anchorMin);
-                //         }
-                //     } else //左上角对齐
-                //     {
-                //         pivot = new Vector2 (0f, 1f);
-                //         rect.anchorMin = new Vector2 (0, 1);
-                //         rect.anchorMax = new Vector2 (0, 1);
-                //     }
-
-                //     rect.pivot = pivot;
-                //     rect.anchoredPosition3D = Vector3.zero;
-                //     rect.anchoredPosition = Vector2.zero;
-                //     // Debug.LogFormat("m_Content {0}.pivot = {1}", rect, pivot);
-                // }
-
-                // UnityEngine.Component obj;
-                // if ((obj = (Component) m_ItemSource.objectReferenceValue) != null && (rect = (RectTransform) obj.transform) != null && !EditorApplication.isPlaying) {
-                //     var pivot = rect.pivot;
-                //     if (colums == 0) //单列
-                //     {
-                //         pivot.x = 0; //左对齐
-                //     } else if (colums == 1) // 上对齐
-                //     {
-                //         pivot.y = 1;
-                //     } else {
-                //         pivot = new Vector2 (0f, 1f);
-                //     }
-
-                //     if (!rect.pivot.Equals (pivot)) {
-                //         rect.pivot = pivot;
-                //         Debug.LogFormat ("m_ItemSource {0}.pivot = {1}", rect, pivot);
-                //     }
-
-                // }
                 serializedObject.ApplyModifiedProperties();
             }
         }
@@ -360,8 +329,8 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_ContentLocalStart);
             EditorGUILayout.PropertyField(m_Content);
 
-            PropertyFieldChooseMono(m_ItemSource);
-            // EditorGUILayout.PropertyField(m_ItemSource);
+            PropertyFieldChooseMono(m_Templates);
+            // EditorGUILayout.PropertyField(m_Templates);
 
             EditorGUILayout.PropertyField(m_ItemSize);
             EditorGUILayout.PropertyField(m_Padding);
@@ -484,30 +453,48 @@ namespace HugulaEditor.UIComponents
 
         public static void PropertyFieldChooseMono(SerializedProperty prop)
         {
-            EditorGUILayout.LabelField("Template item type must is a BindableContainer", GUILayout.MaxWidth(300));
 
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Template item type must is BindableObject", GUILayout.MaxWidth(300));
 
-            EditorGUILayout.PropertyField(prop);
+            // EditorGUILayout.PropertyField (prop);
 
-            // if (prop) {
-
-            // var size = prop.arraySize;
-            // for (int i = 0; i < size; i++) {
-            var item = prop;//prop.GetArrayElementAtIndex (i);
-            var obj = item.objectReferenceValue as Component;
-            if (obj && !(obj is BindableObject))
+            if (prop.isArray)
             {
-                var bindable = obj.GetComponent<BindableObject>();
-                item.objectReferenceValue = bindable;
-                if (bindable == null)
+                var size = prop.arraySize;
+                GUILayout.Label(new GUIContent(prop.name.Replace("m_", "")), GUILayout.Width(160));
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(new GUIContent("Size"), GUILayout.Width(60));
+                GUILayout.TextField(size.ToString(), GUILayout.Width(60));
+                if (GUILayout.Button("+"))
                 {
-                    Debug.LogWarning("Template item type must is BindableContainer .");
+                    prop.InsertArrayElementAtIndex(size);
                 }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginVertical();
+                for (int i = 0; i < size; i++)
+                {
+                    var item = prop.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(item);
+                    var obj = item.objectReferenceValue as Component;
+                    if (obj && !(obj is BindableObject))
+                    {
+                        var bindable = obj.GetComponent<BindableContainer>() ?? obj.GetComponent<BindableObject>();
+
+                        item.objectReferenceValue = bindable;
+                        if (bindable == null)
+                        {
+                            Debug.LogWarning("Template item type must is BindableContainer .");
+                        }
+                    }
+                }
+                if (GUILayout.Button("-"))
+                {
+                    prop.DeleteArrayElementAtIndex(size - 1);
+                }
+                EditorGUILayout.EndVertical();
             }
-            // }
-            // }
-            EditorGUILayout.EndHorizontal();
         }
 
         public static string[] ConvertTypeArrayToStringArray(List<Type> tps)
@@ -537,4 +524,107 @@ namespace HugulaEditor.UIComponents
             return temp.ToArray();
         }
     }
+
+
+    public class LoopScrollRectMenu
+    {
+
+        [MenuItem("Assets/LoopScrollRect/Refresh Templates Error Asset from Folder", true, 101)]
+        private static bool ValidateRefreshLoopScrollRectByFolder()
+        {
+            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            {
+                if (Directory.Exists(AssetDatabase.GetAssetPath(obj)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        [MenuItem("Assets/LoopScrollRect/Refresh Templates Error Asset from Folder")]
+        public static void RefreshLoopScrollRectByFolder()
+        {
+            // string path = string.Empty;
+            StringBuilder sb = new StringBuilder();
+            string tagName = string.Empty;
+
+            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            {
+                var assPath = AssetDatabase.GetAssetPath(obj);
+                Debug.LogFormat("assPath={0} Exists={1}", assPath, Directory.Exists(assPath));
+                // 如果是文件夹
+                if (Directory.Exists(assPath))
+                {
+                    var prefabPaths = Directory.GetFiles(assPath, "*.prefab", SearchOption.AllDirectories);
+                    Debug.LogFormat("foreach len ={0} ", prefabPaths.Length);
+
+                    // 遍历文件夹下的prefab 找出所有的LoopScrollRect
+                    foreach (var prefabPath in prefabPaths)
+                    {
+                        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                        var loopScrollRects = prefab.GetComponentsInChildren<LoopScrollRect>(true);
+
+                        foreach (var loopScrollRect in loopScrollRects)
+                        {
+                            var templates = loopScrollRect.templates;
+                            var transform = loopScrollRect.transform;
+                            if (templates.Length == 0)
+                            {
+
+                                List<BindableContainer> templateContainer = new List<BindableContainer>();
+                                var item = transform.Find("ItemContainer");
+                                if (item != null)
+                                {
+                                    for (int i = 0; i < item.childCount; i++)
+                                    {
+                                        var child = item.GetChild(i);
+                                        var bindable = child.GetComponent<BindableContainer>();
+                                        if (bindable != null)
+                                        {
+                                            templateContainer.Add(bindable);
+                                        }
+                                    }
+                                }
+
+                                if (item == null || templateContainer.Count == 0)
+                                {
+                                    for (int i = 0; i < transform.childCount; i++)
+                                    {
+                                        var child = transform.GetChild(i);
+                                        if (child.gameObject.activeSelf == false) //查找隐藏的模板项目
+                                        {
+                                            var bindable = child.GetComponent<BindableContainer>();
+                                            if (bindable != null)
+                                            {
+                                                templateContainer.Add(bindable);
+                                            }
+                                        };
+                                    }
+                                }
+                           
+                                if (templateContainer.Count > 0)
+                                {
+                                    loopScrollRect.templates = templateContainer.ToArray();//new BindableObject[1];
+                                    Debug.LogFormat("<color=#90EE90> {0}.m_Templates = {1} </color>", CUtils.GetGameObjectFullPath(loopScrollRect.gameObject), templateContainer.Count);
+                                    UnityEditor.EditorUtility.SetDirty(loopScrollRect);
+                                }
+                                else
+                                {
+                                    Debug.LogFormat($"<color=red> 没找到模板  {CUtils.GetGameObjectFullPath(loopScrollRect.gameObject)}  LoopScrollRect({loopScrollRect}) </color>");
+                                }
+                            }
+                            else
+                            {
+                                Debug.Log($"<color=green>loopScrollRects={CUtils.GetGameObjectFullPath(loopScrollRect.gameObject)} templates.Length={templates.Length} </color>");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }

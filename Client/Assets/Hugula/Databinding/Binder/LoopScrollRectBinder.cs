@@ -29,6 +29,25 @@ namespace Hugula.Databinding.Binder
             }
         }
 
+        public ICommand droppedCommand
+        {
+            get { return target.droppedCommand; }
+            set
+            {
+                target.droppedCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Action<Vector2> onDropped
+        {
+            get { return target.onDropped; }
+            set
+            {
+                target.onDropped = value;
+                OnPropertyChanged();
+            }
+        }
 
         public float scrollTime
         {
@@ -128,15 +147,6 @@ namespace Hugula.Databinding.Binder
             }
         }
 
-        // public Action<int> onItemRenderNotify
-        // {
-        //     get { return target.onItemRenderNotify; }
-        //     set
-        //     {
-        //         target.onItemRenderNotify = value;
-        //         OnPropertyChanged();
-        //     }
-        // }
 
         public Action<object, object, int, int> onSelected
         {
@@ -241,7 +251,7 @@ namespace Hugula.Databinding.Binder
             BindableObject item = (BindableObject)obj2;
             if (item != null)
             {
-                item.forceContextChanged = m_forceBinding;
+                // item.forceContextChanged = m_forceBinding;
                 // item.context = items[index];
                 BindingUtility.SetContext(item, items[index]);
             }
@@ -289,12 +299,8 @@ namespace Hugula.Databinding.Binder
         public override IList<BindableObject> GetChildren()
         {
             var list = new List<BindableObject>();
-            var itemtemplate = target.itemSource as BindableObject;
-            if (itemtemplate != null)
-            {
-                list.Add(itemtemplate);
-            }
-            return list;
+            list.AddRange(target.templates);
+            return list;          
         }
 
         protected override void OnDestroy()

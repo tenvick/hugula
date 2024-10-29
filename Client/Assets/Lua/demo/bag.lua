@@ -104,7 +104,7 @@ bag.tab_left = bag_tab_left
 bag.selected_trigger = true
 bag.text = {}
 bag.tab_idx = 0
-bag.sel_idx = 0
+bag.sel_idx = 0 --选中的tab页面
 bag.lsv_selected_idx = -1
 ----  bag end  --
 
@@ -148,8 +148,13 @@ bag.btn_go = {
         local i = tonumber(arg.text)
         print("btn_go", arg,arg.text)
         bag_items:SetProperty("scroll_to_index", i,true)
-        -- bag.property.sel_idx = i
-        -- bag.property.lsv_selected_idx = i --变更刷新
+        -- bag.property.sel_idx = i --改变选中的tab页面
+        DelayFrame(
+            function()
+                bag.property.lsv_selected_idx = i --选中
+            end,
+            24
+        )
         -- bag:SetProperty("lsv_selected_idx",i,true) --强制刷新
     end
 }
@@ -221,9 +226,16 @@ bag.on_select_render = function(bc, item)
 end
 bag.on_tab_sel = {
     CanExecute = function(self, arg)
+        print("on_tab_sel.CanExecute", arg.selectedIndex,arg.lastSelectedIndex)
+        if (arg.selectedIndex == 2) then 
+            print("on_tab_sel.你不能选择", arg.selectedIndex,arg.lastSelectedIndex)
+            return false 
+        end
         return true
     end,
     Execute = function(self, arg)
+        print("on_tab_sel.Execute", arg.selectedIndex,arg.lastSelectedIndex)
+
         bag:sel_tab_item(arg.selectedIndex+1)
     end
 }
@@ -269,8 +281,8 @@ function bag:use_item(idx,count)
             table.remove(bag.test_bag_data, idx)
         end
 
-        -- bag.property.lsv_selected_idx = -1
-        bag:SetProperty("lsv_selected_idx",-1,true) --强制刷新
+        bag.property.lsv_selected_idx = -1
+        -- bag:SetProperty("lsv_selected_idx",-1,true) --强制刷新
         bag.property.selected_item = nil
     else
         bag.items:set_Item(idx, item) --更新数据

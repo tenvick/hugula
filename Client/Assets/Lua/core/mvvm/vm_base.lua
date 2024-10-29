@@ -58,7 +58,6 @@ local function set_property(self, property_name, value,force)
     local old = self[property_name]
     if force or old ~= value then
         self[property_name] = value
-        print("set_property", property_name, value)
         on_Property_changed(self, property_name)
     end
 end

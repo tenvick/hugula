@@ -1,5 +1,13 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.11.9
+1 Binding表达式减少默认self Part节点。
+2 LoopScrollRect 快速删除动画bug修复。
+3 修复C# Examples示例。
+4 BindableContainer m_OnContextChanged某些时候不触发bug修复。
+5 PropertyChangedEventHander Invoke执行优化，只触发相关的property.
+6 Expression分开 方法和属性执行。
+
 2024.10.25
 1 模板格式优化。
 2 更加完善的bag示例：跳转，物品使用，分类标签。

@@ -222,7 +222,7 @@ namespace Hugula.Databinding
             if (bindingPart.isMethod)
             {
 
-                LuaAPI.lua_getfield(L, -2, property);
+                // LuaAPI.lua_getfield(L, -2, property);
                 // LuaAPI.lua_pushvalue(L, -2);
                 // LuaAPI.lua_gettable(L, -2);
                 // LuaAPI.lua_remove(L, -2);

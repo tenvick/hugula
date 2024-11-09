@@ -105,9 +105,9 @@ end
 
 local function init(rpc)
     parse_protocol(rpc)
-    print("--------------------- init rpc ----------------------")
-    Logger.LogTable(rpc.remoteF)
-    Logger.LogTable(rpc.localF)
+    -- print("--------------------- init rpc ----------------------")
+    -- Logger.LogTable(rpc.remoteF)
+    -- Logger.LogTable(rpc.localF)
 end
 
 local function debug_list_all_rpc(rpc)

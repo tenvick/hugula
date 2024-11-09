@@ -208,6 +208,7 @@ MonoBehaviour:
     source: {fileID: 8546090328614921685}
     target: {fileID: 8043727514733340239}
   m_Target: {fileID: 3061713256876353407}
+  m_forceBinding: 1
 --- !u!1 &1999197224859069654
 GameObject:
   m_ObjectHideFlags: 0
@@ -1941,7 +1942,7 @@ MonoBehaviour:
     path: .
     format: 
     converter: 
-    mode: 1
+    mode: 0
     source: {fileID: 7076665907005035501}
     target: {fileID: 8665898392276877597}
   - propertyName: setScrollIndex
@@ -1955,10 +1956,11 @@ MonoBehaviour:
     path: context.lsv_selected_idx
     format: 
     converter: 
-    mode: 0
+    mode: 1
     source: {fileID: 8546090328614921685}
     target: {fileID: 0}
   m_Target: {fileID: 7076665907005035501}
+  m_forceBinding: 1
 --- !u!1 &7076665907116739544
 GameObject:
   m_ObjectHideFlags: 0

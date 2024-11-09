@@ -166,17 +166,24 @@ namespace Hugula.Audio
             base.Awake();
         }
 
-        // IEnumerator Start()
-        // {
-        //     while (!ResLoader.Ready)
-        //         yield return null;
+        IEnumerator StartInitAudioClipAsset()
+        {
+            while (!ResLoader.Ready)
+                yield return null;
 
-        //     InitAudioClipAsset();
-        // }
+            InitAudioClipAsset();
+        }
 
         public void Init()
         {
-            InitAudioClipAsset();
+            if(!ResLoader.Ready) 
+            {
+                ResLoader.Init();
+                //执行协程StartInitAudioClipAsset
+                StartCoroutine(StartInitAudioClipAsset());
+            }
+            else
+                 InitAudioClipAsset();
         }
 
         #region dnot public

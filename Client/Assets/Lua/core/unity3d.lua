@@ -66,11 +66,11 @@ if NeedProfileDump then
         return id
     end
 else
-    ---ÊôÐÔ¸Ä±äµÄÊ±ºòÍ¨Öª°ó¶¨¶ÔÏó
+    ---ï¿½ï¿½ï¿½Ô¸Ä±ï¿½ï¿½Ê±ï¿½ï¿½Í¨Öªï¿½ó¶¨¶ï¿½ï¿½ï¿½
     ---@overload fun(function:function,time:float,arg:any)
     ---@return int
     Delay = timer.Delay
-    ---ÊôÐÔ¸Ä±äµÄÊ±ºòÍ¨Öª°ó¶¨¶ÔÏó
+    ---ï¿½ï¿½ï¿½Ô¸Ä±ï¿½ï¿½Ê±ï¿½ï¿½Í¨Öªï¿½ó¶¨¶ï¿½ï¿½ï¿½
     ---@overload fun(function:function,frame:int,arg:any)
     ---@return int
     DelayFrame = timer.DelayFrame
@@ -78,7 +78,7 @@ end
 
 
 
----ÊôÐÔ¸Ä±äµÄÊ±ºòÍ¨Öª°ó¶¨¶ÔÏó
+---ï¿½ï¿½ï¿½Ô¸Ä±ï¿½ï¿½Ê±ï¿½ï¿½Í¨Öªï¿½ó¶¨¶ï¿½ï¿½ï¿½
 ---@overload fun(id:int)
 ---@return void
 StopDelay = timer.StopDelay
@@ -111,7 +111,7 @@ local ExpressionUtility = Databinding.ExpressionUtility
 
 local HugulaNotifyCollectionChangedEventArgs = Databinding.HugulaNotifyCollectionChangedEventArgs
 
-ExpressionUtility.instance:Initialize()
+-- ExpressionUtility.instance:Initialize()
 
 local Binder = Hugula.Databinding.Binder
 local AnimatorBinder = Binder.AnimatorBinder

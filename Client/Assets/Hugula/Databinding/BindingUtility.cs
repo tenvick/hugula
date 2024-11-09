@@ -18,9 +18,8 @@ namespace Hugula.Databinding
 #if !HUGULA_RELEASE
             UnityEngine.Profiling.Profiler.BeginSample($"{bindable?.name}:SetContext");
 #endif
-            if (data is LuaTable)
+            if (data is LuaTable lua)
             {
-                var lua = data as LuaTable;
                 if (lua.ContainsKey<string>("CollectionChanged"))
                 {
                     bindable.context = lua.Cast<INotifyTable>();

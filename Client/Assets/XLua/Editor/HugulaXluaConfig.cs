@@ -345,9 +345,9 @@ namespace XLua.Editor
                 customlist.Add(typeof(Hugula.Databinding.IExecute));
                 customlist.Add(typeof(Func<object, int, int>));
                 customlist.Add(typeof(Action<object, Component, int>));
-                customlist.Add(typeof(Hugula.Databinding.BindPathPartGetValueUnpack));
-                // customlist.Add(typeof(Hugula.Databinding.UpdateValue));
-                customlist.Add(typeof(Hugula.Databinding.UpdateValueUnpack));
+                customlist.Add(typeof(Hugula.Databinding.LuaGetSourceInvoke));
+                customlist.Add(typeof(Hugula.Databinding.LuaSetTargetInvoke));
+                customlist.Add(typeof(Hugula.Databinding.LuaSetSourceInvoke));
                 // customlist.Add(typeof(Hugula.Databinding.ApplyActual));
 
                 customlist.Add(typeof(Hugula.Audio.AudioManager));
@@ -472,9 +472,9 @@ namespace XLua.Editor
                 types.Add(typeof(Hugula.Databinding.IExecute));
                 types.Add(typeof(Func<object, int, int>));
                 types.Add(typeof(Action<object, Component, int>));
-                types.Add(typeof(Hugula.Databinding.BindPathPartGetValueUnpack));
-                // types.Add(typeof(Hugula.Databinding.UpdateValue));
-                types.Add(typeof(Hugula.Databinding.UpdateValueUnpack));
+                types.Add(typeof(Hugula.Databinding.LuaGetSourceInvoke));
+                types.Add(typeof(Hugula.Databinding.LuaSetSourceInvoke));
+                types.Add(typeof(Hugula.Databinding.LuaSetTargetInvoke));
                 // types.Add(typeof(Hugula.Databinding.ApplyActual));
                 types.Add(typeof(Hugula.Mvvm.VMStateHelper.IVMState));
 

@@ -43,7 +43,10 @@ namespace Hugula
         /// 一次释放的asset数量
         /// </summary>
         public static int RELEASE_COUNT = 50;
+        [Tooltip("lua文件路径")]
+        [SerializeField]
         internal string enterLua = "begin"; //main
+
 
         internal static LuaEnv luaenv;
         internal static EnterLua instance; //特别单例
@@ -51,8 +54,8 @@ namespace Hugula
         void Awake()
         {
             instance = this;
-            var ins = Executor.instance;
-            ins = null;
+            // var ins = Executor.instance;
+            // ins = null;
             DontDestroyOnLoad(this.gameObject);
         }
         #region  hot update
@@ -62,7 +65,7 @@ namespace Hugula
         {
             if (m_StreamingLuaBundle == null)
             {
-// #if USE_LUA_SEPARATELY
+                // #if USE_LUA_SEPARATELY
 
 #if UNITY_ANDROID && !UNITY_EDITOR
                // use android native read
@@ -72,11 +75,11 @@ namespace Hugula
                 m_StreamingLuaBundle = new StreamingLuaBytesRead(url);
 #endif
 
-// #else
-//                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
-//                 url = CUtils.GetAndroidABLoadPath(url);
-//                 m_StreamingLuaBundle = new LuaBundleRead(url);
-// #endif
+                // #else
+                //                 var url = CUtils.PathCombine(CUtils.GetRealStreamingAssetsPath(), Common.LUA_BUNDLE_NAME);
+                //                 url = CUtils.GetAndroidABLoadPath(url);
+                //                 m_StreamingLuaBundle = new LuaBundleRead(url);
+                // #endif
             }
             return m_StreamingLuaBundle;
         }
@@ -86,13 +89,13 @@ namespace Hugula
         {
             if (m_PersistentLuaBundle == null)
             {
-// #if USE_LUA_SEPARATELY
+                // #if USE_LUA_SEPARATELY
                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
                 m_PersistentLuaBundle = new LuaBundleRead(url);
-// #else
-//                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
-//                 m_PersistentLuaBundle = new LuaBundleRead(url);
-// #endif
+                // #else
+                //                 var url = CUtils.PathCombine(CUtils.GetRealPersistentDataPath(), CUtils.GetPersistentBundleFileName(Common.LUA_BUNDLE_NAME));
+                //                 m_PersistentLuaBundle = new LuaBundleRead(url);
+                // #endif
             }
             return m_PersistentLuaBundle;
         }
@@ -464,7 +467,7 @@ namespace Hugula
 
             bool IEnumerator.MoveNext()
             {
-			   var re =  Time.frameCount <= m_EndCount;
+                var re = Time.frameCount <= m_EndCount;
                 return re;
             }
 

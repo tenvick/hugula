@@ -26,6 +26,11 @@ namespace Hugula.Mvvm
             m_VMState = null;
         }
 
+        public void SetVMState(XLua.LuaEnv luaEnv)
+        {
+            m_VMState = luaEnv?.Global.GetInPath<IVMState>(VM_NAME);
+        }
+
         public object GetMemeber(string vm_name, string mebmer_name)
         {
             return m_VMState.get_member(vm_name, mebmer_name);

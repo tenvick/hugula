@@ -137,6 +137,7 @@ namespace Hugula.Utils
         // public int countAll { get; private set; }
         // public int countActive { get { return countAll - countInactive; } }
         // public int countInactive { get { return m_StackDic.Count; } }
+        public int countSource { get { return m_Source.Count; } }
         public GameObjectPool() { }
         public GameObjectPool(System.Action<T> actionOnGet, System.Action<T> actionOnRelease)
         {

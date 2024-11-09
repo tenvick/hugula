@@ -47,17 +47,24 @@ namespace Hugula.Databinding
         #region  databinding
         protected object m_Context;
         protected object m_InheritedContext;
-        private PropertyChangedEventHandlerEvent m_PropertyChanged = new PropertyChangedEventHandlerEvent();
+        private PropertyChangedEventHandlerEvent m_PropertyChanged;// = new PropertyChangedEventHandlerEvent();
 
         public PropertyChangedEventHandlerEvent PropertyChanged
         {
             get
             {
+                if (m_PropertyChanged == null)
+                    m_PropertyChanged = m_PropertyChangedPool.Get();
                 return m_PropertyChanged;
             }
         }
 
-        internal bool forceContextChanged = false;
+        internal virtual bool forceContextChanged
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// 绑定上下文
         /// </summary>
@@ -66,7 +73,7 @@ namespace Hugula.Databinding
             get { return m_InheritedContext ?? m_Context; }
             set
             {
-                // if (!Object.Equals(m_Context, value) || forceContextChanged)
+                if (!Object.Equals(m_Context, value) || forceContextChanged)
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
@@ -144,6 +151,8 @@ namespace Hugula.Databinding
 
             binding = new Binding(sourcePath, target, property, mode, format, converter);
             bindings.Add(binding);
+            m_BindingsDic.Add(property, binding);
+
         }
 
         // public void SetBinding(string sourcePath, object target, string property, BindingMode mode)
@@ -201,12 +210,12 @@ namespace Hugula.Databinding
                 if (contextBinding != null && contextBinding.path != Binding.SelfPath)
                 {
                     contextBinding.target = this;
-                    contextBinding.ApplyContext(context);
-#if HUGULA_ASYNC_APPLY
-                    Executor.Execute(contextBinding.Apply);
-#else
-                    contextBinding.Apply();
-#endif
+                    // contextBinding.ApplyContext(context);
+                    // #if HUGULA_ASYNC_APPLY
+                    //                     Executor.Execute(contextBinding.Apply);
+                    // #else
+                    contextBinding.Apply(context);
+                    // #endif
                 }
                 else
                     OnBindingContextChanged();
@@ -219,13 +228,14 @@ namespace Hugula.Databinding
 
         protected virtual void OnBindingContextChanged()
         {
+            var bindingContext = context;
             for (int i = 0; i < bindings.Count; i++)
             {
                 var binding = bindings[i];
                 if (!ContextProperty.Equals(binding.propertyName))
                 { //context需要触发自己，由inherited触发
-                    binding.ApplyContext(context);
-                    binding.Apply();
+                    // binding.ApplyContext(context);
+                    binding.Apply(bindingContext);
                 }
             }
         }
@@ -265,12 +275,20 @@ namespace Hugula.Databinding
         protected virtual void OnDestroy()
         {
             ClearBinding();
+            if(m_PropertyChanged!=null)
+                m_PropertyChangedPool.Release(m_PropertyChanged);
             if (m_BindingsDic != null)
                 DictionaryPool<string, Binding>.Release(m_BindingsDic);
             m_Context = null;
             m_InheritedContext = null;
-            m_PropertyChanged?.Clear();
+            m_PropertyChanged = null;
         }
+
+        static void m_ActionOnRelease(PropertyChangedEventHandlerEvent dele)
+        {
+            dele.Clear();
+        }
+        ObjectPool<PropertyChangedEventHandlerEvent> m_PropertyChangedPool = new ObjectPool<PropertyChangedEventHandlerEvent>(null, m_ActionOnRelease);
 
 #if UNITY_EDITOR
         [XLua.DoNotGen]
@@ -289,7 +307,7 @@ namespace Hugula.Databinding
         [XLua.DoNotGen]
         internal virtual void ClearBindRef()
         {
-            foreach(var b in bindings)
+            foreach (var b in bindings)
             {
                 b.source = null;
             }

@@ -459,8 +459,8 @@ namespace Hugula.UIComponents
 
                     if (m_SelectedIndex == index1)
                     {
-                        selectedIndex = -1;
-                        selectedIndex = index;
+                        // selectedIndex = -1;
+                        // selectedIndex = index;
                     }
 
                     repItem = GetValideLoopItemAt(nextIdx);
@@ -781,6 +781,10 @@ namespace Hugula.UIComponents
             if (m_Pool == null)
             {
                 m_Pool = new Hugula.Utils.GameObjectPool<BindableObject>(OnPoolGet, OnPoolRealse);
+            }
+
+            if (templates != null && m_Pool.countSource < templates.Length)
+            {
                 for (int i = 0; i < templates.Length; i++)
                     m_Pool.Add(i, templates[i]);
             }
@@ -792,18 +796,16 @@ namespace Hugula.UIComponents
 
         protected void Init()
         {
-            if (templates != null && templates.Length > 0)
+            if (m_ItemSize.x > 0 && m_ItemSize.y > 0)
+            {
+                SetItemSize(m_ItemSize.x, 0);
+                SetItemSize(m_ItemSize.y, 1);
+            }
+            else if (templates != null && templates.Length > 0)
             {
                 var rect = templates[0].GetComponent<RectTransform>().rect;
-                if (m_ItemSize.x == 0)
-                    SetItemSize(Mathf.Abs(rect.width), 0);
-                else
-                    SetItemSize(m_ItemSize.x, 0);
-
-                if (m_ItemSize.y == 0)
-                    SetItemSize(Mathf.Abs(rect.height), 1);
-                else
-                    SetItemSize(m_ItemSize.y, 1);
+                SetItemSize(Mathf.Abs(rect.width), 0);
+                SetItemSize(Mathf.Abs(rect.height), 1);
             }
 #if UNITY_EDITOR
             else

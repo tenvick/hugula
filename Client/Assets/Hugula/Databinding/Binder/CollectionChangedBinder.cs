@@ -12,7 +12,7 @@ namespace Hugula.Databinding.Binder
     public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T>, ICollectionBinder where T : UnityEngine.Object
     {
         // [Tooltip("Whether context changed, force refresh binding. ")]
-        // [SerializeField] protected bool m_forceBinding = true;
+        [SerializeField] protected bool m_forceBinding = true;
 
         private INotifyCollectionChanged notify;
         #region  集合数据变更

@@ -30,6 +30,7 @@ public class GameInitialize : MonoBehaviour
 
         var LuaBeha = this.gameObject.CheckAddComponent<EnterLua>();
         LuaBeha.enterLua = enterLua;
+        LuaBeha.enabled = true;
 
     }
 }

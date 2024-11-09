@@ -165,18 +165,20 @@ local function on_destroy(self)
     -- body
 end
 
----绑定view的context到当前VMBase
+---绑定view的context到当前VMBase,如果view已经绑定过了相同content则不再绑定
 ---@overload fun()
-local function bind_view(self)
+local function bind_views(self)
     local views = self.views or empty_tab
     for k, view_base in ipairs(views) do
-        view_base:set_child_context(vm_base)
+        if view_base._context ~= self then
+            view_base:set_child_context(self)
+        end
     end
 end
 
 ---绑定view的context到当前VMBase
 ---@overload fun()
-local function unbind_view(self)
+local function unbind_views(self)
     local views = self.views or empty_tab
     for k, view_base in ipairs(views) do
         view_base:set_child_context(nil)
@@ -259,6 +261,8 @@ vm_base.on_destroy = on_destroy
 vm_base.clear = clear
 vm_base.dispose = dispose
 vm_base.set_views_context = set_views_context
+vm_base.bind_views = bind_views
+vm_base.unbind_views = unbind_views
 vm_base.set_views_active = set_views_active
 vm_base.is_open = is_open
 vm_base.debug_property_changed = debug_property_changed
@@ -280,6 +284,8 @@ vm_base.__tostring = tostring
 ---@field on_deactive fun(self:VMBase)
 ---@field clear fun(self:VMBase) 清理view
 ---@field set_views_context fun(self:VMBase) 绑定数据
+---@field bind_views fun(self:VMBase) 绑定数据
+---@field unbind_views fun(self:VMBase) 解绑数据
 ---@field set_views_active fun(self:VMBase,active:boolean) 设置gameobject可见性
 ---@field is_open fun(self:VMBase):boolean 是否开启
 ---@field dispose fun(self:VMBase)

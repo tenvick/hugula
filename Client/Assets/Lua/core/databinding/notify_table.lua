@@ -484,7 +484,7 @@ local function remove_item(self, obj)
     -- index = index + 1
     if index == nil then
         -- error(" Argument index Out of Range " .. tostring(self))
-        return
+        return false
     end
 
     local old = table_remove(items, index)
@@ -497,6 +497,8 @@ local function remove_item(self, obj)
         BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, old, index - 1)
         --  {action = NotifyCollectionChangedAction.Remove, changedItem = old, index = index - 1}
     )
+
+    return true
 end
 
 local function clear(self)

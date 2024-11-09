@@ -78,7 +78,7 @@ namespace Hugula.UIComponents
             else // 多行
             {
                 int x = index % columns;
-                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x;; // + rect.width * .5f;
+                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x; ; // + rect.width * .5f;
                 int y = index / columns;
                 pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
@@ -108,7 +108,7 @@ namespace Hugula.UIComponents
             else // 多行
             {
                 int x = index % columns;
-                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x;; // + rect.width * .5f;
+                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x; ; // + rect.width * .5f;
                 int y = index / columns;
                 pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
@@ -123,7 +123,7 @@ namespace Hugula.UIComponents
         protected override void CalcBounds()
         {
 
-            if (content != null && content!= rectTransform) //不能是自己
+            if (content != null && content != rectTransform) //不能是自己
             {
                 var rect = content.rect;
                 Vector2 delt = new Vector2(rect.width, rect.height);
@@ -149,6 +149,7 @@ namespace Hugula.UIComponents
 
         public override void RemoveAt(int index, int count = 1)
         {
+            RefreshDeleteTweenPos();
             base.RemoveAt(index, count);
 
             if (m_Coroutine != null)
@@ -296,9 +297,32 @@ namespace Hugula.UIComponents
         }
         protected Coroutine m_Coroutine = null;
 
+        /// <summary>
+        /// 立即刷新删除的item位置
+        /// </summary>
+        protected void RefreshDeleteTweenPos()
+        {
+            var t = 1;
+            for (int i = 0; i < m_Pages.Count; i++)
+            {
+                var item = m_Pages[i];
+                if (item.onlyPosDirty && item.index >= 0)
+                {
+                    var pos = EasingLayout(item, item.index, t);//得到目标点位置
+                    RectTransform rectTran = item.transform;
+                    rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+                    rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                    if (t >= 1)
+                    {
+                        item.onlyPosDirty = false;
+                    }
+                }
+            }
+        }
+
         protected IEnumerator DeleteTweenMoveToPos()
         {
-            float t = removeEasing?0:1;
+            float t = removeEasing ? 0 : 1;
             while (true)
             {
                 t += Time.deltaTime;

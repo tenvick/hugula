@@ -272,6 +272,7 @@ MonoBehaviour:
     source: {fileID: 801883227586217137}
     target: {fileID: 0}
   m_Target: {fileID: 801883227586217137}
+  m_forceBinding: 1
 --- !u!1 &801883227784651437
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,7 +1437,7 @@ MonoBehaviour:
     source: {fileID: 0}
     target: {fileID: 0}
   - propertyName: commandParameter
-    path: selectedIndex
+    path: .
     format: 
     converter: 
     mode: 0

@@ -2,9 +2,9 @@
 // direct https://github.com/tenvick/hugula
 //
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using UnityEngine;
 using Hugula.Utils;
 
@@ -41,8 +41,32 @@ namespace Hugula.Databinding
 
         [PopUpComponentsAttribute]
         public UnityEngine.Object source;
-        [PopUpComponentsAttribute]
+        /// <summary>
+        /// The target object 弱引用
+        /// </summary>
         public UnityEngine.Object target;
+        // {
+        //     get
+        //     {
+        //         if (_weakTarget != null && _weakTarget.TryGetTarget(out var target))
+        //             return target;
+        //         return null;
+        //     }
+        //     set
+        //     {
+        //         if (_weakTarget == null)
+        //             _weakTarget = new WeakReference<UnityEngine.Object>(value);
+        //         else
+        //             _weakTarget.SetTarget(value);
+        //     }
+        // }
+
+        WeakReference<UnityEngine.Object> _weakTarget;
+
+        /// <summary>
+        /// The content root source object 弱引用
+        /// </summary>
+        WeakReference<object> _weakLastContext;
 
         public object convert;
 
@@ -54,12 +78,32 @@ namespace Hugula.Databinding
         {
             get
             {
-                return m_Context != null;
+                return bindingContext != null;
             }
         }
 
-        //引用的上下文
-        protected object m_Context;
+        WeakReference<object> _bindingContext;
+
+        /// <summary>
+        /// The binding context object 弱引用
+        /// </summary>
+        public object bindingContext
+        {
+            get
+            {
+                if (_bindingContext != null && _bindingContext.TryGetTarget(out var context))
+                    return context;
+                return null;
+            }
+            set
+            {
+                if (_bindingContext == null)
+                    _bindingContext = new WeakReference<object>(value);
+                else
+                    _bindingContext.SetTarget(value);
+            }
+        }
+
         protected BindingPathPart m_LastPart;
 
         protected bool m_IsApplied = false;
@@ -75,7 +119,6 @@ namespace Hugula.Databinding
                 ProfilerName = string.Format("Binding(path={0},prop={1},tar={2})", this.path, this.propertyName, this.target);
             return ProfilerName;
         }
-        //UnityEngine.Profiling.Profiler.BeginSample();
 #endif
 
         public Binding()
@@ -102,60 +145,94 @@ namespace Hugula.Databinding
         //更新目标
         public void UpdateTarget()
         {
-            //set target value
             if (!isBound || m_IsDisposed)
             {
-                Debug.LogErrorFormat("invalide source {0}", this.path);
+                Debug.LogErrorFormat("UpdateTarget invalide source {0}", this.path);
                 return;
             }
-#if LUA_PROFILER_DEBUG
-            // UnityEngine.Profiling.Profiler.BeginSample("Binding.UpdateTarget");
-#endif
-            if (target != null)
-                ExpressionUtility.UpdateTargetValue(target, propertyName, m_Context, m_LastPart, format, convert);
+
+            if (target != null && m_LastPart != null)
+                ExpressionUtility.SetTargetInvoke(m_LastPart.source, target, propertyName, m_LastPart);
             else
-                Debug.LogErrorFormat("Binding.UpdateTarget target is null,  propertName={0},context={1},lastPart={2} ", propertyName, m_Context, m_LastPart);
-#if LUA_PROFILER_DEBUG
-            // UnityEngine.Profiling.Profiler.EndSample();
+            {
+#if UNITY_EDITOR
+                Debug.LogWarningFormat("Binding.UpdateTarget Apply() target={0},  propertName={1},context={2},lastPart={3} ", target, propertyName, bindingContext, m_LastPart);
 #endif
+                Apply(bindingContext);
+            }
         }
 
         //更新源
         public void UpdateSource()
         {
-            if (!isBound || m_IsDisposed)
-            {
-#if UNITY_EDITOR
-                Debug.LogWarningFormat("invalide source {0}.{1}", this.m_Context, this.path);
-#endif
-                return;
-            }
+            if (m_IsDisposed || !isBound) return;
+
 #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("Binding.UpdateSource");
+            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.UpdateSource.SetSourceInvoke");
 #endif
-            ExpressionUtility.UpdateSourceValue(target, propertyName, m_Context, m_LastPart, format, convert);
+            if (m_LastPart != null && m_LastPart.source != null)
+                ExpressionUtility.SetSourceInvoke(m_LastPart.source, m_LastPart);
+            else
+            {
+#if UNIYT_EDITOR
+                Debug.LogWarningFormat("Binding.UpdateSource full source {0}", this.path);
+#endif
+                BindingPathPart part = null;
+                object m_Current = bindingContext;
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}UpdateSource. FullPath TryGetValue");
+#endif
+                for (var i = 0; i < parts.Count; i++)
+                {
+                    part = parts[i];
+                    part.source = m_Current;
+                    m_LastPart = part;
+
+                    if (!part.isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
+                    {
+                        if (m_Current is INotifyPropertyChanged inpc)
+                        {
+                            part.Subscribe(inpc);
+                        }
+                        else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                        {
+                            var propChanged = inc.Cast<INotifyPropertyChanged>();
+                            part.Subscribe(propChanged);
+                        }
+                    }
+
+                    if (!part.isSelf && m_Current != null && i < parts.Count - 1)
+                    {
+                        part.TryGetValue(m_Current, out m_Current); //
+                    }
+
+                    if (!part.isSelf && m_Current == null && part.nextPart == null)
+                        break;
+
+                }
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
-        }
 
-        private object m_ApplyContext;
-        public void ApplyContext(object context)
-        {
-#if UNITY_EDITOR
-            if (m_ApplyContext != null) //跳过？
-            {
-                Debug.LogWarningFormat("Binding(perpertyName={0}).ApplyContext(context={1})  m_ApplyContext is't null  ", propertyName, context);
-            }
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.SetSourceInvoke");
 #endif
-            m_ApplyContext = context;
+                if (m_Current != null)
+                {
+                    ExpressionUtility.SetSourceInvoke(m_Current, part);
+                }
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.EndSample();
+#endif
+            }
         }
 
-        //绑定目标
-        public void Apply()
+        /// <summary>
+        /// 绑定目标 context 改变后调用方向 target.property = context.path
+        /// </summary>
+        /// <param name="context"></param>
+        public void Apply(object context)
         {
-            var context = m_ApplyContext;
-            m_ApplyContext = null;
             if (m_IsDisposed)
             {
 #if UNITY_EDITOR
@@ -167,7 +244,7 @@ namespace Hugula.Databinding
             if (!m_IsApplied)
             {
 #if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample("Binding.ParsePath");
+                UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.ParsePath");
 #endif
                 ParsePath();
 #if LUA_PROFILER_DEBUG
@@ -180,134 +257,116 @@ namespace Hugula.Databinding
                 //refresh converter
                 convert = ValueConverterRegister.instance?.Get(converter);
             }
-
-
             if (isBound)
             {
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample("Binding.Unapply");
-#endif
                 Unapply();
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.EndSample();
-#endif
             }
 
-            object bindingContext = context;
+            bindingContext = context;
             if (source) bindingContext = source;
 
-            m_Context = bindingContext;
-
-            if (m_Context == null)
+            if (bindingContext == null)
             {
                 convert = null; //需要解绑
-
                 return;
             }
 
             object m_Current = bindingContext;
 
-#if false
-            ExpressionUtility.ApplyByLua (this, m_Current);
-#else
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("Binding.Part.TryGetValue");
-#endif
-            bool needSubscribe = this.needSubscribe;
+            bool needsGetter = (mode == BindingMode.TwoWay || mode == BindingMode.OneWay);
             BindingPathPart part = null;
+
+#if LUA_PROFILER_DEBUG
+            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.path TryGetValue");
+#endif
             for (var i = 0; i < parts.Count; i++)
             {
                 part = parts[i];
-                part.SetSource(m_Current); //
-                if (!part.isSelf && m_Current != null)
+                part.source = m_Current;
+                m_LastPart = part;
+
+                if (!part.isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
                 {
-
-                    if (i < parts.Count - 1)
-                        part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current); //lua NofityObject对象通过此方法在BindingExpression.get_property中订阅
-                }
-
-                if (!part.isSelf && m_Current == null)
-                    break;
-
-                if (part.nextPart != null && needSubscribe)
-                {
-                    if (m_Current is INotifyPropertyChanged)
+                    if (m_Current is INotifyPropertyChanged inpc)
                     {
-                        part.Subscribe((INotifyPropertyChanged)m_Current);
+                        part.Subscribe(inpc);
+                    }
+                    else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                    {
+                        var propChanged = inc.Cast<INotifyPropertyChanged>();
+                        part.Subscribe(propChanged);
                     }
                 }
-            }
 
-            SetLastPart();
+                if (!part.isSelf && m_Current != null && i < parts.Count - 1)
+                {
+                    part.TryGetValue(m_Current, out m_Current); //
+                }
+
+                if (!part.isSelf && m_Current == null && part.nextPart == null)
+                    break;
+
+            }
 
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
-            //if ( invoke)
-            // {
 #if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample("Binding.InitValue");
+            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.Getter_Setter");
 #endif
-            //初始化值
-            InitValue();
+            if (needsGetter)
+            {
+                ExpressionUtility.SetTargetInvoke(m_Current, target, propertyName, part);
+            }
+
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
-            // }
-#endif
+
         }
 
-        //解绑目标
-        public void Unapply()
+        /// <summary>
+        /// 是否能设置target的值
+        /// </summary>
+        /// <param name="fromTarget"></param>
+        /// <returns></returns>
+        internal bool NeedsGetter(bool fromTarget = false)
         {
-            for (var i = 0; i < parts.Count - 1; i++)
-            {
-                BindingPathPart part = parts[i];
-                part?.Unsubscribe();
-            }
+            return (mode == BindingMode.TwoWay && !fromTarget) || mode == BindingMode.OneWay;
         }
 
-        public bool needSubscribe
+        internal void OnSourceChanged(BindingPathPart currPart, bool fromTarget = false)
         {
-            get
-            {
-                return mode == BindingMode.OneWay || mode == BindingMode.TwoWay;
-            }
-        }
 
-        public void SetLastPart()
-        {
-            m_LastPart = parts[parts.Count - 1];
-        }
-
-        internal void OnSourceChanged(BindingPathPart lastPart)
-        {
-            bool needSubscribe = mode == BindingMode.OneWay || mode == BindingMode.TwoWay;
-            BindingPathPart part = lastPart.nextPart;
+            BindingPathPart part = currPart;
             object m_Current = part.source;
+            bool isLast2 = false;
             while (part != null)
             {
-                part.SetSource(m_Current); //
                 m_LastPart = part;
-                if (!part.isSelf && m_Current != null)
+                part.source = m_Current;
+                isLast2 = part.nextPart != null;
+
+                if (currPart!=part && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// currPart已经监听过了
                 {
-
-                    if (part.nextPart != null)
-                        part.TryGetValue(needSubscribe && part.nextPart != null, out m_Current);
-                }
-
-                // UnityEngine.Debug.LogFormat("OnSourceChanged current={0},property={1},m_Path={2},parts.Count={3},part={4},part.isSelf={5}", m_Current, propertyName, path, parts.Count, part, part.isSelf);
-                if (!part.isSelf && m_Current == null)
-                    break;
-
-                if (part.nextPart != null && needSubscribe)
-                {
-                    if (m_Current is INotifyPropertyChanged)
+                    if (m_Current is INotifyPropertyChanged inpc)
                     {
-                        // UnityEngine.Debug.LogFormat("current = {0}", m_Current);
-                        part.Subscribe((INotifyPropertyChanged)m_Current);
+                        part.Subscribe(inpc);
+                    }
+                    else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                    {
+                        var propChanged = inc.Cast<INotifyPropertyChanged>();
+                        part.Subscribe(propChanged);
                     }
                 }
+
+                if (!part.isSelf && m_Current != null && isLast2)
+                {
+                    part.TryGetValue(m_Current, out m_Current); //
+                }
+
+                if (!part.isSelf && m_Current == null)
+                    break;
 
                 if (part.nextPart != null)
                     part = part.nextPart;
@@ -318,50 +377,39 @@ namespace Hugula.Databinding
             UpdateTarget();
         }
 
-        void InitValue()
+        //解绑目标
+        public void Unapply()
         {
-            switch (mode)
+            for (var i = 0; i < parts.Count - 1; i++)
             {
-                case BindingMode.OneWay:
-                    UpdateTarget();
-                    break;
-
-                case BindingMode.TwoWay:
-                    UpdateTarget();
-                    break;
-
-                case BindingMode.OneWayToSource:
-                    UpdateSource();
-                    break;
-
-                default:
-                    Debug.LogErrorFormat("Invalid mode {0}", mode);
-                    break;
+                BindingPathPart part = parts[i];
+                part?.Unsubscribe();
             }
+
         }
 
         static readonly char[] ExpressionSplit = new[] { '.' };
 
         //解析的path路径
         List<BindingPathPart> m_Parts;// new List<BindingPathPart>();
-       
+
 
         public List<BindingPathPart> parts
         {
             get
             {
-                if(m_Parts==null)
+                if (m_Parts == null)
                     m_Parts = m_PoolBindingPathPart.Get();
                 return m_Parts;
             }
         }
         public void ParsePath()
         {
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 Debug.LogError("Binding path is null or empty");
-                #endif
+#endif
                 return;
             }
 
@@ -371,14 +419,15 @@ namespace Hugula.Databinding
                 convert = ValueConverterRegister.instance?.Get(converter);
 
             parts.Clear();
-            var last = BindingPathPart.Get(); //new BindingPathPart(this, SelfPath);
-            last.Initialize(this, SelfPath);
-            parts.Add(last);
+            BindingPathPart last = null;
 
             if (p[0] == ExpressionSplit[0])
             {
                 if (p.Length == 1)
                 {
+                    last = BindingPathPart.Get(); //new BindingPathPart(this, SelfPath);
+                    last.Initialize(this, SelfPath);
+                    parts.Add(last);
                     return;
                 }
 
@@ -422,19 +471,12 @@ namespace Hugula.Databinding
                     if (rbIndex == -1)
                         throw new FormatException("Method did not contain closing (");
 
-                    int argLength = rbIndex - lbIndex - 1;
-
+                    // int argLength = rbIndex - lbIndex - 1;
                     string argString = part.Substring(0, lbIndex);
                     var next = BindingPathPart.Get(); //new BindingPathPart(this, argString);
                     next.Initialize(this, argString, false, true);
 
-                    // if (argLength >= 1) {
-                    //     next.isSetter = true;
-                    // } else {
-                    // next.isMethod = true;
-                    // }
-
-                    last.nextPart = next;
+                    if (last != null) last.nextPart = next;
                     parts.Add(next);
                     last = next;
                 }
@@ -442,14 +484,14 @@ namespace Hugula.Databinding
                 {
                     var next = BindingPathPart.Get(); //new BindingPathPart(this, part);
                     next.Initialize(this, part);
-                    last.nextPart = next;
+                    if (last != null) last.nextPart = next;
                     parts.Add(next);
                     last = next;
                 }
 
                 if (indexer != null)
                 {
-                    last.nextPart = indexer;
+                    if (last != null) last.nextPart = indexer;
                     parts.Add(indexer);
                     last = indexer;
                 }
@@ -465,11 +507,9 @@ namespace Hugula.Databinding
             convert = null;
             target = null;
             source = null;
-            m_ApplyContext = null;
-            m_Context = null;
             m_LastPart = null;
 
-            if(m_Parts!=null)
+            if (m_Parts != null)
             {
                 for (var i = 0; i < m_Parts.Count - 1; i++)
                 {
@@ -479,6 +519,11 @@ namespace Hugula.Databinding
                 m_PoolBindingPathPart.Release(m_Parts);
             }
             m_Parts = null;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Binding(target={2},path={0},property={1},mode={3})", this.path, this.propertyName, this.target, this.mode);
         }
 
         #region List pool

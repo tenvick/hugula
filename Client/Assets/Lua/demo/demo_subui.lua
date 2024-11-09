@@ -19,7 +19,7 @@ local demo_subui = VMBase()
 
 --UI资源
 demo_subui.views = {
-    View(demo_subui, {key = "demo_subui"}) --
+    View(demo_subui, { key = "demo_subui" }) --
 }
 ----------------------------------申明属性名用于绑定--------------
 local property_mail_list = "mail_list"
@@ -67,11 +67,11 @@ demo_subui.on_item_select = {
         return true
     end,
     Execute = function(self, arg)
-        Logger.Log("on_item_select", arg.selectedIndex,arg)
         index = arg.selectedIndex
 
         local item = mail_list:get_Item(index)
         demo_subui.select_item = item
+        Logger.Log("on_item_select", arg.selectedIndex, item, item.title)
         VMState:push_item("demo_subui1", item)
         -- if last_index >= 0 and index ~= last_index then
         --     local last_item = mail_list.items[last_index + 1]
@@ -95,8 +95,8 @@ demo_subui.btn_sct_del = {
         return demo_subui.select_item ~= nil
     end,
     Execute = function(self, arg)
-        mail_list:Remove(demo_subui.select_item)
-        Logger.Log("btn_sct_del", demo_subui.select_item.title)
+        local re =  mail_list:Remove(demo_subui.select_item)
+        Logger.Log("del", demo_subui.select_item, demo_subui.select_item.title, "arg=", arg.selectedIndex,"del=",re)
     end
 }
 

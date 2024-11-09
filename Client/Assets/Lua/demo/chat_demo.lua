@@ -149,7 +149,7 @@ chat_data.dropped_cmd = {
     Execute = function(self, arg)
         if arg.y > 0 then --下拉插入数据
             chat_data.property.loading_data = true --标记为加载状态
-            Delay(add_chat_random_data,math.random(1, 3))
+            Delay(add_chat_random_data,math.random(0, 10)*0.1)
         end
     end
 }

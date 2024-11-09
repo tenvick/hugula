@@ -67,6 +67,7 @@ eg_data:InsertRange(
 ---按钮点击事件
 eg_data.on_btn_click = {
     CanExecute = function(self, arg)
+        print("on_btn_click CanExecute", arg)
         return true
     end,
     Execute = function(self, arg)

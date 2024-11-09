@@ -100,6 +100,19 @@ namespace Hugula.Databinding
             }
         }
 
+        internal override bool forceContextChanged
+        {
+            get {
+                if(m_OnContextChanged!=null)
+                    return true;
+                return base.forceContextChanged;
+            }
+            set
+            {
+                base.forceContextChanged = value;
+            }
+        }
+
         protected override void OnBindingContextChanged()
         {
             if (m_CheckEnable || !m_BindingOnEnable)

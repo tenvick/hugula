@@ -60,7 +60,7 @@ local function set_property(self, property_name, value, force_refresh)
 end
 
 local function tostring(self)
-    return string_format("NotifyObject(%s)", self._property_changed)
+    return string_format("NotifyObject(%s)", self.PropertyChanged)
 end
 ---INotifyPropertyChanged接口实现
 -- notify_object.PropertyChanged = property_changed
@@ -69,7 +69,7 @@ notify_object.remove_PropertyChanged = remove_property_changed
 ---改变属性
 notify_object.OnPropertyChanged = on_Property_changed
 notify_object.SetProperty = set_property
-notify_object.__tostring = tostring
+-- notify_object.__tostring = tostring
 
 ---属性改变监听类 接口INotifyPropertyChanged的lua实现
 ---@class NotifyObject

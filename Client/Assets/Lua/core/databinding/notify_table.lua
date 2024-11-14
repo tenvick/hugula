@@ -34,26 +34,25 @@ local NotifyCollectionChangedAction = Specialized.NotifyCollectionChangedAction
 
 local notify_table =
     class(
-    function(self, items)
-        ---集合改变事件监听
-        self.CollectionChanged =  NotifyCollectionChangedEventHandlerEvent()
-        ---属性改变监听
-        self.PropertyChanged = PropertyChangedEventHandlerEvent()
-        ---
-        self.items = items or {}
-        self.Count = #self.items
-        self.IsReadOnly = false
-        self.IsFixedSize = false
-        self.property = GetSetObject(self) --设置property getset
-
-    end
-)
+        function(self, items)
+            ---集合改变事件监听
+            self.CollectionChanged = NotifyCollectionChangedEventHandlerEvent.Get()
+            ---属性改变监听
+            self.PropertyChanged = PropertyChangedEventHandlerEvent.Get()
+            ---
+            self.items = items or {}
+            self.Count = #self.items
+            self.IsReadOnly = false
+            self.IsFixedSize = false
+            self.property = GetSetObject(self) --设置property getset
+        end
+    )
 
 ---属性改变的时候通知绑定对象
 ---@overload fun(property_name:string)
 ---@return void
 local function on_property_changed(self, property_name)
-    self.PropertyChanged:Invoke(self,property_name)
+    self.PropertyChanged:Invoke(self, property_name)
 end
 
 ---获取table或者list的长度
@@ -63,10 +62,10 @@ local function get_list_length(range)
     local is_table = type(range) == "table"
     local size = 0
     if is_table then
-        size = #range - 1
+        size = #range
     else
         size = range.Count or range.Length
-        size = size - 1
+        -- size = size - 1
     end
 
     return size, is_table
@@ -81,7 +80,7 @@ local function on_collection_changed(self, arg)
     -- for i = 1, #changed do
     --     changed[i](self, arg)
     -- end
-    self.CollectionChanged:Invoke(self,arg)
+    self.CollectionChanged:Invoke(self, arg)
     BindingUtility.Release(arg)
 end
 
@@ -135,17 +134,16 @@ local function set_item(self, index, item)
         error("Argument index Out of Range")
     end
 
-    local old = items[index]
+    -- local old = items[index]
     items[index] = item
 
     on_property_changed(self, string_format("Item[%s]", index - 1))
-    -- OnCollectionChanged (new NotifyCollectionChangedEventArgs (NotifyCollectionChangedAction.Replace, item, originalItem, index));
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsNewItemOldItemIndex(
             NotifyCollectionChangedAction.Replace,
-            item,
-            old,
+            1,
+            1,
             index - 1
         )
     )
@@ -192,7 +190,7 @@ local function insert_range(self, index, range)
     local size, is_table = get_list_length(range)
 
     local j = 0
-    for i = 0, size do
+    for i = 0, size - 1 do
         if is_table then
             j = i + 1
         else
@@ -203,15 +201,13 @@ local function insert_range(self, index, range)
 
     set_count(self)
 
-    if is_table then
-        range = IListTable(range)
-    end
+    print("insert_range", index, "size", size, "count", self.Count)
 
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsChangedItemsStartingIndex(
             NotifyCollectionChangedAction.Add,
-            range,
+            size,
             index - 1
         )
     )
@@ -236,49 +232,31 @@ local function remove_at(self, index, count)
         end_idx = size
     end
 
-    local changedItems = {}
-    local item
+    count = 0
     for i = end_idx, index, -1 do
-        item = table_remove(items, i)
-        table_insert(changedItems, item)
+        table_remove(items, i)
+        count = count + 1
     end
 
     set_count(self)
-    count = #changedItems
-
-    if count == 1 then
-        on_property_changed(self, string_format("Item[%d]", index - 1))
-        on_collection_changed(
-            self,
-            BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, item, index - 1)
-            -- {action = NotifyCollectionChangedAction.Remove, changedItem = item, index = index - 1}
-        )
-    else
-        -- on_collection_changed(self, {action = NotifyCollectionChangedAction.Remove, changedItems = changedItems})
-        on_property_changed(self, string_format("Item[%d]", index - 1))
-        on_collection_changed(
-            self,
-            BindingUtility.CreateCollectionArgsChangedItems(
-                NotifyCollectionChangedAction.Remove,
-                IListTable(changedItems)
-            )
-        )
-    end
+    on_property_changed(self, string_format("Item[%d]", index - 1))
+    on_collection_changed(
+        self,
+        BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, count, index - 1)
+    )
 end
 
----删除range中的元素
+---删除range中的元素，尽量少用删除通知事件不准确
 ---@overload fun(range:table):void
 ---@param range table
 local function remove_range(self, range)
     local items = self.items
     local size, is_table = get_list_length(range)
 
-    local removes = {}
-    -- local indexs = {}
     local min_idx = size
-
+    local del = 0
     local j = 0
-    for i = 0, size do
+    for i = 0, size - 1 do
         if is_table then
             j = i + 1
         else
@@ -287,26 +265,21 @@ local function remove_range(self, range)
         local v = range[j]
         local del_idx = table_remove_item(items, v)
         if del_idx ~= nil and del_idx > 0 then
-            -- table_insert(indexs, del_idx)
             min_idx = math_min(min_idx, del_idx)
-            table_insert(removes, v)
+            del = del + 1
         end
     end
 
     set_count(self)
 
-    if #removes > 0 then
-        on_collection_changed(
+    if del > 0 then
+        on_collection_changed( --不精确的通知
             self,
-            BindingUtility.CreateCollectionArgsChangedItems(
+            BindingUtility.CreateCollectionArgsChangedItemIndex(
                 NotifyCollectionChangedAction.Remove,
-                IListTable(removes),
+                del,
                 min_idx - 1
             )
-            -- {
-            --     action = NotifyCollectionChangedAction.Remove,
-            --     changedItems = removes
-            -- }
         )
     end
 end
@@ -328,41 +301,27 @@ local function replace_range(self, range, start_index)
     end
 
     start_index = start_index + 1
-    -- local rep_count = #range
 
-    local old_items = {}
-    -- for i = 1, rep_count do
     local j = 0
-    for i = 0, rep_count do
+    for i = 0, rep_count - 1 do
         if is_table then
             j = i + 1
         else
             j = i
         end
-        table_insert(old_items, items[i + start_index])
         items[i + start_index] = range[j]
     end
 
     set_count(self)
 
-    if is_table then
-        range = IListTable(range)
-    end
-
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsNewItemsOldItemsStartingIndex(
             NotifyCollectionChangedAction.Replace,
-            range,
-            IListTable(old_items),
+            rep_count,
+            rep_count,
             start_index - 1
         )
-        -- {
-        --     action = NotifyCollectionChangedAction.Replace,
-        --     newItems = range,
-        --     oldItems = old_items,
-        --     startingIndex = start_index - 1
-        -- }
     )
 end
 
@@ -407,11 +366,11 @@ local function insert_item(self, index, item)
 
     set_count(self)
 
+    print("insert_item", index, "count", self.Count)
     on_property_changed(self, string_format("items[%d]", index))
     on_collection_changed(
         self,
-        BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Add, item, index)
-        --  {action = NotifyCollectionChangedAction.Add, changedItem = item, index = index}
+        BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Add, 1, index)
     )
 end
 
@@ -457,17 +416,10 @@ local function move_item(self, old_index, new_index)
         self,
         BindingUtility.CreateCollectionArgsChangedItemIndexOldIndex(
             NotifyCollectionChangedAction.Move,
-            new,
+            1,
             new_index - 1,
             old_index - 1
         )
-
-        -- {
-        --     action = NotifyCollectionChangedAction.Move,
-        --     changedItem = new,
-        --     index = new_index - 1,
-        --     oldIndex = old_index - 1
-        -- }
     )
 end
 
@@ -484,21 +436,19 @@ local function remove_item(self, obj)
     -- index = index + 1
     if index == nil then
         -- error(" Argument index Out of Range " .. tostring(self))
-        return false
+        return
     end
 
-    local old = table_remove(items, index)
+    -- local old =
+    table_remove(items, index)
 
     set_count(self)
 
     on_property_changed(self, string_format("items[%d]", index - 1))
     on_collection_changed(
         self,
-        BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, old, index - 1)
-        --  {action = NotifyCollectionChangedAction.Remove, changedItem = old, index = index - 1}
+        BindingUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, 1, index - 1)
     )
-
-    return true
 end
 
 local function clear(self)
@@ -509,12 +459,24 @@ local function clear(self)
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsChangedItems(NotifyCollectionChangedAction.Reset)
-        -- {action = NotifyCollectionChangedAction.Reset}
+    -- {action = NotifyCollectionChangedAction.Reset}
     )
 end
 
 local function tostring(self)
     return string_format("NotifyTable(%s)", self.items)
+end
+
+local function _gc(self)
+    local propertyChanged = self and self.PropertyChanged
+    if propertyChanged then
+        PropertyChangedEventHandlerEvent.Release(propertyChanged)
+    end
+
+    local collectionChanged = self and self.CollectionChanged
+    if collectionChanged then
+        NotifyCollectionChangedEventHandlerEvent.Release(collectionChanged)
+    end
 end
 
 ------INotifyPropertyChanged----
@@ -527,15 +489,15 @@ notify_table.add_CollectionChanged = add_collection_changed
 notify_table.remove_CollectionChanged = remove_collection_changed
 
 ------IList
-notify_table.set_Item = set_item --object this[int]
-notify_table.get_Item = get_item --this[int] = object
-notify_table.Add = add --int Add(object value);
-notify_table.Clear = clear --void Clear();
-notify_table.Contains = contains --bool Contains(object value);
-notify_table.IndexOf = indexof --int IndexOf(object value);
-notify_table.Insert = insert_item --void Insert(int index, object value);
-notify_table.Remove = remove_item --void Remove(object value);
-notify_table.RemoveAt = remove_at --void RemoveAt(int index);
+notify_table.set_Item = set_item    --object this[int]
+notify_table.get_Item = get_item    --this[int] = object
+notify_table.Add = add              --int Add(object value);
+notify_table.Clear = clear          --void Clear();
+notify_table.Contains = contains    --bool Contains(object value);
+notify_table.IndexOf = indexof      --int IndexOf(object value);
+notify_table.Insert = insert_item   --void Insert(int index, object value);
+notify_table.Remove = remove_item   --void Remove(object value);
+notify_table.RemoveAt = remove_at   --void RemoveAt(int index);
 notify_table.FindIndex = find_index --- filter_fun(int,item) return index
 -- notify_table.Count = Count --int Count { get; }
 ---集合改变
@@ -549,6 +511,7 @@ notify_table.Move = move_item
 notify_table.OnPropertyChanged = on_property_changed
 notify_table.SetProperty = set_property
 notify_table.__tostring = tostring
+notify_table.__gc = _gc
 
 ---带通知功能的列表的数据集合,实现了INotifyCollectionChanged, INotifyPropertyChanged。
 ---

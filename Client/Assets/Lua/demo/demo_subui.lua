@@ -33,13 +33,28 @@ local function create_item(i)
     it.icon = string.format("icon_equip_%04d", i % 39 + 1)
     it.date = tostring(os.date())
     it.index = i
+    it._template_id = 0
+    return it
+end
+
+local function create_split_item(i)
+    local it = {}
+    it.title = "----------" .. i .. "----------"
+    it.index = i
+    it._template_id = 1
     return it
 end
 
 local function create_tmp_data()
     local datas = {}
-    for i = 1, 20 do
-        table.insert(datas, create_item(i))
+    for i = 0, 11 do
+        if (i == 1) then
+            table.insert(datas, create_split_item(i))
+        elseif (i == 5) then
+            table.insert(datas, create_split_item(i))
+        else
+            table.insert(datas, create_item(i))
+        end
     end
     return datas
 end
@@ -56,6 +71,17 @@ mail_list:InsertRange(create_tmp_data()) ---初始化数据
 --     end
 -- }
 
+mail_list.on_get_template = function(arg, idx)
+    local item = mail_list:get_Item(idx)
+    return item._template_id
+    -- if idx == 1 or idx == 5 then
+    --     return 1    
+    -- else
+    --     return 0
+    -- end
+end
+
+
 local index, last_index = 0, -1
 
 demo_subui.mail_list = mail_list
@@ -68,10 +94,10 @@ demo_subui.on_item_select = {
     end,
     Execute = function(self, arg)
         index = arg.selectedIndex
-
+        print("arg=", arg, arg.selectedIndex)
         local item = mail_list:get_Item(index)
+        Logger.Log("on_item_select", arg.selectedIndex, item and item.title)
         demo_subui.select_item = item
-        Logger.Log("on_item_select", arg.selectedIndex, item, item.title)
         VMState:push_item("demo_subui1", item)
         -- if last_index >= 0 and index ~= last_index then
         --     local last_item = mail_list.items[last_index + 1]
@@ -92,11 +118,16 @@ demo_subui.on_item_select = {
 
 demo_subui.btn_sct_del = {
     CanExecute = function(self, arg)
-        return demo_subui.select_item ~= nil
+        -- return demo_subui.select_item ~= nil
+        return true
     end,
     Execute = function(self, arg)
-        local re =  mail_list:Remove(demo_subui.select_item)
-        Logger.Log("del", demo_subui.select_item, demo_subui.select_item.title, "arg=", arg.selectedIndex,"del=",re)
+        local idx = arg.selectedIndex
+        print("on_use_click", idx)
+        mail_list:RemoveAt(idx)
+        -- local re = mail_list:Remove(demo_subui.select_item)
+        -- Logger.Log("del", demo_subui.select_item, demo_subui.select_item.title, "arg=", arg.selectedIndex, "del=", re)
+        -- demo_subui.property.select_item = nil 
     end
 }
 

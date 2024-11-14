@@ -177,9 +177,9 @@ namespace Hugula.Utils
                 if (m_Source.TryGetValue(key, out source))
                 {
                     isNew = true;
-                    var trans = source.GetComponent<RectTransform>();
-                    var obj = GameObject.Instantiate(source.gameObject, trans.position,trans.rotation,parent);
-                    // var obj = GameObject.Instantiate(source.gameObject, parent);
+                    // var trans = source.GetComponent<Transform>();
+                    // var obj = GameObject.Instantiate(source.gameObject, trans.position,trans.rotation,parent);
+                    var obj = GameObject.Instantiate(source.gameObject, parent);
                     element = obj.GetComponent<T>();
                 }
                 // countAll++;

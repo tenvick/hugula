@@ -295,7 +295,7 @@ namespace Hugula.Databinding
 
         #endregion
 
-        private NotifyCollectionChangedEventHandlerEvent m_CollectionChanged = new NotifyCollectionChangedEventHandlerEvent();
+        private NotifyCollectionChangedEventHandlerEvent m_CollectionChanged = NotifyCollectionChangedEventHandlerEvent.Get();// new NotifyCollectionChangedEventHandlerEvent();
         public NotifyCollectionChangedEventHandlerEvent CollectionChanged
         {
             get
@@ -319,7 +319,8 @@ namespace Hugula.Databinding
             CheckReentrancy();
             m_Items.Clear();
             OnPropertyChanged("Item[]");
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Reset,0,0));
         }
 
         protected virtual void RemoveItem(int index)
@@ -334,7 +335,8 @@ namespace Hugula.Databinding
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
 
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, 1, index));
 
         }
 
@@ -347,7 +349,9 @@ namespace Hugula.Databinding
             m_Items.Insert(index, item);
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Add, 1, index));
+
         }
 
         protected virtual void SetItem(int index, T item)
@@ -355,12 +359,14 @@ namespace Hugula.Databinding
             CheckReentrancy();
             if (index < 0 || index >= Count)
                 throw new ArgumentOutOfRangeException("index");
-            T originalItem = m_Items[index];
+            // T originalItem = m_Items[index];
 
             m_Items[index] = item;
 
             OnPropertyChanged(string.Format("Item[{0}]", index));
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, originalItem, index));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, originalItem, index));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsNewItemOldItemIndex(NotifyCollectionChangedAction.Replace, 1, 1, index));
+
         }
 
         protected virtual void MoveItem(int oldIndex, int newIndex)
@@ -385,7 +391,9 @@ namespace Hugula.Databinding
             OnPropertyChanged(string.Format("Item[{0}]", oldIndex));
             OnPropertyChanged(string.Format("Item[{0}]", newIndex));
 
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, newItem, newIndex, oldIndex));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, newItem, newIndex, oldIndex));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemIndexOldIndex(NotifyCollectionChangedAction.Move, 1, newIndex, oldIndex));
+
         }
 
         protected virtual void OnCollectionChanged(HugulaNotifyCollectionChangedEventArgs e)
@@ -411,7 +419,9 @@ namespace Hugula.Databinding
             foreach (T item in items)
                 m_Items.Insert(index++, item);
 
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, originalIndex));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, originalIndex));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemsStartingIndex(NotifyCollectionChangedAction.Add, items.Count, originalIndex));
+
         }
 
         public void RemoveRange(IEnumerable<T> range)
@@ -419,11 +429,24 @@ namespace Hugula.Databinding
             if (range == null)
                 throw new ArgumentNullException("range");
 
+            int idxMin = m_Items.Count;
+            int delCount = 0;
             List<T> items = range.ToList();
             foreach (T item in items)
-                m_Items.Remove(item);
+            {
+                int idx = m_Items.IndexOf(item);
+                if (idx >= 0)
+                {
+                    m_Items.RemoveAt(idx);
+                    delCount++;
+                    if (idx < idxMin)
+                        idxMin = idx;
+                }
+            }
 
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+            if (delCount > 0)
+                OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction.Remove, delCount, idxMin));
         }
 
         public void ReplaceRange(int startIndex, IEnumerable<T> items)
@@ -443,7 +466,11 @@ namespace Hugula.Databinding
                 m_Items[i + startIndex] = ritems[i];
             }
 
-            OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, ritems, oldItems, startIndex));
+            int repCount = oldItems.Length;
+
+            // OnCollectionChanged(new HugulaNotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, ritems, oldItems, startIndex));
+            OnCollectionChanged(CollectionChangedEventArgsUtility.CreateCollectionArgsNewItemsOldItemsStartingIndex(NotifyCollectionChangedAction.Replace, repCount, repCount, startIndex));
+
         }
 
         [Serializable]

@@ -66,11 +66,11 @@ if NeedProfileDump then
         return id
     end
 else
-    ---���Ըı��ʱ��֪ͨ�󶨶���
+    ---属性改变的时候通知绑定对象
     ---@overload fun(function:function,time:float,arg:any)
     ---@return int
     Delay = timer.Delay
-    ---���Ըı��ʱ��֪ͨ�󶨶���
+    ---属性改变的时候通知绑定对象
     ---@overload fun(function:function,frame:int,arg:any)
     ---@return int
     DelayFrame = timer.DelayFrame
@@ -78,7 +78,7 @@ end
 
 
 
----���Ըı��ʱ��֪ͨ�󶨶���
+---属性改变的时候通知绑定对象
 ---@overload fun(id:int)
 ---@return void
 StopDelay = timer.StopDelay

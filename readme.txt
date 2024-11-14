@@ -1,5 +1,10 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.11.14
+1 HugulaNotifyCollectionChangedEventArgs 参数优化，传递索引和数量不传递对象列表。
+2 LoopVerticalScrollRect支持删除动画 示例:邮件(子模块)。
+3 notify_table 事件参数简化。
+
 2024.11.9
 1 Binding表达式减少默认self Part节点。
 2 LoopScrollRect 快速删除动画bug修复。

@@ -203,6 +203,14 @@ namespace HugulaEditor.UIComponents
 
             if (GUILayout.Button("Simulate Layout"))
             {
+                if (temp == null) return;
+                if (temp.templates == null || temp.templates.Length == 0)
+                {
+                    Debug.LogError("templates is empty");
+                    return;
+                }
+
+
                 temp.CallMethod("Awake");
                 temp.CallMethod("Start");
 

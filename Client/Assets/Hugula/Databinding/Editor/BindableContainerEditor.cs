@@ -302,7 +302,11 @@ namespace HugulaEditor.Databinding
                     isSelf = System.Object.Equals(child, container);
                     if (oldChildren != null && oldChildren.IndexOf(child) == -1 && !isSelf)
                     {
-                        container.AddChild(child);
+                        var list = child.GetField("bindings");
+                        if(list is List<Binding> bindings && bindings.Count>0)
+                        {
+                            container.AddChild(child);
+                        }
                     }
                     else if (oldMonos != null && oldMonos.IndexOf(child) == -1 && !isSelf)
                     {

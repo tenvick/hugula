@@ -9,6 +9,7 @@ namespace Hugula.Databinding.Binder {
     ///<summary>
     /// C# event 装换为 执行ICommand或者 exute
     ///<summary>
+    [XLua.LuaCallCSharp]
     public class EventExecuteBinder : MonoBehaviour {
         public object parameter {get;set;}
    

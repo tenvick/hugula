@@ -65,5 +65,34 @@ namespace Hugula.Databinding
             dele.Remove(hander);
             return dele;
         }
+
+
+        #region  pool
+
+        public static NotifyCollectionChangedEventHandlerEvent Get()
+        {
+            return m_CollectionChangedPool.Get();
+        }
+
+        public static void Release(NotifyCollectionChangedEventHandlerEvent obj)
+        {
+            m_CollectionChangedPool.Release(obj);
+        }
+
+        // public static void ClearPool()
+        // {
+
+        // }
+
+        static void m_ActionOnRelease(NotifyCollectionChangedEventHandlerEvent dele)
+        {
+            dele.Clear();
+        }
+
+        static int capacity = 2048;
+        static int initial = 512;
+        static Hugula.Utils.ObjectPool<NotifyCollectionChangedEventHandlerEvent> m_CollectionChangedPool = new Hugula.Utils.ObjectPool<NotifyCollectionChangedEventHandlerEvent>(null, m_ActionOnRelease, capacity, initial);
+
+        #endregion
     }
 }

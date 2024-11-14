@@ -56,8 +56,10 @@ end
 --模拟100条背包数据
 local function create_test_bag_data()
     local datas = {}
-    for i = 0, 199 do
-        table.insert(datas, create_item(i,equ_type[i % 5 + 1]))
+    for i = 0, 20 do
+        local cate = i % 5 + 1
+
+        table.insert(datas, create_item(i,equ_type[cate]))
     end
     return datas
 end
@@ -176,6 +178,7 @@ bag.on_use_click = {
     end
 }
 bag.on_item_context = function(bc, item)
+    if item == nil then return end
     -- declare
     local _count = bc["count"] --Text
     local _name = bc["name"]   --Text
@@ -195,7 +198,7 @@ bag.on_item_select = {
         bag.lsv_selected_idx = index
         -- 显示详细
         local item_data = bag.items:get_Item(index)
-        print("on_item_select", index, item_data.name)
+        print("on_item_select", index, item_data and item_data.name)
         --刷新详细数据
         bag.property.selected_item = item_data
         -- DelayFrame(

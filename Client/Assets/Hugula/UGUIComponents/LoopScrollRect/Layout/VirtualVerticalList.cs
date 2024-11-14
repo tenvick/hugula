@@ -28,10 +28,23 @@ namespace Hugula.UIComponents
         private List<float> m_CellHeight = new List<float>();
         private List<Vector2> m_CellPos = new List<Vector2>();
 
+        /// <summary>
+        /// 获取当前索引的位置
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Vector2 GetCellSize(int index)
         {
             if (index >= m_CellPos.Count)
+            {
+                if (m_CellPos.Count > 0)
+                    return m_CellPos[m_CellPos.Count - 1];
                 return Vector2.zero;
+            }
+            else if (index < 0)
+            {
+                return Vector2.zero;
+            }
             else
             {
                 if (m_DirtyIndex <= index)
@@ -41,6 +54,36 @@ namespace Hugula.UIComponents
             }
         }
 
+        /// <summary>
+        /// 元素数据从index处删除了count个元素
+        /// 从 maxIdx处向上移动直到index获取当前索引的位置
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="endIdx"></param>
+        /// <param name="count"></param>
+        public void RemoveAt(int index, int count = 1)
+        {
+            if (index >= m_CellHeight.Count || index < 0) return;
+
+            int reEndIdx = index + count - 1;
+            if (reEndIdx >= m_CellHeight.Count) reEndIdx = m_CellHeight.Count - 1;
+            int beginIdx = index;
+
+            for (int i = reEndIdx; i >= beginIdx; i--)
+            {
+                m_CellPos.RemoveAt(i);
+                m_CellHeight.RemoveAt(i);
+            }
+
+            m_DirtyIndex = index;
+
+        }
+
+        /// <summary>
+        /// 设置当前索引大小
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="size"></param>
         public void SetCellSize(int index, float size)
         {
             for (int i = m_CellHeight.Count; i <= index; i++)
@@ -78,9 +121,13 @@ namespace Hugula.UIComponents
             float lasty = 0;
             for (int i = dirtyIndex; i <= indx; i++)
             {
+                var lastyItemY = verticalPadding;
                 var last = i - 1; //判断上一条
-                var lastCell = m_CellPos[last];
-                var lastyItemY = lastCell.y + verticalPadding;
+                if (last >= 0)
+                {
+                    var lastCell = m_CellPos[last];
+                    lastyItemY = lastCell.y + verticalPadding;
+                }
 
                 m_CellPos[i] = new Vector2(lastyItemY, lastyItemY + m_CellHeight[i] + verticalPadding);
                 lasty += m_CellPos[i].y;

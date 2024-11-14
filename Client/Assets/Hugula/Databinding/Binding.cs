@@ -41,9 +41,11 @@ namespace Hugula.Databinding
 
         [PopUpComponentsAttribute]
         public UnityEngine.Object source;
+        
         /// <summary>
         /// The target object 弱引用
         /// </summary>
+        [PopUpComponentsAttribute] 
         public UnityEngine.Object target;
         // {
         //     get
@@ -60,13 +62,7 @@ namespace Hugula.Databinding
         //             _weakTarget.SetTarget(value);
         //     }
         // }
-
-        WeakReference<UnityEngine.Object> _weakTarget;
-
-        /// <summary>
-        /// The content root source object 弱引用
-        /// </summary>
-        WeakReference<object> _weakLastContext;
+        // WeakReference<UnityEngine.Object> _weakTarget;
 
         public object convert;
 
@@ -87,7 +83,7 @@ namespace Hugula.Databinding
         /// <summary>
         /// The binding context object 弱引用
         /// </summary>
-        public object bindingContext
+        public object bindingContext //;
         {
             get
             {
@@ -110,7 +106,7 @@ namespace Hugula.Databinding
 
         #endregion
 
-        bool m_IsDisposed = false;//销毁标记
+        internal bool m_IsDisposed { get; private set;}//销毁标记
 #if LUA_PROFILER_DEBUG
         string ProfilerName = "";
         string GetProfilerName()
@@ -123,16 +119,17 @@ namespace Hugula.Databinding
 
         public Binding()
         {
-
+            m_IsDisposed = false;
         }
 
         public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "", "")
         {
-
+            m_IsDisposed = false;
         }
 
         public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode, string format, string converter)
         {
+            m_IsDisposed = false;
             this.path = path;
             this.target = target;
             this.propertyName = propertyName;
@@ -145,13 +142,24 @@ namespace Hugula.Databinding
         //更新目标
         public void UpdateTarget()
         {
-            if (!isBound || m_IsDisposed)
+            if (!isBound || m_IsDisposed || target == null)
             {
-                Debug.LogErrorFormat("UpdateTarget invalide source {0}", this.path);
+#if UNITY_EDITOR
+                var str = string.Empty;
+                if (target is Component isi)
+                {
+                    str = CUtils.GetGameObjectFullPath(isi.gameObject);
+                }
+                else
+                {
+                    str = target?.ToString();
+                }
+                Debug.LogErrorFormat("UpdateTarget(target={0},perpertyName={1},path={2},m_IsDisposed={3}) , Apply(context={4}). \r\n lua:{4} ", str, propertyName, path, m_IsDisposed, bindingContext, Hugula.EnterLua.LuaTraceback());
+#endif
                 return;
             }
 
-            if (target != null && m_LastPart != null)
+            if (m_LastPart != null && m_LastPart.source != null)
                 ExpressionUtility.SetTargetInvoke(m_LastPart.source, target, propertyName, m_LastPart);
             else
             {
@@ -165,7 +173,22 @@ namespace Hugula.Databinding
         //更新源
         public void UpdateSource()
         {
-            if (m_IsDisposed || !isBound) return;
+            if (m_IsDisposed || !isBound || target == null)
+            {
+#if UNITY_EDITOR
+                var str = string.Empty;
+                if (target is Component isi)
+                {
+                    str = CUtils.GetGameObjectFullPath(isi.gameObject);
+                }
+                else
+                {
+                    str = target?.ToString();
+                }
+                Debug.LogErrorFormat("UpdateTarget(target={0},perpertyName={1},path={2},m_IsDisposed={3}) , Apply(context={4}). \r\n lua:{4} ", str, propertyName, path, m_IsDisposed, bindingContext, Hugula.EnterLua.LuaTraceback());
+#endif
+                return;
+            }
 
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.UpdateSource.SetSourceInvoke");
@@ -179,9 +202,7 @@ namespace Hugula.Databinding
 #endif
                 BindingPathPart part = null;
                 object m_Current = bindingContext;
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}UpdateSource. FullPath TryGetValue");
-#endif
+
                 for (var i = 0; i < parts.Count; i++)
                 {
                     part = parts[i];
@@ -210,20 +231,9 @@ namespace Hugula.Databinding
                         break;
 
                 }
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.EndSample();
-#endif
 
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.SetSourceInvoke");
-#endif
-                if (m_Current != null)
-                {
-                    ExpressionUtility.SetSourceInvoke(m_Current, part);
-                }
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.EndSample();
-#endif
+                ExpressionUtility.SetSourceInvoke(m_Current, part);
+
             }
         }
 
@@ -257,7 +267,8 @@ namespace Hugula.Databinding
                 //refresh converter
                 convert = ValueConverterRegister.instance?.Get(converter);
             }
-            if (isBound)
+
+            if (isBound) //
             {
                 Unapply();
             }
@@ -341,13 +352,13 @@ namespace Hugula.Databinding
             BindingPathPart part = currPart;
             object m_Current = part.source;
             bool isLast2 = false;
-            while (part != null)
+            while (part != null && m_Current != null)
             {
                 m_LastPart = part;
                 part.source = m_Current;
                 isLast2 = part.nextPart != null;
 
-                if (currPart!=part && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// currPart已经监听过了
+                if (currPart != part && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// currPart已经监听过了
                 {
                     if (m_Current is INotifyPropertyChanged inpc)
                     {
@@ -380,7 +391,7 @@ namespace Hugula.Databinding
         //解绑目标
         public void Unapply()
         {
-            for (var i = 0; i < parts.Count - 1; i++)
+            for (var i = 0; i < parts.Count; i++)
             {
                 BindingPathPart part = parts[i];
                 part?.Unsubscribe();
@@ -508,10 +519,11 @@ namespace Hugula.Databinding
             target = null;
             source = null;
             m_LastPart = null;
+            bindingContext = null;
 
             if (m_Parts != null)
             {
-                for (var i = 0; i < m_Parts.Count - 1; i++)
+                for (var i = 0; i < m_Parts.Count; i++)
                 {
                     BindingPathPart part = m_Parts[i];
                     part?.ReleaseToPool();

@@ -158,6 +158,35 @@ namespace Hugula.Databinding
         //     dele.Remove(tuple.propertyName, tuple.handler);
         //     return dele;
         // }
+
+        #region  pool
+
+        public static PropertyChangedEventHandlerEvent Get()
+        {
+            return m_PropertyChangedPool.Get();
+        }
+
+        public static void Release(PropertyChangedEventHandlerEvent obj)
+        {
+            m_PropertyChangedPool.Release(obj);
+        }
+
+        // public static void ClearPool()
+        // {
+
+        // }
+
+        static void m_ActionOnRelease(PropertyChangedEventHandlerEvent dele)
+        {
+            dele.Clear();
+        }
+
+        static int capacity = 2048;
+        static int initial = 512;
+
+        static Hugula.Utils.ObjectPool<PropertyChangedEventHandlerEvent> m_PropertyChangedPool = new Hugula.Utils.ObjectPool<PropertyChangedEventHandlerEvent>(null, m_ActionOnRelease, capacity, initial);
+
+        #endregion
     }
 
 }

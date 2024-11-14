@@ -8,6 +8,7 @@ using UnityEngine.UI;
 namespace Hugula.Databinding.Binder
 {
 
+    [XLua.LuaCallCSharp]
     public abstract class SelectableBinder<T> : UIBehaviourBinder<T> where T : UnityEngine.UI.Selectable
     {
 

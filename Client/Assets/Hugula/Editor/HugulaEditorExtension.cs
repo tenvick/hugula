@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Reflection;
 using Hugula.Utils;
@@ -14,6 +15,18 @@ namespace HugulaEditor
         {
             var tp = obj.GetType();
             tp.InvokeMember(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, null, obj, args);
+        }
+
+        public static object GetField(this object obj,string fieldName)
+        {
+            var field = obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+            if (field == null)
+            {
+                throw new InvalidOperationException("Field 'bindings' not found in the specified object.");
+            }
+
+            return field.GetValue(obj);
         }
     }
 }

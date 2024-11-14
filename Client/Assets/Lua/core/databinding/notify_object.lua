@@ -19,7 +19,7 @@ local notify_object =
     class(
     function(self, get_set)
         ---属性改变事件监听
-        self.PropertyChanged = PropertyChangedEventHandlerEvent()
+        self.PropertyChanged = PropertyChangedEventHandlerEvent.Get()
         -- if get_set == true then
         self.property = GetSetObject(self) --设置property getset
         -- end
@@ -62,6 +62,14 @@ end
 local function tostring(self)
     return string_format("NotifyObject(%s)", self.PropertyChanged)
 end
+
+local function _gc(self)
+    local propertyChanged = self and self.PropertyChanged
+    if propertyChanged then
+        PropertyChangedEventHandlerEvent.Release(propertyChanged)
+    end
+end
+
 ---INotifyPropertyChanged接口实现
 -- notify_object.PropertyChanged = property_changed
 notify_object.add_PropertyChanged = add_property_changed
@@ -70,6 +78,7 @@ notify_object.remove_PropertyChanged = remove_property_changed
 notify_object.OnPropertyChanged = on_Property_changed
 notify_object.SetProperty = set_property
 -- notify_object.__tostring = tostring
+notify_object.__gc = _gc
 
 ---属性改变监听类 接口INotifyPropertyChanged的lua实现
 ---@class NotifyObject

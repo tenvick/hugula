@@ -139,6 +139,8 @@ namespace Tests
         {
             int max = 1000;
             int i = 0;
+            string path ;
+            Binding binding;
             LuaEnvHelper.BeforeLuaDispose();
             // Use the Assert class to test conditions
             watch.Start();
@@ -154,28 +156,31 @@ namespace Tests
             Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds GetLuaEnv: {watch.ElapsedMilliseconds} ms");
             var binding_demo = VMStateHelper.instance.GetMemeber("binding_demo", "."); //(bindableObject, luaEnv.Global);
 
-
+            /*** CS Binding
             // //创建binding对象
-            // var path = "oneway_path_demo.goods.color[2]";  -- 监听0 source vm.oneway_path_demo变更   --监听1 source oneway_path_demo.goods变更  --监听2 source oneway_path_demo.goods.color变更  --监听3 source oneway_path_demo.goods.color[2]变更
-            // // path = "oneway_path_demo.text1";
-            // var binding = new Binding(path, bindableObject, "text3", BindingMode.TwoWay);
+            path = "oneway_path_demo.goods.color[2]";  //-- 监听0 source vm.oneway_path_demo变更   --监听1 source oneway_path_demo.goods变更  --监听2 source oneway_path_demo.goods.color变更  --监听3 source oneway_path_demo.goods.color[2]变更
+            // path = "oneway_path_demo.text1";
+            binding = new Binding(path, bindableObject, "text3", BindingMode.TwoWay);
             // binding.target = bindableObject;
 
-            // var cs_source = new SimpleSource();
-            // watch.Restart();
-            // while (true)
-            // {
-            //     i++;
-            //     binding.Apply(binding_demo);
-            //     if (i >= max) break;
-            // }
-            // Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds Binding.Apply(binding_demo) -{i}: {watch.ElapsedMilliseconds} ms");
-            var path = "oneway_path_demo.goods.color[2]";//23ms 21ms //context.lsv_selected_idx
+            var cs_source = new SimpleSource();
+            watch.Restart();
+            while (true)
+            {
+                i++;
+                binding.Apply(cs_source);
+                if (i >= max) break;
+            }
+            Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds Binding.Apply(cs_source) -{i}: {watch.ElapsedMilliseconds} ms");
+            ***/
+
+
+            path = "oneway_path_demo.goods.color[2]";//23ms 21ms //context.lsv_selected_idx
             // path = "oneway_path_demo.text1";//16
             // path = "test_tmp";//11ms
-            var binding = new Binding(path, bindableObject, "text3", BindingMode.TwoWay);
+            binding = bindableObject.GetBinding("text3");  // new Binding(path, bindableObject, "text3", BindingMode.TwoWay);
             i = 0;
-            binding.target = bindableObject;
+            // binding.target = bindableObject;
             watch.Restart();
             while (true)
             {
@@ -185,6 +190,17 @@ namespace Tests
             }
             bindableObject.SubmitText3($"submit text{max}  TwoWay ");
             Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds Binding.{binding.mode}({i}) Set2: {watch.ElapsedMilliseconds} ms");
+
+            LuaTable inc=  binding_demo as LuaTable;
+             if (inc.ContainsKey("PropertyChanged")) //lua table 监听
+                {
+                    var propChanged = inc.Cast<INotifyPropertyChanged>();
+                    var propChanged2 = inc.Cast<INotifyPropertyChanged>();
+
+                    Assert.AreEqual(propChanged, propChanged2);
+                    // Assert.AreEqual(propChanged, inc);
+
+                }
         }
 
 
@@ -211,14 +227,18 @@ namespace Tests
 
             PropertyChangedEventHandlerEvent eventHandler = bindableObject.PropertyChanged;
             watch.Restart();
-            PropertyChangedEventHandler hander = (sender, property) => { Debug.Log($"{property} == empty"); };
+            PropertyChangedEventHandler hander = (sender, property) => { 
+                // Debug.Log($"{property} == empty");
+                 };
             while (true)
             {
                 i++;
                 int property_cate =  i / 10;
                 var property = $"property-{property_cate}";
                 var idx = i;
-                eventHandler.Add((sender, prop)=> { Debug.Log($"{prop}   idx:{idx} cat:{property_cate} "); }, property);
+                eventHandler.Add((sender, prop)=> { 
+                    // Debug.Log($"{prop}   idx:{idx} cat:{property_cate} "); 
+                }, property);
                 if (i >= max) break;
             }
                 eventHandler.Add(hander);
@@ -237,7 +257,7 @@ namespace Tests
             eventHandler.Invoke(this, "property-1");
             eventHandler.Invoke(this, "property-2");
 
-            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Invoke: {watch.ElapsedMilliseconds} ms");
+            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Invoke(2): {watch.ElapsedMilliseconds} ms");
 
 
 
@@ -254,7 +274,9 @@ namespace Tests
                 bindingPathPart.Subscribe(source);
                 if (i >= max) break;
             }
-            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Subscribe{i}: {watch.ElapsedMilliseconds} ms");
+            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Subscribe invoke{i}: {watch.ElapsedMilliseconds} ms");
+
+
 
 
         }

@@ -71,10 +71,12 @@ namespace HugulaEditor.UIComponents
     public class LoopVerticalScrollEditor : UnityEditor.Editor
     {
         protected SerializedProperty m_Templates;
-        protected SerializedProperty m_RenderPerFrames;
         protected SerializedProperty m_PageSize;
         protected SerializedProperty m_PaddingTop;
         protected SerializedProperty m_PaddingBottom;
+        protected SerializedProperty m_RemoveEasing;
+
+        protected SerializedProperty m_SelectedIndex;
 
         protected SerializedProperty m_Content;
         protected SerializedProperty m_Elasticity;
@@ -134,10 +136,11 @@ namespace HugulaEditor.UIComponents
             // m_Viewport.serializedObject =  (RectTransform)((GameObject)target).transform;
             //新增加属性
             m_Templates = serializedObject.FindProperty("m_Templates");
-            m_RenderPerFrames = serializedObject.FindProperty("m_RenderPerFrames");
+            m_RemoveEasing = serializedObject.FindProperty("m_RemoveEasing");
             m_PageSize = serializedObject.FindProperty("m_PageSize");
             m_PaddingTop = serializedObject.FindProperty("m_PaddingTop");
             m_PaddingBottom = serializedObject.FindProperty("m_PaddingBottom");
+            m_SelectedIndex = serializedObject.FindProperty("m_SelectedIndex");
 
             Init();
         }
@@ -252,7 +255,8 @@ namespace HugulaEditor.UIComponents
             EditorGUILayout.PropertyField(m_PageSize);
             EditorGUILayout.PropertyField(m_PaddingTop);
             EditorGUILayout.PropertyField(m_PaddingBottom);
-            EditorGUILayout.PropertyField(m_RenderPerFrames);
+            EditorGUILayout.PropertyField(m_RemoveEasing);
+            EditorGUILayout.PropertyField(m_SelectedIndex);
             EditorGUILayout.PropertyField(m_DragOffsetShow);
 
             if (EditorGUILayout.BeginFadeGroup(m_ShowElasticity.faded))
@@ -359,35 +363,51 @@ namespace HugulaEditor.UIComponents
         protected void SimulateLayout()
         {
             var temp = target as LoopVerticalScrollRect;
+            var oldPageSize = temp.pageSize;
 
             if (GUILayout.Button("Simulate Layout"))
             {
                 temp.CallMethod("Awake");
                 temp.CallMethod("Start");
                 var len = temp.templates.Length;
+                int lastType = 0;
+
                 temp.onGetItemTemplateType = (object obj, int idx) =>
                   {
-                      return UnityEngine.Random.RandomRange(0, len - 1);
+                    lastType++;
+                    return lastType % len;
                   };
 
                 temp.dataLength = 50;
 
                 temp.CallMethod("Refresh");
                 for (int i = 0; i < temp.pageSize; i++)
+                {
+                    temp.CallMethod("Update");
                     temp.CallMethod("LateUpdate");
+                }
 
-                Debug.LogFormat("Simulate Layout {0}.dataLength= {1} ", temp, temp.dataLength);
+                Debug.LogFormat("Simulate Layout {0}.dataLength= {1} templates={2} ", temp, temp.dataLength, len);
             }
 
             if (GUILayout.Button("Clear Simulate"))
             {
                 temp.dataLength = 0;
                 var content = temp.content;
+                Transform trans;
+                string pattern = @"^\d+-\d+$";
+
                 for (int i = content.childCount - 1; i >= 0; i--)
                 {
-                    GameObject.DestroyImmediate(content.GetChild(i).gameObject);
+                     trans = content.GetChild(i);
+                    var objName = trans.gameObject.name;
+                    //objName匹配 数字 {}_{}
+                    if (objName.Contains("(Clone)") || System.Text.RegularExpressions.Regex.IsMatch(objName, pattern))
+                        GameObject.DestroyImmediate(trans.gameObject);
+                    // GameObject.DestroyImmediate(content.GetChild(i).gameObject);
                 }
                 Debug.Log("Clear Simulate");
+                temp.pageSize = oldPageSize;
                 AssetDatabase.Refresh();
                 AssetDatabase.SaveAssets();
 

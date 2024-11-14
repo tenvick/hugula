@@ -284,6 +284,7 @@ namespace Hugula.UIComponents
                 loopItem.item = null;
             }
             m_Pages.Clear();
+         
             m_Pool?.Dispose();
             m_Pool = null;
             base.OnDestroy();
@@ -830,11 +831,11 @@ namespace Hugula.UIComponents
 
             if (columns == 0)
             {
-                m_PageSize = Mathf.RoundToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.horizontalPadding)) + 1;
+                m_PageSize = Mathf.CeilToInt(Mathf.Abs(vSize.width) / (itemSize.x + this.horizontalPadding)) + 1;
             }
             else
             {
-                m_PageSize = columns * (Mathf.RoundToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.verticalPadding)) + 1);
+                m_PageSize = columns * (Mathf.CeilToInt(Mathf.Abs(vSize.height) / (itemSize.y + this.verticalPadding)) + 1);
             }
         }
 

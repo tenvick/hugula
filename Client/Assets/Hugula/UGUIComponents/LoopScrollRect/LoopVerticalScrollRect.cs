@@ -20,7 +20,7 @@ namespace Hugula.UIComponents
     {
         #region  rect属性
         [SerializeField]
-        int m_PageSize = 1;
+        int m_PageSize = 0;
         /// <summary>
         /// 项目池的大小 
         /// </summary>
@@ -31,20 +31,22 @@ namespace Hugula.UIComponents
         /// <summary>
         /// 间距
         /// </summary>
-        public float paddingTop { 
-            get { return m_PaddingTop; } 
+        public float paddingTop
+        {
+            get { return m_PaddingTop; }
         } //间隔
+
+        [Tooltip("是否开启删除缓动")]
+        [SerializeField]
+        bool m_RemoveEasing = false;
+        /// <summary>
+        /// 次渲染的项目数量</br>
+        /// </summary>
+        public bool removeEasing { get { return m_RemoveEasing; } set { m_RemoveEasing = value; } } //每次渲染item数
 
         [SerializeField]
         float m_PaddingBottom = 0;
         public float paddingBottom { get { return m_PaddingBottom; } } //底部间隔
-
-        [SerializeField]
-        int m_RenderPerFrames = 1;
-        /// <summary>
-        /// 次渲染的项目数量</br>
-        /// </summary>
-        public int renderPerFrames { get { return m_RenderPerFrames; } set { m_RenderPerFrames = value; } } //每次渲染item数
 
         [PopUpComponentsAttribute]
         [SerializeField]
@@ -84,6 +86,8 @@ namespace Hugula.UIComponents
         /// </summary>
         public int dragOffsetShow { get { return m_DragOffsetShow; } set { m_DragOffsetShow = value; } } //
 
+        [Tooltip("默认选中索引")]
+        [SerializeField]
         int m_SelectedIndex = -1;
         /// <summary>
         /// 通过OnSelected方法 选中项目的索引</br>
@@ -93,7 +97,7 @@ namespace Hugula.UIComponents
             get { return m_SelectedIndex; }
             set
             {
-                m_SelectedIndex = value;
+                // m_SelectedIndex = value;
                 TriggerStyleBySelectedIndex(value);
             }
         }
@@ -128,6 +132,24 @@ namespace Hugula.UIComponents
         }
 
         ILoopSelectStyle m_SelecteStyle;
+        /// <summary>
+        /// 设置选中样式
+        /// </summary>
+        protected ILoopSelectStyle selectStyle
+        {
+            get { return m_SelecteStyle; }
+            set
+            {
+                var last = m_SelecteStyle;
+                if (last != null && last != value) last.CancelStyle(); //取消上一个选中
+
+                m_SelecteStyle = value;
+                if (m_SelecteStyle != null)
+                {
+                    m_SelecteStyle.SelectedStyle();
+                }
+            }
+        }
         /// <summary>
         /// 当item被clone时候调用
         /// </summary>
@@ -177,9 +199,9 @@ namespace Hugula.UIComponents
             virtualVertical.paddingTop = paddingTop;
             virtualVertical.paddingBottom = paddingBottom;
             base.Awake();
+            InitColumns();
             InitPages();
             InitTemplatePool();
-            // virtualVertical.padding = paddingTop;
             onDragChanged.AddListener(OnDraging);
             onEndDragChanged.AddListener(OnEndDrag);
         }
@@ -207,6 +229,8 @@ namespace Hugula.UIComponents
             onDragChanged.RemoveListener(OnDraging);
             onEndDragChanged.RemoveListener(OnEndDrag);
 
+            selectStyle = null;
+
             onItemRender = null;
             onDropped = null;
             onInstantiated = null;
@@ -214,11 +238,7 @@ namespace Hugula.UIComponents
             itemCommand = null;
             droppedCommand = null;
             m_SelecteStyle = null;
-            for (int i = 0; i < m_Templates.Length; i++)
-            {
-                m_Pool.Clear(i);
-            }
-            m_Pool = null;
+
             foreach (var loopItem in m_Pages)
             {
                 if (loopItem.item != null)
@@ -227,6 +247,9 @@ namespace Hugula.UIComponents
                 }
                 loopItem.item = null;
             }
+
+            m_Pool?.Dispose();
+            m_Pool = null;
             base.OnDestroy();
         }
 
@@ -341,9 +364,7 @@ namespace Hugula.UIComponents
         /// </summary>
         public void RemoveAt(int index, int count = 1)
         {
-            // m_DataLength -= count;
-            // //刷新数据
-            // UpdateBegin(index);
+            RefreshDeleteTweenPos();
 
             if (index < 0 || index >= dataLength || count <= 0) return;
 
@@ -353,6 +374,7 @@ namespace Hugula.UIComponents
             int remBeginIdx = int.MinValue, remEndIdx = int.MinValue;
             LoopItem repItem = null;
             int index1 = 0, nextIdx = 0;
+            int rmCount = 0;
 
             LoopItem item1;
             for (int i = 0; i < m_Pages.Count; i++)
@@ -373,12 +395,6 @@ namespace Hugula.UIComponents
                         remEndIdx = index1;
                     }
 
-                    if (m_SelectedIndex == index1)
-                    {
-                        selectedIndex = -1;
-                        selectedIndex = index;
-                    }
-
                     repItem = GetRealItemAt(nextIdx);
                     if (repItem != null)
                     {
@@ -395,19 +411,25 @@ namespace Hugula.UIComponents
                             ReplaceLoopItemAt(remEndIdx, index);
                         }
                         item1.index = -1; //强制刷新
-                        item1.onlyPosDirty = true;
-                        // LayOut(item1, index1+1); //刷新到下一个位置
+                        // item1.onlyPosDirty = true;
+                        LayOutItem(item1, index1 + 1);//刷新到下一个位置
+
+                        if (nextIdx >= dataLength - 1) //删除
+                            rmCount++;
+
                     }
                 }
             }
 
+            //刷新布局
+            virtualVertical.RemoveAt(index, count); //布局删除
+
             if (min == int.MaxValue) min = 0;
-            int min_idx = min;
-            int movIdx = 0;
-            // if (m_Columns != 0) movIdx = min % Columns; //如果顶部没有对齐。
-            int max_idx = min + m_PageSize - 1 + movIdx;
+
+            int max_idx = min + m_PageSize - 1;
 
             int range_begin = index > min ? index : min; //取大
+            range_begin = range_begin;
             int range_end = max_idx;
             if (max >= dataLength)
             { //有数据删除
@@ -422,9 +444,30 @@ namespace Hugula.UIComponents
             m_EndIdx = range_end;
 
             for (int i = range_begin; i <= range_end; i++)
+            {
                 m_RenderQueue.Enqueue(i);
+            }
 
-            CalcBounds();
+            //刷新开头
+            int upIdx = min - rmCount;
+            for (int i = 1; i <= rmCount; i++)
+            {
+                upIdx = min - i;
+                if (upIdx >= 0)
+                {
+                    m_RenderQueue.Enqueue(upIdx);
+                }
+            }
+
+            CalcBounds(true);
+
+            if (m_Coroutine != null)
+            {
+                StopCoroutine(m_Coroutine);
+                m_Coroutine = null;
+            }
+
+            StartCoroutine(DeleteTweenMoveToPos());
         }
 
         /// <summary>
@@ -459,7 +502,7 @@ namespace Hugula.UIComponents
 
             m_StartIdx = min;
             m_EndIdx = range_end;
-            // Debug.LogFormat("range_begin{0},range_end:{1},min:{2},idx:{3},max:{4},max_idx:{5},m_PageSize={6},Datalength:{7} ", range_begin, range_end, min, idx, max, max_idx, m_PageSize, dataLength);
+
             for (int i = range_begin; i <= range_end; i++)
                 m_RenderQueue.Enqueue(i);
 
@@ -510,7 +553,7 @@ namespace Hugula.UIComponents
         }
         private SelectArg defaultArg = new SelectArg();
 
-         protected bool CanSelect(int index, out object parameter) //选中
+        protected bool CanSelect(int index, out object parameter) //选中
         {
             parameter = null;
             object para = null;
@@ -541,21 +584,26 @@ namespace Hugula.UIComponents
                 return true;
             }
         }
-        
+
         public void OnSelect(LoopItem loopItem) //选中
         {
             ILoopSelectStyle loopSelectStyle = loopItem.loopSelectStyle;
             // if (onSelected != null) onSelected(this.parameter, loopItem.item, loopItem.index, lastIdx);
             var can = CanSelect(loopItem.index, out object para);
-            if (can)
+            if (can && loopSelectStyle != null) //选中
             {
-                if (m_SelecteStyle != null) m_SelecteStyle.CancelStyle();
-                m_SelecteStyle = loopSelectStyle;
-                m_LastSelectedIndex = m_SelectedIndex;
+
+                if (loopItem.index != m_SelectedIndex) m_LastSelectedIndex = m_SelectedIndex; //如果是TriggerStyleBySelectedIndex的时候标记的索引
                 m_SelectedIndex = loopItem.index;
-                loopSelectStyle.SelectedStyle();
+                selectStyle = loopSelectStyle;
+                if (itemParameter == null)
+                {
+                    defaultArg.selectedIndex = m_SelectedIndex;
+                    defaultArg.lastSelectedIndex = m_LastSelectedIndex;
+                    para = defaultArg;
+                }
                 if (para != null) itemCommand?.Execute(para);
-            }           
+            }
         }
 
         protected void TriggerStyleBySelectedIndex(int selectedIndex)
@@ -564,18 +612,23 @@ namespace Hugula.UIComponents
             {
                 //find exist
                 var item = GetRealItemAt(selectedIndex);
-                if (item != null)
+                if (item != null && item.loopSelectStyle != null)
                 {
                     OnSelect(item);
                 }
                 else
                 {
-                    var  can = CanSelect(selectedIndex, out object para);
+                    var can = CanSelect(selectedIndex, out object para);
                     if (can)
                     {
                         m_SelectedIndex = selectedIndex;
-                    }                    
+                    }
                 }
+            }
+            else
+            {
+                m_SelectedIndex = -1;
+                selectStyle = null;
             }
         }
 
@@ -603,6 +656,35 @@ namespace Hugula.UIComponents
                 m_Pool = new Hugula.Utils.GameObjectPool<BindableObject>(OnPoolGet, OnPoolRealse);
                 for (int i = 0; i < templates.Length; i++)
                     m_Pool.Add(i, templates[i]);
+            }
+        }
+        void InitColumns()
+        {
+
+            if (m_PageSize <= 0)
+            {
+                var vSize = viewRect.rect; //  content.rect;
+                float sizey = 50; //默认最小高度
+
+                if (templates != null && templates.Length > 0)
+                {
+                    float total = 0;
+                    for (int i = 0; i < templates.Length; i++)
+                    {
+                        var rect = templates[i].GetComponent<RectTransform>().rect;
+                        total += Mathf.Abs(rect.height);
+                    }
+
+                    sizey = Mathf.Max(50, total / templates.Length);
+                }
+#if UNITY_EDITOR
+                else
+                {
+                    Debug.LogError($"LoopVerticalScrollRect{this} Init templates is null path:{Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject)}");
+                }
+#endif
+
+                m_PageSize = (Mathf.CeilToInt(Mathf.Abs(vSize.height) / (sizey + this.verticalPadding)) + 1);
             }
         }
 
@@ -717,13 +799,6 @@ namespace Hugula.UIComponents
                 loopItem.templateType = templateId;
                 if (isNew)
                 {
-                    var sourceRT = templates[templateId].GetComponent<RectTransform>();
-                    var itemTrans = item.transform;
-                    // itemTrans.SetParent(content);
-                    // itemTrans.SetAsLastSibling();
-                    itemTrans.localScale = sourceRT.localScale;
-                    itemTrans.localRotation = sourceRT.localRotation;
-                    itemTrans.localPosition = sourceRT.localPosition;
                     if (onInstantiated != null)
                         onInstantiated(this.parameter, item, idx);
 
@@ -775,14 +850,28 @@ namespace Hugula.UIComponents
             {
                 if (m_SelecteStyle.loopItem.index == m_SelectedIndex)
                     m_SelecteStyle.SelectedStyle();
-                else if (m_SelecteStyle.loopItem == loopItem)
+                else
                     m_SelecteStyle.CancelStyle();
             }
 
-            AddLayoutList(idx);
-            if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+
+            if (oldIdx != idx || !loopItem.onlyPosDirty) //索引变化或者刷新数据
+            {
+                if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
+                if (!(oldIdx == -1 && loopItem.onlyPosDirty)) //如果是删除项目不刷新位置
+                {
+                    AddLayoutList(idx);
+                    CalcItemBound(loopItem);
+                    loopItem.onlyPosDirty = false;
+                }
+
+            }
             //
-            CalcItemBound(loopItem);
+            //check select
+            if (m_SelectedIndex == idx && m_SelecteStyle != loopItem.loopSelectStyle)
+            {
+                OnSelect(loopItem);
+            }
         }
 
         protected void RenderItemByIdx(int idx)
@@ -796,7 +885,7 @@ namespace Hugula.UIComponents
         ///</summary>
         protected void ScrollLoopVerticalItem()
         {
-            if (m_DataLength <= m_PageSize) return;
+            // if (m_DataLength <= m_PageSize) return;
             UpdateBounds();
             var yViewMin = -m_ViewBounds.yMin;
             var yViewMax = -m_ViewBounds.yMax;
@@ -817,7 +906,7 @@ namespace Hugula.UIComponents
                     itemToRender = GetLoopVerticalItemAt(m_StartIdx - 1);
                     m_StartIdx--;
                     m_EndIdx--;
-                    //  Debug.Log($" scroll loop vertical start:Render({m_StartIdx}) from {itemToRender.index} end:{m_EndIdx} ");
+
                     RenderItem(itemToRender, m_StartIdx);
                     if (check++ >= pageSize) break;
 
@@ -831,7 +920,7 @@ namespace Hugula.UIComponents
                     itemToRender = GetLoopVerticalItemAt(m_EndIdx + 1);
                     m_StartIdx++;
                     m_EndIdx++;
-                    // Debug.Log($" scroll loop vertical end:Render({m_EndIdx}) from {itemToRender.index} start:{m_StartIdx} ");
+
                     RenderItem(itemToRender, m_EndIdx);
                     if (check++ >= pageSize) break;
 
@@ -843,8 +932,18 @@ namespace Hugula.UIComponents
         ///<summary>
         /// 计算内容Bounds
         ///</summary>
-        protected void CalcBounds()
+        protected void CalcBounds(bool force = false)
         {
+            if (force)
+            {
+                var index0Size = virtualVertical.GetCellSize(0);
+                m_CalcBoundyMin = index0Size.x - verticalPadding;
+                m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
+
+                var indexLenSize = virtualVertical.GetCellSize(m_DataLength - 1);
+                m_CalcBoundyMax = indexLenSize.y;
+                m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
+            }
 
             if (m_CalcBoundyMax > -m_ContentBounds.yMax)
             {
@@ -865,7 +964,7 @@ namespace Hugula.UIComponents
             if (m_CalcBoundyMin < m_ContentBounds.yMin) m_ContentBounds.yMin = -m_CalcBoundyMin;
 
             var size = content.sizeDelta;
-            size.y = Mathf.Abs(m_ContentBounds.height);
+            size.y = Mathf.Abs(m_ContentBounds.height+verticalPadding);
             content.sizeDelta = size;
         }
 
@@ -904,7 +1003,6 @@ namespace Hugula.UIComponents
 
         public void OnItemLayoutChange(int id)
         {
-            // Debug.Log($" OnItemLayoutChange {id}");
             var item = GetRealItemAt(id);
             if (item != null)
                 CalcItemBound(item);
@@ -938,10 +1036,8 @@ namespace Hugula.UIComponents
                         Vector2 pos = rectTran.anchoredPosition;
                         pos.y = -size.x + paddingTop; // rect.height * .5f ;
                         pos = pos + m_ContentInitializePosition; //开始位置
-                        // rectTran.anchoredPosition3D = Vector3.zero;
-                        // rectTran.anchoredPosition = pos;
-                        // rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
                         rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+
                         m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, size.x - verticalPadding);
                         if (index == 0)
                         {
@@ -959,6 +1055,35 @@ namespace Hugula.UIComponents
 
                 m_LayoutList.Clear();
                 CalcBounds();
+            }
+
+        }
+
+        /// <summary>
+        /// 单个布局
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="index"></param>
+        void LayOutItem(LoopItem item, int index)
+        {
+            var size = virtualVertical.GetCellSize(index);
+            var rectTran = item.transform;
+            Vector2 pos = rectTran.anchoredPosition;
+            pos.y = -size.x + paddingTop; // rect.height * .5f ;
+            pos = pos + m_ContentInitializePosition; //开始位置
+            rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+
+            m_CalcBoundyMin = Mathf.Min(m_CalcBoundyMin, size.x - verticalPadding);
+            if (index == 0)
+            {
+                m_CalcBoundyMin = size.x - verticalPadding;
+                m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
+            }
+            m_CalcBoundyMax = Mathf.Max(m_CalcBoundyMax, size.y);
+            if (index == m_DataLength - 1)
+            {
+                m_CalcBoundyMax = size.y;
+                m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
             }
 
         }
@@ -1099,6 +1224,71 @@ namespace Hugula.UIComponents
         }
         protected Coroutine m_Coroutine = null;
 
+
+        /// <summary>
+        /// 立即刷新删除的item位置
+        /// </summary>
+        protected void RefreshDeleteTweenPos()
+        {
+            var t = 1;
+            for (int i = 0; i < m_Pages.Count; i++)
+            {
+                var item = m_Pages[i];
+                if (item.onlyPosDirty && item.index >= 0)
+                {
+                    var size = virtualVertical.GetCellSize(item.index);
+                    var rectTran = item.transform;
+                    var pos = rectTran.anchoredPosition;
+                    pos.y = -size.x + paddingTop; // rect.height * .5f ;
+                    pos = pos + m_ContentInitializePosition; //开始位置
+                    var begin = rectTran.anchoredPosition;
+                    pos = Vector2.Lerp(begin, pos, t);
+
+                    // rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+                    rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                    if (t >= 1)
+                    {
+                        item.onlyPosDirty = false;
+                    }
+                }
+            }
+
+        }
+
+        protected IEnumerator DeleteTweenMoveToPos()
+        {
+            float t = removeEasing ? 0 : 1;
+            while (true)
+            {
+                t += Time.deltaTime;
+                for (int i = 0; i < m_Pages.Count; i++)
+                {
+                    var item = m_Pages[i];
+                    if (item.onlyPosDirty && item.index >= 0)
+                    {
+                        var size = virtualVertical.GetCellSize(item.index);
+                        var rectTran = item.transform;
+                        var pos = rectTran.anchoredPosition;
+                        pos.y = -size.x + paddingTop; // rect.height * .5f ;
+                        pos = pos + m_ContentInitializePosition; //开始位置
+                        var begin = rectTran.anchoredPosition;
+                        pos = Vector2.Lerp(begin, pos, t);
+
+                        // rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                        if (t >= 1)
+                        {
+                            item.onlyPosDirty = false;
+                        }
+                    }
+                }
+                if (t >= 1) yield break;
+                yield return null;
+            }
+
+        }
+
+
         #endregion
 
         #region  tool
@@ -1117,6 +1307,10 @@ namespace Hugula.UIComponents
                 }
                 item.index = -1;
             }
+
+            m_SelectedIndex = -1;
+            m_LastSelectedIndex = -1;
+            selectStyle = null;
         }
         #endregion
 

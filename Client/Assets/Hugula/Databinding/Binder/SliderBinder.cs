@@ -6,6 +6,7 @@ using UnityEngine.UI;
 namespace Hugula.Databinding.Binder
 {
     [RequireComponent(typeof(Slider))]
+    [XLua.LuaCallCSharp]
     public class SliderBinder : SelectableBinder<Slider>
     {
 

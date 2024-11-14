@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Hugula.Databinding.Binder
 {
-
+    [XLua.LuaCallCSharp]
     public abstract class UIBehaviourBinder<T> : BindableObject where T : UnityEngine.Object
     {
         // [HideInInspector]

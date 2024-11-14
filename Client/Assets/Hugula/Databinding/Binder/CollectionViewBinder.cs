@@ -28,10 +28,10 @@ namespace Hugula.Databinding.Binder
         protected override void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
-            int count = 1;
-            if (args.NewItems != null)
+            int count = 0;
+            if (args.NewItems > 0)
             {
-                count = args.NewItems.Count;
+                count = args.NewItems;
             }
 
             InsertItems(index, count);
@@ -46,12 +46,12 @@ namespace Hugula.Databinding.Binder
         protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.OldStartingIndex;
-            int count = 1;
-            if (args.OldItems != null)
-                count = args.OldItems.Count;
+            int count = 0;
+            if (args.OldItems > 0)
+                count = args.OldItems;
 
             if (index >= 0)
-                RemoveItems(index, 1);
+                RemoveItems(index, count);
             else
             {
                 UpdateView(0, items.Count);
@@ -61,9 +61,9 @@ namespace Hugula.Databinding.Binder
         protected override void OnCollectionRepalce(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
-            int count = 1;
-            if (args.NewItems != null)
-                count = args.NewItems.Count;
+            int count = 0;
+            if (args.NewItems > 0)
+                count = args.NewItems;
 
             UpdateView(index, count);
         }
@@ -208,7 +208,7 @@ namespace Hugula.Databinding.Binder
 
 
                 itemData = items[i];
-                // item.forceContextChanged = m_forceBinding;
+                item.forceContextChanged = m_forceBinding;
                 // item.context = itemData;
                 BindingUtility.SetContext(item, itemData);
             }

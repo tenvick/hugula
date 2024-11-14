@@ -18,7 +18,12 @@ namespace Hugula.Databinding
             for (int i = 0; i < bindings.Count; i++)
             {
                 binding = bindings[i];
-                m_BindingsDic.Add(binding.propertyName, binding);
+                // m_BindingsDic.Add(binding.propertyName, binding);
+                if (binding.target == null)
+                {
+                    binding.target = this;
+                }
+                m_BindingsDic[binding.propertyName] = binding;
             }
         }
     }

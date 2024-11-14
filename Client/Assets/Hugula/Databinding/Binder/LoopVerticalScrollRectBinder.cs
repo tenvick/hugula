@@ -91,15 +91,15 @@ namespace Hugula.Databinding.Binder
             // }
         }
 
-        public int renderPerFrames
-        {
-            get { return target.renderPerFrames; }
-            set
-            {
-                target.renderPerFrames = value;
-                OnPropertyChanged();
-            }
-        }
+        // public int renderPerFrames
+        // {
+        //     get { return target.renderPerFrames; }
+        //     set
+        //     {
+        //         target.renderPerFrames = value;
+        //         OnPropertyChanged();
+        //     }
+        // }
 
         public int selectedIndex
         {
@@ -213,10 +213,10 @@ namespace Hugula.Databinding.Binder
         protected override void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
-            int count = 1;
-            if (args.NewItems != null)
+            int count = 0;
+            if (args.NewItems > 0)
             {
-                count = args.NewItems.Count;
+                count = args.NewItems;
             }
             target.InsertRange(index, count);
             // Debug.LogFormat ("OnCollectionAdd(index={0},count={1},datalen={2},items.count={3}) ", index, count,target.dataLength,items.Count);
@@ -224,10 +224,10 @@ namespace Hugula.Databinding.Binder
 
         protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
-            var index = args.NewStartingIndex;
-            int count = 1;
-            if (args.OldItems != null)
-                count = args.OldItems.Count;
+            var index = args.OldStartingIndex;
+            int count = 0;
+            if (args.OldItems > 0)
+                count = args.OldItems;
 
             // Debug.LogFormat ("OnCollectionRepalce(index={0},count={1},datalen={2},items.count={3}) ", index, count,target.dataLength,items.Count);
             if (index >= 0)
@@ -240,9 +240,9 @@ namespace Hugula.Databinding.Binder
         protected override void OnCollectionRepalce(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
             var index = args.NewStartingIndex;
-            int count = 1;
-            if (args.NewItems != null)
-                count = args.NewItems.Count;
+            int count = 0;
+            if (args.NewItems > 0 )
+                count = args.NewItems;
 
             target.UpdateBegin(index);
             // Debug.LogFormat ("OnCollectionRepalce(index={0},count={1},datalen={2},items.count={3}) ", index, count,target.dataLength,items.Count);

@@ -99,7 +99,6 @@ namespace Hugula.Databinding
 
         public static object ConvertToNotifyTable(INotifyPropertyChanged table)
         {
-            // UnityEngine.Debug.LogWarning(" ConvertToNotifyTable:" + table);
             return table;
         }
 
@@ -133,73 +132,49 @@ namespace Hugula.Databinding
 
         #endregion
 
+        /// <summary>
+        /// Reset 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
         public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItems(NotifyCollectionChangedAction action)
         {
-            // return new HugulaNotifyCollectionChangedEventArgs(action, changedItems);
-            var arg = m_EventArgsPool.Get();
             if (action != NotifyCollectionChangedAction.Reset)
                 throw new ArgumentException(SR.GetString(SR.WrongActionForCtor, NotifyCollectionChangedAction.Reset), "action");
 
-            arg.InitializeAdd(action, null, -1);
+            var arg = m_EventArgsPool.Get();
+            arg.InitializeAdd(action, 0, -1);
 
             return arg;
         }
 
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItems(NotifyCollectionChangedAction action, IList changedItems)
+        /// <summary>
+        /// 从startingIndex插入了changedItems个元素
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="changedItems"></param>
+        /// <param name="startingIndex"></param>
+        /// <returns></returns>
+        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsStartingIndex(NotifyCollectionChangedAction action, int changedItems, int startingIndex)
         {
-            // return new HugulaNotifyCollectionChangedEventArgs(action, changedItems);
-            var arg = m_EventArgsPool.Get();
-            if ((action != NotifyCollectionChangedAction.Add) && (action != NotifyCollectionChangedAction.Remove)
-                    && (action != NotifyCollectionChangedAction.Reset))
-                throw new ArgumentException(SR.GetString(SR.MustBeResetAddOrRemoveActionForCtor), "action");
-
-            if (action == NotifyCollectionChangedAction.Reset)
-            {
-                if (changedItems != null)
-                    throw new ArgumentException(SR.GetString(SR.ResetActionRequiresNullItem), "action");
-
-                arg.InitializeAdd(action, null, -1);
-            }
-            else
-            {
-                if (changedItems == null)
-                    throw new ArgumentNullException("changedItems");
-
-                arg.InitializeAddOrRemove(action, changedItems, -1);
-            }
-            return arg;
-        }
-        //public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItem(NotifyCollectionChangedAction action, object changedItem)
-        //{
-        //    return new HugulaNotifyCollectionChangedEventArgs(action, changedItem);
-        //}
-
-        //public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItems(NotifyCollectionChangedAction action, IList newItems, IList oldItems)
-        //{
-        //    return new HugulaNotifyCollectionChangedEventArgs(action, newItems, oldItems);
-        //}
-
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsStartingIndex(NotifyCollectionChangedAction action, IList changedItems, int startingIndex)
-        {
-            //return new HugulaNotifyCollectionChangedEventArgs(action, changedItems, startingIndex);
-            var arg = m_EventArgsPool.Get();
             if ((action != NotifyCollectionChangedAction.Add) && (action != NotifyCollectionChangedAction.Remove)
                   && (action != NotifyCollectionChangedAction.Reset))
                 throw new ArgumentException(SR.GetString(SR.MustBeResetAddOrRemoveActionForCtor), "action");
 
+            var arg = m_EventArgsPool.Get();
             if (action == NotifyCollectionChangedAction.Reset)
             {
-                if (changedItems != null)
-                    throw new ArgumentException(SR.GetString(SR.ResetActionRequiresNullItem), "action");
-                if (startingIndex != -1)
-                    throw new ArgumentException(SR.GetString(SR.ResetActionRequiresIndexMinus1), "action");
+                // if (changedItems != 0)
+                //     throw new ArgumentException(SR.GetString(SR.ResetActionRequiresNullItem), "action");
+                // if (startingIndex != -1)
+                //     throw new ArgumentException(SR.GetString(SR.ResetActionRequiresIndexMinus1), "action");
 
-                arg.InitializeAdd(action, null, -1);
+                arg.InitializeAdd(action, 0, -1);
             }
             else
             {
-                if (changedItems == null)
-                    throw new ArgumentNullException("changedItems");
+                // if (changedItems == 0)
+                //     throw new ArgumentNullException("changedItems");
                 if (startingIndex < -1)
                     throw new ArgumentException(SR.GetString(SR.IndexCannotBeNegative), "startingIndex");
 
@@ -210,82 +185,95 @@ namespace Hugula.Databinding
 
         }
 
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction action, object changedItem, int index)
+        /// <summary>
+        /// ChangedItem 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="changedItemCount">数量</param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemIndex(NotifyCollectionChangedAction action, int changedItemCount, int index)
         {
-            //return new HugulaNotifyCollectionChangedEventArgs(action, changedItem, index);
-            var arg = m_EventArgsPool.Get();
             if ((action != NotifyCollectionChangedAction.Add) && (action != NotifyCollectionChangedAction.Remove)
                    && (action != NotifyCollectionChangedAction.Reset))
                 throw new ArgumentException(SR.GetString(SR.MustBeResetAddOrRemoveActionForCtor), "action");
 
+            var arg = m_EventArgsPool.Get();
+
             if (action == NotifyCollectionChangedAction.Reset)
             {
-                if (changedItem != null)
-                    throw new ArgumentException(SR.GetString(SR.ResetActionRequiresNullItem), "action");
-                if (index != -1)
-                    throw new ArgumentException(SR.GetString(SR.ResetActionRequiresIndexMinus1), "action");
-
-                arg.InitializeAdd(action, null, -1);
+                arg.InitializeAdd(action, 0, -1);
             }
+            if (action == NotifyCollectionChangedAction.Add)
+                arg.InitializeAdd(action, changedItemCount, index);
+            else if (action == NotifyCollectionChangedAction.Remove)
+                arg.InitializeRemove(action, changedItemCount, index);
             else
-            {
-                arg.InitializeAddOrRemove(action, new object[] { changedItem }, index);
-            }
+                UnityEngine.Debug.LogError(String.Format("Unsupported action: {0}", action.ToString()));
 
             return arg;
         }
 
-        //public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemOldItem(NotifyCollectionChangedAction action, object newItem, object oldItem)
-        //{
-        //    return HugulaNotifyCollectionChangedEventArgs(action, newItem, oldItem);
-        //}
-
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItemsStartingIndex(NotifyCollectionChangedAction action, IList newItems, IList oldItems, int startingIndex)
+        /// <summary>
+        /// startingIndex 替换元素 newItems替换数量
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="newItems"></param>
+        /// <param name="oldItems"></param>
+        /// <param name="startingIndex"></param>
+        /// <returns></returns>
+        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemsOldItemsStartingIndex(NotifyCollectionChangedAction action, int newItems, int oldItems, int startingIndex)
         {
-            //return new HugulaNotifyCollectionChangedEventArgs(action, newItems, oldItems, startingIndex);
-            var arg = m_EventArgsPool.Get();
             if (action != NotifyCollectionChangedAction.Replace)
                 throw new ArgumentException(SR.GetString(SR.WrongActionForCtor, NotifyCollectionChangedAction.Replace), "action");
-            if (newItems == null)
+            if (newItems == 0)
                 throw new ArgumentNullException("newItems");
-            if (oldItems == null)
+            if (oldItems == 0)
                 throw new ArgumentNullException("oldItems");
 
+            var arg = m_EventArgsPool.Get();
             arg.InitializeMoveOrReplace(action, newItems, oldItems, startingIndex, startingIndex);
 
             return arg;
         }
 
-        //public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemsIndexOldIndex(NotifyCollectionChangedAction action, IList changedItems, int index, int oldIndex)
-        //{
-        //    //return new HugulaNotifyCollectionChangedEventArgs(action, changedItems, index, oldIndex);
-        //    var arg = m_EventArgsPool.Get();
-
-        //}
-
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemIndexOldIndex(NotifyCollectionChangedAction action, object changedItem, int index, int oldIndex)
+        /// <summary>
+        /// Move 交换
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="changedItems"></param>
+        /// <param name="index"></param>
+        /// <param name="oldIndex"></param>
+        /// <returns></returns>
+        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsChangedItemIndexOldIndex(NotifyCollectionChangedAction action, int changedItems, int index, int oldIndex)
         {
-            //return new HugulaNotifyCollectionChangedEventArgs(action, changedItem, index, oldIndex);
-            var arg = m_EventArgsPool.Get();
             if (action != NotifyCollectionChangedAction.Move)
                 throw new ArgumentException(SR.GetString(SR.WrongActionForCtor, NotifyCollectionChangedAction.Move), "action");
             if (index < 0)
                 throw new ArgumentException(SR.GetString(SR.IndexCannotBeNegative), "index");
 
-            object[] changedItems = new object[] { changedItem };
+            var arg = m_EventArgsPool.Get();
             arg.InitializeMoveOrReplace(action, changedItems, changedItems, index, oldIndex);
             return arg;
         }
 
-        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemOldItemIndex(NotifyCollectionChangedAction action, object newItem, object oldItem, int index)
+        /// <summary>
+        /// 替换了index处的元素newItem个
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="newItem"></param>
+        /// <param name="oldItem"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static HugulaNotifyCollectionChangedEventArgs CreateCollectionArgsNewItemOldItemIndex(NotifyCollectionChangedAction action, int newItem, int oldItem, int index)
         {
-            var arg = m_EventArgsPool.Get();
             if (action != NotifyCollectionChangedAction.Replace)
                 throw new ArgumentException(SR.GetString(SR.WrongActionForCtor, NotifyCollectionChangedAction.Replace), "action");
 
+            var arg = m_EventArgsPool.Get();
             int oldStartingIndex = index;
 
-            arg.InitializeMoveOrReplace(action, new object[] { newItem }, new object[] { oldItem }, index, oldStartingIndex);
+            arg.InitializeMoveOrReplace(action, newItem, oldItem, index, oldStartingIndex);
 
             return arg;
         }

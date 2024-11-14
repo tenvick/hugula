@@ -54,7 +54,7 @@ namespace Hugula.Databinding
             get
             {
                 if (m_PropertyChanged == null)
-                    m_PropertyChanged = m_PropertyChangedPool.Get();
+                    m_PropertyChanged = PropertyChangedEventHandlerEvent.Get();
                 return m_PropertyChanged;
             }
         }
@@ -276,19 +276,13 @@ namespace Hugula.Databinding
         {
             ClearBinding();
             if(m_PropertyChanged!=null)
-                m_PropertyChangedPool.Release(m_PropertyChanged);
+                PropertyChangedEventHandlerEvent.Release(m_PropertyChanged);
             if (m_BindingsDic != null)
                 DictionaryPool<string, Binding>.Release(m_BindingsDic);
             m_Context = null;
             m_InheritedContext = null;
             m_PropertyChanged = null;
         }
-
-        static void m_ActionOnRelease(PropertyChangedEventHandlerEvent dele)
-        {
-            dele.Clear();
-        }
-        ObjectPool<PropertyChangedEventHandlerEvent> m_PropertyChangedPool = new ObjectPool<PropertyChangedEventHandlerEvent>(null, m_ActionOnRelease);
 
 #if UNITY_EDITOR
         [XLua.DoNotGen]

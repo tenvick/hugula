@@ -132,8 +132,8 @@ namespace Hugula
         #region  group  
         //标注为一个组加载
         static bool m_MarkGroup = false;
-        static int m_TotalGroupCount = 0;
-        static int m_CurrGroupLoaded = 0;
+        static uint m_TotalGroupCount = 0;
+        static uint m_CurrGroupLoaded = 0;
 
         static List<string> m_Groupes = new List<string>();
         static LoadingEventArg m_LoadingEvent; //事件进度
@@ -144,7 +144,7 @@ namespace Hugula
         static public void BeginMarkGroup()
         {
             m_MarkGroup = true;
-            m_TotalGroupCount = m_Groupes.Count;//前一组的没有加载完成
+            m_TotalGroupCount = (uint)m_Groupes.Count;//前一组的没有加载完成
             m_CurrGroupLoaded = 0;
         }
 
@@ -992,12 +992,12 @@ namespace Hugula
             get;
             internal set;
         }
-        public long total
+        public uint total
         {
             get;
             internal set;
         }
-        public long current
+        public uint current
         {
             get;
             internal set;
@@ -1010,7 +1010,7 @@ namespace Hugula
             total = 1;
         }
 
-        public LoadingEventArg(long bytesReceived, long totalBytesToReceive, object userState) : base((totalBytesToReceive == -1L) ? 0 : ((int)(bytesReceived * 100L / totalBytesToReceive)), userState)
+        public LoadingEventArg(uint bytesReceived, uint totalBytesToReceive, object userState) : base((totalBytesToReceive == 0) ? 0 : ((int)(bytesReceived * 100L / totalBytesToReceive)), userState)
         {
             this.current = bytesReceived;
             this.total = totalBytesToReceive;

@@ -252,7 +252,7 @@ namespace Hugula.ResUpdate
                         folderManifestQueue = children[i];
                         bytesReceived += folderManifestQueue.bytesReceived;
                     }
-                    loadingEventArg.current = bytesReceived;
+                    loadingEventArg.current = (uint)bytesReceived;
                     onProgress(loadingEventArg);
                 }
             }
@@ -288,7 +288,7 @@ namespace Hugula.ResUpdate
             }
         }
 
-        public long totalBytesToReceive
+        public uint totalBytesToReceive
         {
             get
             {

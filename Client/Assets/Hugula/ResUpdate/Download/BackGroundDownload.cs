@@ -751,7 +751,7 @@ namespace Hugula.ResUpdate
 
                 Debug.Log($"zipfile:{source} to :{targetFolder} crc:{abinfo.crc32} {System.DateTime.Now}");
                 ZipHelper.UnpackZipByPath(source, targetFolder);
-                groupMap.groupQueue.currFolder.MarkZipDone();
+                Hugula.Executor.Execute(groupMap.groupQueue.currFolder.MarkZipDone);//放主线程执行
                 File.Delete(source); //删除zip文件
                 Debug.Log($"finish zipfile:{source} {System.DateTime.Now}");
             }

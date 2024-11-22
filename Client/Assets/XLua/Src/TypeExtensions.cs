@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -9,20 +10,12 @@ namespace XLua
     {
         public static bool IsValueType(this Type type)
         {
-#if !UNITY_WSA || UNITY_EDITOR
-            return type.IsValueType;
-#else
-            return type.GetTypeInfo().IsValueType;
-#endif
+            return IsValueTypeCached(type);
         }
 
         public static bool IsEnum(this Type type)
         {
-#if !UNITY_WSA || UNITY_EDITOR
-            return type.IsEnum;
-#else
-            return type.GetTypeInfo().IsEnum;
-#endif
+            return IsEnumTypeCached(type);
         }
 
         public static bool IsPrimitive(this Type type)
@@ -158,5 +151,43 @@ namespace XLua
             else
                 return type.FullName;
         }
+
+
+        #region 缓存优化
+        private static Dictionary<Type, bool> typeIsValueTypeCache = new Dictionary<Type, bool>();
+
+        public static bool IsValueTypeCached(this Type type)
+        {
+            if (!typeIsValueTypeCache.TryGetValue(type, out bool isValueType))
+            {
+#if !UNITY_WSA || UNITY_EDITOR
+                isValueType = type.IsValueType;
+#else
+                isValueType = type.GetTypeInfo().IsValueType;
+#endif
+                typeIsValueTypeCache.Add(type, isValueType);
+            }
+            return isValueType;
+        }
+
+        private static Dictionary<Type, bool> typeIsEnumTypeCache = new Dictionary<Type, bool>();
+
+        public static bool IsEnumTypeCached(this Type type)
+        {
+            if (!typeIsEnumTypeCache.TryGetValue(type, out bool is_enum))
+            {
+#if !UNITY_WSA || UNITY_EDITOR
+                is_enum = type.IsEnum;
+#else
+                is_enum = type.GetTypeInfo().IsEnum;
+#endif
+                typeIsEnumTypeCache.Add(type, is_enum);
+            }
+            return is_enum;
+        }
+
+        #endregion
+
     }
+
 }

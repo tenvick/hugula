@@ -201,8 +201,6 @@ local function insert_range(self, index, range)
 
     set_count(self)
 
-    print("insert_range", index, "size", size, "count", self.Count)
-
     on_collection_changed(
         self,
         BindingUtility.CreateCollectionArgsChangedItemsStartingIndex(
@@ -366,7 +364,7 @@ local function insert_item(self, index, item)
 
     set_count(self)
 
-    print("insert_item", index, "count", self.Count)
+
     on_property_changed(self, string_format("items[%d]", index))
     on_collection_changed(
         self,
@@ -489,8 +487,8 @@ notify_table.add_CollectionChanged = add_collection_changed
 notify_table.remove_CollectionChanged = remove_collection_changed
 
 ------IList
-notify_table.set_Item = set_item    --object this[int]
-notify_table.get_Item = get_item    --this[int] = object
+notify_table.set_Item = set_item    --this[int] = object 
+notify_table.get_Item = get_item    --object this[int]
 notify_table.Add = add              --int Add(object value);
 notify_table.Clear = clear          --void Clear();
 notify_table.Contains = contains    --bool Contains(object value);

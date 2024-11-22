@@ -82,10 +82,23 @@ namespace Hugula.Utils
         /// <returns></returns>
         public static string GetGameObjectFullPath(GameObject obj)
         {
-            string path = "/" + obj.name;
+            string path = "/" + obj.name+obj.GetHashCode();
             while (obj.transform.parent != null)
             {
                 obj = obj.transform.parent.gameObject;
+                path = "/" + obj.name + path;
+            }
+            path = path.Substring(1);
+            return path;
+        }
+
+         public static string GetFullPath(MonoBehaviour mono)
+        {
+            string path = "/" + mono + mono.GetHashCode();
+            var obj = mono.transform;
+            while (obj.parent != null)
+            {
+                obj = obj.parent;
                 path = "/" + obj.name + path;
             }
             path = path.Substring(1);

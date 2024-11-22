@@ -15,7 +15,7 @@ namespace Hugula.Databinding.Binder
     {
         public const string OnItemInstantiatedProperty = "onItemInstantiated";
         public const string OnItemRenderProperty = "onItemRender";
-        IList items;
+        // IList items;
 
         #region  重写属性
 
@@ -199,7 +199,6 @@ namespace Hugula.Databinding.Binder
             if (args.NewItems > 0)
                 count = args.NewItems;
             target.InsertAt(index, count);
-            // Debug.LogFormat ("OnCollectionAdd(index={0},count={1},datalen={2},items.count={3}) ", index, count,target.dataLength,items.Count);
         }
 
         protected override void OnCollectionRemove(object sender, HugulaNotifyCollectionChangedEventArgs args)
@@ -252,8 +251,7 @@ namespace Hugula.Databinding.Binder
             if (item != null)
             {
                 item.forceContextChanged = m_forceBinding;
-                // item.context = items[index];
-                BindingUtility.SetContext(item, items[index]);
+                BindingUtility.SetContext(item,GetDataItem(index));
             }
         }
 
@@ -265,18 +263,20 @@ namespace Hugula.Databinding.Binder
             if (GetBinding(OnItemRenderProperty) == null)
                 target.onItemRender = OnItemRender;
 
-            if (context is IList)
-            {
-                items = (IList)context;
-                target.dataLength = items.Count;
-            }
-            else
-            {
-                items = null;
-                target.dataLength = 0;
-            }
-
             base.OnBindingContextChanged();
+
+            target.dataLength = GetDataCount();
+            // if (context is IList)
+            // {
+            //     items = (IList)context;
+            //     target.dataLength = items.Count;
+            // }
+            // else
+            // {
+            //     items = null;
+            //     target.dataLength = 0;
+            // }
+
 
             target.Refresh();
 

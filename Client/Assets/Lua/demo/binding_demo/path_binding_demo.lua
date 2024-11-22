@@ -3,6 +3,8 @@
 --
 --  author pu
 ------------------------------------------------
+local ProfilerFactory        = CS.Hugula.Profiler.ProfilerFactory
+
 local oneway_path_demo = {}
 
 ----------------------------------申明属性名--------------
@@ -11,7 +13,7 @@ local property_goods = "goods"
 local property_name = "name"
 local property_color = "color"
 -------------------------------------------------
-
+local BindingExpression = BindingExpression
 ---绑定属性
 ---text1 绑定 text1
 ---text2 绑定 goods.name
@@ -57,6 +59,27 @@ oneway_path_demo.on_input_changed = {
         -- goods:OnPropertyChanged(property_color)
     end
 }
+
+oneway_path_demo.btn_test_1000 = {
+    CanExecute = function(self, arg)
+        return true
+    end,
+    Execute = function(self, arg)
+        print("oneway_path_demo.btn_test_1000", arg)
+        local profiler = ProfilerFactory.GetAndStartProfiler("oneway_path_demo.btn_test_1000", nil, nil, true)
+
+        for i = 0, 1000 do
+            -- arg.text = goods.color[2]
+            BindingExpression.m_SetTargetPropertyNoConvertInvoke(goods.color, "2", arg, "text", true, false, "", nil)
+        end
+        
+        if profiler then
+            profiler:Stop()
+        end
+    end
+}
+
+
 
 -- function oneway_path_demo:on_property_set(property)
 --     goods:OnPropertyChanged(property_color)

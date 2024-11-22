@@ -271,7 +271,7 @@ namespace Tests
                 i++;
                 var source = new SimpleSource();
                 source.m_PropertyChanged = eventHandler;
-                bindingPathPart.Subscribe(source);
+                bindingPathPart.Subscribe(source.m_PropertyChanged);
                 if (i >= max) break;
             }
             Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Subscribe invoke{i}: {watch.ElapsedMilliseconds} ms");
@@ -301,19 +301,19 @@ namespace Tests
 
         static public void AddBindings(BindableObject bindableObject)
         {
-            bindableObject.SetBinding("enable_slider", null, "enabled", BindingMode.TwoWay, string.Empty, null); //双向绑定
-            bindableObject.SetBinding("btntext", null, "text", BindingMode.OneWay, string.Empty, null); //
-            bindableObject.SetBinding("slider1_value", null, "value", BindingMode.TwoWay, string.Empty, null); //双向绑定
-            bindableObject.SetBinding("btn_interactable", null, "interactable", BindingMode.TwoWay, string.Empty, null); //
-            bindableObject.SetBinding("on_slider_value", null, "onValueChangedExecute", BindingMode.OneWay, string.Empty, null); //
-            bindableObject.SetBinding("on_btn_click", null, "onClickCommand", BindingMode.OneWay, string.Empty, null); //
-            bindableObject.SetBinding("selectedIndex", null, "selectedIndex", BindingMode.OneWayToSource, string.Empty, null); //
+            bindableObject.SetBinding("enable_slider", null, "enabled", BindingMode.TwoWay, null); //双向绑定
+            bindableObject.SetBinding("btntext", null, "text", BindingMode.OneWay,  null); //
+            bindableObject.SetBinding("slider1_value", null, "value", BindingMode.TwoWay,  null); //双向绑定
+            bindableObject.SetBinding("btn_interactable", null, "interactable", BindingMode.TwoWay,  null); //
+            bindableObject.SetBinding("on_slider_value", null, "onValueChangedExecute", BindingMode.OneWay,  null); //
+            bindableObject.SetBinding("on_btn_click", null, "onClickCommand", BindingMode.OneWay,  null); //
+            bindableObject.SetBinding("selectedIndex", null, "selectedIndex", BindingMode.OneWayToSource,  null); //
 
             //path
-            bindableObject.SetBinding("oneway_path_demo.text1", null, "text2", BindingMode.OneWay, string.Empty, null); //
-            bindableObject.SetBinding("oneway_path_demo.goods.color[2]", null, "text3", BindingMode.TwoWay, string.Empty, null); //
-            bindableObject.SetBinding("oneway_path_demo.bind_text4()", null, "text4", BindingMode.TwoWay, string.Empty, null); //
-            bindableObject.SetBinding("oneway_path_demo.on_input_changed", null, "submitEventCommand", BindingMode.OneWay, string.Empty, null); //
+            bindableObject.SetBinding("oneway_path_demo.text1", null, "text2", BindingMode.OneWay,  null); //
+            bindableObject.SetBinding("oneway_path_demo.goods.color[2]", null, "text3", BindingMode.TwoWay,  null); //
+            bindableObject.SetBinding("oneway_path_demo.bind_text4()", null, "text4", BindingMode.TwoWay,  null); //
+            bindableObject.SetBinding("oneway_path_demo.on_input_changed", null, "submitEventCommand", BindingMode.OneWay,  null); //
         }
 
     }

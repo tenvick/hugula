@@ -256,12 +256,18 @@ namespace Hugula.UIComponents
             UpdateViewPointBounds();
             ScrollLoopItem();
 
-            if (renderQueue.Count > 0)
+            int i = 0;
+            while (renderQueue.Count > 0)
             {
-                for (int i = 0; i < this.m_PageSize; i++)
-                {
-                    QueueToRender();
-                }
+                 int idx = renderQueue.Dequeue();
+                var item = GetLoopItemAt(idx);
+                RenderItem(item, idx);
+                i++;
+                if (i >= m_PageSize) break;
+                // for (int i = 0; i < this.m_PageSize; i++)
+                // {
+                //     QueueToRender();
+                // }
             }
 
             base.LateUpdate(); //... CanvasUpdateRegistry.PerformUpdate() 75.23 ms
@@ -435,9 +441,10 @@ namespace Hugula.UIComponents
             m_DataLength -= count;
             // 移动数据 将当前index后面的数据向前移动cout个位置
             int min = int.MaxValue, max = int.MinValue;
-            int remBeginIdx = int.MinValue, remEndIdx = int.MinValue;
+            int remEndIdx = int.MinValue;
             LoopItem repItem = null;
             int index1 = 0, nextIdx = 0;
+            int rmCount = 0;
 
             LoopItem item1;
             for (int i = 0; i < m_Pages.Count; i++)
@@ -445,69 +452,52 @@ namespace Hugula.UIComponents
                 item1 = m_Pages[i];
                 index1 = item1.index;
                 nextIdx = index1 + count;
-                if (index1 != -1)
-                    min = Math.Min(index1, min);
 
+                if (index1 != -1) min = Math.Min(index1, min);
                 max = Math.Max(index1, max);
 
                 if (index1 >= index) //需要移动下面的项目来填充
                 {
-                    if (remBeginIdx == int.MinValue)
-                    {
-                        remBeginIdx = index1;
-                        remEndIdx = index1;
-                    }
-
-                    if (m_SelectedIndex == index1)
-                    {
-                        // selectedIndex = -1;
-                        // selectedIndex = index;
-                    }
-
                     repItem = GetValideLoopItemAt(nextIdx);
                     if (repItem != null)
                     {
                         if (repItem.onlyPosDirty == false)
                         {
                             ReplaceLoopItemAt(index1, nextIdx);
-                            remEndIdx = nextIdx;
+                        } 
+                        else
+                        {
+                            ReplaceLoopItemAt(index1,remEndIdx);
                         }
                     }
                     else
                     {
-                        if (remBeginIdx > index) //如果第一个没有被替换 刷新到开头
+                        if(remEndIdx == int.MinValue) 
                         {
-                            ReplaceLoopItemAt(remEndIdx, index);
+                            remEndIdx = index1; //记录被替换的
                         }
+
                         item1.index = -1; //强制刷新
-                        item1.onlyPosDirty = true;
+                        item1.onlyPosDirty = false;
                         LayOut(item1, index1 + 1); //刷新到下一个位置
+                                                
+                        renderQueue.Enqueue(index1);
+                         if (nextIdx >= dataLength - 1) //删除
+                            rmCount++;
                     }
                 }
             }
-
-            int idx = index;
-            if (min == int.MaxValue) min = 0;
-            if (idx < min) idx = min;
-            int end_idx = idx + m_PageSize;
-            int movIdx = 0;
-            if (columns != 0) movIdx = min % columns; //如果顶部没有对齐。
-            int max_idx = min + m_PageSize - 1 + movIdx;
-            if (end_idx > max_idx) end_idx = max_idx;
-
-            int range_begin = idx > min ? idx : min; //取大
-            int range_end = end_idx;
-            if (max >= dataLength)
-            { //有数据删除
-                range_end = max;
-            }
-            else
+          
+             //刷新开头
+            int upIdx = min - rmCount;
+            for (int i = 1; i <= rmCount; i++)
             {
-                if (range_end >= dataLength) range_end = dataLength - 1;
+                upIdx = min - i;
+                if (upIdx >= 0)
+                {
+                    renderQueue.Enqueue(upIdx);
+                }
             }
-
-            for (int i = range_begin; i <= range_end; i++)
-                renderQueue.Enqueue(i);
 
             CalcBounds();
         }
@@ -593,11 +583,13 @@ namespace Hugula.UIComponents
             }
             else
             {
-                if (range_end >= dataLength) range_end = dataLength - 1;
+                if (range_end > dataLength) range_end = dataLength ;
             }
 
-            for (int i = range_begin; i <= range_end; i++)
+            for (int i = range_begin; i < range_end; i++)
+            {
                 renderQueue.Enqueue(i);
+            }
 
         }
 
@@ -757,7 +749,7 @@ namespace Hugula.UIComponents
             }
             else
             {
-                m_SelectedIndex = -1;
+                m_SelectedIndex = selectedIndex;//数据还未初始化保留初始值
                 selectStyle = null;
             }
         }
@@ -959,15 +951,15 @@ namespace Hugula.UIComponents
 
         protected Queue<int> renderQueue = new Queue<int>(); //渲染队列
 
-        protected void QueueToRender()
-        {
-            if (renderQueue.Count > 0)
-            {
-                int idx = renderQueue.Dequeue();
-                var item = GetLoopItemAt(idx);
-                RenderItem(item, idx);
-            }
-        }
+        // protected void QueueToRender()
+        // {
+        //     if (renderQueue.Count > 0)
+        //     {
+        //         int idx = renderQueue.Dequeue();
+        //         var item = GetLoopItemAt(idx);
+        //         RenderItem(item, idx);
+        //     }
+        // }
         Component OnCreateOrGetItem(int idx, int templateId, LoopItem loopItem, RectTransform content)
         {
             Component item = loopItem.item;
@@ -1100,8 +1092,8 @@ namespace Hugula.UIComponents
                 item.index = -1;
             }
 
-            m_SelectedIndex = -1;
-            m_LastSelectedIndex = -1;
+            // m_SelectedIndex = -1;
+            // m_LastSelectedIndex = -1;
             selectStyle = null;
         }
 

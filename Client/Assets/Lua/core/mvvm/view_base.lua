@@ -11,7 +11,7 @@ local type = type
 local ipairs = ipairs
 local table_remove_item = table.remove_item
 local table_insert = table.insert
-local set_target_context = BindingExpression.set_target_context
+
 local LuaHelper = CS.Hugula.Utils.LuaHelper
 ---所有视图的基类
 ---@class view_base
@@ -92,7 +92,7 @@ local function set_child_context(self, context)
 
     elseif not self:is_scene() and self:has_child() and self._context ~= context then
         self._context = context
-        set_target_context(child, context)
+        child.context = context
     end
 end
 

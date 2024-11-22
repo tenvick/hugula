@@ -29,6 +29,66 @@ namespace XLua
         {
         }
 
+        public bool TryGet<T>(string key, out T value)
+        {
+            return TryGet<string, T>(key, out value);
+        }
+
+
+        public bool TryGet<TKey, TValue>(TKey key, out TValue value)
+        {
+ #if THREAD_SAFE || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                var L = luaEnv.L;
+                var translator = luaEnv.translator;
+                int oldTop = LuaAPI.lua_gettop(L);
+                LuaAPI.lua_getref(L, luaReference);
+                translator.PushByType(L, key);
+
+                if (0 != LuaAPI.xlua_pgettable(L, -2))
+                {
+                    string err = LuaAPI.lua_tostring(L, -1);
+                    LuaAPI.lua_settop(L, oldTop);
+                    throw new Exception("get field [" + key + "] error:" + err);
+                }
+
+                LuaTypes lua_type = LuaAPI.lua_type(L, -1);
+                
+                bool ret = lua_type != LuaTypes.LUA_TNIL;
+
+                if(!ret)
+                {
+                    LuaAPI.lua_settop(L, oldTop);
+                    value = default(TValue);
+                    return false; //没有找到key
+                }
+
+                Type type_of_value = typeof(TValue);
+                if (lua_type == LuaTypes.LUA_TNIL && type_of_value.IsValueTypeCached())
+                {
+                    throw new InvalidCastException("can not assign nil to " + type_of_value.GetFriendlyName());
+                }
+
+                try
+                {
+                    translator.Get(L, -1, out value);
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                finally
+                {
+                    LuaAPI.lua_settop(L, oldTop);
+                }
+                return true;
+#if THREAD_SAFE || HOTFIX_ENABLE
+            }
+#endif
+        }
+
         // no boxing version get
         public void Get<TKey, TValue>(TKey key, out TValue value)
         {
@@ -51,7 +111,7 @@ namespace XLua
 
                 LuaTypes lua_type = LuaAPI.lua_type(L, -1);
                 Type type_of_value = typeof(TValue);
-                if (lua_type == LuaTypes.LUA_TNIL && type_of_value.IsValueType())
+                if (lua_type == LuaTypes.LUA_TNIL && type_of_value.IsValueTypeCached())
                 {
                     throw new InvalidCastException("can not assign nil to " + type_of_value.GetFriendlyName());
                 }
@@ -145,7 +205,7 @@ namespace XLua
                     luaEnv.ThrowExceptionFromError(oldTop);
                 }
                 LuaTypes lua_type = LuaAPI.lua_type(L, -1);
-                if (lua_type == LuaTypes.LUA_TNIL && typeof(T).IsValueType())
+                if (lua_type == LuaTypes.LUA_TNIL && typeof(T).IsValueTypeCached())
                 {
                     throw new InvalidCastException("can not assign nil to " + typeof(T).GetFriendlyName());
                 }
@@ -385,6 +445,30 @@ namespace XLua
         public override string ToString()
         {
             return "table :" + luaReference;
+        }
+
+        public int Count
+        {
+            get
+            {
+                if(TryGet<int>("Count",out int len))
+                {
+                    return len;
+                }
+                return Length;
+            }
+
+        }
+
+        public object Get_Item(int index)
+        {
+            if(TryGet<LuaFunction>("get_Item", out var m_GetItem))
+            {
+                return m_GetItem.Func<LuaTable,int,object>(this,index);
+            }else
+            {
+                return Get<int,object>(index + 1);
+            }      
         }
     }
 }

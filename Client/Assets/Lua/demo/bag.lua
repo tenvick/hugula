@@ -56,7 +56,7 @@ end
 --模拟100条背包数据
 local function create_test_bag_data()
     local datas = {}
-    for i = 0, 20 do
+    for i = 0, 199 do
         local cate = i % 5 + 1
 
         table.insert(datas, create_item(i,equ_type[cate]))

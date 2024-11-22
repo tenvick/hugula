@@ -655,10 +655,10 @@ namespace HugulaEditor.Databinding
                             {
                                 str += $"    path:{bind.path} != {tarBinding.path} ";
                             }
-                            else if (bind.format != tarBinding.format)
-                            {
-                                str += $"    format:  {bind.format} != {tarBinding.format} ";
-                            }
+                            // else if (bind.format != tarBinding.format)
+                            // {
+                            //     str += $"    format:  {bind.format} != {tarBinding.format} ";
+                            // }
                             else if (bind.target != tarBinding.target)
                             {
                                 // str+= $"target:{bind.target} != {tarBinding.target} ";

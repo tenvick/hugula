@@ -208,11 +208,14 @@ namespace Hugula.UIComponents
 
         protected void Update()
         {
-            if (m_RenderQueue.Count > 0)
+            int i = 0;//渲染计数
+            while (m_RenderQueue.Count > 0)
             {
                 int idx = m_RenderQueue.Dequeue();
                 var item = GetLoopVerticalItemAt(idx);
                 RenderItem(item, idx);
+                i++;
+                if (i >= pageSize) break;
             }
 
             ScrollLoopVerticalItem();
@@ -371,10 +374,13 @@ namespace Hugula.UIComponents
             m_DataLength -= count;
             // 移动数据 将当前index后面的数据向前移动cout个位置
             int min = int.MaxValue, max = int.MinValue;
-            int remBeginIdx = int.MinValue, remEndIdx = int.MinValue;
+            int remEndIdx = int.MinValue;
+
             LoopItem repItem = null;
             int index1 = 0, nextIdx = 0;
             int rmCount = 0;
+
+            virtualVertical.RemoveAt(index, count); //布局删除
 
             LoopItem item1;
             for (int i = 0; i < m_Pages.Count; i++)
@@ -382,18 +388,12 @@ namespace Hugula.UIComponents
                 item1 = m_Pages[i];
                 index1 = item1.index;
                 nextIdx = index1 + count;
-                if (index1 != -1)
-                    min = Math.Min(index1, min);
 
+                if (index1 != -1)  min = Math.Min(index1, min);
                 max = Math.Max(index1, max);
 
                 if (index1 >= index) //需要移动下面的项目来填充
                 {
-                    if (remBeginIdx == int.MinValue)
-                    {
-                        remBeginIdx = index1;
-                        remEndIdx = index1;
-                    }
 
                     repItem = GetRealItemAt(nextIdx);
                     if (repItem != null)
@@ -401,51 +401,33 @@ namespace Hugula.UIComponents
                         if (repItem.onlyPosDirty == false)
                         {
                             ReplaceLoopItemAt(index1, nextIdx);
-                            remEndIdx = nextIdx;
+                        }
+                        else
+                        {
+                            ReplaceLoopItemAt(index1,remEndIdx);
+                        }
+
+                        if (m_SelectedIndex == index1)
+                        {
+                            selectedIndex = index1;
                         }
                     }
                     else
                     {
-                        if (remBeginIdx > index) //如果第一个没有被替换 刷新到开头
+                        if(remEndIdx == int.MinValue) 
                         {
-                            ReplaceLoopItemAt(remEndIdx, index);
+                            remEndIdx = index1; //记录被替换的
                         }
-                        item1.index = -1; //强制刷新
-                        // item1.onlyPosDirty = true;
-                        LayOutItem(item1, index1 + 1);//刷新到下一个位置
+     
+                        item1.index = -1; //强制刷新+++]
+                        item1.onlyPosDirty = false;
+                        LayOutItem(item1, index1 + 1 );//刷新到下一个位置
 
-                        if (nextIdx >= dataLength - 1) //删除
+                        m_RenderQueue.Enqueue(index1);
+                         if (nextIdx >= dataLength - 1) //删除
                             rmCount++;
-
-                    }
+                    }                    
                 }
-            }
-
-            //刷新布局
-            virtualVertical.RemoveAt(index, count); //布局删除
-
-            if (min == int.MaxValue) min = 0;
-
-            int max_idx = min + m_PageSize - 1;
-
-            int range_begin = index > min ? index : min; //取大
-            range_begin = range_begin;
-            int range_end = max_idx;
-            if (max >= dataLength)
-            { //有数据删除
-                range_end = max;
-            }
-            else
-            {
-                if (range_end >= dataLength) range_end = dataLength - 1;
-            }
-
-            m_StartIdx = min;
-            m_EndIdx = range_end;
-
-            for (int i = range_begin; i <= range_end; i++)
-            {
-                m_RenderQueue.Enqueue(i);
             }
 
             //刷新开头
@@ -459,8 +441,8 @@ namespace Hugula.UIComponents
                 }
             }
 
+            //刷新布局
             CalcBounds(true);
-
             if (m_Coroutine != null)
             {
                 StopCoroutine(m_Coroutine);
@@ -860,13 +842,13 @@ namespace Hugula.UIComponents
                 if (onItemRender != null) onItemRender(this.parameter, loopItem.item, loopItem.index); //填充内容
                 if (!(oldIdx == -1 && loopItem.onlyPosDirty)) //如果是删除项目不刷新位置
                 {
-                    AddLayoutList(idx);
                     CalcItemBound(loopItem);
+                    m_LayoutList.Add(idx);
                     loopItem.onlyPosDirty = false;
                 }
 
             }
-            //
+
             //check select
             if (m_SelectedIndex == idx && m_SelecteStyle != loopItem.loopSelectStyle)
             {
@@ -874,12 +856,7 @@ namespace Hugula.UIComponents
             }
         }
 
-        protected void RenderItemByIdx(int idx)
-        {
-            var loopItem = GetLoopVerticalItemAt(idx);
-            if (loopItem != null) RenderItem(loopItem, idx);
-        }
-
+    
         ///<summary>
         /// 内容滚动
         ///</summary>
@@ -936,11 +913,11 @@ namespace Hugula.UIComponents
         {
             if (force)
             {
-                var index0Size = virtualVertical.GetCellSize(0);
+                virtualVertical.GetCellSize(0, out var index0Size);
                 m_CalcBoundyMin = index0Size.x - verticalPadding;
                 m_ContentBounds.yMin = -m_CalcBoundyMin; //ContentBounds坐标系统与transform是反的
 
-                var indexLenSize = virtualVertical.GetCellSize(m_DataLength - 1);
+                virtualVertical.GetCellSize(m_DataLength - 1, out var indexLenSize);
                 m_CalcBoundyMax = indexLenSize.y;
                 m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
             }
@@ -1008,13 +985,15 @@ namespace Hugula.UIComponents
                 CalcItemBound(item);
 
             m_LayoutList.Add(id);
+
             Layout();
 
         }
 
         protected Vector2 GetLoopVerticalItemSize(int idx)
         {
-            return virtualVertical.GetCellSize(idx);
+            virtualVertical.GetCellSize(idx,out Vector2 size);
+            return size;
         }
         ///<summary>
         /// 布局
@@ -1029,9 +1008,9 @@ namespace Hugula.UIComponents
                 {
                     item = m_Pages[i];
                     index = item.index;
-                    if (index >= 0)
+                    if (index >= 0 && !item.onlyPosDirty)
                     {
-                        var size = virtualVertical.GetCellSize(index);
+                        var isRender = virtualVertical.GetCellSize(index, out Vector2 size);
                         var rectTran = item.transform;
                         Vector2 pos = rectTran.anchoredPosition;
                         pos.y = -size.x + paddingTop; // rect.height * .5f ;
@@ -1066,7 +1045,7 @@ namespace Hugula.UIComponents
         /// <param name="index"></param>
         void LayOutItem(LoopItem item, int index)
         {
-            var size = virtualVertical.GetCellSize(index);
+           virtualVertical.GetCellSize(index, out Vector2 size);
             var rectTran = item.transform;
             Vector2 pos = rectTran.anchoredPosition;
             pos.y = -size.x + paddingTop; // rect.height * .5f ;
@@ -1086,11 +1065,6 @@ namespace Hugula.UIComponents
                 m_ContentBounds.yMax = -m_CalcBoundyMax; //ContentBounds坐标系统与transform是反的
             }
 
-        }
-
-        void AddLayoutList(int id)
-        {
-            m_LayoutList.Add(id);
         }
 
         #endregion
@@ -1236,16 +1210,25 @@ namespace Hugula.UIComponents
                 var item = m_Pages[i];
                 if (item.onlyPosDirty && item.index >= 0)
                 {
-                    var size = virtualVertical.GetCellSize(item.index);
+                    var isRender = virtualVertical.GetCellSize(item.index, out Vector2 size);
                     var rectTran = item.transform;
+                    var rect = rectTran.rect;
+                    rect.height = -Mathf.Abs(rect.height);
+
                     var pos = rectTran.anchoredPosition;
                     pos.y = -size.x + paddingTop; // rect.height * .5f ;
                     pos = pos + m_ContentInitializePosition; //开始位置
-                    var begin = rectTran.anchoredPosition;
+
+                    //适配左上对齐
+                    Vector2 begin = rectTran.anchoredPosition;
+                    begin.x += rect.width * rectTran.pivot.x;
+                    begin.y -= rect.height * (1 - rectTran.pivot.y);
+
                     pos = Vector2.Lerp(begin, pos, t);
 
                     // rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
-                    rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                    if(isRender)rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+
                     if (t >= 1)
                     {
                         item.onlyPosDirty = false;
@@ -1266,16 +1249,23 @@ namespace Hugula.UIComponents
                     var item = m_Pages[i];
                     if (item.onlyPosDirty && item.index >= 0)
                     {
-                        var size = virtualVertical.GetCellSize(item.index);
+                        var isRender = virtualVertical.GetCellSize(item.index, out Vector2 size);
                         var rectTran = item.transform;
+                        var rect = rectTran.rect;
+                        rect.height = -Mathf.Abs(rect.height);
                         var pos = rectTran.anchoredPosition;
                         pos.y = -size.x + paddingTop; // rect.height * .5f ;
                         pos = pos + m_ContentInitializePosition; //开始位置
-                        var begin = rectTran.anchoredPosition;
+
+                        //适配左上对齐
+                        Vector2 begin = rectTran.anchoredPosition;
+                        begin.x += rect.width * rectTran.pivot.x;
+                        begin.y -= rect.height * (1 - rectTran.pivot.y);
+
                         pos = Vector2.Lerp(begin, pos, t);
 
                         // rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
-                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+                        if(isRender)rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
                         if (t >= 1)
                         {
                             item.onlyPosDirty = false;

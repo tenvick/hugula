@@ -47,7 +47,7 @@ end
 
 local function create_tmp_data()
     local datas = {}
-    for i = 0, 11 do
+    for i = 0, 30 do
         if (i == 1) then
             table.insert(datas, create_split_item(i))
         elseif (i == 5) then
@@ -134,6 +134,9 @@ demo_subui.btn_sct_del = {
 ------------------public------------------
 function demo_subui:on_active()
     Logger.Log("demo_subui. active mail_list=", demo_subui.mail_list)
+    if( mail_list.Count == 0) then
+        mail_list:InsertRange(create_tmp_data()) ---初始化数据
+    end
 end
 
 function demo_subui:on_deactive()

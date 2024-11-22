@@ -35,17 +35,17 @@ namespace Hugula.Databinding
         public string propertyName;
 
         public string path;
-        public string format;
+        // public string format;
         public string converter;
         public BindingMode mode;
 
         [PopUpComponentsAttribute]
         public UnityEngine.Object source;
-        
+
         /// <summary>
         /// The target object 弱引用
         /// </summary>
-        [PopUpComponentsAttribute] 
+        [PopUpComponentsAttribute]
         public UnityEngine.Object target;
         // {
         //     get
@@ -66,6 +66,11 @@ namespace Hugula.Databinding
 
         public object convert;
 
+        /// <summary>
+        /// The next binding in the chain
+        /// </summary>
+        // internal Binding next;
+
         #endregion
 
         #region  绑定
@@ -78,27 +83,27 @@ namespace Hugula.Databinding
             }
         }
 
-        WeakReference<object> _bindingContext;
+        // WeakReference<object> _bindingContext;
 
         /// <summary>
         /// The binding context object 弱引用
         /// </summary>
-        public object bindingContext //;
-        {
-            get
-            {
-                if (_bindingContext != null && _bindingContext.TryGetTarget(out var context))
-                    return context;
-                return null;
-            }
-            set
-            {
-                if (_bindingContext == null)
-                    _bindingContext = new WeakReference<object>(value);
-                else
-                    _bindingContext.SetTarget(value);
-            }
-        }
+        public object bindingContext;
+        // {
+        //     get
+        //     {
+        //         if (_bindingContext != null && _bindingContext.TryGetTarget(out var context))
+        //             return context;
+        //         return null;
+        //     }
+        //     set
+        //     {
+        //         if (_bindingContext == null)
+        //             _bindingContext = new WeakReference<object>(value);
+        //         else
+        //             _bindingContext.SetTarget(value);
+        //     }
+        // }
 
         protected BindingPathPart m_LastPart;
 
@@ -106,7 +111,7 @@ namespace Hugula.Databinding
 
         #endregion
 
-        internal bool m_IsDisposed { get; private set;}//销毁标记
+        internal bool m_IsDisposed { get; private set; }//销毁标记
 #if LUA_PROFILER_DEBUG
         string ProfilerName = "";
         string GetProfilerName()
@@ -122,19 +127,19 @@ namespace Hugula.Databinding
             m_IsDisposed = false;
         }
 
-        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "", "")
+        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "")
         {
             m_IsDisposed = false;
         }
 
-        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode, string format, string converter)
+        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode,string converter)
         {
             m_IsDisposed = false;
             this.path = path;
             this.target = target;
             this.propertyName = propertyName;
             this.mode = mode;
-            this.format = format;
+            // this.format = format;
             this.converter = converter;
         }
 
@@ -202,32 +207,36 @@ namespace Hugula.Databinding
 #endif
                 BindingPathPart part = null;
                 object m_Current = bindingContext;
+                PropertyChangedEventHandlerEvent propChanged = null;
+                bool isSelf = false;
+                int  count = parts.Count;
 
-                for (var i = 0; i < parts.Count; i++)
+                for (var i = 0; i < count; i++)
                 {
-                    part = parts[i];
-                    part.source = m_Current;
+                    part = m_Parts[i];
                     m_LastPart = part;
+                    isSelf = part.isSelf;
 
-                    if (!part.isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
+                    if (!isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
                     {
                         if (m_Current is INotifyPropertyChanged inpc)
                         {
-                            part.Subscribe(inpc);
+                            part.source = m_Current;
+                            part.Subscribe(inpc.PropertyChanged);
                         }
-                        else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                        else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
                         {
-                            var propChanged = inc.Cast<INotifyPropertyChanged>();
+                            part.source = inc;
                             part.Subscribe(propChanged);
                         }
                     }
 
-                    if (!part.isSelf && m_Current != null && i < parts.Count - 1)
+                    if (!isSelf && m_Current != null && i < count - 1)
                     {
                         part.TryGetValue(m_Current, out m_Current); //
                     }
 
-                    if (!part.isSelf && m_Current == null && part.nextPart == null)
+                    if (!isSelf && m_Current == null && part.nextPart == null)
                         break;
 
                 }
@@ -290,31 +299,36 @@ namespace Hugula.Databinding
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.path TryGetValue");
 #endif
-            for (var i = 0; i < parts.Count; i++)
-            {
-                part = parts[i];
-                part.source = m_Current;
-                m_LastPart = part;
+            PropertyChangedEventHandlerEvent propChanged = null;
+            int count = parts.Count ;
+            bool isSelf = false;
 
-                if (!part.isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
+            for (var i = 0; i < count; i++)
+            {
+                part = m_Parts[i];
+                m_LastPart = part;
+                isSelf = part.isSelf;
+
+                if (!isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
                 {
                     if (m_Current is INotifyPropertyChanged inpc)
                     {
-                        part.Subscribe(inpc);
+                        part.source = m_Current;
+                        part.Subscribe(inpc.PropertyChanged);
                     }
-                    else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
                     {
-                        var propChanged = inc.Cast<INotifyPropertyChanged>();
+                        part.source = inc;
                         part.Subscribe(propChanged);
                     }
                 }
 
-                if (!part.isSelf && m_Current != null && i < parts.Count - 1)
+                if (!isSelf && m_Current != null && i < count - 1)
                 {
                     part.TryGetValue(m_Current, out m_Current); //
                 }
 
-                if (!part.isSelf && m_Current == null && part.nextPart == null)
+                if (!isSelf && m_Current == null && part.nextPart == null)
                     break;
 
             }
@@ -352,31 +366,35 @@ namespace Hugula.Databinding
             BindingPathPart part = currPart;
             object m_Current = part.source;
             bool isLast2 = false;
+            PropertyChangedEventHandlerEvent propChanged = null;
+            bool isSelf = false;
+
             while (part != null && m_Current != null)
             {
                 m_LastPart = part;
-                part.source = m_Current;
                 isLast2 = part.nextPart != null;
+                isSelf = part.isSelf;
 
                 if (currPart != part && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// currPart已经监听过了
                 {
                     if (m_Current is INotifyPropertyChanged inpc)
                     {
-                        part.Subscribe(inpc);
+                        part.source = m_Current; // 有PropertyChanged的对象才需要缓存source
+                        part.Subscribe(inpc.PropertyChanged);
                     }
-                    else if (m_Current is XLua.LuaTable inc && inc.ContainsKey("PropertyChanged")) //lua table 监听
+                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
                     {
-                        var propChanged = inc.Cast<INotifyPropertyChanged>();
+                        part.source = inc;// 有PropertyChanged的对象才需要缓存source
                         part.Subscribe(propChanged);
                     }
                 }
 
-                if (!part.isSelf && m_Current != null && isLast2)
+                if (!isSelf && m_Current != null && isLast2)
                 {
                     part.TryGetValue(m_Current, out m_Current); //
                 }
 
-                if (!part.isSelf && m_Current == null)
+                if (!isSelf && m_Current == null)
                     break;
 
                 if (part.nextPart != null)
@@ -391,9 +409,11 @@ namespace Hugula.Databinding
         //解绑目标
         public void Unapply()
         {
-            for (var i = 0; i < parts.Count; i++)
+            if(m_Parts == null) return;
+            int count = m_Parts.Count;
+            for (var i = 0; i <count; i++)
             {
-                BindingPathPart part = parts[i];
+                BindingPathPart part = m_Parts[i];
                 part?.Unsubscribe();
             }
 

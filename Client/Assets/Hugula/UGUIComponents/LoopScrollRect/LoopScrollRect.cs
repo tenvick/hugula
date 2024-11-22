@@ -82,10 +82,11 @@ namespace Hugula.UIComponents
                 int y = index / columns;
                 pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
-            rect.position = pos;
             pos = pos + m_ContentLocalStart; //开始位置
 
-            rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+            if (columns != 1)
+                rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width); //单列不需要设置宽度           
+
             rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
         }
 
@@ -108,14 +109,18 @@ namespace Hugula.UIComponents
             else // 多行
             {
                 int x = index % columns;
-                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x; ; // + rect.width * .5f;
+                pos.x = (rect.width + this.horizontalPadding) * x + this.padding.x;// + rect.width * .5f;
                 int y = index / columns;
                 pos.y = (rect.height - this.verticalPadding) * y - this.padding.y; // rect.height * .5f ;
             }
             pos = pos + m_ContentLocalStart; //开始位置
-            var begin = rectTran.anchoredPosition;
-            var pos1 = Vector2.Lerp(begin, pos, time);
 
+            // Adjust 'begin' to align with the top-left corner
+            Vector2 begin = rectTran.anchoredPosition;
+            begin.x += rect.width * rectTran.pivot.x;
+            begin.y -= rect.height * (1 - rectTran.pivot.y);
+
+            var pos1 = Vector2.Lerp(begin, pos, time);
             return pos1;
         }
 
@@ -310,7 +315,9 @@ namespace Hugula.UIComponents
                 {
                     var pos = EasingLayout(item, item.index, t);//得到目标点位置
                     RectTransform rectTran = item.transform;
-                    rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+
+                    if (columns != 1)
+                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width); //单列不需要设置宽度
                     rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
                     if (t >= 1)
                     {
@@ -333,8 +340,12 @@ namespace Hugula.UIComponents
                     {
                         var pos = EasingLayout(item, item.index, t);//得到目标点位置
                         RectTransform rectTran = item.transform;
-                        rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width);
+                        var begin = rectTran.anchoredPosition;
+
+                        if (columns != 1)
+                            rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, pos.x, rectTran.rect.width); //单列不需要设置宽度
                         rectTran.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -pos.y, rectTran.rect.height);
+
                         if (t >= 1)
                         {
                             item.onlyPosDirty = false;
@@ -371,7 +382,6 @@ namespace Hugula.UIComponents
                     idx = idx + m_ScrollDataSize;
                 }
 
-                // Debug.LogFormat("drag end {0} ,idx = {1}", m_DragVelocity, idx);
                 // ScrollToIndex(idx);
                 setScrollIndex = idx;
             }

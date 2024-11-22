@@ -240,8 +240,6 @@ MonoBehaviour:
   m_DragOffsetShow: 100
   m_SelectedIndex: -1
   m_AutoScrollToBottom: 0
-  m_StartIdx: 0
-  m_EndIdx: 0
   m_ScrollTime: 0.4
 --- !u!114 &4617839088346129434
 MonoBehaviour:
@@ -258,28 +256,28 @@ MonoBehaviour:
   bindings:
   - propertyName: context
     path: mail_list
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: itemCommand
     path: context.on_item_select
-    format: 
     converter: 
     mode: 0
     source: {fileID: 801883227849021229}
+    target: {fileID: 0}
   - propertyName: itemParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 4716440738141556521}
+    target: {fileID: 0}
   - propertyName: onGetItemTemplateType
     path: on_get_template
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 4716440738141556521}
   m_forceBinding: 1
 --- !u!1 &801883227784651437
@@ -539,10 +537,10 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: icon
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 801883227951252312}
   setNativeSize: 0
 --- !u!1 &801883228203388072
@@ -639,10 +637,10 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: date
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 801883228203388086}
 --- !u!1 &801883228251974790
 GameObject:
@@ -914,10 +912,10 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: title
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 801883228473787153}
 --- !u!1 &801883228876914999
 GameObject:
@@ -953,10 +951,10 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -20}
-  m_SizeDelta: {x: 160, y: 120}
-  m_Pivot: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -12.5, y: 0}
+  m_SizeDelta: {x: -25, y: 135}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &801883228876914997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1027,7 +1025,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 1485}
+  m_SizeDelta: {x: 0, y: 1080}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &801883229493960121
 GameObject:
@@ -1065,11 +1063,11 @@ RectTransform:
   m_Father: {fileID: 801883228876914996}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 120}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &801883229493953093
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1136,16 +1134,16 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: context.on_item_choose
-    format: 
     converter: 
     mode: 0
     source: {fileID: 801883227849021229}
+    target: {fileID: 0}
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 801883229493953095}
 --- !u!1 &2735502271716300216
 GameObject:
@@ -1436,16 +1434,16 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: btn_sct_del
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 4716440738141556521}
+    target: {fileID: 0}
   m_Target: {fileID: 1044442590728533050}
 --- !u!1 &6654655012431255196
 GameObject:
@@ -1538,10 +1536,10 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: title
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
   m_Target: {fileID: 4677971488558068437}
 --- !u!1 &8473793772944288958
 GameObject:

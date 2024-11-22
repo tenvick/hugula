@@ -707,7 +707,7 @@ namespace HugulaEditor.Databinding
             var target = binding.target;
             var property = binding.propertyName;
             var path = binding.path;
-            var format = binding.format;
+            // var format = binding.format;
             BindingMode mode = binding.mode;
             var converter = binding.converter;
             var source = binding.source;
@@ -715,8 +715,8 @@ namespace HugulaEditor.Databinding
                 sb.Append(target.ToString());
             if (!string.IsNullOrEmpty(path))
                 sb.AppendFormat(".{0}=({1}) ", property, path);
-            if (!string.IsNullOrEmpty(format))
-                sb.AppendFormat("format({0}) ", format);
+            // if (!string.IsNullOrEmpty(format))
+            //     sb.AppendFormat("format({0}) ", format);
             if (mode != BindingMode.OneWay)
                 sb.AppendFormat("mode({0}) ", mode);
             if (!string.IsNullOrEmpty(converter))

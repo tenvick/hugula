@@ -254,7 +254,7 @@ namespace HugulaEditor.Databinding
             if (toggle == false)
             {
                 var path = property.FindPropertyRelative("path").stringValue;
-                var format = property.FindPropertyRelative("format").stringValue;
+                // var format = property.FindPropertyRelative("format").stringValue;
                 BindingMode mode = (BindingMode)property.FindPropertyRelative("mode").enumValueIndex;
                 var converter = property.FindPropertyRelative("converter").stringValue;
                 var source = property.FindPropertyRelative("source").objectReferenceValue;
@@ -265,8 +265,8 @@ namespace HugulaEditor.Databinding
 
                 if (!string.IsNullOrEmpty(path))
                     sb.AppendFormat("path({0})    ", path);
-                if (!string.IsNullOrEmpty(format))
-                    sb.AppendFormat("format({0})    ", format);
+                // if (!string.IsNullOrEmpty(format))
+                //     sb.AppendFormat("format({0})    ", format);
                 if (mode != BindingMode.OneWay)
                     sb.AppendFormat("mode({0})    ", mode);
                 if (!string.IsNullOrEmpty(converter))
@@ -295,9 +295,9 @@ namespace HugulaEditor.Databinding
                 // EditorGUI.PropertyField(rects[0],property.FindPropertyRelative("target"));
                 EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("path"));
                 EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("mode"));
-                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("source"));
+                // EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
+                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("source"));
             }
         }
 
@@ -315,7 +315,7 @@ namespace HugulaEditor.Databinding
             return h;
         }
 
-        static Rect[] GetRowRects(Rect rect, int count = 5)
+        static Rect[] GetRowRects(Rect rect, int count = 4)
         {
             Rect[] rects = new Rect[count];
             rect.height = BindableObjectStyle.kSingleLineHeight;
@@ -350,9 +350,9 @@ namespace HugulaEditor.Databinding
                 OnTargetPropertyChooseGUI(rects[1], property);
                 EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("path"));
                 EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("mode"));
-                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[5], property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[6], property.FindPropertyRelative("source"));
+                // EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("format"));
+                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[5], property.FindPropertyRelative("source"));
             }
         }
 

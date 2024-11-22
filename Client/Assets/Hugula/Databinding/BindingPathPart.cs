@@ -38,22 +38,23 @@ namespace Hugula.Databinding
         //     }
         // }
 
-        WeakReference<INotifyPropertyChanged> m_NotifyPropertyChangedWeak = new WeakReference<INotifyPropertyChanged>(null);
+        //INotifyPropertyChanged or PropertyChangedEventHandlerEvent
+        // WeakReference<object> m_NotifyPropertyChangedWeak = new WeakReference<object>(null);
 
-        //监听的对象
-        INotifyPropertyChanged m_NotifyPropertyChanged
-        {
-            get
-            {
-                if (m_NotifyPropertyChangedWeak.TryGetTarget(out var target))
-                    return target;
-                return null;
-            }
-            set
-            {
-                m_NotifyPropertyChangedWeak.SetTarget(value);
-            }
-        }
+        //监听的事件
+        PropertyChangedEventHandlerEvent m_NotifyPropertyChanged;
+        // {
+        //     get
+        //     {
+        //         if (m_NotifyPropertyChangedWeak.TryGetTarget(out var target))
+        //             return target;
+        //         return null;
+        //     }
+        //     set
+        //     {
+        //         m_NotifyPropertyChangedWeak.SetTarget(value);
+        //     }
+        // }
 
         internal Binding m_Binding;
 
@@ -86,19 +87,23 @@ namespace Hugula.Databinding
             m_ChangeHandler = PropertyChanged;
         }
 
-        public void Subscribe(INotifyPropertyChanged handler)
+        /// <summary>
+        /// 订阅 hander必须是 PropertyChangedEventHandlerEvent 
+        /// </summary>
+        /// <param name="handler"></param>
+        public void Subscribe(PropertyChangedEventHandlerEvent handler)
         {
-            if (ReferenceEquals(m_NotifyPropertyChanged, handler) || (m_NotifyPropertyChanged != null &&
-            ReferenceEquals(m_NotifyPropertyChanged.PropertyChanged, handler.PropertyChanged)))
+            if (ReferenceEquals(m_NotifyPropertyChanged, handler))
                 return;
 
             Unsubscribe(false);
 
             BindingPathPart part = this;
             var propertName = part.isIndexer ? part.indexerName : part.path;
-            handler.PropertyChanged?.Add(m_ChangeHandler, propertName);
+            handler.Add(m_ChangeHandler,propertName);        
             m_NotifyPropertyChanged = handler;
         }
+
 
         public void Unsubscribe(bool sourceRelease = true)
         {
@@ -106,8 +111,8 @@ namespace Hugula.Databinding
 
             BindingPathPart part = this;
             var propertName = part.isIndexer ? part.indexerName : part.path;
-            m_NotifyPropertyChanged.PropertyChanged?.Remove(m_ChangeHandler, propertName);
-
+            m_NotifyPropertyChanged.Remove(m_ChangeHandler,propertName);
+        
             if (sourceRelease)
                 source = null;
         }
@@ -148,7 +153,15 @@ namespace Hugula.Databinding
             value = source;
             if (value != null)
             {
-                value = ExpressionUtility.GetSourceInvoke(value, this);
+                if(source is XLua.LuaTable lua)
+                {
+                    lua.TryGet<string,object>(path,out value);
+                }
+                else
+                {
+                    value = ExpressionUtility.GetSourceInvoke(value, this);
+                }
+      
                 return true;
             }
             return false;

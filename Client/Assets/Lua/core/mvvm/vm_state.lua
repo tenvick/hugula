@@ -6,9 +6,8 @@
 local table_insert = table.insert
 local table_remove = table.remove
 local table_clear = table.clear
-local table_remove_item = table.remove_item
 local table_indexof = table.indexof
-local talbe_insert =    table.insert
+
 local unpack = table.unpack or unpack
 local ipairs = ipairs
 local pairs = pairs
@@ -21,9 +20,7 @@ local serpent = require("serpent")
 
 local lua_distribute        = lua_distribute
 local DIS_TYPE              = DIS_TYPE
-local set_target_context    = BindingExpression.set_target_context
 local VM_GC_TYPE            = VM_GC_TYPE
-local VM_MARK_TYPE          = VM_MARK_TYPE
 local VMConfig, _VMGroup    = unpack(require("vm_config"))
 local VMManager             = require("core.mvvm.vm_manager")
 local VMGenerate            = require("core.mvvm.vm_generate")
@@ -696,7 +693,7 @@ local function init_viewmodel(self, vm_name, container)
         if curr_vm.auto_context then
             VMManager:active(vm_name, nil, false) ---激活组
         end
-        set_target_context(container, curr_vm)
+        container.context = curr_vm
     end
 end
 

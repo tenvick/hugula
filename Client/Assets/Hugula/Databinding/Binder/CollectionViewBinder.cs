@@ -22,7 +22,7 @@ namespace Hugula.Databinding.Binder
         public bool destoryItem = false;
         [Tooltip("是否在刷新的时候设置顺序")]
         public bool enableSiblingIndex = true;
-        IList items;
+        // IList items;
         List<BindableObject> viewItems = new List<BindableObject>();
 
         protected override void OnCollectionAdd(object sender, HugulaNotifyCollectionChangedEventArgs args)
@@ -54,7 +54,7 @@ namespace Hugula.Databinding.Binder
                 RemoveItems(index, count);
             else
             {
-                UpdateView(0, items.Count);
+                UpdateView(0, GetDataCount());
             }
         }
 
@@ -111,10 +111,8 @@ namespace Hugula.Databinding.Binder
                 }
                 if (!item.gameObject.activeSelf) ItemActive(item.gameObject, true);
                 if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
-                itemData = items[i];
-                // item.context = itemData;
+                itemData = GetDataItem(i);  //items[i];
                 BindingUtility.SetContext(item, itemData);
-
 
             }
         }
@@ -184,7 +182,7 @@ namespace Hugula.Databinding.Binder
 
         int CheckCount(int endIdx)
         {
-            if (endIdx >= items.Count) endIdx = items.Count;
+            if (endIdx >= GetDataCount()) endIdx = GetDataCount();
             return endIdx;
         }
 
@@ -207,9 +205,8 @@ namespace Hugula.Databinding.Binder
                 if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
 
 
-                itemData = items[i];
+                itemData = GetDataItem(i);  // items[i];
                 item.forceContextChanged = m_forceBinding;
-                // item.context = itemData;
                 BindingUtility.SetContext(item, itemData);
             }
         }
@@ -227,7 +224,7 @@ namespace Hugula.Databinding.Binder
         {
 
 #if !HUGULA_RELEASE || UNITY_EDITOR
-            if (context != null && !(context is IList))
+            if (context != null && !(context is IList || context is XLua.LuaTable))
             {
                 var t = this.transform;
                 var path = this.ToString();
@@ -239,23 +236,17 @@ namespace Hugula.Databinding.Binder
                 Debug.LogWarningFormat("{0} context is not IList ({1}) ", path, context);
             }
 #endif
-            if (context is IList)
-                items = (IList)context;
-            else
-                items = null;
 
             ClearItems();
             base.OnBindingContextChanged();
 
-            if (items != null)
-                UpdateView(0, items.Count);
+            UpdateView(0, GetDataCount());
         }
 
         protected override void OnDestroy()
         {
             destoryItem = true;
             ClearItems();
-            items = null;
             base.OnDestroy();
         }
     }

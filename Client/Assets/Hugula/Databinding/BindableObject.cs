@@ -77,7 +77,6 @@ namespace Hugula.Databinding
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
-                    if (m_BindingsDic == null) InitBindings();
                     OnBindingContextChanging();
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
@@ -85,21 +84,21 @@ namespace Hugula.Databinding
             }
         }
 
-        /// <summary>
-        /// 继承的绑定上下文
-        /// </summary>
-        public object inheritedContext
-        {
-            get { return m_InheritedContext; }
-            set
-            {
-                if (!Object.Equals(m_InheritedContext, value))
-                {
-                    SetProperty<object>(ref m_InheritedContext, value);
-                    // OnInheritedContextChanged();
-                }
-            }
-        }
+        // /// <summary>
+        // /// 继承的绑定上下文
+        // /// </summary>
+        // public object inheritedContext
+        // {
+        //     get { return m_InheritedContext; }
+        //     set
+        //     {
+        //         if (!Object.Equals(m_InheritedContext, value))
+        //         {
+        //             SetProperty<object>(ref m_InheritedContext, value);
+        //             // OnInheritedContextChanged();
+        //         }
+        //     }
+        // }
 
 
         ///<summary>
@@ -135,7 +134,7 @@ namespace Hugula.Databinding
         }
 
 
-        public void SetBinding(string sourcePath, UnityEngine.Object target, string property, BindingMode mode, string format, string converter)
+        public void SetBinding(string sourcePath, UnityEngine.Object target, string property, BindingMode mode, string converter)
         {
 
             if (target == null) target = this;
@@ -149,21 +148,12 @@ namespace Hugula.Databinding
                 Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
             }
 
-            binding = new Binding(sourcePath, target, property, mode, format, converter);
+            binding = new Binding(sourcePath, target, property, mode, converter);
             bindings.Add(binding);
             m_BindingsDic.Add(property, binding);
 
         }
 
-        // public void SetBinding(string sourcePath, object target, string property, BindingMode mode)
-        // {
-        //     SetBinding(sourcePath, target, property, mode, string.Empty, string.Empty);
-        // }
-
-        // public void SetBinding(string sourcePath, string property, BindingMode mode)
-        // {
-        //     SetBinding(sourcePath, this, property, mode, string.Empty, string.Empty);
-        // }
 
         ///<summary>
         /// 销毁之前清理所有绑定表达式
@@ -194,33 +184,27 @@ namespace Hugula.Databinding
             m_InheritedContext = null;
         }
 
-        // protected virtual void OnInheritedContextChanged()
-        // {
 
-        // }
-
-        internal virtual void SetInheritedContext(object value, bool force)
+        /// <summary>
+        /// 设置继承的上下文
+        /// 如果有context绑定则调用此方法
+        /// </summary>
+        /// <param name="value"></param>
+        internal virtual void SetInheritedContext(object value)
         {
-            if (m_BindingsDic == null) InitBindings();
-            if (!Object.Equals(m_InheritedContext, value) || force)
+            var contextBinding = GetBinding(ContextProperty);
+            if (contextBinding != null && contextBinding.path != Binding.SelfPath)
             {
                 m_InheritedContext = value;
-                OnBindingContextChanging();
-                var contextBinding = GetBinding(ContextProperty);
-                if (contextBinding != null && contextBinding.path != Binding.SelfPath)
-                {
-                    contextBinding.target = this;
-                    // contextBinding.ApplyContext(context);
-                    // #if HUGULA_ASYNC_APPLY
-                    //                     Executor.Execute(contextBinding.Apply);
-                    // #else
-                    contextBinding.Apply(context);
-                    // #endif
-                }
-                else
-                    OnBindingContextChanged();
+                contextBinding.target = this;
+                contextBinding.Apply(value);
+            }
+            else
+            {
+                context = value;
             }
         }
+
         protected virtual void OnBindingContextChanging()
         {
 
@@ -275,7 +259,7 @@ namespace Hugula.Databinding
         protected virtual void OnDestroy()
         {
             ClearBinding();
-            if(m_PropertyChanged!=null)
+            if (m_PropertyChanged != null)
                 PropertyChangedEventHandlerEvent.Release(m_PropertyChanged);
             if (m_BindingsDic != null)
                 DictionaryPool<string, Binding>.Release(m_BindingsDic);

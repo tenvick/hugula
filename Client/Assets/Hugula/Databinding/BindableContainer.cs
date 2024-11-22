@@ -120,17 +120,16 @@ namespace Hugula.Databinding
                 base.OnBindingContextChanged();
                 BindableObject child;
                 for (int i = 0; i < children.Count; i++)
-                // foreach (var child in children)
                 {
                     child = children[i];
                     if (child)
-                        child.SetInheritedContext(context, true);
+                        child.SetInheritedContext(context);
+#if !HUGULA_RELEASE
                     else
                     {
-#if !HUGULA_RELEASE
-                        Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", Hugula.Utils.CUtils.GetGameObjectFullPath(this.gameObject), i);
-#endif
+                        Debug.LogErrorFormat("OnBindingContextChanged({0}) children index({1})  is null ", Hugula.Utils.CUtils.GetFullPath(this), i);
                     }
+#endif
                 }
 
                 if (m_OnContextChanged != null)
@@ -155,7 +154,7 @@ namespace Hugula.Databinding
         {
             base.Unapply();
             foreach (var child in children)
-                child.Unapply();
+                child?.Unapply();
         }
 
         #region mono

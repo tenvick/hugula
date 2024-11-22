@@ -75,6 +75,7 @@ local function create_talk_data(i)
         d.chat_content = tostring(os.date())
     elseif d.type == 4 then
         d.tips = "bag："..create_str(math.random(40, 60))
+        d.btn_txt = "打开"
         d.bag_data = NotifyTable() --点击后生成数据
     else
         d.user_name = string.format("%s_%s", create_str(3), i)
@@ -163,6 +164,7 @@ chat_data.on_system_click =  {
         
         local clen = math.random(150, 600)
         arg.property.chat_content = create_str(clen) --系统按钮点自适应内容高度
+        Logger.Log("on_system_click",arg,clen)
     end
 }
 
@@ -172,7 +174,13 @@ chat_data.on_bag_click =  {
         return true
     end,
     Execute = function(self, arg)
-        arg.bag_data:InsertRange(create_tmp_data()) --绑定背包数据
+        if arg.bag_data.Count == 0  then
+            arg.bag_data:InsertRange(create_tmp_data()) --绑定背包数据
+            arg.property.btn_txt = "关闭"
+        else
+            arg.property.btn_txt = "打开"
+            arg.bag_data:Clear()
+        end
     end
 }
 

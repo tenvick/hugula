@@ -1288,13 +1288,10 @@ namespace XLua
 
             int index = -1;
             Type type = o.GetType();
-#if !UNITY_WSA || UNITY_EDITOR
-            bool is_enum = type.IsEnum;
-            bool is_valuetype = type.IsValueType;
-#else
-            bool is_enum = type.GetTypeInfo().IsEnum;
-            bool is_valuetype = type.GetTypeInfo().IsValueType;
-#endif
+            
+            bool is_enum = type.IsEnumTypeCached(); //type.IsEnum;
+            bool is_valuetype = type.IsValueTypeCached(); //type.IsValueType;
+
             bool needcache = !is_valuetype || is_enum;
             if (needcache && (is_enum ? enumMap.TryGetValue(o, out index) : reverseMap.TryGetValue(o, out index)))
             {
@@ -1759,5 +1756,7 @@ namespace XLua
                 throw new Exception("invalid lua value for decimal, LuaType=" + lua_type);
             }
         }
+     
+   
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Hugula.UIComponents
 {
 
-    public class VirtualVerticalList
+    internal class VirtualVerticalList
     {
         internal float paddingTop = 0;
         internal float paddingBottom = 0;
@@ -33,24 +33,32 @@ namespace Hugula.UIComponents
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public Vector2 GetCellSize(int index)
+        public bool GetCellSize(int index,out Vector2 pos)
         {
-            if (index >= m_CellPos.Count)
-            {
-                if (m_CellPos.Count > 0)
-                    return m_CellPos[m_CellPos.Count - 1];
-                return Vector2.zero;
-            }
-            else if (index < 0)
-            {
-                return Vector2.zero;
-            }
-            else
+            if (index < m_CellPos.Count && index>= 0)
             {
                 if (m_DirtyIndex <= index)
                     CalcDirty(m_DirtyIndex, index);
 
-                return m_CellPos[index];
+                pos = m_CellPos[index];
+                return true;
+            }
+            else if(index >= m_CellPos.Count)
+            {
+                if (m_CellPos.Count > 0)
+                {
+                    pos = m_CellPos[m_CellPos.Count-1];
+                }
+                else
+                {
+                    pos = Vector2.zero;
+                }
+                return false;
+            }
+            else 
+            {
+                pos = Vector2.zero;
+                return false;
             }
         }
 
@@ -75,7 +83,8 @@ namespace Hugula.UIComponents
                 m_CellHeight.RemoveAt(i);
             }
 
-            m_DirtyIndex = index;
+            if (reEndIdx < m_CellHeight.Count && beginIdx < m_CellHeight.Count)
+                CalcDirty(reEndIdx, beginIdx);
 
         }
 

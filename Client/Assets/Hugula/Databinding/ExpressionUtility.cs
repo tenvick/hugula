@@ -17,7 +17,7 @@ namespace Hugula.Databinding
 
         public void NewInitialize(LuaGetSourceInvoke m_GetSourcePropertyInvoke, LuaGetSourceInvoke m_GetSourceMethodInvoke,
         LuaSetSourceInvoke m_SetSourcePropertyInvoke, LuaSetSourceInvoke m_SetSourceMethodInvoke,
-        LuaSetTargetInvoke m_SetTargetPropertyInvoke, LuaSetTargetInvoke m_SetTargetPropertyNoFormatInvoke, LuaSetTargetInvoke m_SetTargetMethodInvoke,
+        LuaSetTargetInvoke m_SetTargetPropertyInvoke, LuaSetTargetInvoke m_SetTargetPropertyNoConvertInvoke, LuaSetTargetInvoke m_SetTargetMethodInvoke,
         LuaInvoke m_PartSubscribe)
         {
             this.m_GetSourcePropertyInvoke = m_GetSourcePropertyInvoke;
@@ -25,7 +25,7 @@ namespace Hugula.Databinding
             this.m_SetSourcePropertyInvoke = m_SetSourcePropertyInvoke;
             this.m_SetSourceMethodInvoke = m_SetSourceMethodInvoke;
             this.m_SetTargetPropertyInvoke = m_SetTargetPropertyInvoke;
-            this.m_SetTargetPropertyNoFormatInvoke = m_SetTargetPropertyNoFormatInvoke;
+            this.m_SetTargetPropertyNoConvertInvoke = m_SetTargetPropertyNoConvertInvoke;
             this.m_SetTargetMethodInvoke = m_SetTargetMethodInvoke;
             this.m_PartSubscribe = m_PartSubscribe;
         }
@@ -44,7 +44,7 @@ namespace Hugula.Databinding
         /// <summary>
         /// no format and no convert
         /// </summary>
-        internal LuaSetTargetInvoke m_SetTargetPropertyNoFormatInvoke;
+        internal LuaSetTargetInvoke m_SetTargetPropertyNoConvertInvoke;
 
         public LuaSetTargetInvoke m_SetTargetMethodInvoke;
 
@@ -86,20 +86,20 @@ namespace Hugula.Databinding
                 bool is_indexer = part.isIndexer;
                 bool is_self = part.isSelf;
                 bool is_method = part.isMethod;
-                string format = part.m_Binding?.format ?? string.Empty;
+                // string format = part.m_Binding?.format ?? string.Empty;
                 object convert = part.m_Binding?.convert;
 
-                if (!is_method && string.IsNullOrEmpty(format) && convert == null)
+                if (!is_method && convert == null)
                 {
-                    instance?.m_SetTargetPropertyNoFormatInvoke(source, path, target, property, is_indexer, is_self, format, convert); //object source, string path,object target,string property, bool is_indexer,bool is_self,object converter);
+                    instance?.m_SetTargetPropertyNoConvertInvoke(source, path, target, property, is_indexer, is_self, convert); //object source, string path,object target,string property, bool is_indexer,bool is_self,object converter);
                 }
                 else if (is_method)
                 {
-                    instance?.m_SetTargetMethodInvoke(source, path, target, property, is_indexer, is_self, format, convert);
+                    instance?.m_SetTargetMethodInvoke(source, path, target, property, is_indexer, is_self, convert);
                 }
                 else
                 {
-                    instance?.m_SetTargetPropertyInvoke(source, path, target, property, is_indexer, is_self, format, convert);
+                    instance?.m_SetTargetPropertyInvoke(source, path, target, property, is_indexer, is_self, convert);
                 }
             }
             catch (Exception ex)
@@ -119,6 +119,8 @@ namespace Hugula.Databinding
         {
             return instance?.m_PartSubscribe(obj, part);
         }
+
+
         #endregion
 
         #region new luastack invoke
@@ -143,7 +145,7 @@ namespace Hugula.Databinding
             m_SetSourcePropertyInvoke = null;
             m_SetSourceMethodInvoke = null;
             m_SetTargetPropertyInvoke = null;
-            m_SetTargetPropertyNoFormatInvoke = null;
+            m_SetTargetPropertyNoConvertInvoke = null;
             m_SetTargetMethodInvoke = null;
             m_PartSubscribe = null;
         }
@@ -157,7 +159,7 @@ namespace Hugula.Databinding
             m_SetSourcePropertyInvoke = null;
             m_SetSourceMethodInvoke = null;
             m_SetTargetPropertyInvoke = null;
-            m_SetTargetPropertyNoFormatInvoke = null;
+            m_SetTargetPropertyNoConvertInvoke = null;
             m_SetTargetMethodInvoke = null;
             m_PartSubscribe = null;
         }
@@ -169,7 +171,7 @@ namespace Hugula.Databinding
 
     public delegate object LuaSetSourceInvoke(object source, string path, object target, string property, bool is_indexer, object converter);
 
-    public delegate void LuaSetTargetInvoke(object source, string path, object target, string property, bool is_indexer, bool is_self, string format, object converter);
+    public delegate void LuaSetTargetInvoke(object source, string path, object target, string property, bool is_indexer, bool is_self, object converter);
 
 
 

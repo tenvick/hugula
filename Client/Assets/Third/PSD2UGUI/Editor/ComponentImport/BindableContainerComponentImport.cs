@@ -39,7 +39,7 @@ namespace PSDUINewImporter
             {
                 var parent = target.transform.parent;
                 if (parent && PSDImportUtility.baseFilename != parent.name)
-                    binder.SetBinding(layer.name, null, "context", BindingMode.OneWay, string.Empty, string.Empty);
+                    binder.SetBinding(layer.name, null, "context", BindingMode.OneWay, string.Empty);
             }
         }
 

@@ -18,73 +18,14 @@ namespace Hugula.Databinding
 #if !HUGULA_RELEASE
             UnityEngine.Profiling.Profiler.BeginSample($"{bindable?.name}:SetContext");
 #endif
-            if (data is LuaTable lua)
-            {
-                if (lua.ContainsKey<string>("CollectionChanged"))
-                {
-                    bindable.context = lua.Cast<INotifyTable>();
-                }
-                else if (lua.ContainsKey<string>("get_Item"))
-                {
-                    bindable.context = lua.Cast<IList>();
-                }
-                else if (lua.ContainsKey<string>("PropertyChanged")) //检测属性
-                {
-                    bindable.context = lua.Cast<INotifyPropertyChanged>();
-                }
-                else
-                    bindable.context = data;
-            }
-            else
-                bindable.context = data;
+          
+            bindable.SetInheritedContext(data);
 
 #if !HUGULA_RELEASE
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
 
 
-        }
-
-        public static void SetContextByINotifyTable(BindableObject bindable, INotifyTable notify)
-        {
-#if BINDING_PROFILER_DUMP
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyTable", true))
-            {
-#endif
-            bindable.context = notify;
-#if BINDING_PROFILER_DUMP
-            }
-#endif
-        }
-
-        public static void SetContextByIList(BindableObject bindable, IList list)
-        {
-#if BINDING_PROFILER_DUMP
-            using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByIList", true))
-            {
-#endif
-            bindable.context = list;
-#if BINDING_PROFILER_DUMP
-            }
-#endif
-        }
-        public static void SetContextByINotifyPropertyChanged(BindableObject bindable, INotifyPropertyChanged notify)
-        {
-            if (bindable == null)
-            {
-                UnityEngine.Debug.LogWarningFormat("SetContextByINotifyPropertyChanged arg({0}) is null", bindable);
-            }
-            else
-            {
-#if BINDING_PROFILER_DUMP
-                using (var profiler = ProfilerFactory.GetAndStartComponentProfiler(bindable, "SetContextByINotifyPropertyChanged", true))
-                {
-#endif
-                bindable.context = notify;
-#if BINDING_PROFILER_DUMP
-                }
-#endif
-            }
         }
 
         public static BindableContainer GetBindableContainer(UnityEngine.GameObject obj)

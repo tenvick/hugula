@@ -403,6 +403,9 @@ namespace Hugula.Databinding
                     part = null;
             }
 
+            if(m_LastPart!= null && m_Current!=null )
+                m_LastPart.source = m_Current;//
+
             UpdateTarget();
         }
 

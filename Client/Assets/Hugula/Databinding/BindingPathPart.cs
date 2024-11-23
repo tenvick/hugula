@@ -112,7 +112,7 @@ namespace Hugula.Databinding
             BindingPathPart part = this;
             var propertName = part.isIndexer ? part.indexerName : part.path;
             m_NotifyPropertyChanged.Remove(m_ChangeHandler,propertName);
-        
+            m_NotifyPropertyChanged = null;//
             if (sourceRelease)
                 source = null;
         }
@@ -190,7 +190,7 @@ namespace Hugula.Databinding
 
         public override string ToString()
         {
-            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={3},isSelf={4})", this.path, isIndexer, isMethod, indexerName, isSelf);
+            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={3},isSelf={4},source={5})", this.path, isIndexer, isMethod, indexerName, isSelf,source);
         }
 
         #region  pool

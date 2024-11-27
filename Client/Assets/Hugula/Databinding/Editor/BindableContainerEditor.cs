@@ -5,6 +5,7 @@ using Hugula.Databinding;
 using UnityEditor;
 using UnityEngine;
 using UnityEditorInternal;
+using Hugula.Databinding.Binder;
 
 namespace HugulaEditor.Databinding
 {
@@ -26,8 +27,8 @@ namespace HugulaEditor.Databinding
             property_monos = serializedObject.FindProperty("monos");
 
 
-            reorderableList_bindings = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, m_Property_bindings,
-            target, true, true, true, true, OnAddClick, OnFilter);
+            reorderableList_bindings = BindableUtility.CreateMulitTargetsBinderReorder(serializedObject, m_Property_bindings,
+            target, true, true, true, true, OnAddClick, null);
 
             reorderableList_children = BindableUtility.CreateBindalbeObjectBindingsReorder(serializedObject, property_children, target, true, true, false, true, null, OnChildrenFilter);
 
@@ -48,20 +49,9 @@ namespace HugulaEditor.Databinding
                            RemoveMonos((BindableContainer)target, orderlist.index);
                        };
 
-            if(target is BindableContainer)
+            if (target is BindableContainer)
                 CheckNamesAndMonos((BindableContainer)target);
 
-        }
-
-        bool OnFilter(SerializedProperty property, string searchText)
-        {
-            var displayName = property.displayName;
-            if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
-            {
-                return true;
-            }
-            else
-                return false;
         }
 
         bool OnChildrenFilter(SerializedProperty property, string searchText)
@@ -82,11 +72,19 @@ namespace HugulaEditor.Databinding
 
         void OnAddClick(object args)
         {
-            var arr = (object[])args;
-            var per = (PropertyInfo)arr[0];
-            var bindable = ((BindableObject)target);
-            var property = per.Name;
-            BindableUtility.AddEmptyBinding(bindable, property);
+            if (args is BindableObject bindableObject)
+            {
+                var bindable = ((BindableObject)target);
+                BindableUtility.AddEmptyBinding(bindable, string.Empty);
+
+            }
+            else if (args is object[] arr)
+            {
+                var per = (PropertyInfo)arr[0];
+                var bindable = ((BindableObject)target);
+                var property = per.Name;
+                BindableUtility.AddEmptyBinding(bindable, property);
+            }
         }
 
 
@@ -112,11 +110,11 @@ namespace HugulaEditor.Databinding
                 AutoAddHierarchyChildren(temp);
                 EditorUtility.SetDirty(target);
             }
-            if (GUILayout.Button("auto add hierarchy  children to lua monos"))
-            {
-                AutoAddToLuaMonosHierarchyChildren(temp);
-                EditorUtility.SetDirty(target);
-            }
+            // if (GUILayout.Button("auto add hierarchy  children to lua monos"))
+            // {
+            //     AutoAddToLuaMonosHierarchyChildren(temp);
+            //     EditorUtility.SetDirty(target);
+            // }
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
 
@@ -238,14 +236,14 @@ namespace HugulaEditor.Databinding
                 var obj = monos[i];
                 if (obj != null)
                 {
-                    if(names.Count<=i)
+                    if (names.Count <= i)
                     {
-                        var name = names.Contains(obj.name)?obj.name+i.ToString():obj.name;
+                        var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
                         names.Add(name);
                     }
-                    else if(string.IsNullOrEmpty(names[i]))
+                    else if (string.IsNullOrEmpty(names[i]))
                     {
-                        var name = names.Contains(obj.name)?obj.name+i.ToString():obj.name;
+                        var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
                         names[i] = name;
                     }
                     i++;
@@ -254,9 +252,9 @@ namespace HugulaEditor.Databinding
                     monos.RemoveAt(i);
             }
 
-            while(names.Count>monos.Count)
+            while (names.Count > monos.Count)
             {
-                names.RemoveAt(names.Count-1);
+                names.RemoveAt(names.Count - 1);
             }
 
             AddHierarchyChildren(container.transform, container, true);
@@ -303,7 +301,7 @@ namespace HugulaEditor.Databinding
                     if (oldChildren != null && oldChildren.IndexOf(child) == -1 && !isSelf)
                     {
                         var list = child.GetField("bindings");
-                        if(list is List<Binding> bindings && bindings.Count>0)
+                        if (list is List<Binding> bindings && bindings.Count > 0)
                         {
                             container.AddChild(child);
                         }
@@ -313,8 +311,8 @@ namespace HugulaEditor.Databinding
                         oldMonos.Add(child);
                         //check name
                         var names = container.names;
-                        var name = names.Contains(child.name)?child.name+oldMonos.Count.ToString():child.name;
-                        if(names.Count<=oldMonos.Count)
+                        var name = names.Contains(child.name) ? child.name + oldMonos.Count.ToString() : child.name;
+                        if (names.Count <= oldMonos.Count)
                         {
                             names.Add(name);
                         }
@@ -327,7 +325,7 @@ namespace HugulaEditor.Databinding
 
                 if (needDeep)
                 {
-                    AddHierarchyChildren(childTrans, container,toBinding);
+                    AddHierarchyChildren(childTrans, container, toBinding);
                 }
             }
         }
@@ -427,7 +425,7 @@ namespace HugulaEditor.Databinding
                     var b = BindableUtility.AddEmptyBinding(bo, per.Name);
                     b.path = per.Name;
                 }
-               
+
             }
         }
 
@@ -441,6 +439,61 @@ namespace HugulaEditor.Databinding
                 bo.monos.Clear();
                 bo.names.Clear();
                 Debug.LogFormat("{0} clear ", bo);
+            }
+        }
+
+
+        [MenuItem("CONTEXT/BindableContainer/ConvertToSharedContextBinder")]
+        static void ConvertToSharedContextBinder(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableContainer;
+            var gObj = bo.gameObject;
+            if (bo != null)
+            {
+                var children = bo.children;
+                var sharedContextBinder = gObj.CheckAddComponent<SharedContextBinder>();
+                sharedContextBinder.GetBindings()?.Clear();
+
+                foreach (var child in children)
+                {
+                    UnityEngine.Object target = child;
+                    if (child is CustomBinder)
+                    {
+                        target = ((CustomBinder)child).target;
+                    }
+                    //check上下文
+                    var contextBinding = child.GetContextBinding();
+                    if (contextBinding != null)
+                    {
+                        var newBinding = contextBinding.Clone();
+                        newBinding.target = sharedContextBinder;
+                        sharedContextBinder.AddBinding(newBinding);
+                        child.GetBindings().Remove(contextBinding); //移除旧的
+                    }
+                    else
+                    {
+                        var bindings = child.GetBindings();
+                        foreach (var binding in bindings)
+                        {
+                            var newBinding = binding.Clone();
+                            newBinding.target = target;
+                            sharedContextBinder.AddBinding(newBinding);
+                            Debug.LogFormat("{0} add binding {1} to {2}", sharedContextBinder, newBinding, target);
+                        }
+                        child.GetBindings().Clear();
+                    }
+                }
+
+                //for self  
+                var selfBindings = bo.GetBindings();
+                foreach (var binding in selfBindings)
+                {
+                    var newBinding = binding.Clone();
+                    newBinding.target = sharedContextBinder;
+                    sharedContextBinder.AddBinding(newBinding);
+                }
+                bo.GetBindings().Clear();
+
             }
         }
     }

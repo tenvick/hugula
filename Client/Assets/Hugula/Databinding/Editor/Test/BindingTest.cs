@@ -301,19 +301,32 @@ namespace Tests
 
         static public void AddBindings(BindableObject bindableObject)
         {
-            bindableObject.SetBinding("enable_slider", null, "enabled", BindingMode.TwoWay, null); //双向绑定
-            bindableObject.SetBinding("btntext", null, "text", BindingMode.OneWay,  null); //
-            bindableObject.SetBinding("slider1_value", null, "value", BindingMode.TwoWay,  null); //双向绑定
-            bindableObject.SetBinding("btn_interactable", null, "interactable", BindingMode.TwoWay,  null); //
-            bindableObject.SetBinding("on_slider_value", null, "onValueChangedExecute", BindingMode.OneWay,  null); //
-            bindableObject.SetBinding("on_btn_click", null, "onClickCommand", BindingMode.OneWay,  null); //
-            bindableObject.SetBinding("selectedIndex", null, "selectedIndex", BindingMode.OneWayToSource,  null); //
+                
+            bindableObject.AddBinding(new Binding("enable_slider", null, "enabled", BindingMode.TwoWay));
+            // bindableObject.SetBinding("enable_slider", null, "enabled", BindingMode.TwoWay, null); //双向绑定
+                bindableObject.AddBinding(new Binding("btntext", null, "text", BindingMode.OneWay));
+            // bindableObject.SetBinding("btntext", null, "text", BindingMode.OneWay,  null); //
+            bindableObject.AddBinding(new Binding("slider1_value", null, "value", BindingMode.TwoWay));
+            // bindableObject.SetBinding("slider1_value", null, "value", BindingMode.TwoWay,  null); //双向绑定
+            bindableObject.AddBinding(new Binding("btn_interactable", null, "interactable", BindingMode.TwoWay));
+            // bindableObject.SetBinding("btn_interactable", null, "interactable", BindingMode.TwoWay,  null); //
+            bindableObject.AddBinding(new Binding("on_slider_value", null, "onValueChangedExecute", BindingMode.OneWay));
+            // bindableObject.SetBinding("on_slider_value", null, "onValueChangedExecute", BindingMode.OneWay,  null); //
+            bindableObject.AddBinding(new Binding("on_btn_click", null, "onClickCommand", BindingMode.OneWay));
+            // bindableObject.SetBinding("on_btn_click", null, "onClickCommand", BindingMode.OneWay,  null); //
 
-            //path
-            bindableObject.SetBinding("oneway_path_demo.text1", null, "text2", BindingMode.OneWay,  null); //
-            bindableObject.SetBinding("oneway_path_demo.goods.color[2]", null, "text3", BindingMode.TwoWay,  null); //
-            bindableObject.SetBinding("oneway_path_demo.bind_text4()", null, "text4", BindingMode.TwoWay,  null); //
-            bindableObject.SetBinding("oneway_path_demo.on_input_changed", null, "submitEventCommand", BindingMode.OneWay,  null); //
+            bindableObject.AddBinding(new Binding("selectedIndex", null, "selectedIndex", BindingMode.OneWayToSource));
+            // bindableObject.SetBinding("selectedIndex", null, "selectedIndex", BindingMode.OneWayToSource,  null); //
+
+            // //path
+            bindableObject.AddBinding(new Binding("oneway_path_demo.text1", null, "text2", BindingMode.OneWay));
+            // bindableObject.SetBinding("oneway_path_demo.text1", null, "text2", BindingMode.OneWay,  null); //
+            bindableObject.AddBinding(new Binding("oneway_path_demo.goods.color[2]", null, "text3", BindingMode.TwoWay));
+            // bindableObject.SetBinding("oneway_path_demo.goods.color[2]", null, "text3", BindingMode.TwoWay,  null); //
+            bindableObject.AddBinding(new Binding("oneway_path_demo.bind_text4()", null, "text4", BindingMode.TwoWay));
+            // bindableObject.SetBinding("oneway_path_demo.bind_text4()", null, "text4", BindingMode.TwoWay,  null); //
+            bindableObject.AddBinding(new Binding("oneway_path_demo.on_input_changed", null, "submitEventCommand", BindingMode.OneWay));
+            // bindableObject.SetBinding("oneway_path_demo.on_input_changed", null, "submitEventCommand", BindingMode.OneWay,  null); //
         }
 
     }

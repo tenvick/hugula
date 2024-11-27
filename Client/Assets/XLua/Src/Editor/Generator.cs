@@ -504,6 +504,10 @@ namespace CSObjectWrapEditor
         {
             if (mb == null) return false;
             ObsoleteAttribute oa = GetCustomAttribute(mb, typeof(ObsoleteAttribute)) as ObsoleteAttribute;
+            if(mb.DeclaringType == typeof(UnityEngine.GameObject) && mb.Name == "active")
+            {
+                return false;
+            }
 #if XLUA_GENERAL && !XLUA_ALL_OBSOLETE || XLUA_JUST_EXCLUDE_ERROR
             return oa != null && oa.IsError;
 #else

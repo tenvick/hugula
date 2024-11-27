@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 366134364640819183}
   - component: {fileID: 2781381754937130447}
   m_Layer: 5
-  m_Name: PanelTwoWay
+  m_Name: PanelTwoWay&CustomBinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -493,8 +493,8 @@ MonoBehaviour:
     target: {fileID: 0}
   m_BindingOnEnable: 1
   children:
-  - {fileID: 8316146443884818129}
   - {fileID: 3259512781972535601}
+  - {fileID: 2360256346162649437}
   names: []
   monos: []
 --- !u!1 &658105128381507408
@@ -2264,7 +2264,7 @@ GameObject:
   - component: {fileID: 2842167239848692811}
   - component: {fileID: 1673601232206600933}
   - component: {fileID: 3551537407741380418}
-  - component: {fileID: 8316146443884818129}
+  - component: {fileID: 2360256346162649437}
   m_Layer: 5
   m_Name: Text (1)
   m_TagString: Untagged
@@ -2332,7 +2332,7 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
---- !u!114 &8316146443884818129
+--- !u!114 &2360256346162649437
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2341,7 +2341,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3742209289327078602}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
+  m_Script: {fileID: 11500000, guid: be993b1caedf8ef41bb7d2b255af1e7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bindings:
@@ -5409,13 +5409,13 @@ MonoBehaviour:
   m_BindingOnEnable: 1
   children:
   - {fileID: 2781381754937130447}
-  - {fileID: 7921099241870525639}
   - {fileID: 1439987109314355236}
   - {fileID: 982396496951173552}
   - {fileID: 831548033268265430}
   - {fileID: 7149275657232510646}
   - {fileID: 6000975336317097513}
   - {fileID: 8269498419156868163}
+  - {fileID: 4726274898031417657}
   names: []
   monos: []
 --- !u!1 &7921099240151041141
@@ -5581,7 +5581,6 @@ GameObject:
   - component: {fileID: 7921099240405982282}
   - component: {fileID: 7921099240405982277}
   - component: {fileID: 7921099240405982276}
-  - component: {fileID: 7921099240405982283}
   m_Layer: 5
   m_Name: Text (2)
   m_TagString: Untagged
@@ -5649,26 +5648,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "oneway\u7ED1\u5B9A\u5230viewmodel"
---- !u!114 &7921099240405982283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921099240405982281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: goods.name
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 7921099240405982276}
 --- !u!1 &7921099240824229614
 GameObject:
   m_ObjectHideFlags: 0
@@ -5680,7 +5659,6 @@ GameObject:
   - component: {fileID: 7921099240824229615}
   - component: {fileID: 7921099240824229610}
   - component: {fileID: 7921099240824229609}
-  - component: {fileID: 7921099240824229608}
   m_Layer: 5
   m_Name: Text (1)
   m_TagString: Untagged
@@ -5748,26 +5726,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "oneway\u7ED1\u5B9A\u5230viewmodel"
---- !u!114 &7921099240824229608
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921099240824229614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: text1
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 7921099240824229609}
 --- !u!1 &7921099241096195214
 GameObject:
   m_ObjectHideFlags: 0
@@ -5779,7 +5737,6 @@ GameObject:
   - component: {fileID: 7921099241096195215}
   - component: {fileID: 7921099241096195210}
   - component: {fileID: 7921099241096195209}
-  - component: {fileID: 7921099241096195208}
   m_Layer: 5
   m_Name: Text (4)
   m_TagString: Untagged
@@ -5847,26 +5804,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "oneway\u7ED1\u5B9A\u5230viewmodel"
---- !u!114 &7921099241096195208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921099241096195214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: goods.color[2]
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 7921099241096195209}
 --- !u!1 &7921099241769673849
 GameObject:
   m_ObjectHideFlags: 0
@@ -5878,7 +5815,6 @@ GameObject:
   - component: {fileID: 7921099241769673850}
   - component: {fileID: 7921099241769673845}
   - component: {fileID: 7921099241769673844}
-  - component: {fileID: 7921099241769673851}
   m_Layer: 5
   m_Name: Text (3)
   m_TagString: Untagged
@@ -5946,26 +5882,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "oneway\u7ED1\u5B9A\u5230viewmodel"
---- !u!114 &7921099241769673851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921099241769673849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: bind_text4()
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 7921099241769673844}
 --- !u!1 &7921099241870525636
 GameObject:
   m_ObjectHideFlags: 0
@@ -5977,10 +5893,10 @@ GameObject:
   - component: {fileID: 7921099241870525637}
   - component: {fileID: 7921099241870525633}
   - component: {fileID: 7921099241870525632}
-  - component: {fileID: 7921099241870525639}
   - component: {fileID: 7921099241870525638}
+  - component: {fileID: 4726274898031417657}
   m_Layer: 5
-  m_Name: PanelOneWay
+  m_Name: PanelOneWay&SharedContextBinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6047,33 +5963,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7921099241870525639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921099241870525636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: context
-    path: oneway_path_demo
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_BindingOnEnable: 1
-  children:
-  - {fileID: 7921099240824229608}
-  - {fileID: 7921099240405982283}
-  - {fileID: 7921099241769673851}
-  - {fileID: 7921099241096195208}
-  names: []
-  monos: []
 --- !u!114 &7921099241870525638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6099,6 +5988,49 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
+--- !u!114 &4726274898031417657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7921099241870525636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a6ec8f53e20c344b48e4c95ed6c33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindings:
+  - propertyName: context
+    path: oneway_path_demo
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 4726274898031417657}
+  - propertyName: text
+    path: text1
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 7921099240824229609}
+  - propertyName: text
+    path: goods.name
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 7921099240405982276}
+  - propertyName: text
+    path: bind_text4()
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 7921099241769673844}
+  - propertyName: text
+    path: goods.color[2]
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 7921099241096195209}
 --- !u!1 &7922366401187260261
 GameObject:
   m_ObjectHideFlags: 0

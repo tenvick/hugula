@@ -100,7 +100,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.sprite = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -110,7 +110,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.overrideSprite = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -120,7 +120,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.type = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -130,7 +130,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.preserveAspect = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -140,7 +140,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fillCenter = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -150,7 +150,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fillMethod = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -160,7 +160,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fillAmount = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -170,7 +170,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fillClockwise = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -180,7 +180,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fillOrigin = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -190,7 +190,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alphaHitTestMinimumThreshold = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -200,7 +200,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alphaHitTestMinimumThreshold = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -210,7 +210,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.useSpriteMesh = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -235,7 +235,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.material = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
         #endregion

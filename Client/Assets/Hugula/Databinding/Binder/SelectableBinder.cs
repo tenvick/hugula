@@ -22,7 +22,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.navigation = value;
-                OnPropertyChanged();
+                // // OnPropertyChanged();
             }
         }
 
@@ -32,7 +32,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.transition = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -42,7 +42,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.colors = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -52,7 +52,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.spriteState = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -62,7 +62,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.animationTriggers = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -72,7 +72,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.targetGraphic = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -82,7 +82,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.interactable = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -92,7 +92,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.image = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

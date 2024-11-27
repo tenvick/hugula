@@ -20,7 +20,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.maskable = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.color = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
         #endregion

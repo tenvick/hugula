@@ -43,7 +43,7 @@ namespace HugulaEditor.Databinding
         void OnAddClick(object args)
         {
             var bindable = (BindableObject)args;
-            BindableUtility.AddEmptyBinding(bindable, string.Empty);
+            BindableUtility.AddEmptyBinding(bindable,bindable, string.Empty);
         }
 
         public override void OnInspectorGUI()

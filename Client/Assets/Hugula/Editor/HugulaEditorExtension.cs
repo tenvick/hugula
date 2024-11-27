@@ -28,5 +28,17 @@ namespace HugulaEditor
 
             return field.GetValue(obj);
         }
+
+        public static void SetField(this object obj,string fieldName,object value)
+        {
+            var field = obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+            if (field == null)
+            {
+                throw new InvalidOperationException("Field 'bindings' not found in the specified object.");
+            }
+
+            field.SetValue(obj,value);
+        }
     }
 }

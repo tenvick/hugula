@@ -20,7 +20,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.shouldHideMobileInput = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -33,7 +33,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.text = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -54,7 +54,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.caretBlinkRate = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -67,7 +67,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.caretWidth = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -80,7 +80,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.textComponent = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -93,7 +93,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.placeholder = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -106,7 +106,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.caretColor = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -119,7 +119,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.customCaretColor = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -132,7 +132,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.selectionColor = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
             get
             {
@@ -146,7 +146,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onValidateInput = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -156,7 +156,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.characterLimit = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -166,7 +166,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.contentType = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -176,7 +176,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.lineType = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -186,7 +186,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.inputType = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -201,7 +201,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.keyboardType = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -211,7 +211,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.characterValidation = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -221,7 +221,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.readOnly = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -236,7 +236,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.asteriskChar = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -251,7 +251,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.caretPosition = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -261,7 +261,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.selectionAnchorPosition = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -271,7 +271,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.selectionFocusPosition = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -287,7 +287,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 m_SubmitEventCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -312,7 +312,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 m_OnValueChangedExecute = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

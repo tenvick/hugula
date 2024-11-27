@@ -24,7 +24,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 m_OnClickCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

@@ -25,12 +25,28 @@ namespace Hugula.Databinding
 
     }
 
+    /// <summary>
+    /// 忽略子节点绑定
+    /// </summary>
+    public interface IIgnoreChildrenBinder
+    {
+
+    }
+
     public interface IClearBingding
     {
         /// <summary>
         /// 清理绑定列表
         /// </summary>
         void ClearBinding();
+
+    }
+
+    /// <summary>
+    /// 共享上下文标记
+    /// </summary>
+    public interface ISharedContext
+    {
 
     }
 }

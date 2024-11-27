@@ -33,7 +33,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.text = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -43,7 +43,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alpha = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -53,7 +53,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alignment = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -63,7 +63,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fontSize = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -73,7 +73,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.lineSpacing = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

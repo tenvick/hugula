@@ -19,7 +19,7 @@ namespace Hugula.Databinding
     }
 
     [System.SerializableAttribute]
-    public class Binding : IDisposable, IBinding
+    public sealed class Binding : IDisposable, IBinding
     {
         internal const string SelfPath = ".";
 
@@ -69,20 +69,12 @@ namespace Hugula.Databinding
         /// <summary>
         /// The next binding in the chain
         /// </summary>
-        // internal Binding next;
+        internal Binding next;
 
         #endregion
 
         #region  绑定
-        //是否已经绑定过
-        public bool isBound
-        {
-            get
-            {
-                return bindingContext != null;
-            }
-        }
-
+      
         // WeakReference<object> _bindingContext;
 
         /// <summary>
@@ -106,12 +98,27 @@ namespace Hugula.Databinding
         // }
 
         protected BindingPathPart m_LastPart;
+        
+        /// <summary>
+        ///是否已经绑定过
+        /// </summary>
+        public bool isBound
+        {
+            get
+            {
+                return bindingContext != null;
+            }
+        }
 
         protected bool m_IsApplied = false;
+        /// <summary>
+        /// 是否已经处理过
+        /// </summary>
+        protected bool m_IsDisposed = false;//{ get; private set; }//销毁标记
+        internal bool m_IsProcessed = false; // 新增的标志位
 
         #endregion
 
-        internal bool m_IsDisposed { get; private set; }//销毁标记
 #if LUA_PROFILER_DEBUG
         string ProfilerName = "";
         string GetProfilerName()
@@ -125,14 +132,16 @@ namespace Hugula.Databinding
         public Binding()
         {
             m_IsDisposed = false;
+            m_IsProcessed = false;
         }
 
         public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "")
         {
             m_IsDisposed = false;
+            m_IsProcessed = false;
         }
 
-        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode,string converter)
+        public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode, string converter)
         {
             m_IsDisposed = false;
             this.path = path;
@@ -209,7 +218,7 @@ namespace Hugula.Databinding
                 object m_Current = bindingContext;
                 PropertyChangedEventHandlerEvent propChanged = null;
                 bool isSelf = false;
-                int  count = parts.Count;
+                int count = parts.Count;
 
                 for (var i = 0; i < count; i++)
                 {
@@ -224,7 +233,7 @@ namespace Hugula.Databinding
                             part.source = m_Current;
                             part.Subscribe(inpc.PropertyChanged);
                         }
-                        else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
+                        else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
                         {
                             part.source = inc;
                             part.Subscribe(propChanged);
@@ -300,7 +309,7 @@ namespace Hugula.Databinding
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.path TryGetValue");
 #endif
             PropertyChangedEventHandlerEvent propChanged = null;
-            int count = parts.Count ;
+            int count = parts.Count;
             bool isSelf = false;
 
             for (var i = 0; i < count; i++)
@@ -316,7 +325,7 @@ namespace Hugula.Databinding
                         part.source = m_Current;
                         part.Subscribe(inpc.PropertyChanged);
                     }
-                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
+                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
                     {
                         part.source = inc;
                         part.Subscribe(propChanged);
@@ -382,7 +391,7 @@ namespace Hugula.Databinding
                         part.source = m_Current; // 有PropertyChanged的对象才需要缓存source
                         part.Subscribe(inpc.PropertyChanged);
                     }
-                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string,PropertyChangedEventHandlerEvent>("PropertyChanged",out propChanged) )
+                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
                     {
                         part.source = inc;// 有PropertyChanged的对象才需要缓存source
                         part.Subscribe(propChanged);
@@ -403,7 +412,7 @@ namespace Hugula.Databinding
                     part = null;
             }
 
-            if(m_LastPart!= null && m_Current!=null )
+            if (m_LastPart != null && m_Current != null)
                 m_LastPart.source = m_Current;//
 
             UpdateTarget();
@@ -412,9 +421,9 @@ namespace Hugula.Databinding
         //解绑目标
         public void Unapply()
         {
-            if(m_Parts == null) return;
+            if (m_Parts == null) return;
             int count = m_Parts.Count;
-            for (var i = 0; i <count; i++)
+            for (var i = 0; i < count; i++)
             {
                 BindingPathPart part = m_Parts[i];
                 part?.Unsubscribe();
@@ -534,10 +543,23 @@ namespace Hugula.Databinding
 
         #endregion
 
+        public Binding Clone()
+        {
+            Binding clone = new Binding();
+            clone.path = path;
+            clone.propertyName = propertyName;
+            clone.converter = converter;
+            clone.mode = mode;
+            clone.source = source;
+            clone.target = target;
+            return clone;
+        }
+
         public void Dispose()
         {
             m_IsDisposed = true; //标记销毁
             m_IsApplied = false;
+            m_IsProcessed = false;
             convert = null;
             target = null;
             source = null;
@@ -554,7 +576,10 @@ namespace Hugula.Databinding
                 m_PoolBindingPathPart.Release(m_Parts);
             }
             m_Parts = null;
+            next = null;
         }
+
+
 
         public override string ToString()
         {

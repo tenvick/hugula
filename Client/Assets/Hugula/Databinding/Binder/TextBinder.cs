@@ -7,6 +7,7 @@ namespace Hugula.Databinding.Binder
 {
 
     [RequireComponent(typeof(Text))]
+    [XLua.LuaCallCSharp]
     public class TextBinder : MaskableGraphicBinder<Text>
     {
 
@@ -32,7 +33,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.text = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -42,7 +43,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.supportRichText = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -52,7 +53,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.resizeTextForBestFit = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -62,7 +63,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.resizeTextMinSize = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -72,7 +73,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.resizeTextMaxSize = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -82,7 +83,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alignment = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -92,7 +93,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.alignByGeometry = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -102,7 +103,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fontSize = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -112,7 +113,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.horizontalOverflow = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -122,7 +123,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.verticalOverflow = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -132,7 +133,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.lineSpacing = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -142,7 +143,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.fontStyle = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

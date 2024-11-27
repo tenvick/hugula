@@ -84,13 +84,12 @@ namespace PSDUINewImporter
             {
                 var parent = loopScrollRect.transform.parent;
                 if (parent && PSDImportUtility.baseFilename != parent.name)
-                    binder.SetBinding(layer.name, null, "context", BindingMode.OneWay, string.Empty);
-
+                    HugulaEditor.Databinding.BindableUtility.AddEmptyBinding(binder, "context",layer.name);
             }
 
         }
 
-        protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent,int index)
+        protected override LoopScrollRect LoadAndInstant(Layer layer, GameObject parent, int index)
         {
             var txt = PSDImportUtility.LoadAndInstant<LoopScrollRect>(PSDImporterConst.ASSET_PATH_LOOP_SCROLLVIEW, layer.name, parent);
             txt.transform.SetSiblingIndex(index);

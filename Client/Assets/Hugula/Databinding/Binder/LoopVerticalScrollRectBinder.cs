@@ -22,7 +22,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onScrollIndexChanged = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -31,7 +31,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.scrollTime = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
         
@@ -41,7 +41,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.setScrollIndex = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -51,7 +51,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.scrollToBottom = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -75,7 +75,7 @@ namespace Hugula.Databinding.Binder
             // set
             // {
             //     target.paddingTop = value;
-            //     OnPropertyChanged();
+            //     // OnPropertyChanged();
             // }
         }
 
@@ -85,7 +85,7 @@ namespace Hugula.Databinding.Binder
             // set
             // {
             //     target.paddingBottom = value;
-            //     OnPropertyChanged();
+            //     // OnPropertyChanged();
             // }
         }
 
@@ -100,7 +100,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.isLoadingData = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -110,7 +110,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onInstantiated = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -120,7 +120,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onGetItemTemplateType = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -130,7 +130,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onItemRender = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -140,7 +140,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onSelected = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -150,7 +150,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.itemCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -160,7 +160,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.itemParameter = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -170,7 +170,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.dataLength = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -180,7 +180,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.droppedCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -190,7 +190,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onDropped = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

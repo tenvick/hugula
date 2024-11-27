@@ -22,7 +22,7 @@ namespace Hugula.Databinding.Binder
                 if (target.direction != value)
                 {
                     target.direction = value;
-                    OnPropertyChanged();
+                    // OnPropertyChanged();
                 }
             }
         }
@@ -33,7 +33,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.minValue = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -43,7 +43,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.maxValue = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -53,7 +53,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.wholeNumbers = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -63,7 +63,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.value = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -73,7 +73,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.normalizedValue = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -88,7 +88,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 m_OnValueChangedExecute = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

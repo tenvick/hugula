@@ -13,17 +13,9 @@ namespace Hugula.Databinding.Binder
     public sealed class CustomBinder : UIBehaviourBinder<Component>
     {
 
-        protected override void InitBindings()
+        protected override void InitBindings(Object arg)
         {
-            if (m_BindingsDic == null)
-                m_BindingsDic = DictionaryPool<string, Binding>.Get();
-            Binding binding = null;
-            for (int i = 0; i < bindings.Count; i++)
-            {
-                binding = bindings[i];
-                binding.target = target;
-                m_BindingsDic.Add(binding.propertyName, binding);
-            }
+            base.InitBindings(target);           
         }
 
     }

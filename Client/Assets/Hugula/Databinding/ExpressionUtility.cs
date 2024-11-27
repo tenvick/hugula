@@ -104,10 +104,15 @@ namespace Hugula.Databinding
             }
             catch (Exception ex)
             {
-                string fullPath = target.ToString();
-                if (target is UnityEngine.Component)
+                string fullPath = string.Empty;
+
+                if (target is UnityEngine.MonoBehaviour cmp)
                 {
-                    fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(((UnityEngine.Component)target).gameObject) + " :" + fullPath;
+                    fullPath = Hugula.Utils.CUtils.GetFullPath(cmp);
+                }
+                else if (target is UnityEngine.GameObject go)
+                {
+                    fullPath = Hugula.Utils.CUtils.GetGameObjectFullPath(go) + ":" + target.ToString();
                 }
 
                 UnityEngine.Debug.LogError($"Update target.property [{fullPath}].[{property}] error. \r\nC#:{ex.ToString()}");

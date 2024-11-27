@@ -12,26 +12,18 @@ namespace Hugula.Databinding
     public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged, IClearBingding
     {
         public const string ContextProperty = "context";
+        /// <summary>
+        /// 超过BindingsDicCapacity个绑定时使用字典查询
+        /// </summary>
+        internal const int BindingsDicCapacity = 8;
+
+        /// <summary>
+        /// 空绑定
+        /// </summary>
+        static readonly Binding EmptyBinding = new Binding("", null, "", BindingMode.OneWay, null);
 
         #region  重写属性
-        public bool activeSelf
-        {
-            get { return gameObject.activeSelf; }
-            set
-            {
-                gameObject.SetActive(value);
-                OnPropertyChanged();
-            }
-        }
-        public new bool enabled
-        {
-            get { return base.enabled; }
-            set
-            {
-                base.enabled = value;
-                OnPropertyChanged();
-            }
-        }
+
 
         public new string tag
         {
@@ -39,7 +31,7 @@ namespace Hugula.Databinding
             set
             {
                 base.tag = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
         #endregion
@@ -59,12 +51,6 @@ namespace Hugula.Databinding
             }
         }
 
-        internal virtual bool forceContextChanged
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// 绑定上下文
         /// </summary>
@@ -77,6 +63,7 @@ namespace Hugula.Databinding
                 {
                     forceContextChanged = false;
                     m_InheritedContext = null;
+                    if (!m_InitBindings) InitBindings(this);
                     OnBindingContextChanging();
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
@@ -84,76 +71,159 @@ namespace Hugula.Databinding
             }
         }
 
-        // /// <summary>
-        // /// 继承的绑定上下文
-        // /// </summary>
-        // public object inheritedContext
-        // {
-        //     get { return m_InheritedContext; }
-        //     set
-        //     {
-        //         if (!Object.Equals(m_InheritedContext, value))
-        //         {
-        //             SetProperty<object>(ref m_InheritedContext, value);
-        //             // OnInheritedContextChanged();
-        //         }
-        //     }
-        // }
-
-
         ///<summary>
         /// 绑定表达式
         ///<summary>
         [HideInInspector]
         [SerializeField]
         // [BindingsAttribute]
-        protected List<Binding> bindings = new List<Binding>();
+        protected List<Binding> bindings ;//= new List<Binding>(); //gc alloc 40B
+        /// <summary>
+        /// 缓存的上下文绑定
+        /// </summary>
+        protected Binding m_ContextBinding;
 
-        // protected bool m_InitBindings = false;
         protected Dictionary<string, Binding> m_BindingsDic;// = new Dictionary<string, Binding>();
-        protected virtual void InitBindings()
+
+
+
+        protected bool m_InitBindings = false;
+
+        internal virtual bool forceContextChanged
         {
-            // m_InitBindings = true;
-            Binding binding = null;
-            if (m_BindingsDic == null)
+            get;
+            set;
+        }
+
+        public bool activeSelf
+        {
+            get { return gameObject.activeSelf; }
+            set
+            {
+                gameObject.SetActive(value);
+            }
+        }
+        public new bool enabled
+        {
+            get { return base.enabled; }
+            set
+            {
+                base.enabled = value;
+            }
+        }
+
+        protected virtual void InitBindings(Object target)
+        {
+            if (m_InitBindings) return;
+
+            m_InitBindings = true;
+            m_ContextBinding = null;
+            bool needDic = bindings.Count >= BindingsDicCapacity;
+
+            if (m_BindingsDic == null && needDic)
                 m_BindingsDic = DictionaryPool<string, Binding>.Get();
+
+            Binding binding = null;
             for (int i = 0; i < bindings.Count; i++)
             {
                 binding = bindings[i];
-                binding.target = this;
-                m_BindingsDic.Add(binding.propertyName, binding);
-            }
+                binding.next = null;
+
+                if (binding.target == null)
+                    binding.target = target;
+
+                if (needDic)
+                {
+                    if (m_BindingsDic.TryGetValue(binding.propertyName, out Binding existingBinding))
+                    {
+                        // Find the last binding in the chain
+                        while (existingBinding.next != null)
+                            existingBinding = existingBinding.next;
+
+                        if (existingBinding != binding) //不能是自己
+                            existingBinding.next = binding;
+                    }
+                    else
+                    {
+                        m_BindingsDic.Add(binding.propertyName, binding);
+                        if (binding.propertyName == ContextProperty && binding.target == target) //如果是当前对象的上下文
+                            m_ContextBinding = binding;
+                    }
+                }
+                else
+                {
+                    if (binding.propertyName == ContextProperty) //如果是上下文
+                    {
+                        if (binding.target == target)
+                        {
+                            m_ContextBinding = binding;
+                        }
+                    }
+
+                }
+            }       
+
         }
 
+        /// <summary>
+        /// 获取上下文绑定
+        /// </summary>
+        /// <returns></returns>
+        public Binding GetContextBinding()
+        {
+            if (!m_InitBindings) InitBindings(this);
+
+            if (m_ContextBinding == null) m_ContextBinding = EmptyBinding; //标记已经查找过
+
+            if (m_ContextBinding == EmptyBinding)
+                return null;
+            else
+                return m_ContextBinding;
+        }
+
+        /// <summary>
+        /// 返回的是第一个绑定表达式重复的放在next链表中
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public Binding GetBinding(string property)
         {
-            if (m_BindingsDic == null) InitBindings();
-            Binding binding = null;
-            m_BindingsDic.TryGetValue(property, out binding);
-            return binding;
-        }
-
-
-        public void SetBinding(string sourcePath, UnityEngine.Object target, string property, BindingMode mode, string converter)
-        {
-
-            if (target == null) target = this;
-            Binding binding = null;
-            if (m_BindingsDic == null) InitBindings();
-            if (m_BindingsDic.TryGetValue(property, out binding))
+            if (!m_InitBindings) InitBindings(this);
+            Binding firstBinding = null;
+            bool needDic = bindings.Count >= BindingsDicCapacity;
+            if (needDic && m_BindingsDic != null)
+                m_BindingsDic.TryGetValue(property, out firstBinding);
+            else
             {
-                binding.Dispose();
-                m_BindingsDic.Remove(property);
-                bindings.Remove(binding);
-                Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
+                Binding curr = null;
+                Binding lastBinding = null;
+                for (int i = 0; i < bindings.Count; i++)
+                {
+                    curr = bindings[i];
+                    if (curr.propertyName == property)
+                    {
+                        if (firstBinding == null) //fisrt
+                        {
+                            firstBinding = curr;
+                            if (firstBinding.m_IsProcessed) break; //已经遍历过了，无需再次遍历
+                            lastBinding = firstBinding;
+                        }
+                        else
+                        {
+                            lastBinding.next = curr;
+                            lastBinding = curr;
+                        }
+
+                        curr.m_IsProcessed = true; // 标记已处理
+                    }
+                }
+
+                //确保最后一个next为null
+                if (lastBinding != null) lastBinding.next = null;
             }
 
-            binding = new Binding(sourcePath, target, property, mode, converter);
-            bindings.Add(binding);
-            m_BindingsDic.Add(property, binding);
-
+            return firstBinding;
         }
-
 
         ///<summary>
         /// 销毁之前清理所有绑定表达式
@@ -192,7 +262,7 @@ namespace Hugula.Databinding
         /// <param name="value"></param>
         internal virtual void SetInheritedContext(object value)
         {
-            var contextBinding = GetBinding(ContextProperty);
+            var contextBinding = GetContextBinding();  //;
             if (contextBinding != null && contextBinding.path != Binding.SelfPath)
             {
                 m_InheritedContext = value;
@@ -216,9 +286,9 @@ namespace Hugula.Databinding
             for (int i = 0; i < bindings.Count; i++)
             {
                 var binding = bindings[i];
-                if (!ContextProperty.Equals(binding.propertyName))
-                { //context需要触发自己，由inherited触发
-                    // binding.ApplyContext(context);
+                if (binding != m_ContextBinding ) // !ContextProperty.Equals(binding.propertyName)
+                {
+                    //已经绑定过context不需要再次绑定
                     binding.Apply(bindingContext);
                 }
             }
@@ -233,10 +303,15 @@ namespace Hugula.Databinding
         protected virtual void OnPropertyChangedBindingApply([CallerMemberName] string propertyName = null)
         {
             Binding binding = GetBinding(propertyName);
-            if (binding != null && (binding.mode == BindingMode.TwoWay || binding.mode == BindingMode.OneWayToSource))
+            while (binding != null)
             {
-                binding.UpdateSource();
+                if (binding.mode == BindingMode.TwoWay || binding.mode == BindingMode.OneWayToSource)
+                {
+                    binding.UpdateSource();
+                }
+                binding = binding.next;
             }
+
             PropertyChanged?.Invoke(this, propertyName);
         }
 
@@ -254,6 +329,7 @@ namespace Hugula.Databinding
 
         protected virtual void Awake()
         {
+
         }
 
         protected virtual void OnDestroy()
@@ -272,6 +348,7 @@ namespace Hugula.Databinding
         [XLua.DoNotGen]
         public void AddBinding(Binding expression)
         {
+            if(bindings == null) bindings = new List<Binding>();
             bindings.Add(expression);
         }
 

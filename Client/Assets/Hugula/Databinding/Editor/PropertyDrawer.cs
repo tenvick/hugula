@@ -32,12 +32,15 @@ namespace HugulaEditor.Databinding
                 if (obj != null && obj is UnityEngine.Object)
                 {
                     Component[] comps;
+                    GameObject go = null;
                     if (obj is GameObject)
                     {
+                        go = (GameObject)obj;
                         comps = ((GameObject)obj).GetComponents<Component>();
                     }
                     else if (obj is Component)
                     {
+                        go = ((Component)obj).gameObject;
                         comps = ((Component)obj).GetComponents<Component>();
                     }
                     else
@@ -55,10 +58,19 @@ namespace HugulaEditor.Databinding
                         if (comp == obj) selectIndex = i;
                         i++;
                     }
+                    //add gameobject
+                    m_AllComponents.Add(go.GetType().Name);
+                    if(go == obj) selectIndex = i;
+
                     position.x = position.xMax;
                     position.width = w - position.width;
                     selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
-                    content = comps[selectIndex];
+
+                    if(selectIndex < comps.Length)
+                        content = comps[selectIndex];
+                    else if(selectIndex == i)
+                        content = go;
+                   
                     Hugula.Utils.ListPool<string>.Release(m_AllComponents);
                 }
                 property.objectReferenceValue = content;
@@ -291,13 +303,18 @@ namespace HugulaEditor.Databinding
             {
                 // position.y += EditorGUIUtility.singleLineHeight * .5f;
                 position.width -= EditorGUIUtility.singleLineHeight * .5f;
-                var rects = GetRowRects(position);
-                // EditorGUI.PropertyField(rects[0],property.FindPropertyRelative("target"));
-                EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("path"));
-                EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("mode"));
-                // EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("source"));
+                int index = 0;
+                bool isSharedContext = property.serializedObject is ISharedContext;
+                int count = isSharedContext ? 5 : 4;
+
+                var rects = GetRowRects(position, count);
+                if (isSharedContext)
+                    EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("target"));
+
+                EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("path"));
+                EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("mode"));
+                EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("converter"));
+                EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("source"));
             }
         }
 
@@ -315,7 +332,7 @@ namespace HugulaEditor.Databinding
             return h;
         }
 
-        static Rect[] GetRowRects(Rect rect, int count = 4)
+        static Rect[] GetRowRects(Rect rect, int count = 5)
         {
             Rect[] rects = new Rect[count];
             rect.height = BindableObjectStyle.kSingleLineHeight;
@@ -346,7 +363,6 @@ namespace HugulaEditor.Databinding
                 position.width -= EditorGUIUtility.singleLineHeight * .5f;
                 var rects = GetRowRects(position, 7);
                 EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("target"));
-                // EditorGUI.PropertyField(rects[1], property.FindPropertyRelative("propertyName"));
                 OnTargetPropertyChooseGUI(rects[1], property);
                 EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("path"));
                 EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("mode"));
@@ -361,25 +377,29 @@ namespace HugulaEditor.Databinding
             var target = property.FindPropertyRelative("target").objectReferenceValue;
             var propertyName = property.FindPropertyRelative("propertyName");
             string propertyNameValue = string.Empty;
+
+            float w = position.width;
+            position.width = w * .6f;
+
             if (target != null)
             {
                 var propList = BindableUtility.GetObjectProperties(target);
-                float w = position.width;
-                position.width = w * .6f;
 
-                propertyNameValue = property.FindPropertyRelative("propertyName").stringValue;
-                EditorGUI.PropertyField(position, property.FindPropertyRelative("propertyName"), true);
+                EditorGUI.PropertyField(position, propertyName, true);
+                propertyNameValue = propertyName.stringValue;
 
-                // var obj = property.objectReferenceValue;
                 var m_AllComponents = Hugula.Utils.ListPool<string>.Get();
                 int selectIndex = 0;
                 int i = 0;
                 bool findValue = false;
+                int maxScore = 0;
                 foreach (var pi in propList)
                 {
                     m_AllComponents.Add(pi.Name);
-                    if (pi.Name == propertyNameValue)
+                    var score = CalculateMatchScore(propertyNameValue,pi.Name);
+                    if(score>maxScore)
                     {
+                        maxScore = score;
                         selectIndex = i;
                         findValue = true;
                     }
@@ -391,15 +411,45 @@ namespace HugulaEditor.Databinding
                 selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
                 if (findValue == false && !string.IsNullOrEmpty(propertyNameValue))
                 {
-                    Debug.LogError($" property:{propertyNameValue} does't find in target({target})  new value changed to:{ propList[selectIndex].Name}");
+                    Debug.LogError($" property:{propertyNameValue} does't find in target({target})  new value changed to:{propList[selectIndex].Name}");
                 }
                 propertyNameValue = propList[selectIndex].Name;
 
-
                 Hugula.Utils.ListPool<string>.Release(m_AllComponents);
+            }
+            else
+            {
+                EditorGUI.PropertyField(position, propertyName, true);
+                propertyNameValue = propertyName.stringValue;
             }
             propertyName.stringValue = propertyNameValue;
         }
+
+        private static int CalculateMatchScore(string input, string name)
+        {
+
+            if (name.Equals(input,System.StringComparison.OrdinalIgnoreCase))
+            {
+                return 100;
+            }
+            else if (name.StartsWith(input,System.StringComparison.OrdinalIgnoreCase))
+            {
+                return 80;
+            }
+            else
+            {
+                int index = name.IndexOf(input,System.StringComparison.OrdinalIgnoreCase);
+                if (index >= 0)
+                {
+                    return 60 - index;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
     }
 
     [CustomPropertyDrawer(typeof(BindableContainer), true)]

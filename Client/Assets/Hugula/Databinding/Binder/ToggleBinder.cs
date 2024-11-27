@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace Hugula.Databinding.Binder
 {
+    [XLua.LuaCallCSharp]
     public class ToggleBinder : SelectableBinder<Toggle>
     {
         private const string IsOnProperty = "isOn";
@@ -43,7 +44,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.isOn = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
         public ToggleGroup group { get; set; }
@@ -58,7 +59,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 m_Command = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 

@@ -1,5 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.11.27
+1 SharedContextBinder 共享上下文binder引入。
+2 Binding  target可以序列化GameObject。
+3 BindableObject 在Binding数量大于8的时候才使用字典加速查找。
+4 gc 优化绑定事件优化。
+
 2024.11.22
 1 xlua LuaTable增加TryGet等方法。
 2 binding 删除format序列化

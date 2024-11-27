@@ -5,10 +5,9 @@ using XLua;
 namespace Hugula.Databinding
 {
     [LuaCallCSharp]
-    public class BindableContainer : BindableObject, ICollectionBinder
+    public sealed class BindableContainer : BindableObject, ICollectionBinder
     {
-        protected bool m_CheckEnable = false;
-        private bool m_NeedDelayBinding = false;
+     
 
         /// <summary>
         /// 当前gameobject.selfActive为true的时候才绑定children
@@ -20,7 +19,7 @@ namespace Hugula.Databinding
         ///<summary>
         [HideInInspector]
         [BindableObjectAttribute]
-        public List<BindableObject> children = new List<BindableObject>();
+        public List<BindableObject> children;// = new List<BindableObject>();//gc alloc 40B
 
         #region mono单脚本引用新增加
 
@@ -45,12 +44,15 @@ namespace Hugula.Databinding
         }
 
         [HideInInspector]
-        public List<string> names = new List<string>();
+        public List<string> names ;//= new List<string>();//gc alloc 40B
         ///<summary>
         /// 绑定的对象
         ///<summary>
         [HideInInspector]
-        public List<Object> monos = new List<Object>();
+        public List<Object> monos ;//= new List<Object>();//gc alloc 40B
+
+        private bool m_CheckEnable = false;
+        private bool m_NeedDelayBinding = false;
 
         /// <summary>
         /// monos的长度

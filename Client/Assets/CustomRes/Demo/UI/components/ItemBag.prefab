@@ -90,7 +90,6 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: icon
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
@@ -204,8 +203,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -51.78}
+  m_SizeDelta: {x: 0, y: -51.78}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &2370542160942089653
 GameObject:
@@ -301,7 +300,6 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: tips
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
@@ -317,11 +315,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6438183678091883928}
   - component: {fileID: 6638937753745858618}
-  - component: {fileID: 2774603339593461496}
   - component: {fileID: 848684527279326442}
   - component: {fileID: 3433037394958985907}
   - component: {fileID: 8854658685643493861}
   - component: {fileID: 5312860994249524906}
+  - component: {fileID: 3565125497297969462}
   m_Layer: 5
   m_Name: ItemBag
   m_TagString: Untagged
@@ -360,26 +358,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2853535439374023198}
   m_CullTransparentMesh: 0
---- !u!114 &2774603339593461496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2853535439374023198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings: []
-  m_BindingOnEnable: 1
-  children:
-  - {fileID: 1469501611482040176}
-  - {fileID: 713494614459802253}
-  - {fileID: 1727899385249286479}
-  names: []
-  monos: []
 --- !u!114 &848684527279326442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -467,6 +445,43 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3565125497297969462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2853535439374023198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a6ec8f53e20c344b48e4c95ed6c33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindings:
+  - propertyName: text
+    path: tips
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 2373483222312439927}
+  - propertyName: context
+    path: bag_data
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 1727899385249286479}
+  - propertyName: commandParameter
+    path: .
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 713494614459802253}
+  - propertyName: onClickCommand
+    path: context.on_bag_click
+    converter: 
+    mode: 0
+    source: {fileID: 3565125497297969462}
+    target: {fileID: 713494614459802253}
 --- !u!1 &3130319088134109296
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,7 +571,6 @@ GameObject:
   - component: {fileID: 6791324418038965206}
   - component: {fileID: 1870157980981217638}
   - component: {fileID: 3211832526887675992}
-  - component: {fileID: 5676924532284425771}
   m_Layer: 5
   m_Name: Border
   m_TagString: Untagged
@@ -620,28 +634,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5676924532284425771
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3362258358565862591}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33f0a9013daecbb43802bdeba8961f98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: sprite
-    path: quality
-    format: 
-    converter: StringToSprite
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 3211832526887675992}
-  setNativeSize: 0
 --- !u!1 &3978854798533169994
 GameObject:
   m_ObjectHideFlags: 0
@@ -653,7 +645,6 @@ GameObject:
   - component: {fileID: 9082928890222879922}
   - component: {fileID: 3640112534814956524}
   - component: {fileID: 2300393207866069425}
-  - component: {fileID: 6018384245153750999}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -721,27 +712,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 1
---- !u!114 &6018384245153750999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3978854798533169994}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50f7027bad0b88446ba6b19384f24059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings:
-  - propertyName: text
-    path: count
-    format: 
-    converter: 
-    mode: 0
-    source: {fileID: 0}
-    target: {fileID: 0}
-  m_Target: {fileID: 2300393207866069425}
 --- !u!1 &5608737247728848775
 GameObject:
   m_ObjectHideFlags: 0
@@ -849,14 +819,13 @@ MonoBehaviour:
   bindings:
   - propertyName: context
     path: bag_data
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
   m_Target: {fileID: 3859894777896218881}
   m_forceBinding: 1
-  templateItem: {fileID: 3541154398467267444}
+  templateItem: {fileID: 4970961072807805754}
   destoryItem: 0
   enableSiblingIndex: 1
 --- !u!1 &6521584439101508309
@@ -994,14 +963,12 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: context.on_bag_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
@@ -1016,12 +983,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 25193996246943664}
-  - component: {fileID: 3541154398467267444}
   - component: {fileID: 7985536918029684684}
   - component: {fileID: 7082432974258322919}
   - component: {fileID: 658075526860416982}
   - component: {fileID: 3199303910609722047}
   - component: {fileID: 4274518527045994365}
+  - component: {fileID: 4970961072807805754}
   m_Layer: 5
   m_Name: ItemSource
   m_TagString: Untagged
@@ -1052,27 +1019,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 108, y: 108}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &3541154398467267444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6649987752103049750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccdbb60d3baca0e43aafd0519b3bd157, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bindings: []
-  m_BindingOnEnable: 1
-  children:
-  - {fileID: 4195955821637476662}
-  - {fileID: 5676924532284425771}
-  - {fileID: 6018384245153750999}
-  - {fileID: 4274518527045994365}
-  names: []
-  monos: []
 --- !u!222 &7985536918029684684
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1184,10 +1130,46 @@ MonoBehaviour:
   bindings:
   - propertyName: arg
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
   tipsFollow: {fileID: 6689816115212867197}
   vmName: demo_click_tips
+--- !u!114 &4970961072807805754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6649987752103049750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a6ec8f53e20c344b48e4c95ed6c33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindings:
+  - propertyName: spriteName
+    path: icon
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 4195955821637476662}
+  - propertyName: sprite
+    path: quality
+    converter: StringToSprite
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 3211832526887675992}
+  - propertyName: text
+    path: count
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 2300393207866069425}
+  - propertyName: arg
+    path: .
+    converter: 
+    mode: 0
+    source: {fileID: 0}
+    target: {fileID: 4274518527045994365}

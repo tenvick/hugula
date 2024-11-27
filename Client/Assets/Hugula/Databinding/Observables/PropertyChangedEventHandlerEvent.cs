@@ -78,6 +78,7 @@ namespace Hugula.Databinding
 
             PropertyChangedEventHandler events = null;
             int id = UnityEngine.Animator.StringToHash(property);
+
             if (m_Events.TryGetValue(id, out events))
             {
                 events?.Invoke(sender, property);

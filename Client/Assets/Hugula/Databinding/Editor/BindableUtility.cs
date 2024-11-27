@@ -20,13 +20,31 @@ namespace HugulaEditor.Databinding
             int j = name.IndexOf("(");
             if (i < j) i = j;
             if (i < 0) i = name.Length;
-            return name.Substring(0, i).Replace(" ","_").Replace(" (","").Replace("）","").Replace("(","_").Replace(")","");
+            return name.Substring(0, i).Replace(" ", "_").Replace(" (", "").Replace("）", "").Replace("(", "_").Replace(")", "");
         }
 
         public static void RemoveAtbindableObjects(BindableObject target, int index)
         {
             var binding = target.GetBindings();
             binding.RemoveAt(index);
+        }
+
+        public static Binding AddEmptyBinding(BindableObject target, Binding binding)
+        {
+            var bindings = target.GetBindings();
+
+            foreach (var b in bindings)
+            {
+                if (b.propertyName == binding.propertyName && b.target == binding.target)
+                {
+                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, binding.propertyName);
+                    return b;
+                }
+            }
+
+            target.AddBinding(binding);
+
+            return binding;
         }
 
         public static Binding AddEmptyBinding(BindableObject target, string property)
@@ -43,10 +61,72 @@ namespace HugulaEditor.Databinding
             }
             var binding = new Binding();
             binding.propertyName = property;
+            binding.target = target;
             target.AddBinding(binding);
 
             return binding;
         }
+        public static Binding AddEmptyBinding(BindableObject target, string property, string path)
+        {
+            var bindings = target.GetBindings();
+
+            foreach (var b in bindings)
+            {
+                if (b.propertyName == property)
+                {
+                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
+                    return b;
+                }
+            }
+            var binding = new Binding();
+            binding.target = target;
+            binding.path = path;
+            binding.propertyName = property;
+            target.AddBinding(binding);
+
+            return binding;
+        }
+
+        public static Binding AddEmptyBinding(BindableObject bindableObject, UnityEngine.Object bindingTarget, string property)
+        {
+            var bindings = bindableObject.GetBindings();
+
+            foreach (var b in bindings)
+            {
+                if (b.propertyName == property && b.target == bindingTarget)
+                {
+                    Debug.LogWarningFormat(" BindableObject({0},bindingTarget：{1}).{2} has already bound.", bindableObject, bindingTarget, property);
+                    return b;
+                }
+            }
+            var binding = new Binding();
+            binding.propertyName = property;
+            binding.target = bindingTarget;
+            bindableObject.AddBinding(binding);
+            return binding;
+        }
+
+        public static Binding AddEmptyBinding(BindableObject bindableObject, UnityEngine.Object bindingTarget, string property, string path)
+        {
+            var bindings = bindableObject.GetBindings();
+
+            foreach (var b in bindings)
+            {
+                if (b.propertyName == property && b.target == bindingTarget)
+                {
+                    Debug.LogWarningFormat(" BindableObject({0},bindingTarget：{1}).{2} has already bound.", bindableObject, bindingTarget, property);
+                    return b;
+                }
+            }
+            var binding = new Binding();
+            binding.propertyName = property;
+            binding.path = path;
+            binding.target = bindingTarget;
+            bindableObject.AddBinding(binding);
+            return binding;
+        }
+
+
 
         public static string GetFullPath(Transform transform)
         {
@@ -64,20 +144,21 @@ namespace HugulaEditor.Databinding
         {
             var curr = bindableObject;
             var root = bindableObject.GetComponent<BindableContainer>();
-            do{
+            do
+            {
                 curr = curr.transform.parent;
-                if(curr==null) break;
+                if (curr == null) break;
                 var c = curr.GetComponent<BindableContainer>();
                 if (c != null)
                 {
                     root = c;
                 }
-            }while(curr.transform.parent!=null);
+            } while (curr.transform.parent != null);
 
             return root;
         }
 
-        public static List<PropertyInfo> GetObjectProperties(UnityEngine.Object target)
+        public static List<PropertyInfo> GetObjectProperties(UnityEngine.Object target, bool checkCanWrite = true)
         {
             List<PropertyInfo> propertyInfos = new List<PropertyInfo>();
             if (target)
@@ -93,7 +174,8 @@ namespace HugulaEditor.Databinding
                         var pi = (PropertyInfo)mi;
                         if (!string.IsNullOrEmpty(pi.Name) && pi.Name != "target")
                         {
-                            propertyInfos.Add(pi);
+                            if (!checkCanWrite || (checkCanWrite && pi.CanWrite))
+                                propertyInfos.Add(pi);
                         }
                     }
 
@@ -116,11 +198,38 @@ namespace HugulaEditor.Databinding
             return reType;
         }
 
-         public static ReorderableList CreateMulitTargetsBinderReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
-        bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
+        /// <summary>
+        /// 默认filter过滤函数
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="searchText"></param>
+        /// <returns></returns>
+        public static bool OnDefaultFilter(SerializedProperty property, string searchText)
+        {
+            var bingTarget = property.FindPropertyRelative("target").objectReferenceValue?.ToString();
+            string propertyName = property.FindPropertyRelative("propertyName").stringValue;
+            var path = property.FindPropertyRelative("path").stringValue;
+
+            if (!string.IsNullOrEmpty(searchText))  //搜索
+            {
+                var id1 = propertyName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                var id2 = bingTarget.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                var id3 = path.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                if (!(id1 || id2 || id3))
+                {
+                    return true; //不显示
+                }
+            }
+
+            return false;
+        }
+
+        public static ReorderableList CreateMulitTargetsBinderReorder(SerializedObject serializedObject, SerializedProperty serializedProperty, UnityEngine.Object target, bool draggable,
+       bool displayHeader, bool displayAddButton, bool displayRemoveButton, GenericMenu.MenuFunction2 onAddClick, System.Func<SerializedProperty, string, bool> onFilter)
         {
 
             FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            if (onFilter == null) onFilter = OnDefaultFilter;
             orderList.onFilterFunc = onFilter;
             orderList.drawHeaderCallback = (Rect rect) =>
              {
@@ -166,7 +275,7 @@ namespace HugulaEditor.Databinding
                     var bingTarget = element.FindPropertyRelative("target");
                     if (path != null)
                     {
-                        var disObjName = bingTarget.objectReferenceValue==null?"null":bingTarget.objectReferenceValue.ToString();
+                        var disObjName = bingTarget.objectReferenceValue == null ? "null" : bingTarget.objectReferenceValue.ToString();
                         element.isExpanded = BindableObjectStyle.FoldoutStyle(posRect_label, element.isExpanded, $"{index} ({disObjName}).{element.displayName}   path={path.stringValue}     ", "#2c76adff", 11);
                     }
 
@@ -179,7 +288,7 @@ namespace HugulaEditor.Databinding
                             height = rect.height - EditorGUIUtility.singleLineHeight
                         };
                         // EditorGUI.PropertyField(posRect_prop, element, true);
-                        BindingDrawer.OnMulitTargetsBinderGUI(posRect_prop,element);
+                        BindingDrawer.OnMulitTargetsBinderGUI(posRect_prop, element);
                     }
                 }
 
@@ -194,7 +303,7 @@ namespace HugulaEditor.Databinding
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
                     GenericMenu menu = new GenericMenu();
-                    menu.AddItem(new GUIContent($"add empty binding"), false, onAddClick,target);
+                    menu.AddItem(new GUIContent($"add empty binding"), false, onAddClick, target);
                     menu.ShowAsContext();
                 };
             }
@@ -227,6 +336,7 @@ namespace HugulaEditor.Databinding
         {
 
             FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            if (onFilter == null) onFilter = OnDefaultFilter;
             orderList.onFilterFunc = onFilter;
             orderList.drawHeaderCallback = (Rect rect) =>
              {
@@ -306,7 +416,7 @@ namespace HugulaEditor.Databinding
                     properties = BindableUtility.GetObjectProperties(target);
                 }
 
-                
+
                 orderList.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
                 {
                     var dropdown = new BindablePropertyDropdown(new AdvancedDropdownState(), properties, target, onAddClick);
@@ -349,6 +459,7 @@ namespace HugulaEditor.Databinding
         {
 
             FilterReorderableList orderList = new FilterReorderableList(serializedObject, serializedProperty, draggable, displayHeader, displayAddButton, displayRemoveButton);
+            if (onFilter == null) onFilter = OnDefaultFilter;
             orderList.onFilterFunc = onFilter;
             orderList.drawHeaderCallback = (Rect rect) =>
              {
@@ -435,7 +546,7 @@ namespace HugulaEditor.Databinding
                     GenericMenu menu = new GenericMenu();
                     menu.AddItem(new GUIContent($"添加空对象"), false, onAddClick, null);
                     menu.ShowAsContext();
-                };                
+                };
             }
 
             orderList.elementHeightCallback = (index) =>
@@ -572,9 +683,9 @@ namespace HugulaEditor.Databinding
                 return m_HtmlFoldoutGUIStyle;
             }
         }
-       
-       
-       public static GUIStyle ToolbarSeachTextField = new GUIStyle(EditorStyles.toolbarSearchField);
+
+
+        public static GUIStyle ToolbarSeachTextField = new GUIStyle(EditorStyles.toolbarSearchField);
         // public 
         #endregion
 
@@ -711,7 +822,7 @@ namespace HugulaEditor.Databinding
             BindingMode mode = binding.mode;
             var converter = binding.converter;
             var source = binding.source;
-            if(target!=null)
+            if (target != null)
                 sb.Append(target.ToString());
             if (!string.IsNullOrEmpty(path))
                 sb.AppendFormat(".{0}=({1}) ", property, path);

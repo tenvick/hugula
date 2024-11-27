@@ -25,7 +25,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.setScrollIndex = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -35,7 +35,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.droppedCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -45,7 +45,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onDropped = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -55,7 +55,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.scrollTime = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -81,7 +81,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.padding = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -91,7 +91,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.removeEasing = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -113,7 +113,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onScrollIndexChanged = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -123,7 +123,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onInstantiated = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -133,7 +133,7 @@ namespace Hugula.Databinding.Binder
         //     set
         //     {
         //         target.onGetItem = value;
-        //         OnPropertyChanged();
+        //         // OnPropertyChanged();
         //     }
         // }
 
@@ -143,7 +143,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onItemRender = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -154,7 +154,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.onSelected = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -164,7 +164,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.itemCommand = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -174,7 +174,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.itemParameter = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -184,7 +184,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.dataLength = value;
-                OnPropertyChanged();
+                // OnPropertyChanged();
             }
         }
 
@@ -251,7 +251,7 @@ namespace Hugula.Databinding.Binder
             if (item != null)
             {
                 item.forceContextChanged = m_forceBinding;
-                BindingUtility.SetContext(item,GetDataItem(index));
+                BindingUtility.SetContext(item, GetDataItem(index));
             }
         }
 
@@ -260,23 +260,12 @@ namespace Hugula.Databinding.Binder
             // if (GetBinding (OnItemInstantiatedProperty) == null)
             //     target.onInstantiated = OnItemInstantiated;
 
-            if (GetBinding(OnItemRenderProperty) == null)
+            if (target.onItemRender == null)
                 target.onItemRender = OnItemRender;
 
             base.OnBindingContextChanged();
 
             target.dataLength = GetDataCount();
-            // if (context is IList)
-            // {
-            //     items = (IList)context;
-            //     target.dataLength = items.Count;
-            // }
-            // else
-            // {
-            //     items = null;
-            //     target.dataLength = 0;
-            // }
-
 
             target.Refresh();
 
@@ -300,7 +289,7 @@ namespace Hugula.Databinding.Binder
         {
             var list = new List<BindableObject>();
             list.AddRange(target.templates);
-            return list;          
+            return list;
         }
 
         protected override void OnDestroy()

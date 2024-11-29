@@ -6,13 +6,13 @@ namespace Hugula.Databinding
 
     [XLua.LuaCallCSharp]
     [XLua.CSharpCallLua]
-    public class BindingPathPart
+    public class BindingPathPart  //65B
     {
         public BindingPathPart nextPart { get; set; }
 
         public string path { get; internal set; }
 
-        public string indexerName { get; set; }
+        // public string indexerName { get; set; } //indexerName可以删除
 
         public bool isIndexer { get; internal set; }
 
@@ -99,8 +99,8 @@ namespace Hugula.Databinding
             Unsubscribe(false);
 
             BindingPathPart part = this;
-            var propertName = part.isIndexer ? part.indexerName : part.path;
-            handler.Add(m_ChangeHandler,propertName);        
+            var propertName = part.path;
+            handler.Add(m_ChangeHandler,propertName);    
             m_NotifyPropertyChanged = handler;
         }
 
@@ -110,9 +110,10 @@ namespace Hugula.Databinding
             if (m_NotifyPropertyChanged == null) return;
 
             BindingPathPart part = this;
-            var propertName = part.isIndexer ? part.indexerName : part.path;
+            var propertName = part.path;
             m_NotifyPropertyChanged.Remove(m_ChangeHandler,propertName);
             m_NotifyPropertyChanged = null;//
+
             if (sourceRelease)
                 source = null;
         }
@@ -122,27 +123,29 @@ namespace Hugula.Databinding
             if (m_Binding == null)
                 return;
 
-            if (!m_Binding.NeedsGetter()) return;
+            // if (!m_Binding.NeedsGetter()) return;
 
             BindingPathPart part = this;
-            string name = propertyName;
-
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(propertyName))
             {
-                if (part.isIndexer)
-                {
-                    if (name.Contains("["))
-                    {
-                        if (name != string.Format("{0}[{1}]", part.indexerName, part.path))
-                            return;
-                    }
-                    else if (name != part.indexerName)
-                        return;
-                }
-                if (name != part.path)
+                if (propertyName != part.path)
                 {
                     return;
                 }
+                // if (part.isIndexer)
+                // {
+                //     if (name.Contains("["))
+                //     {
+                //         if (name != string.Format("{0}[{1}]", part.indexerName, part.path))
+                //             return;
+                //     }
+                //     else if (name != part.indexerName)
+                //         return;
+                // }
+                // if (name != part.path)
+                // {
+                //     return;
+                // }
             }
             m_Binding.OnSourceChanged(this);
 
@@ -170,7 +173,7 @@ namespace Hugula.Databinding
         public void Dispose()
         {
             Unsubscribe();
-            indexerName = null;
+            // indexerName = null;
             isIndexer = false;
             isMethod = false;
             isSelf = false;
@@ -190,7 +193,7 @@ namespace Hugula.Databinding
 
         public override string ToString()
         {
-            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},indexerName={3},isSelf={4},source={5})", this.path, isIndexer, isMethod, indexerName, isSelf,source);
+            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},isSelf={3},source={4})", this.path, isIndexer, isMethod, isSelf,source);
         }
 
         #region  pool

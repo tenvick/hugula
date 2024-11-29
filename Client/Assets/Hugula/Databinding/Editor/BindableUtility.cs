@@ -33,15 +33,17 @@ namespace HugulaEditor.Databinding
         {
             var bindings = target.GetBindings();
 
-            foreach (var b in bindings)
+            if (bindings != null)
             {
-                if (b.propertyName == binding.propertyName && b.target == binding.target)
+                foreach (var b in bindings)
                 {
-                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, binding.propertyName);
-                    return b;
+                    if (b.propertyName == binding.propertyName && b.target == binding.target)
+                    {
+                        Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, binding.propertyName);
+                        return b;
+                    }
                 }
             }
-
             target.AddBinding(binding);
 
             return binding;
@@ -49,84 +51,41 @@ namespace HugulaEditor.Databinding
 
         public static Binding AddEmptyBinding(BindableObject target, string property)
         {
-            var bindings = target.GetBindings();
-
-            foreach (var b in bindings)
-            {
-                if (b.propertyName == property)
-                {
-                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
-                    return b;
-                }
-            }
+          
             var binding = new Binding();
             binding.propertyName = property;
             binding.target = target;
-            target.AddBinding(binding);
-
+            AddEmptyBinding(target,binding);
             return binding;
         }
         public static Binding AddEmptyBinding(BindableObject target, string property, string path)
         {
-            var bindings = target.GetBindings();
-
-            foreach (var b in bindings)
-            {
-                if (b.propertyName == property)
-                {
-                    Debug.LogWarningFormat(" target({0}).{1} has already bound.", target, property);
-                    return b;
-                }
-            }
             var binding = new Binding();
             binding.target = target;
             binding.path = path;
             binding.propertyName = property;
-            target.AddBinding(binding);
-
+            AddEmptyBinding(target,binding);
             return binding;
         }
 
         public static Binding AddEmptyBinding(BindableObject bindableObject, UnityEngine.Object bindingTarget, string property)
         {
-            var bindings = bindableObject.GetBindings();
-
-            foreach (var b in bindings)
-            {
-                if (b.propertyName == property && b.target == bindingTarget)
-                {
-                    Debug.LogWarningFormat(" BindableObject({0},bindingTarget：{1}).{2} has already bound.", bindableObject, bindingTarget, property);
-                    return b;
-                }
-            }
             var binding = new Binding();
             binding.propertyName = property;
             binding.target = bindingTarget;
-            bindableObject.AddBinding(binding);
+            AddEmptyBinding(bindableObject,binding);
             return binding;
         }
 
         public static Binding AddEmptyBinding(BindableObject bindableObject, UnityEngine.Object bindingTarget, string property, string path)
         {
-            var bindings = bindableObject.GetBindings();
-
-            foreach (var b in bindings)
-            {
-                if (b.propertyName == property && b.target == bindingTarget)
-                {
-                    Debug.LogWarningFormat(" BindableObject({0},bindingTarget：{1}).{2} has already bound.", bindableObject, bindingTarget, property);
-                    return b;
-                }
-            }
             var binding = new Binding();
             binding.propertyName = property;
             binding.path = path;
             binding.target = bindingTarget;
-            bindableObject.AddBinding(binding);
+            AddEmptyBinding(bindableObject,binding);
             return binding;
         }
-
-
 
         public static string GetFullPath(Transform transform)
         {
@@ -183,6 +142,25 @@ namespace HugulaEditor.Databinding
             }
 
             return propertyInfos;
+        }
+
+        /// <summary>
+        /// 检查是否有属性
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public static bool CheckHasProperty(UnityEngine.Object target, string propertyName)
+        {
+            if (target)
+            {
+                var obj = target; //temp
+                Type t = obj.GetType();
+                var propertes = t.GetMember(propertyName);
+                return propertes.Length > 0;
+            }
+
+            return false;
         }
 
         /// <summary>

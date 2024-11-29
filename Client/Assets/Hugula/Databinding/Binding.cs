@@ -19,15 +19,11 @@ namespace Hugula.Databinding
     }
 
     [System.SerializableAttribute]
-    public sealed class Binding : IDisposable, IBinding
+    public sealed class Binding : IDisposable, IBinding //gc alloc 96B
     {
         internal const string SelfPath = ".";
 
         #region  序列化属性
-        ///<summary>
-        /// The type of the property
-        ///</summary>
-        // public Type returnType;
 
         ///<summary>
         /// The name of the BindableProperty
@@ -64,7 +60,7 @@ namespace Hugula.Databinding
         // }
         // WeakReference<UnityEngine.Object> _weakTarget;
 
-        public object convert;
+        // public object convert;
 
         /// <summary>
         /// The next binding in the chain
@@ -74,7 +70,7 @@ namespace Hugula.Databinding
         #endregion
 
         #region  绑定
-      
+
         // WeakReference<object> _bindingContext;
 
         /// <summary>
@@ -97,8 +93,8 @@ namespace Hugula.Databinding
         //     }
         // }
 
-        protected BindingPathPart m_LastPart;
-        
+        private BindingPathPart m_LastPart;
+
         /// <summary>
         ///是否已经绑定过
         /// </summary>
@@ -110,11 +106,11 @@ namespace Hugula.Databinding
             }
         }
 
-        protected bool m_IsApplied = false;
+        private bool m_IsApplied = false;
         /// <summary>
         /// 是否已经处理过
         /// </summary>
-        protected bool m_IsDisposed = false;//{ get; private set; }//销毁标记
+        private bool m_IsDisposed = false;//{ get; private set; }//销毁标记
         internal bool m_IsProcessed = false; // 新增的标志位
 
         #endregion
@@ -174,7 +170,7 @@ namespace Hugula.Databinding
             }
 
             if (m_LastPart != null && m_LastPart.source != null)
-                ExpressionUtility.SetTargetInvoke(m_LastPart.source, target, propertyName, m_LastPart);
+                ExpressionUtility.SetTargetInvoke(m_LastPart.source, target, propertyName, m_LastPart, this.converter);
             else
             {
 #if UNITY_EDITOR
@@ -208,7 +204,7 @@ namespace Hugula.Databinding
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.UpdateSource.SetSourceInvoke");
 #endif
             if (m_LastPart != null && m_LastPart.source != null)
-                ExpressionUtility.SetSourceInvoke(m_LastPart.source, m_LastPart);
+                ExpressionUtility.SetSourceInvoke(m_LastPart.source, m_LastPart, this);
             else
             {
 #if UNIYT_EDITOR
@@ -250,7 +246,7 @@ namespace Hugula.Databinding
 
                 }
 
-                ExpressionUtility.SetSourceInvoke(m_Current, part);
+                ExpressionUtility.SetSourceInvoke(m_Current, part, this);
 
             }
         }
@@ -280,11 +276,6 @@ namespace Hugula.Databinding
 #endif
                 m_IsApplied = true;
             }
-            else if (!string.IsNullOrEmpty(converter) && convert == null)
-            {
-                //refresh converter
-                convert = ValueConverterRegister.instance?.Get(converter);
-            }
 
             if (isBound) //
             {
@@ -296,7 +287,7 @@ namespace Hugula.Databinding
 
             if (bindingContext == null)
             {
-                convert = null; //需要解绑
+                // convert = null; //需要解绑
                 return;
             }
 
@@ -337,7 +328,7 @@ namespace Hugula.Databinding
                     part.TryGetValue(m_Current, out m_Current); //
                 }
 
-                if (!isSelf && m_Current == null && part.nextPart == null)
+                if (!isSelf && m_Current == null && part.nextPart == null) //last one
                     break;
 
             }
@@ -350,7 +341,7 @@ namespace Hugula.Databinding
 #endif
             if (needsGetter)
             {
-                ExpressionUtility.SetTargetInvoke(m_Current, target, propertyName, part);
+                ExpressionUtility.SetTargetInvoke(m_Current, target, propertyName, part, this.converter);
             }
 
 #if LUA_PROFILER_DEBUG
@@ -458,8 +449,8 @@ namespace Hugula.Databinding
 
             string p = path.Trim();
 
-            if (!string.IsNullOrEmpty(converter))
-                convert = ValueConverterRegister.instance?.Get(converter);
+            // if (!string.IsNullOrEmpty(converter))
+            //     convert = ValueConverterRegister.instance?.Get(converter);
 
             parts.Clear();
             BindingPathPart last = null;
@@ -487,7 +478,7 @@ namespace Hugula.Databinding
 
                 BindingPathPart indexer = null;
                 //索引解析
-                int lbIndex = part.IndexOf('[');
+                int lbIndex = part.IndexOf('['); //color[1]
                 if (lbIndex != -1)
                 {
                     int rbIndex = part.LastIndexOf(']');
@@ -503,7 +494,7 @@ namespace Hugula.Databinding
                     indexer.Initialize(this, argString, true);
                     part = part.Substring(0, lbIndex);
                     part = part.Trim();
-                    indexer.indexerName = part;
+                    // indexer.indexerName = part; //color
                 }
 
                 //方法解析
@@ -514,7 +505,6 @@ namespace Hugula.Databinding
                     if (rbIndex == -1)
                         throw new FormatException("Method did not contain closing (");
 
-                    // int argLength = rbIndex - lbIndex - 1;
                     string argString = part.Substring(0, lbIndex);
                     var next = BindingPathPart.Get(); //new BindingPathPart(this, argString);
                     next.Initialize(this, argString, false, true);
@@ -560,7 +550,6 @@ namespace Hugula.Databinding
             m_IsDisposed = true; //标记销毁
             m_IsApplied = false;
             m_IsProcessed = false;
-            convert = null;
             target = null;
             source = null;
             m_LastPart = null;

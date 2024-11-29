@@ -63,22 +63,26 @@ namespace Hugula.Databinding
             }
         }
 
-        internal static object SetSourceInvoke(object obj, BindingPathPart part)
+        internal static object SetSourceInvoke(object obj, BindingPathPart part,Binding binding)
         {
-            var m_Binding = part.m_Binding;
+            var converter = binding?.converter;
+            object convert = null;
+            if(!string.IsNullOrEmpty(converter)) 
+                convert = ValueConverterRegister.instance?.Get(converter);
+
             if (part.isMethod)
             {
-                instance?.m_SetSourceMethodInvoke(obj, part.path, m_Binding.target, m_Binding.propertyName, part.isIndexer, m_Binding.convert);
+                instance?.m_SetSourceMethodInvoke(obj, part.path, binding.target, binding.propertyName, part.isIndexer, convert);
             }
             else
             {
-                instance?.m_SetSourcePropertyInvoke(obj, part.path, m_Binding.target, m_Binding.propertyName, part.isIndexer, m_Binding.convert);
+                instance?.m_SetSourcePropertyInvoke(obj, part.path, binding.target, binding.propertyName, part.isIndexer, convert);
             }
 
             return null;
         }
 
-        internal static void SetTargetInvoke(object source, object target, string property, BindingPathPart part)
+        internal static void SetTargetInvoke(object source, object target, string property, BindingPathPart part,string converter)
         {
             try
             {
@@ -86,8 +90,11 @@ namespace Hugula.Databinding
                 bool is_indexer = part.isIndexer;
                 bool is_self = part.isSelf;
                 bool is_method = part.isMethod;
-                // string format = part.m_Binding?.format ?? string.Empty;
-                object convert = part.m_Binding?.convert;
+
+                // var converter = binding?.converter;
+                object convert = null;
+                if(!string.IsNullOrEmpty(converter)) 
+                    convert = ValueConverterRegister.instance?.Get(converter);
 
                 if (!is_method && convert == null)
                 {

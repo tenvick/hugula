@@ -1,4 +1,4 @@
-// #define USE_LIST_HANDLE_EVENT
+#define USE_LIST_HANDLE_EVENT
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -41,34 +41,19 @@ namespace Hugula.Databinding
             while (i < count)
             {
                 hander = m_Events[i];
-                if (hander.Target is BindingPathPart bpp)
+                if (hander.Target is BindingPathPart part)
                 {
-                    BindingPathPart part = bpp.nextPart ?? bpp;
-
-                    if (part.isIndexer)
-                    {
-                        if (property.Contains("["))
-                        {
-                            if (property != string.Format("{0}[{1}]", part.indexerName, part.path))
-                            {
-                                i++;
-                                continue;
-                            }
-                        }
-                        else if (property != part.indexerName)
-                        {
-                            i++;
-                            continue;
-                        }
-                    }
                     if (property != part.path)
                     {
                         i++;
                         continue;
                     }
                 }
+
                 hander(sender, property);
-                if (count > m_Events.Count) count = m_Events.Count;
+
+                if (count > m_Events.Count)
+                    count = m_Events.Count;
                 else
                 {
                     i++;

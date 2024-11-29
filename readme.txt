@@ -1,5 +1,9 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
+2024.11.29
+1 BindableContainer 转换SharedContextBinder工具。
+2 BindableObject gc alloc 优化。
+
 2024.11.27
 1 SharedContextBinder 共享上下文binder引入。
 2 Binding  target可以序列化GameObject。

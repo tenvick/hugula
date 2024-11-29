@@ -467,7 +467,7 @@ namespace HugulaEditor.Databinding
                     {
                         var newBinding = contextBinding.Clone();
                         newBinding.target = sharedContextBinder;
-                        sharedContextBinder.AddBinding(newBinding);
+                        BindableUtility.AddEmptyBinding(sharedContextBinder, newBinding);
                         child.GetBindings().Remove(contextBinding); //移除旧的
                     }
                     else
@@ -476,9 +476,20 @@ namespace HugulaEditor.Databinding
                         foreach (var binding in bindings)
                         {
                             var newBinding = binding.Clone();
-                            newBinding.target = target;
-                            sharedContextBinder.AddBinding(newBinding);
-                            Debug.LogFormat("{0} add binding {1} to {2}", sharedContextBinder, newBinding, target);
+                            if (child is TextMeshProUGUIBinder textMeshProUGUIBinder)
+                            {
+                                newBinding.target = textMeshProUGUIBinder.target;
+                            }
+
+
+                            if (newBinding.propertyName == "activeSelf")
+                            {
+                                newBinding.propertyName = "active";
+                                newBinding.target = child.gameObject;
+                            }
+
+                            BindableUtility.AddEmptyBinding(bo, newBinding);
+                            Debug.LogFormat("{0} add binding {1} to {2}", bo, newBinding, target);
                         }
                         child.GetBindings().Clear();
                     }
@@ -490,11 +501,104 @@ namespace HugulaEditor.Databinding
                 {
                     var newBinding = binding.Clone();
                     newBinding.target = sharedContextBinder;
-                    sharedContextBinder.AddBinding(newBinding);
+                    BindableUtility.AddEmptyBinding(sharedContextBinder, newBinding);
                 }
                 bo.GetBindings().Clear();
 
             }
         }
+
+
+        [MenuItem("CONTEXT/BindableContainer/MoveCheckedChildrenToBindings")]
+        static void MoveChildrenToBindings(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableContainer;
+            if (bo != null)
+            {
+                var children = bo.children;
+                for (int i = 0; i < children.Count;)
+                {
+                    var child = children[i];
+                    if (child is TextMeshProUGUIBinder )
+                    {
+                        UnityEngine.Object target = child;
+                        if (child is CustomBinder)
+                        {
+                            target = ((CustomBinder)child).target;
+                        }
+
+                        //check上下文
+                        var contextBinding = child.GetContextBinding();
+                        if (contextBinding != null)
+                        {
+                            var newBinding = contextBinding.Clone();
+                            newBinding.target = bo;
+                            BindableUtility.AddEmptyBinding(bo, newBinding);
+                            child.GetBindings().Remove(contextBinding); //移除旧的
+                        }
+                        else
+                        {
+                            var bindings = child.GetBindings();
+                            bool needRm = true;
+                            foreach (var binding in bindings)
+                            {
+                                var newBinding = binding.Clone();
+                                if (child is TextMeshProUGUIBinder textMeshProUGUIBinder)
+                                {
+                                    newBinding.target = textMeshProUGUIBinder.target;
+                                }                              
+
+                                //check property
+                                if (newBinding.propertyName == "activeSelf")
+                                {
+                                    newBinding.propertyName = "active";
+                                    newBinding.target = child.gameObject;
+                                }
+                                else if (!BindableUtility.CheckHasProperty(newBinding.target, newBinding.propertyName)) //属性对不上
+                                {
+                                    needRm = false;
+                                    Debug.LogWarningFormat("{0} has no property {1} ,keep old target={2}", newBinding.target, newBinding.propertyName, child);
+                                    newBinding.target = child;//如果属性对不上则保留目标
+                                }
+
+                                BindableUtility.AddEmptyBinding(bo, newBinding);
+                                Debug.LogFormat("{0} add binding {1} to {2}", bo, newBinding, target);
+                            }
+                            child.GetBindings().Clear();
+
+                            EditorUtility.SetDirty(child);
+                            //删除目标
+                            if (needRm)
+                            {
+                                GameObject.DestroyImmediate(child);
+                            }
+                        }
+
+                        children.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+
+                EditorUtility.SetDirty(bo);
+
+            }
+        }
+
+
+        [MenuItem("CONTEXT/BindableContainer/MoveChildrenToBindings", true)]
+        static bool ValidateMoveChildrenToBindings(MenuCommand menuCommand)
+        {
+            var bo = menuCommand.context as BindableContainer;
+            if (bo != null)
+            {
+                return bo.children.Count > 0;
+            }
+            return false;
+        }
+
+
     }
 }

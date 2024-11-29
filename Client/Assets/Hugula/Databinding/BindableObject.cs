@@ -9,7 +9,7 @@ using Hugula.Utils;
 namespace Hugula.Databinding
 {
 
-    public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged, IClearBingding
+    public abstract class BindableObject : MonoBehaviour, INotifyPropertyChanged, IClearBingding//gc alloc 88B  +List<Binding> 40B   Binding96B*n + BindingPathPart65B*n
     {
         public const string ContextProperty = "context";
         /// <summary>
@@ -118,6 +118,8 @@ namespace Hugula.Databinding
 
             m_InitBindings = true;
             m_ContextBinding = null;
+            
+            if(bindings == null) return;
             bool needDic = bindings.Count >= BindingsDicCapacity;
 
             if (m_BindingsDic == null && needDic)

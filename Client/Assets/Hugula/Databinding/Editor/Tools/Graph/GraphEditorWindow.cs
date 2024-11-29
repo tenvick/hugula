@@ -135,9 +135,9 @@ namespace HugulaEditor.Databinding
                 EditorGUILayout.LabelField("Find", GUILayout.Width(40), toolbarHeight);
 
                 EditorGUI.BeginChangeCheck();
-                {
-                    searchText = EditorGUILayout.TextField(string.Empty, searchText, new GUIStyle("ToolbarSeachTextField"), GUILayout.Width(160), toolbarHeight);
-                    if (GUILayout.Button("Close", "ToolbarSeachCancelButtonEmpty"))
+                {  
+                    searchText = EditorGUILayout.TextField(string.Empty, searchText, EditorStyles.toolbarSearchField, GUILayout.Width(160), toolbarHeight);
+                    if (GUILayout.Button("Close", EditorStyles.toolbarButton ))
                     {
                         // reset text
                         searchText = null;

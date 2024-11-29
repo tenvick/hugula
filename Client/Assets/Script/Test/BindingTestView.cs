@@ -26,7 +26,7 @@ public class BindingTestView : MonoBehaviour
         testBinding = bindableObject.GetBinding(bindingPreperty);
     }
 
-   
+
     public void OnClick()
     {
         var text = inputField.text;
@@ -41,6 +41,23 @@ public class BindingTestView : MonoBehaviour
             testBinding.Apply(source);
             if (i >= max) break;
         }
+        UnityEngine.Profiling.Profiler.EndSample();
+    }
+
+
+    public void OnClick2()
+    {
+        var text = inputField.text;
+        var max = int.Parse(text);
+        UnityEngine.Profiling.Profiler.BeginSample($"BindingTestView.OnClick2({max}) new Binding()");
+        int i = 0;
+        var source = testBinding.bindingContext;
+        Binding[] bindings = new Binding[max];
+        for (int j = 0; j < max; j++)
+        {
+            bindings[j] = new Binding();
+        }
+
         UnityEngine.Profiling.Profiler.EndSample();
     }
 

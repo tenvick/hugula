@@ -389,7 +389,7 @@ namespace HugulaEditor.Databinding
                 propertyNameValue = propertyName.stringValue;
 
                 var m_AllComponents = Hugula.Utils.ListPool<string>.Get();
-                int selectIndex = 0;
+                int selectIndex = -1;
                 int i = 0;
                 bool findValue = false;
                 int maxScore = 0;
@@ -408,12 +408,16 @@ namespace HugulaEditor.Databinding
                 position.x = position.xMax;
                 position.width = w - position.width;
 
-                selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
+                var currSelectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
                 if (findValue == false && !string.IsNullOrEmpty(propertyNameValue))
                 {
-                    Debug.LogError($" property:{propertyNameValue} does't find in target({target})  new value changed to:{propList[selectIndex].Name}");
-                }
-                propertyNameValue = propList[selectIndex].Name;
+                    Debug.LogError($" property:{propertyNameValue} does't find in target({target}) ");
+                    if(currSelectIndex != selectIndex) //改变了选择
+                    {
+                        propertyNameValue = propList[currSelectIndex].Name;
+                    }
+                }else
+                    propertyNameValue = propList[currSelectIndex].Name;
 
                 Hugula.Utils.ListPool<string>.Release(m_AllComponents);
             }

@@ -51,8 +51,8 @@ oneway_path_demo.on_input_changed = {
         return true
     end,
     Execute = function(self, arg)
-        -- print(arg)
-        -- print("oneway_path_demo", oneway_path_demo, " goods.", goods, "color", goods.color, "color[2]", goods.color[2],
+        -- Logger.Log(arg)
+        -- Logger.Log("oneway_path_demo", oneway_path_demo, " goods.", goods, "color", goods.color, "color[2]", goods.color[2],
         --     "arg", arg)
         goods:OnPropertyChanged(property_color)
         ---viewmodel属性通知view 写法1
@@ -65,7 +65,7 @@ oneway_path_demo.btn_test_1000 = {
         return true
     end,
     Execute = function(self, arg)
-        print("oneway_path_demo.btn_test_1000", arg)
+        Logger.Log("oneway_path_demo.btn_test_1000", arg)
         local profiler = ProfilerFactory.GetAndStartProfiler("oneway_path_demo.btn_test_1000", nil, nil, true)
 
         for i = 0, 1000 do
@@ -84,5 +84,5 @@ oneway_path_demo.btn_test_1000 = {
 -- function oneway_path_demo:on_property_set(property)
 --     goods:OnPropertyChanged(property_color)
 -- end
-print("init oneway_path_demo", oneway_path_demo, " goods.", goods, "color", goods.color, "color[2]", goods.color[2])
+Logger.Log("init oneway_path_demo", oneway_path_demo, " goods.", goods, "color", goods.color, "color[2]", goods.color[2])
 return oneway_path_demo

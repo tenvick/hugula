@@ -139,7 +139,7 @@ namespace Tests
         {
             int max = 1000;
             int i = 0;
-            string path ;
+            string path;
             Binding binding;
             LuaEnvHelper.BeforeLuaDispose();
             // Use the Assert class to test conditions
@@ -191,16 +191,16 @@ namespace Tests
             bindableObject.SubmitText3($"submit text{max}  TwoWay ");
             Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds Binding.{binding.mode}({i}) Set2: {watch.ElapsedMilliseconds} ms");
 
-            LuaTable inc=  binding_demo as LuaTable;
-             if (inc.ContainsKey("PropertyChanged")) //lua table 监听
-                {
-                    var propChanged = inc.Cast<INotifyPropertyChanged>();
-                    var propChanged2 = inc.Cast<INotifyPropertyChanged>();
+            LuaTable inc = binding_demo as LuaTable;
+            if (inc.ContainsKey("PropertyChanged")) //lua table 监听
+            {
+                var propChanged = inc.Cast<INotifyPropertyChanged>();
+                var propChanged2 = inc.Cast<INotifyPropertyChanged>();
 
-                    Assert.AreEqual(propChanged, propChanged2);
-                    // Assert.AreEqual(propChanged, inc);
+                Assert.AreEqual(propChanged, propChanged2);
+                // Assert.AreEqual(propChanged, inc);
 
-                }
+            }
         }
 
 
@@ -209,7 +209,7 @@ namespace Tests
         {
             int max = 1000;
             int i = 0;
-                  LuaEnvHelper.BeforeLuaDispose();
+            LuaEnvHelper.BeforeLuaDispose();
             // Use the Assert class to test conditions
             watch.Start();
             var bindableObject = BindableHelper.CreateBindableObject();
@@ -227,25 +227,27 @@ namespace Tests
 
             PropertyChangedEventHandlerEvent eventHandler = bindableObject.PropertyChanged;
             watch.Restart();
-            PropertyChangedEventHandler hander = (sender, property) => { 
+            PropertyChangedEventHandler hander = (sender, property) =>
+            {
                 // Debug.Log($"{property} == empty");
-                 };
+            };
             while (true)
             {
                 i++;
-                int property_cate =  i / 10;
+                int property_cate = i / 10;
                 var property = $"property-{property_cate}";
                 var idx = i;
-                eventHandler.Add((sender, prop)=> { 
+                eventHandler.Add((sender, prop) =>
+                {
                     // Debug.Log($"{prop}   idx:{idx} cat:{property_cate} "); 
                 }, property);
                 if (i >= max) break;
             }
-                eventHandler.Add(hander);
-                eventHandler.Add(hander);
-                eventHandler.Add(hander);
+            eventHandler.Add(hander);
+            eventHandler.Add(hander);
+            eventHandler.Add(hander);
             Debug.Log($"EmptyKey={UnityEngine.Animator.StringToHash("")}");
-            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest .Add({i+3}): {watch.ElapsedMilliseconds} ms");
+            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest .Add({i + 3}): {watch.ElapsedMilliseconds} ms");
             watch.Restart();
             i = 0;
             // while (true)
@@ -281,7 +283,41 @@ namespace Tests
 
         }
 
-    
+        [Test]
+        public void BindingPathPartPartTest()
+        {
+
+
+            LuaEnvHelper.BeforeLuaDispose();
+            // Use the Assert class to test conditions
+            watch.Start();
+            var bindableObject = BindableHelper.CreateBindableObject();
+            BindableHelper.AddBindings(bindableObject);
+            bindableObject.EnableLog = true;
+            Debug.Log($"BindingTestSimplePasses.ElapsedMilliseconds CreateBindableObject: {watch.ElapsedMilliseconds} ms");
+            watch.Restart();
+            LuaEnv luaEnv = LuaEnvHelper.GetLuaEnv();
+            luaEnv.DoString("require('binding_test')");
+            VMStateHelper.instance.SetVMState(luaEnv);
+
+            var binding = new Binding("goods.color[1]", bindableObject, "text", BindingMode.TwoWay);
+            var pathDemo = new SimpleSource.PathDemo();
+            binding.Apply(pathDemo);
+
+            var parts = binding.parts;
+
+            // foreach (var part in parts)
+            for (int i = 0; i < parts.Count; i++)
+            {
+                var part = parts[i];
+                Debug.Log($" {i}  part:{part} ");
+            }
+
+
+            var goods = pathDemo.goods;
+            goods.PropertyChanged.Invoke(goods, "color");
+
+        }
 
     }
 
@@ -301,10 +337,10 @@ namespace Tests
 
         static public void AddBindings(BindableObject bindableObject)
         {
-                
+
             bindableObject.AddBinding(new Binding("enable_slider", null, "enabled", BindingMode.TwoWay));
             // bindableObject.SetBinding("enable_slider", null, "enabled", BindingMode.TwoWay, null); //双向绑定
-                bindableObject.AddBinding(new Binding("btntext", null, "text", BindingMode.OneWay));
+            bindableObject.AddBinding(new Binding("btntext", null, "text", BindingMode.OneWay));
             // bindableObject.SetBinding("btntext", null, "text", BindingMode.OneWay,  null); //
             bindableObject.AddBinding(new Binding("slider1_value", null, "value", BindingMode.TwoWay));
             // bindableObject.SetBinding("slider1_value", null, "value", BindingMode.TwoWay,  null); //双向绑定
@@ -642,10 +678,34 @@ namespace Tests
         public PathDemo oneway_path_demo = new PathDemo();
 
 
-        public class PathDemo
+        public class PathDemo : INotifyPropertyChanged
         {
-            public class Goods
+            internal PropertyChangedEventHandlerEvent m_PropertyChanged;// = new PropertyChangedEventHandlerEvent();
+
+            public PropertyChangedEventHandlerEvent PropertyChanged
             {
+                get
+                {
+                    if (m_PropertyChanged == null)
+                        m_PropertyChanged = new PropertyChangedEventHandlerEvent();
+                    return m_PropertyChanged;
+                }
+            }
+
+            public class Goods : INotifyPropertyChanged
+            {
+                internal PropertyChangedEventHandlerEvent m_PropertyChanged;// = new PropertyChangedEventHandlerEvent();
+
+                public PropertyChangedEventHandlerEvent PropertyChanged
+                {
+                    get
+                    {
+                        if (m_PropertyChanged == null)
+                            m_PropertyChanged = new PropertyChangedEventHandlerEvent();
+                        return m_PropertyChanged;
+                    }
+                }
+
                 public string name = "goods";
                 public string[] color = new string[] { "red", "green", "blue" };
             }

@@ -102,6 +102,10 @@ namespace HugulaEditor.Databinding
             {
                 if (binder != contextBinding && binder.path.Trim() != ".")
                 {
+                    if (binder.target != null)
+                        target = binder.target;
+                    else
+                        target = root;
                     AddPropertyToContext(target, binder, true, currContext, sourceContext);
                 }
             }
@@ -127,6 +131,10 @@ namespace HugulaEditor.Databinding
                         {
                             if (binder.propertyName != "context" && binder.path != ".")
                             {
+                                if (binder.target != null)
+                                    target = binder.target;
+                                else
+                                    target = item;
                                 AddPropertyToContext(target, binder, false, currContext, sourceContext);
                             }
                         }
@@ -281,13 +289,13 @@ namespace HugulaEditor.Databinding
                             target = prop.GetValue(c) as UnityEngine.Object;
                             if (target == null)
                             {
-                               target = c.GetComponent(prop.PropertyType);
+                                target = c.GetComponent(prop.PropertyType);
                             }
                         }
 
                         var convertIsExist = BinderConvertUtils.CheckBinderConvertIsExist(c.GetType().Name);
 
-                        if (convertIsExist && target != null )
+                        if (convertIsExist && target != null)
                         {
                             bc.monos.Add((UnityEngine.Object)target);
                             GameObject.DestroyImmediate(c);

@@ -94,10 +94,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: login_tips
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: login_tips
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6089449058526643015}
 --- !u!1 &6819239693185335442
 GameObject:
@@ -234,10 +238,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_back_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: on_back_click
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4066733516735478368}
 --- !u!1 &7966387583246695787
 GameObject:
@@ -375,16 +383,23 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_btn_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: on_btn_click
+      _flags: 0
   - propertyName: interactable
     path: is_connected
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: is_connected
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7966387583246695781}
 --- !u!114 &2668004905902307920
 MonoBehaviour:
@@ -399,6 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_GroupIndex: -1
   m_Group:
   - items: []
@@ -754,6 +770,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 7966387584764119261}
@@ -762,6 +779,8 @@ MonoBehaviour:
   - {fileID: 5847003543313222954}
   - {fileID: 776767797122509063}
   - {fileID: 5011569400770470461}
+  names: []
+  monos: []
 --- !u!114 &5011569400770470461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -777,10 +796,14 @@ MonoBehaviour:
   bindings:
   - propertyName: activeGroup
     path: group_index
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: group_index
+      _flags: 0
+  m_ForceBinding: 0
   m_GroupIndex: -1
   m_Group:
   - items:
@@ -1024,10 +1047,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: password
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: password
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7966387584607608437}
 --- !u!1 &7966387584676239952
 GameObject:
@@ -1264,8 +1291,12 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: user_name()
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: user_name
+      _flags: 4
+  m_ForceBinding: 0
   m_Target: {fileID: 7966387584764119232}

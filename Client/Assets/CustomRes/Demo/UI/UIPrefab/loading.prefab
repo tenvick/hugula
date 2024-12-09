@@ -94,10 +94,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: loading_text
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: loading_text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1852966964303833369}
 --- !u!1 &1393170678281376793
 GameObject:
@@ -352,10 +356,14 @@ MonoBehaviour:
   bindings:
   - propertyName: value
     path: slider_value
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: slider_value
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 2014813975771231307}
 --- !u!1 &3890895710016161295
 GameObject:
@@ -547,6 +555,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 589471986011532588}

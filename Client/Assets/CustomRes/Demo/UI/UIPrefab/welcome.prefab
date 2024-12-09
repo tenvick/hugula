@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 1898566435255580335}
@@ -359,11 +360,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: title
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: title
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1898566435255580329}
 --- !u!1 &1898566435622137220
 GameObject:
@@ -459,11 +463,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: name
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: name
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1898566435622137210}
 --- !u!1 &1898566435724762646
 GameObject:
@@ -603,26 +610,34 @@ MonoBehaviour:
   bindings:
   - propertyName: itemCommand
     path: on_item_select
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_item_select
+      _flags: 0
   - propertyName: itemParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 1898566436092732782}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: context
     path: eg_data
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: eg_data
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1898566436092732782}
+  m_forceBinding: 1
 --- !u!1 &1898566436120551731
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,18 +774,25 @@ MonoBehaviour:
   bindings:
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: onClickCommand
     path: context.on_btn_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 1898566436092732780}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_btn_click
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1898566436120551729}
 --- !u!114 &4638732201441098971
 MonoBehaviour:
@@ -900,6 +922,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 1898566436092732780}

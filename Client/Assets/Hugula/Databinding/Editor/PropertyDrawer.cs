@@ -60,17 +60,17 @@ namespace HugulaEditor.Databinding
                     }
                     //add gameobject
                     m_AllComponents.Add(go.GetType().Name);
-                    if(go == obj) selectIndex = i;
+                    if (go == obj) selectIndex = i;
 
                     position.x = position.xMax;
                     position.width = w - position.width;
                     selectIndex = EditorGUI.Popup(position, selectIndex, m_AllComponents.ToArray());
 
-                    if(selectIndex < comps.Length)
+                    if (selectIndex < comps.Length)
                         content = comps[selectIndex];
-                    else if(selectIndex == i)
+                    else if (selectIndex == i)
                         content = go;
-                   
+
                     Hugula.Utils.ListPool<string>.Release(m_AllComponents);
                 }
                 property.objectReferenceValue = content;
@@ -196,7 +196,7 @@ namespace HugulaEditor.Databinding
                 bindableObjectSerializedObject = new SerializedObject(target);
                 m_Property_bindings = bindableObjectSerializedObject.FindProperty("bindings");
                 reorderableListBindings = BindableUtility.CreateBindalbeObjectBindingsReorder(bindableObjectSerializedObject, m_Property_bindings, target, true,
-                true, true, true, OnAddClick, OnFilter);
+                true, true, true, OnAddClick, null);
             }
 
             //显示列表
@@ -217,7 +217,9 @@ namespace HugulaEditor.Databinding
                 if (reorderableListBindings != null)
                     h = reorderableListBindings.GetHeight() + (BindableObjectStyle.kSingleLineHeight) * 2f;
                 else
+                {
                     h = (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 7f + BindableObjectStyle.kControlVerticalSpacing * 2;
+                }
             }
             else
             {
@@ -229,17 +231,17 @@ namespace HugulaEditor.Databinding
             return h;
         }
 
-        bool OnFilter(SerializedProperty property, string searchText)
-        {
-            var displayName = property.displayName;
-            if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
-            {
-                return true;
-            }
-            else
-                return false;
+        // bool OnFilter(SerializedProperty property, string searchText)
+        // {
+        //     var displayName = property.displayName;
+        //     if (!string.IsNullOrEmpty(searchText) && displayName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) < 0) //搜索
+        //     {
+        //         return true;
+        //     }
+        //     else
+        //         return false;
 
-        }
+        // }
 
         void OnAddClick(object args)
         {
@@ -256,7 +258,26 @@ namespace HugulaEditor.Databinding
     {
 
         static System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        static GUIStyle fontStyle = new GUIStyle();
+        static GUIStyle m_FontStyle;//= new GUIStyle();
+        static GUIStyle fontStyle
+        {
+            get
+            {
+                if (m_FontStyle == null)
+                {
+                    m_FontStyle = new GUIStyle(EditorStyles.label)
+                    {
+                        fontSize = 12, // 设置字体大小
+                        richText = true,
+                        normal = { textColor = Color.green }, // 设置正常状态下的字体颜色
+                        hover = { textColor = Color.green }, // 设置悬停状态下的字体颜色
+                        active = { textColor = Color.blue } // 设置激活状态下的字体颜色
+                    };
+                }
+                return m_FontStyle;
+            }
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             string propertyName = property.FindPropertyRelative("propertyName").stringValue;
@@ -266,7 +287,7 @@ namespace HugulaEditor.Databinding
             if (toggle == false)
             {
                 var path = property.FindPropertyRelative("path").stringValue;
-                // var format = property.FindPropertyRelative("format").stringValue;
+                var partConfigs = property.FindPropertyRelative("partConfigs");
                 BindingMode mode = (BindingMode)property.FindPropertyRelative("mode").enumValueIndex;
                 var converter = property.FindPropertyRelative("converter").stringValue;
                 var source = property.FindPropertyRelative("source").objectReferenceValue;
@@ -305,25 +326,143 @@ namespace HugulaEditor.Databinding
                 position.width -= EditorGUIUtility.singleLineHeight * .5f;
                 int index = 0;
                 bool isSharedContext = property.serializedObject is ISharedContext;
-                int count = isSharedContext ? 5 : 4;
+                int count = isSharedContext ? 6 : 5;
 
                 var rects = GetRowRects(position, count);
                 if (isSharedContext)
                     EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("target"));
 
+                SerializedProperty partConfigsProperty = property.FindPropertyRelative("partConfigs");
+                EditorGUI.BeginChangeCheck();
                 EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("path"));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    ParsePathToConfig(property);
+                }
+
+                //显示sb.Tostring的内容
+                DisplayNamePartConfigsProperty(rects[index++], partConfigsProperty, fontStyle);
                 EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("mode"));
                 EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("converter"));
                 EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("source"));
             }
         }
 
+        internal static void DisplayNamePartConfigsProperty(Rect position, SerializedProperty partConfigsProperty, GUIStyle fontStyle)
+        {
+            sb.Clear();
+            bool emptyPath = false;
+            for (int i = 0; i < partConfigsProperty.arraySize; i++)
+            {
+                var element = partConfigsProperty.GetArrayElementAtIndex(i);
+                var path = element.FindPropertyRelative("path").stringValue;
+                if (string.IsNullOrEmpty(path))
+                {
+                    sb.Append("null");
+                    emptyPath = true;
+                }
+
+                var flags = (BindingPathPartFlags)element.FindPropertyRelative("_flags").intValue;
+                var isGlobal = (flags & BindingPathPartFlags.IsGlobal) != 0;
+                if ((flags & Hugula.Databinding.BindingPathPartFlags.IsExpSetter) != 0)
+                {
+                    if (isGlobal)
+                        sb.Append($"<color=red>${path}</color>");
+                    else
+                        sb.Append($"${path}");
+                }
+                else if ((flags & Hugula.Databinding.BindingPathPartFlags.IsExpGetter) != 0)
+                {
+                    if (isGlobal)
+                        sb.Append($"<color=red>&{path}</color>");
+                    else
+                        sb.Append($"&{path}");
+                }
+                else if ((flags & Hugula.Databinding.BindingPathPartFlags.IsIndexer) != 0)
+                {
+                    sb.Append($"[{path}]");
+                }
+                else if ((flags & Hugula.Databinding.BindingPathPartFlags.IsMethod) != 0) //(_flags & BindingPathPartFlags.IsMethod) != 0
+                {
+                    sb.Append($"{path}()");
+                }
+                else
+                    sb.Append(path);
+
+                if (i < partConfigsProperty.arraySize - 1)
+                    sb.Append(".");
+            }
+
+            sb.Append($"     Len:{partConfigsProperty.arraySize}");
+
+            if (emptyPath)
+                fontStyle.normal.textColor = Color.red;
+
+            EditorGUI.LabelField(position, sb.ToString(), fontStyle);
+        }
+
+
+        static readonly char[] ExpressionSplit = new char[] { '.' };
+
+        public static bool ParsePathToConfig(SerializedProperty bindingSerializedProperty)
+        {
+            var path = bindingSerializedProperty.FindPropertyRelative("path").stringValue;
+
+            if (string.IsNullOrEmpty(path)) return false;
+
+            // 创建一个临时实例（假设类名为Binding）
+            Binding tempBinding = new Binding();
+            tempBinding.ParsePathToConfig(path); // 调用之前已写好的解析逻辑
+
+            // 获得解析好的partConfigs
+            // var parsedPartConfigs = tempBinding.partConfigs;
+            var fieldInfo = typeof(Binding).GetField("partConfigs", BindingFlags.NonPublic | BindingFlags.Instance);
+            var parsedPartConfigs = (BindingPathPartConfig[])fieldInfo.GetValue(tempBinding);
+
+            var partConfigsProp = bindingSerializedProperty.FindPropertyRelative("partConfigs");
+            partConfigsProp.ClearArray();
+
+            // 将解析结果写回SerializedProperty中
+            for (int i = 0; i < parsedPartConfigs.Length; i++)
+            {
+                partConfigsProp.InsertArrayElementAtIndex(i);
+                var element = partConfigsProp.GetArrayElementAtIndex(i);
+
+                element.FindPropertyRelative("path").stringValue = parsedPartConfigs[i].path;
+
+                // 根据parsedPartConfigs[i]的标志位设置Flags
+                BindingPathPartFlags flags = 0;
+                if (parsedPartConfigs[i].isIndexer) flags |= BindingPathPartFlags.IsIndexer;
+                if (parsedPartConfigs[i].isExpSetter) flags |= BindingPathPartFlags.IsExpSetter;
+                if (parsedPartConfigs[i].isExpGetter) flags |= BindingPathPartFlags.IsExpGetter;
+                if (parsedPartConfigs[i].isGlobal) flags |= BindingPathPartFlags.IsGlobal;
+                if (parsedPartConfigs[i].isSelf) flags |= BindingPathPartFlags.IsSelf;
+
+                element.FindPropertyRelative("_flags").intValue = (int)flags;
+            }
+
+            return true;
+        }
+
+
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             float h;
             if (property.isExpanded)
             {
-                h = (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 7f + BindableObjectStyle.kControlVerticalSpacing * 2;
+                // h = (BindableObjectStyle.kSingleLineHeight + BindableObjectStyle.kControlVerticalSpacing) * 7f + BindableObjectStyle.kControlVerticalSpacing * 2;
+                h = BindableObjectStyle.kControlVerticalSpacing;
+                h = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("target"), true);
+                h += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("path"), true);
+                h += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("mode"), true);
+                h += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("converter"), true);
+                h += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("source"), true);
+
+                // 加上 'partConfigs' 列表的高度
+                var listHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative("partConfigs"), true);
+                h += listHeight;
+                h += BindableObjectStyle.kControlVerticalSpacing * 2;
             }
             else
             {
@@ -337,7 +476,7 @@ namespace HugulaEditor.Databinding
             Rect[] rects = new Rect[count];
             rect.height = BindableObjectStyle.kSingleLineHeight;
             Rect rect0 = rect;
-            rect0.y += EditorGUIUtility.singleLineHeight;//- BindableObjectStyle.kControlVerticalSpacing;//+ BindableObjectStyle.kControlVerticalSpacing;
+            rect0.y += 5;//EditorGUIUtility.singleLineHeight;//- BindableObjectStyle.kControlVerticalSpacing;//+ BindableObjectStyle.kControlVerticalSpacing;
             rects[0] = rect0;
             for (int i = 1; i < count; i++)
             {
@@ -356,20 +495,26 @@ namespace HugulaEditor.Databinding
 
             fontStyle.fontSize = 12;
             fontStyle.fontStyle = FontStyle.Italic;
-            // if (toggle)
+
+            position.width -= EditorGUIUtility.singleLineHeight * .5f;
+            int index = 0;
+            var rects = GetRowRects(position, 7);
+
+            EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("target"));
+            OnTargetPropertyChooseGUI(rects[index++], property);
+
+            SerializedProperty partConfigsProperty = property.FindPropertyRelative("partConfigs");
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("path"));
+            if (EditorGUI.EndChangeCheck())
             {
-                string propertyName = property.FindPropertyRelative("propertyName").stringValue;
-                // position.y += EditorGUIUtility.singleLineHeight * .5f;
-                position.width -= EditorGUIUtility.singleLineHeight * .5f;
-                var rects = GetRowRects(position, 7);
-                EditorGUI.PropertyField(rects[0], property.FindPropertyRelative("target"));
-                OnTargetPropertyChooseGUI(rects[1], property);
-                EditorGUI.PropertyField(rects[2], property.FindPropertyRelative("path"));
-                EditorGUI.PropertyField(rects[3], property.FindPropertyRelative("mode"));
-                // EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("format"));
-                EditorGUI.PropertyField(rects[4], property.FindPropertyRelative("converter"));
-                EditorGUI.PropertyField(rects[5], property.FindPropertyRelative("source"));
+                ParsePathToConfig(property);
             }
+
+            DisplayNamePartConfigsProperty(rects[index++], partConfigsProperty, fontStyle);
+            EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("mode"));
+            EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("converter"));
+            EditorGUI.PropertyField(rects[index++], property.FindPropertyRelative("source"));
         }
 
         public static void OnTargetPropertyChooseGUI(Rect position, SerializedProperty property)
@@ -396,8 +541,8 @@ namespace HugulaEditor.Databinding
                 foreach (var pi in propList)
                 {
                     m_AllComponents.Add(pi.Name);
-                    var score = CalculateMatchScore(propertyNameValue,pi.Name);
-                    if(score>maxScore)
+                    var score = CalculateMatchScore(propertyNameValue, pi.Name);
+                    if (score > maxScore)
                     {
                         maxScore = score;
                         selectIndex = i;
@@ -412,11 +557,12 @@ namespace HugulaEditor.Databinding
                 if (findValue == false && !string.IsNullOrEmpty(propertyNameValue))
                 {
                     Debug.LogError($" property:{propertyNameValue} does't find in target({target}) ");
-                    if(currSelectIndex != selectIndex) //改变了选择
+                    if (currSelectIndex != selectIndex) //改变了选择
                     {
                         propertyNameValue = propList[currSelectIndex].Name;
                     }
-                }else
+                }
+                else
                     propertyNameValue = propList[currSelectIndex].Name;
 
                 Hugula.Utils.ListPool<string>.Release(m_AllComponents);
@@ -432,17 +578,17 @@ namespace HugulaEditor.Databinding
         private static int CalculateMatchScore(string input, string name)
         {
 
-            if (name.Equals(input,System.StringComparison.OrdinalIgnoreCase))
+            if (name.Equals(input, System.StringComparison.OrdinalIgnoreCase))
             {
                 return 100;
             }
-            else if (name.StartsWith(input,System.StringComparison.OrdinalIgnoreCase))
+            else if (name.StartsWith(input, System.StringComparison.OrdinalIgnoreCase))
             {
                 return 80;
             }
             else
             {
-                int index = name.IndexOf(input,System.StringComparison.OrdinalIgnoreCase);
+                int index = name.IndexOf(input, System.StringComparison.OrdinalIgnoreCase);
                 if (index >= 0)
                 {
                     return 60 - index;
@@ -454,6 +600,54 @@ namespace HugulaEditor.Databinding
             }
         }
 
+    }
+
+    // [CustomPropertyDrawer(typeof(BindingPathPartConfig), true)]
+    public class BindingPathPartConfigDrawer : PropertyDrawer
+    {
+        // 定义子属性的高度
+        private const float padding = 2f;
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            // 开始绘制属性
+            EditorGUI.BeginProperty(position, label, property);
+
+            // 计算绘制区域
+            Rect contentRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
+
+            // 不缩进
+            int indent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+
+            // 获取子属性
+            SerializedProperty configNameProp = property.FindPropertyRelative("configName");
+            SerializedProperty configValueProp = property.FindPropertyRelative("configValue");
+
+            // 计算每个字段的高度
+            float singleLineHeight = EditorGUIUtility.singleLineHeight;
+            float totalHeight = singleLineHeight * 2 + padding;
+
+            // 绘制 configName
+            Rect configNameRect = new Rect(contentRect.x, contentRect.y, contentRect.width, singleLineHeight);
+            EditorGUI.PropertyField(configNameRect, configNameProp, new GUIContent("Config Name"));
+
+            // 绘制 configValue
+            Rect configValueRect = new Rect(contentRect.x, contentRect.y + singleLineHeight + padding, contentRect.width, singleLineHeight);
+            EditorGUI.PropertyField(configValueRect, configValueProp, new GUIContent("Config Value"));
+
+            // 恢复缩进
+            EditorGUI.indentLevel = indent;
+
+            // 结束绘制属性
+            EditorGUI.EndProperty();
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            // 每个 BindingPathPartConfig 显示两行属性
+            return EditorGUIUtility.singleLineHeight * 2 + padding;
+        }
     }
 
     [CustomPropertyDrawer(typeof(BindableContainer), true)]

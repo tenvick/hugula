@@ -193,6 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 6524762544867288993}
@@ -339,18 +340,23 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_click_INVALID_PASSWORD
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_click_INVALID_PASSWORD
+      _flags: 0
   - propertyName: activeSelf
     path: on_invalid_enable
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_invalid_enable
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762544867289004}
 --- !u!1 &6524762544917936363
 GameObject:
@@ -463,18 +469,23 @@ MonoBehaviour:
   bindings:
   - propertyName: isOn
     path: Remember_me_is_on
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: Remember_me_is_on
+      _flags: 0
   - propertyName: onValueChangedCommand
     path: on_value_changed_Remember_me
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_value_changed_Remember_me
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762544917936365}
 --- !u!1 &6524762544951766846
 GameObject:
@@ -799,18 +810,23 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: input_txt_Password
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: input_txt_Password
+      _flags: 0
   - propertyName: submitEventCommand
     path: on_submit_Password
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_submit_Password
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762544968998641}
 --- !u!1 &6524762545004418682
 GameObject:
@@ -1065,11 +1081,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_click_Sign_In
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_click_Sign_In
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762545021892623}
 --- !u!1 &6524762545163668312
 GameObject:
@@ -1395,18 +1414,23 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: input_txt_Username
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: input_txt_Username
+      _flags: 0
   - propertyName: submitEventCommand
     path: on_submit_Username
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_submit_Username
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762545259708866}
 --- !u!1 &6524762545315250241
 GameObject:
@@ -2825,11 +2849,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_click_orange_button
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_click_orange_button
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6524762546598049449}
 --- !u!1 &6524762546645488358
 GameObject:
@@ -3213,9 +3240,12 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: version
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: version
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6186783629007030720}

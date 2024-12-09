@@ -151,7 +151,9 @@ namespace XLua.Editor
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindings" },
             new List<string> () { "Hugula.Databinding.BindableObject", "GetBindingByName","System.String" },
             new List<string> () { "Hugula.Databinding.BindableObject", "RemoveBindingAt","System.Int32" },
-             new List<string> () { "Hugula.ResUpdate.FileManifestManager", "AnalyzeAddressDependencies","System.String","System.Type","System.Collections.Generic.List<string>"},
+            new List<string> () { "Hugula.ResUpdate.FileManifestManager", "AnalyzeAddressDependencies","System.String","System.Type","System.Collections.Generic.List<string>"},
+            new List<string> () { "Hugula.Databinding.Binding", "path" },
+            new List<string> () { "Hugula.Databinding.Binding", "ParsePathToConfig","System.String" },
 
 
             new List<string> () { "UnityEngine.AnimatorControllerParameter", "name" },
@@ -369,6 +371,7 @@ namespace XLua.Editor
 
                 customlist.Add(typeof(System.Action<Vector2, Vector2>));
                 customlist.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+                customlist.Add(typeof(System.Action<object, string>)); //事件委托       
 
                 customlist.Add(typeof(List<UnityEngine.Vector3>));
                 customlist.Add(typeof(List<float>));
@@ -486,7 +489,7 @@ namespace XLua.Editor
                 types.Add(typeof(Func<string, string>));
                 types.Add(typeof(System.Collections.IEnumerator));
 
-                types.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+                // types.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
 
                 types.Add(typeof(Action<Vector2>));
                 types.Add(typeof(System.Action<object, object, string, string, string, string>));
@@ -505,6 +508,7 @@ namespace XLua.Editor
 
                 types.Add(typeof(System.Action<Vector2, Vector2>));
                 types.Add(typeof(System.Action<object, string, UnityEngine.Object>)); //poolmanager call back回调
+                types.Add(typeof(System.Action<object, string>)); //事件委托
 
                 types.Add(typeof(List<UnityEngine.Vector3>));
                 types.Add(typeof(List<float>));

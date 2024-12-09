@@ -13,7 +13,7 @@ namespace Hugula.Databinding
     public class PropertyChangedEventHandlerEvent
     {
 #if USE_LIST_HANDLE_EVENT
-        List<PropertyChangedEventHandler> m_Events = new List<PropertyChangedEventHandler>(8);
+        readonly HashSet<Action<object, string>> m_Events = new HashSet<Action<object, string>>();
 #else
         Dictionary<int, PropertyChangedEventHandler> m_Events = new Dictionary<int, PropertyChangedEventHandler>(12);
 
@@ -34,34 +34,28 @@ namespace Hugula.Databinding
         public void Invoke(object sender, string property)
         {
 #if USE_LIST_HANDLE_EVENT
-            PropertyChangedEventHandler hander = null;
+            Action<object, string> hander = null;
             int i = 0;
             int count = m_Events.Count;
-
-            while (i < count)
+            var getEnumerator = m_Events.GetEnumerator();
+            while (getEnumerator.MoveNext())
             {
-                hander = m_Events[i];
-                if (hander.Target is BindingPathPart part)
+                hander = getEnumerator.Current;
+                if (hander.Target is Binding binding)
                 {
-                    if (property != part.path)
+                    if (!binding.CheckInvoke(property)) //如果不能调用则跳过
                     {
-                        i++;
                         continue;
                     }
                 }
-
                 hander(sender, property);
 
                 if (count > m_Events.Count)
                     count = m_Events.Count;
-                else
-                {
-                    i++;
-                }
-            }
+            }           
 #else
 
-            PropertyChangedEventHandler events = null;
+            Action<object,string> hander events = null;
             int id = UnityEngine.Animator.StringToHash(property);
 
             if (m_Events.TryGetValue(id, out events))
@@ -75,7 +69,7 @@ namespace Hugula.Databinding
 #endif
         }
 
-        public void Add(PropertyChangedEventHandler hander, string property = "")
+        public void Add(Action<object, string> hander, string property = "")
         {
             if (hander == null)
                 throw new System.NullReferenceException("Add(hander) argment hander is null)");
@@ -98,7 +92,7 @@ namespace Hugula.Databinding
 
         }
 
-        public void Remove(PropertyChangedEventHandler hander, string property = "")
+        public void Remove(Action<object, string> hander, string property = "")
         {
 #if USE_LIST_HANDLE_EVENT
             m_Events.Remove(hander);
@@ -121,13 +115,13 @@ namespace Hugula.Databinding
         }
 
 
-        public static PropertyChangedEventHandlerEvent operator +(PropertyChangedEventHandlerEvent dele, PropertyChangedEventHandler hander)
+        public static PropertyChangedEventHandlerEvent operator +(PropertyChangedEventHandlerEvent dele, Action<object,string> hander)
         {
             dele.Add(hander);
             return dele;
         }
 
-        public static PropertyChangedEventHandlerEvent operator -(PropertyChangedEventHandlerEvent dele, PropertyChangedEventHandler hander)
+        public static PropertyChangedEventHandlerEvent operator -(PropertyChangedEventHandlerEvent dele, Action<object,string> hander)
         {
             dele.Remove(hander);
             return dele;

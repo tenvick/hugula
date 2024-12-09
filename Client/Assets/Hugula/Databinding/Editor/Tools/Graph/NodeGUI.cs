@@ -91,7 +91,9 @@ namespace HugulaEditor.Databinding
                 {
                     infoTextStyle = new GUIStyle(EditorStyles.label);
                     infoTextStyle.fontSize = 11;
-                    infoTextStyle.alignment = TextAnchor.MiddleCenter;
+                    infoTextStyle.richText = true;
+                    infoTextStyle.wordWrap = true;
+                    infoTextStyle.alignment = TextAnchor.UpperLeft;
 
                     if (EditorGUIUtility.isProSkin)
                     {

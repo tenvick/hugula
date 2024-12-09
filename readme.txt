@@ -1,6 +1,11 @@
 文档 https://github.com/tenvick/hugula/wiki
 更新日志:
 2024.11.29
+1 路径解析配置化，减少实例化gc alloc。
+2 绑定表达式支持：getter path is like '&(VM.bag.on_render)' global  &(.on_render) local context , setter path is like '$(VM.bag.on_render)' global or '$(.on_render)' local context。
+3 绑定表达式示例  bag.prefab。
+
+2024.11.29
 1 BindableContainer 转换SharedContextBinder工具。
 2 BindableObject gc alloc 优化。
 

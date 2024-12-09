@@ -94,6 +94,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 8530556001097711702}
   setNativeSize: 0
 --- !u!1 &1680078198936370951
@@ -304,6 +308,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: tips
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 2373483222312439927}
 --- !u!1 &2853535439374023198
 GameObject:
@@ -464,24 +472,40 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 2373483222312439927}
+    partConfigs:
+    - path: tips
+      _flags: 0
   - propertyName: context
     path: bag_data
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1727899385249286479}
+    partConfigs:
+    - path: bag_data
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 713494614459802253}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: onClickCommand
     path: context.on_bag_click
     converter: 
     mode: 0
     source: {fileID: 3565125497297969462}
     target: {fileID: 713494614459802253}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_bag_click
+      _flags: 0
+  m_ForceBinding: 0
+  m_BindingOnEnable: 1
 --- !u!1 &3130319088134109296
 GameObject:
   m_ObjectHideFlags: 0
@@ -823,6 +847,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: bag_data
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 3859894777896218881}
   m_forceBinding: 1
   templateItem: {fileID: 4970961072807805754}
@@ -967,12 +995,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_bag_click
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 6460061008995539511}
 --- !u!1 &6649987752103049750
 GameObject:
@@ -1134,6 +1171,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   tipsFollow: {fileID: 6689816115212867197}
   vmName: demo_click_tips
 --- !u!114 &4970961072807805754
@@ -1155,21 +1196,35 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 4195955821637476662}
+    partConfigs:
+    - path: icon
+      _flags: 0
   - propertyName: sprite
     path: quality
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
     target: {fileID: 3211832526887675992}
+    partConfigs:
+    - path: quality
+      _flags: 0
   - propertyName: text
     path: count
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 2300393207866069425}
+    partConfigs:
+    - path: count
+      _flags: 0
   - propertyName: arg
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 4274518527045994365}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
+  m_BindingOnEnable: 1

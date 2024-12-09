@@ -37,7 +37,7 @@ namespace Hugula.Databinding.Binder
             set
             {
                 target.text = value;
-                // OnPropertyChanged();
+                OnPropertyChanged();
             }
             get
             {

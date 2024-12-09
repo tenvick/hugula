@@ -20,7 +20,7 @@ local BindingExpression = BindingExpression
 ---text3 绑定 bind_text4(1)
 ---text4 绑定 goods.color[2]
 
-oneway_path_demo.text1 = "path=text1,普通路径  lua hot 08 24 20:29"
+oneway_path_demo.text1 = "path=text1,普通路径 "
 ---数组与多路径支持双向
 local goods = NotifyObject()
 goods.name = "path=goods.name,pen"
@@ -43,6 +43,22 @@ function oneway_path_demo.bind_text4(arg)
         oneway_path_demo._bind_text4 = arg
         -- Logger.Log("_bind_text4 set=", arg)
     end
+end
+
+oneway_path_demo.on_goods_color_2 = function (target,source,property)
+    -- Logger.Log("on_goods_color",target,source,property)
+    target.text = goods.color[2]
+end
+
+
+oneway_path_demo.text1_set = function (target,source,property)
+    -- Logger.Log("on_goods_color",target,source,property)
+    target.text =oneway_path_demo.text1
+end
+
+oneway_path_demo.text1_method = function (arg)
+    
+    return oneway_path_demo.text1
 end
 
 oneway_path_demo.on_input_changed = {
@@ -70,7 +86,7 @@ oneway_path_demo.btn_test_1000 = {
 
         for i = 0, 1000 do
             -- arg.text = goods.color[2]
-            BindingExpression.m_SetTargetPropertyNoConvertInvoke(goods.color, "2", arg, "text", true, false, "", nil)
+            BindingExpression.m_SetTargetPropertyNoConvertInvoke(goods.color, arg,"2",  "text", true, false, "", nil)
         end
         
         if profiler then

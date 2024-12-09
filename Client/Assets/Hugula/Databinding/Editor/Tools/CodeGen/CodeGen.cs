@@ -377,15 +377,15 @@ end ";
 
         public ContextNode FindContext(Binding binding, ContextType cType)
         {
-            binding.ParsePath();
-            var m_Parts = binding.parts;
+            // binding.ParsePath();
+            var m_Parts = binding.GetField("partConfigs") as  BindingPathPartConfig[];
             ContextNode m_Current = this;
             ContextNode m_Last = this;
 
-            BindingPathPart part = null;
-            for (var i = 0; i < m_Parts.Count; i++)
+            // BindingPathPart part = null;
+            for (var i = 0; i < m_Parts.Length; i++)
             {
-                part = m_Parts[i];
+                var part = m_Parts[i];
                 if (!part.isSelf && m_Current != null)
                 {
                     {

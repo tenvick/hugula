@@ -59,7 +59,7 @@ local function create_test_bag_data()
     for i = 0, 199 do
         local cate = i % 5 + 1
 
-        table.insert(datas, create_item(i,equ_type[cate]))
+        table.insert(datas, create_item(i, equ_type[cate]))
     end
     return datas
 end
@@ -110,7 +110,20 @@ bag.sel_idx = 0 --选中的tab页面
 bag.lsv_selected_idx = -1
 ----  bag end  --
 
+bag.events = {} --不可改变的事件监听
+--表达式 获取
+-- 重写TryGetValue
+--获取 &(VM.bag.events.on_select_render) 绝对路径
+--获取 &(.bag.events.on_select_render) 相对当前source                                   //
+--ExpGet Expr
 
+--ExpSet
+--设置
+--重写SetTargetInvoke dont need is Method
+--设置  $(VM.bag.events.on_select_render) 绝对路径  VM.bag.events.on_select_render(source,arg)
+-- 设置 $(.events.on_select_render) 相对source路径  source.events.on_select_render(source,arg)
+
+--bag:add_items() bag.add_items()  bag.(function(self))
 -------------------    模板生成 方法    --------------------
 
 function bag:add_items(data) bag.items:Add(data) end
@@ -148,8 +161,8 @@ bag.btn_go = {
     end,
     Execute = function(self, arg)
         local i = tonumber(arg.text)
-        print("btn_go", arg,arg.text)
-        bag_items:SetProperty("scroll_to_index", i,true)
+        Logger.Log("btn_go", arg, arg.text)
+        bag_items:SetProperty("scroll_to_index", i, true)
         -- bag.property.sel_idx = i --改变选中的tab页面
         DelayFrame(
             function()
@@ -173,8 +186,8 @@ bag.on_use_click = {
         return true
     end,
     Execute = function(self, arg)
-        print("on_use_click", arg.selectedIndex)
-        bag:use_item(arg.selectedIndex,1)
+        Logger.Log("on_use_click", arg.selectedIndex)
+        bag:use_item(arg.selectedIndex, 1)
     end
 }
 bag.on_item_context = function(bc, item)
@@ -187,6 +200,7 @@ bag.on_item_context = function(bc, item)
     _count.text = item.count
     _name.text = item.name
 end
+
 bag.on_item_select = {
     CanExecute = function(self, arg)
         return true
@@ -198,48 +212,63 @@ bag.on_item_select = {
         bag.lsv_selected_idx = index
         -- 显示详细
         local item_data = bag.items:get_Item(index)
-        print("on_item_select", index, item_data and item_data.name)
+        -- Logger.Log("on_item_select", index, item_data and item_data.name)
         --刷新详细数据
         bag.property.selected_item = item_data
         -- DelayFrame(
         --     function()
-        --         print("selected_item", item_data.name)
+        --         Logger.Log("selected_item", item_data.name)
         --     end,
         --     24
         -- )
     end
 }
-bag.on_select_render = function(bc, item)
 
+--$(VM.bag.on_select_render) --表达式
+bag.exp_select_render = function(source, target, path, property)
+    if (source == nil) then return end
+    -- Logger.Log("exp_select_render", source, bag.selected_item == source, target, path, property)
+    bag.on_select_render(target.luaMonos, bag.selected_item)
+end
+--$(VM.bag.on_select_render) --表达式
+bag.exp_item_render = function(source, target, path, property)
+    -- Logger.Log("exp_item_render", source, target, path, property)
+    bag.on_select_render(target.luaMonos, source)
+end
+
+bag.on_select_render = function(bc, item)
     if item == nil then return end
     -- declare
-    local _Icon = bc["Icon"]     --ImageBinder
-    local _Border = bc["Border"] --ImageBinder
-    local _Text = bc["Text"]     --Text
+    local _Icon = bc["Icon"]         --ImageBinder
+    local _Border = bc["Border"]     --ImageBinder
+    local _Text = bc["count"]        --count
     local _nameText = bc["nameText"] --Text
 
     local convert = ValueConverterRegister:Get("StringToSprite")
     -- fill
     _Icon.spriteName = item.icon
+
+    Logger.Log("on_select_render", item.index, item.name, item.quality)
     _Border.sprite = convert:Convert(item.quality)
     _Text.text = item.count
     _nameText.text = item.name
-
-    print("on_select_render", item.index,item.name)
 end
+
+bag.events.on_select_render = bag.on_select_render
+
 bag.on_tab_sel = {
     CanExecute = function(self, arg)
-        print("on_tab_sel.CanExecute", arg.selectedIndex,arg.lastSelectedIndex)
-        if (arg.selectedIndex == 2) then 
-            print("on_tab_sel.你不能选择", arg.selectedIndex,arg.lastSelectedIndex)
-            return false 
+        Logger.Log("on_tab_sel.CanExecute", arg.selectedIndex, arg.lastSelectedIndex)
+        if (arg.selectedIndex == 2) then
+            Logger.Log("on_tab_sel.你不能选择", arg.selectedIndex, arg.lastSelectedIndex)
+            return false
         end
         return true
     end,
     Execute = function(self, arg)
-        print("on_tab_sel.Execute", arg.selectedIndex,arg.lastSelectedIndex)
+        Logger.Log("on_tab_sel.Execute", arg.selectedIndex, arg.lastSelectedIndex)
 
-        bag:sel_tab_item(arg.selectedIndex+1)
+        bag:sel_tab_item(arg.selectedIndex + 1)
     end
 }
 
@@ -265,21 +294,21 @@ function bag:filter_bag_data_by_cate(cate)
 end
 
 function bag:sel_tab_item(idx)
-    bag.property.tab_idx = idx --缓存索引
+    bag.property.tab_idx = idx         --缓存索引
     bag.property.lsv_selected_idx = -1 --清除选中
     bag.property.selected_item = nil
 
     bag:filter_bag_data_by_cate(idx) --过滤数据
 end
 
-function bag:use_item(idx,count)
+function bag:use_item(idx, count)
     if (idx < 0) then return end
     local item = bag.items:get_Item(idx)
     item.count = item.count - count
-    print("use_item",idx,count,item.count)
+    Logger.Log("use_item", idx, count, item.count)
     if item.count <= 0 then
         bag.items:RemoveAt(idx)
-        local idx = table.indexof(bag.test_bag_data,item)
+        local idx = table.indexof(bag.test_bag_data, item)
         if idx ~= nil then
             table.remove(bag.test_bag_data, idx)
         end
@@ -288,16 +317,16 @@ function bag:use_item(idx,count)
         -- bag:SetProperty("lsv_selected_idx",-1,true) --强制刷新
         bag.property.selected_item = nil
     else
-        bag.items:set_Item(idx, item) --更新数据
-        bag:OnPropertyChanged("selected_item")-- --强制刷新
-    end    
+        bag.items:set_Item(idx, item)          --更新数据00
+        bag:OnPropertyChanged("selected_item") -- --强制刷新
+    end
 end
 
 function bag:buy_item(...)
     local size = #bag.items.items + math.random(1, 5)
-    local item = create_item(size,equ_type[ bag.tab_idx])
-    table.insert(bag.test_bag_data,item )
-     bag.items:Add(item)
+    local item = create_item(size, equ_type[bag.tab_idx])
+    table.insert(bag.test_bag_data, item)
+    bag.items:Add(item)
 end
 
 --------------------    生命周期    --------------------
@@ -321,7 +350,7 @@ end
 
 -- --在销毁的时候调用此函数
 -- function bag:on_destroy()
---     print("bag:on_deactive")
+--     Logger.Log("bag:on_deactive")
 -- end
 
 --初始化方法只调用一次

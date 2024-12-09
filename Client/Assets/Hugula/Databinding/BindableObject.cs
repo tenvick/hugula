@@ -61,7 +61,7 @@ namespace Hugula.Databinding
             {
                 if (!Object.Equals(m_Context, value) || forceContextChanged)
                 {
-                    forceContextChanged = false;
+                    // forceContextChanged = false;
                     m_InheritedContext = null;
                     if (!m_InitBindings) InitBindings(this);
                     OnBindingContextChanging();
@@ -77,7 +77,7 @@ namespace Hugula.Databinding
         [HideInInspector]
         [SerializeField]
         // [BindingsAttribute]
-        protected List<Binding> bindings ;//= new List<Binding>(); //gc alloc 40B
+        protected List<Binding> bindings;//= new List<Binding>(); //gc alloc 40B
         /// <summary>
         /// 缓存的上下文绑定
         /// </summary>
@@ -89,10 +89,17 @@ namespace Hugula.Databinding
 
         protected bool m_InitBindings = false;
 
+        [Tooltip("force bind all bindings when context set ")]
+        [SerializeField]
+        protected bool m_ForceBinding = false;
+
+        /// <summary>
+        /// Trigger forced binding when context set
+        /// </summary>
         internal virtual bool forceContextChanged
         {
-            get;
-            set;
+            get => m_ForceBinding;
+            set => m_ForceBinding = value;
         }
 
         public bool activeSelf
@@ -118,8 +125,8 @@ namespace Hugula.Databinding
 
             m_InitBindings = true;
             m_ContextBinding = null;
-            
-            if(bindings == null) return;
+
+            if (bindings == null) return;
             bool needDic = bindings.Count >= BindingsDicCapacity;
 
             if (m_BindingsDic == null && needDic)
@@ -163,7 +170,7 @@ namespace Hugula.Databinding
                     }
 
                 }
-            }       
+            }
 
         }
 
@@ -265,7 +272,7 @@ namespace Hugula.Databinding
         internal virtual void SetInheritedContext(object value)
         {
             var contextBinding = GetContextBinding();  //;
-            if (contextBinding != null && contextBinding.path != Binding.SelfPath)
+            if (contextBinding != null && !contextBinding.isSelf)
             {
                 m_InheritedContext = value;
                 contextBinding.target = this;
@@ -288,7 +295,7 @@ namespace Hugula.Databinding
             for (int i = 0; i < bindings.Count; i++)
             {
                 var binding = bindings[i];
-                if (binding != m_ContextBinding ) // !ContextProperty.Equals(binding.propertyName)
+                if (binding != m_ContextBinding) // !ContextProperty.Equals(binding.propertyName)
                 {
                     //已经绑定过context不需要再次绑定
                     binding.Apply(bindingContext);
@@ -350,7 +357,7 @@ namespace Hugula.Databinding
         [XLua.DoNotGen]
         public void AddBinding(Binding expression)
         {
-            if(bindings == null) bindings = new List<Binding>();
+            if (bindings == null) bindings = new List<Binding>();
             bindings.Add(expression);
         }
 

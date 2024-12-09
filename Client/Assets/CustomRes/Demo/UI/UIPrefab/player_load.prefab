@@ -135,16 +135,23 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_show_hero
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: on_show_hero
+      _flags: 0
   - propertyName: commandParameter
     path: text
-    format: 
     converter: 
     mode: 0
     source: {fileID: 76361433}
+    target: {fileID: 0}
+    partConfigs:
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 644456338}
 --- !u!1 &2019850489
 GameObject:
@@ -457,6 +464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_Target: {fileID: 6068926180154320378}
 --- !u!1 &6068926180244714881
 GameObject:
@@ -671,16 +679,23 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_load_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: on_load_click
+      _flags: 0
   - propertyName: commandParameter
     path: text
-    format: 
     converter: 
     mode: 0
     source: {fileID: 76361433}
+    target: {fileID: 0}
+    partConfigs:
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6068926180544160118}
 --- !u!1 &6068926180681743449
 GameObject:
@@ -875,8 +890,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 868264533}
   - {fileID: 76361433}
   - {fileID: 644456341}
+  names: []
+  monos: []

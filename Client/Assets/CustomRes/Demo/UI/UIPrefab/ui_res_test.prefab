@@ -358,11 +358,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: log_tips
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: log_tips
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 2860993250160855421}
 --- !u!1 &1908432842091792727
 GameObject:
@@ -1877,11 +1880,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_close_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_close_click
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7473261213480251854}
 --- !u!1 &7473261213559173087
 GameObject:
@@ -2547,18 +2553,25 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_click_down
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_click_down
+      _flags: 0
   - propertyName: commandParameter
     path: context.text
-    format: 
     converter: 
     mode: 0
     source: {fileID: 6365566364228800609}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7473261214854908008}
 --- !u!1 &7473261214989523360
 GameObject:
@@ -2810,6 +2823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 6365566364228800609}
@@ -3009,11 +3023,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: load_res
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: load_res
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7473261215342069076}
 --- !u!1 &7560717919798877612
 GameObject:
@@ -3356,18 +3373,25 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_click_down1
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_click_down1
+      _flags: 0
   - propertyName: commandParameter
     path: context.text
-    format: 
     converter: 
     mode: 0
     source: {fileID: 6365566364228800609}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 5202738124853323144}
 --- !u!1 &8593619844002579374
 GameObject:
@@ -3610,9 +3634,12 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: out_put
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: out_put
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 5133710375572675492}

@@ -195,18 +195,29 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 533762059533793524}
+    partConfigs:
+    - path: chat_content
+      _flags: 0
   - propertyName: text
     path: chat_time
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 533762058206258366}
+    partConfigs:
+    - path: chat_time
+      _flags: 0
   - propertyName: context
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 5286162730051625982}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
+  m_BindingOnEnable: 1
 --- !u!1 &533762058874986964
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,12 +705,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_system_click
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 4705185658762130704}
 --- !u!114 &431241931341146504
 MonoBehaviour:

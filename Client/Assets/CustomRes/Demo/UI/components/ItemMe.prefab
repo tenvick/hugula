@@ -363,18 +363,28 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1388891438878471883}
+    partConfigs:
+    - path: user_name
+      _flags: 0
   - propertyName: text
     path: chat_content
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1388891439391393651}
+    partConfigs:
+    - path: chat_content
+      _flags: 0
   - propertyName: text
     path: chat_time
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1388891438633679536}
+    partConfigs:
+    - path: chat_time
+      _flags: 0
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
 --- !u!1 &1388891438631409295
 GameObject:

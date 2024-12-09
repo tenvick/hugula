@@ -190,7 +190,7 @@ chat_demo.on_goto_click =
         return true
     end,
     Execute = function(self, arg)
-        print("跳转",arg)
+        Logger.Log("跳转",arg)
         chat_data.property.goto_index = tonumber(arg)
     end
 }
@@ -201,7 +201,7 @@ chat_demo.on_btn_channel=
         return true
     end,
     Execute = function(self, arg)
-        print("切换频道",arg)
+        Logger.Log("切换频道",arg)
         -- chat_demo.property.channel = "切换频道"
         chat_data:Clear()
         add_chat_data(50, 200,0)
@@ -212,6 +212,8 @@ chat_demo.on_btn_channel=
 ---发送按钮
 chat_demo.chat_btn_send = {
     CanExecute = function(self, arg)
+        Logger.Log("chat_btn_send CanExecute  ",arg)
+
         if arg == "" then
             add_chat_tips("聊天内容不能为空！")
             return false
@@ -222,7 +224,7 @@ chat_demo.chat_btn_send = {
     Execute = function(self, arg)
         add_my_chat(arg) --显示自定义发送数据
         chat_demo:OnPropertyChanged(property_chat_input_txt) ---清空聊天内容
-        print("hot update test 111")
+        Logger.Log("hot update test 111")
 
     end
 }

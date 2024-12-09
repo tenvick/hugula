@@ -213,11 +213,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_close_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_close_click
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4182510756999282599}
 --- !u!1 &7890835967004915464
 GameObject:
@@ -309,11 +312,14 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: sprite
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: sprite
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7890835967004915470}
   setNativeSize: 0
 --- !u!1 &7890835968071518051
@@ -409,11 +415,14 @@ MonoBehaviour:
   bindings:
   - propertyName: followTrans
     path: pos
-    format: 
     converter: ClickTipsConvert
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: pos
+      _flags: 0
+  m_ForceBinding: 0
   m_FollowTrans: {fileID: 0}
   m_Convert: 
   once: 0
@@ -515,11 +524,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: tips
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: tips
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7890835968166302927}
 --- !u!1 &7890835968284041453
 GameObject:
@@ -634,6 +646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 7890835968166302925}

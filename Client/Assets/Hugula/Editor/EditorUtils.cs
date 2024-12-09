@@ -84,6 +84,17 @@ namespace HugulaEditor
             Debug.Log("write to path=" + outPath);
         }
 
+         public static void WriteToTmpFile(string fileName, string[] context)
+        {
+            string tmpPath = GetAssetTmpPath();
+            EditorUtils.CheckDirectory(tmpPath);
+            string outPath = Path.Combine(tmpPath, fileName);
+             if (File.Exists(fileName))
+                File.Delete(fileName);
+            File.WriteAllLines(fileName, context);
+            Debug.Log("write to path=" + outPath);
+        }
+
         public static string GetAssetPath(string filePath)
         {
             string path = filePath.Replace(Application.dataPath + "/", "");
@@ -275,6 +286,15 @@ namespace HugulaEditor
             var staticMethod = type.GetMethod(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Static);
             return staticMethod.Invoke(null,args);
         }
+
+        public static object InvokeMethod(object target ,string name,params object[] args)
+        {
+            var type = target.GetType();
+            var method = type.GetMethod(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Instance);
+            return method.Invoke(target,args);
+        }
+
+
 
         [MenuItem("Assets/Hugula/打开开始场景  %g")]
         static public void OpenBeginSence()

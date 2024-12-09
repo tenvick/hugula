@@ -81,6 +81,7 @@ namespace Hugula.Databinding
 
         public void AddChild(BindableObject child)
         {
+            if (children == null) children = new List<BindableObject>();
             children.Add(child);
         }
 
@@ -104,8 +105,9 @@ namespace Hugula.Databinding
 
         internal override bool forceContextChanged
         {
-            get {
-                if(m_OnContextChanged!=null)
+            get
+            {
+                if (m_OnContextChanged != null)
                     return true;
                 return base.forceContextChanged;
             }

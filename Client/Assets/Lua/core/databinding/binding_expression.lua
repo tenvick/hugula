@@ -25,7 +25,7 @@ binding_expression.m_GetSourceMethodInvoke = function(source, path, is_indexer)
     return val
 end
 
-binding_expression.m_SetSourcePropertyInvoke = function(source, path, target, property, is_indexer, converter)
+binding_expression.m_SetSourcePropertyInvoke = function(source, target, path, property, is_indexer, converter)
     if is_indexer == true then
         path = tonumber(path)
     end
@@ -39,7 +39,7 @@ binding_expression.m_SetSourcePropertyInvoke = function(source, path, target, pr
     source[path] = val
 end
 
-binding_expression.m_SetSourceMethodInvoke = function(source, path, target, property, is_indexer, converter)
+binding_expression.m_SetSourceMethodInvoke = function(source, target, path, property, is_indexer, converter)
     if is_indexer == true then
         path = tonumber(path)
     end
@@ -53,7 +53,7 @@ binding_expression.m_SetSourceMethodInvoke = function(source, path, target, prop
     source[path](val)
 end
 
-binding_expression.m_SetTargetPropertyInvoke = function(source, path, target, property, is_indexer, is_self,
+binding_expression.m_SetTargetPropertyInvoke = function(source, target, path, property, is_indexer, is_self,
                                                         converter)
     if is_indexer then
         path = tonumber(path)
@@ -73,7 +73,7 @@ binding_expression.m_SetTargetPropertyInvoke = function(source, path, target, pr
 end
 
 
-binding_expression.m_SetTargetPropertyNoConvertInvoke = function(source, path, target, property, is_indexer, is_self,
+binding_expression.m_SetTargetPropertyNoConvertInvoke = function(source, target, path, property, is_indexer, is_self,
                                                                  converter)
     if is_indexer then
         path = tonumber(path)
@@ -90,7 +90,7 @@ binding_expression.m_SetTargetPropertyNoConvertInvoke = function(source, path, t
 end
 
 
-binding_expression.m_SetTargetMethodInvoke = function(source, path, target, property, is_indexer, is_self,
+binding_expression.m_SetTargetMethodInvoke = function(source, target, path, property, is_indexer, is_self,
                                                       converter)
     if is_indexer then
         path = tonumber(path)
@@ -109,11 +109,6 @@ binding_expression.m_SetTargetMethodInvoke = function(source, path, target, prop
     target[property] = val
 end
 
-binding_expression.m_PartSubscribe = function(m_Current, part)
-    if m_Current and m_Current.PropertyChanged then
-        part:Subscribe(m_Current)
-    end
-end
 
 -- binding_expression
 ---绑定信息
@@ -130,6 +125,5 @@ CS.Hugula.Databinding.ExpressionUtility.instance:NewInitialize(
     binding_expression.m_SetSourceMethodInvoke,
     binding_expression.m_SetTargetPropertyInvoke,
     binding_expression.m_SetTargetPropertyNoConvertInvoke,
-    binding_expression.m_SetTargetMethodInvoke,
-    binding_expression.m_PartSubscribe
+    binding_expression.m_SetTargetMethodInvoke
 )

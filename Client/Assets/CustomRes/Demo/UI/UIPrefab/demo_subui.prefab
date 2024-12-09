@@ -260,24 +260,39 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: mail_list
+      _flags: 0
   - propertyName: itemCommand
     path: context.on_item_select
     converter: 
     mode: 0
     source: {fileID: 801883227849021229}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_item_select
+      _flags: 0
   - propertyName: itemParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 4716440738141556521}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: onGetItemTemplateType
     path: on_get_template
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_get_template
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4716440738141556521}
   m_forceBinding: 1
 --- !u!1 &801883227784651437
@@ -381,6 +396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 3038223047448666745}
@@ -541,6 +557,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 801883227951252312}
   setNativeSize: 0
 --- !u!1 &801883228203388072
@@ -641,6 +661,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: date
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 801883228203388086}
 --- !u!1 &801883228251974790
 GameObject:
@@ -916,6 +940,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: title
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 801883228473787153}
 --- !u!1 &801883228876914999
 GameObject:
@@ -968,6 +996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 801883229493953090}
@@ -1138,12 +1167,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 801883227849021229}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_item_choose
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 801883229493953095}
 --- !u!1 &2735502271716300216
 GameObject:
@@ -1438,12 +1476,19 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: btn_sct_del
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 4716440738141556521}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 1044442590728533050}
 --- !u!1 &6654655012431255196
 GameObject:
@@ -1540,6 +1585,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: title
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4677971488558068437}
 --- !u!1 &8473793772944288958
 GameObject:

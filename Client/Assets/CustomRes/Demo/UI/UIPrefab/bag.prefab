@@ -188,25 +188,36 @@ MonoBehaviour:
   bindings:
   - propertyName: selectedIndex
     path: context.sel_idx
-    format: 
     converter: 
     mode: 1
     source: {fileID: 8546090328614921685}
     target: {fileID: 8043727514733340239}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: sel_idx
+      _flags: 0
   - propertyName: context
     path: tab_left
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 8043727514733340239}
+    partConfigs:
+    - path: tab_left
+      _flags: 0
   - propertyName: itemCommand
     path: context.on_tab_sel
-    format: 
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
     target: {fileID: 8043727514733340239}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_tab_sel
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 3061713256876353407}
   m_forceBinding: 1
 --- !u!1 &1999197224859069654
@@ -499,6 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_Target: {fileID: 322365065221753839}
 --- !u!1 &3413681113619160757
 GameObject:
@@ -827,18 +839,23 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_use_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_use_click
+      _flags: 0
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 7076665907005035501}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 2161483585192739941}
 --- !u!1 &3753627479381083338
 GameObject:
@@ -891,6 +908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 4534844940943979886}
@@ -1146,6 +1164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_Target: {fileID: 4635185146063994915}
 --- !u!1 &5850513375655514237
 GameObject:
@@ -1282,11 +1301,14 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_add_click
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_add_click
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6477775281714381216}
 --- !u!1 &6190437223930959755
 GameObject:
@@ -1724,6 +1746,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665906891902607}
   setNativeSize: 0
 --- !u!1 &7076665906960771337
@@ -1816,11 +1839,14 @@ MonoBehaviour:
   bindings:
   - propertyName: sprite
     path: quality
-    format: 
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: quality
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665906960771335}
   setNativeSize: 0
 --- !u!1 &7076665907005035503
@@ -1926,39 +1952,54 @@ MonoBehaviour:
   bindings:
   - propertyName: context
     path: items
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 8665898392276877597}
+    partConfigs:
+    - path: items
+      _flags: 0
   - propertyName: itemCommand
     path: context.on_item_select
-    format: 
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
     target: {fileID: 8665898392276877597}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_item_select
+      _flags: 0
   - propertyName: itemParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 7076665907005035501}
     target: {fileID: 8665898392276877597}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: setScrollIndex
     path: scroll_to_index
-    format: 
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: scroll_to_index
+      _flags: 0
   - propertyName: selectedIndex
     path: context.lsv_selected_idx
-    format: 
     converter: 
     mode: 1
     source: {fileID: 8546090328614921685}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: lsv_selected_idx
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665907005035501}
   m_forceBinding: 1
 --- !u!1 &7076665907116739544
@@ -2085,18 +2126,23 @@ MonoBehaviour:
   bindings:
   - propertyName: BoolValue
     path: selected_trigger
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: selected_trigger
+      _flags: 0
   - propertyName: activeSelf
     path: selected_item
-    format: 
     converter: ObjToBool
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: selected_item
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6035727573954531156}
   parameterName: fadeIn
 --- !u!1 &7076665907693501848
@@ -2189,11 +2235,14 @@ MonoBehaviour:
   bindings:
   - propertyName: sprite
     path: quality
-    format: 
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: quality
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665907693501847}
   setNativeSize: 0
 --- !u!1 &7076665907710162257
@@ -2299,7 +2348,7 @@ GameObject:
   - component: {fileID: 7076665907762591869}
   - component: {fileID: 7076665907762591868}
   m_Layer: 5
-  m_Name: ItemSource
+  m_Name: ItemSelSource
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2346,24 +2395,29 @@ MonoBehaviour:
   bindings:
   - propertyName: context
     path: selected_item
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 7076665907762591867}
+    partConfigs:
+    - path: selected_item
+      _flags: 0
   - propertyName: onContextChanged
-    path: context.on_select_render
-    format: 
+    path: $(VM.bag.exp_select_render)
     converter: 
-    mode: 0
-    source: {fileID: 8546090328614921685}
+    mode: 3
+    source: {fileID: 0}
     target: {fileID: 7076665907762591867}
+    partConfigs:
+    - path: VM.bag.exp_select_render
+      _flags: 40
+  m_ForceBinding: 1
   m_BindingOnEnable: 1
   children: []
   names:
   - Icon
   - Border
-  - Text
+  - count
   - nameText
   monos:
   - {fileID: 7076665907938245314}
@@ -2540,11 +2594,14 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: icon
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665907938245315}
   setNativeSize: 0
 --- !u!1 &7076665908081613837
@@ -2668,6 +2725,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 8043727514733340239}
@@ -2770,11 +2828,14 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: icon
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 7076665908172257986}
   setNativeSize: 0
 --- !u!1 &7076665908441038185
@@ -2909,30 +2970,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings:
-  - propertyName: onContextChanged
-    path: context.on_item_context
-    format: 
-    converter: 
-    mode: 0
-    source: {fileID: 8546090328614921685}
-    target: {fileID: 7076665908509375229}
-  - propertyName: name
-    path: name
-    format: 
+  - propertyName: context
+    path: $(VM.bag.exp_item_render)
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 7076665908509375229}
+    partConfigs:
+    - path: VM.bag.exp_item_render
+      _flags: 40
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
-  children:
-  - {fileID: 7076665908172257984}
-  - {fileID: 7076665906960771333}
+  children: []
   names:
   - count
-  - name
+  - nameText
+  - Icon
+  - Border
   monos:
   - {fileID: 7076665908813975174}
   - {fileID: 1877715810068259897}
+  - {fileID: 7076665908172257984}
+  - {fileID: 7076665906960771333}
 --- !u!222 &7076665908509375227
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3352,18 +3411,25 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: context.btn_go
-    format: 
     converter: 
     mode: 0
     source: {fileID: 8546090328614921685}
     target: {fileID: 2443549334193504732}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: btn_go
+      _flags: 0
   - propertyName: commandParameter
     path: .
-    format: 
     converter: 
     mode: 0
     source: {fileID: 4635185146063994915}
     target: {fileID: 2443549334193504732}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 3630046673390856058}
 --- !u!1 &8084069600449149972
 GameObject:
@@ -3459,11 +3525,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: tab_txt
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: tab_txt
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1953134078162469658}
 --- !u!1 &8104173969120042540
 GameObject:

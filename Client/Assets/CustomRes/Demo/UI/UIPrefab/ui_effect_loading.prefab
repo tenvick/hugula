@@ -194,9 +194,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 6708153375522810980}
+  names: []
+  monos: []
 --- !u!225 &6708153375522810983
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -224,10 +227,14 @@ MonoBehaviour:
   bindings:
   - propertyName: alpha
     path: alpha
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: alpha
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6708153375522810983}
 --- !u!1 &6708153376719283834
 GameObject:

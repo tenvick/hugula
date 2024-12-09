@@ -411,9 +411,9 @@ namespace XLua
 			FieldInfo[] fields = type.GetFields(flag);
 			EventInfo[] all_events = type.GetEvents(flag | BindingFlags.Public | BindingFlags.NonPublic);
 
-            LuaAPI.lua_checkstack(L, 2);
+			LuaAPI.lua_checkstack(L, 2);
 
-            for (int i = 0; i < fields.Length; ++i)
+			for (int i = 0; i < fields.Length; ++i)
 			{
 				FieldInfo field = fields[i];
 				string fieldName = field.Name;
@@ -609,21 +609,21 @@ namespace XLua
 			}
 		}
 
-        public static void RegisterEnumType(RealStatePtr L, Type type)
-        {
-            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            foreach (var name in Enum.GetNames(type))
-            {
-                RegisterObject(L, translator, Utils.CLS_IDX, name, Enum.Parse(type, name));
-            }
-        }
-
-
-        public static void MakePrivateAccessible(RealStatePtr L, Type type)
+		public static void RegisterEnumType(RealStatePtr L, Type type)
 		{
-            LuaAPI.lua_checkstack(L, 20);
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			foreach (var name in Enum.GetNames(type))
+			{
+				RegisterObject(L, translator, Utils.CLS_IDX, name, Enum.Parse(type, name));
+			}
+		}
 
-            int oldTop = LuaAPI.lua_gettop(L);
+
+		public static void MakePrivateAccessible(RealStatePtr L, Type type)
+		{
+			LuaAPI.lua_checkstack(L, 20);
+
+			int oldTop = LuaAPI.lua_gettop(L);
 
 			LuaAPI.luaL_getmetatable(L, type.FullName);
 			if (LuaAPI.lua_isnil(L, -1))
@@ -826,9 +826,9 @@ namespace XLua
 
 		public static void ReflectionWrap(RealStatePtr L, Type type, bool privateAccessible)
 		{
-            LuaAPI.lua_checkstack(L, 20);
+			LuaAPI.lua_checkstack(L, 20);
 
-            int top_enter = LuaAPI.lua_gettop(L);
+			int top_enter = LuaAPI.lua_gettop(L);
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			//create obj meta table
 			LuaAPI.luaL_getmetatable(L, type.FullName);
@@ -853,15 +853,15 @@ namespace XLua
 			int obj_setter = LuaAPI.lua_gettop(L);
 			LuaAPI.lua_newtable(L);
 			int cls_field = LuaAPI.lua_gettop(L);
-            //set cls_field to namespace
-            SetCSTable(L, type, cls_field);
-            //finish set cls_field to namespace
-            LuaAPI.lua_newtable(L);
+			//set cls_field to namespace
+			SetCSTable(L, type, cls_field);
+			//finish set cls_field to namespace
+			LuaAPI.lua_newtable(L);
 			int cls_getter = LuaAPI.lua_gettop(L);
 			LuaAPI.lua_newtable(L);
 			int cls_setter = LuaAPI.lua_gettop(L);
 
-            LuaCSFunction item_getter;
+			LuaCSFunction item_getter;
 			LuaCSFunction item_setter;
 			makeReflectionWrap(L, type, cls_field, cls_getter, cls_setter, obj_field, obj_getter, obj_setter, obj_meta,
 				out item_getter, out item_setter, privateAccessible ? (BindingFlags.Public | BindingFlags.NonPublic) : BindingFlags.Public);
@@ -1047,8 +1047,8 @@ namespace XLua
 		public const int SETTER_IDX = -1;
 
 #if GEN_CODE_MINIMIZE
-        public static void EndObjectRegister(Type type, RealStatePtr L, ObjectTranslator translator, CSharpWrapper csIndexer,
-            CSharpWrapper csNewIndexer, Type base_type, CSharpWrapper arrayIndexer, CSharpWrapper arrayNewIndexer)
+		public static void EndObjectRegister(Type type, RealStatePtr L, ObjectTranslator translator, CSharpWrapper csIndexer,
+			CSharpWrapper csNewIndexer, Type base_type, CSharpWrapper arrayIndexer, CSharpWrapper arrayNewIndexer)
 #else
 		public static void EndObjectRegister(Type type, RealStatePtr L, ObjectTranslator translator, LuaCSFunction csIndexer,
 			LuaCSFunction csNewIndexer, Type base_type, LuaCSFunction arrayIndexer, LuaCSFunction arrayNewIndexer)
@@ -1072,7 +1072,7 @@ namespace XLua
 			else
 			{
 #if GEN_CODE_MINIMIZE
-                translator.PushCSharpWrapper(L, csIndexer);
+				translator.PushCSharpWrapper(L, csIndexer);
 #else
 				LuaAPI.lua_pushstdcallcfunction(L, csIndexer);
 #endif
@@ -1089,7 +1089,7 @@ namespace XLua
 			else
 			{
 #if GEN_CODE_MINIMIZE
-                translator.PushCSharpWrapper(L, arrayIndexer);
+				translator.PushCSharpWrapper(L, arrayIndexer);
 #else
 				LuaAPI.lua_pushstdcallcfunction(L, arrayIndexer);
 #endif
@@ -1121,7 +1121,7 @@ namespace XLua
 			else
 			{
 #if GEN_CODE_MINIMIZE
-                translator.PushCSharpWrapper(L, csNewIndexer);
+				translator.PushCSharpWrapper(L, csNewIndexer);
 #else
 				LuaAPI.lua_pushstdcallcfunction(L, csNewIndexer);
 #endif
@@ -1139,7 +1139,7 @@ namespace XLua
 			else
 			{
 #if GEN_CODE_MINIMIZE
-                translator.PushCSharpWrapper(L, arrayNewIndexer);
+				translator.PushCSharpWrapper(L, arrayNewIndexer);
 #else
 				LuaAPI.lua_pushstdcallcfunction(L, arrayNewIndexer);
 #endif
@@ -1163,14 +1163,14 @@ namespace XLua
 		}
 
 #if GEN_CODE_MINIMIZE
-        public static void RegisterFunc(RealStatePtr L, int idx, string name, CSharpWrapper func)
-        {
-            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            idx = abs_idx(LuaAPI.lua_gettop(L), idx);
-            LuaAPI.xlua_pushasciistring(L, name);
-            translator.PushCSharpWrapper(L, func);
-            LuaAPI.lua_rawset(L, idx);
-        }
+		public static void RegisterFunc(RealStatePtr L, int idx, string name, CSharpWrapper func)
+		{
+			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+			idx = abs_idx(LuaAPI.lua_gettop(L), idx);
+			LuaAPI.xlua_pushasciistring(L, name);
+			translator.PushCSharpWrapper(L, func);
+			LuaAPI.lua_rawset(L, idx);
+		}
 #else
 		public static void RegisterFunc(RealStatePtr L, int idx, string name, LuaCSFunction func)
 		{
@@ -1204,8 +1204,8 @@ namespace XLua
 		}
 
 #if GEN_CODE_MINIMIZE
-        public static void BeginClassRegister(Type type, RealStatePtr L, CSharpWrapper creator, int class_field_count,
-            int static_getter_count, int static_setter_count)
+		public static void BeginClassRegister(Type type, RealStatePtr L, CSharpWrapper creator, int class_field_count,
+			int static_getter_count, int static_setter_count)
 #else
 		public static void BeginClassRegister(Type type, RealStatePtr L, LuaCSFunction creator, int class_field_count,
 			int static_getter_count, int static_setter_count)
@@ -1228,7 +1228,7 @@ namespace XLua
 			{
 				LuaAPI.xlua_pushasciistring(L, "__call");
 #if GEN_CODE_MINIMIZE
-                translator.PushCSharpWrapper(L, creator);
+				translator.PushCSharpWrapper(L, creator);
 #else
 				LuaAPI.lua_pushstdcallcfunction(L, creator);
 #endif
@@ -1310,68 +1310,68 @@ namespace XLua
 		}
 
 #if XLUA_USE_SPAN
-	static List<string> pathCache = new List<string>();
-	public static List<string> getPathOfType(Type type)
-	{
-		pathCache.Clear();
-		var Namespace = type.Namespace;
-		var typeName = type.ToString();
-
-		int pos = -1;
-		int nsLen = 0;
-		bool needNext = true;
-		ReadOnlySpan<char> curSplit;
-
-		if (Namespace != null)
+		static List<string> pathCache = new List<string>();
+		public static List<string> getPathOfType(Type type)
 		{
-			nsLen = Namespace.Length + 1;
-			var path = Namespace.AsSpan();
-			pos = path.IndexOf('.');
-			while (needNext)
+			pathCache.Clear();
+			var Namespace = type.Namespace;
+			var typeName = type.ToString();
+
+			int pos = -1;
+			int nsLen = 0;
+			bool needNext = true;
+			ReadOnlySpan<char> curSplit;
+
+			if (Namespace != null)
 			{
-				if (pos >= 0)
-				{
-					curSplit = path.Slice(0, pos);//
-					path = path.Slice(pos + 1, path.Length - (pos + 1));
-				}
-				else
-				{
-					curSplit = path;
-					needNext = false;
-				}
+				nsLen = Namespace.Length + 1;
+				var path = Namespace.AsSpan();
 				pos = path.IndexOf('.');
-				pathCache.Add(curSplit.ToString());
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = path.Slice(0, pos);//
+						path = path.Slice(pos + 1, path.Length - (pos + 1));
+					}
+					else
+					{
+						curSplit = path;
+						needNext = false;
+					}
+					pos = path.IndexOf('.');
+					pathCache.Add(curSplit.ToString());
+				}
 			}
-		}
 
-		ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
+			ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
 
-		if (type.IsNested)
-		{
-			needNext = true;
-			pos = class_name.IndexOf('+');
-			while (needNext)
+			if (type.IsNested)
 			{
-				if (pos >= 0)
-				{
-					curSplit = class_name.Slice(0, pos);//
-					class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
-				}
-				else
-				{
-					curSplit = class_name;
-					needNext = false;
-				}
+				needNext = true;
 				pos = class_name.IndexOf('+');
+				while (needNext)
+				{
+					if (pos >= 0)
+					{
+						curSplit = class_name.Slice(0, pos);//
+						class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
+					}
+					else
+					{
+						curSplit = class_name;
+						needNext = false;
+					}
+					pos = class_name.IndexOf('+');
+					pathCache.Add(class_name.ToString());
+				}
+			}
+			else
+			{
 				pathCache.Add(class_name.ToString());
 			}
+			return pathCache;
 		}
-		else
-		{
-			pathCache.Add(class_name.ToString());
-		}
-		return pathCache;
-	}
 
 #else
 
@@ -1452,7 +1452,7 @@ namespace XLua
 						needNext = false;
 					}
 					pos = path.IndexOf('.');
-					if(!CheckCSTable(L, curSplit, oldTop, true)) return;
+					if (!CheckCSTable(L, curSplit, oldTop, true)) return;
 				}
 			}
 
@@ -1468,47 +1468,47 @@ namespace XLua
 					{
 						curSplit = class_name.Slice(0, pos);//
 						class_name = class_name.Slice(pos + 1, class_name.Length - (pos + 1));
-						if(!CheckCSTable(L, curSplit, oldTop, true)) return;
+						if (!CheckCSTable(L, curSplit, oldTop, true)) return;
 					}
 					else
 					{
 						curSplit = class_name;
 						needNext = false;
-						if(!CheckCSTable(L, curSplit, oldTop, false)) return;
+						if (!CheckCSTable(L, curSplit, oldTop, false)) return;
 					}
 					pos = class_name.IndexOf('+');
 				}
 			}
 			else
 			{
-				if(!CheckCSTable(L, class_name, oldTop, false)) return;
+				if (!CheckCSTable(L, class_name, oldTop, false)) return;
 			}
 		}
 
-		static void ReginsterCSTable(RealStatePtr L,ReadOnlySpan<char> path, int oldTop,Type type)
-        {
-            LuaAPI.xlua_pushasciistring(L, path);
-            if (0 != LuaAPI.xlua_pgettable(L, -2))
-            {
-                var err = LuaAPI.lua_tostring(L, -1);
-                LuaAPI.lua_settop(L, oldTop);
-                throw new Exception("SetCSTable for [" + type + "] error: " + err);
-            }
-            if (LuaAPI.lua_isnil(L, -1))
-            {
-                LuaAPI.lua_pop(L, 1);
-                LuaAPI.lua_createtable(L, 0, 0);
-                LuaAPI.xlua_pushasciistring(L, path);
-                LuaAPI.lua_pushvalue(L, -2);
-                LuaAPI.lua_rawset(L, -4);
-            }
-            else if (!LuaAPI.lua_istable(L, -1))
-            {
-                LuaAPI.lua_settop(L, oldTop);
-                throw new Exception("SetCSTable for [" + type + "] error: ancestors is not a table!");
-            }
-            LuaAPI.lua_remove(L, -2);
-        }
+		static void ReginsterCSTable(RealStatePtr L, ReadOnlySpan<char> path, int oldTop, Type type)
+		{
+			LuaAPI.xlua_pushasciistring(L, path);
+			if (0 != LuaAPI.xlua_pgettable(L, -2))
+			{
+				var err = LuaAPI.lua_tostring(L, -1);
+				LuaAPI.lua_settop(L, oldTop);
+				throw new Exception("SetCSTable for [" + type + "] error: " + err);
+			}
+			if (LuaAPI.lua_isnil(L, -1))
+			{
+				LuaAPI.lua_pop(L, 1);
+				LuaAPI.lua_createtable(L, 0, 0);
+				LuaAPI.xlua_pushasciistring(L, path);
+				LuaAPI.lua_pushvalue(L, -2);
+				LuaAPI.lua_rawset(L, -4);
+			}
+			else if (!LuaAPI.lua_istable(L, -1))
+			{
+				LuaAPI.lua_settop(L, oldTop);
+				throw new Exception("SetCSTable for [" + type + "] error: ancestors is not a table!");
+			}
+			LuaAPI.lua_remove(L, -2);
+		}
 		public static void SetCSTable(RealStatePtr L, Type type, int cls_table)
 		{
 			int oldTop = LuaAPI.lua_gettop(L);
@@ -1516,37 +1516,43 @@ namespace XLua
 			LuaAPI.xlua_pushasciistring(L, LuaEnv.CSHARP_NAMESPACE);
 			LuaAPI.lua_rawget(L, LuaIndexes.LUA_REGISTRYINDEX);
 
-			var Namespace = type.Namespace;
+			// var Namespace = type.Namespace;
 			var typeName = type.ToString();
+			var typeSpan = typeName.AsSpan();
+			int lastDotIndex = typeSpan.LastIndexOf('.');
 
 			int pos = -1;
 			int nsLen = 0;
 			bool needNext = true;
 			ReadOnlySpan<char> curSplit;
-
-			if (Namespace != null)
+			
+			if (lastDotIndex >= 0)
 			{
-				nsLen = Namespace.Length + 1;
-				var path = Namespace.AsSpan();
-				pos = path.IndexOf('.');
-				while (needNext)
+				var Namespace = typeSpan.Slice(0, lastDotIndex);
+				if (Namespace != null && Namespace.Length > 0)
 				{
-					if (pos >= 0)
-					{
-						curSplit = path.Slice(0, pos);//
-						path = path.Slice(pos + 1, path.Length - (pos + 1));
-					}
-					else
-					{
-						curSplit = path;
-						needNext = false;
-					}
+					nsLen = Namespace.Length + 1;
+					var path = Namespace;//Namespace.AsSpan();
 					pos = path.IndexOf('.');
-					ReginsterCSTable(L,curSplit,oldTop,type);
+					while (needNext)
+					{
+						if (pos >= 0)
+						{
+							curSplit = path.Slice(0, pos);//
+							path = path.Slice(pos + 1, path.Length - (pos + 1));
+						}
+						else
+						{
+							curSplit = path;
+							needNext = false;
+						}
+						pos = path.IndexOf('.');
+						ReginsterCSTable(L, curSplit, oldTop, type);
+					}
 				}
 			}
 
-			ReadOnlySpan<char> class_name = typeName.AsSpan().Slice(nsLen);
+			ReadOnlySpan<char> class_name = typeSpan.Slice(nsLen);//typeName.AsSpan().Slice(nsLen);
 
 			if (type.IsNested)
 			{
@@ -1694,8 +1700,8 @@ namespace XLua
 				}
 			}
 
-            var lastPos = delegateParams.Length - 1;
-            return lastPos < 0 || delegateParams[lastPos].IsDefined(typeof(ParamArrayAttribute), false) == bridgeParams[lastPos].IsDefined(typeof(ParamArrayAttribute), false);
+			var lastPos = delegateParams.Length - 1;
+			return lastPos < 0 || delegateParams[lastPos].IsDefined(typeof(ParamArrayAttribute), false) == bridgeParams[lastPos].IsDefined(typeof(ParamArrayAttribute), false);
 		}
 
 		public static bool IsSupportedMethod(MethodInfo method)

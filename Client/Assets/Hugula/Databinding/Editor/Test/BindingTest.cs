@@ -12,6 +12,7 @@ using Hugula.Mvvm;
 using System.Reflection;
 using XLua;
 using HugulaEditor;
+using System;
 
 namespace Tests
 {
@@ -227,9 +228,9 @@ namespace Tests
 
             PropertyChangedEventHandlerEvent eventHandler = bindableObject.PropertyChanged;
             watch.Restart();
-            PropertyChangedEventHandler hander = (sender, property) =>
+            Action<object,string> hander = (sender, property) =>
             {
-                // Debug.Log($"{property} == empty");
+                Debug.Log($"{property} == empty");
             };
             while (true)
             {
@@ -243,9 +244,10 @@ namespace Tests
                 }, property);
                 if (i >= max) break;
             }
-            eventHandler.Add(hander);
-            eventHandler.Add(hander);
-            eventHandler.Add(hander);
+            var key = "property"+hander.GetHashCode();
+            eventHandler.Add(hander,key);
+            // eventHandler.Add(hander);
+            // eventHandler.Add(hander);
             Debug.Log($"EmptyKey={UnityEngine.Animator.StringToHash("")}");
             Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest .Add({i + 3}): {watch.ElapsedMilliseconds} ms");
             watch.Restart();
@@ -258,27 +260,12 @@ namespace Tests
             // }
             eventHandler.Invoke(this, "property-1");
             eventHandler.Invoke(this, "property-2");
-
+            eventHandler.Invoke(this, key);
+            eventHandler.Invoke(this, key);
+            eventHandler.Remove(hander,key);
+            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest   eventHandler.Remove({hander},{key}); ");
+            eventHandler.Invoke(this, key);
             Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Invoke(2): {watch.ElapsedMilliseconds} ms");
-
-
-
-            var bindingPathPart = new BindingPathPart();
-            // var binding = new Binding("path", null, "property", BindingMode.TwoWay);
-            bindingPathPart.Initialize(null, "path", false, false);
-            i = 0;
-            watch.Restart();
-            while (true)
-            {
-                i++;
-                var source = new SimpleSource();
-                source.m_PropertyChanged = eventHandler;
-                bindingPathPart.Subscribe(source.m_PropertyChanged);
-                if (i >= max) break;
-            }
-            Debug.Log($"BindingTestSimplePasses.PropertyChangedEventHandlerTest  Subscribe invoke{i}: {watch.ElapsedMilliseconds} ms");
-
-
 
 
         }
@@ -304,14 +291,14 @@ namespace Tests
             var pathDemo = new SimpleSource.PathDemo();
             binding.Apply(pathDemo);
 
-            var parts = binding.parts;
+            // var parts = binding.parts;
 
-            // foreach (var part in parts)
-            for (int i = 0; i < parts.Count; i++)
-            {
-                var part = parts[i];
-                Debug.Log($" {i}  part:{part} ");
-            }
+            // // foreach (var part in parts)
+            // for (int i = 0; i < parts.Count; i++)
+            // {
+            //     var part = parts[i];
+            //     Debug.Log($" {i}  part:{part} ");
+            // }
 
 
             var goods = pathDemo.goods;

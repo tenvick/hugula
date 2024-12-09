@@ -135,9 +135,9 @@ namespace HugulaEditor.Databinding
                 EditorGUILayout.LabelField("Find", GUILayout.Width(40), toolbarHeight);
 
                 EditorGUI.BeginChangeCheck();
-                {  
+                {
                     searchText = EditorGUILayout.TextField(string.Empty, searchText, EditorStyles.toolbarSearchField, GUILayout.Width(160), toolbarHeight);
-                    if (GUILayout.Button("Close", EditorStyles.toolbarButton ))
+                    if (GUILayout.Button("Close", EditorStyles.toolbarButton))
                     {
                         // reset text
                         searchText = null;
@@ -371,7 +371,7 @@ namespace HugulaEditor.Databinding
                 child = children[i];
                 isSelf = System.Object.Equals(child, container);
 
-                if(child)         
+                if (child)
                     CheckBingdings(child);
 
                 if (child == null || isSelf)
@@ -641,65 +641,65 @@ namespace HugulaEditor.Databinding
             }
 
             //children
-            if (root is ICollectionBinder)
+            if (root is ICollectionBinder container)
             {
-                var container = root as Hugula.Databinding.ICollectionBinder;
                 var children = container.GetChildren();
                 int idx = 0;
-                foreach (var item in children)
+                if (children != null)
                 {
-                    NodeGUI node = null;
-                    if (item is ICollectionBinder)
+                    foreach (var item in children)
                     {
-                        var childTreeNode = new TreeNode();
-                        treeNode.AddChild(childTreeNode);
-                        BuildTree(item, childTreeNode, idx);
+                        NodeGUI node = null;
+                        if (item is ICollectionBinder)
+                        {
+                            var childTreeNode = new TreeNode();
+                            treeNode.AddChild(childTreeNode);
+                            BuildTree(item, childTreeNode, idx);
+                        }
+                        else if (item != null)
+                        {
+                            bindingCount += item.GetBindings().Count;
+                            bindableObjectCount++;
+
+                            node = CreateNode(NodeType.Style2);
+                            if (enableExtraInfo)
+                            {
+                                node.ExtraInfo = CollectSourceInfo(item.GetBindingSourceList());
+                            }
+
+                            var connection = CreateConnection();
+                            connection.startNode = rootNode;  //= FindNodeUp(treeNode, NodeType.Style1);
+                            connection.endNode = node;
+                            AddConnection(connection, true);
+                            UnityEngine.Object target = null;
+                            string target_name = string.Empty;
+                            var tp = item.GetType();
+                            var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
+                            if (prop != null)
+                            {
+                                target = prop.GetValue(item) as UnityEngine.Object;
+                            }
+
+                            if (target != null)
+                            {
+                                if (target.name != item.name)
+                                    target_name = $"<color=#ff0f03>{target}</color>";
+                                else
+                                    target_name = $"<color=#888888>{target}</color>";
+                            }
+
+                            node.name = string.Format("{0} {1}({2})\r\n{3}", idx, item.name, tp.Name, target_name);
+
+                            node.target = item;
+                            node.depth = depth;
+
+                            treeNode.AddNode(node);
+                        }
+                        idx++;
+
                     }
-                    else if (item != null)
-                    {
-                        bindingCount += item.GetBindings().Count;
-                        bindableObjectCount++;
-
-                        node = CreateNode(NodeType.Style2);
-                        if (enableExtraInfo)
-                        {
-                            node.ExtraInfo = CollectSourceInfo(item.GetBindingSourceList());
-                        }
-
-                        var connection = CreateConnection();
-                        connection.startNode = rootNode;  //= FindNodeUp(treeNode, NodeType.Style1);
-                        connection.endNode = node;
-                        AddConnection(connection, true);
-                        UnityEngine.Object target = null;
-                        string target_name = string.Empty;
-                        var tp = item.GetType();
-                        var prop = tp.GetProperty("target", BindingFlags.Public | BindingFlags.Instance);
-                        if (prop != null)
-                        {
-                            target = prop.GetValue(item) as UnityEngine.Object;
-                        }
-
-                        if (target != null)
-                        {
-                            if (target.name != item.name)
-                                target_name = $"<color=#ff0f03>{target}</color>";
-                            else
-                                target_name = $"<color=#888888>{target}</color>";
-                        }
-
-                        node.name = string.Format("{0} {1}({2})\r\n{3}", idx, item.name, tp.Name, target_name);
-
-                        node.target = item;
-                        node.depth = depth;
-
-                        treeNode.AddNode(node);
-                    }
-                    idx++;
-
                 }
-
             }
-
 
         }
 
@@ -851,21 +851,20 @@ namespace HugulaEditor.Databinding
         //     return list;
         // }
 
+        StringBuilder sbSList = new StringBuilder();
         private string CollectSourceInfo(List<string> sourceList)
         {
-            StringBuilder sb = new StringBuilder();
-
+            sbSList.Clear();
             foreach (var item in sourceList)
             {
-                if (sb.Length != 0)
+                if (sbSList.Length != 0)
                 {
-                    sb.AppendLine();
+                    sbSList.AppendLine();
                 }
-
-                sb.AppendFormat("{0}", item);
+                sbSList.AppendFormat("\r\n{0}", item);
             }
 
-            return sb.ToString();
+            return sbSList.ToString();
         }
 
         public ConnectionGUI CreateConnection()

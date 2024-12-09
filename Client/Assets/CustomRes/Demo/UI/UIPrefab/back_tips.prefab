@@ -128,9 +128,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 1700335428385176258}
+  names: []
+  monos: []
 --- !u!1 &1700335428100773248
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,8 +347,12 @@ MonoBehaviour:
   bindings:
   - propertyName: onClickCommand
     path: on_btn_back
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
+    target: {fileID: 0}
+    partConfigs:
+    - path: on_btn_back
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1700335428385176271}

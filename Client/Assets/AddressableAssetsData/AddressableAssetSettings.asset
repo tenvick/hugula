@@ -48,7 +48,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02b184ddc027dd54fbee694c7adaef24, type: 2}
   - {fileID: 11400000, guid: d714697e3a00b214e8d5b91114950025, type: 2}
   - {fileID: 11400000, guid: f3ff9ce180ce12544b94beb0c650ee23, type: 2}
-  - {fileID: 11400000, guid: b9b14172256cdf346bc1b4f16ea9ba37, type: 2}
   - {fileID: 11400000, guid: 352f57cd3dbf3dc4497a33e5309a49b5, type: 2}
   - {fileID: 11400000, guid: 9a887461d0261ef469b8850940202aba, type: 2}
   - {fileID: 11400000, guid: 88d9358c9c2d6f041945a0697a32d25e, type: 2}
@@ -58,9 +57,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3292c586edf7f744dbf15bb66fb92787, type: 2}
   - {fileID: 11400000, guid: 69bbd459c010e3d4195c8fc1535cfe9f, type: 2}
   - {fileID: 11400000, guid: 9690a95afff89ed42a6585369ee54123, type: 2}
-  - {fileID: 11400000, guid: 77ee9c251e042404ebdd67af3429d42d, type: 2}
-  - {fileID: 11400000, guid: cac05c2785fa48b45a9a69aad95a8cb4, type: 2}
-  - {fileID: 11400000, guid: c0cef4fbc448a8e41821b518af269a2b, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1

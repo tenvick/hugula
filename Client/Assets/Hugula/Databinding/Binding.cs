@@ -1,25 +1,28 @@
 // Copyright (c) 2020 hugula
 // direct https://github.com/tenvick/hugula
 //
+#define USE_LIST_HANDLE_EVENT
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using Hugula.Utils;
+using XLua;
 
 namespace Hugula.Databinding
 {
-
     public enum BindingMode
     {
         OneWay,
         TwoWay,
         OneWayToSource,
+        OneTime,
+        // Default
     }
 
     [System.SerializableAttribute]
-    public sealed class Binding : IDisposable, IBinding //gc alloc 96B
+    public sealed class Binding : IDisposable, IBinding //gc alloc 128 B
     {
         internal const string SelfPath = ".";
 
@@ -29,9 +32,15 @@ namespace Hugula.Databinding
         /// The name of the BindableProperty
         ///</summary>
         public string propertyName;
-
+#if UNITY_EDITOR
+        /// <summary>
+        /// The path to the property  ,
+        /// normal path is like 'name' or 'name.age' ,\n 
+        /// getter path is like '&(VM.bag.on_render)' global  &(.on_render) local context , 直接获取路径的值
+        /// setter path is like '$(VM.bag.on_render)' global or '$(.on_render)'  local ，直接调用函数默认参数为(source,target,path,propertyName)
+        /// </summary>
         public string path;
-        // public string format;
+#endif
         public string converter;
         public BindingMode mode;
 
@@ -43,31 +52,15 @@ namespace Hugula.Databinding
         /// </summary>
         [PopUpComponentsAttribute]
         public UnityEngine.Object target;
-        // {
-        //     get
-        //     {
-        //         if (_weakTarget != null && _weakTarget.TryGetTarget(out var target))
-        //             return target;
-        //         return null;
-        //     }
-        //     set
-        //     {
-        //         if (_weakTarget == null)
-        //             _weakTarget = new WeakReference<UnityEngine.Object>(value);
-        //         else
-        //             _weakTarget.SetTarget(value);
-        //     }
-        // }
-        // WeakReference<UnityEngine.Object> _weakTarget;
 
-        // public object convert;
-
+        [SerializeField]
+        BindingPathPartConfig[] partConfigs;
         /// <summary>
         /// The next binding in the chain
         /// </summary>
-        internal Binding next;
 
         #endregion
+        internal Binding next;
 
         #region  绑定
 
@@ -92,8 +85,7 @@ namespace Hugula.Databinding
         //             _bindingContext.SetTarget(value);
         //     }
         // }
-
-        private BindingPathPart m_LastPart;
+        Action<object, string> m_ChangeHandler;
 
         /// <summary>
         ///是否已经绑定过
@@ -106,7 +98,16 @@ namespace Hugula.Databinding
             }
         }
 
-        private bool m_IsApplied = false;
+        public bool isSelf
+        {
+            get
+            {
+                if (partConfigs != null && partConfigs.Length > 0)
+                    return partConfigs[0].isSelf;
+                return false;
+            }
+        }
+
         /// <summary>
         /// 是否已经处理过
         /// </summary>
@@ -129,58 +130,34 @@ namespace Hugula.Databinding
         {
             m_IsDisposed = false;
             m_IsProcessed = false;
+            m_ChangeHandler = PropertyChanged;
         }
 
         public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode) : this(path, target, propertyName, mode, "")
         {
-            m_IsDisposed = false;
-            m_IsProcessed = false;
+
         }
 
         public Binding(string path, UnityEngine.Object target, string propertyName, BindingMode mode, string converter)
         {
             m_IsDisposed = false;
+            m_IsProcessed = false;
+#if UNITY_EDITOR
             this.path = path;
+            ParsePathToConfig(path);
+#endif
             this.target = target;
             this.propertyName = propertyName;
             this.mode = mode;
-            // this.format = format;
             this.converter = converter;
+            m_ChangeHandler = PropertyChanged;
         }
 
         #region  表达式与寻值
-        //更新目标
-        public void UpdateTarget()
-        {
-            if (!isBound || m_IsDisposed || target == null)
-            {
-#if UNITY_EDITOR
-                var str = string.Empty;
-                if (target is Component isi)
-                {
-                    str = CUtils.GetGameObjectFullPath(isi.gameObject);
-                }
-                else
-                {
-                    str = target?.ToString();
-                }
-                Debug.LogErrorFormat("UpdateTarget(target={0},perpertyName={1},path={2},m_IsDisposed={3}) , Apply(context={4}). \r\n lua:{4} ", str, propertyName, path, m_IsDisposed, bindingContext, Hugula.EnterLua.LuaTraceback());
-#endif
-                return;
-            }
 
-            if (m_LastPart != null && m_LastPart.source != null)
-                ExpressionUtility.SetTargetInvoke(m_LastPart.source, target, propertyName, m_LastPart, this.converter);
-            else
-            {
-#if UNITY_EDITOR
-                Debug.LogWarningFormat("Binding.UpdateTarget Apply() target={0},  propertName={1},context={2},lastPart={3} ", target, propertyName, bindingContext, m_LastPart);
-#endif
-                Apply(bindingContext);
-            }
-        }
-
-        //更新源
+        /// <summary>
+        /// 更新源 context 改变后调用方向 context.path = target.property
+        /// </summary>
         public void UpdateSource()
         {
             if (m_IsDisposed || !isBound || target == null)
@@ -200,55 +177,7 @@ namespace Hugula.Databinding
                 return;
             }
 
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.UpdateSource.SetSourceInvoke");
-#endif
-            if (m_LastPart != null && m_LastPart.source != null)
-                ExpressionUtility.SetSourceInvoke(m_LastPart.source, m_LastPart, this);
-            else
-            {
-#if UNIYT_EDITOR
-                Debug.LogWarningFormat("Binding.UpdateSource full source {0}", this.path);
-#endif
-                BindingPathPart part = null;
-                object m_Current = bindingContext;
-                PropertyChangedEventHandlerEvent propChanged = null;
-                bool isSelf = false;
-                int count = parts.Count;
-
-                for (var i = 0; i < count; i++)
-                {
-                    part = m_Parts[i];
-                    m_LastPart = part;
-                    isSelf = part.isSelf;
-
-                    if (!isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
-                    {
-                        if (m_Current is INotifyPropertyChanged inpc)
-                        {
-                            part.source = m_Current;
-                            part.Subscribe(inpc.PropertyChanged);
-                        }
-                        else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
-                        {
-                            part.source = inc;
-                            part.Subscribe(propChanged);
-                        }
-                    }
-
-                    if (!isSelf && m_Current != null && i < count - 1)
-                    {
-                        part.TryGetValue(m_Current, out m_Current); //
-                    }
-
-                    if (!isSelf && m_Current == null && part.nextPart == null)
-                        break;
-
-                }
-
-                ExpressionUtility.SetSourceInvoke(m_Current, part, this);
-
-            }
+            ApplyCore(bindingContext, target, propertyName, true);
         }
 
         /// <summary>
@@ -265,278 +194,492 @@ namespace Hugula.Databinding
                 return;
             }
 
-            if (!m_IsApplied)
-            {
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.ParsePath");
-#endif
-                ParsePath();
-#if LUA_PROFILER_DEBUG
-                UnityEngine.Profiling.Profiler.EndSample();
-#endif
-                m_IsApplied = true;
-            }
+            var hasBinding = bindingContext != null;
 
-            if (isBound) //
+            if (hasBinding && ReferenceEquals(source, bindingContext)) //已经绑定过并且是source 不需要继续执行
+            {
+                return;
+            }
+            else if (hasBinding) //已经绑定过
             {
                 Unapply();
             }
 
-            bindingContext = context;
-            if (source) bindingContext = source;
+            if (source)
+                bindingContext = source;
+            else
+                bindingContext = context;
 
             if (bindingContext == null)
             {
-                // convert = null; //需要解绑
                 return;
             }
 
-            object m_Current = bindingContext;
+            ApplyCore(bindingContext, target, propertyName);
+        }
 
-            bool needsGetter = (mode == BindingMode.TwoWay || mode == BindingMode.OneWay);
-            BindingPathPart part = null;
+        /// <summary>
+        /// 更新目标或者源
+        /// </summary>
+        /// <param name="sourceObject"></param>
+        /// <param name="target"></param>
+        /// <param name="property"></param>
+        /// <param name="fromTarget"></param>
+        internal void ApplyCore(object sourceObject, object target, string property, bool fromTarget = false)
+        {
+            if ((mode == BindingMode.OneWay || mode == BindingMode.OneTime) && fromTarget) //
+                return;
 
+            object m_Current = sourceObject;
+
+            bool needsGetter = (mode == BindingMode.TwoWay && !fromTarget) || mode == BindingMode.OneWay || mode == BindingMode.OneTime; ;
+            bool needsSetter = !needsGetter && ((mode == BindingMode.TwoWay && fromTarget) || mode == BindingMode.OneWayToSource);
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.path TryGetValue");
 #endif
+            BindingPathPartConfig part = new BindingPathPartConfig();
             PropertyChangedEventHandlerEvent propChanged = null;
-            int count = parts.Count;
+            int count = partConfigs.Length;
             bool isSelf = false;
 
             for (var i = 0; i < count; i++)
             {
-                part = m_Parts[i];
-                m_LastPart = part;
+                part = partConfigs[i];
                 isSelf = part.isSelf;
 
                 if (!isSelf && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// 监听source
                 {
                     if (m_Current is INotifyPropertyChanged inpc)
                     {
-                        part.source = m_Current;
-                        part.Subscribe(inpc.PropertyChanged);
+                        Subscribe(inpc.PropertyChanged, ref part);
+                        partConfigs[i] = part;
                     }
                     else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
                     {
-                        part.source = inc;
-                        part.Subscribe(propChanged);
+                        Subscribe(propChanged, ref part);
+                        partConfigs[i] = part;
                     }
                 }
 
                 if (!isSelf && m_Current != null && i < count - 1)
                 {
-                    part.TryGetValue(m_Current, out m_Current); //
+                    TryGetValue(m_Current, ref part, out m_Current);
                 }
 
-                if (!isSelf && m_Current == null && part.nextPart == null) //last one
+                if (!isSelf && m_Current == null && i == count - 1) //last one
                     break;
-
             }
-
-#if LUA_PROFILER_DEBUG
-            UnityEngine.Profiling.Profiler.EndSample();
-#endif
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.BeginSample($"{GetProfilerName()}.Getter_Setter");
 #endif
+
             if (needsGetter)
             {
-                ExpressionUtility.SetTargetInvoke(m_Current, target, propertyName, part, this.converter);
+                SetTargetValue(m_Current, part);
+            }
+            else if (needsSetter && m_Current != null)
+            {
+                ExpressionUtility.SetSourceInvoke(m_Current, part, this);
             }
 
 #if LUA_PROFILER_DEBUG
             UnityEngine.Profiling.Profiler.EndSample();
 #endif
-
         }
 
         /// <summary>
-        /// 是否能设置target的值
+        /// 监听属性变化
         /// </summary>
-        /// <param name="fromTarget"></param>
-        /// <returns></returns>
-        internal bool NeedsGetter(bool fromTarget = false)
+        /// <param name="handler"></param>
+        /// <param name="part"></param>
+        internal void Subscribe(PropertyChangedEventHandlerEvent handler, ref BindingPathPartConfig part)
         {
-            return (mode == BindingMode.TwoWay && !fromTarget) || mode == BindingMode.OneWay;
+            if (ReferenceEquals(handler, part.m_NotifyPropertyChanged))
+                return;
+
+            Unsubscribe(ref part);
+
+            var propertName = part.path;
+            handler.Add(m_ChangeHandler, propertName);
+            part.m_NotifyPropertyChanged = handler;
         }
 
-        internal void OnSourceChanged(BindingPathPart currPart, bool fromTarget = false)
+        /// <summary>
+        /// 解绑属性变化
+        /// </summary>
+        /// <param name="part"></param>
+        internal void Unsubscribe(ref BindingPathPartConfig part)
         {
+            if (part.m_NotifyPropertyChanged == null) return;
 
-            BindingPathPart part = currPart;
-            object m_Current = part.source;
-            bool isLast2 = false;
-            PropertyChangedEventHandlerEvent propChanged = null;
-            bool isSelf = false;
+            var propertName = part.path;
+            part.m_NotifyPropertyChanged.Remove(m_ChangeHandler, propertName);
+            part.m_NotifyPropertyChanged = null;//
+        }
 
-            while (part != null && m_Current != null)
+        /// <summary>
+        /// 属性变化处理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        internal void PropertyChanged(object sender, string propertyName)
+        {
+#if !USE_LIST_HANDLE_EVENT
+
+            if (!string.IsNullOrEmpty(propertyName))
             {
-                m_LastPart = part;
-                isLast2 = part.nextPart != null;
-                isSelf = part.isSelf;
+                bool hasPart = false;
 
-                if (currPart != part && (mode == BindingMode.OneWay || mode == BindingMode.TwoWay))// currPart已经监听过了
+                for (var i = 0; i < partConfigs.Length; i++)
                 {
-                    if (m_Current is INotifyPropertyChanged inpc)
+                    var part = partConfigs[i];
+                    if (propertyName == part.path)
                     {
-                        part.source = m_Current; // 有PropertyChanged的对象才需要缓存source
-                        part.Subscribe(inpc.PropertyChanged);
-                    }
-                    else if (m_Current is XLua.LuaTable inc && inc.TryGet<string, PropertyChangedEventHandlerEvent>("PropertyChanged", out propChanged))
-                    {
-                        part.source = inc;// 有PropertyChanged的对象才需要缓存source
-                        part.Subscribe(propChanged);
+                        hasPart = true;
+                        break;
                     }
                 }
 
-                if (!isSelf && m_Current != null && isLast2)
+                if (!hasPart)
                 {
-                    part.TryGetValue(m_Current, out m_Current); //
+                    return;
                 }
+            }
+#endif
+            //changed 更新目标
+            ApplyCore(bindingContext, target, propertyName);
+        }
 
-                if (!isSelf && m_Current == null)
-                    break;
-
-                if (part.nextPart != null)
-                    part = part.nextPart;
+        /// <summary>
+        /// 获取值
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="part"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        internal bool TryGetValue(object source, ref BindingPathPartConfig part, out object value)
+        {
+            value = source;
+            XLua.LuaTable lua = source as XLua.LuaTable;
+            bool isLua = (lua != null);
+            if (part.isExpGetter)
+            {
+                if (part.isGlobal)
+                    value = EnterLua.luaenv?.Global.GetInPath<object>(part.path);
+                else if (isLua)
+                    value = lua.GetInPath<object>(part.path);
                 else
-                    part = null;
+                    return false;
+
+                return true;
+            }
+            else if (part.isExpSetter)
+            {
+                LuaFunction func = null;
+                if (part.isGlobal)
+                    func = EnterLua.luaenv?.Global.GetInPath<LuaFunction>(part.path);
+                else if (isLua)
+                    func = lua.GetInPath<LuaFunction>(part.path);
+                else
+                    return false;
+
+                if (func != null)
+                {
+                    value = func.Func<object, object, string, string, object>(source,target,string.Empty,propertyName);
+                    return true;
+                }
+                return false;
+            }
+            else if (isLua)
+                lua.TryGet<string, object>(part.path, out value);
+            else
+                value = ExpressionUtility.GetSourceInvoke(value, part.path, part.isMethod, part.isIndexer);
+
+            return true;
+        }
+
+        internal bool SetTargetValue(object source, BindingPathPartConfig part)
+        {
+            object value = source;
+
+            XLua.LuaTable lua = value as XLua.LuaTable;
+            bool isLua = (lua != null);
+            if (part.isExpGetter)
+            {
+                if (part.isGlobal)
+                    value = EnterLua.luaenv?.Global.GetInPath<object>(part.path);
+                else if (isLua)
+                    value = lua.GetInPath<object>(part.path);
+
+                part.isSelf = true;
+            }
+            else if (part.isExpSetter)
+            {
+                LuaFunction func = null;
+                if (part.isGlobal)
+                    func = EnterLua.luaenv?.Global.GetInPath<LuaFunction>(part.path);
+                else if (isLua)
+                    func = lua.GetInPath<LuaFunction>(part.path);
+
+
+                if (func != null)
+                {
+                    value = func.Func<object, object, string, string, object>(source,target,string.Empty,propertyName);
+                    if (value == null)
+                        return true;
+                }
             }
 
-            if (m_LastPart != null && m_Current != null)
-                m_LastPart.source = m_Current;//
+            ExpressionUtility.SetTargetInvoke(value, target, propertyName, ref part, converter);
+            return true;
+        }
 
-            UpdateTarget();
+        internal bool CheckInvoke(string propertyName)
+        {
+            if (partConfigs == null || partConfigs.Length == 0) return false;
+            for (var i = 0; i < partConfigs.Length; i++)
+            {
+                var part = partConfigs[i];
+                if (propertyName == part.path)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         //解绑目标
         public void Unapply()
         {
-            if (m_Parts == null) return;
-            int count = m_Parts.Count;
-            for (var i = 0; i < count; i++)
+            if (partConfigs == null) return;
+            for (var i = 0; i < partConfigs.Length; i++)
             {
-                BindingPathPart part = m_Parts[i];
-                part?.Unsubscribe();
-            }
-
-        }
-
-        static readonly char[] ExpressionSplit = new[] { '.' };
-
-        //解析的path路径
-        List<BindingPathPart> m_Parts;// new List<BindingPathPart>();
-
-
-        public List<BindingPathPart> parts
-        {
-            get
-            {
-                if (m_Parts == null)
-                    m_Parts = m_PoolBindingPathPart.Get();
-                return m_Parts;
+                Unsubscribe(ref partConfigs[i]);
             }
         }
-        public void ParsePath()
-        {
-            if (string.IsNullOrEmpty(path))
-            {
+
 #if UNITY_EDITOR
-                Debug.LogError("Binding path is null or empty");
-#endif
-                return;
-            }
-
+        public void ParsePathToConfig(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
             string p = path.Trim();
-
-            // if (!string.IsNullOrEmpty(converter))
-            //     convert = ValueConverterRegister.instance?.Get(converter);
-
-            parts.Clear();
-            BindingPathPart last = null;
 
             if (p[0] == ExpressionSplit[0])
             {
                 if (p.Length == 1)
                 {
-                    last = BindingPathPart.Get(); //new BindingPathPart(this, SelfPath);
-                    last.Initialize(this, SelfPath);
-                    parts.Add(last);
+                    var BindingPathPartConfig = new BindingPathPartConfig { path = SelfPath, isIndexer = false, isExpSetter = false, isSelf = true };
+                    partConfigs = new BindingPathPartConfig[] { BindingPathPartConfig };
                     return;
                 }
 
                 p = p.Substring(1);
             }
 
-            string[] pathParts = p.Split(ExpressionSplit);
-            for (var i = 0; i < pathParts.Length; i++)
+            // 使用List来存储解析结果，避免数组索引问题
+            List<BindingPathPartConfig> resultParts = new List<BindingPathPartConfig>();
+
+            List<string> tokens = ParseTokensWithSpecialExpressions(p);
+
+            for (var i = 0; i < tokens.Count; i++)
             {
-                string part = pathParts[i].Trim();
+                string part = tokens[i].Trim();
 
                 if (part == string.Empty)
                     throw new FormatException("Path contains an empty part:" + this.propertyName);
 
-                BindingPathPart indexer = null;
+                BindingPathPartConfig indexer = default;
+
                 //索引解析
-                int lbIndex = part.IndexOf('['); //color[1]
+                int lbIndex = part.IndexOf('['); // e.g. color[1]
                 if (lbIndex != -1)
                 {
                     int rbIndex = part.LastIndexOf(']');
                     if (rbIndex == -1)
-                        throw new FormatException("Indexer did not contain closing [");
+                        throw new FormatException("Indexer did not contain closing ]");
 
                     int argLength = rbIndex - lbIndex - 1;
                     if (argLength == 0)
                         throw new FormatException("Indexer did not contain arguments");
 
                     string argString = part.Substring(lbIndex + 1, argLength);
-                    indexer = BindingPathPart.Get(); //new BindingPathPart(this, argString, true);
-                    indexer.Initialize(this, argString, true);
+                    indexer = new BindingPathPartConfig { path = argString, isIndexer = true, isExpSetter = false, isSelf = false };
                     part = part.Substring(0, lbIndex);
                     part = part.Trim();
-                    // indexer.indexerName = part; //color
                 }
 
-                //方法解析
-                lbIndex = part.IndexOf('(');
-                if (lbIndex != -1)
+                //特殊表达式或方法调用判断
+                int methodStartIndex = part.IndexOf('(');
+                if (methodStartIndex != -1)
                 {
                     int rbIndex = part.LastIndexOf(')');
                     if (rbIndex == -1)
-                        throw new FormatException("Method did not contain closing (");
+                        throw new FormatException("Method did not contain closing )");
 
-                    string argString = part.Substring(0, lbIndex);
-                    var next = BindingPathPart.Get(); //new BindingPathPart(this, argString);
-                    next.Initialize(this, argString, false, true);
-
-                    if (last != null) last.nextPart = next;
-                    parts.Add(next);
-                    last = next;
+                    // 判断是否为特殊表达式 $() 或 &()
+                    var isExpSetter = part.StartsWith("$(");
+                    var isExpGetter = part.StartsWith("&(");
+                    if ((isExpSetter || isExpGetter) && part.EndsWith(")"))
+                    {
+                        // 整个part作为特殊表达式，需要再次解析
+                        var isGlobal = part[2] != ExpressionSplit[0]; // 不以 $(.  &(. 开头为local
+                        int argBgIndex = isGlobal ? 2 : 3;
+                        int len = isGlobal ? part.Length - 3 : part.Length - 4;
+                        var argString = part.Substring(argBgIndex, len);
+                        var next = new BindingPathPartConfig { path = argString, isGlobal = isGlobal, isExpSetter = isExpSetter, isExpGetter = isExpGetter };
+                        resultParts.Add(next);
+                    }
+                    else
+                    {
+                        // 普通方法调用
+                        string argString = part.Substring(0, methodStartIndex);
+                        var next = new BindingPathPartConfig { path = argString, isMethod = true };
+                        resultParts.Add(next);
+                    }
                 }
                 else if (part.Length > 0)
                 {
-                    var next = BindingPathPart.Get(); //new BindingPathPart(this, part);
-                    next.Initialize(this, part);
-                    if (last != null) last.nextPart = next;
-                    parts.Add(next);
-                    last = next;
+                    var next = new BindingPathPartConfig { path = part, isExpSetter = false };
+                    resultParts.Add(next);
                 }
 
-                if (indexer != null)
+                // 如果有indexer，需要额外追加一个part
+                if (indexer.isIndexer)
                 {
-                    if (last != null) last.nextPart = indexer;
-                    parts.Add(indexer);
-                    last = indexer;
+                    // 追加索引器part
+                    resultParts.Add(indexer);
                 }
             }
+
+            // 循环结束后将List转换为数组
+            partConfigs = resultParts.ToArray();
         }
+
+
+        /// <summary>
+        /// 将输入字符串解析成Token列表, 支持识别$()与&()的特殊块，这些块内的内容不进行'.'拆分
+        /// </summary>
+        private List<string> ParseTokensWithSpecialExpressions(string input)
+        {
+            List<string> tokens = new List<string>();
+            int length = input.Length;
+            int start = 0;
+            bool inSpecialBlock = false;
+            bool isDollarBlock = false; // 标识当前是否是$(...)块
+            bool isAmpBlock = false;    // 标识当前是否是&(...)块
+
+            // 我们使用一个手动解析器从头到尾扫描字符串:
+            // 常规模式下遇到'.'就切分，
+            // 遇到'$('或'&('进入特殊块模式，直到遇到匹配的')'再结束。
+            // 在特殊块模式下不对'.'进行拆分。
+            for (int i = 0; i < length; i++)
+            {
+                // 如果目前不在特殊块中，检查是否开始$()或&()块
+                if (!inSpecialBlock)
+                {
+                    if (i < length - 1 && input[i] == '$' && input[i + 1] == '(')
+                    {
+                        // 先把前面累积的普通Token切分出来
+                        if (i > start)
+                        {
+                            string normalSegment = input.Substring(start, i - start).Trim();
+                            if (!string.IsNullOrEmpty(normalSegment))
+                                tokens.AddRange(normalSegment.Split(ExpressionSplit, StringSplitOptions.RemoveEmptyEntries));
+                        }
+                        inSpecialBlock = true;
+                        isDollarBlock = true;
+                        isAmpBlock = false;
+                        i++; // 跳过'('的位置，现在i指向'('字符
+                        start = i + 1; // start从'('的下一个字符开始
+                        continue;
+                    }
+
+                    if (i < length - 1 && input[i] == '&' && input[i + 1] == '(')
+                    {
+                        if (i > start)
+                        {
+                            string normalSegment = input.Substring(start, i - start).Trim();
+                            if (!string.IsNullOrEmpty(normalSegment))
+                                tokens.AddRange(normalSegment.Split(ExpressionSplit, StringSplitOptions.RemoveEmptyEntries));
+                        }
+                        inSpecialBlock = true;
+                        isDollarBlock = false;
+                        isAmpBlock = true;
+                        i++; // 跳过'('的位置，现在i指向'('字符
+                        start = i + 1; // start从'('的下一个字符开始
+                        continue;
+                    }
+
+
+                    // 普通模式下遇到'.'需要切分Token
+                    if (input[i] == '.')
+                    {
+                        // 切分之前的内容作为一个token
+                        if (i > start)
+                        {
+                            string normalSegment = input.Substring(start, i - start).Trim();
+                            if (!string.IsNullOrEmpty(normalSegment))
+                                tokens.Add(normalSegment);
+                        }
+                        start = i + 1;
+                    }
+                }
+                else
+                {
+                    // 在特殊块内，只有遇到')'才会结束块
+                    if (input[i] == ')')
+                    {
+                        // 收集特殊块的内容
+                        string blockContent = input.Substring(start, i - start).Trim();
+                        // 将特殊块整体作为一个token
+                        // 并在token中恢复前缀比如"$(" 或 "&("
+                        string prefix = isDollarBlock ? "$(" : "&(";
+                        string fullToken = prefix + blockContent + ")";
+                        tokens.Add(fullToken);
+
+                        inSpecialBlock = false;
+                        isDollarBlock = false;
+                        isAmpBlock = false;
+                        start = i + 1; // 块结束后更新start
+                    }
+                }
+            }
+
+            // 如果最后还有普通文本未切分完毕（且未在特殊块中）
+            if (!inSpecialBlock && start < length)
+            {
+                string normalSegment = input.Substring(start).Trim();
+                if (!string.IsNullOrEmpty(normalSegment))
+                {
+                    tokens.AddRange(normalSegment.Split(ExpressionSplit, StringSplitOptions.RemoveEmptyEntries));
+                }
+            }
+
+            // 如果inSpecialBlock还为true，说明有块未闭合
+            if (inSpecialBlock)
+                throw new FormatException("Special expression block not closed with ')'");
+
+            return tokens;
+        }
+
+#endif
+
+        static readonly char[] ExpressionSplit = new[] { '.' };
 
         #endregion
 
         public Binding Clone()
         {
             Binding clone = new Binding();
+#if UNITY_EDITOR
             clone.path = path;
+#endif
+            if (partConfigs != null)
+            {
+                clone.partConfigs = new BindingPathPartConfig[partConfigs.Length];
+                Array.Copy(partConfigs, clone.partConfigs, partConfigs.Length); // 深拷贝数组
+            }
             clone.propertyName = propertyName;
             clone.converter = converter;
             clone.mode = mode;
@@ -547,48 +690,21 @@ namespace Hugula.Databinding
 
         public void Dispose()
         {
+            Unapply();
             m_IsDisposed = true; //标记销毁
-            m_IsApplied = false;
             m_IsProcessed = false;
             target = null;
             source = null;
-            m_LastPart = null;
             bindingContext = null;
-
-            if (m_Parts != null)
-            {
-                for (var i = 0; i < m_Parts.Count; i++)
-                {
-                    BindingPathPart part = m_Parts[i];
-                    part?.ReleaseToPool();
-                }
-                m_PoolBindingPathPart.Release(m_Parts);
-            }
-            m_Parts = null;
             next = null;
         }
 
-
-
+#if UNITY_EDITOR
         public override string ToString()
         {
             return string.Format("Binding(target={2},path={0},property={1},mode={3})", this.path, this.propertyName, this.target, this.mode);
         }
-
-        #region List pool
-        const int capacity = 2048;
-        const int initial = 1024;
-
-        private static ObjectPool<List<BindingPathPart>> m_PoolBindingPathPart = new ObjectPool<List<BindingPathPart>>(null, DefaultRelease, capacity, initial);
-
-        private static void DefaultRelease(List<BindingPathPart> toRelease)
-        {
-            toRelease.Clear();
-        }
-
-        #endregion
-
-
+#endif
     }
 
 }

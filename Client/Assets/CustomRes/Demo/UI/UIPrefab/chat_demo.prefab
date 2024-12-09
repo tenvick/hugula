@@ -504,11 +504,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bindings:
   - propertyName: text
-    path: chat_input_txt(1)
+    path: chat_input_txt()
     converter: 
     mode: 1
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: chat_input_txt
+      _flags: 4
+  m_ForceBinding: 0
   m_Target: {fileID: 1985925393311924334}
 --- !u!1 &1255810441231470074
 GameObject:
@@ -668,24 +672,37 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1586408112887965587}
+    partConfigs:
+    - path: tips
+      _flags: 0
   - propertyName: context
     path: bag_data
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 2382115006999314091}
+    partConfigs:
+    - path: bag_data
+      _flags: 0
   - propertyName: context
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 4544857968167064937}
+    partConfigs:
+    - path: .
+      _flags: 1
   - propertyName: text
     path: btn_txt
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 2862945186135279069}
+    partConfigs:
+    - path: btn_txt
+      _flags: 0
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
 --- !u!1 &1269901747110454638
 GameObject:
@@ -826,12 +843,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 4235460429030903273}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_goto_click
+      _flags: 0
   - propertyName: commandParameter
     path: text
     converter: 
     mode: 0
     source: {fileID: 2751058544708301259}
     target: {fileID: 0}
+    partConfigs:
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6597159951466253792}
 --- !u!1 &1411610088492406762
 GameObject:
@@ -1025,6 +1051,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: tips
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 1586408112887965587}
 --- !u!1 &1738511104855239867
 GameObject:
@@ -1366,6 +1396,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4654150051536697266}
   setNativeSize: 0
 --- !u!1 &2424226963079989475
@@ -1729,6 +1763,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 8676800360938283181}
@@ -1943,30 +1978,46 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: chat_data
+      _flags: 0
   - propertyName: droppedCommand
     path: dropped_cmd
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: dropped_cmd
+      _flags: 0
   - propertyName: onGetItemTemplateType
     path: on_get_item_template_type
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_get_item_template_type
+      _flags: 0
   - propertyName: isLoadingData
     path: loading_data
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: loading_data
+      _flags: 0
   - propertyName: setScrollIndex
     path: goto_index
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: goto_index
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 3707053567328350667}
   m_forceBinding: 1
 --- !u!1 &3707053567759236497
@@ -2315,6 +2366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_Target: {fileID: 5912152811501179773}
 --- !u!1 &4512280526352387154
 GameObject:
@@ -3062,6 +3114,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: channel
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 6617842433699431436}
 --- !u!1 &7472940355866510765
 GameObject:
@@ -3202,6 +3258,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: on_btn_channel
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 2987434056100994600}
 --- !u!1 &7502366879126367069
 GameObject:
@@ -3397,15 +3457,22 @@ MonoBehaviour:
   - propertyName: onClickCommand
     path: chat_btn_send
     converter: 
-    mode: 0
+    mode: 3
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: chat_btn_send
+      _flags: 0
   - propertyName: commandParameter
     path: text
     converter: 
     mode: 1
     source: {fileID: 412456093309514883}
     target: {fileID: 0}
+    partConfigs:
+    - path: text
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 2799786187947047473}
 --- !u!114 &6748463379753096007
 MonoBehaviour:
@@ -3579,6 +3646,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   tipsFollow: {fileID: 7648031343305433497}
   vmName: demo_click_tips
 --- !u!114 &8216858676497315038
@@ -3600,24 +3671,37 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 923031468540384978}
+    partConfigs:
+    - path: icon
+      _flags: 0
   - propertyName: sprite
     path: quality
     converter: StringToSprite
     mode: 0
     source: {fileID: 0}
     target: {fileID: 1902483899357536188}
+    partConfigs:
+    - path: quality
+      _flags: 0
   - propertyName: text
     path: count
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 2961363884757247573}
+    partConfigs:
+    - path: count
+      _flags: 0
   - propertyName: arg
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 983579532606009497}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
 --- !u!1 &7815172325340888369
 GameObject:
@@ -3758,12 +3842,21 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 8676800360938283181}
     target: {fileID: 0}
+    partConfigs:
+    - path: context
+      _flags: 0
+    - path: on_bag_click
+      _flags: 0
   - propertyName: commandParameter
     path: .
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: .
+      _flags: 1
+  m_ForceBinding: 0
   m_Target: {fileID: 8021751988044934611}
 --- !u!1 &7826626578950141777
 GameObject:
@@ -4084,6 +4177,10 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: bag_data
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 244701216772703973}
   m_forceBinding: 1
   templateItem: {fileID: 8216858676497315038}

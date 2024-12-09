@@ -65,6 +65,11 @@ MonoBehaviour:
     mode: 0
     source: {fileID: 0}
     target: {fileID: 8898697412938866201}
+    partConfigs:
+    - path: chat_content
+      _flags: 0
+  m_ForceBinding: 0
+  m_BindingOnEnable: 1
 --- !u!1 &5302298629185101694
 GameObject:
   m_ObjectHideFlags: 0

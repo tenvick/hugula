@@ -30,6 +30,7 @@ local ResLoader              = Hugula.ResLoader
 local ProfilerFactory        = Hugula.Profiler.ProfilerFactory
 local VMConfig               = require("vm_config")[1]
 local VMGenerate             = require("core.mvvm.vm_generate")
+VM = VMGenerate
 local Timer                  = Hugula.Framework.Timer
 local TLogger                = CS.TLogger
 local is_release             = Hugula.Utils.CUtils.isRelease

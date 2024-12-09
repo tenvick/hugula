@@ -1,25 +1,170 @@
 using System;
 using Hugula.Utils;
+using UnityEngine;
 
 namespace Hugula.Databinding
 {
+    [System.SerializableAttribute]
+    public struct BindingPathPartConfig
+    {
+        [NonSerialized]
+        internal PropertyChangedEventHandlerEvent m_NotifyPropertyChanged;
 
-    [XLua.LuaCallCSharp]
-    [XLua.CSharpCallLua]
+        public string path;
+        public BindingPathPartFlags _flags;
+
+        public bool isSelf
+        {
+            get => (_flags & BindingPathPartFlags.IsSelf) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsSelf;
+                else
+                    _flags &= ~BindingPathPartFlags.IsSelf;
+            }
+        }
+
+        public bool isIndexer
+        {
+            get => (_flags & BindingPathPartFlags.IsIndexer) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsIndexer;
+                else
+                    _flags &= ~BindingPathPartFlags.IsIndexer;
+            }
+        }
+
+        public bool isMethod
+        {
+            get => (_flags & BindingPathPartFlags.IsMethod) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsMethod;
+                else
+                    _flags &= ~BindingPathPartFlags.IsMethod;
+            }
+        }
+
+        public bool isExpSetter
+        {
+            get => (_flags & BindingPathPartFlags.IsExpSetter) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsExpSetter;
+                else
+                    _flags &= ~BindingPathPartFlags.IsExpSetter;
+            }
+        }
+
+        public bool isExpGetter
+        {
+            get => (_flags & BindingPathPartFlags.IsExpGetter) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsExpGetter;
+                else
+                    _flags &= ~BindingPathPartFlags.IsExpGetter;
+            }
+        }
+
+        public bool isGlobal
+        {
+            get => (_flags & BindingPathPartFlags.IsGlobal) != 0;
+            set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsGlobal;
+                else
+                    _flags &= ~BindingPathPartFlags.IsGlobal;
+            }
+        }
+
+        /// <summary>
+        /// 是否是表达式
+        /// </summary>
+        public bool isExpression
+        {
+            get => (_flags & BindingPathPartFlags.IsExpSetter) != 0 || (_flags & BindingPathPartFlags.IsExpGetter) != 0;
+        }
+
+#if UNITY_EDITOR
+        public override string ToString()
+        {
+            return string.Format("BindingPathPartConfig(path={0},isSelf={1},isIndexer={2},isMethod={3},isExpSetter={4},isExpGetter={5},) m_NotifyPropertyChanged={6}", this.path, isSelf, isIndexer, isMethod, isExpSetter, isExpGetter, m_NotifyPropertyChanged);
+        }
+#endif
+
+        public void Dispose()
+        {
+            path = null;
+            m_NotifyPropertyChanged = null;
+            isIndexer = false;
+            isExpSetter = false;
+            isSelf = false;
+        }
+    }
+
+    /***
     public class BindingPathPart  //65B
     {
+
+
         public BindingPathPart nextPart { get; set; }
 
-        public string path { get; internal set; }
+        public string path;//{ get; internal set; }
+
+        private BindingPathPartFlags _flags = BindingPathPartFlags.None;
+
 
         // public string indexerName { get; set; } //indexerName可以删除
 
-        public bool isIndexer { get; internal set; }
+        // public bool isIndexer { get; internal set; }
 
-        public bool isSelf { get; private set; }
+        // public bool isSelf { get; private set; }
 
-        //表示方法
-        public bool isMethod { get; internal set; }
+        // //表示方法
+        // public bool isMethod { get; internal set; }
+        public bool isIndexer
+        {
+            get => (_flags & BindingPathPartFlags.IsIndexer) != 0;
+            internal set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsIndexer;
+                else
+                    _flags &= ~BindingPathPartFlags.IsIndexer;
+            }
+        }
+
+        public bool isSelf
+        {
+            get => (_flags & BindingPathPartFlags.IsSelf) != 0;
+            private set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsSelf;
+                else
+                    _flags &= ~BindingPathPartFlags.IsSelf;
+            }
+        }
+
+        public bool isMethod
+        {
+            get => (_flags & BindingPathPartFlags.IsMethod) != 0;
+            internal set
+            {
+                if (value)
+                    _flags |= BindingPathPartFlags.IsMethod;
+                else
+                    _flags &= ~BindingPathPartFlags.IsMethod;
+            }
+        }
 
         // WeakReference<object> m_SourceWeak = new WeakReference<object>(null);
 
@@ -58,7 +203,7 @@ namespace Hugula.Databinding
 
         internal Binding m_Binding;
 
-        PropertyChangedEventHandler m_ChangeHandler;
+        // readonly PropertyChangedEventHandler m_ChangeHandler;
 
         ~BindingPathPart()
         {
@@ -70,7 +215,7 @@ namespace Hugula.Databinding
         /// </summary>
         public BindingPathPart()
         {
-            m_ChangeHandler = PropertyChanged;
+            // m_ChangeHandler = PropertyChanged;
         }
 
         /// <summary>
@@ -84,8 +229,18 @@ namespace Hugula.Databinding
             this.isIndexer = isIndexer;
             this.isMethod = isMethod;
 
-            m_ChangeHandler = PropertyChanged;
+            // m_ChangeHandler = PropertyChanged;
         }
+
+        public void Initialize(Binding binding, BindingPathPartConfig config)
+        {
+            this.m_Binding = binding;
+            this.isSelf = config.isSelf;
+            this.path = config.path;
+            this.isIndexer = config.isIndexer;
+            this.isMethod = config.isMethod;
+        }
+
 
         /// <summary>
         /// 订阅 hander必须是 PropertyChangedEventHandlerEvent 
@@ -100,7 +255,7 @@ namespace Hugula.Databinding
 
             BindingPathPart part = this;
             var propertName = part.path;
-            handler.Add(m_ChangeHandler,propertName);    
+            handler.Add(PropertyChanged, propertName);
             m_NotifyPropertyChanged = handler;
         }
 
@@ -111,7 +266,7 @@ namespace Hugula.Databinding
 
             BindingPathPart part = this;
             var propertName = part.path;
-            m_NotifyPropertyChanged.Remove(m_ChangeHandler,propertName);
+            m_NotifyPropertyChanged.Remove(PropertyChanged, propertName);
             m_NotifyPropertyChanged = null;//
 
             if (sourceRelease)
@@ -123,8 +278,6 @@ namespace Hugula.Databinding
             if (m_Binding == null)
                 return;
 
-            // if (!m_Binding.NeedsGetter()) return;
-
             BindingPathPart part = this;
             if (!string.IsNullOrEmpty(propertyName))
             {
@@ -132,22 +285,8 @@ namespace Hugula.Databinding
                 {
                     return;
                 }
-                // if (part.isIndexer)
-                // {
-                //     if (name.Contains("["))
-                //     {
-                //         if (name != string.Format("{0}[{1}]", part.indexerName, part.path))
-                //             return;
-                //     }
-                //     else if (name != part.indexerName)
-                //         return;
-                // }
-                // if (name != part.path)
-                // {
-                //     return;
-                // }
             }
-            m_Binding.OnSourceChanged(this);
+            // m_Binding.OnSourceChanged(this);
 
         }
 
@@ -156,15 +295,15 @@ namespace Hugula.Databinding
             value = source;
             if (value != null)
             {
-                if(source is XLua.LuaTable lua)
+                if (source is XLua.LuaTable lua)
                 {
-                    lua.TryGet<string,object>(path,out value);
+                    lua.TryGet<string, object>(path, out value);
                 }
                 else
                 {
                     value = ExpressionUtility.GetSourceInvoke(value, this);
                 }
-      
+
                 return true;
             }
             return false;
@@ -193,7 +332,7 @@ namespace Hugula.Databinding
 
         public override string ToString()
         {
-            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},isSelf={3},source={4})", this.path, isIndexer, isMethod, isSelf,source);
+            return string.Format("BindingPathPart(path={0},isIndexer={1},isMethod={2},isSelf={3},source={4})", this.path, isIndexer, isMethod, isSelf, source);
         }
 
         #region  pool
@@ -214,6 +353,24 @@ namespace Hugula.Databinding
         }
 
         #endregion
+    }
+
+        ***/
+    [Flags]
+    public enum BindingPathPartFlags : byte
+    {
+        None = 0,
+        IsSelf = 1 << 0,
+        IsIndexer = 1 << 1,
+        IsMethod = 1 << 2,
+        IsExpSetter = 1 << 3,
+
+        IsExpGetter = 1 << 4,
+        /// <summary>
+        /// 表达式上下文是否全局
+        /// </summary>
+        IsGlobal = 1 << 5,
+
     }
 
 }

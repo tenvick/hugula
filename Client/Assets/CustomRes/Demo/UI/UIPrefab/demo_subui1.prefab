@@ -96,11 +96,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: detail
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: detail
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4457496170796287948}
 --- !u!1 &4457496171426114902
 GameObject:
@@ -271,11 +274,14 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: title
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: title
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4457496171451981315}
 --- !u!1 &4457496171889334802
 GameObject:
@@ -367,11 +373,14 @@ MonoBehaviour:
   bindings:
   - propertyName: spriteName
     path: icon
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: icon
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4457496171889334800}
   setNativeSize: 0
 --- !u!1 &4457496171986035924
@@ -542,6 +551,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
+  m_ForceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 4457496171451981313}
@@ -657,9 +667,12 @@ MonoBehaviour:
   bindings:
   - propertyName: text
     path: date
-    format: 
     converter: 
     mode: 0
     source: {fileID: 0}
     target: {fileID: 0}
+    partConfigs:
+    - path: date
+      _flags: 0
+  m_ForceBinding: 0
   m_Target: {fileID: 4457496172777652097}

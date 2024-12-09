@@ -103,8 +103,15 @@ namespace Hugula.ResUpdate
 
             CalcReceiveBytes(0);
 
-            foreach (var bQueue in loadingTasks.Values)
-                bQueue.group.DispatchProgressChanged();
+            var enumerator = loadingTasks.Values.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.group.DispatchProgressChanged();
+            }
+            enumerator.Dispose(); // 显式释放枚举器
+
+            // foreach (var bQueue in loadingTasks.Values)
+            //     bQueue.group.DispatchProgressChanged();
 
         }
 
@@ -215,7 +222,7 @@ namespace Hugula.ResUpdate
                     var streamingFolderManifest = FileManifestManager.FindStreamingFolderManifest(f.fileName);
                     if (streamingFolderManifest != null)
                     {
-                        var flist = streamingFolderManifest.NotSafeCompare(persisFolderManifest,true); 
+                        var flist = streamingFolderManifest.NotSafeCompare(persisFolderManifest, true);
                         //check size
                         if (flist.Count == 0)//没有变更
                         {
@@ -301,7 +308,7 @@ namespace Hugula.ResUpdate
                 folderQueue.Complete(null, false);
             }
 
-           return 0;
+            return 0;
         }
 
         ///<summary>

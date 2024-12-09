@@ -51,11 +51,11 @@ namespace HugulaEditor.Databinding
 
         public static Binding AddEmptyBinding(BindableObject target, string property)
         {
-          
+
             var binding = new Binding();
             binding.propertyName = property;
             binding.target = target;
-            AddEmptyBinding(target,binding);
+            AddEmptyBinding(target, binding);
             return binding;
         }
         public static Binding AddEmptyBinding(BindableObject target, string property, string path)
@@ -64,7 +64,7 @@ namespace HugulaEditor.Databinding
             binding.target = target;
             binding.path = path;
             binding.propertyName = property;
-            AddEmptyBinding(target,binding);
+            AddEmptyBinding(target, binding);
             return binding;
         }
 
@@ -73,7 +73,7 @@ namespace HugulaEditor.Databinding
             var binding = new Binding();
             binding.propertyName = property;
             binding.target = bindingTarget;
-            AddEmptyBinding(bindableObject,binding);
+            AddEmptyBinding(bindableObject, binding);
             return binding;
         }
 
@@ -83,7 +83,7 @@ namespace HugulaEditor.Databinding
             binding.propertyName = property;
             binding.path = path;
             binding.target = bindingTarget;
-            AddEmptyBinding(bindableObject,binding);
+            AddEmptyBinding(bindableObject, binding);
             return binding;
         }
 
@@ -422,7 +422,7 @@ namespace HugulaEditor.Databinding
 
                 var h = EditorGUIUtility.singleLineHeight;
                 if (element.isExpanded)
-                    h += EditorGUI.GetPropertyHeight(element);
+                    h += EditorGUI.GetPropertyHeight(element, true);
                 else
                     h += EditorGUIUtility.singleLineHeight * 0.5f;
                 return h;
@@ -780,40 +780,39 @@ namespace HugulaEditor.Databinding
             var list = new List<string>();
             var bindings = bindableObject.GetBindings();
 
+            object target = bindableObject.GetField("target");
+            if (target == null) target = bindableObject;
 
             foreach (var binding in bindings)
             {
-                list.Add(binding.BindingToString());
+                list.Add(binding.BindingToString(target));
             }
 
             return list;
         }
 
         static System.Text.StringBuilder sb = new StringBuilder();
-        public static string BindingToString(this Hugula.Databinding.Binding binding)
+        public static string BindingToString(this Hugula.Databinding.Binding binding, object target)
         {
             sb.Clear();
-            var target = binding.target;
+            // sb.Append("\r\n");
+            var realTarget = binding.target;
             var property = binding.propertyName;
             var path = binding.path;
-            // var format = binding.format;
             BindingMode mode = binding.mode;
             var converter = binding.converter;
             var source = binding.source;
-            if (target != null)
-                sb.Append(target.ToString());
+            if (realTarget != null && realTarget != target)
+                sb.AppendFormat("<color=#8cacbc> {0}</color>\n",realTarget.ToString());
             if (!string.IsNullOrEmpty(path))
-                sb.AppendFormat(".{0}=({1}) ", property, path);
-            // if (!string.IsNullOrEmpty(format))
-            //     sb.AppendFormat("format({0}) ", format);
+                sb.AppendFormat(" .{0}=({1}) ", property, path);
             if (mode != BindingMode.OneWay)
-                sb.AppendFormat("mode({0}) ", mode);
+                sb.AppendFormat(" mode({0}) ", mode);
             if (!string.IsNullOrEmpty(converter))
-                sb.AppendFormat("converter({0}) ", converter);
+                sb.AppendFormat("\n converter({0}) ", converter);
             if (source)
             {
-                //sb.AppendLine();
-                sb.AppendFormat("source={0}", source.name);
+                sb.AppendFormat("\n <color=#888888>source={0}</color>", source.ToString());
             }
 
             return sb.ToString();

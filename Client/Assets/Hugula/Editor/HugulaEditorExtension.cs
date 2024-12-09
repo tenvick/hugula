@@ -19,11 +19,12 @@ namespace HugulaEditor
 
         public static object GetField(this object obj,string fieldName)
         {
-            var field = obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            var field = obj.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
             if (field == null)
             {
-                throw new InvalidOperationException("Field 'bindings' not found in the specified object.");
+                // throw new InvalidOperationException($"Field '{fieldName}' not found in the specified object.");
+                return null;    
             }
 
             return field.GetValue(obj);
@@ -35,7 +36,7 @@ namespace HugulaEditor
 
             if (field == null)
             {
-                throw new InvalidOperationException("Field 'bindings' not found in the specified object.");
+                throw new InvalidOperationException($"Field '{fieldName}' not found in the specified object.");
             }
 
             field.SetValue(obj,value);

@@ -15,6 +15,7 @@ namespace HugulaEditor.Databinding
         SerializedProperty property_monos;
         SerializedProperty property_children;
         SerializedProperty m_Property_bindings;
+
         ReorderableList reorderableList_bindings;
         ReorderableList reorderableList_children;
 
@@ -25,7 +26,6 @@ namespace HugulaEditor.Databinding
             m_Property_bindings = serializedObject.FindProperty("bindings");
             property_children = serializedObject.FindProperty("children");
             property_monos = serializedObject.FindProperty("monos");
-
 
             reorderableList_bindings = BindableUtility.CreateMulitTargetsBinderReorder(serializedObject, m_Property_bindings,
             target, true, true, true, true, OnAddClick, null);
@@ -97,6 +97,9 @@ namespace HugulaEditor.Databinding
 
         public override void OnInspectorGUI()
         {
+            //Property
+            base.OnInspectorGUI();
+
             EditorGUILayout.Separator();
             var temp = target as BindableContainer;
             var rect = EditorGUILayout.BeginVertical(GUILayout.Height(100));
@@ -117,6 +120,9 @@ namespace HugulaEditor.Databinding
             // }
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
+
+          
+
 
             //show databindings
             EditorGUILayout.Separator();
@@ -219,42 +225,47 @@ namespace HugulaEditor.Databinding
         public static void AutoAddHierarchyChildren(BindableContainer container)
         {
             var children = container.children;
-            for (int i = 0; i < children.Count;)
+            if (children != null)
             {
-                if (children[i] != null)
-                    i++;
-                else
-                    children.RemoveAt(i);
+                for (int i = 0; i < children.Count;)
+                {
+                    if (children[i] != null)
+                        i++;
+                    else
+                        children.RemoveAt(i);
+                }
             }
 
 
             var monos = container.monos;
             var names = container.names;
-
-            for (int i = 0; i < monos.Count;)
+            if (monos != null && names != null)
             {
-                var obj = monos[i];
-                if (obj != null)
+                for (int i = 0; i < monos.Count;)
                 {
-                    if (names.Count <= i)
+                    var obj = monos[i];
+                    if (obj != null)
                     {
-                        var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
-                        names.Add(name);
+                        if (names.Count <= i)
+                        {
+                            var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
+                            names.Add(name);
+                        }
+                        else if (string.IsNullOrEmpty(names[i]))
+                        {
+                            var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
+                            names[i] = name;
+                        }
+                        i++;
                     }
-                    else if (string.IsNullOrEmpty(names[i]))
-                    {
-                        var name = names.Contains(obj.name) ? obj.name + i.ToString() : obj.name;
-                        names[i] = name;
-                    }
-                    i++;
+                    else
+                        monos.RemoveAt(i);
                 }
-                else
-                    monos.RemoveAt(i);
-            }
 
-            while (names.Count > monos.Count)
-            {
-                names.RemoveAt(names.Count - 1);
+                while (names.Count > monos.Count)
+                {
+                    names.RemoveAt(names.Count - 1);
+                }
             }
 
             AddHierarchyChildren(container.transform, container, true);
@@ -263,7 +274,6 @@ namespace HugulaEditor.Databinding
         public static void AddHierarchyChildren(Transform transform, BindableContainer container, bool toBinding = true)
         {
             List<BindableObject> oldChildren = null;
-            List<UnityEngine.Object> oldMonos = null;
             for (int i = 0; i < transform.childCount; i++)
             {
                 var childTrans = transform.GetChild(i);
@@ -279,16 +289,7 @@ namespace HugulaEditor.Databinding
                     continue;
                 }
 
-                if (!toBinding)
-                {
-                    oldMonos = container.monos;
-                    oldChildren = null;
-                }
-                else
-                {
-                    oldChildren = container.children;
-                    oldMonos = null;
-                }
+                oldChildren = container.children;
 
                 var children = childTrans.GetComponents<BindableObject>(); //当前子节点的所有可绑定对象
                 bool needDeep = true;
@@ -298,23 +299,13 @@ namespace HugulaEditor.Databinding
                 foreach (var child in children)
                 {
                     isSelf = System.Object.Equals(child, container);
-                    if (oldChildren != null && oldChildren.IndexOf(child) == -1 && !isSelf)
+                    var list = child.GetField("bindings");
+                    if (!isSelf && list is List<Binding> bindings && bindings.Count > 0)
                     {
-                        var list = child.GetField("bindings");
-                        if (list is List<Binding> bindings && bindings.Count > 0)
+                        if (oldChildren == null || oldChildren.IndexOf(child) == -1)
                         {
                             container.AddChild(child);
-                        }
-                    }
-                    else if (oldMonos != null && oldMonos.IndexOf(child) == -1 && !isSelf)
-                    {
-                        oldMonos.Add(child);
-                        //check name
-                        var names = container.names;
-                        var name = names.Contains(child.name) ? child.name + oldMonos.Count.ToString() : child.name;
-                        if (names.Count <= oldMonos.Count)
-                        {
-                            names.Add(name);
+                            oldChildren = container.children;
                         }
                     }
 
@@ -354,6 +345,11 @@ namespace HugulaEditor.Databinding
 
         internal static void CheckNamesAndMonos(BindableContainer refer)
         {
+            if (refer.monos == null || refer.names == null)
+            {
+                return;
+            }
+
             while (refer.names.Count < refer.monos.Count)
             {
                 refer.names.Add(refer.monos[refer.names.Count].name);
@@ -481,7 +477,6 @@ namespace HugulaEditor.Databinding
                                 newBinding.target = textMeshProUGUIBinder.target;
                             }
 
-
                             if (newBinding.propertyName == "activeSelf")
                             {
                                 newBinding.propertyName = "active";
@@ -546,7 +541,7 @@ namespace HugulaEditor.Databinding
                                 if (child is TextMeshProUGUIBinder textMeshProUGUIBinder)
                                 {
                                     newBinding.target = textMeshProUGUIBinder.target;
-                                }                              
+                                }
 
                                 //check property
                                 if (newBinding.propertyName == "activeSelf")

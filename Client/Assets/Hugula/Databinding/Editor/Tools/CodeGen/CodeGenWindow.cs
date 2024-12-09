@@ -36,6 +36,7 @@ namespace HugulaEditor.Databinding
         {
             bindableContainerCount = 0;
             binderCount = 0;
+            bindableObjectCount = 0;
             templateOut = string.Empty;
             ReadTemplate();
         }
@@ -59,6 +60,8 @@ namespace HugulaEditor.Databinding
         internal Vector2 scrollPos;
         internal Rect graphRegion;
         internal int bindableContainerCount;
+        internal int bindableObjectCount;
+
         internal int binderCount;
 
         internal virtual void DrawToolbar()
@@ -74,6 +77,7 @@ namespace HugulaEditor.Databinding
 
                 EditorGUILayout.LabelField(string.Format("Binder: {0}", binderCount), GUILayout.Width(100), toolbarHeight);
                 EditorGUILayout.LabelField(string.Format("BindableContainer: {0}", bindableContainerCount), GUILayout.Width(150), toolbarHeight);
+                EditorGUILayout.LabelField(string.Format("BindableObject: {0}", bindableObjectCount), GUILayout.Width(150), toolbarHeight);
 
                 if (!string.IsNullOrEmpty(templateOut) && GUILayout.Button("Save File", EditorStyles.toolbarButton, GUILayout.Width(200), toolbarHeight))
                 {
@@ -108,11 +112,11 @@ namespace HugulaEditor.Databinding
             ContextNode.templateDic["command"] = new StringBuilder();
             ContextNode.templateDic["author"] = new StringBuilder().Append(System.Environment.UserName);
             ContextNode.templateDic["date"] = new StringBuilder().Append(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                    
+
             ContextNode.templateNotifyTableAddUPRemove = templateNotifyTableAddUPRemove;
 
 
-            var root = new ContextNode() { name = name,contextType = ContextType.ViewModel };
+            var root = new ContextNode() { name = name, contextType = ContextType.ViewModel };
             ContextNode.rootName = name;
             Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext = new Dictionary<BindableObject, ContextNode>();
             BuildContextTree(container, root, sourceContext);
@@ -190,22 +194,29 @@ namespace HugulaEditor.Databinding
                 }
             }
             var prop = tp.GetProperty(binder.propertyName);
+
+            if (prop == null)
+            {
+                Debug.LogError($"AddPropertyToContext Error:  target:{target}  Type:{tp}  Property:{binder.propertyName} not found");
+                return;
+            }
+
             bool isListProp = false;
             if (!isSelf && (context.contextType == ContextType.NotifyTable || (context.parent?.contextType == ContextType.NotifyTable))) isListProp = true;
-            if (binder.source is BindableObject) //从source寻找上下文
+            if (binder.source is BindableObject bindableObject) //从source寻找上下文
             {
-                binder.ParsePath();
-                if (binder.parts.Count > 1 && binder.parts[1].path == "context")
+                var contextBinding = bindableObject.GetContextBinding();
+                if (contextBinding != null && contextBinding == binder) //如果有context绑定则使用context
                 {
-                      var path = binder.path.Replace("context.", "");
-                    if(sourceContext.TryGetValue((BindableObject)binder.source, out var sourceContextItem))
+                    var path = binder.path.Replace("context.", "");
+                    if (sourceContext.TryGetValue((BindableObject)binder.source, out var sourceContextItem))
                     {
                         if (sourceContextItem.contextType == ContextType.NotifyTable) isListProp = false;
                         sourceContextItem?.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
                     }
                     else
                     {
-                       context.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
+                        context.AddProperty(target, prop.Name, path, prop?.PropertyType, isListProp);
                     }
 
                     return;
@@ -218,11 +229,14 @@ namespace HugulaEditor.Databinding
         internal virtual void BuildContextTree(BindableObject root, ContextNode context, Dictionary<Hugula.Databinding.BindableObject, ContextNode> sourceContext)
         {
             // Debug.LogFormat("BuildContextTree({0}) ", root);
-            binderCount += root.GetBindings().Count;
-            if (root is BindableContainer) bindableContainerCount += 1;
+            var bindings = root.GetBindings();
+            if (root is BindableContainer) 
+                bindableContainerCount += 1;
+            else
+                bindableObjectCount += 1;
 
             ContextNode currContext = context;
-            var contextBinding = root.GetBinding("context");
+            var contextBinding = root.GetContextBinding(); //root.GetBinding("context");
             if (contextBinding != null)
             {
                 var ctype = ContextType.NotifyObject;
@@ -247,36 +261,55 @@ namespace HugulaEditor.Databinding
             object target = root;
             var binders = root.GetBindings();
 
-            foreach (var binder in binders)
+            if (binders != null)
             {
-                if (binder != contextBinding && binder.path.Trim() != ".")
+                binderCount += bindings.Count;
+
+                foreach (var binder in binders)
                 {
-                    AddPropertyToContext(target, binder, true, currContext, sourceContext);
+                    if (binder != contextBinding && binder.path.Trim() != ".")
+                    {
+                        if (binder.target != null)
+                            target = binder.target;
+                        else
+                            target = root;
+
+                        AddPropertyToContext(target, binder, true, currContext, sourceContext);
+                    }
                 }
             }
 
             //children
-            if (root is ICollectionBinder)
+            if (root is ICollectionBinder container)
             {
-                var container = root as Hugula.Databinding.ICollectionBinder;
                 var children = container.GetChildren();
+                if (children == null) return;
+
                 foreach (var item in children)
                 {
-
                     if (item is ICollectionBinder) //如果是容器
                     {
                         BuildContextTree(item, currContext, sourceContext);
                     }
                     else if (item != null)
                     {
-                        binderCount += item.GetBindings().Count;
+                        bindableObjectCount += 1;
                         binders = item.GetBindings();
                         target = item;
-                        foreach (var binder in binders)
+                        if (binders != null)
                         {
-                            if (binder.propertyName != "context" && binder.path != ".")
+                            binderCount += binders.Count;
+                            foreach (var binder in binders)
                             {
-                                AddPropertyToContext(target, binder, false, currContext, sourceContext);
+                                if (binder.propertyName != "context" && binder.path != ".")
+                                {
+                                    if (binder.target != null)
+                                        target = binder.target;
+                                    else
+                                        target = item;
+
+                                    AddPropertyToContext(target, binder, false, currContext, sourceContext);
+                                }
                             }
                         }
                     }

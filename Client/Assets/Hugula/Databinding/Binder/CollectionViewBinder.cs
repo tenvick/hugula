@@ -207,6 +207,7 @@ namespace Hugula.Databinding.Binder
 
                 itemData = GetDataItem(i);  // items[i];
                 item.forceContextChanged = m_forceBinding;
+
                 BindingUtility.SetContext(item, itemData);
             }
         }

@@ -190,13 +190,10 @@ namespace HugulaEditor.Databinding
 
             if (!string.IsNullOrEmpty(searchText))  //搜索
             {
-                var id1 = propertyName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
-                var id2 = bingTarget.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
-                var id3 = path.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0;
-                if (!(id1 || id2 || id3))
-                {
-                    return true; //不显示
-                }
+                if(propertyName.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0) return false;
+                if(path.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0) return false;
+                if(bingTarget!=null && bingTarget.IndexOf(searchText, StringComparison.InvariantCultureIgnoreCase) >= 0) return false;              
+                return true;
             }
 
             return false;

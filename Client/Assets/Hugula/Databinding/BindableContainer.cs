@@ -102,21 +102,6 @@ namespace Hugula.Databinding
 #endif
             }
         }
-
-        internal override bool forceContextChanged
-        {
-            get
-            {
-                if (m_OnContextChanged != null)
-                    return true;
-                return base.forceContextChanged;
-            }
-            set
-            {
-                base.forceContextChanged = value;
-            }
-        }
-
         protected override void OnBindingContextChanged()
         {
             if (m_CheckEnable || !m_BindingOnEnable)
@@ -127,7 +112,10 @@ namespace Hugula.Databinding
                 {
                     child = children[i];
                     if (child)
+                    {
+                        if(m_forceBinding) child.forceContextChanged = m_forceBinding;
                         child.SetInheritedContext(context);
+                    }
 #if !HUGULA_RELEASE
                     else
                     {

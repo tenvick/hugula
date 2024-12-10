@@ -12,19 +12,19 @@ namespace Hugula.Databinding.Binder
         [RequireComponent(typeof(TextMeshProUGUI))]
         public class TextMeshProUGUIBinder : MaskableGraphicBinder<TextMeshProUGUI>
         {
-        public const string TextProperty = "text";
-        public const string SupportRichTextProperty = "supportRichText";
-        public const string resizeTextForBestFitProperty = "resizeTextForBestFit";
-        public const string resizeTextMinSizeProperty = "resizeTextMinSize";
-        public const string resizeTextMaxSizeProperty = "resizeTextMaxSize";
-        public const string alignmentProperty = "alignment";
-        public const string alignByGeometryProperty = "alignByGeometry";
-        public const string fontSizeProperty = "fontSize";
-        public const string horizontalOverflowProperty = "horizontalOverflow";
-        public const string verticalOverflowProperty = "verticalOverflow";
-        public const string lineSpacingProperty = "lineSpacing";
-        public const string fontStyleProperty = "fontStyle";
-        public const string pixelsPerUnitProperty = "pixelsPerUnit";
+        // public const string TextProperty = "text";
+        // public const string SupportRichTextProperty = "supportRichText";
+        // public const string resizeTextForBestFitProperty = "resizeTextForBestFit";
+        // public const string resizeTextMinSizeProperty = "resizeTextMinSize";
+        // public const string resizeTextMaxSizeProperty = "resizeTextMaxSize";
+        // public const string alignmentProperty = "alignment";
+        // public const string alignByGeometryProperty = "alignByGeometry";
+        // public const string fontSizeProperty = "fontSize";
+        // public const string horizontalOverflowProperty = "horizontalOverflow";
+        // public const string verticalOverflowProperty = "verticalOverflow";
+        // public const string lineSpacingProperty = "lineSpacing";
+        // public const string fontStyleProperty = "fontStyle";
+        // public const string pixelsPerUnitProperty = "pixelsPerUnit";
 
     #region  重写属性
         public string text

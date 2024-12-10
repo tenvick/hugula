@@ -68,6 +68,15 @@ namespace Hugula.Databinding
                     SetProperty<object>(ref m_Context, value);
                     OnBindingContextChanged();
                 }
+#if UNITY_EDITOR
+                else
+                {
+                    if (Object.Equals(m_Context, value))
+                    {
+                        Debug.LogWarning($"context is same {m_Context}=={value} so the method  'OnBindingContextChanged'  dont call  {Time.frameCount}  \r\n {CUtils.GetFullPath(this)} ");
+                    }
+                }
+#endif
             }
         }
 
@@ -91,15 +100,15 @@ namespace Hugula.Databinding
 
         [Tooltip("force bind all bindings when context set ")]
         [SerializeField]
-        protected bool m_ForceBinding = false;
+        protected bool m_forceBinding = false;
 
         /// <summary>
         /// Trigger forced binding when context set
         /// </summary>
-        internal virtual bool forceContextChanged
+        internal bool forceContextChanged
         {
-            get => m_ForceBinding;
-            set => m_ForceBinding = value;
+            get => m_forceBinding;
+            set => m_forceBinding = value;
         }
 
         public bool activeSelf

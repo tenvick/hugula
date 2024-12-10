@@ -217,9 +217,8 @@ MonoBehaviour:
       _flags: 0
     - path: on_tab_sel
       _flags: 0
-  m_ForceBinding: 0
-  m_Target: {fileID: 3061713256876353407}
   m_forceBinding: 1
+  m_Target: {fileID: 3061713256876353407}
 --- !u!1 &1999197224859069654
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +509,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 322365065221753839}
 --- !u!1 &3413681113619160757
 GameObject:
@@ -855,7 +854,7 @@ MonoBehaviour:
     partConfigs:
     - path: .
       _flags: 1
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 2161483585192739941}
 --- !u!1 &3753627479381083338
 GameObject:
@@ -908,7 +907,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 4534844940943979886}
@@ -1164,7 +1163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 4635185146063994915}
 --- !u!1 &5850513375655514237
 GameObject:
@@ -1308,7 +1307,7 @@ MonoBehaviour:
     partConfigs:
     - path: on_add_click
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 6477775281714381216}
 --- !u!1 &6190437223930959755
 GameObject:
@@ -1746,7 +1745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 7076665906891902607}
   setNativeSize: 0
 --- !u!1 &7076665906960771337
@@ -1846,7 +1845,7 @@ MonoBehaviour:
     partConfigs:
     - path: quality
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 7076665906960771335}
   setNativeSize: 0
 --- !u!1 &7076665907005035503
@@ -1999,9 +1998,8 @@ MonoBehaviour:
       _flags: 0
     - path: lsv_selected_idx
       _flags: 0
-  m_ForceBinding: 0
-  m_Target: {fileID: 7076665907005035501}
   m_forceBinding: 1
+  m_Target: {fileID: 7076665907005035501}
 --- !u!1 &7076665907116739544
 GameObject:
   m_ObjectHideFlags: 0
@@ -2142,7 +2140,7 @@ MonoBehaviour:
     partConfigs:
     - path: selected_item
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 6035727573954531156}
   parameterName: fadeIn
 --- !u!1 &7076665907693501848
@@ -2242,7 +2240,7 @@ MonoBehaviour:
     partConfigs:
     - path: quality
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 7076665907693501847}
   setNativeSize: 0
 --- !u!1 &7076665907710162257
@@ -2411,7 +2409,7 @@ MonoBehaviour:
     partConfigs:
     - path: VM.bag.exp_select_render
       _flags: 40
-  m_ForceBinding: 1
+  m_forceBinding: 1
   m_BindingOnEnable: 1
   children: []
   names:
@@ -2601,7 +2599,7 @@ MonoBehaviour:
     partConfigs:
     - path: icon
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 7076665907938245315}
   setNativeSize: 0
 --- !u!1 &7076665908081613837
@@ -2725,7 +2723,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindings: []
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_BindingOnEnable: 1
   children:
   - {fileID: 8043727514733340239}
@@ -2835,7 +2833,7 @@ MonoBehaviour:
     partConfigs:
     - path: icon
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 7076665908172257986}
   setNativeSize: 0
 --- !u!1 &7076665908441038185
@@ -2979,7 +2977,7 @@ MonoBehaviour:
     partConfigs:
     - path: VM.bag.exp_item_render
       _flags: 40
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_BindingOnEnable: 1
   children: []
   names:
@@ -3429,7 +3427,7 @@ MonoBehaviour:
     partConfigs:
     - path: .
       _flags: 1
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 3630046673390856058}
 --- !u!1 &8084069600449149972
 GameObject:
@@ -3532,7 +3530,7 @@ MonoBehaviour:
     partConfigs:
     - path: tab_txt
       _flags: 0
-  m_ForceBinding: 0
+  m_forceBinding: 0
   m_Target: {fileID: 1953134078162469658}
 --- !u!1 &8104173969120042540
 GameObject:

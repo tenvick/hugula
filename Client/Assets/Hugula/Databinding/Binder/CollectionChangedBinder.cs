@@ -12,8 +12,8 @@ namespace Hugula.Databinding.Binder
     [XLua.LuaCallCSharp]
     public abstract class CollectionChangedBinder<T> : UIBehaviourBinder<T>, ICollectionBinder where T : UnityEngine.Object
     {
-        [Tooltip("Whether context changed, force refresh binding. ")]
-        [SerializeField] protected bool m_forceBinding = true;
+        // [Tooltip("Whether context changed, force refresh binding. ")]
+        // [SerializeField] protected bool m_forceBinding = true;
 
         private NotifyCollectionChangedEventHandlerEvent notify;
         /// <summary>

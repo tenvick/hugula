@@ -994,7 +994,7 @@ namespace Hugula.ResUpdate
         internal static string OverrideLocationURL(IResourceLocation location)
         {
 #if !HUGULA_NO_LOG
-            // Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
+            //Debug.Log($"OverrideLocationURL PrimaryKey={location.PrimaryKey}  InternalId={location.InternalId} ResourceType={location.ResourceType} data={location.Data} ");
 #endif
 
             // if (!location.InternalId.StartsWith("http")) //&& location.ResourceType == typeof(IAssetBundleResource)

@@ -430,7 +430,7 @@ namespace Hugula
                 }
                 else
                 {
-                    Debug.LogError($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
+                    Debug.LogWarning($"LoadAssetAsync<{typeof(T)}> can't find asset ({key})");
                     onEnd?.Invoke(null, userData);
                 }
 #if PROFILER_DUMP
@@ -589,7 +589,9 @@ namespace Hugula
                 }
                 else
                 {
-                    Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
+#if UNITY_EDITOR
+                    Debug.LogWarning($"InstantiateAsync<GameObject> can't find asset ({key})");
+#endif
                     onEnd?.Invoke(key, userData);
                 }
 #if PROFILER_DUMP
@@ -609,9 +611,11 @@ namespace Hugula
                 // await Task.Yield(); // 实例化完成后等待一帧执行
                 if (task.Result == null)
                 {
-                    Debug.LogError($"InstantiateAsync<GameObject> can't find asset ({key})");
+#if UNITY_EDITOR
+                    Debug.LogWarning($"InstantiateAsync<GameObject> can't find asset ({key})");
+#endif
                     if (onEnd != null) onEnd(key, userData);
-                    // OnItemLoaded(key);
+
                     return;
                 }
 #if PROFILER_DUMP
@@ -719,7 +723,9 @@ namespace Hugula
                     }
                     else
                     {
-                        Debug.LogError($"LoadSceneAsync can't find asset ({key})");
+#if UNITY_EDITOR
+                    Debug.LogWarning($"LoadSceneAsync can't find asset ({key})");
+#endif
                         onEnd?.Invoke(key, userData);
                     }
 
@@ -803,7 +809,7 @@ namespace Hugula
             }
             else
             {
-                Debug.LogError($"UnloadSceneAsync can't find scene ({key})");
+
                 if (onEnd != null) onEnd(loadedScene, userData);
 #if UNITY_EDITOR
                     Debug.LogError("Failed to unload scene : " + loadedScene);

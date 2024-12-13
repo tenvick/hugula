@@ -1,10 +1,13 @@
 #define USE_LIST_HANDLE_EVENT
+// #define ENABLE_FOREACH_MODIFY
+// #define DEBUG_FOREACH_MODIFY
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Collections;
 using System.Collections.Specialized;
 using UnityEngine.Animations;
+using Hugula.Utils;
+using UnityEngine;
 
 namespace Hugula.Databinding
 {
@@ -14,10 +17,13 @@ namespace Hugula.Databinding
     {
 #if USE_LIST_HANDLE_EVENT
         readonly HashSet<Action<object, string>> m_Events = new HashSet<Action<object, string>>();
+#if DEBUG_FOREACH_MODIFY
+        bool m_IsInvoke = false;
+#endif
 #else
         Dictionary<int, PropertyChangedEventHandler> m_Events = new Dictionary<int, PropertyChangedEventHandler>(12);
 
-        int EmptyKey = UnityEngine.Animator.StringToHash("");
+        static int EmptyKey = UnityEngine.Animator.StringToHash("");
 #endif
         public int Count
         {
@@ -33,14 +39,44 @@ namespace Hugula.Databinding
 
         public void Invoke(object sender, string property)
         {
-#if USE_LIST_HANDLE_EVENT
-            Action<object, string> hander = null;
-            int i = 0;
-            int count = m_Events.Count;
-            var getEnumerator = m_Events.GetEnumerator();
-            while (getEnumerator.MoveNext())
+#if USE_LIST_HANDLE_EVENT && ENABLE_FOREACH_MODIFY
+            List<Action<object, string>> invoking = ListPool<Action<object, string>>.Get();
+            try
             {
-                hander = getEnumerator.Current;
+                //filter
+                foreach (var hander in m_Events)
+                {
+                    if (hander.Target is Binding binding)
+                    {
+                        if (!binding.CheckInvoke(property)) //
+                        {
+                            continue;
+                        }
+                    }
+                    invoking.Add(hander);
+                }
+
+                //invoke
+                foreach (var hander in invoking)
+                {
+                    hander(sender, property);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e);
+            }
+            finally
+            {
+                ListPool<Action<object, string>>.Release(invoking);
+            }
+#elif USE_LIST_HANDLE_EVENT
+
+#if DEBUG_FOREACH_MODIFY
+            m_IsInvoke = true;
+#endif
+            foreach (var hander in m_Events)
+            {
                 if (hander.Target is Binding binding)
                 {
                     if (!binding.CheckInvoke(property)) //如果不能调用则跳过
@@ -48,11 +84,12 @@ namespace Hugula.Databinding
                         continue;
                     }
                 }
-                hander(sender, property);
 
-                if (count > m_Events.Count)
-                    count = m_Events.Count;
-            }           
+                hander(sender, property);
+            }
+#if DEBUG_FOREACH_MODIFY
+            m_IsInvoke = false;
+#endif
 #else
 
             Action<object,string> hander events = null;
@@ -75,6 +112,10 @@ namespace Hugula.Databinding
                 throw new System.NullReferenceException("Add(hander) argment hander is null)");
 
 #if USE_LIST_HANDLE_EVENT
+#if DEBUG_FOREACH_MODIFY
+            if(m_IsInvoke && hander.Target is Binding binding)
+                Debug.LogError($"Add({hander},{property}) is invoke {binding} \r\n {CUtils.GetFullPath((MonoBehaviour)binding.target)}");
+#endif
             m_Events.Add(hander);
 #else
             int id = UnityEngine.Animator.StringToHash(property);
@@ -95,6 +136,10 @@ namespace Hugula.Databinding
         public void Remove(Action<object, string> hander, string property = "")
         {
 #if USE_LIST_HANDLE_EVENT
+#if DEBUG_FOREACH_MODIFY
+            if(m_IsInvoke && hander.Target is Binding binding)
+                Debug.LogError($"Remove({hander},{property}) is invoke {binding} \r\n {CUtils.GetFullPath((MonoBehaviour)binding.target)}");
+#endif
             m_Events.Remove(hander);
 #else
             int id = UnityEngine.Animator.StringToHash(property);
@@ -115,29 +160,17 @@ namespace Hugula.Databinding
         }
 
 
-        public static PropertyChangedEventHandlerEvent operator +(PropertyChangedEventHandlerEvent dele, Action<object,string> hander)
+        public static PropertyChangedEventHandlerEvent operator +(PropertyChangedEventHandlerEvent dele, Action<object, string> hander)
         {
             dele.Add(hander);
             return dele;
         }
 
-        public static PropertyChangedEventHandlerEvent operator -(PropertyChangedEventHandlerEvent dele, Action<object,string> hander)
+        public static PropertyChangedEventHandlerEvent operator -(PropertyChangedEventHandlerEvent dele, Action<object, string> hander)
         {
             dele.Remove(hander);
             return dele;
         }
-
-        // public static PropertyChangedEventHandlerEvent operator +(PropertyChangedEventHandlerEvent dele, (string propertyName, PropertyChangedEventHandler handler) tuple)
-        // {
-        //     dele.Add(tuple.propertyName, tuple.handler);
-        //     return dele;
-        // }
-
-        // public static PropertyChangedEventHandlerEvent operator -(PropertyChangedEventHandlerEvent dele, (string propertyName, PropertyChangedEventHandler handler) tuple)
-        // {
-        //     dele.Remove(tuple.propertyName, tuple.handler);
-        //     return dele;
-        // }
 
         #region  pool
 
@@ -151,20 +184,13 @@ namespace Hugula.Databinding
             m_PropertyChangedPool.Release(obj);
         }
 
-        // public static void ClearPool()
-        // {
-
-        // }
-
         static void m_ActionOnRelease(PropertyChangedEventHandlerEvent dele)
         {
             dele.Clear();
         }
-
         static int capacity = 2048;
         static int initial = 512;
-
-        static Hugula.Utils.ObjectPool<PropertyChangedEventHandlerEvent> m_PropertyChangedPool = new Hugula.Utils.ObjectPool<PropertyChangedEventHandlerEvent>(null, m_ActionOnRelease, capacity, initial);
+        static ObjectPool<PropertyChangedEventHandlerEvent> m_PropertyChangedPool = new ObjectPool<PropertyChangedEventHandlerEvent>(null, m_ActionOnRelease, capacity, initial);
 
         #endregion
     }

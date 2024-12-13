@@ -49,6 +49,8 @@ namespace Hugula.Databinding.Binder
 
         protected void OnCollectionChanged(object sender, HugulaNotifyCollectionChangedEventArgs args)
         {
+            m_DataCount = -1;
+
             if (args.Action == NotifyCollectionChangedAction.Add)
             {
                 OnCollectionAdd(sender, args);

@@ -702,7 +702,7 @@ namespace Hugula.Databinding
 #if UNITY_EDITOR
         public override string ToString()
         {
-            return string.Format("Binding(target={2},path={0},property={1},mode={3})", this.path, this.propertyName, this.target, this.mode);
+            return $"Binding(context={bindingContext},target={target},path={path},property={propertyName},mode={mode})";
         }
 #endif
     }

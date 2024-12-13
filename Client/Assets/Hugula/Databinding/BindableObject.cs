@@ -73,7 +73,7 @@ namespace Hugula.Databinding
                 {
                     if (Object.Equals(m_Context, value))
                     {
-                        Debug.LogWarning($"context is same {m_Context}=={value} so the method  'OnBindingContextChanged'  dont call  {Time.frameCount}  \r\n {CUtils.GetFullPath(this)} ");
+                        Debug.LogWarning($"Since the context is the sam ({m_Context}=={value}),forceContextChanged={forceContextChanged}, the method 'OnBindingContextChanged' is not called. {Time.frameCount}  \r\n {CUtils.GetFullPath(this)} ");
                     }
                 }
 #endif

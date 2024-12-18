@@ -112,6 +112,7 @@ namespace Hugula.Databinding.Binder
                 if (!item.gameObject.activeSelf) ItemActive(item.gameObject, true);
                 if (enableSiblingIndex) item.transform.SetSiblingIndex(i);
                 itemData = GetDataItem(i);  //items[i];
+                item.forceContextChanged = m_forceBinding; //新增的item强制刷新
                 BindingUtility.SetContext(item, itemData);
 
             }

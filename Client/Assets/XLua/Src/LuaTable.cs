@@ -444,7 +444,7 @@ namespace XLua
         }
         public override string ToString()
         {
-            return "table :" + luaReference;
+            return "LuaRef :" + luaReference +",table :0x"+ GetHashCode().ToString("x8");
         }
 
         public int Count
